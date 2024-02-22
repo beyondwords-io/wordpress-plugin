@@ -5,7 +5,6 @@
 [![Github Actions Workflow](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml)
 [![Supported WordPress Versions](https://img.shields.io/static/v1?label=&message=5.8+-+6.4&color=blue&logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![Supported PHP Versions](https://img.shields.io/static/v1?label=&message=7.4+-+8.3&color=777bb4&logo=php&logoColor=white)](https://www.php.net/)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 ##  Description
 
