@@ -1,0 +1,5 @@
+.beyondwords-sidebar__post-status-description--failed,
+.beyondwords-sidebar__post-status-description--error,
+.beyondwords-sidebar__post-status-description--payment-required {
+  color: red;
+}

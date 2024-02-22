@@ -1,0 +1,13 @@
+{
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": "{\"id\":{{PODCAST_ID}},\"external_id\":\"{{POST_ID}}\",\"state\":\"unprocessed\",\"media\":[{\"id\":{{PODCAST_ID}},\"content_type\":\"mp3\",\"url\":[]}],\"deleted\":false,\"metadata\":{\"key\":\"XXXXXXXXXXXX\"}}",
+    "response": {
+        "code": 200,
+        "message": "OK"
+    },
+    "cookies": [],
+    "http_response": null,
+    "filename": ""
+}

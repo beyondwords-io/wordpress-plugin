@@ -1,0 +1,12 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "beyondwords/player",
+	"title": "BeyondWords",
+	"description": "Embed the BeyondWords audio player. This will override the default player location.",
+	"category": "embed",
+	"icon": "controls-volumeon",
+	"keywords": [ "audio", "text-to-speech" ],
+	"version": "1.0.0",
+	"textdomain": "speechkit"
+}

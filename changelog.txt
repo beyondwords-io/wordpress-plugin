@@ -1,0 +1,874 @@
+== Changelog ==
+
+**This is a list detailing changes for past BeyondWords releases. For more information about the current release, see readme.txt.**
+
+= 3.10.5 =
+
+Release date: 9th June 2023
+
+**Fixes**
+
+* Prevent JavaScript error which occurs when no post types are selected in "Preselect generate audio" setting.
+* Security updates for dependencies via [dependabot](https://github.com/dependabot).
+
+= 3.10.4 =
+
+Release date: 13th January 2023
+
+**Fixes**
+
+* Rename `published_at` BeyondWords REST API param to `publish_date`.
+
+**Improvements**
+
+* By default we now send the author display name in BeyondWords REST API requests, if one is available.
+
+= 3.10.3 =
+
+Release date: 16th November 2022
+
+**Documentation**
+
+* Updated the plugin `readme.txt` description.
+
+= 3.10.2 =
+
+Release date: 16th November 2022
+
+**Documentation**
+
+* Updated the plugin `readme.txt` description.
+* Tested up to WordPress 6.1.
+
+= 3.10.1 =
+
+Release date: 7th November 2022
+
+**Fixes**
+
+* While trashing/restoring posts, check whether the post has BeyondWords data before calling the BeyondWords REST API.
+
+= 3.10.0 =
+
+Release date: 4th November 2022
+
+**Enhancements**
+
+* BeyondWords now has improved [Elementor](https://elementor.com/) compatibility!
+    * We’ve added a “BeyondWords” tab into the Elementor [Page Settings Panel](https://developers.elementor.com/docs/editor/page-settings-panel/).
+    * Use the controls in this tab to generate audio, toggle player visibility, and preview audio.
+    * If you experience any Elementor compatibility issues after this update please email [support@beyondwords.io](mailto:support@beyondwords.io).
+
+= 3.9.2 =
+
+Release date: 20th October 2022
+
+**Fixes**
+
+* "Setup guide" URL has been updated because it was 404ing.
+* Removed type checking for the `$postId` param in `PostContentUtils::createHash()`, to fix a reported PHP error for WooCommerce sites.
+
+= 3.9.1 =
+
+Release date: 6th October 2022
+
+**Compatible with WordPress 5.8 or greater**
+
+* [WordPress core dropped support for IE in version 5.8](https://wordpress.org/news/2021/05/dropping-support-for-internet-explorer-11/) released July 2021.
+* The official [wp-scripts](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-scripts/) package we use does not produce IE-friendly code, so we have adjusted our minimum supported WordPress version to 5.8.
+
+**Enhancements**
+
+* Hide audio controls for blocks if the post does not have audio.
+* Partial source code linting (using `wp-scripts lint-js --fix`).
+
+= 3.9.0 =
+
+Release date: 22nd September 2022
+
+**Enhancements**
+
+* Added a "Remove" button into the Inspect panel to clear BeyondWords data for individual posts.
+* Delete audio data in BeyondWords API when a post is trashed or deleted in WordPress. Restoring the post in WordPress will restore the audio data in BeyondWords.
+
+**Fixes**
+
+* Add the missing `beyondwordsAudio` block attribute for server-rendered blocks. Thanks for the report and fix, @hughiemolloy! 🙌
+* Don't register the `_speechkit_disable_generate_audio` custom field. This plugin v2.x field has not been used in a while, so there is no need to register it.
+
+**Continuous Integration**
+
+* The Docker config for local development now closely matches our CI config – they now both use [WP CLI](https://wp-cli.org/) to download and install WordPress.
+* Improvements to our [CodeCeption](https://codeception.com/) test suites to fix an intermittent MySQL error.
+
+= 3.8.1 =
+
+Release date: 25th August 2022
+
+**Enhancements**
+
+* Enable/disable audio processing for each block when using the Gutenberg editor. Disabled blocks will not be processed as audio.
+
+**Code Refactoring**
+
+* Refactor the `Core\PostUtils` class into `Core\PostContentUtils` and `Core\PostMetaUtils` to reduce class complexity.
+
+= 3.8.0 =
+
+Release date: 25th August 2022
+
+**Enhancements**
+
+* Enable/disable audio processing for each block when using the Gutenberg editor. Disabled blocks will not be processed as audio.
+
+**Code Refactoring**
+
+* Refactor the `Core\PostUtils` class into `Core\PostContentUtils` and `Core\PostMetaUtils` to reduce class complexity.
+
+= 3.7.1 =
+
+Release date: 12th August 2022
+
+**Fixes**
+
+* Remove the "X BeyondWords errors" notice on the Posts screen to fix a reported slow MySQL query. We are working on a long-term fix for this problem. In the meantime, individual error messages are still available to view in the BeyondWords column (Posts screen) and BeyondWords panel (Post Edit screen).
+
+= 3.7.0 =
+
+Release date: 11th August 2022
+
+**Important developer notice**
+
+* In this update our plugin instance has been renamed from `$speechkit_wordpress_plugin` to `$beyondwords_wordpress_plugin`.
+* Please do not access the plugin instance directly in your code. The objects and methods it contains are intended for internal use, and over time they are likely to change.
+* Instead, use the [documented WordPress filters](https://docs.beyondwords.io/docs/integrations/wordpress/wordpress-filters) and contact our team via [hello@beyondwords.io](mailto:hello@beyondwords.io) if you need new actions or filters to achieve your goals.
+
+**Enhancements**
+
+* Automatically clear all `beyondwords_*` and `speechkit_*` data when the plugin is uninstalled.
+* Add BeyondWords section to 'Tools' > 'Site Health'.
+* 'Bulk actions' > 'Generate audio' now regenerates audio if it already exists (bulk processing previously "Skipped" posts which already had audio).
+* Replace remaining instances of "SpeechKit" brand name with "BeyondWords".
+    * There were still instances where the former brand name for BeyondWords was being used throughout the code - mostly in the names for custom fields and filters.
+    * These have now all been updated, maintaining support for older posts with `speechkit_*` data.
+* Improve "Pending review" support.
+    * When a post is saved in WordPress we now send `{ published: true|false }` to the BeyondWords API.
+    * This is primarily to prevent audio appearing in BeyondWords playlists for posts which are saved as "pending" in WordPress.
+
+**Fixes**
+
+* Add `isset()` checks for `$beyondwords_wordpress_plugin->player` to prevent PHP "Undefined property" errors.
+
+= 3.6.1 =
+
+Release date: 6th May 2022
+
+**Fixes**
+
+* When posts were saved using the WordPress Block Editor multiple BeyondWords API calls could be made. This resulted in the "Skipped" status for audio, and a fix for this has been added.
+* Handle responses saved as object of class `WP_Error`. Older posts edited with v2.x of our plugin could have an unexpected `WP_Error` in a custom field. We now handle this, fixing a reported PHP error on the Post Edit screen.
+
+= 3.6.0 =
+
+Release date: 29th April 2022
+
+**Enhancements**
+
+* Expose BeyondWords data in GraphQL to support decoupled frontends. Post types which are supported by **both** BeyondWords and [WPGraphQL](https://www.wpgraphql.com/) have the following fields in GraphQL:
+    * `beyondwords.podcastId`
+    * `beyondwords.projectId`
+
+**Code Coverage**
+
+* Increased PHPUnit test coverage to 85%.
+
+= 3.5.0 =
+
+Release date: 20th April 2022
+
+**Enhancements**
+
+* WPML Compatibility. Read our [WordPress plugin](https://docs.beyondwords.io/docs/wordpress) docs for details.
+
+**Fixes**
+
+* Prevent CSS/JS assets loading on frontend pages where they are not needed.
+
+**Code Refactoring**
+
+* Refactor the `Core\Utils` class to improve PHPMD ExcessiveClassComplexity score.
+
+= 3.4.0 =
+
+Release date: 23rd March 2022
+
+**Enhancements**
+
+* We don't use the `external_id` feature of BeyondWords, so the param has been removed from the API calls.
+
+**Fixes**
+
+* The audio player now uses a socket connection while in Classic Editor.
+
+= 3.3.3 =
+
+Release date: 17th March 2022
+
+**Fixes**
+
+* Change initialisation method for the audio player in WordPress admin to prevent issues establishing the socket connection.
+
+= 3.3.2 =
+
+Release date: 10th March 2022
+
+**Fixes**
+
+* Improve the audio player status updates in WordPress admin by using a player with a socket connection.
+
+= 3.3.1 =
+
+Release date: 4th March 2022
+
+**Fixes**
+
+* Terminate JavaScript commands with semicolons to prevent reported minification problems.
+
+= 3.3.0 =
+
+Release date: 23rd February 2022
+
+**Enhancements**
+
+* Send assigned taxonomies and terms to the BeyondWords API to aid custom playlist generation.
+
+**Fixes**
+
+* Use i18n translatable string for the player preview.
+
+= 3.2.0 =
+
+Release date: 7th February 2022
+
+**Fixes**
+
+* By default, remove `pending` from the list of post statuses we generate audio for.
+
+**Enhancements**
+
+* Audio players can now be positioned anywhere in the post content! Use the **BeyondWords** block for the default Block Editor, or the TinyMCE "**Insert BeyondWords player**" button for Classic Editor.
+* Provide `speechkit_post_types` filter to customise the post types we generate audio for. Post types without `custom-fields` in the `supports` array will be removed from this list.
+* Provide `speechkit_post_statuses` filter to customise the post statuses we generate audio for.
+
+= 3.1.0 =
+
+Release date: 5th January 2022
+
+**Deprecations**
+
+* Deprecated 3 legacy filters: `sk_the_content`, `sk_player_before` and `sk_player_after`.
+    * Replace these filters with `speechkit_js_player_html` and `speechkit_amp_player_html`.
+    * Using the deprecated filters in v3.x will log a `_doing_it_wrong()` error.
+    * In v4.0 the legacy filters will be removed.
+
+**Fixes**
+
+* Replace `WP_PLUGIN_DIR` and `WP_PLUGIN_URL` constants with `plugin_dir_path()` and `plugin_dir_url()` to improve multisite support.
+
+**Enhancements**
+
+* Improve AMP plugin compatibility by removing all potential problems reported in the AMP Validation Error Index.
+* New `speechkit_amp_player_html` filter to modify the HTML for the AMP audio player.
+* New `speechkit_js_player_html` filter to modify the HTML for the standard JavaScript audio player.
+* New `speechkit_js_player_params` filter to modify the BeyondWords JS SDK parameters.
+* Post ID added to Inspect panel and to the "Copy" data.
+
+= 3.0.7 =
+
+Release date: 13th December 2021
+
+**Fixes**
+
+* Improve check for legacy `publish_post_to_speechkit` custom field.
+* Fix 3 minor reported errors in the [AMP](https://wordpress.org/plugins/amp/) plugin, caused by invalid AMP content in the DOM.
+* Improve checks for AMP requests.
+* Remove 2 redundant external scripts for AMP.
+
+= 3.0.6 =
+
+Release date: 6th December 2021
+
+**Features**
+
+* Migrate dependencies and API from speechkit.io to beyondwords.io.
+
+**Fixes**
+
+* Update the "Sign Up" URL in the plugin description.
+
+= 3.0.5 =
+
+Release date: 22nd Nov 2021
+
+**Fixes**
+
+* Fix typo preventing AMP iframe URL from loading.
+
+= 3.0.4 =
+
+Release date: 22nd Nov 2021
+
+**BeyondWords is the new name for SpeechKit.**
+
+* All user-facing instances of `SpeechKit` have been replaced with `BeyondWords`.
+* For a smooth transition, behind-the-scenes we have retained the following for the time being:
+    * **Filters**, **custom fields** and **plugin options** are still prefixed as `speechkit_*`
+    * DOM IDs and class names are still `speechkit-*`.
+    * The plugin slug and text-domain are still `speechkit`
+    * Requests to BeyondWords services are still made to speechkit.io domains.
+* The complete transition to `beyondwords` and beyondwords.io domains will happen in the near future.
+* We will always be backwards compatible with posts that were created with `speechkit_*` custom fields.
+
+= 3.0.3 =
+
+Release date: 18th Nov 2021
+
+**Fixes**
+
+* Run `speechkit_response` and `speechkit_error` custom fields through a new method to extract the HTTP response body.
+* Fix issue where some older posts with audio would not show a player, or display a check in the SpeechKit column.
+
+= 3.0.2 =
+
+Release date: 15th Nov 2021
+
+**Fixes**
+
+* Fix PHP error caused by unexpected type in `speechkit_response` custom field for some older posts.
+
+= 3.0.1 =
+
+Release date: 8th Nov 2021
+
+* Set version to `3.0.1` to remove `-rc2` from the published version name.
+* See the detailed changelog for `3.0.0` [here](https://plugins.trac.wordpress.org/browser/speechkit/trunk/changelog.txt).
+
+= 3.0.0 =
+
+Release date: 8th Nov 2021
+
+**Features**
+
+* We now use the latest SpeechKit API version.
+* We now use the latest SpeechKit Player JavaScript SDK version.
+* Audio can now be generated for multiple posts at once using Bulk Actions. Select your posts and then use 'Bulk Actions' > 'Generate audio'.
+* We have replaced the "SpeechKit Status" column with a simplified "SpeechKit" column. This new column shows you:
+    1. Whether audio has been added to the post
+    2. If the player has been disabled
+    3. Any processing errors
+* Extra fields have been added to the Inspect panel in the SpeechKit sidebar.
+* The Inspect panel now has a "Copy" button which copies all SpeechKit data to the clipboard.
+* To improve stability, WordPress Cron is no longer used. We now process all requests immediately.
+* To improve stability and security, we no longer attempt to send data from SpeechKit to your WordPress site. We only send data from your site to SpeechKit.
+
+**Deprecations**
+
+* The iFrame player has been replaced by the JavaScript SDK, with the exception of the AMP player which still uses iFrame.
+* The "SpeechKit Status" column on the Posts screen no longer displays the processing status. The processing status is now shown in the JavaScript SDK player of the WordPress admin screens.
+* The "Merge Excerpt" setting has been replaced by the "Process excerpts" setting. The functionality remains the same.
+* We have removed the "WordPress Cron" setting. It is no longer required.
+* We have removed the "Marfeel Compatibility" setting. We now provide Marfeel compatibility as standard.
+* We have removed the "Telemetry" setting. You can now use the "Copy" feature of the Inspect Panel to send debugging data to us.
+
+= 2.15.3 =
+
+Release date: 9th Sep 2021
+
+**Fixes**
+
+* Disable SpeechKit functionality for post types without support for "Custom Fields".
+* Add `wp_template` to the list of forbidden post types.
+* Access custom post types after they have been registered, using the `wp_loaded` hook.
+* Only load the Block Editor assets for SpeechKit-enabled post types.
+* Deactivate WP Rocket Lazy Load by adding the `data-no-lazy` attribute to our iframe.
+
+= 2.15.2 =
+
+Release date: 10th May 2021
+
+* Remove PHP 7.4 requirement - our plugin works with PHP 7.0+.
+
+= 2.15.1 =
+
+Release date: 10th May 2021
+
+**Enhancements**
+
+* Block Editor support for the new **Categories** plugin setting.
+* If any custom **Categories** are selected then the **Generate Audio** checkbox will be unchecked by default.
+
+= 2.15.0 =
+
+Release date: 8th April 2021
+
+**Enhancements**
+
+* Added **Categories** plugin setting to automatically check/uncheck Generate Audio in the Classic Editor when categories are assigned to posts.
+
+= 2.14.0 =
+
+Release date: 9th February 2021
+
+**Enhancements**
+
+* Save **speechkit_project_id** and **speechkit_podcast_id** to custom fields.
+* Added **SPEECHKIT_AUTOREGENERATE** wp-config.php setting - set this to **false** to prevent auto-regeneration of audio (for posts which already have audio).
+* When Telemetry is enabled, don't log API responses for HTTP Status Codes 400, 402 or 422.
+* Upgraded **rollbar-php** dependency to 2.1.0 (only used when Telemetry is enabled).
+
+**Fixes**
+
+* Remove audio player in Preview mode, because the audio content is never up-to-date when previewing (it has not been processed by SpeechKit yet).
+
+= 2.13.0 =
+
+Release date: 5th January 2021
+
+**Fixes**
+
+* Revert back to iframe audio player from v2.11.1, until we have identified and solved some reported JavaScript issues.
+
+= 2.12.3 =
+
+Release date: 4th January 2021
+
+**Fixes**
+
+* Fix typo in post meta variable name which prevents the Podcast ID from being detected for some historic Posts.
+
+= 2.12.2 =
+
+Release date: 4th January 2021
+
+**Enhancements**
+
+* Send detailed SpeechKit Post meta data with each JS Player Telemetry log.
+
+= 2.12.1 =
+
+Release date: 4th January 2021
+
+**Fixes**
+
+* Fix issue introduced earlier today, where the Generate Audio checkbox in the Block Editor would not work for the first save.
+
+= 2.12.0 =
+
+Release date: 4th January 2021
+
+**Enhancements**
+
+* Embed SpeechKit audio players in the frontend using the JavaScript SDK (In WordPress admin we use the existing iframe method, for now).
+* Updated the AMP player `<amp-iframe>`.
+
+**Deprecations**
+
+* The Block Editor audio player has been temporarily disabled until we solve an integration issue. For the time being, we have reverted to the "Preview Audio" button from the Classic Editor, which opens an audio player in a new browser tab.
+* **sk_player_url** filter is no longer applied to the player URL.
+* **sk_player_amp_url** filter is no longer applied to the AMP player URL.
+* Removed the plugin setting for Marfeel compatibility. This is now handled within the new JS and AMP players.
+
+= 2.11.1 =
+
+Release date: 22nd December 2020
+
+**Fixes**
+
+* Fix issue where "Generate Audio" checkbox was ineffective in the Classic Editor if the Post had already been saved with "Generate Audio" unchecked.
+
+= 2.11.0 =
+
+Release date: 30th October 2020
+
+**Fixes**
+
+* Fix issue where "Generate Audio" checkbox was always checked in the Block Editor.
+
+**Enhancements**
+
+* An additional "Generate Audio" checkbox is displayed in the prepublish checks for the Block Editor.
+* The "Generate Audio Default" plugin setting has been removed – now the "Generate Audio" checkbox is always initially checked when creating new content.
+
+= 2.10.6 =
+
+Release date: 10th September 2020
+
+**Fixes**
+
+* Use GET SpeechKit API endpoint to check status of posts in "Processing".
+
+= 2.10.5 =
+
+Release date: 9th September 2020
+
+**Fixes**
+
+* Reduce SpeechKit API retry count to 15.
+* Don't attempt to reprocess content with a SpeechKit "Failed" status.
+
+= 2.10.4 =
+
+Release date: 5th September 2020
+
+**Enhancements**
+
+* Add **speechkit_response** and **speechkit_error** to the Inspect Panel.
+
+= 2.10.3 =
+
+Release date: 18th August 2020
+
+**Fixes**
+
+* Use a white background for amp-iframe tags to fix a grey/transparent background issue in AMP.
+
+= 2.10.2 =
+
+Release date: 11th August 2020
+
+**Fixes**
+
+* Use permission_callback when registering all REST API routes.
+* Restrict access to the "speechkit settings" REST API endpoint to admin users who can edit posts.
+
+= 2.10.1 =
+
+Release date: 10th August 2020
+
+**Enhancements**
+
+* Added **speechkit_content** filter, which can be used to modify the text content SpeechKit converts to audio.
+* WordPress 5.5 compatibility.
+* Updated supported PHP/WordPress versions.
+
+= 2.10.0 =
+
+Release date: 21st July 2020
+
+**Enhancements**
+
+* Improved Block Editor support.
+* Improve compatibility with Advanced Custom Fields plugin.
+* Removed Support Email form from the plugin settings screen.
+* Bypass retry count for "Payment Required" status.
+
+**Fixes**
+
+* Remove error logging if no Post Types are selected.
+* Fix "speechkit_select_post_types is not an array" Rollbar error
+
+= 2.9.5 =
+
+Release date: 28th April 2020
+
+**Enhancements**
+
+* Added “Payment Required” status to notify when SpeechKit accounts either have no associated payment details, or the credits for the account have been depleted.
+* Release dates for future audio files are now set according to the WordPress Scheduled Post publish date.
+
+**Fixes**
+
+* Fix posts stuck in “Published” status if credits have expired.
+* Meta Box fixes.
+
+= 2.9.4 =
+
+Release date: 23rd March 2020
+
+**Enhancements**
+
+* Removed unnecessary checkboxes and formatting from the SpeechKit Meta Box.
+* Refactored `Speechkit_Admin::publish_post_hook` into smaller methods which can be unit tested.
+* Refactored `Speechkit_Admin::speechkit_callback` to receive params, for unit testing.
+
+**Fixes**
+
+* Fix Generate Audio checkbox issues.
+
+= 2.9.3 =
+
+Release date: 14th March 2020
+
+**Fixes**
+
+* Use PHP `is_numeric()` to fix SpeechKit API retry count.
+
+= 2.9.2 =
+
+Release date: 10th March 2020
+
+**Fixes**
+
+* Remove an unnecessary call to process the post, when the post is published.
+
+= 2.9.1 =
+
+Release date: 14th February 2020
+
+**Enhancements**
+
+* Display admin notice when SpeechKit project has not finished setup.
+
+**Fixes**
+
+* Hotfix for sites that retained plugin settings when upgrading.
+
+= 2.9.0 =
+
+Release date: 10th February 2020
+
+**Enhancements**
+
+* Cosmetic updates to improve the styling, labels and help text for SpeechKit's Plugin Settings page.
+* Display admin notices for both empty SpeechKit settings and invalid SpeechKit API settings.
+* Refactored how WordPress Options are stored and retrieved.
+
+= 2.8.3 =
+
+* Renamed admin JavaScript file to fix metabox issue.
+
+= 2.8.2 =
+
+* Fix audio generation for private posts.
+
+= 2.8.1 =
+
+* Fix Rollbar dependencies.
+
+= 2.8.0 =
+
+* Added Telemetry setting to automatically send debugging information and crash reports to Rollbar.
+
+= 2.7.10 =
+
+* Fixed publishing issues during Elementor saves and WordPress autosaves.
+* Display admin notice if heartbeat-tick response code is not 2XX.
+* WP Fastest Cache compatibility update.
+
+= 2.7.9 =
+
+* Updated API functionality.
+
+= 2.7.8 =
+
+* Updated functionality for processing posts.
+
+= 2.7.7 =
+
+* Updated assets.
+
+= 2.7.6 =
+
+* Updated cron functionality.
+* Added callbacks for the status process.
+
+= 2.7.5 =
+
+* Added Scheduled status.
+* Added checking of plugin version. Minor updates.
+
+= 2.7.4 =
+
+* Removed old cron task.
+* Updated url for the install page. Minor updates
+
+= 2.7.3 =
+
+* Added SpeechKit button to the editor toolbar for the mark text for generation audio.
+
+= 2.7.2 =
+
+* Fixed issue with saving draft.
+
+= 2.7.1 =
+
+* Fixed issue with empty content.
+
+= 2.7.0 =
+
+* Fixed scheduled posts.
+
+= 2.6.9 =
+
+* Updated support info.
+
+= 2.6.8 =
+
+* Fixed REST API requests.
+
+= 2.6.7 =
+
+* Added an option to hide "SpeechKit status" column.
+* Minor updates of CSS.
+
+= 2.6.6 =
+
+* Fixed issue with scheduled posts. Minor updates.
+
+= 2.6.5 =
+
+* Added shortcodes for the select quote for generation audio.
+* Updated dashboard link.
+* Minor updates for styles and statuses of SpeechKit
+
+= 2.6.4 =
+
+* Fixed styles for iframe.
+
+= 2.6.3 =
+
+* Fixing bugs for Marfeel compatibility.
+
+= 2.6.2 =
+
+* Added disable Auto-Publish setting.
+
+= 2.6.1 =
+
+* Added setting Marfeel compatibility.
+
+= 2.6.0 =
+
+* Fixed bug with frequent requests to Api.
+
+= 2.5.9 =
+
+* Added a hook to modify query output for cron posts processing.
+* This should help with performance issues for sites with large ammount of posts.
+* Fixed cron for unprocessed posts.
+
+= 2.5.8 =
+
+* Fixed bug with title not updated on private posts publish event.
+
+= 2.5.7 =
+
+* Fixed AMP minor bugs.
+
+= 2.5.6 =
+
+* Fixed AMP validation error, some other minor bugs and minor improvements.
+
+= 2.5.5 =
+
+* Fixed compatibility issue with older php versions.
+
+= 2.5.4 =
+
+* Fixing bugs and other minor improvements.
+
+= 2.5.3 =
+
+* Added an option to process posts immediately on post publish.
+* Fixed a bug with no audio update on title change.
+
+= 2.5.2 =
+
+* Player will be shown a bit faster now.
+* And some minor bugs were fixed.
+
+= 2.5.1 =
+
+* Added support for WP Rocket and AMPforWP plugins support.
+* Fix some minor bugs like sending requests while API key is not set yet.
+
+= 2.5.0 =
+
+* Changed the way we store data, fixes for Classic and Gutenberg editor compatibility.
+
+= 2.4.9 =
+
+* Add a check to process posts that were stuck in Error state.
+
+= 2.4.8 =
+
+* Fix error on initial publish for some environments.
+
+= 2.4.7 =
+
+* Minor update for Gutenberg editor compatibility.
+
+= 2.4.6 =
+
+* Fixing typos in container class name.
+
+= 2.4.5 =
+
+* Minor updates for Gutenberg editor compatibility.
+
+= 2.0.1 =
+
+* Only retry creating articles for so many times.
+
+= 2.0.0 =
+
+* A relaunch of the brand, dashboard and player!
+
+= 1.5.0 =
+
+* Clear cache for GatorCache
+
+= 1.4.2 & 1.4.3 =
+
+* Remove analytics from settings
+* Remove duplicate JS file loading when using iframes
+
+= 1.4.1 =
+
+* Listen link now takes you to the mp3 version of the audio, instead of the transcoded version.
+
+= 1.4.0 =
+
+* Update settings page to include custom post types
+* Upgrade UI slightly and apologize for the mess
+
+= 1.3.4 =
+
+* Disable scrolling on player iframe
+
+= 1.3.3 =
+
+* Fix some issues with how loading audio was done to work with more installations of WP.
+
+= 1.3.2 =
+
+* Fix styling for iframes
+
+= 1.3.1 =
+
+* Remove legacy code
+
+= 1.3.0 =
+
+* Show player inside of an iframe to not collide with custom styles on page.
+
+= 1.2.3 =
+
+* Fix issue where audio would get stuck in processing because of cache
+
+= 1.2.1 =
+
+* Fix an issue for PHP < 5.4
+
+= 1.2.0 =
+
+* We’ve added a new audio player option. The ’AudioBar player’ fits to the bottom of the browser window. It is less intrusive then the original audio player and more user friendly.
+
+= 1.1.0 =
+
+* Updated styling for admin pages
+* Fix issues with reloading and caching
+
+= 1.0 =
+
+* First version

@@ -1,0 +1,2 @@
+require( './addAttributes' );
+require( './addControls' );

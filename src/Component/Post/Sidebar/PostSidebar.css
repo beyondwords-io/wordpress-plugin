@@ -1,0 +1,15 @@
+.beyondwords-sidebar__status--failed .components-panel__body-toggle.components-button,
+.beyondwords-sidebar__status--error .components-panel__body-toggle.components-button,
+.beyondwords-sidebar__status--payment-required .components-panel__body-toggle.components-button {
+  color: red;
+}
+
+.beyondwords-sidebar__post-status-description--failed,
+.beyondwords-sidebar__post-status-description--error,
+.beyondwords-sidebar__post-status-description--payment-required {
+  color: red;
+}
+
+.beyondwords .components-button.is-secondary .dashicon {
+  margin-right: 5px;
+}

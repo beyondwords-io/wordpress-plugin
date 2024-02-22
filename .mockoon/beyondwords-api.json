@@ -1,0 +1,1048 @@
+{
+  "uuid": "41d79333-3454-4966-85e2-fa39bd3f9a3a",
+  "lastMigration": 20,
+  "name": "BeyondWords API",
+  "endpointPrefix": "v1",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "0.0.0.0",
+  "routes": [
+    {
+      "uuid": "cd87bb47-7354-486a-a677-048cb58b8ec8",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "",
+      "responses": [
+        {
+          "uuid": "10c807e1-d69c-4978-9130-a5656ac61aca",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "109b6b86-17ef-4bdb-87dd-805a49286cd0",
+      "documentation": "Get project",
+      "method": "get",
+      "endpoint": "projects/:projectId",
+      "responses": [
+        {
+          "uuid": "47159e36-1238-474e-8f05-0469121f4d7c",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "64833f07-fd55-4594-8de0-f97a22fb5e38",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            },
+            {
+              "target": "params",
+              "modifier": "projectId",
+              "value": "401",
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "14f8b014-9397-4352-93c3-f6739c5c7d2c",
+          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"G B 7118 Amy, Brian\",\n  \"language\": \"en_GB\",\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 289,\n      \"name\": \"Amy\",\n      \"speaking_rate\": null\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 290,\n      \"name\": \"Brian\",\n      \"speaking_rate\": null\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d2690a30-8265-4d82-a9d2-722cfe67531d",
+      "documentation": "Create audio",
+      "method": "post",
+      "endpoint": "projects/:projectId/content",
+      "responses": [
+        {
+          "uuid": "06c270c8-9e2e-45f1-b3e7-c4380e9bdba9",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "f36c793d-d1fd-4086-890f-4c427d0b2598",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "abd2f70e-e61d-42ea-909f-1332380be26d",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "069b5fcc-309c-4dca-bb93-f5777b5e30f2",
+          "body": "THIS IS NOT JSON",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Invalid JSON in response",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Force-Response",
+              "value": "invalid-json",
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "ecdb7657-8a38-4380-937e-54204529d2e5",
+          "body": "{\n    \"id\": \"9279c9e0-e0b5-4789-9040-f44478ed3e9e\",\n    \"status\": \"processed\",\n    \"title\": \"{{body 'title' 'Title'}}\",\n    \"summary\": \"{{body 'summary' 'Summary'}}\",\n    \"body\": \"<p>Test.</p>\",\n    \"source_id\": \"{{body 'source_id' '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d'}}\",\n    \"source_url\": \"{{body 'source_url' 'https://example.com'}}\",\n    \"author\": \"{{body 'author' 'Jane Smith'}}\",\n    \"image_url\": \"{{body 'image' 'https://example.com/image.jpg'}}\",\n    \"metadata\": {\n        \"categories\": [\n            \"News\", \n            \"Audio\"\n        ]\n    },\n    \"audio\": [\n        {\n            \"id\": 1,\n            \"content_type\": \"audio/x-mpegURL\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.m3u8\",\n            \"duration\": 1000\n        },\n        {\n            \"id\": 2,\n            \"content_type\": \"audio/mpeg\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.mp3\",\n            \"duration\": 1000\n        }\n    ],\n    \"video\": [\n        {\n            \"id\": 3,\n            \"content_type\": \"video/mp4\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.mp4\",\n            \"duration\": 1000\n        }\n    ],\n    \"published\": true,\n    \"publish_date\": \"2099-12-31T23:59:59Z\",\n    \"ads_enabled\": true,\n    \"updates_enabled\": true,\n    \"created\": \"2022-01-02T23:59:59Z\",\n    \"updated\": \"2022-03-04T00:00:00Z\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "913e6a62-d9ac-4660-b92b-cb924445f0f5",
+      "documentation": "Update audio",
+      "method": "put",
+      "endpoint": "projects/:projectId/content/:contentId",
+      "responses": [
+        {
+          "uuid": "dcf1eaa8-9508-40b7-982a-d5017b8655ac",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "9ee9714d-debe-47c4-824e-e7b4e83368b4",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "8035be8d-b28f-484b-a441-cf6eb6d8ddbc",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "52762211-f2da-4e53-a68f-74883e69e862",
+          "body": "{\n    \"id\": \"{{urlParam 'contentId'}}\",\n    \"status\": \"processed\",\n    \"title\": \"{{body 'title' 'Title'}}\",\n    \"summary\": \"{{body 'summary' 'Summary'}}\",\n    \"body\": \"<p>Test.</p>\",\n    \"source_id\": \"{{body 'source_id' '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d'}}\",\n    \"source_url\": \"{{body 'source_url' 'https://example.com'}}\",\n    \"author\": \"{{body 'author' 'Jane Smith'}}\",\n    \"image_url\": \"{{body 'image' 'https://example.com/image.jpg'}}\",\n    \"metadata\": {\n        \"categories\": [\n            \"News\", \n            \"Audio\"\n        ]\n    },\n    \"audio\": [\n        {\n            \"id\": 1,\n            \"content_type\": \"audio/x-mpegURL\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.m3u8\",\n            \"duration\": 1000\n        },\n        {\n            \"id\": 2,\n            \"content_type\": \"audio/mpeg\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.mp3\",\n            \"duration\": 1000\n        }\n    ],\n    \"video\": [\n        {\n            \"id\": 3,\n            \"content_type\": \"video/mp4\",\n            \"url\": \"https://example.cloudfront.net/path/to/file/compiled.mp4\",\n            \"duration\": 1000\n        }\n    ],\n    \"published\": true,\n    \"publish_date\": \"2099-12-31T23:59:59Z\",\n    \"ads_enabled\": true,\n    \"updates_enabled\": true,\n    \"created\": \"2022-01-02T23:59:59Z\",\n    \"updated\": \"2022-03-04T00:00:00Z\"\n}\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "0c9ab669-5197-4c4e-afca-2a68e7e85a51",
+      "documentation": "Delete audio",
+      "method": "delete",
+      "endpoint": "projects/:projectId/content/:contentId",
+      "responses": [
+        {
+          "uuid": "deb5a0b6-8ca4-4a48-87e3-752a4640a2a8",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "a7f4dadc-f8fc-48b1-ab8d-cb6e5bb3f5ea",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "60a9454e-8e62-4d1f-ac92-b41a4cea5e87",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "No Content",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "bf826112-1999-46da-a858-75bd7231325a",
+      "documentation": "Batch delete audio",
+      "method": "post",
+      "endpoint": "projects/:projectId/content/batch_delete",
+      "responses": [
+        {
+          "uuid": "010a1291-f184-4d44-9fa4-288597c1f5bc",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "9270061d-4119-49ec-9ac7-89cead778a87",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "25ec67af-63ec-48e3-8b7a-23d51727dfe5",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "No Content",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "2b685998-43b3-4fac-b0b7-bdf7218c9c28",
+      "documentation": "Get player settings",
+      "method": "get",
+      "endpoint": "projects/:projectId/player_settings",
+      "responses": [
+        {
+          "uuid": "a912f5e2-270c-4254-a505-23d0caa85053",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "00f0dea1-9b58-4ce1-9c36-b028f4f49e6e",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "67b759fa-5a0f-41af-81b8-58e7a12db32d",
+          "body": "{\n  \"player_version\": \"1\",\n  \"player_style\": \"standard\",\n  \"player_title\": \"G B 7118 Amy, Brian\",\n  \"call_to_action\": \"Listen to this article\",\n  \"image_url\": \"\",\n  \"theme\": \"light\",\n  \"dark_theme\": {\n    \"text_color\": \"#FFF\",\n    \"background_color\": \"TRANSPARENT\",\n    \"icon_color\": \"#FFF\",\n    \"highlight_color\": \"#444\"\n  },\n  \"light_theme\": {\n    \"text_color\": \"#111\",\n    \"background_color\": \"#F5F5F5\",\n    \"icon_color\": \"#000\",\n    \"highlight_color\": \"#EEE\"\n  },\n  \"title_enabled\": false,\n  \"image_enabled\": true,\n  \"persistent_ad_image\": false,\n  \"widget_style\": \"standard\",\n  \"widget_position\": \"auto\",\n  \"segment_playback_enabled\": true,\n  \"skip_button_style\": \"auto\",\n  \"intro_url\": null,\n  \"outro_url\": null,\n  \"intro_outro_enabled\": false,\n  \"paywall_type\": \"none\",\n  \"paywall_url\": null,\n  \"download_button_enabled\": false,\n  \"share_button_enabled\": false,\n  \"voice_icon_enabled\": false,\n  \"logo_icon_enabled\": true,\n  \"analytics_enabled\": true,\n  \"analytics_uuid_enabled\": true,\n  \"analytics_url\": \"https://metrics.beyondwords.io/events\",\n  \"analytics_id\": 3814,\n  \"analytics_tag_enabled\": false,\n  \"analytics_tag\": null,\n  \"analytics_custom_url\": null,\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "7ea55ef7-f7e0-47bc-996a-4d2700e85463",
+      "documentation": "Update player settings",
+      "method": "put",
+      "endpoint": "projects/:projectId/player_settings",
+      "responses": [
+        {
+          "uuid": "73800e83-1a8b-4191-a38f-65777ae9e585",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "1919617d-2089-4ade-8263-d6b196bec4ab",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "Conbtent-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "4d9a2419-dd24-4951-8cac-d76c50428dbc",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "03a49052-d373-4fbf-a69f-048712fffe9b",
+          "body": "{\n  \"player_version\": \"{{body 'player_version' '1'}}\",\n  \"player_style\": \"{{body 'player_style' 'standard'}}\",\n  \"player_title\": \"{{body 'player_title' 'G B 7118 Amy, Brian'}}\",\n  \"call_to_action\": \"{{body 'call_to_action' 'Listen to this article'}}\",\n  \"image_url\": \"{{body 'image_url' 'image_url'}}\",\n  \"theme\": \"{{body 'theme' 'light'}}\",\n  \"dark_theme\": {\n    \"text_color\": \"{{body 'dark_theme.text_color' '#FFF'}}\",\n    \"background_color\": \"{{body 'dark_theme.background_color' 'TRANSPARENT'}}\",\n    \"icon_color\": \"{{body 'dark_theme.icon_color' '#FFF'}}\",\n    \"highlight_color\": \"{{body 'dark_theme.highlight_color' '#444'}}\",\n  },\n  \"light_theme\": {\n    \"text_color\": \"{{body 'light_theme.text_color' '#111'}}\",\n    \"background_color\": \"{{body 'light_theme.background_color' '#F5F5F5'}}\",\n    \"icon_color\": \"{{body 'light_theme.icon_color' '#000'}}\",\n    \"highlight_color\": \"{{body 'light_theme.highlight_color' '#EEE'}}\",\n  },\n  \"title_enabled\": \"{{body 'title_enabled' false}}\",\n  \"image_enabled\": \"{{body 'image_enabled' true}}\",\n  \"persistent_ad_image\": \"{{body 'persistent_ad_image' false}}\",\n  \"widget_style\": \"{{body 'widget_style' 'standard'}}\",\n  \"widget_position\": \"{{body 'widget_position' 'auto'}}\",\n  \"segment_playback_enabled\": \"{{body 'segment_playback_enabled' true}}\",\n  \"skip_button_style\": \"{{body 'skip_button_style' 'auto'}}\",\n  \"intro_url\": \"{{body 'intro_url' null}}\",\n  \"outro_url\": \"{{body 'outro_url' null}}\",\n  \"intro_outro_enabled\": \"{{body 'intro_outro_enabled' false}}\",\n  \"paywall_type\": \"{{body 'paywall_type' 'none'}}\",\n  \"paywall_url\": \"{{body 'paywall_url' null}}\",\n  \"download_button_enabled\": \"{{body 'download_button_enabled' false}}\",\n  \"share_button_enabled\": \"{{body 'share_button_enabled' false}}\",\n  \"voice_icon_enabled\": \"{{body 'voice_icon_enabled' false}}\",\n  \"logo_icon_enabled\": \"{{body 'logo_icon_enabled' true}}\",\n  \"analytics_enabled\": \"{{body 'analytics_enabled' true}}\",\n  \"analytics_uuid_enabled\": \"{{body 'analytics_uuid_enabled' true}}\",\n  \"analytics_url\": \"{{body 'analytics_url' 'https://metrics.beyondwords.io/events'}}\",\n  \"analytics_id\": \"{{body 'analytics_id' 3814}}\",\n  \"analytics_tag_enabled\": \"{{body 'analytics_tag_enabled' false}}\",\n  \"analytics_tag\": \"{{body 'analytics_tag' null}}\",\n  \"analytics_custom_url\": \"{{body 'analytics_custom_url' null}}\",\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "e0249159-42d3-48e7-835d-4aa46214d544",
+      "documentation": "Get video settings",
+      "method": "get",
+      "endpoint": "projects/:projectId/video_settings",
+      "responses": [
+        {
+          "uuid": "26e526e2-fbd3-41d6-9c5f-c7cad6141375",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "30f6996c-7431-43bc-8642-38ccc9f69bf0",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "324ed49b-4a70-439e-873d-cabb66f686f8",
+          "body": "{\n  \"enabled\": true,\n  \"logo_image_url\": null,\n  \"logo_image_position\": \"top-right\",\n  \"background_color\": \"white\",\n  \"text_background_color\": \"rgba(255, 255, 255, 0.88)\",\n  \"text_color\": \"black\",\n  \"text_highlight_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"waveform_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"content_image_enabled\": true\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "0cd387b4-2fe4-40d9-b535-511214e4bbb4",
+      "documentation": "Get languages",
+      "method": "get",
+      "endpoint": "organization/languages",
+      "responses": [
+        {
+          "uuid": "3da9edbf-31c8-4da2-8fa6-b35b8a2eb3d5",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "33d84d20-b2d5-4948-949e-70b388665e2a",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "b4facbac-041d-4800-ad1f-3b1a8b9ea2fb",
+          "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Language 1\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Language 2\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Language 3\"\n  }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "8cb807f4-6c1b-41b2-a8ec-5c6d4bae3380",
+      "documentation": "Get language voices",
+      "method": "get",
+      "endpoint": "organization/voices",
+      "responses": [
+        {
+          "uuid": "44205bff-95aa-413d-9992-1ef7f04ea6fb",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "ef5003de-95d7-4efd-8b95-c0df0636c415",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "9c63284f-f1d5-401e-9371-4e9bb2be2b0b",
+          "body": "[\n  {{! `filter` works here instead of `filter.language\\.id` ¯\\_(ツ)_/¯ }}\n  {{#each (queryParamRaw 'filter')}}\n    {\n      \"id\": 1,\n      \"name\": \"Voice {{this}}-a\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Voice {{this}}-b\"\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Voice {{this}}-c\"\n    }{{#unless @last}},{{/unless}}\n  {{/each}}\n]\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json; charset=utf-8"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}

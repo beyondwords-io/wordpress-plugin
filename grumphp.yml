@@ -1,0 +1,105 @@
+# grumphp.yml
+
+grumphp:
+  process_timeout: null
+  hide_circumvention_tip: true
+  stop_on_failure: true
+  parallel:
+    enabled: true
+    max_workers: 32
+  tasks:
+    git_commit_message:
+      enforce_capitalized_subject: false
+      max_subject_width: 120
+      metadata:
+        priority: 10
+    phpversion:
+      project: '7.4'
+      metadata:
+        priority: 10
+    composer:
+      metadata:
+        priority: 10
+    composer_normalize:
+      indent_size: 4
+      indent_style: space
+      verbose: true
+      metadata:
+        priority: 10
+    phpcs:
+      standard:
+        # - PSR12
+        # - WordPress-VIP-Go
+        - phpcs.xml
+      exclude:
+        - PSR12.Files.FileHeader
+        - PSR12.Files.OpenTag
+      triggered_by:
+        - php
+      tab_width: 4
+      ignore_patterns:
+        - /wp-tests-config-sample.php
+        - /tests/*
+      metadata:
+        priority: 10
+    phplint:
+      exclude:
+        - vendor
+      triggered_by:
+        - php
+      metadata:
+        priority: 10
+    phpmd:
+      ruleset:
+        - phpmd.xml
+      exclude:
+        - tests
+        - vendor
+      metadata:
+        priority: 10
+    test_phpunit:
+      script: test:phpunit
+      metadata:
+        priority: 5
+        task: composer_script
+    coverage_check:
+      script: test:coverage-check
+      metadata:
+        priority: 1
+        task: composer_script
+    # test_acceptance:
+    #   script: test:acceptance
+    #   metadata:
+    #     priority: 5
+    #     task: composer_script
+    # coverage_check_acceptance:
+    #   script: test:acceptance:coverage-check
+    #   metadata:
+    #     priority: 1
+    #     task: composer_script
+    # phpcpd:
+    #   exclude:
+    #     - tests
+    #     - vendor
+    # gherkin: ~
+  testsuites:
+    git_commit_msg:
+      tasks:
+        - git_commit_message
+    git_pre_commit:
+      tasks:
+        - phpversion
+        - composer
+        - composer_normalize
+        - phpcs
+        - phplint
+        - phpmd
+        - test_phpunit
+        - coverage_check
+    code_quality:
+      tasks:
+        - composer
+        - composer_normalize
+        - phpcs
+        - phplint
+        - phpmd

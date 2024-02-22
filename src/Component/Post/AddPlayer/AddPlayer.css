@@ -1,0 +1,36 @@
+#tinymce [data-beyondwords-player],
+#editor [data-beyondwords-player] {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  font-size: 60px;
+  background-color: #F5F5F5;
+  border: 1px dashed #000000;
+  position: relative;
+}
+
+#tinymce [data-beyondwords-player]:before,
+#editor [data-beyondwords-player]:before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  display: block;
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  background: url(./tinymce-button.png);
+}
+
+#tinymce [data-beyondwords-player]:after,
+#editor [data-beyondwords-player]:after {
+  font-size: 12px;
+  line-height: 1.5;
+  height: 32px;
+  display: block;
+  position: absolute;
+  top: 9px;
+  left: 60px;
+}

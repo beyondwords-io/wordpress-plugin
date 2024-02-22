@@ -1,0 +1,633 @@
+# Copyright (C) 2023 BeyondWords
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: BeyondWords - Text-to-Speech 4.2.4\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/speechkit\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2023-11-15T15:45:53+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.8.1\n"
+"X-Domain: speechkit\n"
+
+#. Plugin Name of the plugin
+#: src/Component/SiteHealth/SiteHealth.php:81
+msgid "BeyondWords - Text-to-Speech"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://beyondwords.io"
+msgstr ""
+
+#. Description of the plugin
+msgid "The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player."
+msgstr ""
+
+#. Author of the plugin
+#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:53
+#: src/Compatibility/Elementor/Elementor.php:194
+#: src/Component/Post/Metabox/Metabox.php:82
+#: src/Component/Post/Panel/Inspect/Inspect.php:108
+#: src/Component/Posts/BulkEdit/BulkEdit.php:77
+#: src/Component/Posts/Column/Column.php:62
+#: src/Component/Settings/Settings.php:59
+#: src/Component/Settings/Settings.php:60
+#: build/index.js:1
+#: src/Component/Plugin/Panel/DocumentSetting/index.js:25
+#: src/Component/Plugin/Panel/Prepublish/index.js:22
+#: src/Component/Plugin/Sidebar/index.js:20
+#: src/Component/Plugin/Sidebar/index.js:24
+#: src/Component/Post/BlockAttributes/addControls.js:80
+#: src/Component/Post/Panel/Prepublish/index.js:10
+msgid "BeyondWords"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:82
+#: src/Component/Post/GenerateAudio/GenerateAudio.php:91
+#: src/Component/Posts/BulkEdit/BulkEdit.php:80
+#: src/Component/Posts/BulkEdit/BulkEdit.php:178
+#: build/index.js:1
+#: src/Component/Post/GenerateAudio/index.js:35
+#: src/Component/Post/Panel/Prepublish/index.js:13
+msgid "Generate audio"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:110
+#: src/Component/Post/DisplayPlayer/DisplayPlayer.php:96
+#: build/index.js:1
+#: src/Component/Post/DisplayPlayer/index.js:40
+msgid "Display player"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Help.php:45
+#: build/index.js:1
+#: src/Component/Post/Panel/Help/index.js:16
+msgid "Help"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Help.php:53
+#: build/index.js:1
+#: src/Component/Post/Panel/Help/index.js:28
+msgid "Setup guide"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Help.php:56
+#: build/index.js:1
+#: src/Component/Post/Panel/Help/index.js:21
+msgid "For setup instructions, troubleshooting, and FAQs, see our BeyondWords for WordPress guide."
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Help.php:64
+#: build/index.js:1
+#: src/Component/Post/Panel/Help/index.js:38
+msgid "Email BeyondWords"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Help.php:68
+#: build/index.js:1
+#: src/Component/Post/Panel/Help/index.js:33
+msgid "Need help? Email our support team."
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Inspect.php:58
+#: src/Component/Post/Panel/Inspect/Inspect.php:108
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:204
+msgid "Inspect"
+msgstr ""
+
+#: src/Compatibility/Elementor/ControlsSections/Inspect.php:187
+#: src/Component/Post/Panel/Inspect/Inspect.php:137
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:122
+msgid "Copy"
+msgstr ""
+
+#: src/Compatibility/Elementor/Elementor.php:119
+msgid "Post not found."
+msgstr ""
+
+#. translators: %s is replaced with the link to the BeyondWords dashboard
+#: src/Component/Post/Metabox/Metabox.php:162
+msgid "Listen to content saved as “Pending” in the %s."
+msgstr ""
+
+#: src/Component/Post/Metabox/Metabox.php:166
+#: src/Component/Settings/Languages/Languages.php:121
+#: src/Component/Settings/Settings.php:268
+msgid "BeyondWords dashboard"
+msgstr ""
+
+#. translators: %s is replaced with the link to the support email address
+#: src/Component/Post/Metabox/Metabox.php:242
+msgid "Need help? Email our support team on %s"
+msgstr ""
+
+#: src/Component/Post/Metabox/Metabox.php:256
+msgid "To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked."
+msgstr ""
+
+#: src/Component/Post/Panel/Inspect/Inspect.php:151
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:286
+msgid "Remove"
+msgstr ""
+
+#: src/Component/Post/Panel/Inspect/Inspect.php:285
+msgid "Copied using the Classic Editor"
+msgstr ""
+
+#: src/Component/Post/PlayerStyle/PlayerStyle.php:65
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:71
+#: build/index.js:1
+#: src/Component/Post/PlayerStyle/index.js:51
+msgid "Player style"
+msgstr ""
+
+#: src/Component/Posts/BulkEdit/BulkEdit.php:79
+msgid "— No change —"
+msgstr ""
+
+#: src/Component/Posts/BulkEdit/BulkEdit.php:81
+#: src/Component/Posts/BulkEdit/BulkEdit.php:179
+msgid "Delete audio"
+msgstr ""
+
+#. translators: %d is replaced with the number of posts processed
+#: src/Component/Posts/BulkEdit/BulkEdit.php:310
+msgid "Audio was requested for %d post."
+msgid_plural "Audio was requested for %d posts."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d is replaced with the number of posts processed
+#: src/Component/Posts/BulkEdit/BulkEdit.php:346
+msgid "Audio was deleted for %d post."
+msgid_plural "Audio was deleted for %d posts."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d is replaced with the number of posts that were skipped
+#: src/Component/Posts/BulkEdit/BulkEdit.php:382
+msgid "%d post failed, check for errors in the BeyondWords column below."
+msgid_plural "%d posts failed, check for errors in the BeyondWords column below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Component/Settings/ApiKey/ApiKey.php:50
+msgid "BeyondWords API key"
+msgstr ""
+
+#: src/Component/Settings/ApiKey/ApiKey.php:90
+msgid "Please enter the BeyondWords API key. This can be found in your project settings."
+msgstr ""
+
+#: src/Component/Settings/Languages/Languages.php:67
+msgid "Languages"
+msgstr ""
+
+#. translators: %s is replaced with the link to the BeyondWords dashboard
+#: src/Component/Settings/Languages/Languages.php:117
+msgid "The default voice for audio is determined by the project settings in your %s."
+msgstr ""
+
+#: src/Component/Settings/Languages/Languages.php:128
+msgid "Add languages here to use voices other than the default project voice."
+msgstr ""
+
+#: src/Component/Settings/Languages/Languages.php:133
+msgid "The voices will be available to select on the Post Edit screen."
+msgstr ""
+
+#. translators: %s is replaced with the "playerStyle setting" link
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:111
+msgid "The default player style (%s) for the audio player. This can be overridden for each post."
+msgstr ""
+
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:114
+msgid "playerStyle setting"
+msgstr ""
+
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:134
+msgid "Standard"
+msgstr ""
+
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:138
+msgid "Small"
+msgstr ""
+
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:142
+msgid "Large"
+msgstr ""
+
+#: src/Component/Settings/PlayerStyle/PlayerStyle.php:146
+msgid "Video"
+msgstr ""
+
+#: src/Component/Settings/PlayerUI/PlayerUI.php:62
+#: src/Component/SiteHealth/SiteHealth.php:102
+msgid "Player UI"
+msgstr ""
+
+#. translators: %s is replaced with the "headless mode" link
+#: src/Component/Settings/PlayerUI/PlayerUI.php:100
+msgid "Enable or disable the player, or set it to %s."
+msgstr ""
+
+#: src/Component/Settings/PlayerUI/PlayerUI.php:103
+msgid "headless mode"
+msgstr ""
+
+#: src/Component/Settings/PlayerUI/PlayerUI.php:123
+msgid "Enabled"
+msgstr ""
+
+#: src/Component/Settings/PlayerUI/PlayerUI.php:124
+msgid "Headless"
+msgstr ""
+
+#: src/Component/Settings/PlayerUI/PlayerUI.php:125
+msgid "Disabled"
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:75
+#: src/Component/SiteHealth/SiteHealth.php:97
+msgid "Player version"
+msgstr ""
+
+#. translators: %s is replaced with the player version from the BeyondWords API
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:115
+msgid "The player version on this WordPress site doesn’t match the “%s” player in your BeyondWords account. Saving the WordPress plugin settings will update your BeyondWords account to keep the player version in sync."
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:119
+msgid "Your BeyondWords account is currently using another player."
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:147
+msgid "We sync changes to the player version with your Beyondwords account when these settings are saved."
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:155
+msgid "If caching is enabled you may need to clear the cache to change the player version for existing posts."
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:259
+msgid "There was an error syncing the player version with your BeyondWords account. The versions may be different. Sign in to your BeyondWords dashboard and change the player version there if you need them to be in sync."
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:280
+msgid "Latest"
+msgstr ""
+
+#: src/Component/Settings/PlayerVersion/PlayerVersion.php:281
+msgid "Legacy"
+msgstr ""
+
+#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:55
+#: src/Component/SiteHealth/SiteHealth.php:107
+msgid "Process excerpts"
+msgstr ""
+
+#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:82
+msgid "Use excerpts for summaries"
+msgstr ""
+
+#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:87
+msgid "Summaries are read aloud in-between titles and body content."
+msgstr ""
+
+#: src/Component/Settings/Preselect/Preselect.php:61
+#: src/Component/SiteHealth/SiteHealth.php:113
+msgid "Preselect ‘Generate audio’"
+msgstr ""
+
+#: src/Component/Settings/Preselect/Preselect.php:83
+msgid "No compatible post types found. This plugin will only work with post types that support custom fields."
+msgstr ""
+
+#: src/Component/Settings/ProjectId/ProjectId.php:50
+#: src/Core/Core.php:533
+msgid "BeyondWords project ID"
+msgstr ""
+
+#: src/Component/Settings/ProjectId/ProjectId.php:90
+msgid "Please enter your BeyondWords project ID. This can be found in your project settings."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:98
+msgid "Basic settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:107
+msgid "Player settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:115
+msgid "Content settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:123
+msgid "‘Generate audio’ settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:143
+msgid "The details we need to authenticate your BeyondWords account. For more options, head to your BeyondWords dashboard."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:164
+msgid "Upgrade to the latest player version for the newest features."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:185
+msgid "By default, BeyondWords will process your titles and body content into audio."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:206
+msgid "The ‘Generate audio’ checkbox in the BeyondWords sidebar will be automatically checked for selected post types. The default setting can be manually overridden."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:214
+msgid "Uncheck a post type to view its Categories. You can then set defaults at a category level. Make sure to check all relevant boxes."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:223
+msgid "The default WordPress ‘Categories’ taxonomy is currently the only taxonomy supported."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:237
+msgid "Settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:254
+msgid "BeyondWords settings"
+msgstr ""
+
+#. translators: %s is replaced with a "let us know" link
+#: src/Component/Settings/Settings.php:282
+msgid "It looks like you tried the \"Latest\" player and switched back to the \"Legacy\" player. If you experienced any issues switching player please %s so we can help."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:285
+msgid "WordPress support: Latest player"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:286
+msgid "let us know"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:299
+msgid "The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor."
+msgstr ""
+
+#. translators: %s is replaced with a "plugin settings" link
+#: src/Component/Settings/Settings.php:343
+#: src/Component/Settings/Settings.php:386
+msgid "To use BeyondWords, please update the %s."
+msgstr ""
+
+#: src/Component/Settings/Settings.php:347
+#: src/Component/Settings/Settings.php:390
+msgid "plugin settings"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:397
+msgid "Don’t have a BeyondWords account yet?"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:405
+msgid "Sign up free"
+msgstr ""
+
+#: src/Component/Settings/Settings.php:514
+msgid "Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid."
+msgstr ""
+
+#: src/Component/Settings/SettingsUpdated/SettingsUpdated.php:50
+msgid "Settings Updated"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:87
+msgid "API Key"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:92
+msgid "Project ID"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:119
+msgid "Allowed post types"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:124
+msgid "Supported post types"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:129
+msgid "Settings updated"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:136
+msgid "Registered filters"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:137
+#: src/Component/SiteHealth/SiteHealth.php:145
+msgid "None"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:144
+msgid "Registered deprecated filters"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:172
+#: src/Component/SiteHealth/SiteHealth.php:177
+msgid "Plugin version"
+msgstr ""
+
+#: src/Component/SiteHealth/SiteHealth.php:205
+msgid "REST API URL"
+msgstr ""
+
+#: src/Core/ApiClient.php:145
+msgid "None of the selected posts had valid BeyondWords audio data."
+msgstr ""
+
+#: src/Core/ApiClient.php:149
+msgid "Batch delete can only be performed on audio belonging a single project."
+msgstr ""
+
+#. translators: %s is replaced with the support email link
+#: src/Core/ApiClient.php:489
+msgid "API request error. Please contact %s."
+msgstr ""
+
+#. translators: %s is replaced with the reason that JSON parsing failed
+#: src/Core/ApiClient.php:501
+msgid "Unable to parse JSON in BeyondWords API response. Reason: %s."
+msgstr ""
+
+#. translators: %d is replaced with number of BeyondWords errors
+#: src/Core/Core.php:499
+msgid "%d BeyondWords error found."
+msgid_plural "%d BeyondWords errors found."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Core/Core.php:510
+msgid "Check the BeyondWords column for more details."
+msgstr ""
+
+#: src/Core/Core.php:530
+msgid "BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK."
+msgstr ""
+
+#: src/Core/Core.php:537
+msgid "BeyondWords content ID"
+msgstr ""
+
+#: src/Core/Core.php:541
+msgid "BeyondWords legacy podcast ID"
+msgstr ""
+
+#: src/Core/Core.php:559
+msgid "BeyondWords audio details"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Status/index.js:21
+msgid "Status"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/BlockAttributes/addControls.js:45
+msgid "Disable audio processing"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/BlockAttributes/addControls.js:46
+msgid "Enable audio processing"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/BlockAttributes/addControls.js:48
+msgid "Audio processing enabled"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/BlockAttributes/addControls.js:49
+msgid "Audio processing disabled"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/BlockAttributes/addControls.js:93
+msgid "Segment marker"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/OpenSidebar/index.js:15
+msgid "Open the"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/OpenSidebar/index.js:22
+msgid "BeyondWords sidebar"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/OpenSidebar/index.js:24
+msgid "for additional options and features."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:180
+msgid "Deprecated"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:196
+msgid "System"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:198
+msgid "Copied using the Block Editor"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:285
+msgid "Restore"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:364
+msgid "The BeyondWords data for this post will be removed when the post is saved."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/Panel/Inspect/index.js:380
+msgid "Unable to remove the BeyondWords data. Please email our support team."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/PendingNotice/index.js:23
+msgid "Listen to content saved as “Pending” in the BeyondWords dashboard."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/PendingNotice/index.js:29
+msgid "BeyondWords dashboard."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/PlayAudio/index.js:118
+msgid "🔊 There was an error playing the audio. Please try again."
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/SelectVoice/index.js:82
+msgid "Language"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/SelectVoice/index.js:85
+msgid "Project default"
+msgstr ""
+
+#: build/index.js:1
+#: src/Component/Post/SelectVoice/index.js:102
+msgid "Voice"
+msgstr ""
+
+#: src/Component/Post/Panel/Inspect/js/inspect.js:13
+msgid "Remove all BeyondWords data when the post is saved?"
+msgstr ""
+
+#: build/Component/Post/AddPlayer/block.json
+#: src/Component/Post/AddPlayer/block.json
+msgctxt "block title"
+msgid "BeyondWords"
+msgstr ""
+
+#: build/Component/Post/AddPlayer/block.json
+#: src/Component/Post/AddPlayer/block.json
+msgctxt "block description"
+msgid "Embed the BeyondWords audio player. This will override the default player location."
+msgstr ""
+
+#: build/Component/Post/AddPlayer/block.json
+#: src/Component/Post/AddPlayer/block.json
+msgctxt "block keyword"
+msgid "audio"
+msgstr ""
+
+#: build/Component/Post/AddPlayer/block.json
+#: src/Component/Post/AddPlayer/block.json
+msgctxt "block keyword"
+msgid "text-to-speech"
+msgstr ""

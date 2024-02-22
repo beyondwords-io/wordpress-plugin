@@ -1,0 +1,42 @@
+[
+    {
+        "name": "Post",
+        "slug": "post",
+        "graphQLName": "posts",
+        "supported": true,
+        "preselect": true,
+        "priority": false
+    },
+    {
+        "name": "Page",
+        "slug": "page",
+        "graphQLName": "pages",
+        "supported": true,
+        "preselect": true,
+        "priority": false
+    },
+    {
+        "name": "CPT Active",
+        "slug": "cpt_active",
+        "graphQLName": "cptActivePosts",
+        "supported": true,
+        "preselect": true,
+        "priority": true
+    },
+    {
+        "name": "CPT Inactive",
+        "slug": "cpt_inactive",
+        "graphQLName": "cptInactivePosts",
+        "supported": true,
+        "preselect": false,
+        "priority": false
+    },
+    {
+        "name": "CPT Unsupported",
+        "slug": "cpt_unsupported",
+        "graphQLName": "cptUnsupportedPosts",
+        "supported": false,
+        "preselect": false,
+        "priority": false
+    }
+]

@@ -1,0 +1,26 @@
+path: /usr/share/nginx/html
+color: true
+# user: admin
+# debug: true
+
+core download:
+    force: true
+
+core install:
+  admin_user: admin
+  admin_password: password
+  admin_email: stu@beyondwords.io
+  title: BeyondWords
+  url: http://localhost:8889
+  skip-email: true
+
+config create:
+  dbname: test
+  dbuser: root
+  dbpass: root
+  dbhost: '127.0.0.1'
+  force: true
+  # skip-check: true # If set, the database connection is not checked.
+
+# apache_modules:
+#     - mod_rewrite

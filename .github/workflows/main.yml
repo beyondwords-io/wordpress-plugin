@@ -1,0 +1,509 @@
+name: Build & Test
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ######################################
+  # Build
+  # ######################################
+  build:
+    name: Build Plugin ZIP
+    runs-on: ubuntu-20.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      # ######################################
+      # PHP
+      # ######################################
+      - name: Setup PHP 7.4
+        uses: shivammathur/setup-php@v2
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          php-version: '7.4'
+          extensions: mbstring intl
+          tools: composer, wp-cli
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-php7.4-no-dev-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies (no-dev)
+        run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
+
+      # ######################################
+      # Node
+      # ######################################
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      # ######################################
+      # yarn install
+      # ######################################
+      - run: yarn install --immutable --immutable-cache
+
+      # ######################################
+      # yarn build (could add caching here)
+      # ######################################
+      - run: yarn build
+
+      # ######################################
+      # i18n
+      # ######################################
+      - name: Make i18n POT file
+        run: 'composer wp:i18n:make-pot'
+
+      # ######################################
+      # Generate Plugin ZIP file
+      # ######################################
+      - name: Make tmp plugin directory
+        run: mkdir ${{ vars.WP_ORG_PLUGIN_NAME }}
+        working-directory: /tmp
+
+      - name: Copy plugin files to /tmp
+        run: |
+          cp -rp \
+            build \
+            languages \
+            src \
+            vendor \
+            changelog.txt \
+            index.php \
+            LICENSE.txt \
+            readme.txt \
+            speechkit.php \
+            uninstall.php \
+            /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+
+      - name: Zip plugin directory
+        run: zip -r ${{ vars.WP_ORG_PLUGIN_NAME }}.zip ${{ vars.WP_ORG_PLUGIN_NAME }}
+        working-directory: /tmp
+
+      # ######################################
+      # Upload Plugin ZIP file
+      # ######################################
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          path: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          retention-days: 7
+
+
+  # ######################################
+  # Code Quality
+  # ######################################
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-20.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-php8.3-dev-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies (dev)
+        uses: php-actions/composer@v6
+        with:
+          dev: yes
+          args: --ignore-platform-reqs --optimize-autoloader --profile
+          php_version: '8.3'
+
+      - name: Run GrumPHP code_quality test suite
+        run: ./vendor/bin/grumphp run --testsuite code_quality
+
+  # ######################################
+  # PHPUnit Tests
+  # ######################################
+  phpunit-tests:
+    name: PHPUnit - PHP ${{ matrix.php-version }}
+    runs-on: ${{ matrix.operating-system }}
+    environment: production
+    needs: [code-quality]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.3']
+        phpunit-version: ['10']
+        operating-system: ['ubuntu-latest']
+        include:
+        - php-version: '7.4'
+          phpunit-version: '9'
+          operating-system: ['ubuntu-20.04']
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_CONNECTION: mysql
+      DB_DATABASE: test
+      DB_USER: root
+      DB_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ######################################
+      # MySQL
+      # ######################################
+      - name: Start MySQL
+        run: sudo /etc/init.d/mysql start
+
+      # ######################################
+      # PHP
+      # ######################################
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: curl, dom, exif, imagick, mbstring, openssl, pcre, xml, zip
+          ini-values: max_execution_time=60, memory_limit=128M, post_max_size=8M, upload_max_filesize=8M, max_input_time=60, file_uploads=On, safe_mode=Off
+          coverage: xdebug
+          tools: phpunit:${{ matrix.phpunit-version }}, composer
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-php7.4-dev-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies (dev)
+        uses: php-actions/composer@v6
+        with:
+          dev: yes
+          args: --ignore-platform-reqs --optimize-autoloader --profile
+          php_version: '7.4'
+
+      - name: Check PHP Version
+        run: php -v
+
+      # ######################################
+      # Node
+      # ######################################
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      # ######################################
+      # yarn install
+      # ######################################
+      - run: yarn install --immutable --immutable-cache
+
+      # ######################################
+      # yarn build (could add caching here)
+      # ######################################
+      - run: yarn build
+
+      - name: Start Mockoon CLI
+        run: yarn mockoon:start &
+
+      - name: Install WP Tests
+        run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
+
+      - name: PHPUnit Tests
+        run: ./vendor/bin/phpunit -c ./phpunit.ci.xml --coverage-clover ./tests/phpunit/_output/coverage.xml --coverage-html ./tests/phpunit/_output/html
+        env:
+          BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
+          BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"
+          BEYONDWORDS_TESTS_CONTENT_ID: "${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}"
+          BEYONDWORDS_TESTS_PROJECT_ID: "${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}"
+          XDEBUG_MODE: coverage
+
+      # ######################################
+      # DISABLED, BUT WE MAY USE THIS SOON
+      # ######################################
+      #  - name: Upload to Codecov
+      #    uses: codecov/codecov-action@v2
+      #    with:
+      #      token: ${{ secrets.CODE_COV_TOKEN }}
+      #      files: tests/phpunit/_output/coverage.xml
+      #      verbose: true
+
+      - name: Check code coverage
+        run: composer test:coverage-check
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PHPUnit Results - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/phpunit/_output
+
+  # ######################################
+  # Cypress Tests
+  # ######################################
+  cypress-tests:
+    name: Cypress - PHP ${{ matrix.php-version }}
+    runs-on: ${{ matrix.operating-system }}
+    environment: production
+    needs: [build, phpunit-tests]
+    # Only run on "main" branch and tags/branches starting with "v*"
+    if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
+
+    strategy:
+      # don't fail the entire matrix on failure
+      fail-fast: false
+      matrix:
+        php-version: ['8.3']
+        phpunit-version: ['10']
+        operating-system: ['ubuntu-latest']
+        include:
+        - php-version: '7.4'
+          phpunit-version: '9'
+          operating-system: ['ubuntu-20.04']
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_CONNECTION: mysql
+      DB_DATABASE: test
+      DB_USER: root
+      DB_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ######################################
+      # MySQL
+      # ######################################
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
+      # ######################################
+      # PHP
+      # ######################################
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit:${{ matrix.phpunit-version }}, composer, wp-cli
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-php7.4-dev-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies (dev)
+        uses: php-actions/composer@v6
+        with:
+          dev: yes
+          args: --ignore-platform-reqs --optimize-autoloader --profile
+          php_version: '7.4'
+
+      - name: Check PHP Version
+        run: php -v
+
+      # ######################################
+      # Node
+      # ######################################
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      # ######################################
+      # yarn install
+      # ######################################
+      - run: yarn install --immutable --immutable-cache
+
+      - name: Start Mockoon CLI
+        run: yarn mockoon:start &
+
+      - name: Copy .github/.wp-cli directory
+        run: cp -r .github/.wp-cli ~/
+
+      - name: Download WordPress
+        run: wp core download
+
+      - name: Create `wp-config.php` file
+        run: wp config create
+
+      - name: Set BEYONDWORDS_API_URL
+        run: |
+          wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
+
+      - name: Set WordPress core config values
+        run: |
+          wp config set AUTOMATIC_UPDATER_DISABLED true --raw
+          wp config set DISABLE_WP_CRON true --raw
+          wp config set WP_AUTO_UPDATE_CORE false --raw
+
+      - name: Install WordPress
+        run: |
+          wp core install
+          wp option update siteurl http://localhost:8889
+          wp option update home http://localhost:8889
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          path: /tmp
+
+      - name: Download WP-API/Basic-Auth plugin
+        run: |
+          mkdir -p /tmp/Basic-Auth
+          curl -L -o /tmp/Basic-Auth/basic-auth.php https://raw.githubusercontent.com/WP-API/Basic-Auth/master/basic-auth.php
+          cd /tmp
+          zip -r  Basic-Auth.zip Basic-Auth
+
+      - name: Install plugins
+        run: |
+          wp plugin uninstall --deactivate --all
+          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
+          wp plugin install /tmp/Basic-Auth.zip --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
+          wp plugin install amp --force
+          wp plugin install classic-editor --force
+          wp plugin install elementor --force
+          wp plugin install wp-graphql --force
+          wp plugin install wp-reset --force
+
+      - run: wp plugin list
+
+      - name: Set permalinks
+        run: |
+          wp rewrite structure '/%postname%/' --hard
+          wp rewrite flush --hard
+
+      - name: Start PHP web server
+        run: sudo php -S localhost:8889 -t /usr/share/nginx/html &
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          project: ${{ github.workspace }}
+          # parallel: true # This will only work on Cypress Cloud
+          install: false
+          # Set env vars like this, otherwise numeric project IDs become ints
+          env: apiUrl="${{ secrets.BEYONDWORDS_API_URL }}",apiKey="${{ secrets.BEYONDWORDS_TESTS_API_KEY }}",projectId="${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}",contentId="${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}"
+          # ######################################
+          # Run an individual spec file like this:
+          # ######################################
+          # spec: ${{ github.workspace }}/tests/cypress/e2e/block-editor/insert-beyondwords-player.cy.js
+
+      # after the test run completes
+      # store videos and any screenshots
+      # NOTE: screenshots will be generated only if E2E test failed
+      # thus we store screenshots only on failures
+      # Alternative: create and commit an empty cypress/screenshots folder
+      # to always have something to upload
+      - name: Save Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: Cypress Screenshots - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/cypress/screenshots
+          retention-days: 7
+
+      # Test run video was always captured, so this action uses "always()" condition
+      - name: Save Cypress videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Cypress Videos - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/cypress/videos
+          retention-days: 1
+
+      - name: Save Cypress downloads
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Cypress Downloads - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/cypress/downloads
+          retention-days: 7
+
+      - name: Save Cypress results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Cypress Results - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/cypress/results
+          retention-days: 7
+
+      # Publish Cypress Test Results
+      # - name:
+      #   uses: EnricoMi/publish-unit-test-result-action@v2
+      #   if: always()
+      #   with:
+      #     junit_files: "tests/_output/**/*.xml"
+
+
+  # ##############################################
+  # Deploy Assets (only for pushes to main branch)
+  # ##############################################
+  deploy_assets:
+    name: 🚢 Assets
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [cypress-tests, phpunit-tests]
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy assets to WordPress plugin directory
+        run: .github/scripts/deploy-assets.sh
+        shell: bash
+        env:
+          WP_ORG_USERNAME: "${{ vars.WP_ORG_USERNAME }}"
+          WP_ORG_PASSWORD: "${{ secrets.WP_ORG_PASSWORD }}"
+          WP_ORG_PLUGIN_NAME: "${{ vars.WP_ORG_PLUGIN_NAME }}"
+
+
+  # #######################################
+  # Deploy Plugin (only for pushes to tags)
+  # #######################################
+  deploy_plugin:
+    name: 🚢 Plugin ZIP
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [cypress-tests, phpunit-tests]
+    if: success() && startsWith(github.event.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          path: /tmp
+      - name: Unzip plugin
+        run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+        working-directory: /tmp
+      - run: ls -la /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+      - name: Deploy plugin to WordPress plugin directory
+        run: .github/scripts/deploy-plugin.sh
+        shell: bash
+        env:
+          WP_ORG_USERNAME: "${{ vars.WP_ORG_USERNAME }}"
+          WP_ORG_PASSWORD: "${{ secrets.WP_ORG_PASSWORD }}"
+          WP_ORG_PLUGIN_NAME: "${{ vars.WP_ORG_PLUGIN_NAME }}"
+      - run: ls -R
+        working-directory: /tmp/svn
