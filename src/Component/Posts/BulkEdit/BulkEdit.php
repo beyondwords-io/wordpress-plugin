@@ -38,7 +38,7 @@ class BulkEdit
         add_action('wp_ajax_save_bulk_edit_beyondwords', array($this, 'saveBulkEdit'));
 
         add_action('wp_loaded', function () {
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -59,7 +59,7 @@ class BulkEdit
             return;
         }
 
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (! in_array($postType, $postTypes)) {
             return;

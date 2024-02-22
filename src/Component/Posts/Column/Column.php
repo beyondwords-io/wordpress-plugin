@@ -38,7 +38,7 @@ class Column
     public function init()
     {
         add_action('wp_loaded', function () {
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -81,7 +81,7 @@ class Column
             return;
         }
 
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (empty($postTypes)) {
             return;

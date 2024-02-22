@@ -127,15 +127,14 @@ class SiteHealth
             'value' => wp_json_encode(get_option('beyondwords_preselect')),
         ];
 
-        // translators: Tab heading for Site Health navigation.
-        $info['beyondwords']['fields']['allowed-post-types'] = [
-            'label' => __('Allowed post types', 'speechkit'),
-            'value' => implode(', ', SettingsUtils::getAllowedPostTypes()),
+        $info['beyondwords']['fields']['compatible-post-types'] = [
+            'label' => __('Compatible post types', 'speechkit'),
+            'value' => implode(', ', SettingsUtils::getCompatiblePostTypes()),
         ];
 
-        $info['beyondwords']['fields']['supported-post-types'] = [
-            'label' => __('Supported post types', 'speechkit'),
-            'value' => implode(', ', SettingsUtils::getSupportedPostTypes()),
+        $info['beyondwords']['fields']['incompatible-post-types'] = [
+            'label' => __('Incompatible post types', 'speechkit'),
+            'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
         ];
 
         $info['beyondwords']['fields']['beyondwords_settings_updated'] = [

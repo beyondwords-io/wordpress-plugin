@@ -19,20 +19,24 @@ use Beyondwords\Wordpress\Core\CoreUtils;
 class SettingsUtils
 {
     /**
-     * Get the post types which are forbidden for use with BeyondWords.
+     * Get the post types BeyondWords will consider for compatibility.
      *
-     * We DO NOT support most of the default WordPress post types. many would not work
-     * correctly with BeyondWords.
+     * We don't consider many of the core built-in post types for compatibity
+     * because they don't support the features we need such as titles, body,
+     * custom fields, etc.
      *
      * @since 3.7.0
+     * @since 4.5.0 Renamed from getAllowedPostTypes to getConsideredPostTypes.
      *
      * @static
      *
      * @return string[] Array of post type names.
      **/
-    public static function getForbiddenPostTypes()
+    public static function getConsideredPostTypes()
     {
-        return [
+        $postTypes = get_post_types();
+
+        $skip = [
             'attachment',
             'custom_css',
             'customize_changeset',
@@ -46,52 +50,34 @@ class SettingsUtils
             'wp_global_styles',
             'wp_navigation',
         ];
+
+        // Remove the skipped post types
+        $postTypes = array_diff($postTypes, $skip);
+
+        return array_values($postTypes);
     }
 
     /**
-     * Get the allowed BeyondWords post types.
+     * Get the post types that are compatible with BeyondWords.
      *
-     * These are the post types which are "allowed" (i.e. not "Forbidden") to be processed
-     * by BeyondWords.
-     *
-     * @since 3.7.0
-     *
-     * @static
-     *
-     * @return string[] Array of post type names.
-     **/
-    public static function getAllowedPostTypes()
-    {
-        $postTypes = get_post_types();
-
-        $forbidden = SettingsUtils::getForbiddenPostTypes();
-
-        // Filter the array, removing unsupported/forbidden post types
-        return array_values(array_diff($postTypes, $forbidden));
-    }
-
-    /**
-     * Get the post types which BeyondWords supports.
-     *
-     * Primarily, any post type which does not have 'custom-fields' in the
-     * 'supports' array will not work with BeyondWords.
-     *
-     * We also DO NOT support most default WordPress post types other than 'post'
-     * and 'page' e.g. we don't support 'attachment', 'revision' and 'wp_template'.
+     * - Start with the considered post types
+     * - Allow publishers to filter the list
+     * - Filter again, removing any that are incompatible
      *
      * @since 3.0.0
      * @since 3.2.0 Removed $output parameter to always output names, never objects.
      * @since 3.2.0 Added `beyondwords_post_types` filter.
-     * @since 3.5.0 Moved from Core\Utils to Component\Settings\SettingsUtils
+     * @since 3.5.0 Moved from Core\Utils to Component\Settings\SettingsUtils.
      * @since 3.7.0 Refactored forbidden/allowed/supported post type methods to improve site health debugging info.
+     * @since 4.5.0 Renamed from getSupportedPostTypes to getCompatiblePostTypes.
      *
      * @static
      *
      * @return string[] Array of post type names.
      **/
-    public static function getSupportedPostTypes()
+    public static function getCompatiblePostTypes()
     {
-        $postTypes = SettingsUtils::getAllowedPostTypes();
+        $postTypes = SettingsUtils::getConsideredPostTypes();
 
         /**
          * Filters the post types supported by BeyondWords.
@@ -126,9 +112,31 @@ class SettingsUtils
          */
         $postTypes = apply_filters('beyondwords_settings_post_types', $postTypes);
 
+        // Remove incompatible post types
+        $postTypes = array_diff($postTypes, SettingsUtils::getIncompatiblePostTypes());
+
+        return array_values($postTypes);
+    }
+
+    /**
+     * Get the post types that are incompatible with BeyondWords.
+     *
+     * The requirements are:
+     * - Must support Custom Fields.
+     *
+     * @since 4.5.0
+     *
+     * @static
+     *
+     * @return string[] Array of post type names.
+     **/
+    public static function getIncompatiblePostTypes()
+    {
+        $postTypes = SettingsUtils::getConsideredPostTypes();
+
         // Filter the array, removing unsupported post types
         $postTypes = array_filter($postTypes, function ($postType) {
-            if (! post_type_supports($postType, 'custom-fields')) {
+            if (post_type_supports($postType, 'custom-fields')) {
                 return false;
             }
 

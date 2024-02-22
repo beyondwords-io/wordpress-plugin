@@ -32,7 +32,7 @@ class SettingsUtilsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function getSupportedPostTypesFilter()
+    public function getCompatiblePostTypesFilter()
     {
         $postTypes = array_values(get_post_types());
 
@@ -48,7 +48,7 @@ class SettingsUtilsTest extends WP_UnitTestCase
 
         add_filter('beyondwords_settings_post_types', $filter);
 
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         remove_filter('beyondwords_settings_post_types', $filter);
 

@@ -40,7 +40,7 @@ class Sidebar
         if (CoreUtils::isGutenbergPage()) {
             $postType = get_post_type();
 
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (in_array($postType, $postTypes)) {
                 // Register the Block Editor "Sidebar" CSS

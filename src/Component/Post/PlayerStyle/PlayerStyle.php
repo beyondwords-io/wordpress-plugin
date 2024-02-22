@@ -35,7 +35,7 @@ class PlayerStyle
         add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_action('wp_loaded', function () {
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
