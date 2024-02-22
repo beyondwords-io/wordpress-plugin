@@ -77,9 +77,9 @@
         "sort-packages": true
     },
     "scripts": {
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_output/coverage.xml 60",
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_output/clover.xml 60",
         "test:phpunit": [
-            "yarn wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml --coverage-clover tests/phpunit/_output/coverage.xml --coverage-html tests/phpunit/_output/html",
+            "yarn wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
         ],
         "translate": [

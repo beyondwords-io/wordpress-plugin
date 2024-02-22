@@ -31,5 +31,9 @@
             <!-- <file>src/example.php</file> -->
             <directory suffix=".php">src/Compatibility/Elementor</directory>
         </exclude>
+        <report>
+            <clover outputFile="tests/phpunit/_output/clover.xml" />
+            <html outputDirectory="tests/phpunit/_output/html" />
+        </report>
     </coverage>
 </phpunit>
