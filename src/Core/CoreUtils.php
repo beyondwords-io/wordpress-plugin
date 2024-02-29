@@ -94,6 +94,7 @@ class CoreUtils
             'beyondwords_generate_audio',
             'beyondwords_project_id',
             'beyondwords_content_id',
+            'beyondwords_preview_token',
             'beyondwords_player_style',
             'beyondwords_language_id',
             'beyondwords_title_voice_id',

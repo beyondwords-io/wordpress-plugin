@@ -102,6 +102,7 @@ class PostMetaUtils
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_podcast_id',
+            'beyondwords_preview_token',
             'beyondwords_player_style',
             'beyondwords_language_id',
             'beyondwords_body_voice_id',

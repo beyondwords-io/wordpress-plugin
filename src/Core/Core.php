@@ -256,7 +256,7 @@ class Core
 
             if (array_key_exists('preview_key', $response)) {
                 // Save Preview Key
-                update_post_meta($postId, 'beyondwords_preview_key', $response['preview_key']);
+                update_post_meta($postId, 'beyondwords_preview_token', $response['preview_key']);
             }
         }
 
