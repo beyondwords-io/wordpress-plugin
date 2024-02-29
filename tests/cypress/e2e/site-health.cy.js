@@ -70,16 +70,16 @@ context( 'Site Health', () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', '{"post":"1","page":"1","cpt_active":"1"}' )
       } )
 
-    cy.contains( 'Allowed post types' )
-      .parent( 'tr' )
-      .within( () => {
-        cy.get( 'td' ).eq( 1 ).should( 'have.text', 'post, page, cpt_active, cpt_inactive, cpt_unsupported' )
-      } )
-
-    cy.contains( 'Supported post types' )
+    cy.contains( 'Compatible post types' )
       .parent( 'tr' )
       .within( () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', 'post, page, cpt_active, cpt_inactive' )
+      } )
+
+    cy.contains( 'Incompatible post types' )
+      .parent( 'tr' )
+      .within( () => {
+        cy.get( 'td' ).eq( 1 ).should( 'have.text', 'cpt_unsupported' )
       } )
 
     cy.contains( 'Settings updated' )
