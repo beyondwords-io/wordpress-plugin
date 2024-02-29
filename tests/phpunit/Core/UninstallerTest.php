@@ -84,12 +84,13 @@ class UninstallerTest extends WP_UnitTestCase
         $numPosts = 10;
 
         $customFields = [
-            // v4.0.0 New API
+            // v4.x New API
             'beyondwords_content_id'       => 'beyondwords_content_id',
             'beyondwords_language_id'      => 'beyondwords_language_id',
             'beyondwords_body_voice_id'    => 'beyondwords_body_voice_id',
             'beyondwords_title_voice_id'   => 'beyondwords_title_voice_id',
             'beyondwords_summary_voice_id' => 'beyondwords_summary_voice_id',
+            'beyondwords_preview_token'    => 'beyondwords_preview_token',
             // v3.7.0 beyondwords_*
             'beyondwords_generate_audio' => 'beyondwords_generate_audio',
             'beyondwords_project_id'     => 'beyondwords_project_id',

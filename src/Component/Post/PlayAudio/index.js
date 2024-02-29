@@ -18,9 +18,9 @@ import ScriptTag from 'react-script-tag';
 import PlayAudioCheck from './check';
 
 function PlayAudio( {
-	apiKey,
-	projectId,
 	contentId,
+	previewToken,
+	projectId,
 	wrapper = Fragment,
 } ) {
 	const Wrapper = wrapper;
@@ -75,12 +75,12 @@ function PlayAudio( {
 			contentId,
 			introsOutros: [],
 			playerStyle: 'small',
+			previewToken,
 			projectId,
 			target: document.querySelector(
 				'div[data-beyondwords-admin-player]'
 			),
 			widgetStyle: 'none',
-			writeToken: apiKey,
 		} );
 
 		setContentStatusChangedListener(playerInstance.addEventListener('ContentStatusChanged', ( payload ) => {
@@ -141,10 +141,9 @@ function PlayAudio( {
 export default compose( [
 	withSelect( ( select ) => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getSettings } = select( 'beyondwords/settings' );
 
-		const { apiKey } = getSettings();
-
+		const beyondwordsPreviewToken =
+			getEditedPostAttribute( 'meta' ).beyondwords_preview_token;
 		const beyondwordsProjectId =
 			getEditedPostAttribute( 'meta' ).beyondwords_project_id;
 		const speechkitProjectId =
@@ -158,12 +157,12 @@ export default compose( [
 			getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
 
 		return {
-			apiKey,
-			projectId: beyondwordsProjectId || speechkitProjectId,
 			contentId:
 				beyondwordsContentId ||
 				beyondwordsPodcastId ||
 				speechkitPodcastId,
+			previewToken: beyondwordsPreviewToken,
+			projectId: beyondwordsProjectId || speechkitProjectId,
 		};
 	} ),
 ] )( PlayAudio );

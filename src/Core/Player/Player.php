@@ -571,7 +571,6 @@ class Player
         }
 
         if (is_admin()) {
-            $legacyParams['apiWriteKey'] = $latestParams['writeToken'];
             $legacyParams['processingStatus'] = true;
 
             if (strlen($skBackendApi)) {
