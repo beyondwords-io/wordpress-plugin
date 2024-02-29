@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Posts\Column;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
  * Column setup
@@ -34,6 +35,7 @@ class Column
      * Init.
      *
      * @since 4.0.0
+     * @since 4.5.0 Make BeyondWords column sortable via the pre_get_posts query.
      */
     public function init()
     {
@@ -44,9 +46,14 @@ class Column
                 foreach ($postTypes as $postType) {
                     add_filter("manage_{$postType}_posts_columns", array($this, 'renderColumnsHead'));
                     add_action("manage_{$postType}_posts_custom_column", array($this, 'renderColumnsContent'), 10, 2);
+                    add_filter("manage_edit-{$postType}_sortable_columns", array($this, 'makeColumnSortable'));
                 }
             }
         });
+
+        if (CoreUtils::isEditScreen()) {
+            add_action('pre_get_posts', array($this, 'setSortQuery'));
+        }
     }
 
     /**
@@ -107,6 +114,56 @@ class Column
 
         if (! empty($disabled)) {
             echo wp_kses(self::OUTPUT_DISABLED, $allowedTags);
+        }
+    }
+
+    /**
+     * Make the BeyondWords column sortable.
+     *
+     * @since 4.5.0
+     *
+     * @param array $sortableColumns An array of sortable columns.
+     *
+     * @return array The adjusted array of sortable columns.
+     **/
+    public function makeColumnSortable($sortableColumns)
+    {
+        // Make column 'beyondwords' sortable
+        $sortableColumns['beyondwords'] = 'beyondwords';
+
+        return $sortableColumns;
+    }
+
+    /**
+     * Set the query to sort by BeyondWords fields.
+     *
+     * @since 4.5.0
+     *
+     * @param array $sortableColumns An array of sortable columns.
+     *
+     * @return void
+     */
+    public function setSortQuery($query)
+    {
+        $orderBy = $query->get('orderby');
+
+        if ($orderBy === 'beyondwords' && $query->is_main_query()) {
+            $metaQuery = [
+                'relation' => 'OR',
+                [
+                    'key' => 'beyondwords_generate_audio',
+                    'compare' => 'NOT EXISTS',
+                ],
+                [
+                    'key' => 'beyondwords_generate_audio',
+                ],
+                [
+                    'key' => 'beyondwords_error_message',
+                ],
+            ];
+
+            $query->set('meta_query', $metaQuery);
+            $query->set('orderby', 'meta_value');
         }
     }
 }
