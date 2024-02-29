@@ -80,6 +80,20 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 4.5.0-dev =
+
+Release date: 29th February 2024
+
+**Enhancements**
+
+* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" post types with "Compatible post types" and "Incompatible post types".
+
+**Code Refactoring**
+
+* A general tidy-up of all code, for the public release of the plugin code at [https://github.com/beyondwords-io/wordpress-plugin].
+* Remove `BEYONDWORDS_DEBUG` constant throughout the code - this was only ever used internally for the legacy player, so it has been removed.
+* Refactoring to reduce class complexity and prevent side-effects in PHP constructors.
+
 = 4.4.0 =
 
 Release date: 11th January 2024
