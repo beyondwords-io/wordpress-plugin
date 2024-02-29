@@ -86,13 +86,14 @@ Release date: 29th February 2024
 
 **Enhancements**
 
-* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" post types with "Compatible post types" and "Incompatible post types".
+* Audio content for posts created with a future publish date is now available to preview in the WordPress admin players. To achieve this we handle a `preview_token` returned from the BeyondWords REST API.
+* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" post types with "Compatible post types" and "Incompatible post types" to improve clarity.
 
 **Code Refactoring**
 
-* A general tidy-up of all code, for the public release of the plugin code at [https://github.com/beyondwords-io/wordpress-plugin].
-* Remove `BEYONDWORDS_DEBUG` constant throughout the code - this was only ever used internally for the legacy player, so it has been removed.
-* Refactoring to reduce class complexity and prevent side-effects in PHP constructors.
+* A general tidy-up of all code and docs for the public open-source release of our plugin repo at https://github.com/beyondwords-io/wordpress-plugin.
+* Remove `BEYONDWORDS_DEBUG` constant throughout the code - this was only ever used internally for the legacy player, so it has been removed for the public repo release.
+* Prevent side-effects in PHP constructors.
 
 = 4.4.0 =
 

@@ -234,8 +234,9 @@ class Core
      * Process the response body of a BeyondWords REST API response.
      *
      * @since 3.0.0
-     * @since 3.7.0  Stop saving response.access_key, we don't use it.
+     * @since 3.7.0 Stop saving response.access_key, we don't currently use it.
      * @since 4.0.0 Replace Podcast IDs with Content IDs
+     * @since 4.5.0 Save response.preview_key to support post scheduling.
      */
     public function processResponse($response, $projectId, $postId)
     {
@@ -252,6 +253,11 @@ class Core
 
             // Temporarily save into Podcast ID field to support downgrades to < 4.0.0
             update_post_meta($postId, 'beyondwords_podcast_id', $response['id']);
+
+            if (array_key_exists('preview_key', $response)) {
+                // Save Preview Key
+                update_post_meta($postId, 'beyondwords_preview_key', $response['preview_key']);
+            }
         }
 
         return $response;

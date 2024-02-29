@@ -9,7 +9,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 class LegacyPlayerTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Player\LegacyPlayer
+     * @var \Beyondwords\Wordpress\Core\Player\LegacyPlayer
      */
     private $_instance;
 

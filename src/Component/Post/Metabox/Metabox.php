@@ -196,14 +196,14 @@ class Metabox
             return;
         }
 
-        $projectId  = PostMetaUtils::getProjectId($post->ID);
-        $contentId  = PostMetaUtils::getContentId($post->ID);
+        $projectId    = PostMetaUtils::getProjectId($post->ID);
+        $contentId    = PostMetaUtils::getContentId($post->ID);
+        $previewToken = PostMetaUtils::getPreviewToken($post->ID);
 
         if (! $projectId || ! $contentId) {
             return;
         }
 
-        $writeToken = get_option('beyondwords_api_key', '');
         ?>
         <script async defer
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
@@ -211,12 +211,12 @@ class Metabox
                 target: this,
                 projectId: <?php echo esc_attr($projectId); ?>,
                 contentId: "<?php echo esc_attr($contentId); ?>",
+                previewToken: "<?php echo esc_attr($previewToken); ?>",
                 adverts: [],
                 analyticsConsent: "none",
                 introsOutros: [],
                 playerStyle: "small",
                 widgetStyle: "none",
-                writeToken: "<?php echo esc_attr($writeToken); ?>",
             });'
         >
         </script>

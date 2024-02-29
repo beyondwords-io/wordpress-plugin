@@ -244,6 +244,29 @@ class PostMetaUtils
     }
 
     /**
+     * Get the BeyondWords preview token for a WordPress Post.
+     *
+     * The preview token allows us to play audio that has a future scheduled
+     * publish date, so we can preview the audio in WordPress admin before it
+     * is published.
+     *
+     * The token is supplied by the BeyondWords REST API whenever audio content
+     * is created/updated, and stored in a WordPress custom field.
+     *
+     * @since 4.5.0
+     *
+     * @param int $postId Post ID.
+     *
+     * @return string Preview token
+     */
+    public static function getPreviewToken($postId)
+    {
+        $previewToken = get_post_meta($postId, 'beyondwords_preview_token', true);
+
+        return $previewToken;
+    }
+
+    /**
      * Get the 'Generate Audio' value for a Post.
      *
      * @since 3.0.0
