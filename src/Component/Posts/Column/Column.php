@@ -148,22 +148,19 @@ class Column
         $orderBy = $query->get('orderby');
 
         if ($orderBy === 'beyondwords' && $query->is_main_query()) {
-            $metaQuery = [
+            $query->set('meta_query', [
                 'relation' => 'OR',
                 [
                     'key' => 'beyondwords_generate_audio',
-                    'compare' => 'NOT EXISTS',
+                    'compare' => 'NOT EXISTS'
                 ],
                 [
                     'key' => 'beyondwords_generate_audio',
+                    'compare' => 'EXISTS'
                 ],
-                [
-                    'key' => 'beyondwords_error_message',
-                ],
-            ];
+            ]);
 
-            $query->set('meta_query', $metaQuery);
-            $query->set('orderby', 'meta_value');
+            $query->set('orderby', 'meta_value date');
         }
     }
 }
