@@ -32,7 +32,7 @@ class SettingsUtilsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function getSupportedPostTypesFilter()
+    public function getCompatiblePostTypesFilter()
     {
         $postTypes = array_values(get_post_types());
 
@@ -41,17 +41,21 @@ class SettingsUtilsTest extends WP_UnitTestCase
         $this->assertContains('attachment', $postTypes);
         $this->assertContains('revision', $postTypes);
 
-        // Set the filter to only return array key 1 ("page")
+        // Set the filter
         $filter = function($supportedPostTypes) {
-            return [$supportedPostTypes[1], 'attachment'];
+            return [
+                $supportedPostTypes[1],
+                $supportedPostTypes[0],
+                'another-post-type',
+            ];
         };
 
         add_filter('beyondwords_settings_post_types', $filter);
 
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         remove_filter('beyondwords_settings_post_types', $filter);
 
-        $this->assertSame(['page'], $postTypes);
+        $this->assertSame(['page', 'post', 'another-post-type'], $postTypes);
     }
 }

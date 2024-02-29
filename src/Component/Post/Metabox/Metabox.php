@@ -77,7 +77,7 @@ class Metabox
      */
     public function addMetaBox($postType)
     {
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (is_array($postTypes) && ! in_array($postType, $postTypes)) {
             return;

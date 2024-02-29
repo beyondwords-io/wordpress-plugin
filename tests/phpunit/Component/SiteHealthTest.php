@@ -66,8 +66,8 @@ class SiteHealthTest extends WP_UnitTestCase
         $this->assertArrayHasKey('beyondwords_preselect', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_settings_updated', $info['beyondwords']['fields']);
 
-        $this->assertArrayHasKey('allowed-post-types', $info['beyondwords']['fields']);
-        $this->assertArrayHasKey('supported-post-types', $info['beyondwords']['fields']);
+        $this->assertArrayHasKey('compatible-post-types', $info['beyondwords']['fields']);
+        $this->assertArrayHasKey('incompatible-post-types', $info['beyondwords']['fields']);
 
         $this->assertArrayHasKey('registered-filters', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('registered-deprecated-filters', $info['beyondwords']['fields']);

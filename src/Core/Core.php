@@ -265,7 +265,7 @@ class Core
         if (CoreUtils::isGutenbergPage()) {
             $postType = get_post_type();
 
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (in_array($postType, $postTypes, true)) {
                 $assetFile = include BEYONDWORDS__PLUGIN_DIR . 'build/index.asset.php';
@@ -307,7 +307,7 @@ class Core
      **/
     public function registerMeta()
     {
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (is_array($postTypes)) {
             $keys = CoreUtils::getPostMetaKeys('all');
@@ -511,7 +511,7 @@ class Core
             ],
         ]);
 
-        $beyondwordsPostTypes = SettingsUtils::getSupportedPostTypes();
+        $beyondwordsPostTypes = SettingsUtils::getCompatiblePostTypes();
 
         $graphqlPostTypes = \WPGraphQL::get_allowed_post_types();
 

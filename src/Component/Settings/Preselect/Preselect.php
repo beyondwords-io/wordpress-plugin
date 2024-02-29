@@ -87,7 +87,7 @@ class Preselect
      **/
     public function render()
     {
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (! is_array($postTypes) || count($postTypes) === 0) :
             ?>

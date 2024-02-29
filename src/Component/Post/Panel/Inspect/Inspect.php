@@ -33,7 +33,7 @@ class Inspect
         add_filter('default_hidden_meta_boxes', array($this, 'hideMetaBox'));
 
         add_action('wp_loaded', function () {
-            $postTypes = SettingsUtils::getSupportedPostTypes();
+            $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -90,7 +90,7 @@ class Inspect
      */
     public function addMetaBox($postType)
     {
-        $postTypes = SettingsUtils::getSupportedPostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
         if (is_array($postTypes) && ! in_array($postType, $postTypes)) {
             return;
