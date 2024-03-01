@@ -1,12 +1,11 @@
+*.code-workspace
+*.log
 .bk.*
 .DS_Store
-*.code-workspace
-yarn-error.log
 /.build
 /.docker/php/volumes
 /.env
 /.env.*
-/.github/artifacts
 /.idea
 /.phpcs.xml
 /.phpunit.cache
@@ -15,11 +14,10 @@ yarn-error.log
 /build
 /codeception.yml
 /cypress.env.json
+/node_modules
 /tests/cypress/downloads
 /tests/cypress/results
 /tests/cypress/screenshots
 /tests/cypress/videos
-/node_modules
 /tests/phpunit/_output
-/tests/wpunit.suite.yml
 /vendor

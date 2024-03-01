@@ -23,8 +23,7 @@
         "wp-content/plugins/rest-api-insert": "./tests/fixtures/wp-content/plugins/rest-api-insert",
         "wp-content/plugins/rest-api-publish": "./tests/fixtures/wp-content/plugins/rest-api-publish",
         "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip",
-        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip",
-        "wp-content/uploads/artifacts": "./.github/artifacts"
+        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip"
     },
     "env": {
         "tests": {
