@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text to speech, text to audio, tts, speech synthesis, podcast, audio
-Stable tag: 4.4.0
+Stable tag: 4.5.0
 Requires PHP: 7.4
 Tested up to: 6.4
 License: GPLv2 or later
@@ -80,9 +80,9 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.5.0-dev =
+= 4.5.0 =
 
-Release date: 29th February 2024
+Release date: 1st March 2024
 
 **Enhancements**
 
