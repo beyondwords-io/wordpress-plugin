@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Languages;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**

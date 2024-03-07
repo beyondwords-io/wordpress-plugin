@@ -14,11 +14,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
 
-use Beyondwords\Wordpress\Core\Core;
-use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Plugin;
-
 /**
  * BulkEdit setup
  *

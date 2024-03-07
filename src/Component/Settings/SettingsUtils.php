@@ -6,7 +6,6 @@ namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Compatibility\Elementor\Elementor;
 use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
-use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
  * BeyondWords Settings Utilities.

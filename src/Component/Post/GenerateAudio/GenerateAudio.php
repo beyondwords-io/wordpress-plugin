@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\GenerateAudio;
 
-use Beyondwords\Wordpress\Core\Core;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 

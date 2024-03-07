@@ -8,7 +8,6 @@ use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Request;
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)

@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Core\Player\Player;
-use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * The "Legacy" BeyondWords Player.
