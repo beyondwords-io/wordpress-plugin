@@ -206,7 +206,7 @@ class ColumnTest extends WP_UnitTestCase
 
         $this->assertIsArray($query->get('meta_query'));
         $this->assertSame($this->_instance->getSortQueryArgs(), $query->get('meta_query'));
-        $this->assertEquals('meta_value date', $query->get('orderby'));
+        $this->assertEquals('meta_value_num date', $query->get('orderby'));
     }
 
     /**

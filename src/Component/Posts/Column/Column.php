@@ -137,7 +137,7 @@ class Column
     /**
      * Set the query to sort by BeyondWords fields.
      *
-     * @since 4.5.0
+     * @since 4.5.1
      *
      * @param WP_Query $query WordPress query.
      *
@@ -149,7 +149,7 @@ class Column
 
         if ($orderBy === 'beyondwords' && $query->is_main_query()) {
             $query->set('meta_query', $this->getSortQueryArgs());
-            $query->set('orderby', 'meta_value date');
+            $query->set('orderby', 'meta_value_num date');
         }
 
         return $query;
@@ -158,7 +158,7 @@ class Column
     /**
      * Get the sort search query args.
      *
-     * @since 4.5.0
+     * @since 4.5.1
      *
      * @param array $sortableColumns An array of sortable columns.
      *
@@ -170,11 +170,11 @@ class Column
             'relation' => 'OR',
             [
                 'key' => 'beyondwords_generate_audio',
-                'compare' => 'NOT EXISTS'
+                'compare' => 'NOT EXISTS',
             ],
             [
                 'key' => 'beyondwords_generate_audio',
-                'compare' => 'EXISTS'
+                'compare' => 'EXISTS',
             ],
         ];
     }
