@@ -139,28 +139,43 @@ class Column
      *
      * @since 4.5.0
      *
-     * @param array $sortableColumns An array of sortable columns.
+     * @param WP_Query $query WordPress query.
      *
-     * @return void
+     * @return $query WP_Query
      */
     public function setSortQuery($query)
     {
         $orderBy = $query->get('orderby');
 
         if ($orderBy === 'beyondwords' && $query->is_main_query()) {
-            $query->set('meta_query', [
-                'relation' => 'OR',
-                [
-                    'key' => 'beyondwords_generate_audio',
-                    'compare' => 'NOT EXISTS'
-                ],
-                [
-                    'key' => 'beyondwords_generate_audio',
-                    'compare' => 'EXISTS'
-                ],
-            ]);
-
+            $query->set('meta_query', $this->getSortQueryArgs());
             $query->set('orderby', 'meta_value date');
         }
+
+        return $query;
+    }
+
+    /**
+     * Get the sort search query args.
+     *
+     * @since 4.5.0
+     *
+     * @param array $sortableColumns An array of sortable columns.
+     *
+     * @return array
+     */
+    public function getSortQueryArgs()
+    {
+        return [
+            'relation' => 'OR',
+            [
+                'key' => 'beyondwords_generate_audio',
+                'compare' => 'NOT EXISTS'
+            ],
+            [
+                'key' => 'beyondwords_generate_audio',
+                'compare' => 'EXISTS'
+            ],
+        ];
     }
 }
