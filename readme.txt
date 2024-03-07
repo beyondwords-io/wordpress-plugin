@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text to speech, text to audio, tts, speech synthesis, podcast, audio
-Stable tag: 4.4.0
+Stable tag: 4.5.0
 Requires PHP: 7.4
 Tested up to: 6.4
 License: GPLv2 or later
@@ -80,15 +80,22 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.5.0-dev =
+= 4.5.1-rc1 =
 
-Release date: 29th February 2024
+Release date: 7th March 2024
+
+**Enhancements**
+
+* Make BeyondWords column in WP admin sortable.
+
+= 4.5.0 =
+
+Release date: 1st March 2024
 
 **Enhancements**
 
 * Audio content for posts created with a future publish date is now available to preview in the WordPress admin players. To achieve this we handle a `preview_token` returned from the BeyondWords REST API.
-* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" post types with "Compatible post types" and "Incompatible post types" to improve clarity.
-* Make BeyondWords column in WP admin sortable
+* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" with "Compatible post types" and "Incompatible post types" to improve clarity.
 
 **Code Refactoring**
 
