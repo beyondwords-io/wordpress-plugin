@@ -148,4 +148,84 @@ class ColumnTest extends WP_UnitTestCase
             ],
         ];
     }
+
+    /**
+     * @test
+     *
+     * @dataProvider makeColumnSortableProvider
+     **/
+    public function makeColumnSortable($expect, $params)
+    {
+        $this->assertSame($expect, $this->_instance->makeColumnSortable($params));
+    }
+
+    public function makeColumnSortableProvider()
+    {
+        return [
+            'Empty params' => [
+                'expect' => [
+                    'beyondwords' => 'beyondwords',
+                ],
+                'params' => [],
+            ],
+            'Existing params' => [
+                'expect' => [
+                    'foo' => 'bar',
+                    'beyondwords' => 'beyondwords',
+                ],
+                'params' => [
+                    'foo' => 'bar',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     */
+    public function setSortQuery()
+    {
+        global $wp_the_query;
+
+        $query = new WP_Query();
+	    $wp_the_query = $query;
+
+        $this->assertEquals('', $query->get('meta_query'));
+        $this->assertEquals('', $query->get('orderby'));
+
+        $query->set('orderby', 'date');
+        $query = $this->_instance->setSortQuery($query);
+	    $wp_the_query = $query;
+
+        $this->assertEquals('', $query->get('meta_query'));
+        $this->assertEquals('date', $query->get('orderby'));
+
+        $query->set('orderby', 'beyondwords');
+        $query = $this->_instance->setSortQuery($query);
+	    $wp_the_query = $query;
+
+        $this->assertIsArray($query->get('meta_query'));
+        $this->assertSame($this->_instance->getSortQueryArgs(), $query->get('meta_query'));
+        $this->assertEquals('meta_value_num date', $query->get('orderby'));
+    }
+
+    /**
+     * @test
+     */
+    public function getSortQueryArgs()
+    {
+        $args = $this->_instance->getSortQueryArgs();
+
+        $this->assertEquals(['relation', 0, 1], array_keys($args));
+
+        $this->assertEquals('OR', $args['relation']);
+
+        $this->assertEquals(['key', 'compare'], array_keys($args[0]));
+        $this->assertEquals('beyondwords_generate_audio', $args[0]['key']);
+        $this->assertEquals('NOT EXISTS', $args[0]['compare']);
+
+        $this->assertEquals(['key', 'compare'], array_keys($args[1]));
+        $this->assertEquals('beyondwords_generate_audio', $args[1]['key']);
+        $this->assertEquals('EXISTS', $args[1]['compare']);
+    }
 }

@@ -80,6 +80,14 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 4.5.1-rc1 =
+
+Release date: 7th March 2024
+
+**Enhancements**
+
+* Make BeyondWords column in WP admin sortable.
+
 = 4.5.0 =
 
 Release date: 1st March 2024
