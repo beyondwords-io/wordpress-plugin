@@ -82,11 +82,15 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 4.5.1-rc1 =
 
-Release date: 7th March 2024
+Release date: 14th March 2024
 
 **Enhancements**
 
 * Make BeyondWords column in WP admin sortable.
+
+**Fixes**
+
+* Fix a critical JS error in Classic Editor that was occurring when API requests for languages and voices were failing. We now handle failed REST API calls and only render plugin components on the Post edit screens if the REST API creds have been validated.
 
 = 4.5.0 =
 
