@@ -7,8 +7,6 @@ namespace Beyondwords\Wordpress\Compatibility\Elementor\Controls;
 use Elementor\Base_Control;
 use Elementor\Controls_Manager;
 
-use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-
 /**
  * Elementor BeyondWords Player control.
  *

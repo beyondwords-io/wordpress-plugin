@@ -8,8 +8,6 @@ namespace Beyondwords\Wordpress\Compatibility\Elementor\ControlsSections;
 use Elementor\Controls_Manager;
 use Elementor\Core\DocumentTypes\PageBase as PageBase;
 
-use WP_Post;
-
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 
 /**

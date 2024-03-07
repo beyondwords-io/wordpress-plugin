@@ -12,11 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\PlayerStyle;
 
-use Beyondwords\Wordpress\Core\ApiClient;
-use Beyondwords\Wordpress\Core\Core;
-use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle as PlayerStyleSetting;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 

@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\Sidebar;
 
-use Beyondwords\Wordpress\Component\Settings\PostTypes\PostTypes;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 

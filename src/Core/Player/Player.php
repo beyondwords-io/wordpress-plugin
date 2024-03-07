@@ -6,8 +6,6 @@ namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerStyle;
-use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
