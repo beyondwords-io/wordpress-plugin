@@ -65,48 +65,57 @@ class Plugin
 
     /**
      * Constructor.
+     *
+     * @since 3.0.0
+     * @since 4.5.1 Disable plugin features if we don't have valid API settings.
      */
     public function init()
     {
-        // First, run plugin update checks
+        // Run plugin update checks before anything else
         (new Updater())->run();
 
-        // Elementor
+        // Elementor compatibility
         (new Elementor())->init();
 
-        // 1. Core
+        // Core
         $this->core = new Core($this->apiClient);
         $this->core->init();
 
-        // 2. Player
+        // Site health
+        (new SiteHealth())->init();
+
+        // Player
         if (SettingsUtils::useLegacyPlayer()) {
             (new LegacyPlayer())->init();
         } else {
             (new Player())->init();
         }
 
-        // 3. Settings
+        // Settings
         (new Settings($this->apiClient))->init();
 
-        // 4. Posts screen
-        (new Column())->init();
-        (new BulkEdit())->init();
-        (new BulkEditNotices())->init();
+        /**
+         * To prevent browser JS errors we skip adding admin UI components until
+         * we have a valid REST API connection.
+         */
+        if (SettingsUtils::hasApiSettings()) {
+            // Posts screen
+            (new BulkEdit())->init();
+            (new BulkEditNotices())->init();
+            (new Column())->init();
 
-        // 5. Post screen
-        (new AddPlayer())->init();
-        (new BlockAttributes())->init();
-        (new ErrorNotice())->init();
-        (new Inspect())->init();
+            // Post screen
+            (new AddPlayer())->init();
+            (new BlockAttributes())->init();
+            (new ErrorNotice())->init();
+            (new Inspect())->init();
 
-        // 6. Post screen Metabox
-        (new GenerateAudio())->init();
-        (new DisplayPlayer())->init();
-        (new SelectVoice($this->apiClient))->init();
-        (new PlayerStyle())->init();
-        (new Metabox($this->apiClient))->init();
-
-        // 7. Site Health
-        (new SiteHealth())->init();
+            // Post screen metabox
+            (new GenerateAudio())->init();
+            (new DisplayPlayer())->init();
+            (new SelectVoice($this->apiClient))->init();
+            (new PlayerStyle())->init();
+            (new Metabox($this->apiClient))->init();
+        }
     }
 }

@@ -142,9 +142,27 @@ class CoreTest extends WP_UnitTestCase
 
         $this->assertNotContains('beyondwords-block-js', $wp_scripts->queue);
 
+        /**
+         * Enqueuing without a valid API connection should do nothing
+         */
+        $core->enqueueBlockEditorAssets();
+
+        $this->assertNotContains('beyondwords-block-js', $wp_scripts->queue);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+
+        /**
+         * Enqueuing with a valid API connection should succeed
+         */
         $core->enqueueBlockEditorAssets();
 
         $this->assertContains('beyondwords-block-js', $wp_scripts->queue);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+        delete_option('beyondwords_valid_api_connection');
 
         wp_delete_post($post->ID, true);
     }
