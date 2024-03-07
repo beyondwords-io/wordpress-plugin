@@ -87,7 +87,7 @@ Release date: 1st March 2024
 **Enhancements**
 
 * Audio content for posts created with a future publish date is now available to preview in the WordPress admin players. To achieve this we handle a `preview_token` returned from the BeyondWords REST API.
-* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" post types with "Compatible post types" and "Incompatible post types" to improve clarity.
+* In Site Health and throughout the code, replace "Allowed post types" and "Supported post types" with "Compatible post types" and "Incompatible post types" to improve clarity.
 
 **Code Refactoring**
 

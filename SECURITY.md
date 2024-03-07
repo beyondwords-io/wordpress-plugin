@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following versions of this project are currently being supported with 
+The following versions of this project are currently being supported with
 security updates.
 
 | Version | Supported          |
@@ -12,7 +12,7 @@ security updates.
 
 ## Reporting a Vulnerability
 
-Please report any security vulnerabilities to 
+Please report any security vulnerabilities to
 [support@beyondwords.io](mailto:support@beyondwords.io).
 
-We aim to responed to reported vulnerabilities within 1 working day.
+We aim to respond to reported vulnerabilities within 1 working day.

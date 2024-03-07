@@ -17,7 +17,6 @@ use Beyondwords\Wordpress\Compatibility\Elementor\ControlsSections\Beyondwords a
 use Beyondwords\Wordpress\Compatibility\Elementor\ControlsSections\Help as HelpControlsSection;
 use Beyondwords\Wordpress\Compatibility\Elementor\ControlsSections\Inspect as InspectControlsSection;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Core\Environment;
 
 /**
  * Integrates the BeyondWords Sidebar in the Elementor editor.

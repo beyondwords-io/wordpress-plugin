@@ -16,7 +16,6 @@ namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
 
 use Beyondwords\Wordpress\Core\Core;
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Posts\BulkEdit\Notices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Plugin;
 

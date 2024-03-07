@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Core;
 
-use Beyondwords\Wordpress\Component;
-
 /**
  * Environment setup
  *
