@@ -120,7 +120,7 @@ class Column
     /**
      * Make the BeyondWords column sortable.
      *
-     * @since 4.5.0
+     * @since 4.5.1
      *
      * @param array $sortableColumns An array of sortable columns.
      *
