@@ -265,9 +265,16 @@ class Core
 
     /**
      * Enqueue Core (built & minified) JS for Block Editor.
+     *
+     * @since 3.0.0
+     * @since 4.5.1 Disable plugin features if we don't have valid API settings.
      */
     public function enqueueBlockEditorAssets()
     {
+        if (! SettingsUtils::hasApiSettings()) {
+            return;
+        }
+
         if (CoreUtils::isGutenbergPage()) {
             $postType = get_post_type();
 
