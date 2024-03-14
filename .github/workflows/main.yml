@@ -106,10 +106,10 @@ jobs:
 
 
   # ######################################
-  # Code Quality
+  # GrumPHP
   # ######################################
   grumphp:
-    name: GrumPHP Code Quality
+    name: GrumPHP
     runs-on: ubuntu-20.04
     environment: production
     steps:
@@ -217,8 +217,8 @@ jobs:
       - name: Install plugins
         run: |
           wp plugin uninstall --deactivate --all
-          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp plugin install plugin-check --force
+          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --activate
+          wp plugin install plugin-check --activate
 
       - name: Run Plugin Check
         run: wp plugin check speechkit
@@ -230,7 +230,7 @@ jobs:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [grumphp, plugin-check]
+    needs: [grumphp]
 
     strategy:
       fail-fast: false
@@ -347,7 +347,7 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [build, phpunit-tests]
+    needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
