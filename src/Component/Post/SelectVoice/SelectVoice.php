@@ -86,13 +86,9 @@ class SelectVoice
             return;
         }
 
-        $voices = [];
+        $voices = $this->apiClient->getVoices($currentLanguageId);
 
-        if ($currentLanguageId) {
-            $voices = $this->apiClient->getVoices($currentLanguageId);
-        }
-
-        if (! is_array($voices) || ! count($voices)) {
+        if (! is_array($voices)) {
             $voices = [];
         }
 

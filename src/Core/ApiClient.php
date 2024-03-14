@@ -199,6 +199,7 @@ class ApiClient
      *
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
+     * @since 4.5.1 Check the $languageId param is numeric.
      *
      * @param int $languageId BeyondWords Language ID
      *
@@ -206,6 +207,10 @@ class ApiClient
      **/
     public function getVoices($languageId)
     {
+        if (! is_numeric($languageId)) {
+            return [];
+        }
+
         $url = sprintf('%s/organization/voices?filter[language.id]=%s', Environment::getApiUrl(), urlencode(strval($languageId))); // phpcs:ignore Generic.Files.LineLength.TooLong
 
         $request = new Request('GET', $url);
