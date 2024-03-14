@@ -94,7 +94,6 @@ Release date: 14th March 2024
 * Improved handling for REST API calls that fail while editing posts. This fixes the following issues:
     * The block editor crashed if the API Key and/or Project ID had not been entered in the plugin settings.
     * The block editor crashed if REST API calls failed for other reasons e.g. network problems.
-    * The classic editor would display empty select boxes for related failed API calls.
 * Removed a console log intended for debugging.
 
 = 4.5.0 =
