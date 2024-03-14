@@ -42,7 +42,14 @@ class PlayerStyle
     }
 
     /**
+     * HTML output for this component.
+     *
      * @since 4.1.0
+     * @since 4.5.1 Hide element if no language data exists.
+     *
+     * @param WP_Post $post The post object.
+     *
+     * @return string|null
      */
     public function element($post)
     {
@@ -50,6 +57,10 @@ class PlayerStyle
 
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
         $allPlayerStyles = PlayerStyleSetting::getCachedPlayerStyles($projectId);
+
+        if (! is_array($allPlayerStyles) || ! count($allPlayerStyles)) {
+            return;
+        }
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -68,7 +79,7 @@ class PlayerStyle
                     '<option value="%s" %s %s>%s</option>',
                     esc_attr($item['value']),
                     selected(strval($item['value']), $playerStyle),
-                    disabled($item['disabled'], true),
+                    disabled($item['disabled'] ?? false, true),
                     esc_html($item['label'])
                 );
             }

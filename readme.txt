@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text to speech, text to audio, tts, speech synthesis, podcast, audio
-Stable tag: 4.5.0
+Stable tag: 4.5.1
 Requires PHP: 7.4
 Tested up to: 6.4
 License: GPLv2 or later
@@ -80,17 +80,22 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.5.1-rc1 =
+= 4.5.1 =
 
 Release date: 14th March 2024
 
 **Enhancements**
 
-* Make BeyondWords column in WP admin sortable.
+* Make the BeyondWords column in WP admin sortable.
 
 **Fixes**
 
-* Fix a critical JS error in Classic Editor that was occurring when API requests for languages and voices were failing. We now handle failed REST API calls and only render plugin components on the Post edit screens if the REST API creds have been validated.
+* We now only render plugin components on the Post edit screens if the REST API credentials have been validated.
+* Improved handling for REST API calls that fail while editing posts. This fixes the following issues:
+    * The block editor crashed if the API Key and/or Project ID had not been entered in the plugin settings.
+    * The block editor crashed if REST API calls failed for other reasons e.g. network problems.
+    * The classic editor would display empty select boxes for related failed API calls.
+* Removed a console log intended for debugging.
 
 = 4.5.0 =
 

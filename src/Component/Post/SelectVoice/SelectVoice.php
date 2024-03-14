@@ -62,7 +62,14 @@ class SelectVoice
     }
 
     /**
+     * HTML output for this component.
+     *
      * @since 4.0.0
+     * @since 4.5.1 Hide element if no language data exists.
+     *
+     * @param WP_Post $post The post object.
+     *
+     * @return string|null
      */
     public function element($post)
     {
@@ -74,10 +81,19 @@ class SelectVoice
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
         $languages = $this->getFilteredLanguages();
+
+        if (! is_array($languages) || ! count($languages)) {
+            return;
+        }
+
         $voices = [];
 
         if ($currentLanguageId) {
             $voices = $this->apiClient->getVoices($currentLanguageId);
+        }
+
+        if (! is_array($voices) || ! count($voices)) {
+            $voices = [];
         }
 
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');

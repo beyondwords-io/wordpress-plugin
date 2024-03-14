@@ -13,22 +13,22 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 		case 'SET_LANGUAGES':
 			return {
 				...state,
-				languages: action.value,
+				languages: action.value || [],
 			};
 		case 'SET_PLAYER_STYLES':
 			return {
 				...state,
-				playerStyles: action.value,
+				playerStyles: action.value || [],
 			};
 		case 'SET_SETTINGS':
 			return {
 				...state,
-				settings: action.value,
+				settings: action.value || {},
 			};
 		case 'SET_VOICES':
 			return {
 				...state,
-				voices: action.value,
+				voices: action.value || [],
 			};
 	}
 

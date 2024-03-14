@@ -6,7 +6,7 @@ use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PlayerStyleTest extends WP_UnitTestCase
+class SettingsPlayerStyleTest extends WP_UnitTestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle

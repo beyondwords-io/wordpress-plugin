@@ -42,6 +42,10 @@ export function PlayerStyle( { wrapper } ) {
 		} );
 	};
 
+	if (! playerStyles.length) {
+		return false;
+	}
+
 	return (
 		<Wrapper>
 			<Flex>
