@@ -77,7 +77,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_output/clover.xml 65",
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_output/clover.xml 70",
         "test:phpunit": [
             "yarn wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
