@@ -62,7 +62,14 @@ class SelectVoice
     }
 
     /**
+     * HTML output for this component.
+     *
      * @since 4.0.0
+     * @since 4.5.1 Hide element if no language data exists.
+     *
+     * @param WP_Post $post The post object.
+     *
+     * @return string|null
      */
     public function element($post)
     {
@@ -70,14 +77,14 @@ class SelectVoice
             return;
         }
 
+        $languages         = $this->getFilteredLanguages();
         $currentLanguageId = get_post_meta($post->ID, 'beyondwords_language_id', true);
+
+        $voices         = $this->apiClient->getVoices($currentLanguageId);
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
-        $languages = $this->getFilteredLanguages();
-        $voices = [];
-
-        if ($currentLanguageId) {
-            $voices = $this->apiClient->getVoices($currentLanguageId);
+        if (! is_array($voices)) {
+            $voices = [];
         }
 
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
@@ -219,12 +226,18 @@ class SelectVoice
      * Get languages from BeyondWords API and filter by "Languages" plugin setting.
      *
      * @since 4.0.0
+     * @since 4.5.1 Exit early with an empty array if language API call fails.
      *
      * @return array Array of languages
      */
     public function getFilteredLanguages()
     {
-        $languages        = $this->apiClient->getLanguages();
+        $languages = $this->apiClient->getLanguages();
+
+        if (! is_array($languages)) {
+            return [];
+        }
+
         $languagesSetting = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
 
         // Filter languages according to "Languages" plugin setting

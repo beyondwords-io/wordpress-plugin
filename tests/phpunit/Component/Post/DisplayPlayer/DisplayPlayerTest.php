@@ -100,8 +100,6 @@ class DisplayPlayerTest extends WP_UnitTestCase
 
         $crawler = new Crawler($html);
 
-        fwrite(STDERR, print_r($html, true));
-
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-display-player'));
 
         $input = $crawler->filter('p#beyondwords-metabox-display-player input');

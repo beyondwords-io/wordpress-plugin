@@ -38,7 +38,6 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 			const { attributes, setAttributes } = props;
 
 			useEffect( () => {
-				console.log('!!! useEffect');
 				setAttributes( {
 					beyondwordsMarker: getBlockMarkerAttribute( attributes )
 				} );

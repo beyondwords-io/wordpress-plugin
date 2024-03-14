@@ -130,10 +130,17 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function deleteAudio()
     {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ApiClientTest::deleteAudio::1',
+        ]);
+
+        $response = $this->_instance->deleteAudio($postId);
+        $this->assertFalse($response);
+
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::deleteAudio',
+            'post_title' => 'ApiClientTest::deleteAudio::2',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -148,6 +155,130 @@ class ApiClientTest extends WP_UnitTestCase
         wp_delete_post($postId, true);
 
         delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group voices
+     */
+    public function getLanguages()
+    {
+        $response = $this->_instance->getLanguages();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+
+        $response = $this->_instance->getLanguages();
+
+        $this->assertSame($response, [
+            ['id' => 1, 'name' => 'Language 1'],
+            ['id' => 2, 'name' => 'Language 2'],
+            ['id' => 3, 'name' => 'Language 3'],
+        ]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group voices
+     */
+    public function getVoices()
+    {
+        $response = $this->_instance->getVoices('2');
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+
+        $response = $this->_instance->getVoices('2');
+
+        $this->assertSame($response, [
+            ['id' => 1, 'name' => 'Voice 2-a'],
+            ['id' => 2, 'name' => 'Voice 2-b'],
+            ['id' => 3, 'name' => 'Voice 2-c'],
+        ]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function getProject()
+    {
+        $response = $this->_instance->getProject();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = $this->_instance->getProject();
+
+        $this->assertArrayHasKey('id', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('language', $response);
+        $this->assertArrayHasKey('auto_publish_enabled', $response);
+        $this->assertArrayHasKey('time_zone', $response);
+        $this->assertArrayHasKey('created', $response);
+        $this->assertArrayHasKey('updated', $response);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function getPlayerSettings()
+    {
+        $response = $this->_instance->getPlayerSettings();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = $this->_instance->getPlayerSettings();
+
+        $this->assertArrayHasKey('player_version', $response);
+        $this->assertArrayHasKey('player_style', $response);
+        $this->assertArrayHasKey('player_title', $response);
+        $this->assertArrayHasKey('call_to_action', $response);
+        $this->assertArrayHasKey('image_url', $response);
+        $this->assertArrayHasKey('theme', $response);
+        $this->assertArrayHasKey('updated', $response);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function getVideoSettings()
+    {
+        $response = $this->_instance->getVideoSettings();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = $this->_instance->getVideoSettings();
+
+        $this->assertArrayHasKey('enabled', $response);
+        $this->assertArrayHasKey('logo_image_url', $response);
+        $this->assertArrayHasKey('logo_image_position', $response);
+        $this->assertArrayHasKey('background_color', $response);
+        $this->assertArrayHasKey('text_background_color', $response);
+        $this->assertArrayHasKey('text_color', $response);
+        $this->assertArrayHasKey('text_highlight_color', $response);
+        $this->assertArrayHasKey('waveform_color', $response);
+        $this->assertArrayHasKey('content_image_enabled', $response);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**

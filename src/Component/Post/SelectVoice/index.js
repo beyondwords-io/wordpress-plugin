@@ -72,6 +72,10 @@ export function SelectVoice( { wrapper } ) {
 		} );
 	}, [ voices ] );
 
+	if (! languageOptions.length) {
+		return false;
+	}
+
 	return (
 		<SelectVoiceCheck>
 			<Wrapper>
