@@ -108,8 +108,8 @@ jobs:
   # ######################################
   # Code Quality
   # ######################################
-  code-quality:
-    name: Code Quality
+  grumphp:
+    name: GrumPHP Code Quality
     runs-on: ubuntu-20.04
     environment: production
     steps:
@@ -132,13 +132,105 @@ jobs:
         run: ./vendor/bin/grumphp run --testsuite code_quality
 
   # ######################################
+  # Plugin Check
+  # ######################################
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-20.04
+    environment: production
+    needs: [build]
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_CONNECTION: mysql
+      DB_DATABASE: test
+      DB_USER: root
+      DB_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ######################################
+      # MySQL
+      # ######################################
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
+      # ######################################
+      # PHP
+      # ######################################
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: phpunit:8.3, composer, wp-cli
+
+      # - name: Cache Composer dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: /tmp/composer-cache
+      #     key: ${{ runner.os }}-php8.3-dev-${{ hashFiles('**/composer.lock') }}
+
+      # - name: Install Composer dependencies (dev)
+      #   uses: php-actions/composer@v6
+      #   with:
+      #     dev: yes
+      #     args: --ignore-platform-reqs --optimize-autoloader --profile
+      #     php_version: '8.3'
+
+      # # ######################################
+      # # Node
+      # # ######################################
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version-file: '.nvmrc'
+      #     cache: 'yarn'
+
+      # # ######################################
+      # # yarn install
+      # # ######################################
+      # - run: yarn install --immutable --immutable-cache
+
+      - name: Copy .github/.wp-cli directory
+        run: cp -r .github/.wp-cli ~/
+
+      - name: Download WordPress
+        run: wp core download
+
+      - name: Create `wp-config.php` file
+        run: wp config create
+
+      - name: Install WordPress
+        run: |
+          wp core install
+          wp option update siteurl http://localhost:8889
+          wp option update home http://localhost:8889
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          path: /tmp
+
+      - name: Install plugins
+        run: |
+          wp plugin uninstall --deactivate --all
+          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
+          wp plugin install plugin-check --force
+
+      - name: Run Plugin Check
+        run: wp plugin check speechkit
+
+  # ######################################
   # PHPUnit Tests
   # ######################################
   phpunit-tests:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [code-quality]
+    needs: [grumphp, plugin-check]
 
     strategy:
       fail-fast: false
@@ -384,6 +476,7 @@ jobs:
           wp plugin install amp --force
           wp plugin install classic-editor --force
           wp plugin install elementor --force
+          wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
           wp plugin install wp-reset --force
 
