@@ -97,6 +97,10 @@ class PostContentUtils
         // Apply other standard WordPress filters to handle shortcodes etc
         $content = apply_filters('the_content', $content);
 
+        foreach($removables as $removable) {
+            add_filter('the_content', $removable);
+        }
+
         // Add our Player filter back in again
         if ($beyondwords_wordpress_plugin && isset($beyondwords_wordpress_plugin->player)) {
             add_filter('the_content', array($beyondwords_wordpress_plugin->player, 'autoPrependPlayer'));
