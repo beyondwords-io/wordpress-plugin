@@ -88,18 +88,12 @@ class PostContentUtils
             remove_filter('the_content', array($beyondwords_wordpress_plugin->player, 'autoPrependPlayer'));
         }
 
-        $removables = apply_filters('beyond_words_remove_content_filters', []);
-
-        foreach($removables as $removable) {
-            remove_filter('the_content', $removable);
-        }
+        do_action('beyondwords_before_content');
 
         // Apply other standard WordPress filters to handle shortcodes etc
         $content = apply_filters('the_content', $content);
 
-        foreach($removables as $removable) {
-            add_filter('the_content', $removable);
-        }
+        do_action('beyondwords_after_content');
 
         // Add our Player filter back in again
         if ($beyondwords_wordpress_plugin && isset($beyondwords_wordpress_plugin->player)) {
