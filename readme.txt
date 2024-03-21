@@ -86,9 +86,9 @@ Release date: 21st March 2024
 
 **Enhancements**
 
-* To support BeyondWords' new summarization product, the BeyondWords REST API now expects the `summary` field to be prepended to the `body` field for API requests.
+* To support BeyondWords’ upcoming summarization product, the BeyondWords REST API now expects the post excerpt to be prepended to the body for API requests.
     * If you have enabled "Use excerpts for summaries" in the plugin settings we will now automatically combine the fields. You should not see a difference, or need to make any changes.
-    * If you are currently passing a `summary` field to us using another method (e.g. our [beyondwords_content_params](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters/beyondwords_content_params) filter) then we should have provided advance notice of this change to you. If this change affects you, and you didn't hear from us in advance, then please contact [support@beyondwords.io](mailto:support@beyondwords.io).
+    * If you are currently passing a `summary` field to us using another method (e.g. our [beyondwords_content_params](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters/beyondwords_content_params) filter) then we should have provided advance notice of this change to you. If this change affects you, and you didn’t hear from us in advance, then please contact [support@beyondwords.io](mailto:support@beyondwords.io).
 
 = 4.5.1 =
 
