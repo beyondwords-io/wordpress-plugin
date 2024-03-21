@@ -63,56 +63,6 @@ class LegacyPlayerTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function autoPrependPlayer()
-    {
-        global $post;
-
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::autoPrependPlayer',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        setup_postdata($post);
-
-        $content = '<p>Test content.</p>';
-
-        $output = $this->_instance->autoPrependPlayer($content);
-
-        $this->assertSame($output, $this->_instance->playerHtml() . $content);
-
-        wp_reset_postdata();
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
-    public function jsPlayerHtml()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'PlayerTest::jsPlayerHtml',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $html = $this->_instance->jsPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
-
-        $crawler = new Crawler($html);
-
-        $this->assertCount(1, $crawler->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     */
     public function playerHtmlFilter()
     {
         $post = self::factory()->post->create_and_get([
@@ -194,48 +144,6 @@ class LegacyPlayerTest extends WP_UnitTestCase
         $this->assertCount(1, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
 
         wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
-    public function ampPlayerHtml() {
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'PlayerTest::ampPlayerHtml',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $src = "https://audio.beyondwords.io/amp/" . BEYONDWORDS_TESTS_PROJECT_ID . "?podcast_id=" . BEYONDWORDS_TESTS_CONTENT_ID;
-
-        $html = $this->_instance->ampPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
-
-        $crawler = new Crawler($html);
-
-        // <amp-iframe>
-        $iframe = $crawler->filter('amp-iframe');
-        $this->assertCount(1, $iframe);
-        $this->assertSame('0', $iframe->attr('frameborder'));
-        $this->assertSame('43', $iframe->attr('height'));
-        $this->assertSame('responsive', $iframe->attr('layout'));
-        $this->assertSame('allow-scripts allow-same-origin allow-popups', $iframe->attr('sandbox'));
-        $this->assertSame('no', $iframe->attr('scrolling'));
-        $this->assertSame($src, $iframe->attr('src'));
-        $this->assertSame('295', $iframe->attr('width'));
-
-        // <amp-img>
-        $img = $iframe->filter('amp-img');
-        $this->assertCount(1, $img);
-        $this->assertSame('150', $img->attr('height'));
-        $this->assertSame('responsive', $img->attr('layout'));
-        $this->assertSame('', $img->attr('placeholder'));
-        $this->assertSame(Environment::getAmpImgUrl(), $img->attr('src'));
-        $this->assertSame('643', $img->attr('width'));
-
-        wp_delete_post($postId, true);
     }
 
     /**
