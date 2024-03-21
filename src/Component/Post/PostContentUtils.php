@@ -65,8 +65,6 @@ class PostContentUtils
      */
     public static function getBody($post)
     {
-        global $beyondwords_wordpress_plugin;
-
         $post = get_post($post);
 
         if (!($post instanceof \WP_Post)) {
@@ -83,18 +81,8 @@ class PostContentUtils
             $content = implode(' ', $match[1]);
         }
 
-        // Temporarily remove our Player filter, to exclude the player <div>
-        if ($beyondwords_wordpress_plugin && isset($beyondwords_wordpress_plugin->player)) {
-            remove_filter('the_content', array($beyondwords_wordpress_plugin->player, 'autoPrependPlayer'));
-        }
-
         // Apply other standard WordPress filters to handle shortcodes etc
         $content = apply_filters('the_content', $content);
-
-        // Add our Player filter back in again
-        if ($beyondwords_wordpress_plugin && isset($beyondwords_wordpress_plugin->player)) {
-            add_filter('the_content', array($beyondwords_wordpress_plugin->player, 'autoPrependPlayer'));
-        }
 
         // Trim to remove trailing newlines – common for WordPress content
         $content = trim($content);
