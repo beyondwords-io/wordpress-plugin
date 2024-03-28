@@ -86,10 +86,12 @@ Release date: 28th March 2024
 
 **Fixes**
 
-* Only auto-prepend player for [https://developer.wordpress.org/reference/functions/is_singular/](is_singular) queries.
-    * We auto-prepend the player using [https://developer.wordpress.org/reference/hooks/the_content/](the_content) filter.
-    * This was causing the player to be prepended to the body content for BeyondWords REST API calls.
-    * We now only auto-prepend the player when the current query [https://developer.wordpress.org/reference/functions/is_singular/](is_singular).
+* [#378](https://github.com/beyondwords-io/wordpress-plugin/pull/378) Only auto-prepend player for [is_singular](https://developer.wordpress.org/reference/functions/is_singular/) queries.
+
+**Enhancements**
+
+* [#373](https://github.com/beyondwords-io/wordpress-plugin/pull/373) Run [Plugin Check (PCP)](https://wordpress.org/plugins/plugin-check/) in our GitHub Actions workflow to check we meet the WordPress.org plugin directory coding standards.
+    * Includes various minor code updates to resolve the reported errors and warnings.
 
 = 4.6.0 =
 
