@@ -81,6 +81,14 @@ class PlayerTest extends WP_UnitTestCase
 
         $output = $this->_instance->autoPrependPlayer($content);
 
+        // autoPrependPlayer() should not affect $content unless is_singular()
+        $this->assertSame($content, $output);
+
+        $this->go_to("/?p={$post->ID}");
+
+        $output = $this->_instance->autoPrependPlayer($content);
+
+        // We are now is_singular() so player should be prepended
         $this->assertSame('<div data-beyondwords-player="true" contenteditable="false"></div>' . $content, $output);
 
         wp_reset_postdata();
