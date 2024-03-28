@@ -187,8 +187,8 @@ class SiteHealth
             $info['beyondwords']['fields']['plugin-version'] = [
                 'label' => __('Plugin version', 'speechkit'),
                 'value' => sprintf(
-                    /* translators: (1) The plugin version found in the PHP files. (2) The plugin version found in the database. */ // phpcs:ignore Generic.Files.LineLength.TooLong
-                    __('Version mismatch: file: %1$s / db: %2$s'),
+                    /* translators: 1: Current plugin version, 2: Database plugin version */
+                    __('Version mismatch: file: %1$s / db: %2$s', 'speechkit'),
                     $constVersion,
                     $dbVersion
                 ),

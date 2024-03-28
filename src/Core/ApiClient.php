@@ -162,7 +162,7 @@ class ApiClient
 
         // WordPress error performing API call
         if (is_wp_error($response)) {
-            throw new \Exception($response->get_error_message());
+            throw new \Exception(esc_html__($response->get_error_message()));
         }
 
         $responseCode = wp_remote_retrieve_response_code($response);
