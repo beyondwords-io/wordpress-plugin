@@ -62,7 +62,7 @@ class Player
      * @since 3.0.0
      * @since 4.2.0 Renamed from addPlayerToContent to autoPrependPlayer.
      * @since 4.2.0 Perform hasCustomPlayer() check here.
-     * @since 4.6.0 Only auto-prepend player for frontend is_singular screens.
+     * @since 4.6.1 Only auto-prepend player for frontend is_singular screens.
      *
      * @param string $content WordPress content.
      *

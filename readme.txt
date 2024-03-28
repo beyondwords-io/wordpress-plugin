@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text to speech, text to audio, tts, speech synthesis, podcast, audio
-Stable tag: 4.6.0
+Stable tag: 4.6.1
 Requires PHP: 7.4
 Tested up to: 6.4
 License: GPLv2 or later
@@ -79,6 +79,17 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 4.6.1 =
+
+Release date: 28th March 2024
+
+**Fixes**
+
+* Only auto-prepend player for [https://developer.wordpress.org/reference/functions/is_singular/](is_singular) queries.
+    * We auto-prepend the player using [https://developer.wordpress.org/reference/hooks/the_content/](the_content) filter.
+    * This was causing the player to be prepended to the body content for BeyondWords REST API calls.
+    * We now only auto-prepend the player when the current query [https://developer.wordpress.org/reference/functions/is_singular/](is_singular).
 
 = 4.6.0 =
 
