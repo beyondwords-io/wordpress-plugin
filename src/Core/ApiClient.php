@@ -135,11 +135,11 @@ class ApiClient
         }
 
         if (! count($contentIds)) {
-            throw new \Exception(__('None of the selected posts had valid BeyondWords audio data.', 'speechkit'));
+            throw new \Exception(esc_html__('None of the selected posts had valid BeyondWords audio data.', 'speechkit')); // phpcs:ignore Generic.Files.LineLength.TooLong
         }
 
         if (count($contentIds) > 1) {
-            throw new \Exception(__('Batch delete can only be performed on audio belonging a single project.', 'speechkit')); // phpcs:ignore Generic.Files.LineLength.TooLong
+            throw new \Exception(esc_html__('Batch delete can only be performed on audio belonging a single project.', 'speechkit')); // phpcs:ignore Generic.Files.LineLength.TooLong
         }
 
         $projectId = array_key_first($contentIds);
@@ -162,7 +162,7 @@ class ApiClient
 
         // WordPress error performing API call
         if (is_wp_error($response)) {
-            throw new \Exception($response->get_error_message());
+            throw new \Exception(esc_html($response->get_error_message()));
         }
 
         $responseCode = wp_remote_retrieve_response_code($response);

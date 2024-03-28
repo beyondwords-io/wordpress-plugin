@@ -24,9 +24,6 @@ class AddPlayer
     // The CSS declaration block for the player preview in both Classic Editor and Block Editor.
     public const PLAYER_PREVIEW_STYLE_FORMAT = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: '%s'; }"; // phpcs:ignore Generic.Files.LineLength.TooLong
 
-    // The player preview placeholder text.
-    public const PLAYER_PREVIEW_TEXT = 'Player placeholder: The position of the audio player.';
-
     /**
      * Init.
      *
@@ -103,7 +100,7 @@ class AddPlayer
     {
         return sprintf(
             self::PLAYER_PREVIEW_STYLE_FORMAT,
-            esc_attr__(self::PLAYER_PREVIEW_TEXT, 'speechkit')
+            esc_attr__('Player placeholder: The position of the audio player.', 'speechkit')
         );
     }
 

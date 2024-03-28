@@ -95,7 +95,7 @@ class DisplayPlayer
                 value="1"
                 <?php checked($displayPlayer, true); ?>
             />
-            <?php _e('Display player', 'speechkit'); ?>
+            <?php esc_html_e('Display player', 'speechkit'); ?>
         </p>
         <?php
     }

@@ -98,7 +98,7 @@ class LegacyPlayer extends Player
             'beyondwords-sdk',
             Environment::getJsSdkUrlLegacy(),
             array(),
-            null,
+            BEYONDWORDS__PLUGIN_VERSION,
             true
         );
     }

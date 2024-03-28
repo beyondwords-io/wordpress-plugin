@@ -93,7 +93,7 @@ class Preselect
             ?>
             <p class="description">
                 <?php
-                _e(
+                esc_html_e(
                     'No compatible post types found. This plugin will only work with post types that support custom fields.', // phpcs:ignore Generic.Files.LineLength.TooLong
                     'speechkit'
                 );
