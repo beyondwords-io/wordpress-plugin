@@ -89,7 +89,7 @@ class GenerateAudio
                 value="1"
                 <?php checked($generateAudio, true); ?>
             />
-            <?php _e('Generate audio', 'speechkit'); ?>
+            <?php esc_html_e('Generate audio', 'speechkit'); ?>
         </p>
         <?php
     }

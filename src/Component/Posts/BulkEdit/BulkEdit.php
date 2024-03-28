@@ -71,11 +71,11 @@ class BulkEdit
             <div class="inline-edit-col">
                 <div class="inline-edit-group wp-clearfix">
                     <label class="alignleft">
-                        <span class="title"><?php _e('BeyondWords', 'speechkit'); ?></span>
+                        <span class="title"><?php esc_html_e('BeyondWords', 'speechkit'); ?></span>
                         <select name="beyondwords_generate_audio">
-                            <option value="-1"><?php _e('— No change —', 'speechkit'); ?></option>
-                            <option value="generate"><?php _e('Generate audio', 'speechkit'); ?></option>
-                            <option value="delete"><?php _e('Delete audio', 'speechkit'); ?></option>
+                            <option value="-1"><?php esc_html_e('— No change —', 'speechkit'); ?></option>
+                            <option value="generate"><?php esc_html_e('Generate audio', 'speechkit'); ?></option>
+                            <option value="delete"><?php esc_html_e('Delete audio', 'speechkit'); ?></option>
                         </select>
                     </label>
                 </div>

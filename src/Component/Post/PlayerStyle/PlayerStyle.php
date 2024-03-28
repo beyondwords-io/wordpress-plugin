@@ -69,7 +69,7 @@ class PlayerStyle
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
             <label class="post-attributes-label" for="beyondwords_player_style">
-                <?php _e('Player style', 'speechkit'); ?>
+                <?php esc_html_e('Player style', 'speechkit'); ?>
             </label>
         </p>
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">

@@ -171,7 +171,7 @@ class Settings
         ?>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'The details we need to authenticate your BeyondWords account. For more options, head to your BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -192,7 +192,7 @@ class Settings
         ?>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'Upgrade to the latest player version for the newest features.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -213,7 +213,7 @@ class Settings
         ?>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'By default, BeyondWords will process your titles and body content into audio.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -234,7 +234,7 @@ class Settings
         ?>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'The ‘Generate audio’ checkbox in the BeyondWords sidebar will be automatically checked for selected post types. The default setting can be manually overridden.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -242,7 +242,7 @@ class Settings
         </p>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'Uncheck a post type to view its Categories. You can then set defaults at a category level. Make sure to check all relevant boxes.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -251,7 +251,7 @@ class Settings
         <p class="description">
             <em>
                 <?php
-                _e(
+                esc_html_e(
                     'The default WordPress ‘Categories’ taxonomy is currently the only taxonomy supported.',
                     'speechkit'
                 );
@@ -282,7 +282,7 @@ class Settings
                 method="post"
             >
 
-                <h1><?php _e('BeyondWords settings', 'speechkit'); ?></h1>
+                <h1><?php esc_html_e('BeyondWords settings', 'speechkit'); ?></h1>
 
                 <?php
                 $projectId      = get_option('beyondwords_project_id');
@@ -296,7 +296,7 @@ class Settings
                             href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
                             target="_blank"
                         >
-                            <?php _e('BeyondWords dashboard', 'speechkit'); ?>
+                            <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
                         </a>
                     </p>
                     <?php
@@ -327,7 +327,7 @@ class Settings
                     <div id="beyondwords-player-location-notice" class="notice notice-info">
                         <p>
                             <span class="dashicons dashicons-info"></span>
-                            <?php _e(
+                            <?php esc_html_e(
                                 'The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor.', // phpcs:ignore Generic.Files.LineLength.TooLong
                                 'speechkit'
                             );
@@ -425,7 +425,7 @@ class Settings
                     </strong>
                 </p>
                 <p>
-                    <?php _e('Don’t have a BeyondWords account yet?', 'speechkit'); ?>
+                    <?php esc_html_e('Don’t have a BeyondWords account yet?', 'speechkit'); ?>
                 </p>
                 <p>
                     <a
@@ -433,7 +433,7 @@ class Settings
                         href="<?php echo esc_url(sprintf('%s/auth/signup', Environment::getDashboardUrl())); ?>"
                         target="_blank"
                     >
-                        <?php _e('Sign up free', 'speechkit'); ?>
+                        <?php esc_html_e('Sign up free', 'speechkit'); ?>
                     </a>
                 </p>
             </div>
