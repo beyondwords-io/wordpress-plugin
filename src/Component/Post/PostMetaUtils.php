@@ -70,24 +70,26 @@ class PostMetaUtils
         });
 
         // Prepend the WordPress Post ID to the meta data
+        // phpcs:disable WordPress.DB.SlowDBQuery
         array_push(
             $metadata,
             [
-                'meta_id' => null,
-                'meta_key' => 'beyondwords_version',
-                'meta_value' => BEYONDWORDS__PLUGIN_VERSION, // phpcs:ignore
+                'meta_id'    => null,
+                'meta_key'   => 'beyondwords_version',
+                'meta_value' => BEYONDWORDS__PLUGIN_VERSION,
             ],
             [
-                'meta_id' => null,
-                'meta_key' => 'wordpress_version',
-                'meta_value' => $wp_version, // phpcs:ignore
+                'meta_id'    => null,
+                'meta_key'   => 'wordpress_version',
+                'meta_value' => $wp_version,
             ],
             [
-                'meta_id' => null,
-                'meta_key' => 'wordpress_post_id',
-                'meta_value' => $postId, // phpcs:ignore
+                'meta_id'    => null,
+                'meta_key'   => 'wordpress_post_id',
+                'meta_value' => $postId,
             ],
         );
+        // phpcs:enable WordPress.DB.SlowDBQuery
 
         return $metadata;
     }
