@@ -414,6 +414,7 @@ class Settings
                     <strong>
                         <?php
                         printf(
+                            /* translators: %s is replaced with a "plugin settings" link */
                             esc_html__('To use BeyondWords, please update the %s.', 'speechkit'),
                             sprintf(
                                 '<a href="%s">%s</a>',

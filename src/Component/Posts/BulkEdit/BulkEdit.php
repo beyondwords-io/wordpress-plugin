@@ -157,7 +157,7 @@ class BulkEdit
         $response = $beyondwords_wordpress_plugin->core->batchDeleteAudioForPosts($postIds);
 
         if (! $response) {
-            throw new \Exception('Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.'); // phpcs:ignore Generic.Files.LineLength.TooLong
+            throw new \Exception(esc_html__('Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.')); // phpcs:ignore Generic.Files.LineLength.TooLong
         }
 
         // Now process all posts
@@ -231,7 +231,7 @@ class BulkEdit
                         $failed++;
                     }
                 } else {
-                    throw new \Exception('Error while bulk generating audio. Please contact support with reference BULK-NO-PLUGIN.'); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    throw new \Exception(esc_html__('Error while bulk generating audio. Please contact support with reference BULK-NO-PLUGIN.')); // phpcs:ignore Generic.Files.LineLength.TooLong
                 }
             }
         } catch (\Exception $e) {

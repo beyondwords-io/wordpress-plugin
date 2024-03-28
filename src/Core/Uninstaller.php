@@ -99,7 +99,7 @@ class Uninstaller
         * individual MySQL DELETE queries on sites with 1,000s of posts.
         */
         foreach ($fields as $field) {
-            $query = $wpdb->prepare('SELECT `meta_id` FROM %1s WHERE `meta_key` = "%2s";', [$tableName, $field]);
+            $query = $wpdb->prepare('SELECT `meta_id` FROM `%1s` WHERE `meta_key` = "%2s";', [$tableName, $field]);
 
             $meta_ids = $wpdb->get_col($query); // phpcs:ignore
 
