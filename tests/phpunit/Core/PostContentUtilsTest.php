@@ -6,15 +6,6 @@ use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 
 class PostContentUtilsTest extends WP_UnitTestCase
 {
-    /**
-     * Sample data from the custom field `speechkit_info`.
-     *
-     * This was exported from a test site running plugin v2.7.10.
-     *
-     * @var string
-     */
-    private $sampleSpeechkitInfo = 'a:16:{s:2:"id";s:2:"49";s:10:"podcast_id";i:9969567;s:3:"url";s:53:"https://speechkit.pressingspace.com/post-from-2-7-10/";s:5:"title";s:16:"Post from 2.7.10";s:6:"author";s:13:"pressingspace";s:7:"summary";s:0:"";s:5:"image";s:1:"f";s:12:"published_at";s:24:"2021-11-17T17:44:58.000Z";s:5:"state";s:9:"processed";s:9:"share_url";s:25:"https://spkt.io/a/9969567";s:13:"share_version";s:2:"v2";s:5:"media";a:2:{i:0;a:10:{s:2:"id";i:11542939;s:4:"role";s:4:"body";s:12:"content_type";s:21:"application/x-mpegURL";s:3:"url";s:118:"https://abcdefghabcdef.cloudfront.net/audio/projects/9969/contents/9969567/media/abcdefghabcdefghabcdefghabcdefgh.m3u8";s:12:"download_url";N;s:10:"created_at";s:24:"2021-11-17T17:45:03.211Z";s:10:"updated_at";s:24:"2021-11-17T17:45:03.211Z";s:5:"state";s:9:"processed";s:8:"duration";i:4;s:5:"voice";N;}i:1;a:10:{s:2:"id";i:11542938;s:4:"role";s:4:"body";s:12:"content_type";s:10:"audio/mpeg";s:3:"url";s:126:"https://abcdefghabcdef.cloudfront.net/audio/projects/9969/contents/9969567/media/abcdefghabcdefghabcdefghabcdefgh_compiled.mp3";s:12:"download_url";N;s:10:"created_at";s:24:"2021-11-17T17:45:02.078Z";s:10:"updated_at";s:24:"2021-11-17T17:45:02.078Z";s:5:"state";s:9:"processed";s:8:"duration";i:4;s:5:"voice";N;}}s:11:"player_type";s:14:"EmbeddedPlayer";s:24:"next_content_external_id";N;s:11:"ad_disabled";b:0;s:10:"project_id";i:9969;}';
-
     public function setUp(): void
     {
         // Before...
@@ -27,6 +18,100 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
         // Then...
         parent::tearDown();
+    }
+
+    /**
+     * @test
+     */
+    public function getContentBody()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'UtilsTest:getContentBody',
+            'post_content' => '<p>Some test HTML.</p>',
+        ]);
+
+        $content = PostContentUtils::getContentBody($post);
+
+        $this->assertSame('<p>Some test HTML.</p>', $content);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function getContentBodyWithSummary()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'UtilsTest:getContentBodyWithSummary',
+            'post_excerpt' => 'The excerpt.',
+            'post_content' => '<p>Some test HTML.</p>',
+        ]);
+
+        update_option('beyondwords_prepend_excerpt', '1');
+
+        $content = PostContentUtils::getContentBody($post);
+
+        delete_option('beyondwords_prepend_excerpt');
+
+        $this->assertSame('<div data-beyondwords-summary="true"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function getContentBodyWithSummaryVoiceId()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'UtilsTest:getContentBodyWithSummaryVoiceId',
+            'post_excerpt' => 'The excerpt.',
+            'post_content' => '<p>Some test HTML.</p>',
+            'meta_input'    => [
+                'beyondwords_summary_voice_id' => '42',
+            ],
+        ]);
+
+        update_option('beyondwords_prepend_excerpt', '1');
+
+        $content = PostContentUtils::getContentBody($post);
+
+        delete_option('beyondwords_prepend_excerpt');
+
+        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function getContentBodyWithInvalidPostId()
+    {
+        $this->expectException(\Exception::class);
+
+        PostContentUtils::getContentBody(-1);
+    }
+
+    /**
+     * @test
+     */
+    public function getPostSummaryWithInvalidPostId()
+    {
+        $this->expectException(\Exception::class);
+
+        PostContentUtils::getPostSummary(-1);
+    }
+
+    /**
+     * @test
+     */
+    public function getPostSummaryWrapperFormatWithInvalidPostId()
+    {
+        $this->expectException(\Exception::class);
+
+        PostContentUtils::getPostSummaryWrapperFormat(-1);
     }
 
     /**
@@ -49,24 +134,18 @@ class PostContentUtilsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function getBodyWithInvalidPostId()
+    public function getPostBodyWithInvalidPostId()
     {
-        $postId = $this->factory->post->create([
-            'post_title' => 'UtilsTest:getBodyWithInvalidPostId',
-        ]);
-
         $this->expectException(\Exception::class);
 
-        $content = PostContentUtils::getBody(-1);
-
-        wp_delete_post($postId, true);
+        PostContentUtils::getPostBody(-1);
     }
 
     /**
      * @test
-     * @dataProvider getBodyProvider
+     * @dataProvider getPostBodyProvider
      */
-    public function getBody($postType, $postContent, $expected)
+    public function getPostBody($postType, $postContent, $expected)
     {
         // A shortcode which tests both attribues and content
         add_shortcode('shortcode_test', function($atts, $content="") {
@@ -74,19 +153,19 @@ class PostContentUtilsTest extends WP_UnitTestCase
         });
 
         $postId = $this->factory->post->create([
-            'post_title' => 'UtilsTest:getBody',
+            'post_title' => 'UtilsTest:getPostBody',
             'post_type' => $postType,
             'post_content' => $postContent,
         ]);
 
-        $content = PostContentUtils::getBody($postId);
+        $content = PostContentUtils::getPostBody($postId);
 
         $this->assertSame($expected, $content);
 
         wp_delete_post($postId, true);
     }
 
-    public function getBodyProvider()
+    public function getPostBodyProvider()
     {
         return [
             'Post with no body' => [
@@ -124,15 +203,15 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @dataProvider getBodyWithPostExcerptProvider
+     * @dataProvider getPostBodyWithPostExcerptProvider
      */
-    public function getBodyWithPostExcerpt($prependExcerpt, $postArgs, $expected)
+    public function getPostBodyWithPostExcerpt($prependExcerpt, $postArgs, $expected)
     {
         $postId = self::factory()->post->create($postArgs);
 
         update_option('beyondwords_prepend_excerpt', $prependExcerpt);
 
-        $content = PostContentUtils::getBody($postId);
+        $content = PostContentUtils::getPostBody($postId);
 
         delete_option('beyondwords_prepend_excerpt');
 
@@ -141,7 +220,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         wp_delete_post($postId, true);
     }
 
-    public function getBodyWithPostExcerptProvider()
+    public function getPostBodyWithPostExcerptProvider()
     {
         $excerpt = "What is an excerpt?\n\nExcerpt is an optional text associated to a Post. Most of the time, it is used as the Post summary.\n\nNot finding the Excerpt editing box? Check your Post’s Screen Options.";
         $content = "In my younger and more vulnerable years my father gave me some advice that I've been turning over in my mind ever since.\n\n“Whenever you feel like criticizing anyone, he told me, just remember that all the people in this world haven't had the advantages that you've had.”";
@@ -254,6 +333,9 @@ class PostContentUtilsTest extends WP_UnitTestCase
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
+            'meta_input'    => [
+                'beyondwords_summary_voice_id' => '42',
+            ],
         ];
 
         $postId = self::factory()->post->create($args);
@@ -269,8 +351,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         delete_option('beyondwords_prepend_excerpt');
 
         $this->assertSame($args['post_title'], $body->title);
-        $this->assertSame('<p>The excerpt.</p>', $body->summary);
-        $this->assertSame('<p>Some test HTML.</p>', $body->body);
+        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body->body);
         $this->assertSame(get_the_permalink($postId), $body->source_url);
         $this->assertSame(strval($postId), $body->source_id);
         $this->assertSame('Jane Smith', $body->author);
@@ -320,7 +401,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         $body = json_decode($body);
 
         $this->assertSame($args['post_title'], $body->title);
-        $this->assertSame(PostContentUtils::getBody($postId), $body->body);
+        $this->assertSame(PostContentUtils::getPostBody($postId), $body->body);
         $this->assertSame('Jane Smith', $body->author);
         $this->assertSame(get_the_permalink($postId), $body->source_url);
 
@@ -343,7 +424,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     /**
      * @test
      **/
-    public function getBodyParamsFilterTest()
+    public function getPostBodyParamsFilterTest()
     {
         $postId = self::factory()->post->create([
             'post_title'   => 'Testing beyondwords_content_params filter',

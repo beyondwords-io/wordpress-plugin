@@ -17,36 +17,44 @@ class PostContentUtils
     public const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
 
     /**
-     * Get the source text for the audio, ready to be sent to the BeyondWords API.
+     * Get the content "body" param for the audio, ready to be sent to the
+     * BeyondWords API.
      *
-     * @deprecated 4.0.0 Renamed to PostContentUtils::getBody()
+     * From API version 1.1 the "summary" param is going to be used differently,
+     * so for WordPress we now prepend the WordPress excerpt to the "body" param.
      *
      * @param int|WP_Post $post The WordPress post ID, or post object.
      *
-     * @since 3.0.0
-     * @since 3.5.0  Moved from Core\Utils to Component\Post\PostUtils
-     * @since 3.8.0  Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
-     * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
+     * @since 4.6.0
      *
-     * @return string The body (the processed $post->post_content).
+     * @return string The content body param.
      */
-    public static function getSourceTextForAudio($post)
+    public static function getContentBody($post)
     {
-        _doing_it_wrong(
-            'PostContentUtils::getBody',
-            'BeyondWords PostContentUtils::getSourceTextForAudio() has been renamed to PostContentUtils::getBody()',
-            '4.0.0'
-        );
+        $post = get_post($post);
 
-        return PostContentUtils::getBody($post);
+        if (!($post instanceof \WP_Post)) {
+            throw new \Exception('Post Not Found');
+        }
+
+        $summary = PostContentUtils::getPostSummary($post);
+        $body    = PostContentUtils::getPostBody($post);
+
+        if ($summary) {
+            $format = PostContentUtils::getPostSummaryWrapperFormat($post);
+
+            $body = sprintf($format, $summary) . $body;
+        }
+
+        return $body;
     }
 
     /**
-     * Get the body for the audio, ready to be sent to the BeyondWords API.
+     * Get the post body for the audio content.
      *
      * The following rules are applied:
      *
-     *     Main body content entered in WordPress
+     *     Main post body content entered in WordPress
      *   + Optionally filtered using [SpeechKit-Start]/[SpeechKit-Stop] "shortcodes"
      *   + With registered content filters FROM OTHER PLUGINS applied
      *   + Optionally prepended with the Post excerpt
@@ -60,10 +68,11 @@ class PostContentUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 3.8.0 Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
      * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
+     * @since 4.6.0 Renamed from PostContentUtils::getBody() to PostContentUtils::getPostBody()
      *
      * @return string The body (the processed $post->post_content).
      */
-    public static function getBody($post)
+    public static function getPostBody($post)
     {
         $post = get_post($post);
 
@@ -105,15 +114,45 @@ class PostContentUtils
     }
 
     /**
-     * Get the summary for the audio content, ready to be sent to the BeyondWords API.
+     * Get the post summary wrapper format.
+     *
+     * This is a <div> with optional attributes depending on the BeyondWords
+     * data of the post.
+     *
+     * @param int|WP_Post $post The WordPress post ID, or post object.
+     *
+     * @since 4.6.0
+     *
+     * @return string The summary wrapper <div>.
+     */
+    public static function getPostSummaryWrapperFormat($post)
+    {
+        $post = get_post($post);
+
+        if (!($post instanceof \WP_Post)) {
+            throw new \Exception('Post Not Found');
+        }
+
+        $summaryVoiceId = intval(get_post_meta($post->ID, 'beyondwords_summary_voice_id', true));
+
+        if ($summaryVoiceId > 0) {
+            return '<div data-beyondwords-summary="true" data-beyondwords-voice-id="' . $summaryVoiceId . '">%s</div>';
+        }
+
+        return '<div data-beyondwords-summary="true">%s</div>';
+    }
+
+    /**
+     * Get the post summary for the audio content.
      *
      * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
+     * @since 4.6.0 Renamed from PostContentUtils::getSummary() to PostContentUtils::getPostSummary()
      *
      * @return string The summary.
      */
-    public static function getSummary($post)
+    public static function getPostSummary($post)
     {
         $post = get_post($post);
 
@@ -141,6 +180,7 @@ class PostContentUtils
     /**
      * Get the segments for the audio content, ready to be sent to the BeyondWords API.
      *
+     * @codeCoverageIgnore
      * THIS METHOD IS CURRENTLY NOT IN USE. Segments cannot currently include HTML
      * formatting tags such as <strong> and <em> so we do not pass segments, we pass
      * a HTML string as the body param instead.
@@ -164,7 +204,7 @@ class PostContentUtils
 
         $summarySegment = (object) [
             'section' => 'summary',
-            'text'    => PostContentUtils::getSummary($post),
+            'text'    => PostContentUtils::getPostSummary($post),
         ];
 
         $blocks = PostContentUtils::getAudioEnabledBlocks($post);
@@ -293,6 +333,7 @@ class PostContentUtils
      * @since 4.0.0  Use new API params.
      * @since 4.0.3  Ensure `image_url` is always a string.
      * @since 4.3.0  Rename from getBodyJson to getContentParams.
+     * @since 4.6.0  Remove summary param & prepend body with summary.
      *
      * @static
      * @param int $postId WordPress Post ID.
@@ -304,8 +345,7 @@ class PostContentUtils
         $body = [
             'type'         => 'auto_segment',
             'title'        => get_the_title($postId),
-            'summary'      => PostContentUtils::getSummary($postId),
-            'body'         => PostContentUtils::getBody($postId),
+            'body'         => PostContentUtils::getContentBody($postId),
             'source_url'   => get_the_permalink($postId),
             'source_id'    => strval($postId),
             'author'       => PostContentUtils::getAuthorName($postId),
@@ -340,12 +380,6 @@ class PostContentUtils
 
         if ($titleVoiceId > 0) {
             $body['title_voice_id'] = $titleVoiceId;
-        }
-
-        $summaryVoiceId = intval(get_post_meta($postId, 'beyondwords_summary_voice_id', true));
-
-        if ($summaryVoiceId > 0) {
-            $body['summary_voice_id'] = $summaryVoiceId;
         }
 
         /**
