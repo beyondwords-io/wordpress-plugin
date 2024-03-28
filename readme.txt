@@ -5,7 +5,6 @@ Donate link: https://beyondwords.io
 Tags: text to speech, text to audio, tts, speech synthesis, podcast, audio
 Stable tag: 4.6.0
 Requires PHP: 7.4
-Requires at least: 6.0
 Tested up to: 6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
