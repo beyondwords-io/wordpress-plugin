@@ -150,7 +150,8 @@ jobs:
           path: /tmp
 
       - name: Unzip plugin ZIP
-        run: unzip /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+        run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+        working-directory: /tmp
 
       - name: Run plugin check
         uses: swissspidy/wp-plugin-check-action@v1
