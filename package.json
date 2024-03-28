@@ -33,10 +33,10 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@mockoon/cli": "^5.1.0",
+    "@mockoon/cli": "^7.0.0",
     "@wordpress/eslint-plugin": "^17.3.0",
     "@wordpress/scripts": "^26.17.0",
-    "cypress": "13.6.1",
+    "cypress": "13.7.1",
     "cypress-map": "^1.21.2",
     "cypress-multi-reporters": "^1.6.4",
     "cypress-terminal-report": "^5.3.10",
