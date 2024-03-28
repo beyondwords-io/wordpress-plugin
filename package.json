@@ -65,8 +65,7 @@
     "start": "wp-scripts start",
     "test:e2e": "wp-scripts test-e2e",
     "test:unit": "wp-scripts test-unit-js",
-    "wp-cli:reset": "wp-env run cli wp plugin activate wp-reset && wp-env run cli wp reset reset --yes",
-    "wp-cli:plugins": "wp-env run cli wp plugin deactivate --all && wp-env run cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported",
+    "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
     "wp-env": "wp-env",
     "wp-env:start-with-xdebug": "wp-env start --xdebug=debug,coverage --update"
   }

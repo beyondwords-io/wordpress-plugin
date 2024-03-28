@@ -34,7 +34,7 @@ class PostContentUtils
         $post = get_post($post);
 
         if (!($post instanceof \WP_Post)) {
-            throw new \Exception('Post Not Found');
+            throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
         $summary = PostContentUtils::getPostSummary($post);
@@ -77,7 +77,7 @@ class PostContentUtils
         $post = get_post($post);
 
         if (!($post instanceof \WP_Post)) {
-            throw new \Exception('Post Not Found');
+            throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
         $content = PostContentUtils::getContentWithoutExcludedBlocks($post);
@@ -130,7 +130,7 @@ class PostContentUtils
         $post = get_post($post);
 
         if (!($post instanceof \WP_Post)) {
-            throw new \Exception('Post Not Found');
+            throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
         $summaryVoiceId = intval(get_post_meta($post->ID, 'beyondwords_summary_voice_id', true));
@@ -157,7 +157,7 @@ class PostContentUtils
         $post = get_post($post);
 
         if (!($post instanceof \WP_Post)) {
-            throw new \Exception('Post Not Found');
+            throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
         $summary = null;

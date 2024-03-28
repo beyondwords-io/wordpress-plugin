@@ -71,11 +71,11 @@ class BulkEdit
             <div class="inline-edit-col">
                 <div class="inline-edit-group wp-clearfix">
                     <label class="alignleft">
-                        <span class="title"><?php _e('BeyondWords', 'speechkit'); ?></span>
+                        <span class="title"><?php esc_html_e('BeyondWords', 'speechkit'); ?></span>
                         <select name="beyondwords_generate_audio">
-                            <option value="-1"><?php _e('— No change —', 'speechkit'); ?></option>
-                            <option value="generate"><?php _e('Generate audio', 'speechkit'); ?></option>
-                            <option value="delete"><?php _e('Delete audio', 'speechkit'); ?></option>
+                            <option value="-1"><?php esc_html_e('— No change —', 'speechkit'); ?></option>
+                            <option value="generate"><?php esc_html_e('Generate audio', 'speechkit'); ?></option>
+                            <option value="delete"><?php esc_html_e('Delete audio', 'speechkit'); ?></option>
                         </select>
                     </label>
                 </div>
@@ -157,7 +157,7 @@ class BulkEdit
         $response = $beyondwords_wordpress_plugin->core->batchDeleteAudioForPosts($postIds);
 
         if (! $response) {
-            throw new \Exception('Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.'); // phpcs:ignore Generic.Files.LineLength.TooLong
+            throw new \Exception(esc_html__('Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.')); // phpcs:ignore Generic.Files.LineLength.TooLong
         }
 
         // Now process all posts
@@ -231,7 +231,7 @@ class BulkEdit
                         $failed++;
                     }
                 } else {
-                    throw new \Exception('Error while bulk generating audio. Please contact support with reference BULK-NO-PLUGIN.'); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    throw new \Exception(esc_html__('Error while bulk generating audio. Please contact support with reference BULK-NO-PLUGIN.')); // phpcs:ignore Generic.Files.LineLength.TooLong
                 }
             }
         } catch (\Exception $e) {

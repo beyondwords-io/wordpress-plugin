@@ -156,7 +156,7 @@ class PlayerVersion
         <?php endif; ?>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'We sync changes to the player version with your Beyondwords account when these settings are saved.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
@@ -164,7 +164,7 @@ class PlayerVersion
         </p>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'If caching is enabled you may need to clear the cache to change the player version for existing posts.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );

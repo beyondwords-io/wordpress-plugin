@@ -106,10 +106,10 @@ jobs:
 
 
   # ######################################
-  # Code Quality
+  # GrumPHP
   # ######################################
-  code-quality:
-    name: Code Quality
+  grumphp:
+    name: GrumPHP
     runs-on: ubuntu-20.04
     environment: production
     steps:
@@ -132,13 +132,41 @@ jobs:
         run: ./vendor/bin/grumphp run --testsuite code_quality
 
   # ######################################
+  # Plugin Check
+  # ######################################
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-20.04
+    environment: production
+    needs: [build]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+          path: /tmp
+
+      - name: Unzip plugin ZIP
+        run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+        working-directory: /tmp
+
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@v1
+        with:
+          build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+          exclude-directories: 'vendor'
+
+  # ######################################
   # PHPUnit Tests
   # ######################################
   phpunit-tests:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [code-quality]
+    needs: [grumphp]
 
     strategy:
       fail-fast: false
@@ -255,7 +283,7 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [build, phpunit-tests]
+    needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
@@ -384,6 +412,7 @@ jobs:
           wp plugin install amp --force
           wp plugin install classic-editor --force
           wp plugin install elementor --force
+          wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
           wp plugin install wp-reset --force
 

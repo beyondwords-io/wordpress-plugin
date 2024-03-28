@@ -361,7 +361,7 @@ class Player
             'beyondwords-sdk',
             Environment::getJsSdkUrl(),
             array(),
-            null,
+            BEYONDWORDS__PLUGIN_VERSION,
             true
         );
     }

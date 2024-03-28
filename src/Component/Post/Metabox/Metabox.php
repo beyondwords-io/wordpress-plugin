@@ -262,7 +262,10 @@ class Metabox
         <!-- Update/regenerate -->
         <p>
             <?php
-            _e('To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked.', 'speechkit'); // phpcs:ignore Generic.Files.LineLength.TooLong
+            esc_html_e(
+                'To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'speechkit'
+            );
             ?>
         </p>
         <?php

@@ -55,7 +55,7 @@ class Inspect
                 'clipboard',
                 'https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js',
                 array('jquery'),
-                null,
+                '2.0.10',
                 true
             );
 
@@ -127,7 +127,7 @@ class Inspect
             style="margin: 10px 0 0;"
             data-clipboard-text="<?php echo esc_attr($this->getClipboardText($metadata)); ?>"
         >
-            <?php _e('Copy', 'speechkit'); ?>
+            <?php esc_html_e('Copy', 'speechkit'); ?>
             <span
                 id="beyondwords__inspect--copy-confirm"
                 style="display: none; margin: 5px 0 0;"
@@ -141,7 +141,7 @@ class Inspect
             class="button button-large button-link-delete"
             style="margin: 10px 0 0; float: right;"
         >
-            <?php _e('Remove', 'speechkit'); ?>
+            <?php esc_html_e('Remove', 'speechkit'); ?>
             <span
                 id="beyondwords__inspect--remove"
                 style="display: none; margin: 5px 0 0;"
@@ -170,8 +170,8 @@ class Inspect
             <table id="inspect-table">
                 <thead>
                     <tr>
-                        <th class="left"><?php _e('Name'); ?></th>
-                        <th><?php _e('Value'); ?></th>
+                        <th class="left"><?php esc_html_e('Name', 'speechkkit'); ?></th>
+                        <th><?php esc_html_e('Value', 'speechkit'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="inspect-table-list">
@@ -196,7 +196,7 @@ class Inspect
                                     class="screen-reader-text"
                                     for="beyondwords-inspect-<?php echo esc_attr($metaId); ?>-key"
                                 >
-                                    <?php _e('Key'); ?>
+                                    <?php esc_html_e('Key', 'speechkit'); ?>
                                 </label>
                                 <input
                                     id="beyondwords-inspect-<?php echo esc_attr($metaId); ?>-key"
@@ -211,7 +211,7 @@ class Inspect
                                     class="screen-reader-text"
                                     for="beyondwords-inspect-<?php echo esc_attr($metaId); ?>-value"
                                 >
-                                    <?php _e('Value'); ?>
+                                    <?php esc_html_e('Value', 'speechkit'); ?>
                                 </label>
                                 <textarea
                                     id="beyondwords-inspect-<?php echo esc_attr($metaId); ?>-value"

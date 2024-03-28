@@ -83,12 +83,11 @@ class Uninstaller
      * Clean up (delete) all BeyondWords custom fields.
      *
      * @since 3.7.0
+     * @since 4.6.1 Use $wpdb->postmeta variable for table name.
      */
     public static function cleanupCustomFields()
     {
         global $wpdb;
-
-        $tableName = $wpdb->prefix . 'postmeta';
 
         $fields = CoreUtils::getPostMetaKeys('all');
 
@@ -99,17 +98,13 @@ class Uninstaller
         * individual MySQL DELETE queries on sites with 1,000s of posts.
         */
         foreach ($fields as $field) {
-            $query = $wpdb->prepare('SELECT `meta_id` FROM %1s WHERE `meta_key` = "%2s";', [$tableName, $field]);
+            $metaIds = $wpdb->get_col($wpdb->prepare("SELECT `meta_id` FROM {$wpdb->postmeta} WHERE `meta_key` = %s;", $field)); // phpcs:ignore
 
-            $meta_ids = $wpdb->get_col($query); // phpcs:ignore
-
-            if (! count($meta_ids)) {
+            if (! count($metaIds)) {
                 continue;
             }
 
-            $query = "DELETE FROM `{$tableName}` WHERE `meta_id` IN ( " . implode(',', $meta_ids) . ' );';
-
-            $count = $wpdb->query($query); // phpcs:ignore
+            $count = $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE `meta_id` IN ( " . implode(',', $metaIds) . ' );'); // phpcs:ignore
 
             if ($count) {
                 $total += $count;

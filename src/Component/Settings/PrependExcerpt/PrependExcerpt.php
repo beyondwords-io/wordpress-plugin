@@ -92,12 +92,12 @@ class PrependExcerpt
                     value="1"
                     <?php checked($prependExcerpt, '1'); ?>
                 />
-                <?php _e('Use excerpts for summaries', 'speechkit'); ?>
+                <?php esc_html_e('Use excerpts for summaries', 'speechkit'); ?>
             </label>
         </div>
         <p class="description">
             <?php
-            _e(
+            esc_html_e(
                 'Summaries are read aloud in-between titles and body content.',
                 'speechkit'
             );
