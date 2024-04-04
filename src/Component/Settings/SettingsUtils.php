@@ -26,6 +26,7 @@ class SettingsUtils
      *
      * @since 3.7.0
      * @since 4.5.0 Renamed from getAllowedPostTypes to getConsideredPostTypes.
+     * @since 4.6.2 Exclude wp_font_face and wp_font_family from considered post types.
      *
      * @static
      *
@@ -44,6 +45,8 @@ class SettingsUtils
             'revision',
             'user_request',
             'wp_block',
+            'wp_font_face',
+            'wp_font_family',
             'wp_template',
             'wp_template_part',
             'wp_global_styles',

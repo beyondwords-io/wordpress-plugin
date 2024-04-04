@@ -80,7 +80,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.6.3 =
+= 4.6.2 =
 
 Release date: 4th April 2024
 
