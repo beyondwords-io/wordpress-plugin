@@ -269,42 +269,43 @@ jobs:
           name: PHPUnit Test Results - PHP ${{ matrix.php-version }}
           path: ${{ github.workspace }}/tests/phpunit/_report
 
-  # # ######################################
-  # # Publish PHPUnit test results
-  # # ######################################
-  # publish-test-results:
-  #   name: Publish test results
-  #   runs-on: ubuntu-latest
-  #   needs: [phpunit-tests]
+  # #######################################
+  # Publish PHPUnit results to GitHub Pages
+  # #######################################
+  publish-phpunit-results:
+    name: Publish PHPUnit results
+    runs-on: ubuntu-latest
+    needs: [phpunit-tests]
 
-  #   # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-  #   permissions:
-  #     pages: write    # to deploy to Pages
-  #     id-token: write # to verify the deployment originates from an appropriate source
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write    # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
 
-  #   # Deploy to the github-pages environment
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-  #   steps:
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: PHPUnit Test Results - PHP 8.2
-  #         path: .
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          # Publish results only for the latest PHP version
+          name: PHPUnit Test Results - PHP 8.2
+          path: .
 
-  #     - name: Setup Pages
-  #       uses: actions/configure-pages@v5
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-  #     - name: Upload badge
-  #       uses: actions/upload-pages-artifact@v3
-  #       with:
-  #         path: .
+      - name: Upload results
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
 
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # ######################################
   # Cypress Tests
