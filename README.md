@@ -3,7 +3,7 @@
 ![Banner](.wordpress-org/banner-1544x500.png)
 
 [![Github Actions Workflow](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml)
-[![PHPUnit Code Coverage](https://beyondwords-io.github.io/wordpress-plugin/coverage-badge.svg)](https://beyondwords-io.github.io/wordpress-plugin)
+[![PHPUnit Code Coverage](https://beyondwords-io.github.io/wordpress-plugin/coverage-badge.svg)](https://beyondwords-io.github.io/wordpress-plugin/dashboard.html)
 [![Supported WordPress Versions](https://img.shields.io/static/v1?label=&message=5.8+-+6.5&color=blue&logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![Supported PHP Versions](https://img.shields.io/static/v1?label=&message=7.4+-+8.3&color=777bb4&logo=php&logoColor=white)](https://www.php.net/)
 
