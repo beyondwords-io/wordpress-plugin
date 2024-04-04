@@ -285,7 +285,7 @@ jobs:
     environment: production
     needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
-    # if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
+    if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
     strategy:
       # don't fail the entire matrix on failure
