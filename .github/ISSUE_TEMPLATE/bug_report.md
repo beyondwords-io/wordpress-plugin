@@ -24,7 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **WordPress:**
- - WordPress version: [e.g. 6.4.2]
+ - WordPress version: [e.g. 6.5.0]
  - BeyondWords plugin version [e.g. 4.2.4]
  - [Editor](https://wordpress.com/support/editors/) [e.g. WordPress, Classic, Third-party]
 

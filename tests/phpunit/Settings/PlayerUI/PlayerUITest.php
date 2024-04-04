@@ -90,31 +90,23 @@ class PlayerUITest extends WP_UnitTestCase
     {
         global $wp_scripts;
 
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( null );
-        $this->assertNotContains('beyondwords-settings--player-ui', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'edit.php' );
-        $this->assertNotContains('beyondwords-settings--player-ui', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'post.php' );
-        $this->assertNotContains('beyondwords-settings--player-ui', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'post-new.php' );
-        $this->assertNotContains('beyondwords-settings--player-ui', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'settings_page_beyondwords' );
         $this->assertContains('beyondwords-settings--player-ui', $wp_scripts->queue);
 
-        $wp_scripts->queue = [];
+        $wp_scripts = null;
     }
 }
