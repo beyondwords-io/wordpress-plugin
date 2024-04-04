@@ -269,7 +269,7 @@ Cypress.Commands.add( 'clickTitleBlock', () => {
 } )
 
 Cypress.Commands.add( 'openBeyondwordsEditorPanel', () => {
-  cy.get( '.beyondwords-sidebar' ).should('be.visible')
+  cy.get( '.beyondwords-sidebar' ).scrollIntoView().should('be.visible')
   cy.get( '.beyondwords-sidebar' ).then( ( $el ) => {
     if ( $el.is( '.is-opened' ) ) {
       cy.log( 'The BeyondWords editor panel is already open' )
