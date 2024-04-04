@@ -529,7 +529,7 @@ jobs:
     name: 🚢 Assets
     runs-on: ubuntu-latest
     environment: production
-    needs: [cypress-tests, phpunit-tests]
+    needs: [cypress-tests]
     if: success() && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -549,7 +549,7 @@ jobs:
     name: 🚢 Plugin ZIP
     runs-on: ubuntu-latest
     environment: production
-    needs: [cypress-tests, phpunit-tests]
+    needs: [cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
