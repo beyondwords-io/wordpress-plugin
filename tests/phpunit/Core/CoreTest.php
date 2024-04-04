@@ -140,14 +140,14 @@ class CoreTest extends WP_UnitTestCase
         $current_screen = get_current_screen();
         $current_screen->is_block_editor( true );
 
-        $this->assertNotContains('beyondwords-block-js', $wp_scripts->queue);
+        $this->assertNull($wp_scripts);
 
         /**
          * Enqueuing without a valid API connection should do nothing
          */
         $core->enqueueBlockEditorAssets();
 
-        $this->assertNotContains('beyondwords-block-js', $wp_scripts->queue);
+        $this->assertNull($wp_scripts);
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -159,6 +159,8 @@ class CoreTest extends WP_UnitTestCase
         $core->enqueueBlockEditorAssets();
 
         $this->assertContains('beyondwords-block-js', $wp_scripts->queue);
+
+        $wp_scripts = null;
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

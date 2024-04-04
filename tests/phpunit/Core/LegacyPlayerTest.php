@@ -416,20 +416,20 @@ class LegacyPlayerTest extends WP_UnitTestCase
     {
         global $wp_scripts;
 
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         set_current_screen('/wp-admin/options.php');
         $this->_instance->enqueueScripts();
-        $this->assertNotContains('beyondwords-sdk', $wp_scripts->queue);
+        $this->assertNull($wp_scripts);
 
         set_current_screen('/wp-admin/edit.php');
         $this->_instance->enqueueScripts();
-        $this->assertNotContains('beyondwords-sdk', $wp_scripts->queue);
+        $this->assertNull($wp_scripts);
 
         set_current_screen('/wp-admin/post.php');
         $this->_instance->enqueueScripts();
-        $this->assertNotContains('beyondwords-sdk', $wp_scripts->queue);
+        $this->assertNull($wp_scripts);
 
-        $wp_scripts->queue = [];
+        $wp_scripts = null;
     }
 }

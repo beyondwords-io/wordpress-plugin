@@ -90,33 +90,27 @@ class PreselectTest extends WP_UnitTestCase
     {
         global $wp_scripts;
 
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( null );
-        $this->assertNotContains('beyondwords-settings--preselect-settings', $wp_scripts->queue);
-        $this->assertNotContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'edit.php' );
-        $this->assertNotContains('beyondwords-settings--preselect-settings', $wp_scripts->queue);
-        $this->assertNotContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
-
-        $wp_scripts->queue = [];
+        $this->assertNull($wp_scripts);
 
         $this->_instance->enqueueScripts( 'settings_page_beyondwords' );
         $this->assertContains('beyondwords-settings--preselect-settings', $wp_scripts->queue);
 
-        $wp_scripts->queue = [];
+        $wp_scripts = null;
 
         $this->_instance->enqueueScripts( 'post.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
 
-        $wp_scripts->queue = [];
+        $wp_scripts = null;
 
         $this->_instance->enqueueScripts( 'post-new.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
 
-        $wp_scripts->queue = [];
+        $wp_scripts = null;
     }
 }

@@ -33,14 +33,14 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@mockoon/cli": "^7.0.0",
-    "@wordpress/eslint-plugin": "^17.3.0",
-    "@wordpress/scripts": "^26.17.0",
-    "cypress": "13.7.1",
-    "cypress-map": "^1.21.2",
+    "@mockoon/cli": "^8.0.0",
+    "@wordpress/eslint-plugin": "^17.12.0",
+    "@wordpress/scripts": "^27.6.0",
+    "cypress": "13.7.2",
+    "cypress-map": "^1.37.0",
     "cypress-multi-reporters": "^1.6.4",
-    "cypress-terminal-report": "^5.3.10",
-    "dotenv": "^16.3.1",
+    "cypress-terminal-report": "^6.0.1",
+    "dotenv": "^16.4.5",
     "mochawesome": "^7.1.3"
   },
   "resolutions": {
