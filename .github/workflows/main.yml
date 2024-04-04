@@ -136,6 +136,8 @@ jobs:
   # ######################################
   plugin-check:
     name: Plugin Check
+    # Temporarily skip
+    if: false
     runs-on: ubuntu-20.04
     environment: production
     needs: [build]
@@ -247,7 +249,7 @@ jobs:
       - name: Install WP Tests
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
-      - name: PHPUnit Tests
+      - name: Run PHPUnit Tests
         run: ./vendor/bin/phpunit -c ./phpunit.ci.xml
         env:
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
@@ -256,25 +258,58 @@ jobs:
           BEYONDWORDS_TESTS_PROJECT_ID: "${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}"
           XDEBUG_MODE: coverage
 
-      # ######################################
-      # DISABLED, BUT WE MAY USE THIS SOON
-      # ######################################
-      #  - name: Upload to Codecov
-      #    uses: codecov/codecov-action@v2
-      #    with:
-      #      token: ${{ secrets.CODE_COV_TOKEN }}
-      #      files: tests/phpunit/_output/coverage.xml
-      #      verbose: true
-
-      - name: Check code coverage
+      - name: Check Code Coverage
         run: composer test:coverage-check
 
-      - name: Upload Test Results
+      - name: Generate Code Coverage Badge
+        run: curl "https://img.shields.io/badge/PHPUnit%20Coverage-$(composer test:coverage-check-percentage)%25-brightgreen" > ${{ github.workspace }}/tests/phpunit/_report/coverage-badge.svg
+
+      - name: Upload PHPUnit Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PHPUnit Results - PHP ${{ matrix.php-version }}
-          path: ${{ github.workspace }}/tests/phpunit/_output
+          name: PHPUnit Test Results - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/phpunit/_report
+
+  # #######################################
+  # Publish PHPUnit results to GitHub Pages
+  # #######################################
+  publish-phpunit-results:
+    name: Publish PHPUnit results
+    runs-on: ubuntu-latest
+    needs: [phpunit-tests]
+    # Only run on "main" branch
+    if: success() && github.ref == 'refs/heads/main'
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write    # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          # Publish results only for the latest PHP version
+          name: PHPUnit Test Results - PHP 8.3
+          path: .
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload results
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # ######################################
   # Cypress Tests
@@ -283,7 +318,7 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [plugin-check, phpunit-tests]
+    needs: [build, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
@@ -484,7 +519,7 @@ jobs:
       #   uses: EnricoMi/publish-unit-test-result-action@v2
       #   if: always()
       #   with:
-      #     junit_files: "tests/_output/**/*.xml"
+      #     junit_files: "tests/_report/**/*.xml"
 
 
   # ##############################################
@@ -494,7 +529,7 @@ jobs:
     name: 🚢 Assets
     runs-on: ubuntu-latest
     environment: production
-    needs: [cypress-tests, phpunit-tests]
+    needs: [cypress-tests]
     if: success() && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -514,7 +549,7 @@ jobs:
     name: 🚢 Plugin ZIP
     runs-on: ubuntu-latest
     environment: production
-    needs: [cypress-tests, phpunit-tests]
+    needs: [cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4

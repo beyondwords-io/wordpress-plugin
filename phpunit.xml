@@ -32,8 +32,12 @@
             <directory suffix=".php">src/Compatibility/Elementor</directory>
         </exclude>
         <report>
-            <clover outputFile="tests/phpunit/_output/clover.xml" />
-            <html outputDirectory="tests/phpunit/_output/html" />
+            <clover outputFile="tests/phpunit/_report/clover.xml" />
+            <html outputDirectory="tests/phpunit/_report" />
+            <text outputFile="tests/phpunit/_report/coverage.txt" showUncoveredFiles="false" showOnlySummary="true"/>
         </report>
     </coverage>
+    <logging>
+        <log type="coverage-clover" target="clover.xml"/>
+    </logging>
 </phpunit>

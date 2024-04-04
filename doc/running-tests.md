@@ -40,7 +40,7 @@ This will:
 To view the HTML report:
 
 ```bash
-open tests/phpunit/_output/html/index.html
+open tests/phpunit/_report/index.html
 ```
 
 To run code coverage independently:
