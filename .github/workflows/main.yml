@@ -247,7 +247,7 @@ jobs:
       - name: Install WP Tests
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
-      - name: PHPUnit Tests
+      - name: Run PHPUnit Tests
         run: ./vendor/bin/phpunit -c ./phpunit.ci.xml
         env:
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
@@ -256,26 +256,18 @@ jobs:
           BEYONDWORDS_TESTS_PROJECT_ID: "${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}"
           XDEBUG_MODE: coverage
 
+      - name: Check Code Coverage
+        run: composer test:coverage-check
+
+      - name: Generate Code Coverage Badge
+        run: curl "https://img.shields.io/badge/PHPUnit%20Coverage-$(composer test:coverage-check-percentage)%25-brightgreen" > ${{ github.workspace }}/tests/phpunit/_report/coverage-badge.svg
+
       - name: Upload PHPUnit Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PHPUnit Results - PHP ${{ matrix.php-version }}
-          path: ${{ github.workspace }}/tests/phpunit/_output/html
-
-      - name: Check code coverage
-        run: composer test:coverage-check
-
-      - name: Generate code coverage badge
-        # if: ${{ github.ref == 'refs/heads/master' }}
-        run: curl "https://img.shields.io/badge/PHPUnit%20Coverage-$(composer test:coverage-check-percentage)%25-brightgreen" > /tmp/coverage-badge.svg
-
-      - name: Upload code coverage badge
-        # if: ${{ github.ref == 'refs/heads/master' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: php${{matrix.php-version}}-coverage-badge.svg
-          path: /tmp/coverage-badge.svg
+          name: PHPUnit Test Results - PHP ${{ matrix.php-version }}
+          path: ${{ github.workspace }}/tests/phpunit/_report
 
   # # ######################################
   # # Publish PHPUnit test results
@@ -296,7 +288,11 @@ jobs:
   #     url: ${{ steps.deployment.outputs.page_url }}
 
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: PHPUnit Test Results - PHP 8.2
+  #         path: .
 
   #     - name: Setup Pages
   #       uses: actions/configure-pages@v5
@@ -304,10 +300,7 @@ jobs:
   #     - name: Upload badge
   #       uses: actions/upload-pages-artifact@v3
   #       with:
-  #         # Upload coverage badge
-  #         path: php8.3-coverage-badge.svg
-  #         # Upload HTML report
-  #         # path: ${{ github.workspace }}/tests/phpunit/_output/html
+  #         path: .
 
   #     - name: Deploy to GitHub Pages
   #       id: deployment
@@ -521,7 +514,7 @@ jobs:
       #   uses: EnricoMi/publish-unit-test-result-action@v2
       #   if: always()
       #   with:
-      #     junit_files: "tests/_output/**/*.xml"
+      #     junit_files: "tests/_report/**/*.xml"
 
 
   # ##############################################

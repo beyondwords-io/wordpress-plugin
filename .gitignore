@@ -19,5 +19,5 @@
 /tests/cypress/results
 /tests/cypress/screenshots
 /tests/cypress/videos
-/tests/phpunit/_output
+/tests/phpunit/_report
 /vendor
