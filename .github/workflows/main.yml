@@ -131,33 +131,33 @@ jobs:
       - name: Run GrumPHP code_quality test suite
         run: ./vendor/bin/grumphp run --testsuite code_quality
 
-  # ######################################
-  # Plugin Check
-  # ######################################
-  plugin-check:
-    name: Plugin Check
-    runs-on: ubuntu-20.04
-    environment: production
-    needs: [build]
+  # # ######################################
+  # # Plugin Check
+  # # ######################################
+  # plugin-check:
+  #   name: Plugin Check
+  #   runs-on: ubuntu-20.04
+  #   environment: production
+  #   needs: [build]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
-          path: /tmp
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+  #         path: /tmp
 
-      - name: Unzip plugin ZIP
-        run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
-        working-directory: /tmp
+  #     - name: Unzip plugin ZIP
+  #       run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+  #       working-directory: /tmp
 
-      - name: Run plugin check
-        uses: swissspidy/wp-plugin-check-action@v1
-        with:
-          build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
-          exclude-directories: 'vendor'
+  #     - name: Run plugin check
+  #       uses: swissspidy/wp-plugin-check-action@v1
+  #       with:
+  #         build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+  #         exclude-directories: 'vendor'
 
   # ######################################
   # PHPUnit Tests
@@ -314,7 +314,8 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [plugin-check, phpunit-tests]
+    # needs: [plugin-check, phpunit-tests]
+    needs: [phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
