@@ -547,6 +547,8 @@ class Player
     /**
      * Convert latest JS SDK params into legacy format.
      *
+     * @codeCoverageIgnore We plan to remove support for the Legacy player very soon.
+     *
      * @since 4.0.0
      *
      * @see https://docs.beyondwords.io/docs/javascript-sdk-automatic-player

@@ -159,6 +159,38 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group trash
+     */
+    public function batchDeleteAudio()
+    {
+        $numPosts = 20;
+
+        $postIds = self::factory()->post->create_many($numPosts, [
+            'post_title' => 'ApiClientTest::batchDeleteAudio %d',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $deleted = $this->_instance->batchDeleteAudio($postIds);
+        $this->assertEquals([], $deleted);
+
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+
+        $deleted = $this->_instance->batchDeleteAudio($postIds);
+
+        $this->assertEquals($deleted, array_values($postIds));
+
+        foreach ($deleted as $postId) {
+            wp_delete_post($postId);
+        }
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
      * @group voices
      */
     public function getLanguages()

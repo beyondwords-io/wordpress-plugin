@@ -53,9 +53,6 @@ class Core
         add_action('trashed_post', array($this, 'onTrashOrDeletePost'));
         add_action('untrashed_post', array($this, 'onUntrashPost'), 10);
 
-        // Actions for WPGraphQL
-        add_action('graphql_register_types', array($this, 'graphqlRegisterTypes'));
-
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
     }
 
@@ -205,15 +202,7 @@ class Core
      */
     public function deleteAudioForPost($postId)
     {
-        $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
-
-        // Bail if we cannot determine a Project ID or Content ID
-        if (! $projectId || ! $contentId) {
-            return false;
-        }
-
-        return $this->getApiClient()->deleteAudio($postId);
+        return $this->apiClient->deleteAudio($postId);
     }
 
     /**
@@ -227,7 +216,7 @@ class Core
      */
     public function batchDeleteAudioForPosts($postIds)
     {
-        return $this->getApiClient()->batchDeleteAudio($postIds);
+        return $this->apiClient->batchDeleteAudio($postIds);
     }
 
     /**
@@ -491,72 +480,5 @@ class Core
         $this->generateAudioForPost($postId);
 
         return true;
-    }
-
-    public function getApiClient()
-    {
-        return $this->apiClient;
-    }
-
-    /**
-     * GraphQL: Register types.
-     *
-     * @since 3.6.0
-     * @since 4.0.0 Register contentId field, and contentId/podcastId are now String, not Int
-     */
-    public function graphqlRegisterTypes()
-    {
-        register_graphql_object_type('Beyondwords', [
-            'description' => __('BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
-            'fields' => [
-                'projectId' => [
-                    'description' => __('BeyondWords project ID', 'speechkit'),
-                    'type' => 'Int'
-                ],
-                'contentId' => [
-                    'description' => __('BeyondWords content ID', 'speechkit'),
-                    'type' => 'String'
-                ],
-                'podcastId' => [
-                    'description' => __('BeyondWords legacy podcast ID', 'speechkit'),
-                    'type' => 'String'
-                ],
-            ],
-        ]);
-
-        $beyondwordsPostTypes = SettingsUtils::getCompatiblePostTypes();
-
-        $graphqlPostTypes = \WPGraphQL::get_allowed_post_types();
-
-        $postTypes = array_intersect($beyondwordsPostTypes, $graphqlPostTypes);
-
-        if (! empty($postTypes) && is_array($postTypes)) {
-            foreach ($postTypes as $postType) {
-                $postTypeObject = get_post_type_object($postType);
-
-                register_graphql_field($postTypeObject->graphql_single_name, 'beyondwords', [
-                    'type'        => 'Beyondwords',
-                    'description' => __('BeyondWords audio details', 'speechkit'),
-                    'resolve'     => function (\WPGraphQL\Model\Post $post) {
-                        $beyondwords = [];
-
-                        $contentId = PostMetaUtils::getContentId($post->ID);
-
-                        if (! empty($contentId)) {
-                            $beyondwords['contentId'] = $contentId;
-                            $beyondwords['podcastId'] = $contentId; // legacy
-                        }
-
-                        $projectId = PostMetaUtils::getProjectId($post->ID);
-
-                        if (! empty($projectId)) {
-                            $beyondwords['projectId'] = $projectId;
-                        }
-
-                        return ! empty($beyondwords) ? $beyondwords : null;
-                    }
-                ]);
-            }
-        }
     }
 }
