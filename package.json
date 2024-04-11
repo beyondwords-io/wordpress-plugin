@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "4.6.2-beta.1",
+  "version": "4.6.2",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
