@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 4.6.1
+Stable tag: 4.6.2
 Requires PHP: 7.4
 Tested up to: 6.5
 License: GPLv2 or later
