@@ -309,8 +309,6 @@ class ApiClient
 
         $request = new Request('GET', $url);
 
-        $request = new Request('GET', $url);
-
         return $this->callApi($request);
     }
 
