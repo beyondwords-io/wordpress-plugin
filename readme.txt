@@ -80,13 +80,14 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.6.2-beta.1 =
+= 4.6.2 =
 
-Release date: TBC
+Release date: 11th April 2023
 
 **Enhancements**
 
 * Tested up to WordPress 6.5.
+* PHPUnit code coverage badge and report.
 
 = 4.6.1 =
 
