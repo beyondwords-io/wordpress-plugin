@@ -6,6 +6,7 @@ namespace Beyondwords\Wordpress\Compatibility\WPGraphQL;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use WPGraphQL as WPGraphQLPlugin;
 
 /**
  * Expose BeyondWords fields in WPGraphQL.
@@ -69,7 +70,7 @@ class WPGraphQL
 
         $beyondwordsPostTypes = SettingsUtils::getCompatiblePostTypes();
 
-        $graphqlPostTypes = \WPGraphQL\get_allowed_post_types();
+        $graphqlPostTypes = WPGraphQLPlugin\get_allowed_post_types();
 
         $postTypes = array_intersect($beyondwordsPostTypes, $graphqlPostTypes);
 
@@ -80,7 +81,7 @@ class WPGraphQL
                 register_graphql_field($postTypeObject->graphql_single_name, 'beyondwords', [
                     'type'        => 'Beyondwords',
                     'description' => __('BeyondWords audio details', 'speechkit'),
-                    'resolve'     => function (\WPGraphQL\Model\Post $post) {
+                    'resolve'     => function (WPGraphQLPlugin\Model\Post $post) {
                         $beyondwords = [];
 
                         $contentId = PostMetaUtils::getContentId($post->ID);
