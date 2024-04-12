@@ -106,12 +106,15 @@ class SettingsTest extends WP_UnitTestCase
 
         $crawler = new Crawler($html);
 
-        $form = $crawler->filter('div.wrap form#beyondwords-plugin-settings[method="post"]');
+        $form = $crawler->filter('div.wrap > form#beyondwords-plugin-settings[method="post"]');
         $this->assertCount(1, $form);
 
-        $heading = $crawler->filter('form > h1');
+        $heading = $crawler->filter('div.wrap > h1');
         $this->assertCount(1, $heading);
-        $this->assertSame('BeyondWords settings', $heading->text());
+        $this->assertSame('BeyondWords Settings', $heading->text());
+
+        $headerEnd = $crawler->filter('div.wrap hr.wp-header-end');
+        $this->assertCount(1, $headerEnd);
     }
 
     /**

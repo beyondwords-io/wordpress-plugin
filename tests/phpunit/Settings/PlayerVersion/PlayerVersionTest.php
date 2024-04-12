@@ -51,9 +51,9 @@ class PlayerVersionTest extends WP_UnitTestCase
         $this->_instance->addSettingsField();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-player-version', $wp_settings_fields['beyondwords']['player']);
+        $this->assertArrayHasKey('beyondwords-player-version', $wp_settings_fields['beyondwords_player']['player']);
 
-        $field = $wp_settings_fields['beyondwords']['player']['beyondwords-player-version'];
+        $field = $wp_settings_fields['beyondwords_player']['player']['beyondwords-player-version'];
 
         $this->assertSame('beyondwords-player-version', $field['id']);
         $this->assertSame('Player version', $field['title']);

@@ -69,7 +69,7 @@ class Languages
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_content_settings',
             'beyondwords_languages',
             [
                 'default'           => '',
@@ -91,7 +91,7 @@ class Languages
             'beyondwords-languages',
             __('Languages', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_content',
             'content'
         );
     }

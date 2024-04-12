@@ -52,7 +52,7 @@ class Preselect
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_generate-audio_settings',
             'beyondwords_preselect',
             [
                 'default' => Preselect::DEFAULT_PRESELECT,
@@ -73,7 +73,7 @@ class Preselect
             'beyondwords-preselect',
             __('Preselect ‘Generate audio’', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_generate-audio',
             'generate-audio'
         );
     }

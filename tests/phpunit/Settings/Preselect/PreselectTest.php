@@ -48,9 +48,9 @@ class PreselectTest extends WP_UnitTestCase
         $this->_instance->addSettingsField();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-preselect', $wp_settings_fields['beyondwords']['generate-audio']);
+        $this->assertArrayHasKey('beyondwords-preselect', $wp_settings_fields['beyondwords_generate-audio']['generate-audio']);
 
-        $field = $wp_settings_fields['beyondwords']['generate-audio']['beyondwords-preselect'];
+        $field = $wp_settings_fields['beyondwords_generate-audio']['generate-audio']['beyondwords-preselect'];
 
         $this->assertSame('beyondwords-preselect', $field['id']);
         $this->assertSame('Preselect ‘Generate audio’', $field['title']);

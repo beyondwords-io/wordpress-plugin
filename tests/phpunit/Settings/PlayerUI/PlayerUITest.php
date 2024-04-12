@@ -49,9 +49,9 @@ class PlayerUITest extends WP_UnitTestCase
         $this->_instance->addSettingsField();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-player-ui', $wp_settings_fields['beyondwords']['player']);
+        $this->assertArrayHasKey('beyondwords-player-ui', $wp_settings_fields['beyondwords_player']['player']);
 
-        $field = $wp_settings_fields['beyondwords']['player']['beyondwords-player-ui'];
+        $field = $wp_settings_fields['beyondwords_player']['player']['beyondwords-player-ui'];
 
         $this->assertSame('beyondwords-player-ui', $field['id']);
         $this->assertSame('Player UI', $field['title']);

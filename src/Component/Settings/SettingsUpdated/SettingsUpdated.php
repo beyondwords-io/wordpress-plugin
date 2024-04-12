@@ -37,7 +37,7 @@ class SettingsUpdated
     public function addSettingsField()
     {
         register_setting(
-            'beyondwords',
+            'beyondwords_basic_settings',
             'beyondwords_settings_updated',
             [
                 'default'           => '',
@@ -49,7 +49,7 @@ class SettingsUpdated
             'beyondwords-settings-updated',
             __('Settings Updated', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_basic',
             'basic',
             [
                 'class' => 'hidden'

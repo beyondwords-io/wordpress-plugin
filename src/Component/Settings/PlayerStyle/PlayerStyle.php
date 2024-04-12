@@ -65,7 +65,7 @@ class PlayerStyle
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_player_style',
             [
                 'default' => PlayerStyle::STANDARD,
@@ -76,7 +76,7 @@ class PlayerStyle
             'beyondwords-player-style',
             __('Player style', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }

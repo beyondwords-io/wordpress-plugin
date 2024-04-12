@@ -87,7 +87,7 @@ class Settings
     {
         // Settings > BeyondWords
         add_options_page(
-            __('BeyondWords', 'speechkit'),
+            __('BeyondWords Settings', 'speechkit'),
             __('BeyondWords', 'speechkit'),
             'manage_options',
             'beyondwords',
@@ -128,7 +128,7 @@ class Settings
             'basic',
             __('Basic settings', 'speechkit'),
             array($this, 'basicSectionCallback'),
-            'beyondwords'
+            'beyondwords_basic'
         );
 
         if (SettingsUtils::hasApiSettings()) {
@@ -137,7 +137,7 @@ class Settings
                 'player',
                 __('Player settings', 'speechkit'),
                 array($this, 'playerSectionCallback'),
-                'beyondwords'
+                'beyondwords_player'
             );
 
             // Add Settings Section: Content
@@ -145,7 +145,7 @@ class Settings
                 'content',
                 __('Content settings', 'speechkit'),
                 array($this, 'contentSectionCallback'),
-                'beyondwords'
+                'beyondwords_content'
             );
 
             // Add Settings Section: Generate audio
@@ -153,7 +153,7 @@ class Settings
                 'generate-audio',
                 __('‘Generate audio’ settings', 'speechkit'),
                 array($this, 'generateAudioSectionCallback'),
-                'beyondwords'
+                'beyondwords_generate-audio'
             );
         }
     }
@@ -269,76 +269,105 @@ class Settings
         return $links;
     }
 
+    /**
+     * @since 4.7.0
+     */
+    public function getTabs()
+    {
+        $tabs = array(
+            'basic'          => 'Basic',
+            'player'         => 'Player',
+            'content'        => 'Content',
+            'generate-audio' => 'Generate audio',
+        );
 
+        if (! SettingsUtils::hasApiSettings()) {
+            $tabs = array_splice($tabs, 0, 1);
+        }
 
+        return $tabs;
+    }
+
+    /**
+     * @since 4.7.0
+     */
+    public function getCurrentTab($tabs)
+    {
+        $defaultTab = array_key_first($tabs);
+
+        if (
+            ! isset($_POST['beyondwords_settings_nonce']) ||
+            ! wp_verify_nonce(
+                sanitize_text_field($_POST['beyondwords_settings_nonce']),
+                'beyondwords_settings'
+            )
+        ) {
+            return $defaultTab;
+        }
+
+        if (isset($_GET['tab'])) {
+            $tab = sanitize_text_field($_GET['tab']);
+        } else {
+            $tab = $defaultTab;
+        }
+
+        if (!empty($tab) && array_key_exists($tab, $tabs)) {
+            $currentTab = $tabs[$tab];
+        } else {
+            $currentTab = $defaultTab;
+        }
+
+        return $currentTab;
+    }
+
+    /**
+     * @since 3.0.0
+     * @since 4.7.0 Added tabs.
+     */
     public function createAdminInterface()
     {
         ?>
         <div class="wrap">
-
+            <h1><?php _e('BeyondWords Settings', 'speechkit'); ?></h1>
+            <?php
+            $tabs = $this->getTabs();
+            $currentTab = $this->getCurrentTab($tabs);
+            ?>
             <form
                 id="beyondwords-plugin-settings"
                 action="<?php echo esc_url(admin_url('options.php')); ?>"
                 method="post"
             >
-
-                <h1><?php esc_html_e('BeyondWords settings', 'speechkit'); ?></h1>
-
-                <?php
-                $projectId      = get_option('beyondwords_project_id');
-                $playerReverted = get_transient('beyondwords_player_reverted');
-
-                if ($projectId) :
-                    ?>
-                    <p>
-                        <a
-                            class="button button-secondary"
-                            href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
-                            target="_blank"
-                        >
-                            <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
+                <nav class="nav-tab-wrapper">
+                    <?php
+                    foreach ($tabs as $tab => $name) {
+                        // CSS class for a current tab
+                        $current = $tab === $currentTab ? ' nav-tab-active' : '';
+                        // URL
+                        $url = add_query_arg(array( 'page' => 'beyondwords', 'tab' => $tab ), '');
+                        ?>
+                        <a class="nav-tab<?php esc_attr_e($current); ?>" href="<?php echo esc_url($url); ?>">
+                            <?php esc_html_e($name); ?>
                         </a>
-                    </p>
-                    <?php
-                endif;
-
-                if ($playerReverted) :
+                        <?php
+                    }
                     ?>
-                    <div id="beyondwords-player-reverted-notice" class="notice notice-error">
-                        <p>
-                            <span class="dashicons dashicons-editor-help"></span>
-                            <?php
-                            printf(
-                                /* translators: %s is replaced with a "let us know" link */
-                                esc_html__('It looks like you tried the "Latest" player and switched back to the "Legacy" player. If you experienced any issues switching player please %s so we can help.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
-                                sprintf(
-                                    '<a href="mailto:support@beyondwords.io?subject=%s">%s</a>',
-                                    esc_attr__('WordPress support: Latest player', 'speechkit'),
-                                    esc_html__('let us know', 'speechkit')
-                                )
-                            );
-                            ?>
-                        </p>
-                    </div>
-                    <?php
-                endif;
-                if (SettingsUtils::hasApiSettings()) :
-                    ?>
-                    <div id="beyondwords-player-location-notice" class="notice notice-info">
-                        <p>
-                            <span class="dashicons dashicons-info"></span>
-                            <?php esc_html_e(
-                                'The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                                'speechkit'
-                            );
-                            ?>
-                        </p>
-                    </div>
-                    <?php
-                endif;
+                </nav>
+                <hr class="wp-header-end">
+                <?php
+                if ($currentTab === 'basic') {
+                    $this->dashboardLink();
+                }
 
-                settings_fields('beyondwords');
-                do_settings_sections('beyondwords');
+                if ($currentTab === 'player') {
+                    $this->playerLocationNotice();
+                    $this->playerRevertedNotice();
+                }
+
+                settings_fields("beyondwords_{$currentTab}_settings");
+                do_settings_sections("beyondwords_{$currentTab}");
+
+                wp_nonce_field('beyondwords_settings', 'beyondwords_settings_nonce');
 
                 if (SettingsUtils::hasApiSettings()) {
                     submit_button('Save Settings');
@@ -349,6 +378,78 @@ class Settings
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * @since 4.7.0
+     */
+    public function dashboardLink()
+    {
+        $projectId = get_option('beyondwords_project_id');
+
+        if ($projectId) :
+            ?>
+            <p>
+                <a
+                    class="button button-secondary"
+                    href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
+                    target="_blank"
+                >
+                    <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
+                </a>
+            </p>
+            <?php
+        endif;
+    }
+
+    /**
+     * @since 4.7.0
+     */
+    public function playerRevertedNotice()
+    {
+        $playerReverted = get_transient('beyondwords_player_reverted');
+
+        if ($playerReverted) :
+            ?>
+            <div id="beyondwords-player-reverted-notice" class="notice notice-error notice-inline">
+                <p>
+                    <span class="dashicons dashicons-editor-help"></span>
+                    <?php
+                    printf(
+                        /* translators: %s is replaced with a "let us know" link */
+                        esc_html__('It looks like you tried the "Latest" player and switched back to the "Legacy" player. If you experienced any issues switching player please %s so we can help.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                        sprintf(
+                            '<a href="mailto:support@beyondwords.io?subject=%s">%s</a>',
+                            esc_attr__('WordPress support: Latest player', 'speechkit'),
+                            esc_html__('let us know', 'speechkit')
+                        )
+                    );
+                    ?>
+                </p>
+            </div>
+            <?php
+        endif;
+    }
+
+    /**
+     * @since 4.7.0
+     */
+    public function playerLocationNotice()
+    {
+        if (SettingsUtils::hasApiSettings()) :
+            ?>
+            <div id="beyondwords-player-location-notice" class="notice notice-info">
+                <p>
+                    <span class="dashicons dashicons-info"></span>
+                    <?php esc_html_e(
+                        'The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                        'speechkit'
+                    );
+                    ?>
+                </p>
+            </div>
+            <?php
+        endif;
     }
 
     /**

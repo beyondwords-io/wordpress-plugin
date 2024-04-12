@@ -51,9 +51,9 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
         $this->_instance->addSettingsField();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-player-style', $wp_settings_fields['beyondwords']['player']);
+        $this->assertArrayHasKey('beyondwords-player-style', $wp_settings_fields['beyondwords_player']['player']);
 
-        $field = $wp_settings_fields['beyondwords']['player']['beyondwords-player-style'];
+        $field = $wp_settings_fields['beyondwords_player']['player']['beyondwords-player-style'];
 
         $this->assertSame('beyondwords-player-style', $field['id']);
         $this->assertSame('Player style', $field['title']);

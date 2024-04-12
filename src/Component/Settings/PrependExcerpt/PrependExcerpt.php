@@ -46,7 +46,7 @@ class PrependExcerpt
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_content_settings',
             'beyondwords_prepend_excerpt',
             [
                 'default' => '',
@@ -67,7 +67,7 @@ class PrependExcerpt
             'beyondwords-prepend-excerpt',
             __('Process excerpts', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_content',
             'content'
         );
     }

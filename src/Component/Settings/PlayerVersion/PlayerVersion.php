@@ -74,7 +74,7 @@ class PlayerVersion
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_player_version',
             [
                 'default' => PlayerVersion::LATEST_VERSION,
@@ -86,7 +86,7 @@ class PlayerVersion
             'beyondwords-player-version',
             __('Player version', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }

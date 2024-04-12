@@ -40,7 +40,7 @@ class ApiKey
     public function registerSetting()
     {
         register_setting(
-            'beyondwords',
+            'beyondwords_basic_settings',
             'beyondwords_api_key',
             [
                 'default'           => '',
@@ -62,7 +62,7 @@ class ApiKey
             'beyondwords-api-key',
             __('BeyondWords API key', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_basic',
             'basic'
         );
     }

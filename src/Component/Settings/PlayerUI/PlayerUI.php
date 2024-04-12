@@ -53,7 +53,7 @@ class PlayerUI
         }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_player_ui',
             [
                 'default' => PlayerUI::ENABLED,
@@ -74,7 +74,7 @@ class PlayerUI
             'beyondwords-player-ui',
             __('Player UI', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }
