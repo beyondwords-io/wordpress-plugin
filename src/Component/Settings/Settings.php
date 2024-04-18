@@ -261,11 +261,20 @@ class Settings
         <?php
     }
 
+    /**
+     * Add "Settings" link to plugin page.
+     *
+     * @since 3.0.0
+     * @since 4.7.0 Prepend custom links instead of appending them.
+     */
     public function addSettingsLinkToPluginPage($links)
     {
-        $links[] = '<a href="' .
+        $customLinks[] = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
             '">' . __('Settings', 'speechkit') . '</a>';
+
+        array_unshift($links, $customLinks);
+
         return $links;
     }
 
