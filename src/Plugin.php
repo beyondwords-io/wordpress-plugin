@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress;
 
 use Beyondwords\Wordpress\Compatibility\Elementor\Elementor;
+use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Core;
 use Beyondwords\Wordpress\Core\Player\LegacyPlayer;
@@ -74,8 +75,9 @@ class Plugin
         // Run plugin update checks before anything else
         (new Updater())->run();
 
-        // Elementor compatibility
+        // Third-party plugin/theme compatibility
         (new Elementor())->init();
+        (new WPGraphQL())->init();
 
         // Core
         $this->core = new Core($this->apiClient);
