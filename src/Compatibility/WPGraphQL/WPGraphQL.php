@@ -19,23 +19,9 @@ class WPGraphQL
     /**
      * Init.
      *
-     * @since 4.6.0
+     * @since 3.6.0
      */
     public function init()
-    {
-        $this->registerHooks();
-    }
-
-    /**
-     * Initializes the integration.
-     *
-     * This is the place to register hooks and filters.
-     *
-     * @since 4.6.0
-     *
-     * @return void
-     */
-    public function registerHooks()
     {
         // Actions for WPGraphQL
         add_action('graphql_register_types', array($this, 'graphqlRegisterTypes'));
