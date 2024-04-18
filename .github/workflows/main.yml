@@ -166,7 +166,7 @@ jobs:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [grumphp, plugin-check]
+    needs: [grumphp]
 
     strategy:
       fail-fast: false
@@ -316,7 +316,7 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [phpunit-tests]
+    needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
