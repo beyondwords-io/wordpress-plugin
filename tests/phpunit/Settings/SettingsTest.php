@@ -10,7 +10,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 class SettingsTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId
+     * @var \Beyondwords\Wordpress\Component\Settings\Settings
      * @static
      */
     private $_instance;
@@ -83,16 +83,18 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function addSettingsLinkToPluginPage()
     {
-        $existingLinks = ['Test'];
+        $links = [
+            '<a href="#">Deactivate</a>'
+        ];
 
-        $links = $this->_instance->addSettingsLinkToPluginPage($existingLinks);
-
-        $this->assertEquals('Test', $links[0]);
-
-        $expectedUrl = '<a href="' .
+        $expected = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
             '">' . __('Settings', 'speechkit') . '</a>';
-        $this->assertEquals($expectedUrl, $links[1]);
+
+        $newLinks = $this->_instance->addSettingsLinkToPluginPage($links);
+
+        $this->assertEquals($newLinks[0], $expected);
+        $this->assertEquals($newLinks[1], $links[0]);
     }
 
     /**
