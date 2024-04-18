@@ -269,11 +269,11 @@ class Settings
      */
     public function addSettingsLinkToPluginPage($links)
     {
-        $customLinks[] = '<a href="' .
+        $settingsLink = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
             '">' . __('Settings', 'speechkit') . '</a>';
 
-        array_unshift($links, $customLinks);
+        array_unshift($links, $settingsLink);
 
         return $links;
     }

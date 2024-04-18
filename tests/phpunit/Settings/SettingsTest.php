@@ -83,16 +83,18 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function addSettingsLinkToPluginPage()
     {
-        $existingLink = '<a href="#">Test</a>';
+        $links = [
+            '<a href="#">Deactivate</a>'
+        ];
 
-        $links = $this->_instance->addSettingsLinkToPluginPage([$existingLink]);
-
-        $expectedLink = '<a href="' .
+        $expected = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
             '">' . __('Settings', 'speechkit') . '</a>';
 
-        $this->assertEquals($expectedLink, $links[0]);
-        $this->assertEquals($existingLink, $links[1]);
+        $newLinks = $this->_instance->addSettingsLinkToPluginPage($links);
+
+        $this->assertEquals($newLinks[0], $expected);
+        $this->assertEquals($newLinks[1], $links[0]);
     }
 
     /**
