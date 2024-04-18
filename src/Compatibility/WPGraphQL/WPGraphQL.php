@@ -12,7 +12,7 @@ use WPGraphQL as WPGraphQLPlugin;
  * Expose BeyondWords fields in WPGraphQL.
  *
  * @since 3.6.0
- * @since 4.6.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
+ * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
  */
 class WPGraphQL
 {
@@ -46,7 +46,7 @@ class WPGraphQL
      *
      * @since 3.6.0
      * @since 4.0.0 Register contentId field, and contentId/podcastId are now String, not Int
-     * @since 4.6.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
+     * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
      */
     public function graphqlRegisterTypes()
     {
@@ -70,7 +70,7 @@ class WPGraphQL
 
         $beyondwordsPostTypes = SettingsUtils::getCompatiblePostTypes();
 
-        $graphqlPostTypes = WPGraphQLPlugin\get_allowed_post_types();
+        $graphqlPostTypes = WPGraphQLPlugin::get_allowed_post_types();
 
         $postTypes = array_intersect($beyondwordsPostTypes, $graphqlPostTypes);
 
