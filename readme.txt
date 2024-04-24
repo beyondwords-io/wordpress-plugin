@@ -84,9 +84,13 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 Release date: TBC
 
+**Fixes**
+
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Removed `wpautop` filter for block editor API requests. This was stripping a closing `</p>` tag from empty paragraph blocks.
+
 **Enhancements**
 
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Add unit tests for empty paragraphs.
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs.
 
 = 4.6.2 =
 

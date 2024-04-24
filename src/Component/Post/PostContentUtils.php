@@ -69,6 +69,7 @@ class PostContentUtils
      * @since 3.8.0 Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
      * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
      * @since 4.6.0 Renamed from PostContentUtils::getBody() to PostContentUtils::getPostBody()
+     * @since 4.7.0 Remove wpautop filter for block editor API requests.
      *
      * @return string The body (the processed $post->post_content).
      */
