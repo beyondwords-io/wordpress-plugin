@@ -555,7 +555,6 @@ class PostContentUtils
      * @since 4.2.2 Moved from src/Component/Post/BlockAttributes/BlockAttributes.php
      *              to src/Component/Post/PostContentUtils.php
      * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
-     * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
      *
      * @param string  $html   HTML.
      * @param string  $marker Marker UUID.

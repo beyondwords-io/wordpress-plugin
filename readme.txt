@@ -90,7 +90,10 @@ Release date: TBC
 
 **Enhancements**
 
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs.
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
+* [#386](https://github.com/beyondwords-io/wordpress-plugin/pull/386) Prepend custom plugin links instead of appending them
+* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality report
+* Prevent empty data-beyondwords-marker attributes
 
 = 4.6.2 =
 
