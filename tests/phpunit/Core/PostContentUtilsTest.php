@@ -116,19 +116,43 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @dataProvider getContentWithoutExcludedBlocksProvider
      */
-    public function getContentWithoutExcludedBlocks()
+    public function getContentWithoutExcludedBlocks($content, $expect)
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PostContentUtilsTest:getContentWithoutExcludedBlocks',
-            'post_content' => '<!-- wp:paragraph --><p>Included.</p><!-- /wp:paragraph --><!-- wp:paragraph {"beyondwordsAudio":false} --><p>Excluded.</p><!-- /wp:paragraph --><!-- wp:paragraph --><p></p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Previous included paragraph was empty.</p><!-- /wp:paragraph -->',
+            'post_title'   => 'PostContentUtilsTest:getContentWithoutExcludedBlocks',
+            'post_content' => $content,
         ]);
 
-        $content = PostContentUtils::getContentWithoutExcludedBlocks($post);
-
-        $this->assertSame('<p>Included.</p><p></p><p>Previous included paragraph was empty.</p>', $content);
+        $this->assertSame($expect, PostContentUtils::getContentWithoutExcludedBlocks($post));
 
         wp_delete_post($post->ID, true);
+    }
+
+    public function getContentWithoutExcludedBlocksProvider()
+    {
+        $withBlocks = '<!-- wp:paragraph --><p>No marker.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph {"beyondwordsMarker":"marker-1"} --><p>Has marker.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph {"beyondwordsAudio":false} --><p>No audio.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph --><p></p><!-- /wp:paragraph -->' . // Empty paragraph
+                      '<!-- wp:paragraph {"beyondwordsMarker":"marker-2"}  --><p></p><!-- /wp:paragraph -->' . // Empty paragraph
+                      '<!-- wp:paragraph --><p>Previous two paragraphs were empty.</p><!-- /wp:paragraph -->';
+
+        $withBlocksExpect = '<p>No marker.</p>' .
+                            '<p data-beyondwords-marker="marker-1">Has marker.</p>' .
+                            '<p></p>' .
+                            '<p data-beyondwords-marker="marker-2"></p>' .
+                            '<p>Previous two paragraphs were empty.</p>';
+
+        $withoutBlocks = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>\n\n";
+
+        $withoutBlocksExpect = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>";
+
+        return [
+            'Content with blocks'    => [ $withBlocks, $withBlocksExpect ],
+            'Content without blocks' => [ $withoutBlocks, $withoutBlocksExpect ],
+        ];
     }
 
     /**
