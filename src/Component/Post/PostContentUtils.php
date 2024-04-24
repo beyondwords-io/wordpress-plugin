@@ -90,7 +90,15 @@ class PostContentUtils
             $content = implode(' ', $match[1]);
         }
 
-        // Apply other standard WordPress filters to handle shortcodes etc
+        if (has_blocks($post)) {
+            // wpautop breaks our HTML markup when block editor paragraphs are empty
+            remove_filter('the_content', 'wpautop');
+
+            // But we still want to remove empty lines
+            $content = preg_replace('/^\h*\v+/m', '', $content);
+        }
+
+        // Apply the_content filters to handle shortcodes etc
         $content = apply_filters('the_content', $content);
 
         // Trim to remove trailing newlines – common for WordPress content
