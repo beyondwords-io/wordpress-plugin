@@ -33,7 +33,7 @@
         </exclude>
         <report>
             <clover outputFile="tests/phpunit/_report/clover.xml" />
-            <html outputDirectory="tests/phpunit/_report" />
+            <html outputDirectory="tests/phpunit/_report" lowUpperBound="60" highLowerBound="80" />
             <text outputFile="tests/phpunit/_report/coverage.txt" showUncoveredFiles="false" showOnlySummary="true"/>
         </report>
     </coverage>
