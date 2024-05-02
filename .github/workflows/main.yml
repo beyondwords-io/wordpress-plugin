@@ -136,8 +136,6 @@ jobs:
   # ######################################
   plugin-check:
     name: Plugin Check
-    # Temporarily skip
-    if: false
     runs-on: ubuntu-20.04
     environment: production
     needs: [build]
@@ -318,7 +316,7 @@ jobs:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
     environment: production
-    needs: [build, phpunit-tests]
+    needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
 
@@ -513,14 +511,6 @@ jobs:
           name: Cypress Results - PHP ${{ matrix.php-version }}
           path: ${{ github.workspace }}/tests/cypress/results
           retention-days: 7
-
-      # Publish Cypress Test Results
-      # - name:
-      #   uses: EnricoMi/publish-unit-test-result-action@v2
-      #   if: always()
-      #   with:
-      #     junit_files: "tests/_report/**/*.xml"
-
 
   # ##############################################
   # Deploy Assets (only for pushes to main branch)

@@ -44,9 +44,6 @@ class CoreTest extends WP_UnitTestCase
         $this->assertEquals(10, has_action('before_delete_post', array($core, 'onTrashOrDeletePost')));
         $this->assertEquals(10, has_action('trashed_post', array($core, 'onTrashOrDeletePost')));
         $this->assertEquals(10, has_action('untrashed_post', array($core, 'onUntrashPost')));
-
-        // Actions for WPGraphQL
-        $this->assertEquals(10, has_action('graphql_register_types', array($core, 'graphqlRegisterTypes')));
     }
 
     /**

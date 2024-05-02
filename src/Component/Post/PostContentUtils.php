@@ -69,6 +69,7 @@ class PostContentUtils
      * @since 3.8.0 Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
      * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
      * @since 4.6.0 Renamed from PostContentUtils::getBody() to PostContentUtils::getPostBody()
+     * @since 4.7.0 Remove wpautop filter for block editor API requests.
      *
      * @return string The body (the processed $post->post_content).
      */
@@ -90,7 +91,15 @@ class PostContentUtils
             $content = implode(' ', $match[1]);
         }
 
-        // Apply other standard WordPress filters to handle shortcodes etc
+        if (has_blocks($post)) {
+            // wpautop breaks our HTML markup when block editor paragraphs are empty
+            remove_filter('the_content', 'wpautop');
+
+            // But we still want to remove empty lines
+            $content = preg_replace('/^\h*\v+/m', '', $content);
+        }
+
+        // Apply the_content filters to handle shortcodes etc
         $content = apply_filters('the_content', $content);
 
         // Trim to remove trailing newlines – common for WordPress content
@@ -545,6 +554,7 @@ class PostContentUtils
      * @since 4.0.0
      * @since 4.2.2 Moved from src/Component/Post/BlockAttributes/BlockAttributes.php
      *              to src/Component/Post/PostContentUtils.php
+     * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
      *
      * @param string  $html   HTML.
      * @param string  $marker Marker UUID.
@@ -553,6 +563,10 @@ class PostContentUtils
      */
     public static function addMarkerAttributeWithHTMLTagProcessor($html, $marker)
     {
+        if (! $marker) {
+            return $html;
+        }
+
         // https://github.com/WordPress/gutenberg/pull/42485
         $tags = new \WP_HTML_Tag_Processor($html);
 
@@ -582,6 +596,7 @@ class PostContentUtils
      * @since 4.0.0
      * @since 4.2.2 Moved from src/Component/Post/BlockAttributes/BlockAttributes.php
      *              to src/Component/Post/PostContentUtils.php
+     * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
      *
      * @param string  $html   HTML.
      * @param string  $marker Marker UUID.
@@ -590,6 +605,10 @@ class PostContentUtils
      */
     public static function addMarkerAttributeWithDOMDocument($html, $marker)
     {
+        if (! $marker) {
+            return $html;
+        }
+
         $dom = new \DOMDocument('1.0', 'utf-8');
 
         $wrappedHtml =

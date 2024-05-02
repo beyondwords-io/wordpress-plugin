@@ -343,20 +343,147 @@ class PlayerTest extends WP_UnitTestCase
     {
         global $wp_scripts;
 
+        $postId = self::factory()->post->create([
+            'post_title' => 'PlayerTest::enqueueScripts',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
         $this->assertNull($wp_scripts);
 
-        set_current_screen('/wp-admin/options.php');
-        $this->_instance->enqueueScripts();
+        $this->go_to("/");
+        $this->_instance->enqueueScripts( 'front.php' );
         $this->assertNull($wp_scripts);
 
-        set_current_screen('/wp-admin/edit.php');
-        $this->_instance->enqueueScripts();
+        $this->go_to("/wp-admin/options.php");
+        $this->_instance->enqueueScripts( 'options.php' );
         $this->assertNull($wp_scripts);
 
-        set_current_screen('/wp-admin/post.php');
-        $this->_instance->enqueueScripts();
+        $this->go_to("/wp-admin/post.php");
+        $this->_instance->enqueueScripts( 'post.php' );
         $this->assertNull($wp_scripts);
+
+        $this->go_to("/wp-admin/post-new.php");
+        $this->_instance->enqueueScripts( 'post-new.php' );
+        $this->assertNull($wp_scripts);
+
+        $this->go_to("/?p={$postId}");
+        $this->_instance->enqueueScripts( 'single.php' );
+        $this->assertContains('beyondwords-sdk', $wp_scripts->queue);
 
         $wp_scripts = null;
+
+    }
+
+    /**
+     * @test
+     * @dataProvider scriptLoaderTagProvider
+     */
+    public function scriptLoaderTag($postArgs, $tag, $handle, $src, $expect)
+    {
+        global $post;
+
+        set_current_screen('/wp-admin/front');
+
+        $post = self::factory()->post->create_and_get($postArgs);
+
+        setup_postdata($post);
+
+        $output = $this->_instance->scriptLoaderTag($tag, $handle, $src);
+        $output = trim($output);
+
+        // Trim new lines and whitespace
+        $output = trim(preg_replace('/\s\s+/', ' ', $output));
+
+        $this->assertEquals($expect, $output);
+
+        wp_reset_postdata();
+
+        wp_delete_post($post->ID, true);
+    }
+
+    public function scriptLoaderTagProvider()
+    {
+        $tag    = '<script src="https://example.com/index.js"></script>';
+        $handle = 'beyondwords-sdk';
+        $src    = 'https://proxy.beyondwords.io/npm/@beyondwords/beyondwords-audio-player-v2@latest/dist/module/index.js';
+
+        $playerScript = '<script data-beyondwords-sdk="true" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/beyondwords-audio-player-v2@latest/dist/module/index.js" onload=\'document.querySelectorAll(&quot;div[data-beyondwords-player]&quot;).forEach(function(el) { new BeyondWords.Player({ ...{&quot;projectId&quot;:9969,&quot;contentId&quot;:&quot;9279c9e0-e0b5-4789-9040-f44478ed3e9e&quot;,&quot;playerStyle&quot;:&quot;standard&quot;}, target: el });});\' ></script>';
+
+        return [
+            'invalid handle' => [
+                'postArgs' => [
+                    'post_title' => 'PlayerTest::scriptLoaderTag::1',
+                    'meta_input' => [
+                        'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                        'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    ],
+                ],
+                'tag'      => $tag,
+                'handle'   => 'an-invalid-handle',
+                'src'      => $src,
+                'expect'   => $tag,
+            ],
+            'no post' => [
+                'postArgs' => null,
+                'tag'      => $tag,
+                'handle'   => $handle,
+                'src'      => $src,
+                'expect'   => '',
+            ],
+            'No Content ID' => [
+                'postArgs' => [
+                    'post_title' => 'PlayerTest::scriptLoaderTag::2',
+                    'meta_input' => [
+                        'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                    ],
+                ],
+                'tag'    => $tag,
+                'handle' => $handle,
+                'src'    => $src,
+                'expect' => '',
+            ],
+            'No Project ID' => [
+                'postArgs' => [
+                    'post_title' => 'PlayerTest::scriptLoaderTag::3',
+                    'meta_input' => [
+                        'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    ],
+                ],
+                'tag'    => $tag,
+                'handle' => $handle,
+                'src'    => $src,
+                'expect' => '',
+            ],
+            'Post with everything we need' => [
+                'postArgs' => [
+                    'post_title' => 'PlayerTest::scriptLoaderTag::4',
+                    'meta_input' => [
+                        'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                        'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    ],
+                ],
+                'tag'      => $tag,
+                'handle'   => $handle,
+                'src'      => $src,
+                'expect'   => $playerScript,
+            ],
+            'Page with everything we need' => [
+                'postArgs' => [
+                    'post_title' => 'PlayerTest::scriptLoaderTag::5',
+                    'post_type' => 'page',
+                    'meta_input' => [
+                        'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                        'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    ],
+                ],
+                'tag'    => $tag,
+                'handle' => $handle,
+                'src'    => $src,
+                'expect' => $playerScript,
+            ],
+        ];
     }
 }
