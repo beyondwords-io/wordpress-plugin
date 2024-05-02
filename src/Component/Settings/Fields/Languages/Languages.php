@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   4.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Languages;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
@@ -69,7 +69,7 @@ class Languages
         }
 
         register_setting(
-            'beyondwords_content_settings',
+            'beyondwords',
             'beyondwords_languages',
             [
                 'default'           => '',
@@ -91,8 +91,8 @@ class Languages
             'beyondwords-languages',
             __('Languages', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_content',
-            'content'
+            'beyondwords_advanced',
+            'advanced'
         );
     }
 
@@ -190,8 +190,7 @@ class Languages
      */
     public function enqueueScripts($hook)
     {
-        // Only enqueue for Post screens
-        if ($hook === 'settings_page_beyondwords' && SettingsUtils::hasApiSettings()) {
+        if ($hook === 'settings_page_beyondwords') {
             // Tom Select CSS
             wp_enqueue_style(
                 'tom-select',
@@ -208,17 +207,6 @@ class Languages
                 '2.2.2',
                 true
             );
-
-            // Settings page
-            wp_register_script(
-                'beyondwords-settings--languages',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/Languages/settings.js',
-                ['jquery', 'tom-select'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-
-            wp_enqueue_script('beyondwords-settings--languages');
         }
     }
 }

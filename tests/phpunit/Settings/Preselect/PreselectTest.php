@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Preselect\Preselect;
+use Beyondwords\Wordpress\Component\Settings\Fields\Preselect\Preselect;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PreselectTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Preselect\Preselect
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Preselect\Preselect
      */
     private $_instance;
 

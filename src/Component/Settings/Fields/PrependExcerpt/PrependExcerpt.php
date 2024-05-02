@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   3.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\PrependExcerpt;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
@@ -46,7 +46,7 @@ class PrependExcerpt
         }
 
         register_setting(
-            'beyondwords_content_settings',
+            'beyondwords',
             'beyondwords_prepend_excerpt',
             [
                 'default' => '',

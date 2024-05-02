@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   4.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\SettingsUpdated;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated;
 
 /**
  * SettingsUpdated setup
@@ -37,7 +37,7 @@ class SettingsUpdated
     public function addSettingsField()
     {
         register_setting(
-            'beyondwords_basic_settings',
+            'beyondwords',
             'beyondwords_settings_updated',
             [
                 'default'           => '',
@@ -49,7 +49,7 @@ class SettingsUpdated
             'beyondwords-settings-updated',
             __('Settings Updated', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_basic',
+            'beyondwords_general',
             'basic',
             [
                 'class' => 'hidden'

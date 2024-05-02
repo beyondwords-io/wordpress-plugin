@@ -106,11 +106,6 @@ class SiteHealth
             'value' => get_option('beyondwords_project_id'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_player_version'] = [
-            'label' => __('Player version', 'speechkit'),
-            'value' => get_option('beyondwords_player_version'),
-        ];
-
         $info['beyondwords']['fields']['beyondwords_player_ui'] = [
             'label' => __('Player UI', 'speechkit'),
             'value' => get_option('beyondwords_player_ui'),

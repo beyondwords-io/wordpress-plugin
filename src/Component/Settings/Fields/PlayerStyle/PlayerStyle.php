@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   4.1.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\PlayerStyle;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
@@ -48,7 +48,6 @@ class PlayerStyle
     public function init()
     {
         add_action('admin_init', array($this, 'addSettingsField'));
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
     }
 
     /**
@@ -65,7 +64,7 @@ class PlayerStyle
         }
 
         register_setting(
-            'beyondwords_player_settings',
+            'beyondwords',
             'beyondwords_player_style',
             [
                 'default' => PlayerStyle::STANDARD,
@@ -246,27 +245,5 @@ class PlayerStyle
         }
 
         return $playerStyles;
-    }
-
-    /**
-     * Register the component scripts.
-     *
-     * @since 4.1.0
-     *
-     * @param string $hook Page hook
-     *
-     * @return void
-     */
-    public function adminEnqueueScripts($hook)
-    {
-        if ($hook === 'settings_page_beyondwords') {
-            wp_enqueue_script(
-                'beyondwords-settings--player-style',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/PlayerStyle/settings.js',
-                ['jquery', 'underscore'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-        }
     }
 }

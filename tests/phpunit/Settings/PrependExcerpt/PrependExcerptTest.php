@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\PrependExcerpt\PrependExcerpt;
+use Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PrependExcerptTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\PrependExcerpt\PrependExcerpt
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt
      */
     private $_instance;
 

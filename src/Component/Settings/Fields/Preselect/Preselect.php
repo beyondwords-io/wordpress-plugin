@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   3.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Preselect;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\Preselect;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
@@ -35,7 +35,6 @@ class Preselect
     {
         add_action('admin_init', array($this, 'registerSetting'));
         add_action('admin_init', array($this, 'addSettingsField'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
     }
 
     /**
@@ -52,7 +51,7 @@ class Preselect
         }
 
         register_setting(
-            'beyondwords_generate-audio_settings',
+            'beyondwords',
             'beyondwords_preselect',
             [
                 'default' => Preselect::DEFAULT_PRESELECT,
@@ -73,8 +72,8 @@ class Preselect
             'beyondwords-preselect',
             __('Preselect ‘Generate audio’', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_generate-audio',
-            'generate-audio'
+            'beyondwords_content',
+            'content'
         );
     }
 
@@ -259,16 +258,6 @@ class Preselect
      */
     public function enqueueScripts($hook)
     {
-        if ($hook === 'settings_page_beyondwords') {
-            wp_enqueue_script(
-                'beyondwords-settings--preselect-settings',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/Preselect/settings.js',
-                ['jquery', 'underscore'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-        }
-
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_register_script(
                 'beyondwords-settings--preselect-post',

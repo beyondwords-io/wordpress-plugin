@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
@@ -522,13 +522,6 @@ class Player
 
         if ($playerUI === PlayerUI::HEADLESS) {
             $params['showUserInterface'] = false;
-        }
-
-        /**
-         * Use legacy JS SDK params if player version setting is "0": "Legacy"
-         */
-        if (SettingsUtils::useLegacyPlayer()) {
-            $params = $this->convertLatestToLegacyParams($params);
         }
 
         /**

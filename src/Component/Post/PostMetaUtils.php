@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**

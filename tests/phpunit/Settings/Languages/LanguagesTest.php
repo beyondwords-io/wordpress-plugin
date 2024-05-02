@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
+use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class LanguagesTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Languages\Languages
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages
      */
     private $_instance;
 

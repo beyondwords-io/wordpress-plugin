@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @since   4.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\PlayerUI;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
@@ -36,7 +36,6 @@ class PlayerUI
     {
         add_action('admin_init', array($this, 'registerSetting'));
         add_action('admin_init', array($this, 'addSettingsField'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
     }
 
     /**
@@ -53,7 +52,7 @@ class PlayerUI
         }
 
         register_setting(
-            'beyondwords_player_settings',
+            'beyondwords',
             'beyondwords_player_ui',
             [
                 'default' => PlayerUI::ENABLED,
@@ -137,27 +136,5 @@ class PlayerUI
             PlayerUI::HEADLESS => __('Headless', 'speechkit'),
             PlayerUI::DISABLED => __('Disabled', 'speechkit'),
         ];
-    }
-
-    /**
-     * Register the component scripts.
-     *
-     * @since  3.0.0
-     *
-     * @param string $hook Page hook
-     *
-     * @return void
-     */
-    public function enqueueScripts($hook)
-    {
-        if ($hook === 'settings_page_beyondwords') {
-            wp_enqueue_script(
-                'beyondwords-settings--player-ui',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/PlayerUI/settings.js',
-                ['jquery', 'underscore'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-        }
     }
 }

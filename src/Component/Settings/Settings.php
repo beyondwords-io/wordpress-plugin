@@ -12,15 +12,12 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
-use Beyondwords\Wordpress\Component\Settings\ApiKey\ApiKey;
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
-use Beyondwords\Wordpress\Component\Settings\Preselect\Preselect;
-use Beyondwords\Wordpress\Component\Settings\PrependExcerpt\PrependExcerpt;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle;
-use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
-use Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId;
-use Beyondwords\Wordpress\Component\Settings\SettingsUpdated\SettingsUpdated;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
+use Beyondwords\Wordpress\Component\Settings\Tabs\General\General;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -55,19 +52,17 @@ class Settings
      */
     public function init()
     {
-        (new ApiKey())->init();
-        (new ProjectId())->init();
-        (new Preselect())->init();
-        (new PrependExcerpt())->init();
-        (new PlayerVersion($this->apiClient))->init();
-        (new PlayerUI())->init();
-        (new PlayerStyle($this->apiClient))->init();
-        (new Languages($this->apiClient))->init();
-        (new SettingsUpdated())->init();
+        (new Advanced($this->apiClient))->init();
+        (new General())->init();
+        (new Content())->init();
+        (new Player($this->apiClient))->init();
+        (new Pronunciations())->init();
+        (new Voices())->init();
 
         add_action('admin_menu', array($this, 'addOptionsPage'));
-        add_action('admin_init', array($this, 'addSettingsSections'));
         add_action('admin_notices', array($this, 'printPluginAdminNotices'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
+
         add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('plugin_action_links_speechkit/speechkit.php', array($this, 'addSettingsLinkToPluginPage'));
@@ -96,172 +91,6 @@ class Settings
     }
 
     /**
-     * Add Settings sections.
-     *
-     * =====
-     * Basic
-     * =====
-     * 'api_key'    => '',
-     * 'project_id' => '',
-     *
-     * ==============
-     * Player
-     * ==============
-     * 'version' => '0',
-     *
-     * ==============
-     * Generate audio
-     * ==============
-     * 'preselect' => array('post' => '1', 'page' => '1'),
-     *
-     * ========
-     * Advanced
-     * ========
-     * 'merge_excerpt' => false,
-     *
-     * @since  3.0.0
-     */
-    public function addSettingsSections()
-    {
-        // Add Settings Section: Basic
-        add_settings_section(
-            'basic',
-            __('Basic settings', 'speechkit'),
-            array($this, 'basicSectionCallback'),
-            'beyondwords_basic'
-        );
-
-        if (SettingsUtils::hasApiSettings()) {
-            // Add Settings Section: Player
-            add_settings_section(
-                'player',
-                __('Player settings', 'speechkit'),
-                array($this, 'playerSectionCallback'),
-                'beyondwords_player'
-            );
-
-            // Add Settings Section: Content
-            add_settings_section(
-                'content',
-                __('Content settings', 'speechkit'),
-                array($this, 'contentSectionCallback'),
-                'beyondwords_content'
-            );
-
-            // Add Settings Section: Generate audio
-            add_settings_section(
-                'generate-audio',
-                __('‘Generate audio’ settings', 'speechkit'),
-                array($this, 'generateAudioSectionCallback'),
-                'beyondwords_generate-audio'
-            );
-        }
-    }
-
-    /**
-     * "Basic section" callback
-     *
-     * @since 3.0.0
-     *
-     * @return void
-     **/
-    public function basicSectionCallback()
-    {
-        delete_transient('beyondwords_settings_errors');
-        ?>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'The details we need to authenticate your BeyondWords account. For more options, head to your BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <?php
-    }
-
-    /**
-     * "Player section" callback
-     *
-     * @since 4.0.0
-     *
-     * @return void
-     **/
-    public function playerSectionCallback()
-    {
-        ?>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'Upgrade to the latest player version for the newest features.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <?php
-    }
-
-    /**
-     * "Content" section callback
-     *
-     * @since 3.0.0
-     *
-     * @return void
-     **/
-    public function contentSectionCallback()
-    {
-        ?>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'By default, BeyondWords will process your titles and body content into audio.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <?php
-    }
-
-    /**
-     * ‘Generate audio’ section callback.
-     *
-     * @since 3.0.0
-     *
-     * @return void
-     **/
-    public function generateAudioSectionCallback()
-    {
-        ?>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'The ‘Generate audio’ checkbox in the BeyondWords sidebar will be automatically checked for selected post types. The default setting can be manually overridden.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'Uncheck a post type to view its Categories. You can then set defaults at a category level. Make sure to check all relevant boxes.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <p class="description">
-            <em>
-                <?php
-                esc_html_e(
-                    'The default WordPress ‘Categories’ taxonomy is currently the only taxonomy supported.',
-                    'speechkit'
-                );
-                ?>
-            </em>
-        </p>
-        <?php
-    }
-
-    /**
      * Add "Settings" link to plugin page.
      *
      * @since 3.0.0
@@ -284,10 +113,12 @@ class Settings
     public function getTabs()
     {
         $tabs = array(
-            'basic'          => 'Basic',
-            'player'         => 'Player',
+            'general'        => 'General',
+            'voices'         => 'Voices',
             'content'        => 'Content',
-            'generate-audio' => 'Generate audio',
+            'player'         => 'Player',
+            'pronunciations' => 'Pronunciations',
+            'advanced'       => 'Advanced',
         );
 
         if (! SettingsUtils::hasApiSettings()) {
@@ -304,16 +135,6 @@ class Settings
     {
         $defaultTab = array_key_first($tabs);
 
-        if (
-            ! isset($_POST['beyondwords_settings_nonce']) ||
-            ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_settings_nonce']),
-                'beyondwords_settings'
-            )
-        ) {
-            return $defaultTab;
-        }
-
         if (isset($_GET['tab'])) {
             $tab = sanitize_text_field($_GET['tab']);
         } else {
@@ -321,7 +142,7 @@ class Settings
         }
 
         if (!empty($tab) && array_key_exists($tab, $tabs)) {
-            $currentTab = $tabs[$tab];
+            $currentTab = $tab;
         } else {
             $currentTab = $defaultTab;
         }
@@ -355,26 +176,34 @@ class Settings
                         // URL
                         $url = add_query_arg(array( 'page' => 'beyondwords', 'tab' => $tab ), '');
                         ?>
-                        <a class="nav-tab<?php esc_attr_e($current); ?>" href="<?php echo esc_url($url); ?>">
+                        <a class="nav-tab<?php esc_attr_e($current); ?>" data-tab="<?php echo esc_attr($tab); ?>" href="<?php echo esc_url($url); ?>">
                             <?php esc_html_e($name); ?>
                         </a>
                         <?php
                     }
                     ?>
                 </nav>
-                <hr class="wp-header-end">
+                <!-- <hr class="wp-header-end"> -->
                 <?php
-                if ($currentTab === 'basic') {
-                    $this->dashboardLink();
-                }
+                // if ($currentTab === 'basic') {
+                //     $this->dashboardLink();
+                // }
 
-                if ($currentTab === 'player') {
-                    $this->playerLocationNotice();
-                    $this->playerRevertedNotice();
-                }
+                // if ($currentTab === 'player') {
+                //     $this->playerLocationNotice();
+                //     $this->playerRevertedNotice();
+                // }
 
-                settings_fields("beyondwords_{$currentTab}_settings");
-                do_settings_sections("beyondwords_{$currentTab}");
+                foreach ($tabs as $tab => $name) {
+                    ?>
+                    <section class="<?php echo esc_attr($tab); ?>">
+                        <?php
+                        settings_fields("beyondwords_{$tab}_settings");
+                        do_settings_sections("beyondwords_{$tab}");
+                        ?>
+                    </section>
+                    <?php
+                }
 
                 wp_nonce_field('beyondwords_settings', 'beyondwords_settings_nonce');
 
@@ -407,56 +236,6 @@ class Settings
                     <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
                 </a>
             </p>
-            <?php
-        endif;
-    }
-
-    /**
-     * @since 4.7.0
-     */
-    public function playerRevertedNotice()
-    {
-        $playerReverted = get_transient('beyondwords_player_reverted');
-
-        if ($playerReverted) :
-            ?>
-            <div id="beyondwords-player-reverted-notice" class="notice notice-error notice-inline">
-                <p>
-                    <span class="dashicons dashicons-editor-help"></span>
-                    <?php
-                    printf(
-                        /* translators: %s is replaced with a "let us know" link */
-                        esc_html__('It looks like you tried the "Latest" player and switched back to the "Legacy" player. If you experienced any issues switching player please %s so we can help.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
-                        sprintf(
-                            '<a href="mailto:support@beyondwords.io?subject=%s">%s</a>',
-                            esc_attr__('WordPress support: Latest player', 'speechkit'),
-                            esc_html__('let us know', 'speechkit')
-                        )
-                    );
-                    ?>
-                </p>
-            </div>
-            <?php
-        endif;
-    }
-
-    /**
-     * @since 4.7.0
-     */
-    public function playerLocationNotice()
-    {
-        if (SettingsUtils::hasApiSettings()) :
-            ?>
-            <div id="beyondwords-player-location-notice" class="notice notice-info">
-                <p>
-                    <span class="dashicons dashicons-info"></span>
-                    <?php esc_html_e(
-                        'The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                        'speechkit'
-                    );
-                    ?>
-                </p>
-            </div>
             <?php
         endif;
     }
@@ -661,6 +440,31 @@ class Settings
             );
 
             set_transient('beyondwords_settings_errors', $errors);
+        }
+    }
+
+    /**
+     * Register the settings script.
+     *
+     * @since  4.8.0
+     *
+     * @param string $hook Page hook
+     *
+     * @return void
+     */
+    public function enqueueScripts($hook)
+    {
+        if ($hook === 'settings_page_beyondwords' && SettingsUtils::hasApiSettings()) {
+            wp_enqueue_script('jquery-ui-core');// enqueue jQuery UI Core
+            wp_enqueue_script('jquery-ui-tabs');// enqueue jQuery UI Tabs
+
+            wp_enqueue_script(
+                'beyondwords-settings',
+                BEYONDWORDS__PLUGIN_URI . 'build/settings.js',
+                ['jquery', 'jquery-ui-core', 'jquery-ui-tabs', 'underscore', 'tom-select'],
+                BEYONDWORDS__PLUGIN_VERSION,
+                true
+            );
         }
     }
 }

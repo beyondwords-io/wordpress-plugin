@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PlayerUITest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI
      */
     private $_instance;
 

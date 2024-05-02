@@ -119,54 +119,11 @@ context( 'Settings tests',  () => {
 
     cy.visit( '/wp-admin/options.php' )
     cy.get( '#beyondwords_api_key' ).should( 'exist' )
-    cy.get( '#beyondwords_player_version' ).should( 'exist' )
     cy.get( '#beyondwords_prepend_excerpt' ).should( 'exist' )
     cy.get( '#beyondwords_preselect' ).should( 'exist' )
     cy.get( '#beyondwords_project_id' ).should( 'exist' )
     cy.get( '#beyondwords_version' ).should( 'exist' )
     cy.get( '#beyondwords_settings_updated' ).should( 'exist' )
-  } )
-
-  it( 'uses "Legacy" Player version setting', () => {
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
-
-    cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
-    cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-    cy.get( 'input[type="submit"]' ).click()
-
-    cy.get( 'select[name="beyondwords_player_version"]' ).select( 'Legacy' )
-    cy.get( 'input[type="submit"]' ).click()
-
-    cy.createPostWithAudio( '"Legacy" Player version' )
-
-    // Admin should have latest player
-    cy.getAdminPlayer().should( 'exist' )
-
-    // Frontend should not have a player div
-    cy.viewPostViaSnackbar()
-    cy.getLegacyFrontendPlayer().should( 'exist' )
-  } )
-
-  it( 'uses "Latest" Player version setting', () => {
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
-
-    cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
-    cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-    cy.get( 'input[type="submit"]' ).click()
-
-    cy.get( 'select[name="beyondwords_player_version"]' ).select( 'Latest' )
-    cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' )
-    cy.get( 'input[type="submit"]' ).click()
-
-    cy.createPostWithAudio( '"Latest" Player version' )
-
-    // Admin should have latest player
-    cy.getAdminPlayer().should( 'exist' )
-
-    // Frontend should not have a player div
-    cy.viewPostViaSnackbar()
-    cy.getFrontendPlayer().should( 'exist' )
-    cy.getLegacyFrontendPlayer().should( 'not.exist' )
   } )
 
   it( 'uses "Enabled" Player UI setting', () => {
@@ -176,7 +133,6 @@ context( 'Settings tests',  () => {
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
     cy.get( 'input[type="submit"]' ).click()
 
-    cy.get( 'select[name="beyondwords_player_version"]' ).select( 'Latest' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' )
     cy.get( 'input[type="submit"]' ).click()
 
@@ -205,7 +161,6 @@ context( 'Settings tests',  () => {
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
     cy.get( 'input[type="submit"]' ).click()
 
-    cy.get( 'select[name="beyondwords_player_version"]' ).select( 'Latest' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' )
     cy.get( 'input[type="submit"]' ).click()
 
@@ -235,7 +190,6 @@ context( 'Settings tests',  () => {
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
     cy.get( 'input[type="submit"]' ).click()
 
-    cy.get( 'select[name="beyondwords_player_version"]' ).select( 'Latest' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' )
     cy.get( 'input[type="submit"]' ).click()
 
@@ -263,7 +217,6 @@ context( 'Settings tests',  () => {
 
     cy.visit( '/wp-admin/options.php' ).wait( 500 )
     cy.get( '#beyondwords_api_key' ).should( 'not.exist' )
-    cy.get( '#beyondwords_player_version' ).should( 'not.exist' )
     cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' )
     cy.get( '#beyondwords_preselect' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_id' ).should( 'not.exist' )

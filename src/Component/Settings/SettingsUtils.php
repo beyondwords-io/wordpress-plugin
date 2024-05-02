@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Compatibility\Elementor\Elementor;
-use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
 
 /**
  * BeyondWords Settings Utilities.
@@ -146,30 +145,6 @@ class SettingsUtils
         });
 
         return array_values($postTypes);
-    }
-
-    /**
-     * Should we use the Legacy player version?
-     *
-     * @since 4.0.0
-     *
-     * @return boolean
-     */
-    public static function useLegacyPlayer()
-    {
-        // Use "Legacy" player for Elementor
-        if (Elementor::isElementorActivated()) {
-            return true;
-        }
-
-        // Use "Latest" player for all other admin screens
-        if (is_admin()) {
-            return false;
-        }
-
-        $playerVersion = get_option('beyondwords_player_version');
-
-        return $playerVersion === PlayerVersion::LEGACY_VERSION;
     }
 
     /**

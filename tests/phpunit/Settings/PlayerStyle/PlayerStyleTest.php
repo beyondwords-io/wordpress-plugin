@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class SettingsPlayerStyleTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle
      */
     private $_instance;
 

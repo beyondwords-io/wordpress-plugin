@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 /**
- * Setting: API Key
+ * Setting: Project ID
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\ApiKey;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\ProjectId;
 
 /**
- * ApiKey setup
+ * ProjectId setup
  *
  * @since 3.0.0
  */
-class ApiKey
+class ProjectId
 {
     /**
      * Init.
@@ -40,8 +40,8 @@ class ApiKey
     public function registerSetting()
     {
         register_setting(
-            'beyondwords_basic_settings',
-            'beyondwords_api_key',
+            'beyondwords',
+            'beyondwords_project_id',
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
@@ -59,11 +59,11 @@ class ApiKey
     public function addSettingsField()
     {
         add_settings_field(
-            'beyondwords-api-key',
-            __('BeyondWords API key', 'speechkit'),
+            'beyondwords-project-id',
+            __('BeyondWords project ID', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_basic',
-            'basic'
+            'beyondwords_general',
+            'general'
         );
     }
 
@@ -76,13 +76,13 @@ class ApiKey
      **/
     public function render()
     {
-        $api_key = get_option('beyondwords_api_key');
+        $project_id = get_option('beyondwords_project_id');
         ?>
         <input
             type="text"
-            name="beyondwords_api_key"
-            value="<?php echo esc_attr($api_key); ?>"
-            size="50"
+            name="beyondwords_project_id"
+            value="<?php echo esc_attr($project_id); ?>"
+            size="10"
         />
         <?php
     }
@@ -100,8 +100,8 @@ class ApiKey
         $errors = get_transient('beyondwords_settings_errors', []);
 
         if (empty($value)) {
-            $errors['Settings/ApiKey'] = __(
-                'Please enter the BeyondWords API key. This can be found in your project settings.',
+            $errors['Settings/ProjectId'] = __(
+                'Please enter your BeyondWords project ID. This can be found in your project settings.',
                 'speechkit'
             );
             set_transient('beyondwords_settings_errors', $errors);

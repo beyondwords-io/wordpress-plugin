@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\SelectVoice;
 
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
+use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**

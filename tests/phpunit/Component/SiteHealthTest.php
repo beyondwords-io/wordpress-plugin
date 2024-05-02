@@ -60,7 +60,6 @@ class SiteHealthTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey('beyondwords_api_key', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_project_id', $info['beyondwords']['fields']);
-        $this->assertArrayHasKey('beyondwords_player_version', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_player_ui', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_prepend_excerpt', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_preselect', $info['beyondwords']['fields']);

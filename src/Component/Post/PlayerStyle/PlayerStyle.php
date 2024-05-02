@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\PlayerStyle;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle as PlayerStyleSetting;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle as PlayerStyleSetting;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**

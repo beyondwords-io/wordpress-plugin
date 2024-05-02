@@ -39,11 +39,11 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function basicSectionCallback()
+    public function credentialsSectionCallback()
     {
         set_transient('beyondwords_settings_errors', ['Test Error']);
 
-        $this->_instance->basicSectionCallback();
+        $this->_instance->credentialsSectionCallback();
 
         $errors = get_transient('beyondwords_settings_errors', []);
 

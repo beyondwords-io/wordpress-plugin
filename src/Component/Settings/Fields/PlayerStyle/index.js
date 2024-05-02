@@ -7,15 +7,9 @@
 		.find( '.beyondwords-setting--player--player-style' )
 		.closest( 'tr' );
 
-	const $playerVersionField = $( '#beyondwords-plugin-settings' ).find(
-		'.beyondwords-setting--player--player-version select'
-	);
-
 	const $playerUiField = $( '#beyondwords-plugin-settings' ).find(
 		'.beyondwords-setting--player--player-ui select'
 	);
-
-	$playerVersionField.on( 'change', toggleFieldRow );
 
 	$playerUiField.on( 'change', toggleFieldRow );
 
@@ -23,14 +17,12 @@
 	toggleFieldRow();
 
 	/**
-	 * Only show this field row when "Player version" is "enabled" and
-	 * "Player UI" is "Enabled".
+	 * Only show this field row when "Player UI" is "Enabled".
 	 */
 	function toggleFieldRow() {
-		const playerVersion = $playerVersionField.find( ':selected' ).val();
 		const playerUi = $playerUiField.find( ':selected' ).val();
 
-		if ( playerVersion === '1' && playerUi === 'enabled' ) {
+		if ( playerUi === 'enabled' ) {
 			$playerStyleFieldRow.show();
 		} else {
 			$playerStyleFieldRow.hide();

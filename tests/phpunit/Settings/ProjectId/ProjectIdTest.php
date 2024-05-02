@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId;
+use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class ProjectIdTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId
      */
     private $_instance;
 
@@ -48,9 +48,9 @@ class ProjectIdTest extends WP_UnitTestCase
         $this->_instance->addSettingsField();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_basic']['basic']);
+        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_credentials']['basic']);
 
-        $field = $wp_settings_fields['beyondwords_basic']['basic']['beyondwords-project-id'];
+        $field = $wp_settings_fields['beyondwords_credentials']['basic']['beyondwords-project-id'];
 
         $this->assertSame('beyondwords-project-id', $field['id']);
         $this->assertSame('BeyondWords project ID', $field['title']);

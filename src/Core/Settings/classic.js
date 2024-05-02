@@ -1,22 +1,7 @@
-/* global jQuery */
-
-( function ( $ ) {
-	'use strict';
-
-	$(
-		'#beyondwords-plugin-settings .beyondwords-setting-categories-all input'
-	).on( 'change', function () {
-		if ( this.checked ) {
-			$(
-				'#beyondwords-plugin-settings .beyondwords-setting-categories-term'
-			).hide();
-			$(
-				'#beyondwords-plugin-settings .beyondwords-setting-categories-term input'
-			).prop( 'checked', false );
-		} else {
-			$(
-				'#beyondwords-plugin-settings .beyondwords-setting-categories-term'
-			).show();
-		}
-	} );
-} )( jQuery );
+/**
+ * Internal dependencies
+ */
+require( '../../Component/Settings/Fields/Languages' );
+require( '../../Component/Settings/Fields/PlayerStyle' );
+require( '../../Component/Settings/Fields/Preselect' );
+require( '../../Component/Settings/Tabs' );
