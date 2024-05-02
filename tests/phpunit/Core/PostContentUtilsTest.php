@@ -26,7 +26,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     public function getContentBody()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title'   => 'UtilsTest:getContentBody',
+            'post_title'   => 'PostContentUtilsTest:getContentBody',
             'post_content' => '<p>Some test HTML.</p>',
         ]);
 
@@ -43,7 +43,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     public function getContentBodyWithSummary()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title'   => 'UtilsTest:getContentBodyWithSummary',
+            'post_title'   => 'PostContentUtilsTest:getContentBodyWithSummary',
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
         ]);
@@ -65,7 +65,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     public function getContentBodyWithSummaryVoiceId()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'UtilsTest:getContentBodyWithSummaryVoiceId',
+            'post_title' => 'PostContentUtilsTest:getContentBodyWithSummaryVoiceId',
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'meta_input'    => [
@@ -116,19 +116,43 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @dataProvider getContentWithoutExcludedBlocksProvider
      */
-    public function getContentWithoutExcludedBlocks()
+    public function getContentWithoutExcludedBlocks($content, $expect)
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'UtilsTest:getContentWithoutExcludedBlocks',
-            'post_content' => '<!-- wp:paragraph --><p>1. Included.</p><!-- /wp:paragraph --><!-- wp:paragraph {"beyondwordsAudio":false} --><p>2. Excluded.</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>3. Included.</p><!-- /wp:paragraph -->',
+            'post_title'   => 'PostContentUtilsTest:getContentWithoutExcludedBlocks',
+            'post_content' => $content,
         ]);
 
-        $content = PostContentUtils::getContentWithoutExcludedBlocks($post);
-
-        $this->assertSame('<p>1. Included.</p><p>3. Included.</p>', $content);
+        $this->assertSame($expect, PostContentUtils::getContentWithoutExcludedBlocks($post));
 
         wp_delete_post($post->ID, true);
+    }
+
+    public function getContentWithoutExcludedBlocksProvider()
+    {
+        $withBlocks = '<!-- wp:paragraph --><p>No marker.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph {"beyondwordsMarker":"marker-1"} --><p>Has marker.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph {"beyondwordsAudio":false} --><p>No audio.</p><!-- /wp:paragraph -->' .
+                      '<!-- wp:paragraph --><p></p><!-- /wp:paragraph -->' . // Empty paragraph
+                      '<!-- wp:paragraph {"beyondwordsMarker":"marker-2"}  --><p></p><!-- /wp:paragraph -->' . // Empty paragraph
+                      '<!-- wp:paragraph --><p>Previous two paragraphs were empty.</p><!-- /wp:paragraph -->';
+
+        $withBlocksExpect = '<p>No marker.</p>' .
+                            '<p data-beyondwords-marker="marker-1">Has marker.</p>' .
+                            '<p></p>' .
+                            '<p data-beyondwords-marker="marker-2"></p>' .
+                            '<p>Previous two paragraphs were empty.</p>';
+
+        $withoutBlocks = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>\n\n";
+
+        $withoutBlocksExpect = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>";
+
+        return [
+            'Content with blocks'    => [ $withBlocks, $withBlocksExpect ],
+            'Content without blocks' => [ $withoutBlocks, $withoutBlocksExpect ],
+        ];
     }
 
     /**
@@ -153,7 +177,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         });
 
         $postId = $this->factory->post->create([
-            'post_title' => 'UtilsTest:getPostBody',
+            'post_title' => 'PostContentUtilsTest:getPostBody',
             'post_type' => $postType,
             'post_content' => $postContent,
         ]);
@@ -302,14 +326,14 @@ class PostContentUtilsTest extends WP_UnitTestCase
     {
         return [
             'No BeyondWords metadata'             => [false, []],
-            'beyondwords_generate_audio is ""'    => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '']]],
-            'beyondwords_generate_audio is "0"'   => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '0']]],
-            'beyondwords_generate_audio is "-1"'  => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '-1']]],
-            'beyondwords_generate_audio is "1"'   => [true,  ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '1']]],
-            'speechkit_generate_audio is ""'      => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '']]],
-            'speechkit_generate_audio is "0"'     => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '0']]],
-            'speechkit_generate_audio is "-1"'    => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '-1']]],
-            'speechkit_generate_audio is "1"'     => [true,  ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '1']]],
+            'beyondwords_generate_audio is ""'    => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '']]],
+            'beyondwords_generate_audio is "0"'   => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '0']]],
+            'beyondwords_generate_audio is "-1"'  => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '-1']]],
+            'beyondwords_generate_audio is "1"'   => [true,  ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['beyondwords_generate_audio' => '1']]],
+            'speechkit_generate_audio is ""'      => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '']]],
+            'speechkit_generate_audio is "0"'     => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '0']]],
+            'speechkit_generate_audio is "-1"'    => [false, ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '-1']]],
+            'speechkit_generate_audio is "1"'     => [true,  ['post_title' => 'PostContentUtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '1']]],
         ];
     }
 
@@ -329,7 +353,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         wp_set_current_user($user->ID);
 
         $args = [
-            'post_title'   => 'UtilsTest::getContentParams',
+            'post_title'   => 'PostContentUtilsTest::getContentParams',
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
@@ -388,7 +412,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         wp_set_current_user($user->ID);
 
         $args = [
-            'post_title'   => 'UtilsTest::getContentParamsForPendingReviewStatus',
+            'post_title'   => 'PostContentUtilsTest::getContentParamsForPendingReviewStatus',
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
             'post_status'  => 'pending',
@@ -583,15 +607,25 @@ class PostContentUtilsTest extends WP_UnitTestCase
                 'marker' => 'foo',
                 'expect' => '',
             ],
-            'One simple root element' => [
-                'html'   => '<div>Text</div>',
+            'No marker' => [
+                'html'   => '<p>Text</p>',
+                'marker' => '',
+                'expect' => '<p>Text</p>',
+            ],
+            'Paragraph' => [
+                'html'   => '<p>Text</p>',
                 'marker' => 'foo',
-                'expect' => '<div data-beyondwords-marker="foo">Text</div>',
+                'expect' => '<p data-beyondwords-marker="foo">Text</p>',
+            ],
+            'Empty paragraph' => [
+                'html'   => '<p></p>',
+                'marker' => 'foo',
+                'expect' => '<p data-beyondwords-marker="foo"></p>',
             ],
             'Existing attributes' => [
-                'html'   => '<div class="my-class"><p>Text</p></div>',
+                'html'   => '<p class="my-class">Text</p>',
                 'marker' => 'foo',
-                'expect' => '<div data-beyondwords-marker="foo" class="my-class"><p>Text</p></div>',
+                'expect' => '<p data-beyondwords-marker="foo" class="my-class">Text</p>',
             ],
             'Multiple root elements' => [
                 'html'   => "<div>One</div>\n<div>Two</div>",
@@ -619,15 +653,25 @@ class PostContentUtilsTest extends WP_UnitTestCase
                 'marker' => 'foo',
                 'expect' => '',
             ],
-            'One simple root element' => [
-                'html'   => '<div>Text</div>',
+            'No marker' => [
+                'html'   => '<p>Text</p>',
+                'marker' => '',
+                'expect' => '<p>Text</p>',
+            ],
+            'Paragraph' => [
+                'html'   => '<p>Text</p>',
                 'marker' => 'foo',
-                'expect' => '<div data-beyondwords-marker="foo">Text</div>',
+                'expect' => '<p data-beyondwords-marker="foo">Text</p>',
+            ],
+            'Empty paragraph' => [
+                'html'   => '<p></p>',
+                'marker' => 'foo',
+                'expect' => '<p data-beyondwords-marker="foo"></p>',
             ],
             'Existing attributes' => [
-                'html'   => '<div class="my-class"><p>Text</p></div>',
+                'html'   => '<p class="my-class">Text</p>',
                 'marker' => 'foo',
-                'expect' => '<div class="my-class" data-beyondwords-marker="foo"><p>Text</p></div>',
+                'expect' => '<p class="my-class" data-beyondwords-marker="foo">Text</p>',
             ],
             'Multiple root elements' => [
                 'html'   => "<div>One</div>\n<div>Two</div>",
