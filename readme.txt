@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 4.7.0-dev
+Stable tag: 4.7.0
 Requires PHP: 7.4
 Tested up to: 6.5
 License: GPLv2 or later
@@ -80,52 +80,20 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.7.0-dev =
+= 4.7.0 =
 
-Release date: TBC
+Release date: 2nd May 2024
 
 **Fixes**
 
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Removed `wpautop` filter for block editor API requests. This was stripping a closing `</p>` tag from empty paragraph blocks.
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) If the post body [has_blocks](https://developer.wordpress.org/reference/functions/has_blocks/) then remove the `wpautop` filter before sending it to our REST API. This filter was stripping closing `</p>` tags from empty paragraph blocks.
 
 **Enhancements**
 
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
 * [#386](https://github.com/beyondwords-io/wordpress-plugin/pull/386) Prepend custom plugin links instead of appending them
-* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality report
-* Prevent empty data-beyondwords-marker attributes
-
-= 4.6.2 =
-
-Release date: 11th April 2023
-
-**Enhancements**
-
-* Tested up to WordPress 6.5.
-* PHPUnit code coverage badge and report.
-
-= 4.6.1 =
-
-Release date: 28th March 2024
-
-**Fixes**
-
-* [#378](https://github.com/beyondwords-io/wordpress-plugin/pull/378) Only auto-prepend player for [is_singular](https://developer.wordpress.org/reference/functions/is_singular/) queries.
-
-**Enhancements**
-
-* [#373](https://github.com/beyondwords-io/wordpress-plugin/pull/373) Run [Plugin Check (PCP)](https://wordpress.org/plugins/plugin-check/) in our GitHub Actions workflow to check we meet the WordPress.org plugin directory coding standards.
-    * Includes various minor code updates to resolve the reported errors and warnings.
-
-= 4.6.0 =
-
-Release date: 28th March 2024
-
-**Enhancements**
-
-* To support BeyondWords’ upcoming summarization product, the BeyondWords REST API now expects the post excerpt to be prepended to the body for API requests.
-    * If you have enabled "Use excerpts for summaries" in the plugin settings we will now automatically combine the fields. You should not see a difference, or need to make any changes.
-    * If you are currently passing a `summary` field to us using another method (e.g. our [beyondwords_content_params](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters/beyondwords_content_params) filter) then we should have provided advance notice of this change to you. If this change affects you, and you didn’t hear from us in advance, then please contact [support@beyondwords.io](mailto:support@beyondwords.io).
+* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
+* Prevent empty `data-beyondwords-marker` attributes
 
 --------
 
