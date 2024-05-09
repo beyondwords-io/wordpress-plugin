@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 /**
- * Setting: Project ID
+ * Setting: Call to action
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   3.0.0
+ * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\ProjectId;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\CallToAction;
 
 /**
- * ProjectId setup
+ * CallToAction setup
  *
- * @since 3.0.0
+ * @since 4.8.0
  */
-class ProjectId
+class CallToAction
 {
     /**
      * Init.
@@ -33,7 +33,7 @@ class ProjectId
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
@@ -41,7 +41,7 @@ class ProjectId
     {
         register_setting(
             'beyondwords',
-            'beyondwords_project_id',
+            'beyondwords_call_to_action',
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
@@ -52,18 +52,18 @@ class ProjectId
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
     public function addSettingsField()
     {
         add_settings_field(
-            'beyondwords-project-id',
-            __('Project ID', 'speechkit'),
+            'beyondwords-call-to-action',
+            __('Call-to-action', 'speechkit'),
             array($this, 'render'),
             'beyondwords',
-            'general'
+            'player'
         );
     }
 
@@ -76,13 +76,14 @@ class ProjectId
      **/
     public function render()
     {
-        $project_id = get_option('beyondwords_project_id');
+        $option = get_option('beyondwords_call_to_action');
         ?>
         <input
             type="text"
-            name="beyondwords_project_id"
-            value="<?php echo esc_attr($project_id); ?>"
-            size="10"
+            name="beyondwords_call_to_action"
+            placeholder="<?php esc_attr_e('Listen to this article', 'speechkit'); ?>"
+            value="<?php echo esc_attr($option); ?>"
+            size="50"
         />
         <?php
     }
@@ -90,7 +91,7 @@ class ProjectId
     /**
      * Sanitise the setting value.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      * @param  array $value The submitted value.
      *
      * @return void
@@ -100,8 +101,8 @@ class ProjectId
         $errors = get_transient('beyondwords_settings_errors', []);
 
         if (empty($value)) {
-            $errors['Settings/ProjectId'] = __(
-                'Please enter your BeyondWords project ID. This can be found in your project settings.',
+            $errors['Settings/CallToAction'] = __(
+                'Please enter the BeyondWords API key. This can be found in your project settings.',
                 'speechkit'
             );
             set_transient('beyondwords_settings_errors', $errors);

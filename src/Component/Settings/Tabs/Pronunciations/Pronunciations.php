@@ -40,8 +40,8 @@ class Pronunciations
      */
     public function init()
     {
-        (new ApiKey())->init();
-        (new ProjectId())->init();
+        // (new ApiKey())->init();
+        // (new ProjectId())->init();
 
         add_action('admin_init', array($this, 'addSettingsSections'));
     }
@@ -57,7 +57,11 @@ class Pronunciations
             'pronunciations',
             __('Pronunciations', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_pronunciations'
+            'beyondwords',
+            [
+                'before_section' => '<div id="pronunciations" data-tab="pronunciations">',
+                'after_section' => '</div>',
+            ]
         );
     }
 

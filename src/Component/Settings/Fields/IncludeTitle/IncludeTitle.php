@@ -3,23 +3,23 @@
 declare(strict_types=1);
 
 /**
- * Setting: Process excerpts
+ * Setting: IncludeTitle
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   3.0.0
+ * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PrependExcerpt setup
+ * IncludeTitle setup
  *
  * @since 3.0.0
  */
-class PrependExcerpt
+class IncludeTitle
 {
     /**
      * Init.
@@ -35,15 +35,15 @@ class PrependExcerpt
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
     public function registerSetting()
     {
-        if (! SettingsUtils::hasApiSettings()) {
-            return;
-        }
+        // if (! SettingsUtils::hasApiSettings()) {
+        //     return;
+        // }
 
         register_setting(
             'beyondwords',
@@ -57,17 +57,17 @@ class PrependExcerpt
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
     public function addSettingsField()
     {
         add_settings_field(
-            'beyondwords-prepend-excerpt',
-            __('Process excerpts', 'speechkit'),
+            'beyondwords-include-title',
+            __('Title', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_content',
+            'beyondwords',
             'content'
         );
     }
@@ -92,17 +92,9 @@ class PrependExcerpt
                     value="1"
                     <?php checked($prependExcerpt, '1'); ?>
                 />
-                <?php esc_html_e('Use excerpts for summaries', 'speechkit'); ?>
+                <?php esc_html_e('Include title in audio', 'speechkit'); ?>
             </label>
         </div>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'Summaries are read aloud in-between titles and body content.',
-                'speechkit'
-            );
-            ?>
-        </p>
         <?php
     }
 }

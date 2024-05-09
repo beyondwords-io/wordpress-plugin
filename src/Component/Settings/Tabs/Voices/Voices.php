@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Voices;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
-use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
+use Beyondwords\Wordpress\Component\Settings\Fields\BodySpeakingRate\BodySpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\BodyVoice\BodyVoice;
+use Beyondwords\Wordpress\Component\Settings\Fields\TitleSpeakingRate\TitleSpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\TitleVoice\TitleVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage\DefaultLanguage;
 
 /**
@@ -39,9 +41,11 @@ class Voices
      */
     public function init()
     {
-        (new ApiKey())->init();
-        (new ProjectId())->init();
         (new DefaultLanguage())->init();
+        (new TitleVoice())->init();
+        (new TitleSpeakingRate())->init();
+        (new BodyVoice())->init();
+        (new BodySpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSections'));
     }
@@ -57,7 +61,11 @@ class Voices
             'voices',
             __('Voices', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_voices'
+            'beyondwords',
+            [
+                'before_section' => '<div id="voices" data-tab="voices">',
+                'after_section' => '</div>',
+            ]
         );
     }
 

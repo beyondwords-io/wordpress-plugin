@@ -59,9 +59,9 @@ class PlayerStyle
      */
     public function addSettingsField()
     {
-        if (! SettingsUtils::hasApiSettings()) {
-            return;
-        }
+        // if (! SettingsUtils::hasApiSettings()) {
+        //     return;
+        // }
 
         register_setting(
             'beyondwords',
@@ -75,7 +75,7 @@ class PlayerStyle
             'beyondwords-player-style',
             __('Player style', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_player',
+            'beyondwords',
             'player'
         );
     }

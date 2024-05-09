@@ -48,11 +48,8 @@ class Languages
      */
     public function init()
     {
-        if (SettingsUtils::hasApiSettings()) {
-            add_action('admin_init', array($this, 'registerSetting'));
-            add_action('admin_init', array($this, 'addSettingsField'));
-            add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
-        }
+        add_action('admin_init', array($this, 'registerSetting'));
+        add_action('admin_init', array($this, 'addSettingsField'));
     }
 
     /**
@@ -64,9 +61,9 @@ class Languages
      */
     public function registerSetting()
     {
-        if (! SettingsUtils::hasApiSettings()) {
-            return;
-        }
+        // if (! SettingsUtils::hasApiSettings()) {
+        //     return;
+        // }
 
         register_setting(
             'beyondwords',
@@ -89,9 +86,9 @@ class Languages
     {
         add_settings_field(
             'beyondwords-languages',
-            __('Languages', 'speechkit'),
+            __('Multiple languages', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_advanced',
+            'beyondwords',
             'advanced'
         );
     }
@@ -137,15 +134,7 @@ class Languages
             </select>
             <p class="description">
             <?php
-                printf(
-                    /* translators: %s is replaced with the link to the BeyondWords dashboard */
-                    esc_html__('The default voice for audio is determined by the project settings in your %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
-                    sprintf(
-                        '<a href="%s" target="_blank">%s</a>',
-                        esc_url(Environment::getDashboardUrl()),
-                        esc_html__('BeyondWords dashboard', 'speechkit')
-                    )
-                );
+                esc_html_e('The default voice for audio is set in the “Voices” tab.', 'speechkit');
             ?>
             </p>
             <p class="description">
@@ -177,36 +166,5 @@ class Languages
         }
 
         return $value;
-    }
-
-    /**
-     * Register the component scripts.
-     *
-     * @since  4.0.0
-     *
-     * @param string $hook Page hook
-     *
-     * @return void
-     */
-    public function enqueueScripts($hook)
-    {
-        if ($hook === 'settings_page_beyondwords') {
-            // Tom Select CSS
-            wp_enqueue_style(
-                'tom-select',
-                'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css',
-                false,
-                BEYONDWORDS__PLUGIN_VERSION
-            );
-
-            // Tom Select JS
-            wp_enqueue_script(
-                'tom-select',
-                'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js',
-                [],
-                '2.2.2',
-                true
-            );
-        }
     }
 }

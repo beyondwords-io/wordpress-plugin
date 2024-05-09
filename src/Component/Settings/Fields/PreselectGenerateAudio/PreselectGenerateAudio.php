@@ -3,23 +3,23 @@
 declare(strict_types=1);
 
 /**
- * Setting: Preselect (labelled as "Preselect ‘Generate audio’")
+ * Setting: PreselectGenerateAudio
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\Preselect;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * Preselect setup
+ * PreselectGenerateAudio setup
  *
  * @since 3.0.0
  */
-class Preselect
+class PreselectGenerateAudio
 {
     public const DEFAULT_PRESELECT = [
         'post' => '1',
@@ -40,7 +40,7 @@ class Preselect
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
@@ -54,7 +54,7 @@ class Preselect
             'beyondwords',
             'beyondwords_preselect',
             [
-                'default' => Preselect::DEFAULT_PRESELECT,
+                'default' => PreselectGenerateAudio::DEFAULT_PRESELECT,
             ]
         );
     }
@@ -62,7 +62,7 @@ class Preselect
     /**
      * Init setting.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @return void
      */
@@ -72,7 +72,7 @@ class Preselect
             'beyondwords-preselect',
             __('Preselect ‘Generate audio’', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_content',
+            'beyondwords',
             'content'
         );
     }
@@ -250,7 +250,7 @@ class Preselect
     /**
      * Register the component scripts.
      *
-     * @since  3.0.0
+     * @since  4.8.0
      *
      * @param string $hook Page hook
      *
@@ -261,7 +261,7 @@ class Preselect
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_register_script(
                 'beyondwords-settings--preselect-post',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/Preselect/post.js',
+                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/Fields/PreselectGenerateAudio/post.js',
                 ['jquery', 'underscore'],
                 BEYONDWORDS__PLUGIN_VERSION,
                 true

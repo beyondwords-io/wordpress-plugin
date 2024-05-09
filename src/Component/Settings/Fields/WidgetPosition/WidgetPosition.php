@@ -10,16 +10,16 @@ declare(strict_types=1);
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * DefaultLanguage setup
+ * WidgetPosition setup
  *
  * @since 4.8.0
  */
-class DefaultLanguage
+class WidgetPosition
 {
     /**
      * Constructor
@@ -51,18 +51,18 @@ class DefaultLanguage
 
         register_setting(
             'beyondwords',
-            'beyondwords_default_language',
+            'beyondwords_widget_position',
             [
                 'default' => '',
             ]
         );
 
         add_settings_field(
-            'beyondwords-default-language',
-            __('Default language', 'speechkit'),
+            'beyondwords-widget-position',
+            __('Widget position', 'speechkit'),
             array($this, 'render'),
             'beyondwords',
-            'voices'
+            'player'
         );
     }
 
@@ -75,11 +75,11 @@ class DefaultLanguage
      **/
     public function render()
     {
-        $current = get_option('beyondwords_default_language');
+        $current = get_option('beyondwords_widget_position');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--default-language">
-            <select name="beyondwords_default_language">
+        <div class="beyondwords-setting--widget-position">
+            <select name="beyondwords_widget_position">
                 <?php
                 foreach ($options as $option) {
                     printf(

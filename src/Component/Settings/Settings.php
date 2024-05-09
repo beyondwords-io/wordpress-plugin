@@ -52,12 +52,15 @@ class Settings
      */
     public function init()
     {
-        (new Advanced($this->apiClient))->init();
         (new General())->init();
-        (new Content())->init();
-        (new Player($this->apiClient))->init();
-        (new Pronunciations())->init();
-        (new Voices())->init();
+
+        // if (SettingsUtils::hasApiSettings()) {
+            (new Voices())->init();
+            (new Content())->init();
+            (new Player($this->apiClient))->init();
+            (new Pronunciations())->init();
+            (new Advanced($this->apiClient))->init();
+        // }
 
         add_action('admin_menu', array($this, 'addOptionsPage'));
         add_action('admin_notices', array($this, 'printPluginAdminNotices'));
@@ -121,9 +124,9 @@ class Settings
             'advanced'       => 'Advanced',
         );
 
-        if (! SettingsUtils::hasApiSettings()) {
-            $tabs = array_splice($tabs, 0, 1);
-        }
+        // if (! SettingsUtils::hasApiSettings()) {
+        //     $tabs = array_splice($tabs, 0, 1);
+        // }
 
         return $tabs;
     }
@@ -168,43 +171,37 @@ class Settings
                 action="<?php echo esc_url(admin_url('options.php')); ?>"
                 method="post"
             >
-                <nav class="nav-tab-wrapper">
-                    <?php
-                    foreach ($tabs as $tab => $name) {
-                        // CSS class for a current tab
-                        $current = $tab === $currentTab ? ' nav-tab-active' : '';
-                        // URL
-                        $url = add_query_arg(array( 'page' => 'beyondwords', 'tab' => $tab ), '');
-                        ?>
-                        <a class="nav-tab<?php esc_attr_e($current); ?>" data-tab="<?php echo esc_attr($tab); ?>" href="<?php echo esc_url($url); ?>">
-                            <?php esc_html_e($name); ?>
-                        </a>
+                <div id="tabs">
+                    <nav class="nav-tab-wrapper">
+                    <ul>
                         <?php
-                    }
+                        foreach ($tabs as $tab => $name) {
+                            // CSS class for a current tab
+                            $current = $tab === $currentTab ? ' nav-tab-active' : '';
+                            ?>
+                            <li><a class="nav-tab<?php esc_attr_e($current); ?>" href="#<?php echo esc_attr($tab); ?>">
+                                <?php esc_html_e($name); ?>
+                            </a></li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    </nav>
+                    <!-- <hr class="wp-header-end"> -->
+                    <?php
+                    // if ($currentTab === 'basic') {
+                    //     $this->dashboardLink();
+                    // }
+
+                    // if ($currentTab === 'player') {
+                    //     $this->playerLocationNotice();
+                    //     $this->playerRevertedNotice();
+                    // }
+
+                    do_settings_sections("beyondwords");
                     ?>
-                </nav>
-                <!-- <hr class="wp-header-end"> -->
+                </div>
                 <?php
-                // if ($currentTab === 'basic') {
-                //     $this->dashboardLink();
-                // }
-
-                // if ($currentTab === 'player') {
-                //     $this->playerLocationNotice();
-                //     $this->playerRevertedNotice();
-                // }
-
-                foreach ($tabs as $tab => $name) {
-                    ?>
-                    <section class="<?php echo esc_attr($tab); ?>">
-                        <?php
-                        settings_fields("beyondwords_{$tab}_settings");
-                        do_settings_sections("beyondwords_{$tab}");
-                        ?>
-                    </section>
-                    <?php
-                }
-
                 wp_nonce_field('beyondwords_settings', 'beyondwords_settings_nonce');
 
                 if (SettingsUtils::hasApiSettings()) {
@@ -366,8 +363,8 @@ class Settings
             'apiKey'        => get_option('beyondwords_api_key', ''),
             'pluginVersion' => BEYONDWORDS__PLUGIN_VERSION,
             'projectId'     => get_option('beyondwords_project_id', ''),
-            'preselect'     => get_option('beyondwords_preselect', Preselect::DEFAULT_PRESELECT),
-            'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
+            // 'preselect'     => get_option('beyondwords_preselect', Preselect::DEFAULT_PRESELECT),
+            // 'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
             'wpVersion'     => $wp_version,
         ]);
     }
@@ -405,6 +402,7 @@ class Settings
      * a GET request using the API Key and Project ID.
      *
      * @since 4.0.0
+     * @since 4.8.0 Replace DATE_ISO8601 with \DateTime::ATOM
      *
      * @return void
      */
@@ -430,7 +428,7 @@ class Settings
 
         if ($validConnection) {
             // Store date of last check
-            update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
         } else {
             $errors = get_transient('beyondwords_settings_errors', []);
 
@@ -454,9 +452,26 @@ class Settings
      */
     public function enqueueScripts($hook)
     {
-        if ($hook === 'settings_page_beyondwords' && SettingsUtils::hasApiSettings()) {
+        if ($hook === 'settings_page_beyondwords') {
             wp_enqueue_script('jquery-ui-core');// enqueue jQuery UI Core
             wp_enqueue_script('jquery-ui-tabs');// enqueue jQuery UI Tabs
+
+            // Tom Select JS
+            wp_enqueue_script(
+                'tom-select',
+                'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js',
+                [],
+                '2.2.2',
+                true
+            );
+
+            // Tom Select CSS
+            wp_enqueue_style(
+                'tom-select',
+                'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css',
+                false,
+                BEYONDWORDS__PLUGIN_VERSION
+            );
 
             wp_enqueue_script(
                 'beyondwords-settings',

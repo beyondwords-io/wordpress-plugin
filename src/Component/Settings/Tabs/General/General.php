@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\General;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
+use Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated\SettingsUpdated;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -42,6 +43,7 @@ class General
     {
         (new ApiKey())->init();
         (new ProjectId())->init();
+        (new SettingsUpdated())->init();
 
         add_action('admin_init', array($this, 'addSettingsSections'));
     }
@@ -57,7 +59,11 @@ class General
             'general',
             __('General', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_general'
+            'beyondwords',
+            [
+                'before_section' => '<div id="general" data-tab="general">',
+                'after_section' => '</div>',
+            ]
         );
     }
 

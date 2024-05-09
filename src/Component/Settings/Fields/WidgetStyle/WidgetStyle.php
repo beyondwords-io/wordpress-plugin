@@ -10,16 +10,16 @@ declare(strict_types=1);
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle;
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * DefaultLanguage setup
+ * WidgetStyle setup
  *
  * @since 4.8.0
  */
-class DefaultLanguage
+class WidgetStyle
 {
     /**
      * Constructor
@@ -51,18 +51,18 @@ class DefaultLanguage
 
         register_setting(
             'beyondwords',
-            'beyondwords_default_language',
+            'beyondwords_widget_style',
             [
                 'default' => '',
             ]
         );
 
         add_settings_field(
-            'beyondwords-default-language',
-            __('Default language', 'speechkit'),
+            'beyondwords-widget-style',
+            __('Widget style', 'speechkit'),
             array($this, 'render'),
             'beyondwords',
-            'voices'
+            'player'
         );
     }
 
@@ -75,11 +75,11 @@ class DefaultLanguage
      **/
     public function render()
     {
-        $current = get_option('beyondwords_default_language');
+        $current = get_option('beyondwords_widget_style');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--default-language">
-            <select name="beyondwords_default_language">
+        <div class="beyondwords-setting--widget-style">
+            <select name="beyondwords_widget_style">
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -91,6 +91,18 @@ class DefaultLanguage
                 }
                 ?>
             </select>
+            <p class="description">
+            <?php
+            printf(
+                /* translators: %s is replaced with the "widgetStyle setting" link */
+                esc_html__('The default player style (%s) for the audio player.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                sprintf(
+                    '<a href="https://github.com/beyondwords-io/player/blob/main/doc/player-settings.md" target="_blank" rel="nofollow">%s</a>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    esc_html__('widgetStyle setting', 'speechkit')
+                )
+            );
+            ?>
+        </p>
         </div>
         <?php
     }

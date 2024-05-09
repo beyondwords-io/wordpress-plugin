@@ -47,9 +47,9 @@ class PlayerUI
      */
     public function registerSetting()
     {
-        if (! SettingsUtils::hasApiSettings()) {
-            return;
-        }
+        // if (! SettingsUtils::hasApiSettings()) {
+        //     return;
+        // }
 
         register_setting(
             'beyondwords',
@@ -73,7 +73,7 @@ class PlayerUI
             'beyondwords-player-ui',
             __('Player UI', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_player',
+            'beyondwords',
             'player'
         );
     }

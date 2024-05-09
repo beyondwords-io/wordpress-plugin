@@ -60,9 +60,9 @@ class ApiKey
     {
         add_settings_field(
             'beyondwords-api-key',
-            __('BeyondWords API key', 'speechkit'),
+            __('API key', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_general',
+            'beyondwords',
             'general'
         );
     }

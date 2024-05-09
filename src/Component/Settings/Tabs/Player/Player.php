@@ -12,8 +12,14 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Player;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\CallToAction\CallToAction;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments\PlaybackFromSegments;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls\PlaybackControls;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
+use Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition\WidgetPosition;
+use Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle\WidgetStyle;
+use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlighting;
 
 /**
  * "Player" tab
@@ -46,6 +52,12 @@ class Player
     {
         (new PlayerUI())->init();
         (new PlayerStyle($this->apiClient))->init();
+        (new CallToAction())->init();
+        (new WidgetStyle())->init();
+        (new WidgetPosition())->init();
+        (new TextHighlighting())->init();
+        (new PlaybackFromSegments())->init();
+        (new PlaybackControls())->init();
 
         add_action('admin_init', array($this, 'addSettingsSections'));
     }
@@ -61,7 +73,11 @@ class Player
             'player',
             __('Player', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_player'
+            'beyondwords',
+            [
+                'before_section' => '<div id="player" data-tab="player">',
+                'after_section' => '</div>',
+            ]
         );
     }
 

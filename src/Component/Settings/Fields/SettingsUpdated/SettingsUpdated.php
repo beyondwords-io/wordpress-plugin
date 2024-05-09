@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated;
 
+use DateTime;
+
 /**
  * SettingsUpdated setup
  *
@@ -49,8 +51,8 @@ class SettingsUpdated
             'beyondwords-settings-updated',
             __('Settings Updated', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_general',
-            'basic',
+            'beyondwords',
+            'general',
             [
                 'class' => 'hidden'
             ]
@@ -91,7 +93,7 @@ class SettingsUpdated
      **/
     public function sanitize($value)
     {
-        $date = gmdate(DATE_ISO8601);
+        $date = gmdate(DateTime::ATOM);
 
         $user = wp_get_current_user();
 

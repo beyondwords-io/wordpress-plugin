@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\Preselect\Preselect;
+use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
+use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
+use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 
 /**
  * "General" tab
@@ -37,7 +39,9 @@ class Content
      */
     public function init()
     {
-        (new Preselect())->init();
+        (new IncludeTitle())->init();
+        (new IncludeExcerpt())->init();
+        (new PreselectGenerateAudio())->init();
 
         add_action('admin_init', array($this, 'addSettingsSections'));
     }
@@ -53,7 +57,11 @@ class Content
             'content',
             __('Content', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_content'
+            'beyondwords',
+            [
+                'before_section' => '<div id="content" data-tab="content">',
+                'after_section' => '</div>',
+            ]
         );
     }
 
