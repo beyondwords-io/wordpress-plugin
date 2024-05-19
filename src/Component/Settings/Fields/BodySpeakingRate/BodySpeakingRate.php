@@ -33,27 +33,27 @@ class BodySpeakingRate
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
-     * Add settings field.
+     * Add setting.
      *
      * @since 4.5.0
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         // if (! SettingsUtils::hasApiSettings()) {
         //     return;
         // }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_voices_settings',
             'beyondwords_body_speaking_rate',
             [
-                'default' => '',
+                'default' => '100',
             ]
         );
 
@@ -61,7 +61,7 @@ class BodySpeakingRate
             'beyondwords-body-speaking-rate',
             __('Default body speaking rate', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_voices',
             'voices'
         );
     }
@@ -106,9 +106,17 @@ class BodySpeakingRate
     {
         $options = [
             [
-                'value' => 'example-option',
-                'label' => 'Example option',
-            ]
+                'value' => '50',
+                'label' => '50%',
+            ],
+            [
+                'value' => '100',
+                'label' => '100%',
+            ],
+            [
+                'value' => '200',
+                'label' => '200%',
+            ],
         ];
 
         return $options;

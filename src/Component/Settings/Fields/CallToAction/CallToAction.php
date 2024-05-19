@@ -26,8 +26,7 @@ class CallToAction
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'registerSetting'));
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -37,32 +36,21 @@ class CallToAction
      *
      * @return void
      */
-    public function registerSetting()
+    public function addSetting()
     {
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_call_to_action',
             [
-                'default'           => '',
-                'sanitize_callback' => array($this, 'sanitize'),
+                'default' => '',
             ]
         );
-    }
 
-    /**
-     * Init setting.
-     *
-     * @since  4.8.0
-     *
-     * @return void
-     */
-    public function addSettingsField()
-    {
         add_settings_field(
             'beyondwords-call-to-action',
             __('Call-to-action', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }
@@ -86,28 +74,5 @@ class CallToAction
             size="50"
         />
         <?php
-    }
-
-    /**
-     * Sanitise the setting value.
-     *
-     * @since  4.8.0
-     * @param  array $value The submitted value.
-     *
-     * @return void
-     **/
-    public function sanitize($value)
-    {
-        $errors = get_transient('beyondwords_settings_errors', []);
-
-        if (empty($value)) {
-            $errors['Settings/CallToAction'] = __(
-                'Please enter the BeyondWords API key. This can be found in your project settings.',
-                'speechkit'
-            );
-            set_transient('beyondwords_settings_errors', $errors);
-        }
-
-        return $value;
     }
 }

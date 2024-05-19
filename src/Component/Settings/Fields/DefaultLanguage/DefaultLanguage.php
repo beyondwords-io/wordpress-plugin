@@ -22,10 +22,20 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 class DefaultLanguage
 {
     /**
-     * Constructor
+     * API Client.
+     *
+     * @since 4.8.0
      */
-    public function __construct()
+    private $apiClient;
+
+    /**
+     * Constructor.
+     *
+     * @since 4.8.0
+     */
+    public function __construct($apiClient)
     {
+        $this->apiClient = $apiClient;
     }
 
     /**
@@ -33,24 +43,24 @@ class DefaultLanguage
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
-     * Add settings field.
+     * Add setting.
      *
-     * @since 4.5.0
+     * @since 4.8.0
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         // if (! SettingsUtils::hasApiSettings()) {
         //     return;
         // }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_voices_settings',
             'beyondwords_default_language',
             [
                 'default' => '',
@@ -61,7 +71,7 @@ class DefaultLanguage
             'beyondwords-default-language',
             __('Default language', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_voices',
             'voices'
         );
     }
@@ -75,8 +85,9 @@ class DefaultLanguage
      **/
     public function render()
     {
-        $current = get_option('beyondwords_default_language');
         $options = $this->getOptions();
+
+        $current = get_option('beyondwords_default_language', '');
         ?>
         <div class="beyondwords-setting--default-language">
             <select name="beyondwords_default_language">
@@ -96,20 +107,26 @@ class DefaultLanguage
     }
 
     /**
-     * Get all options for the current component.
+     * Get options for the <select> element.
      *
      * @since 4.8.0
      *
-     * @return string[] Associative array of options.
+     * @return string[] Array of options (value, label).
      **/
     public function getOptions()
     {
-        $options = [
-            [
-                'value' => 'example-option',
-                'label' => 'Example option',
-            ]
-        ];
+        $languages = $this->apiClient->getLanguages();
+
+        if (! is_array($languages)) {
+            $languages = [];
+        }
+
+        $options = array_map(function ($language) {
+            return [
+                'value' => $language['id'],
+                'label' => $language['name'],
+            ];
+        }, $languages);
 
         return $options;
     }

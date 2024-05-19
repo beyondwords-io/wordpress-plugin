@@ -33,24 +33,24 @@ class TitleVoice
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
-     * Add settings field.
+     * Add setting.
      *
      * @since 4.5.0
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         // if (! SettingsUtils::hasApiSettings()) {
         //     return;
         // }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_voices_settings',
             'beyondwords_title_voice',
             [
                 'default' => '',
@@ -61,7 +61,7 @@ class TitleVoice
             'beyondwords-title-voice',
             __('Which voice do you want to read titles?', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_voices',
             'voices'
         );
     }
@@ -106,8 +106,8 @@ class TitleVoice
     {
         $options = [
             [
-                'value' => 'example-option',
-                'label' => 'Example option',
+                'value' => 'amy',
+                'label' => 'Amy',
             ]
         ];
 

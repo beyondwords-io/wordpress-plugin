@@ -26,8 +26,7 @@ class ProjectId
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'registerSetting'));
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -37,33 +36,23 @@ class ProjectId
      *
      * @return void
      */
-    public function registerSetting()
+    public function addSetting()
     {
         register_setting(
-            'beyondwords',
+            'beyondwords_general_settings',
             'beyondwords_project_id',
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
             ]
         );
-    }
 
-    /**
-     * Init setting.
-     *
-     * @since  3.0.0
-     *
-     * @return void
-     */
-    public function addSettingsField()
-    {
         add_settings_field(
             'beyondwords-project-id',
             __('Project ID', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
-            'general'
+            'beyondwords_general',
+            'credentials'
         );
     }
 

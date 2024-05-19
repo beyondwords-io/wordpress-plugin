@@ -161,4 +161,30 @@ class SettingsUtils
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
     }
+
+    /**
+     * A color input.
+     *
+     * @since  4.8.0
+     * @static
+     *
+     * @param string $label Content for the `<label>`
+     * @param string $name  `name` attribute for the `<input />`
+     * @param string $value `value` attribute for the `<input />`
+     *
+     * @return string
+     */
+    public static function colorInput($label, $name, $value)
+    {
+        ob_start();
+        ?>
+        <div class="color-input">
+            <label>
+                    <?php echo esc_attr($label); ?>
+            </label>
+            <input name="<?php echo esc_attr($name); ?>" type="text" value="<?php echo esc_attr($value); ?>" class="small-text" />
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 }

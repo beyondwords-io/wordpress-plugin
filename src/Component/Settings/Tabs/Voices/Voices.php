@@ -19,7 +19,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\TitleVoice\TitleVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage\DefaultLanguage;
 
 /**
- * "General" tab
+ * "Voices" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -27,13 +27,21 @@ use Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage\DefaultLangu
  */
 class Voices
 {
+     /**
+     * API Client.
+     *
+     * @since 4.8.0
+     */
+    private $apiClient;
+
     /**
      * Constructor.
      *
      * @since 4.8.0
      */
-    public function __construct()
+    public function __construct($apiClient)
     {
+        $this->apiClient = $apiClient;
     }
 
     /**
@@ -41,13 +49,13 @@ class Voices
      */
     public function init()
     {
-        (new DefaultLanguage())->init();
+        (new DefaultLanguage($this->apiClient))->init();
         (new TitleVoice())->init();
         (new TitleSpeakingRate())->init();
         (new BodyVoice())->init();
         (new BodySpeakingRate())->init();
 
-        add_action('admin_init', array($this, 'addSettingsSections'));
+        add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
 
     /**
@@ -55,17 +63,17 @@ class Voices
      *
      * @since  4.8.0
      */
-    public function addSettingsSections()
+    public function addSettingsSection()
     {
         add_settings_section(
             'voices',
             __('Voices', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords',
-            [
-                'before_section' => '<div id="voices" data-tab="voices">',
-                'after_section' => '</div>',
-            ]
+            'beyondwords_voices',
+            // [
+            //     'before_section' => '<div id="voices" data-tab="voices">',
+            //     'after_section' => '</div>',
+            // ]
         );
     }
 

@@ -33,27 +33,27 @@ class WidgetPosition
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
-     * Add settings field.
+     * Add setting.
      *
      * @since 4.5.0
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         // if (! SettingsUtils::hasApiSettings()) {
         //     return;
         // }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_widget_position',
             [
-                'default' => '',
+                'default' => 'auto',
             ]
         );
 
@@ -61,7 +61,7 @@ class WidgetPosition
             'beyondwords-widget-position',
             __('Widget position', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }
@@ -106,9 +106,21 @@ class WidgetPosition
     {
         $options = [
             [
-                'value' => 'example-option',
-                'label' => 'Example option',
-            ]
+                'value' => 'auto',
+                'label' => __('Auto (default)', 'speechkit'),
+            ],
+            [
+                'value' => 'center',
+                'label' => __('Center', 'speechkit'),
+            ],
+            [
+                'value' => 'left',
+                'label' => __('Left', 'speechkit'),
+            ],
+            [
+                'value' => 'right',
+                'label' => __('Right', 'speechkit'),
+            ],
         ];
 
         return $options;

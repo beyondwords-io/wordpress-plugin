@@ -47,24 +47,24 @@ class PlayerStyle
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
-     * Add settings field.
+     * Add setting.
      *
      * @since 4.5.0
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         // if (! SettingsUtils::hasApiSettings()) {
         //     return;
         // }
 
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_player_style',
             [
                 'default' => PlayerStyle::STANDARD,
@@ -75,7 +75,7 @@ class PlayerStyle
             'beyondwords-player-style',
             __('Player style', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }

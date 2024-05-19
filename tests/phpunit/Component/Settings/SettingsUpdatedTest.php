@@ -40,18 +40,18 @@ final class SettingsUpdatedTest extends WP_UnitTestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($settingsUpdated, 'addSettingsField')));
+        $this->assertEquals(10, has_action('admin_init', array($settingsUpdated, 'addSetting')));
     }
 
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
         $settingsUpdated = new SettingsUpdated();
-        $settingsUpdated->addSettingsField();
+        $settingsUpdated->addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-settings-updated', $wp_settings_fields['beyondwords_credentials']['basic']);

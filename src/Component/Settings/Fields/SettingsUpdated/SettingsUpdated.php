@@ -26,7 +26,7 @@ class SettingsUpdated
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -36,10 +36,10 @@ class SettingsUpdated
      *
      * @return void
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         register_setting(
-            'beyondwords',
+            'beyondwords_general_settings',
             'beyondwords_settings_updated',
             [
                 'default'           => '',
@@ -51,8 +51,8 @@ class SettingsUpdated
             'beyondwords-settings-updated',
             __('Settings Updated', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
-            'general',
+            'beyondwords_general',
+            'credentials',
             [
                 'class' => 'hidden'
             ]

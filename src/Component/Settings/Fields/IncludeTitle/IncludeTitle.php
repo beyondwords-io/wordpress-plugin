@@ -28,8 +28,7 @@ class IncludeTitle
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'registerSetting'));
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -39,35 +38,21 @@ class IncludeTitle
      *
      * @return void
      */
-    public function registerSetting()
+    public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
-            'beyondwords',
+            'beyondwords_content_settings',
             'beyondwords_prepend_excerpt',
             [
                 'default' => '',
             ]
         );
-    }
 
-    /**
-     * Init setting.
-     *
-     * @since  4.8.0
-     *
-     * @return void
-     */
-    public function addSettingsField()
-    {
         add_settings_field(
             'beyondwords-include-title',
             __('Title', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_content',
             'content'
         );
     }

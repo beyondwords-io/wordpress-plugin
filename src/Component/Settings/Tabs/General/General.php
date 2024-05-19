@@ -15,11 +15,10 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\General;
 use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 use Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated\SettingsUpdated;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
- * "General" tab
+ * "General" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -45,7 +44,7 @@ class General
         (new ProjectId())->init();
         (new SettingsUpdated())->init();
 
-        add_action('admin_init', array($this, 'addSettingsSections'));
+        add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
 
     /**
@@ -53,17 +52,17 @@ class General
      *
      * @since  4.8.0
      */
-    public function addSettingsSections()
+    public function addSettingsSection()
     {
         add_settings_section(
-            'general',
-            __('General', 'speechkit'),
+            'credentials',
+            __('Credentials', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords',
-            [
-                'before_section' => '<div id="general" data-tab="general">',
-                'after_section' => '</div>',
-            ]
+            'beyondwords_general',
+            // [
+            //     'before_section' => '<div id="general" data-tab="general">' . $this->dashboardLink(),
+            //     'after_section' => '</div>',
+            // ]
         );
     }
 
@@ -76,6 +75,8 @@ class General
      **/
     public function sectionCallback()
     {
+        delete_transient('beyondwords_settings_errors');
+
         ?>
         <p class="description">
             <?php
@@ -86,5 +87,34 @@ class General
             ?>
         </p>
         <?php
+    }
+
+    /**
+     * @since 3.0.0
+     * @since 4.8.0 Moved from Settings/Settings to Settings/Tabs/General.
+     *
+     * @return string
+     */
+    public function dashboardLink()
+    {
+        $projectId = get_option('beyondwords_project_id');
+
+        if ($projectId) :
+            ob_start();
+            ?>
+            <p>
+                <a
+                    class="button button-secondary"
+                    href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
+                    target="_blank"
+                >
+                    <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
+                </a>
+            </p>
+            <?php
+            return ob_get_clean();
+        endif;
+
+        return '';
     }
 }

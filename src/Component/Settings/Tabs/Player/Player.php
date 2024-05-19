@@ -15,6 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Player;
 use Beyondwords\Wordpress\Component\Settings\Fields\CallToAction\CallToAction;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments\PlaybackFromSegments;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls\PlaybackControls;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerColors\PlayerColors;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition\WidgetPosition;
@@ -22,7 +23,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle\WidgetStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlighting;
 
 /**
- * "Player" tab
+ * "Player" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -52,6 +53,7 @@ class Player
     {
         (new PlayerUI())->init();
         (new PlayerStyle($this->apiClient))->init();
+        (new PlayerColors())->init();
         (new CallToAction())->init();
         (new WidgetStyle())->init();
         (new WidgetPosition())->init();
@@ -59,7 +61,7 @@ class Player
         (new PlaybackFromSegments())->init();
         (new PlaybackControls())->init();
 
-        add_action('admin_init', array($this, 'addSettingsSections'));
+        add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
 
     /**
@@ -67,17 +69,20 @@ class Player
      *
      * @since  4.8.0
      */
-    public function addSettingsSections()
+    public function addSettingsSection()
     {
         add_settings_section(
             'player',
             __('Player', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords',
-            [
-                'before_section' => '<div id="player" data-tab="player">',
-                'after_section' => '</div>',
-            ]
+            'beyondwords_player',
+        );
+
+        add_settings_section(
+            'playback-controls',
+            __('Playback controls', 'speechkit'),
+            array($this, 'sectionCallback'),
+            'beyondwords_player',
         );
     }
 
@@ -94,7 +99,7 @@ class Player
         <p class="description">
             <?php
             esc_html_e(
-                'Description here...', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Do we want a description for consistency?', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
             ?>

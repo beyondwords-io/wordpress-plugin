@@ -3,7 +3,7 @@
 
 ( function ( $ ) {
 	$( document ).ready( function () {
-		if ($('#beyondwords_languages')) {
+		if ($('#beyondwords_languages').length) {
 			new TomSelect( '#beyondwords_languages', {
 				maxOptions: null,
 				plugins: {

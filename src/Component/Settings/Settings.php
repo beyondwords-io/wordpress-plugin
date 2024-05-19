@@ -54,24 +54,26 @@ class Settings
     {
         (new General())->init();
 
-        // if (SettingsUtils::hasApiSettings()) {
-            (new Voices())->init();
+        if (SettingsUtils::hasApiSettings()) {
+            (new Voices($this->apiClient))->init();
             (new Content())->init();
             (new Player($this->apiClient))->init();
             (new Pronunciations())->init();
             (new Advanced($this->apiClient))->init();
-        // }
+        }
 
-        add_action('admin_menu', array($this, 'addOptionsPage'));
-        add_action('admin_notices', array($this, 'printPluginAdminNotices'));
+        add_action('admin_init', array($this, 'syncSettings'));
+
+        add_action('admin_menu', array($this, 'addOptionsPage'), 1);
+        add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('plugin_action_links_speechkit/speechkit.php', array($this, 'addSettingsLinkToPluginPage'));
 
-        add_action('updated_option', array($this, 'updatedOption'), 99);
-        add_action('added_option', array($this, 'addedOption'), 99);
+        // add_action('updated_option', array($this, 'updatedOption'), 99);
+        // add_action('added_option', array($this, 'addedOption'), 99);
     }
 
     /**
@@ -91,6 +93,82 @@ class Settings
             'beyondwords',
             array($this, 'createAdminInterface')
         );
+    }
+
+    /**
+     * @since 3.0.0
+     * @since 4.7.0 Added tabs.
+     */
+    public function createAdminInterface()
+    {
+        ?>
+        <div class="wrap">
+            <h1><?php _e('BeyondWords Settings', 'speechkit'); ?></h1>
+            <?php
+            $tabs = $this->getTabs();
+            $currentTab = $this->getCurrentTab($tabs);
+            ?>
+            <form
+                id="beyondwords-plugin-settings"
+                action="<?php echo esc_url(admin_url('options.php')); ?>"
+                method="post"
+            >
+                <div id="tabs">
+                    <nav class="nav-tab-wrapper">
+                    <ul>
+                        <?php
+                        foreach ($tabs as $id => $tab) {
+                            // CSS class for a current tab
+                            $current = $id === $currentTab ? ' nav-tab-active' : '';
+                            // URL
+                            $url = add_query_arg([
+                                'page' => 'beyondwords',
+                                'tab' => $id,
+                            ]);
+                            ?>
+                            <li><a class="nav-tab<?php esc_attr_e($current); ?>" href="<?php echo esc_url($url); ?>">
+                                <?php esc_html_e($tab['title']); ?>
+                            </a></li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    </nav>
+
+                    <hr class="wp-header-end">
+
+                    <?php
+                    // global $wp_settings_fields;
+                    // wp_die('<pre>' . print_r($wp_settings_fields, true));
+
+                    settings_fields("beyondwords_{$currentTab}_settings");
+                    do_settings_sections("beyondwords_{$currentTab}");
+
+                    // settings_fields("beyondwords_general");
+                    // do_settings_sections("beyondwords_general");
+
+                    // do_settings_sections("beyondwords_general");
+
+                    // do_settings_sections();
+                    // echo '<table class="form-table" role="presentation">';
+                    // foreach ($tabs[$currentTab]['sections'] as $section) {
+                    //     echo "<h2>{$section['title']}</h2>\n";
+                    //     printf('<p class="description">%s</p>', $section['description']);
+                    //     do_settings_fields('beyondwords', $section['id']);
+                    // }
+                    // echo '</table>';
+                    ?>
+                </div>
+                <?php
+                if (SettingsUtils::hasApiSettings()) {
+                    submit_button('Save Settings');
+                } else {
+                    submit_button('Continue setup');
+                }
+                ?>
+            </form>
+        </div>
+        <?php
     }
 
     /**
@@ -116,17 +194,48 @@ class Settings
     public function getTabs()
     {
         $tabs = array(
-            'general'        => 'General',
-            'voices'         => 'Voices',
-            'content'        => 'Content',
-            'player'         => 'Player',
-            'pronunciations' => 'Pronunciations',
-            'advanced'       => 'Advanced',
+            'general' => [
+                'title' => 'General',
+                'sections' => [
+                    'general',
+                    // 'credentials',
+                ],
+            ],
+            'voices' => [
+                'title' => 'Voices',
+                'sections' => [
+                    'voices',
+                ],
+            ],
+            'content' => [
+                'title' => 'Content',
+                'sections' => [
+                    'content',
+                ],
+            ],
+            'player' => [
+                'title' => 'Player',
+                'sections' => [
+                    'player',
+                ],
+            ],
+            'pronunciations' => [
+                'title' => 'Pronunciations',
+                'sections' => [
+                    'pronunciations',
+                ],
+            ],
+            'advanced' => [
+                'title' => 'Advanced',
+                'sections' => [
+                    'advanced',
+                ],
+            ],
         );
 
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     $tabs = array_splice($tabs, 0, 1);
-        // }
+        if (! SettingsUtils::hasApiSettings()) {
+            $tabs = array_splice($tabs, 0, 1);
+        }
 
         return $tabs;
     }
@@ -151,90 +260,6 @@ class Settings
         }
 
         return $currentTab;
-    }
-
-    /**
-     * @since 3.0.0
-     * @since 4.7.0 Added tabs.
-     */
-    public function createAdminInterface()
-    {
-        ?>
-        <div class="wrap">
-            <h1><?php _e('BeyondWords Settings', 'speechkit'); ?></h1>
-            <?php
-            $tabs = $this->getTabs();
-            $currentTab = $this->getCurrentTab($tabs);
-            ?>
-            <form
-                id="beyondwords-plugin-settings"
-                action="<?php echo esc_url(admin_url('options.php')); ?>"
-                method="post"
-            >
-                <div id="tabs">
-                    <nav class="nav-tab-wrapper">
-                    <ul>
-                        <?php
-                        foreach ($tabs as $tab => $name) {
-                            // CSS class for a current tab
-                            $current = $tab === $currentTab ? ' nav-tab-active' : '';
-                            ?>
-                            <li><a class="nav-tab<?php esc_attr_e($current); ?>" href="#<?php echo esc_attr($tab); ?>">
-                                <?php esc_html_e($name); ?>
-                            </a></li>
-                            <?php
-                        }
-                        ?>
-                    </ul>
-                    </nav>
-                    <!-- <hr class="wp-header-end"> -->
-                    <?php
-                    // if ($currentTab === 'basic') {
-                    //     $this->dashboardLink();
-                    // }
-
-                    // if ($currentTab === 'player') {
-                    //     $this->playerLocationNotice();
-                    //     $this->playerRevertedNotice();
-                    // }
-
-                    do_settings_sections("beyondwords");
-                    ?>
-                </div>
-                <?php
-                wp_nonce_field('beyondwords_settings', 'beyondwords_settings_nonce');
-
-                if (SettingsUtils::hasApiSettings()) {
-                    submit_button('Save Settings');
-                } else {
-                    submit_button('Continue setup');
-                }
-                ?>
-            </form>
-        </div>
-        <?php
-    }
-
-    /**
-     * @since 4.7.0
-     */
-    public function dashboardLink()
-    {
-        $projectId = get_option('beyondwords_project_id');
-
-        if ($projectId) :
-            ?>
-            <p>
-                <a
-                    class="button button-secondary"
-                    href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
-                    target="_blank"
-                >
-                    <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
-                </a>
-            </p>
-            <?php
-        endif;
     }
 
     /**
@@ -369,33 +394,33 @@ class Settings
         ]);
     }
 
-    /**
-     * Check API creds are valid whenever any setting is added.
-     *
-     * @since 4.0.0
-     *
-     * @return void
-     */
-    public function addedOption($optionName)
-    {
-        if ($optionName === 'beyondwords_settings_updated') {
-            $this->checkApiCreds();
-        }
-    }
+    // /**
+    //  * Check API creds are valid whenever any setting is added.
+    //  *
+    //  * @since 4.0.0
+    //  *
+    //  * @return void
+    //  */
+    // public function addedOption($optionName)
+    // {
+    //     if ($optionName === 'beyondwords_settings_updated') {
+    //         $this->checkApiCreds();
+    //     }
+    // }
 
-    /**
-     * Check API creds are valid whenever the settings are updated.
-     *
-     * @since 4.0.0
-     *
-     * @return void
-     */
-    public function updatedOption($optionName)
-    {
-        if ($optionName === 'beyondwords_settings_updated') {
-            $this->checkApiCreds();
-        }
-    }
+    // /**
+    //  * Check API creds are valid whenever the settings are updated.
+    //  *
+    //  * @since 4.0.0
+    //  *
+    //  * @return void
+    //  */
+    // public function updatedOption($optionName)
+    // {
+    //     if ($optionName === 'beyondwords_settings_updated') {
+    //         $this->checkApiCreds();
+    //     }
+    // }
 
     /**
      * Check to see if user has valid BeyondWords API credentials by performing
@@ -406,7 +431,7 @@ class Settings
      *
      * @return void
      */
-    public function checkApiCreds()
+    public function syncSettings()
     {
         // Assume invalid connection
         delete_option('beyondwords_valid_api_connection');
@@ -419,6 +444,8 @@ class Settings
         }
 
         $project = $this->apiClient->getProject();
+
+        // wp_die('<pre>' . print_r($project, true));
 
         $validConnection = (
             is_array($project)
@@ -453,8 +480,18 @@ class Settings
     public function enqueueScripts($hook)
     {
         if ($hook === 'settings_page_beyondwords') {
+            // jQuery UI JS
             wp_enqueue_script('jquery-ui-core');// enqueue jQuery UI Core
             wp_enqueue_script('jquery-ui-tabs');// enqueue jQuery UI Tabs
+
+            // Plugin settings JS
+            wp_enqueue_script(
+                'beyondwords-settings',
+                BEYONDWORDS__PLUGIN_URI . 'build/settings.js',
+                ['jquery', 'jquery-ui-core', 'jquery-ui-tabs', 'underscore', 'tom-select'],
+                BEYONDWORDS__PLUGIN_VERSION,
+                true
+            );
 
             // Tom Select JS
             wp_enqueue_script(
@@ -465,20 +502,20 @@ class Settings
                 true
             );
 
+            // Plugin settings CSS
+            wp_enqueue_style(
+                'beyondwords-settings',
+                BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/settings.css',
+                'forms',
+                BEYONDWORDS__PLUGIN_VERSION
+            );
+
             // Tom Select CSS
             wp_enqueue_style(
                 'tom-select',
                 'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css',
                 false,
                 BEYONDWORDS__PLUGIN_VERSION
-            );
-
-            wp_enqueue_script(
-                'beyondwords-settings',
-                BEYONDWORDS__PLUGIN_URI . 'build/settings.js',
-                ['jquery', 'jquery-ui-core', 'jquery-ui-tabs', 'underscore', 'tom-select'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
             );
         }
     }

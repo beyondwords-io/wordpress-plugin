@@ -28,8 +28,7 @@ class PlaybackFromSegments
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'registerSetting'));
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -39,35 +38,21 @@ class PlaybackFromSegments
      *
      * @return void
      */
-    public function registerSetting()
+    public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
-            'beyondwords',
+            'beyondwords_player_settings',
             'beyondwords_playback_from_segments',
             [
                 'default' => '',
             ]
         );
-    }
 
-    /**
-     * Init setting.
-     *
-     * @since  4.8.0
-     *
-     * @return void
-     */
-    public function addSettingsField()
-    {
         add_settings_field(
             'beyondwords-playback-from-segments',
             __('Playback from segments', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
+            'beyondwords_player',
             'player'
         );
     }

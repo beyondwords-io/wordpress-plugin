@@ -28,8 +28,7 @@ class PlaybackControls
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'registerSetting'));
-        add_action('admin_init', array($this, 'addSettingsField'));
+        add_action('admin_init', array($this, 'addSetting'));
     }
 
     /**
@@ -39,62 +38,78 @@ class PlaybackControls
      *
      * @return void
      */
-    public function registerSetting()
+    public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
-            'beyondwords',
-            'beyondwords_playback_controls',
+            'beyondwords_player_settings',
+            'beyondwords_playback_controls_skipping',
             [
                 'default' => '',
             ]
         );
-    }
 
-    /**
-     * Init setting.
-     *
-     * @since  4.8.0
-     *
-     * @return void
-     */
-    public function addSettingsField()
-    {
         add_settings_field(
-            'beyondwords-playback-controls',
-            __('Playback controls', 'speechkit'),
+            'beyondwords-playback-controls-skipping',
+            __('Skipping', 'speechkit'),
             array($this, 'render'),
-            'beyondwords',
-            'player'
+            'beyondwords_player',
+            'playback-controls'
         );
     }
 
     /**
      * Render setting field.
      *
-     * @since 3.0.0
-     * @since 4.0.0 Updated label and description
+     * @since 4.8.0
      *
      * @return void
      **/
     public function render()
     {
-        $option = get_option('beyondwords_playback_controls', '');
+        $current = get_option('beyondwords_playback_controls_skipping');
+        $options = $this->getOptions();
         ?>
-        <div>
-            <label>
-                <input
-                    type="checkbox"
-                    name="beyondwords_playback_controls"
-                    value="1"
-                    <?php checked($option, '1'); ?>
-                />
-                <?php esc_html_e('Skipping', 'speechkit'); ?>
-            </label>
+        <div class="beyondwords-setting--playback-controls-skipping">
+            <select name="beyondwords_playback_controls_skipping">
+                <?php
+                foreach ($options as $option) {
+                    printf(
+                        '<option value="%s" %s>%s</option>',
+                        esc_attr($option['value']),
+                        selected($option['value'], $current),
+                        esc_html($option['label'])
+                    );
+                }
+                ?>
+            </select>
         </div>
         <?php
+    }
+
+    /**
+     * Get all options for the current component.
+     *
+     * @since 4.8.0
+     *
+     * @return string[] Associative array of options.
+     **/
+    public function getOptions()
+    {
+        $options = [
+            [
+                'value' => 'audo',
+                'label' => __('Audo (default)', 'speechkit'),
+            ],
+            [
+                'value' => 'segments',
+                'label' => __('Segments', 'speechkit'),
+            ],
+            [
+                'value' => 'seconds',
+                'label' => __('Seconds', 'speechkit'),
+            ],
+        ];
+
+        return $options;
     }
 }

@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 
 /**
- * "General" tab
+ * "Content" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -43,7 +43,7 @@ class Content
         (new IncludeExcerpt())->init();
         (new PreselectGenerateAudio())->init();
 
-        add_action('admin_init', array($this, 'addSettingsSections'));
+        add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
 
     /**
@@ -51,17 +51,17 @@ class Content
      *
      * @since  4.8.0
      */
-    public function addSettingsSections()
+    public function addSettingsSection()
     {
         add_settings_section(
             'content',
             __('Content', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords',
-            [
-                'before_section' => '<div id="content" data-tab="content">',
-                'after_section' => '</div>',
-            ]
+            'beyondwords_content',
+            // [
+            //     'before_section' => '<div id="content" data-tab="content">',
+            //     'after_section' => '</div>',
+            // ]
         );
     }
 
@@ -78,7 +78,7 @@ class Content
         <p class="description">
             <?php
             esc_html_e(
-                'Description here...', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Do we want a description for consistency?', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
             ?>

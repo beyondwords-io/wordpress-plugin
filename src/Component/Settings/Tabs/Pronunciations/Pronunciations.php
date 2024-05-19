@@ -12,13 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
-use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\Environment;
-
 /**
- * "General" tab
+ * "Pronunciations" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -40,10 +35,7 @@ class Pronunciations
      */
     public function init()
     {
-        // (new ApiKey())->init();
-        // (new ProjectId())->init();
-
-        add_action('admin_init', array($this, 'addSettingsSections'));
+        add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
 
     /**
@@ -51,17 +43,17 @@ class Pronunciations
      *
      * @since  4.8.0
      */
-    public function addSettingsSections()
+    public function addSettingsSection()
     {
         add_settings_section(
             'pronunciations',
             __('Pronunciations', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords',
-            [
-                'before_section' => '<div id="pronunciations" data-tab="pronunciations">',
-                'after_section' => '</div>',
-            ]
+            'beyondwords_pronunciations',
+            // [
+            //     'before_section' => '<div id="pronunciations" data-tab="pronunciations">',
+            //     'after_section' => '</div>',
+            // ]
         );
     }
 
