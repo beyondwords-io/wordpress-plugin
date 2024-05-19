@@ -81,7 +81,7 @@ class Player
         add_settings_section(
             'playback-controls',
             __('Playback controls', 'speechkit'),
-            array($this, 'sectionCallback'),
+            false,
             'beyondwords_player',
         );
     }

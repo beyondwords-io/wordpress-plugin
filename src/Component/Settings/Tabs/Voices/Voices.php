@@ -68,7 +68,7 @@ class Voices
         add_settings_section(
             'voices',
             __('Voices', 'speechkit'),
-            array($this, 'sectionCallback'),
+            [$this, 'sectionCallback'],
             'beyondwords_voices',
             // [
             //     'before_section' => '<div id="voices" data-tab="voices">',

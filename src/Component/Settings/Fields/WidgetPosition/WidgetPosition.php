@@ -45,10 +45,6 @@ class WidgetPosition
      */
     public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
             'beyondwords_player_settings',
             'beyondwords_widget_position',

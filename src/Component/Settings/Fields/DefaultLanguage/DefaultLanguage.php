@@ -55,10 +55,6 @@ class DefaultLanguage
      */
     public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
             'beyondwords_voices_settings',
             'beyondwords_default_language',

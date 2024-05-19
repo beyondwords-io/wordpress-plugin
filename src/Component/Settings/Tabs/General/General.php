@@ -75,8 +75,6 @@ class General
      **/
     public function sectionCallback()
     {
-        delete_transient('beyondwords_settings_errors');
-
         ?>
         <p class="description">
             <?php

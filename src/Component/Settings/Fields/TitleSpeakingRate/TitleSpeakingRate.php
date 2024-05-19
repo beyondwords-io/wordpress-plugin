@@ -45,10 +45,6 @@ class TitleSpeakingRate
      */
     public function addSetting()
     {
-        // if (! SettingsUtils::hasApiSettings()) {
-        //     return;
-        // }
-
         register_setting(
             'beyondwords_voices_settings',
             'beyondwords_title_speaking_rate',

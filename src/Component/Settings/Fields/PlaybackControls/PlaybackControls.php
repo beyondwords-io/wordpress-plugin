@@ -97,8 +97,8 @@ class PlaybackControls
     {
         $options = [
             [
-                'value' => 'audo',
-                'label' => __('Audo (default)', 'speechkit'),
+                'value' => 'auto',
+                'label' => __('Auto (default)', 'speechkit'),
             ],
             [
                 'value' => 'segments',
