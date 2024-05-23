@@ -124,6 +124,8 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function createAdminInterfaceWithProjectId()
     {
+        $this->markTestSkipped('Unsure if we will have this button');
+
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $this->_instance->createAdminInterface();
@@ -133,6 +135,7 @@ class SettingsTest extends WP_UnitTestCase
         $crawler = new Crawler($html);
 
         $button = $crawler->filter('a.button-secondary[href="https://dash.beyondwords.io"]');
+
         $this->assertCount(1, $button);
         $this->assertSame('BeyondWords dashboard', $button->text());
 

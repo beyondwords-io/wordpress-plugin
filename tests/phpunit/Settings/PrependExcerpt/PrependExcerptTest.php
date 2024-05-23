@@ -48,9 +48,9 @@ class PrependExcerptTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-prepend-excerpt', $wp_settings_fields['beyondwords_content']['content']);
+        $this->assertArrayHasKey('beyondwords-prepend-excerpt', $wp_settings_fields['beyondwords_content_setings']['content']);
 
-        $field = $wp_settings_fields['beyondwords_content']['content']['beyondwords-prepend-excerpt'];
+        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-prepend-excerpt'];
 
         $this->assertSame('beyondwords-prepend-excerpt', $field['id']);
         $this->assertSame('Process excerpts', $field['title']);

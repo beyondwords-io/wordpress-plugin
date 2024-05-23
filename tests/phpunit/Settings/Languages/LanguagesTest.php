@@ -51,9 +51,9 @@ class LanguagesTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_content']['content']);
+        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_content_setings']['content']);
 
-        $field = $wp_settings_fields['beyondwords_content']['content']['beyondwords-languages'];
+        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-languages'];
 
         $this->assertSame('beyondwords-languages', $field['id']);
         $this->assertSame('Languages', $field['title']);

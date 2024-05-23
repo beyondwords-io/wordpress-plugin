@@ -48,12 +48,12 @@ class ApiKeyTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-api-key', $wp_settings_fields['beyondwords_credentials']['basic']);
+        $this->assertArrayHasKey('beyondwords-api-key', $wp_settings_fields['beyondwords_general']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords_credentials']['basic']['beyondwords-api-key'];
+        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-api-key'];
 
         $this->assertSame('beyondwords-api-key', $field['id']);
-        $this->assertSame('BeyondWords API key', $field['title']);
+        $this->assertSame('API key', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
