@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Fields\Preselect\Preselect;
+use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PreselectTest extends WP_UnitTestCase
+class PreselectGenerateAudioTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Preselect\Preselect
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio
      */
     private $_instance;
 
@@ -18,7 +18,7 @@ class PreselectTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new Preselect();
+        $this->_instance = new PreselectGenerateAudio();
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -48,7 +48,7 @@ class PreselectTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-preselect', $wp_settings_fields['beyondwords_generate-audio']['generate-audio']);
+        $this->assertArrayHasKey('beyondwords-preselect-generate-audio', $wp_settings_fields['beyondwords_generate-audio']['generate-audio']);
 
         $field = $wp_settings_fields['beyondwords_generate-audio']['generate-audio']['beyondwords-preselect'];
 

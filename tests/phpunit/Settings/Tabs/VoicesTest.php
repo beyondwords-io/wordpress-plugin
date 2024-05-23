@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Tabs\General\General;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class GeneralTabTest extends WP_UnitTestCase
+class VoicesTabTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Tabs\General\General
+     * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices
      * @static
      */
     private $_instance;
@@ -23,7 +23,8 @@ class GeneralTabTest extends WP_UnitTestCase
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
 
-        $this->_instance = new General();
+        $apiClient       = new ApiClient();
+        $this->_instance = new Voices($apiClient);
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -63,47 +64,7 @@ class GeneralTabTest extends WP_UnitTestCase
 
         $this->_instance->addSettingsSection();
 
-        $this->assertArrayHasKey('beyondwords_general', $wp_settings_fields);
-        $this->assertArrayHasKey('credentials', $wp_settings_fields['beyondwords_general']);
-    }
-
-    /**
-     * @test
-     **/
-    public function sectionCallback()
-    {
-        $this->markTestSkipped('Moved into parent?');
-
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->sectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors', []);
-
-        $this->assertEmpty($errors);
-
-        $this->assertEquals(['Test Error'], $errors);
-    }
-
-    /**
-     * @test
-     */
-    public function dashboardLink()
-    {
-        $this->markTestSkipped('Moved into parent?');
-
-        $this->_instance->dashboardLink();
-
-        $html = $this->getActualOutput();
-        $crawler = new Crawler($html);
-
-        echo print_r($crawler, true);
-
-        $link = $crawler->filter('p > a');
-
-        $this->assertCount(1, $link);
-        $this->assertEquals('class', $link->attr('button button-secondary'));
-        $this->assertEquals('href', 'foobar');
-        $this->assertEquals('_blank', $link->attr('target'));
+        $this->assertArrayHasKey('beyondwords_voices', $wp_settings_fields);
+        $this->assertArrayHasKey('voices', $wp_settings_fields['beyondwords_voices']);
     }
 }

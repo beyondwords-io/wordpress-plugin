@@ -39,48 +39,6 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function credentialsSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->credentialsSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors', []);
-
-        $this->assertEmpty($errors);
-    }
-
-    /**
-     * @test
-     */
-    public function contentSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->contentSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors');
-
-        $this->assertEquals(['Test Error'], $errors);
-    }
-
-    /**
-     * @test
-     */
-    public function generateAudioSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->generateAudioSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors');
-
-        $this->assertEquals(['Test Error'], $errors);
-    }
-
-    /**
-     * @test
-     */
     public function addSettingsLinkToPluginPage()
     {
         $links = [
