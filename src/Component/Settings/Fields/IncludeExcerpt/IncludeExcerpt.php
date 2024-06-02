@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * IncludeExcerpt setup
  *
@@ -43,7 +41,7 @@ class IncludeExcerpt
     {
         register_setting(
             'beyondwords_content_settings',
-            'beyondwords_include_excerpt',
+            'beyondwords_prepend_excerpt',
             [
                 'default' => '',
             ]

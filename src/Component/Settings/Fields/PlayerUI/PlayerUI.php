@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * PlayerUI setup
  *
@@ -74,7 +72,6 @@ class PlayerUI
     {
         $currentUi = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
         $playerUIs = PlayerUI::getAllPlayerUIs();
-
         ?>
         <div class="beyondwords-setting--player--player-ui">
             <select name="beyondwords_player_ui">

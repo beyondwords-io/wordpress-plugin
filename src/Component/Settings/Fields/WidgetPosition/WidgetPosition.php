@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * WidgetPosition setup
  *
@@ -21,13 +19,6 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  */
 class WidgetPosition
 {
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-
     /**
      * Constructor
      */
@@ -47,7 +38,7 @@ class WidgetPosition
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_widget_position',
+            'beyondwords_player_widget_position',
             [
                 'default' => 'auto',
             ]
@@ -71,11 +62,11 @@ class WidgetPosition
      **/
     public function render()
     {
-        $current = get_option('beyondwords_widget_position');
+        $current = get_option('beyondwords_player_widget_position');
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--widget-position">
-            <select name="beyondwords_widget_position">
+            <select name="beyondwords_player_widget_position">
                 <?php
                 foreach ($options as $option) {
                     printf(

@@ -56,7 +56,7 @@ class Settings
     {
         delete_transient('beyondwords_settings_errors');
 
-        (new General())->init();
+        (new General($this->apiClient))->init();
 
         if (SettingsUtils::hasApiSettings()) {
             (new Voices($this->apiClient))->init();
@@ -70,11 +70,64 @@ class Settings
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
 
-        add_action('current_screen', array($this, 'syncSettings'), 1);
-
         add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('plugin_action_links_speechkit/speechkit.php', array($this, 'addSettingsLinkToPluginPage'));
+
+        add_action('added_option', array($this, 'onAddedOption'), 10, 2);
+        add_action('updated_option', array($this, 'onUpdatedOption'), 10, 3);
+    }
+
+    /**
+     * On "added" option.
+     *
+     * @param mixed $option Name of the option.
+     * @param mixed $value  Value of the option.
+     */
+    public function onAddedOption($option, $value)
+    {
+        $this->setOptionTransients($option, $value);
+    }
+
+    /**
+     * On "updated" option.
+     *
+     * @param mixed $option   Name of the updated option.
+     * @param mixed $oldValue The old option value.
+     * @param mixed $value    The new option value.
+     */
+    public function onUpdatedOption($option, $oldValue, $value)
+    {
+        $this->setOptionTransients($option, $value);
+    }
+
+    /**
+     * Set option transients.
+     *
+     * When an option is added/updated we record the change and then bundle
+     * all changes together and make efficient BeyondWords REST API calls.
+     *
+     *
+     * @param mixed $option Name of the option.
+     * @param mixed $value  Value of the option.
+     */
+    public function setOptionTransients($option, $value)
+    {
+        // Only set for beyondwords_* options
+        if (substr($option, 0, 12) !== 'beyondwords_') {
+            return;
+        }
+
+        // Don't set for beyondwords_valid_api_connection
+        if ($option === 'beyondwords_valid_api_connection') {
+            return;
+        }
+
+        $options = array_keys(SettingsUtils::getSyncedOptions());
+
+        if (in_array($option, $options)) {
+            set_transient('beyondwords/sync/' . $option, $value);
+        }
     }
 
     /**
@@ -350,67 +403,6 @@ class Settings
             'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
             'wpVersion'     => $wp_version,
         ]);
-    }
-
-    /**
-     * Check to see if user has valid BeyondWords API credentials by performing
-     * a GET request using the API Key and Project ID.
-     *
-     * @since 4.0.0
-     * @since 4.8.0 Perform this check on all settings_page_beyondwords screens.
-     * @since 4.8.0 Replace DATE_ISO8601 with \DateTime::ATOM
-     *
-     * @return void
-     */
-    public function syncSettings()
-    {
-        if (! is_admin()) {
-            return;
-        }
-
-        $screen = get_current_screen();
-
-        // wp_die(print_r($screen, true));
-
-        if (! isset($screen->base)) {
-            return;
-        }
-
-        if ($screen->base !== 'settings_page_beyondwords') {
-            return;
-        }
-
-        $apiKey    = get_option('beyondwords_api_key');
-        $projectId = get_option('beyondwords_project_id');
-
-        if (empty($apiKey) || empty($projectId)) {
-            return;
-        }
-
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
-        $project = $this->apiClient->getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === $projectId
-        );
-
-        if ($validConnection) {
-            // Store date of last check
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
-        } else {
-            $errors = get_transient('beyondwords_settings_errors', []);
-
-            $errors['Settings/ValidApiConnection'] = __(
-                'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
-                'speechkit'
-            );
-
-            set_transient('beyondwords_settings_errors', $errors);
-        }
     }
 
     /**

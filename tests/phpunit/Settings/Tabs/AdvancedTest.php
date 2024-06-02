@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
-use \Symfony\Component\DomCrawler\Crawler;
 
 class AdvancedTabTest extends WP_UnitTestCase
 {

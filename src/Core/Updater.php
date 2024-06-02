@@ -68,14 +68,14 @@ class Updater
         // Simple mapping of 'old key' -> 'new key'
         foreach ($settingsMap as $oldKey => $newKey) {
             if (array_key_exists($oldKey, $oldSettings) && ! get_option($newKey)) {
-                add_option($newKey, $oldSettings[$oldKey]);
+                add_option($newKey, $oldSettings[$oldKey], false);
             }
         }
 
         if (get_option('speechkit_preselect') === false) {
             $preselectSetting = $this->constructPreselectSetting();
 
-            add_option('speechkit_preselect', $preselectSetting);
+            add_option('speechkit_preselect', $preselectSetting, false);
         }
     }
 
@@ -148,19 +148,19 @@ class Updater
         $preselect      = get_option('speechkit_preselect');
 
         if ($apiKey) {
-            update_option('beyondwords_api_key', $apiKey);
+            update_option('beyondwords_api_key', $apiKey, false);
         }
 
         if ($projectId) {
-            update_option('beyondwords_project_id', $projectId);
+            update_option('beyondwords_project_id', $projectId, false);
         }
 
         if ($prependExcerpt) {
-            update_option('beyondwords_prepend_excerpt', $prependExcerpt);
+            update_option('beyondwords_prepend_excerpt', $prependExcerpt, false);
         }
 
         if ($preselect) {
-            update_option('beyondwords_preselect', $preselect);
+            update_option('beyondwords_preselect', $preselect, false);
         }
     }
 }

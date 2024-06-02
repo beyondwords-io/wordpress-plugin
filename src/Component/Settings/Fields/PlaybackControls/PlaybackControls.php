@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * PlaybackControls setup
  *
@@ -42,14 +40,14 @@ class PlaybackControls
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_playback_controls_skipping',
+            'beyondwords_player_skip_button_style',
             [
                 'default' => '',
             ]
         );
 
         add_settings_field(
-            'beyondwords-playback-controls-skipping',
+            'beyondwords-player-skip-button-style',
             __('Skipping', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
@@ -66,11 +64,12 @@ class PlaybackControls
      **/
     public function render()
     {
-        $current = get_option('beyondwords_playback_controls_skipping');
+        $current = get_option('beyondwords_player_skip_button_style');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--playback-controls-skipping">
-            <select name="beyondwords_playback_controls_skipping">
+        <div class="beyondwords-setting--player-skip-button-style">
+            <!--
+            <select name="beyondwords_player_skip_button_style">
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -82,6 +81,22 @@ class PlaybackControls
                 }
                 ?>
             </select>
+            -->
+            <input
+                type="text"
+                name="beyondwords_player_skip_button_style"
+                placeholder="auto"
+                value="<?php echo esc_attr($current); ?>"
+                size="20"
+            />
+            <p class="description" style="max-width: 740px;">
+                <?php
+                echo wp_kses_post(__('The style of skip buttons to show in the player.', 'speechkit')) . " ";
+                echo wp_kses_post(__('Possible values are <code>auto</code>, <code>segments</code>, <code>seconds</code> or <code>audios</code>.', 'speechkit')) . " ";
+                echo wp_kses_post(__('You can specify the number of seconds to skip, e.g. <code>seconds-15</code> or <code>seconds-15-30</code>.', 'speechkit')) . " ";
+                echo wp_kses_post(__('The <code>auto</code> style uses <code>audios</code> if there is a playlist and <code>segments</code> otherwise.', 'speechkit')) . " ";
+                ?>
+            </p>
         </div>
         <?php
     }

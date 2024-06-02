@@ -56,7 +56,7 @@ class PlayerStyle
         $projectId = PostMetaUtils::getProjectId($post->ID);
 
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = PlayerStyleSetting::getCachedPlayerStyles($projectId);
+        $allPlayerStyles = $this->apiClient->getPlayerStyles($projectId);
 
         if (! is_array($allPlayerStyles) || ! count($allPlayerStyles)) {
             return;

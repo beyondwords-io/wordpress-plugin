@@ -21,6 +21,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition\WidgetPosition;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle\WidgetStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlighting;
+use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Player" settings tab
@@ -62,6 +63,7 @@ class Player
         (new PlaybackControls())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_enqueue_scripts', array($this, 'syncCheck'));
     }
 
     /**
@@ -105,5 +107,50 @@ class Player
             ?>
         </p>
         <?php
+    }
+
+    public function syncCheck($hook)
+    {
+        if ($hook === 'settings_page_beyondwords') {
+            $this->syncToRestApi();
+        }
+    }
+
+    /**
+     * Sync with BeyondWords REST API.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function syncToRestApi()
+    {
+        $params = [];
+
+        $options = SettingsUtils::getSyncedOptions('player');
+
+        foreach ($options as $name => $args) {
+            if (array_key_exists('path', $args)) {
+                $t = get_transient('beyondwords/sync/' . $name);
+                if ($t !== false) {
+                    $params[$args['path']] = $t;
+                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Detected change, syncing ' . $name . ' to /player.' . $args['path'], 'info');
+                    delete_transient('beyondwords/sync/' . $name);
+                }
+            }
+        }
+
+        if (count($params)) {
+            // Sync WordPress -> REST API
+            $result = $this->apiClient->updatePlayerSettings($params);
+
+            if ($result) {
+                // Success notice
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> The WordPress settings were synced to the BeyondWords dashboard.', 'info');
+            } else {
+                // Error notice
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
+            }
+        }
     }
 }

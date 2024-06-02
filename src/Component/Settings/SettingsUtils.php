@@ -187,4 +187,70 @@ class SettingsUtils
         <?php
         return ob_get_clean();
     }
+
+    /**
+     * Get the WordPress options we sync to the REST API.
+     *
+     * @param string $entity Optionally filter the options by entity (auth|project|player)
+     *
+     * @return array Associative array of option name and sync args (auth,entity,path)
+     */
+    public static function getSyncedOptions($entity = '')
+    {
+        // The options we want to sync with our API
+        $options = [
+            /**
+             * Re-authenticate if either API Key or Project ID change, but don't
+             * attempt to set the API Key or Project ID.
+             **/
+            'beyondwords_api_key'    => ['entity' => 'auth'],
+            'beyondwords_project_id' => ['entity' => 'auth'],
+
+            /**
+             * Project settings synced with REST API.
+             * projects/{project_id}
+             **/
+            'beyondwords_project_language'    => ['entity' => 'project', 'path' => 'language'],
+            'beyondwords_project_title_voice' => ['entity' => 'project', 'path' => 'title.voice.id'],
+            'beyondwords_project_body_voice'  => ['entity' => 'project', 'path' => 'body.voice.id'],
+
+            /**
+             * @todo
+             * Project settings NOT synced with REST API.
+             * projects/{project_id}
+             **/
+            // 'beyondwords_title_speaking_rate', { playbackRate }
+            // 'beyondwords_body_speaking_rate', ??? { playbackRate }
+
+            /**
+             * Player settings synced with REST API
+             * projects/{project_id}/player_settings
+             **/
+            'beyondwords_player_style'             => ['entity' => 'player', 'path' => 'player_style'],
+            'beyondwords_player_theme'             => ['entity' => 'player', 'path' => 'theme'],
+            'beyondwords_player_dark_theme'        => ['entity' => 'player', 'path' => 'dark_theme'], // [text_color|background_color|icon_color|highlight_color]
+            'beyondwords_player_light_theme'       => ['entity' => 'player', 'path' => 'light_theme'], // [text_color|background_color|icon_color|highlight_color]
+            'beyondwords_player_video_theme'       => ['entity' => 'player', 'path' => 'video_theme'], // [text_color|background_color|icon_color]
+            'beyondwords_player_call_to_action'    => ['entity' => 'player', 'path' => 'call_to_action'],
+            'beyondwords_player_widget_style'      => ['entity' => 'player', 'path' => 'widget_style'],
+            'beyondwords_player_widget_position'   => ['entity' => 'player', 'path' => 'widget_position'],
+            'beyondwords_player_skip_button_style' => ['entity' => 'player', 'path' => 'skip_button_style'],
+
+            /**
+             * @todo
+             * Player params NOT synced with REST API
+             */
+            // 'beyondwords_player_ui',               // TOGGLE <script>
+            // 'beyondwords_text_highlighting',      // { highlightSections: 'body-none' }
+            // 'beyondwords_playback_from_segments', // { clickableSections: body }
+        ];
+
+        if (!empty($entity)) {
+            $options = array_filter($options, function($option) use ($entity) {
+                return $option['entity'] === $entity;
+            });
+        }
+
+        return $options;
+    }
 }

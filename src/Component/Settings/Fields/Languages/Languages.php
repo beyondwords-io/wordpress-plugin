@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\Environment;
-
 /**
  * Languages setup
  *
@@ -102,11 +99,12 @@ class Languages
         ?>
         <div class="beyondwords-setting--languages">
             <select
+                multiple
                 id="beyondwords_languages"
                 name="beyondwords_languages[]"
-                placeholder="Add a language"
-                multiple
+                placeholder="<?php _e('Add a language', 'speechkit'); ?>"
                 style="width: 500px;"
+                autocomplete="off"
             >
                 <?php foreach ($allLanguages as $language) : ?>
                     <option

@@ -12,11 +12,12 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Voices;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\BodySpeakingRate\BodySpeakingRate;
-use Beyondwords\Wordpress\Component\Settings\Fields\BodyVoice\BodyVoice;
-use Beyondwords\Wordpress\Component\Settings\Fields\TitleSpeakingRate\TitleSpeakingRate;
-use Beyondwords\Wordpress\Component\Settings\Fields\TitleVoice\TitleVoice;
+use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\BodySpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\TitleSpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\Voice\BodyVoice;
+use Beyondwords\Wordpress\Component\Settings\Fields\Voice\TitleVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage\DefaultLanguage;
+use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Voices" settings tab
@@ -50,12 +51,13 @@ class Voices
     public function init()
     {
         (new DefaultLanguage($this->apiClient))->init();
-        (new TitleVoice())->init();
+        (new TitleVoice($this->apiClient))->init();
         (new TitleSpeakingRate())->init();
-        (new BodyVoice())->init();
+        (new BodyVoice($this->apiClient))->init();
         (new BodySpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_enqueue_scripts', array($this, 'syncCheck'));
     }
 
     /**
@@ -96,5 +98,52 @@ class Voices
             ?>
         </p>
         <?php
+    }
+
+    public function syncCheck($hook)
+    {
+        if ($hook === 'settings_page_beyondwords') {
+            $this->syncToRestApi();
+        }
+    }
+
+    /**
+     * Sync with BeyondWords REST API.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function syncToRestApi()
+    {
+        $params = [];
+
+        $options = SettingsUtils::getSyncedOptions('project');
+
+        foreach ($options as $name => $args) {
+            if (array_key_exists('path', $args)) {
+                $t = get_transient('beyondwords/sync/' . $name);
+                if ($t !== false) {
+                    $params[$args['path']] = $t;
+                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Detected change, syncing ' . $name . ' to /project.' . $args['path'], 'info');
+                    delete_transient('beyondwords/sync/' . $name);
+                }
+            }
+        }
+
+        // wp_die(wp_json_encode($params));
+
+        if (count($params)) {
+            // Sync WordPress -> REST API
+            $result = $this->apiClient->updateProject($params);
+
+            if ($result) {
+                // Success notice
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> The WordPress settings were synced to the BeyondWords dashboard.', 'info');
+            } else {
+                // Error notice
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
+            }
+        }
     }
 }

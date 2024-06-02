@@ -182,6 +182,7 @@ class ApiClient
      *
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
+     * @since 4.8.0 Cache response using transients
      *
      * @return array|object Array of voices or API error object.
      **/
@@ -200,18 +201,21 @@ class ApiClient
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
      * @since 4.5.1 Check the $languageId param is numeric.
+     * @since 4.8.0 Accept numeric language ID or string language code as param.
      *
-     * @param int $languageId BeyondWords Language ID
+     * @param int|string $language BeyondWords Language code or numeric ID
      *
      * @return array|object Array of voices or API error object.
      **/
-    public function getVoices($languageId)
+    public function getVoices($language)
     {
-        if (! is_numeric($languageId)) {
-            return [];
+        $field = 'language.code';
+
+        if (is_numeric($language)) {
+            $field = 'language.id';
         }
 
-        $url = sprintf('%s/organization/voices?filter[language.id]=%s', Environment::getApiUrl(), urlencode(strval($languageId))); // phpcs:ignore Generic.Files.LineLength.TooLong
+        $url = sprintf('%s/organization/voices?filter[%s]=%s', Environment::getApiUrl(), $field, urlencode(strval($language))); // phpcs:ignore Generic.Files.LineLength.TooLong
 
         $request = new Request('GET', $url);
 
@@ -222,6 +226,7 @@ class ApiClient
      * GET /projects/:id.
      *
      * @since 4.0.0
+     * @since 4.8.0 Cache response using transients
      *
      * @return Response|false Response, or false
      **/
@@ -236,6 +241,30 @@ class ApiClient
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
         $request = new Request('GET', $url);
+
+        return $this->callApi($request);
+    }
+
+    /**
+     * PUT /projects/:id.
+     *
+     * @since 4.8.0
+     *
+     * @param array $settings Associative array of project settings.
+     *
+     * @return Response|false Response, or false
+     **/
+    public function updateProject($settings)
+    {
+        $projectId = get_option('beyondwords_project_id');
+
+        if (! $projectId) {
+            return false;
+        }
+
+        $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
+
+        $request = new Request('PUT', $url, wp_json_encode($settings));
 
         return $this->callApi($request);
     }
@@ -290,6 +319,7 @@ class ApiClient
      * GET /projects/:id/video_settings.
      *
      * @since 4.1.0
+     * @since 4.8.0 Cache response using transients
      *
      * @param int $projectId BeyondWords Project ID.
      *

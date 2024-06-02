@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\ApiClient;
-use \Symfony\Component\DomCrawler\Crawler;
 
 class PronunciationsTabTest extends WP_UnitTestCase
 {

@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\General\General;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class GeneralTabTest extends WP_UnitTestCase

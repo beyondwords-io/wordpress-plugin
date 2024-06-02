@@ -10,32 +10,15 @@ declare(strict_types=1);
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\TitleSpeakingRate;
-
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
 
 /**
  * TitleSpeakingRate setup
  *
  * @since 4.8.0
  */
-class TitleSpeakingRate
+class TitleSpeakingRate extends SpeakingRate
 {
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-
-    /**
-     * Constructor
-     */
-    public function init()
-    {
-        add_action('admin_init', array($this, 'addSetting'));
-    }
-
     /**
      * Add setting.
      *
@@ -75,7 +58,11 @@ class TitleSpeakingRate
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--title-speaking-rate">
-            <select name="beyondwords_title_speaking_rate">
+            <select
+                name="beyondwords_title_speaking_rate"
+                class="beyondwords_speaking_rate"
+                style="width: 100px;"
+            >
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -89,32 +76,5 @@ class TitleSpeakingRate
             </select>
         </div>
         <?php
-    }
-
-    /**
-     * Get all options for the current component.
-     *
-     * @since 4.8.0
-     *
-     * @return string[] Associative array of options.
-     **/
-    public function getOptions()
-    {
-        $options = [
-            [
-                'value' => '50',
-                'label' => '50%',
-            ],
-            [
-                'value' => '100',
-                'label' => '100%',
-            ],
-            [
-                'value' => '200',
-                'label' => '200%',
-            ],
-        ];
-
-        return $options;
     }
 }

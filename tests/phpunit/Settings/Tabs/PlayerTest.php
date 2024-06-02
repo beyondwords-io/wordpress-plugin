@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
-use \Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTabTest extends WP_UnitTestCase
 {
@@ -25,7 +23,6 @@ class PlayerTabTest extends WP_UnitTestCase
 
         $apiClient       = new ApiClient();
         $this->_instance = new Player($apiClient);
-
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));

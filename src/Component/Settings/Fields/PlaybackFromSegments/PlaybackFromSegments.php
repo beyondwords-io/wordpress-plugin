@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * PlaybackFromSegments setup
  *

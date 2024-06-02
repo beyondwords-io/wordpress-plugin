@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * DefaultLanguage setup
  *
@@ -57,7 +55,7 @@ class DefaultLanguage
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_default_language',
+            'beyondwords_project_language',
             [
                 'default' => '',
             ]
@@ -83,10 +81,16 @@ class DefaultLanguage
     {
         $options = $this->getOptions();
 
-        $current = get_option('beyondwords_default_language', '');
+        $current = get_option('beyondwords_project_language', '');
         ?>
         <div class="beyondwords-setting--default-language">
-            <select name="beyondwords_default_language">
+            <select
+                id="beyondwords_project_language"
+                name="beyondwords_project_language"
+                placeholder="<?php _e('Add a language', 'speechkit'); ?>"
+                style="width: 250px;"
+                autocomplete="off"
+            >
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -119,7 +123,7 @@ class DefaultLanguage
 
         $options = array_map(function ($language) {
             return [
-                'value' => $language['id'],
+                'value' => $language['code'],
                 'label' => $language['name'],
             ];
         }, $languages);

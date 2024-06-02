@@ -69,24 +69,38 @@ class PlayerColors
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_colors',
+            'beyondwords_player_light_theme',
             [
                 'default' => [
-                    'light_theme' => [
-                        'background' => '#F5F5F5',
-                        'icons'      => '#000',
-                        'text_color' => '#111',
-                    ],
-                    'dark_theme' => [
-                        'background' => 'TRANSPARENT',
-                        'icons'      => '#FFF',
-                        'text_color' => '#FFF',
-                    ],
-                    'video_theme' => [
-                        'background' => '#000',
-                        'icons'      => '#FFF',
-                        'text_color' => '#FFF',
-                    ],
+                    'background_color' => '#F5F5F5',
+                    'icon_color'       => '#000',
+                    'text_color'       => '#111',
+                    'highlight_color'  => '#EEE',
+                ],
+            ]
+        );
+
+        register_setting(
+            'beyondwords_player_settings',
+            'beyondwords_player_dark_theme',
+            [
+                'default' => [
+                    'background_color' => '#F5F5F5',
+                    'icon_color'       => '#000',
+                    'text_color'       => '#111',
+                    'highlight_color'  => '#EEE',
+                ],
+            ]
+        );
+
+        register_setting(
+            'beyondwords_player_settings',
+            'beyondwords_player_video_theme',
+            [
+                'default' => [
+                    'background_color' => '#000',
+                    'icon_color'       => '#FFF',
+                    'text_color'       => '#FFF',
                 ],
             ]
         );
@@ -164,24 +178,26 @@ class PlayerColors
      **/
     public function renderPlayerColorsSetting()
     {
-        $option = get_option('beyondwords_player_colors');
+        $lightTheme = get_option('beyondwords_player_light_theme');
+        $darkTheme  = get_option('beyondwords_player_dark_theme');
+        $videoTheme = get_option('beyondwords_player_video_theme');
 
         echo $this->playerColorsTable(
             __('Light theme settings'),
-            'beyondwords_player_colors[light_theme]',
-            $option['light_theme'],
+            'beyondwords_player_light_theme',
+            $lightTheme,
         );
 
         echo $this->playerColorsTable(
             __('Dark theme settings'),
-            'beyondwords_player_colors[dark_theme]',
-            $option['dark_theme'],
+            'beyondwords_player_dark_theme',
+            $darkTheme,
         );
 
         echo $this->playerColorsTable(
             __('Video theme settings'),
-            'beyondwords_player_colors[video_theme]',
-            $option['video_theme'],
+            'beyondwords_player_video_theme',
+            $videoTheme,
         );
     }
 
@@ -204,8 +220,8 @@ class PlayerColors
                 <?php
                 echo SettingsUtils::colorInput(
                     __('Background'),
-                    sprintf('%s[background]', $name),
-                    $value['background'] ?? ''
+                    sprintf('%s[background_color]', $name),
+                    $value['background_color'] ?? ''
                 );
                 ?>
             </div>
@@ -213,8 +229,8 @@ class PlayerColors
                 <?php
                 echo SettingsUtils::colorInput(
                     __('Icons'),
-                    sprintf('%s[icons]', $name),
-                    $value['icons'] ?? ''
+                    sprintf('%s[icon_color]', $name),
+                    $value['icon_color'] ?? ''
                 );
                 ?>
             </div>

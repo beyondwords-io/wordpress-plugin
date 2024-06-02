@@ -48,17 +48,6 @@ class TextHighlighting
             ]
         );
 
-        register_setting(
-            'beyondwords_player_settings',
-            'beyondwords_text_highlighting_colors',
-            [
-                'default' => [
-                    'light_theme' => '#EEE',
-                    'dark_theme'  => '#444',
-                ],
-            ]
-        );
-
         add_settings_field(
             'beyondwords-text-highlighting',
             __('Text highlighting', 'speechkit'),
@@ -77,8 +66,9 @@ class TextHighlighting
      **/
     public function render()
     {
-        $enabled = get_option('beyondwords_text_highlighting', '');
-        $colors  = get_option('beyondwords_text_highlighting_colors');
+        $enabled    = get_option('beyondwords_text_highlighting', '');
+        $lightTheme = get_option('beyondwords_player_light_theme');
+        $darkTheme  = get_option('beyondwords_player_dark_theme');
         ?>
         <div>
             <label>
@@ -96,8 +86,8 @@ class TextHighlighting
             <?php
             echo SettingsUtils::colorInput(
                 __('Highlight color'),
-                'beyondwords_text_highlighting_colors[light_theme]',
-                $colors['light_theme'] ?? '',
+                'beyondwords_player_light_theme[highlight_color]',
+                $lightTheme['highlight_color'] ?? '',
             );
             ?>
         </div>
@@ -106,8 +96,8 @@ class TextHighlighting
             <?php
             echo SettingsUtils::colorInput(
                 __('Highlight color'),
-                'beyondwords_text_highlighting_colors[dark_theme]',
-                $colors['dark_theme'] ?? '',
+                'beyondwords_player_dark_theme[highlight_color]',
+                $darkTheme['highlight_color'] ?? '',
             );
             ?>
         </div>

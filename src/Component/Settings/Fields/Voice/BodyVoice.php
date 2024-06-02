@@ -3,37 +3,32 @@
 declare(strict_types=1);
 
 /**
- * Setting: Default language
+ * Setting: BodyVoice
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\TitleVoice;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
 
 /**
- * TitleVoice setup
+ * BodyVoice setup
  *
  * @since 4.8.0
  */
-class TitleVoice
+class BodyVoice extends Voice
 {
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct($apiClient)
     {
-    }
+        $this->languageId = get_option('beyondwords_voice_language_id');
 
-    /**
-     * Constructor
-     */
-    public function init()
-    {
-        add_action('admin_init', array($this, 'addSetting'));
+        parent::__construct($apiClient);
     }
 
     /**
@@ -47,15 +42,15 @@ class TitleVoice
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_title_voice',
+            'beyondwords_project_body_voice',
             [
                 'default' => '',
             ]
         );
 
         add_settings_field(
-            'beyondwords-title-voice',
-            __('Which voice do you want to read titles?', 'speechkit'),
+            'beyondwords-body-voice',
+            __('Which voice do you want to read body content?', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -71,11 +66,15 @@ class TitleVoice
      **/
     public function render()
     {
-        $current = get_option('beyondwords_title_voice');
+        $current = get_option('beyondwords_project_body_voice');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--title-voice">
-            <select name="beyondwords_title_voice">
+        <div class="beyondwords-setting--body-voice">
+            <select
+                name="beyondwords_project_body_voice"
+                class="beyondwords_voice"
+                style="width: 300px;"
+            >
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -89,24 +88,5 @@ class TitleVoice
             </select>
         </div>
         <?php
-    }
-
-    /**
-     * Get all options for the current component.
-     *
-     * @since 4.8.0
-     *
-     * @return string[] Associative array of options.
-     **/
-    public function getOptions()
-    {
-        $options = [
-            [
-                'value' => 'amy',
-                'label' => 'Amy',
-            ]
-        ];
-
-        return $options;
     }
 }

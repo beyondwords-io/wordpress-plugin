@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * PlayerStyle setup
  *
@@ -30,12 +28,16 @@ class PlayerStyle
     public const VIDEO = 'video';
 
     /**
-     * API client, required to check whether video is enabled or not.
+     * API Client.
+     *
+     * @since 4.8.0
      */
     private $apiClient;
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @since 4.8.0
      */
     public function __construct($apiClient)
     {
@@ -86,20 +88,20 @@ class PlayerStyle
     public function render()
     {
         $currentStyle = get_option('beyondwords_player_style', PlayerStyle::STANDARD);
-        $playerStyles = $this->getPlayerStyles();
+        $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--player--player-style">
             <select name="beyondwords_player_style">
                 <?php
-                foreach ($playerStyles as $item) {
-                    $disabled = isset($item['disabled']) ? $item['disabled'] : false;
+                foreach ($options as $option) {
+                    $disabled = isset($option['disabled']) ? $option['disabled'] : false;
 
                     printf(
                         '<option value="%s" %s %s>%s</option>',
-                        esc_attr($item['value']),
-                        selected($item['value'], $currentStyle),
+                        esc_attr($option['value']),
+                        selected($option['value'], $currentStyle),
                         disabled($disabled, true),
-                        esc_html($item['label'])
+                        esc_html($option['label'])
                     );
                 }
                 ?>
@@ -127,7 +129,7 @@ class PlayerStyle
      *
      * @return string[] Associative array of Player styles and labels.
      **/
-    public function getPlayerStyles()
+    public function getOptions()
     {
         $styles = [
             PlayerStyle::STANDARD => [

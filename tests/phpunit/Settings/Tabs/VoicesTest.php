@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
-use \Symfony\Component\DomCrawler\Crawler;
 
 class VoicesTabTest extends WP_UnitTestCase
 {

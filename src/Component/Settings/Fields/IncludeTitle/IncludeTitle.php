@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * IncludeTitle setup
  *
@@ -42,7 +40,7 @@ class IncludeTitle
     {
         register_setting(
             'beyondwords_content_settings',
-            'beyondwords_prepend_excerpt',
+            'beyondwords_include_title',
             [
                 'default' => '',
             ]
@@ -67,13 +65,13 @@ class IncludeTitle
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_prepend_excerpt', '');
+        $prependExcerpt = get_option('beyondwords_include_title', '');
         ?>
         <div>
             <label>
                 <input
                     type="checkbox"
-                    name="beyondwords_prepend_excerpt"
+                    name="beyondwords_include_title"
                     value="1"
                     <?php checked($prependExcerpt, '1'); ?>
                 />

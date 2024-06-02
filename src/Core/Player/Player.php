@@ -6,7 +6,6 @@ namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Symfony\Component\DomCrawler\Crawler;

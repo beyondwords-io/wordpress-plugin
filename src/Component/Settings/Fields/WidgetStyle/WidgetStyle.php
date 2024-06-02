@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-
 /**
  * WidgetStyle setup
  *
@@ -21,13 +19,6 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  */
 class WidgetStyle
 {
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-
     /**
      * Constructor
      */
@@ -47,7 +38,7 @@ class WidgetStyle
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_widget_style',
+            'beyondwords_player_widget_style',
             [
                 'default' => '',
             ]
@@ -71,11 +62,11 @@ class WidgetStyle
      **/
     public function render()
     {
-        $current = get_option('beyondwords_widget_style');
+        $current = get_option('beyondwords_player_widget_style');
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--widget-style">
-            <select name="beyondwords_widget_style">
+            <select name="beyondwords_player_widget_style">
                 <?php
                 foreach ($options as $option) {
                     printf(
@@ -91,7 +82,7 @@ class WidgetStyle
             <?php
             printf(
                 /* translators: %s is replaced with the "widgetStyle setting" link */
-                esc_html__('The default player style (%s) for the audio player.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                esc_html__('The style of widget to display at the bottom of the page once the user scrolls past the inline player. See %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
                 sprintf(
                     '<a href="https://github.com/beyondwords-io/player/blob/main/doc/player-settings.md" target="_blank" rel="nofollow">%s</a>', // phpcs:ignore Generic.Files.LineLength.TooLong
                     esc_html__('widgetStyle setting', 'speechkit')
