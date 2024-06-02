@@ -210,9 +210,9 @@ class SettingsUtils
              * Project settings synced with REST API.
              * projects/{project_id}
              **/
-            'beyondwords_project_language'    => ['entity' => 'project', 'path' => 'language'],
-            'beyondwords_project_title_voice' => ['entity' => 'project', 'path' => 'title.voice.id'],
-            'beyondwords_project_body_voice'  => ['entity' => 'project', 'path' => 'body.voice.id'],
+            'beyondwords_project_language' => ['entity' => 'project', 'path' => 'language'],
+            'beyondwords_project_title'    => ['entity' => 'project', 'path' => 'title'],
+            'beyondwords_project_body'     => ['entity' => 'project', 'path' => 'body'],
 
             /**
              * @todo

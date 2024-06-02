@@ -176,19 +176,19 @@ class General
             if ($project['language']) {
                 $updated = update_option('beyondwords_project_language', $project['language'], false);
                 if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project language has been synced to WordPress', 'success');
+                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.language has been synced to WordPress', 'success');
                 }
             }
-            if ($project['body'] && $project['body']['voice'] && $project['body']['voice']['id']) {
-                $updated = update_option('beyondwords_body_voice_id', $project['body']['voice']['id'], false);
+            if ($project['body']) {
+                $updated = update_option('beyondwords_project_body', $project['body'], false);
                 if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project body.voice.id has been synced to WordPress', 'success');
+                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.body has been synced to WordPress', 'success');
                 }
             }
-            if ($project['title'] && $project['title']['voice'] && $project['title']['voice']['id']) {
-                $updated = update_option('beyondwords_title_voice_id', $project['title']['voice']['id'], false);
+            if ($project['title']) {
+                $updated = update_option('beyondwords_project_title', $project['title'], false);
                 if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project title.voice.id has been synced to WordPress', 'success');
+                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.title has been synced to WordPress', 'success');
                 }
             }
         } else {
@@ -219,7 +219,7 @@ class General
                     $updated = update_option($name, $playerSettings[$args['path']], false);
 
                     if ($updated) {
-                        add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project language has been synced to WordPress', 'success');
+                        add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.' . $args['path'] . ' has been synced to WordPress', 'success');
                     }
                 }
             }

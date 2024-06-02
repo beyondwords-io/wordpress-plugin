@@ -125,7 +125,7 @@ class Voices
                 $t = get_transient('beyondwords/sync/' . $name);
                 if ($t !== false) {
                     $params[$args['path']] = $t;
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Detected change, syncing ' . $name . ' to /project.' . $args['path'], 'info');
+                    // add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Syncing ' . $name . ' to /project.' . $args['path'], 'info');
                     delete_transient('beyondwords/sync/' . $name);
                 }
             }
@@ -137,10 +137,7 @@ class Voices
             // Sync WordPress -> REST API
             $result = $this->apiClient->updateProject($params);
 
-            if ($result) {
-                // Success notice
-                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> The WordPress settings were synced to the BeyondWords dashboard.', 'info');
-            } else {
+            if (! $result) {
                 // Error notice
                 add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
             }

@@ -15,8 +15,7 @@
 			select.on('change', function(value){
 				console.log('value', value);
 				// @todo add error notice here
-				$('select[name="beyondwords_project_title_voice"]').attr('value', '').attr('disabled', 'disabled');
-				$('select[name="beyondwords_project_body_voice"]').attr('value', '').attr('disabled', 'disabled');
+				$('select.beyondwords_project_voice').attr('value', '').attr('disabled', 'disabled');
 			});
 		}
 	} );

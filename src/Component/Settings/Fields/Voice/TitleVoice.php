@@ -32,9 +32,13 @@ class TitleVoice extends Voice
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_title_voice',
+            'beyondwords_project_title',
             [
-                'default' => '',
+                'default' => [
+                    'voice' => [
+                        'id' => ''
+                    ]
+                ],
             ]
         );
 
@@ -56,13 +60,13 @@ class TitleVoice extends Voice
      **/
     public function render()
     {
-        $current = get_option('beyondwords_project_title_voice');
+        $current = get_option('beyondwords_project_title');
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--title-voice">
             <select
-                name="beyondwords_project_title_voice"
-                class="beyondwords_voice"
+                name="beyondwords_project_title[voice][id]"
+                class="beyondwords_project_voice"
                 style="width: 300px;"
             >
                 <?php
@@ -70,7 +74,7 @@ class TitleVoice extends Voice
                     printf(
                         '<option value="%s" %s>%s</option>',
                         esc_attr($option['value']),
-                        selected($option['value'], $current),
+                        selected($option['value'], $current['voice']['id'] ?? ''),
                         esc_html($option['label'])
                     );
                 }
