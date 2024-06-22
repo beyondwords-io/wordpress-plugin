@@ -97,6 +97,7 @@ class Player
      **/
     public function sectionCallback()
     {
+        $syncUrl = admin_url('options-general.php?page=beyondwords&tab=player&sync_to_api=1');
         ?>
         <p class="description">
             <?php
@@ -106,12 +107,31 @@ class Player
             );
             ?>
         </p>
+        <p>
+            <a href="<?php echo esc_url($syncUrl); ?>">
+                <?php _e('Sync to Dashboard', 'speechkit'); ?>
+            </a>
+        </p>
         <?php
     }
 
+    /**
+     * Check whether we want to sync to/from the API.
+     *
+     * We don't automatically sync to the API. We only sync if a
+     * "Sync Settings to Dashboard" button is pressed.
+     *
+     * @return void
+     */
     public function syncCheck($hook)
     {
-        if ($hook === 'settings_page_beyondwords') {
+        if ($hook !== 'settings_page_beyondwords') {
+            return;
+        }
+
+        $syncToApi = isset($_GET['sync_to_api']);
+
+        if ($syncToApi) {
             $this->syncToRestApi();
         }
     }
@@ -131,9 +151,9 @@ class Player
 
         foreach ($options as $name => $args) {
             if (array_key_exists('path', $args)) {
-                $t = get_transient('beyondwords/sync/' . $name);
-                if ($t !== false) {
-                    $params[$args['path']] = $t;
+                $transient = get_transient('beyondwords/sync/' . $name);
+                if ($transient !== false) {
+                    $params[$args['path']] = $transient;
                     // add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Syncing ' . $name . ' to /player.' . $args['path'], 'info');
                     delete_transient('beyondwords/sync/' . $name);
                 }
