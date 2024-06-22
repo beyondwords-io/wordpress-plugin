@@ -226,6 +226,7 @@ class Core
      * @since 3.7.0 Stop saving response.access_key, we don't currently use it.
      * @since 4.0.0 Replace Podcast IDs with Content IDs
      * @since 4.5.0 Save response.preview_token to support post scheduling.
+     * @since 4.8.0 Stop saving `beyondwords_podcast_id`.
      */
     public function processResponse($response, $projectId, $postId)
     {
@@ -239,9 +240,6 @@ class Core
 
             // Save Content ID
             update_post_meta($postId, 'beyondwords_content_id', $response['id']);
-
-            // Temporarily save into Podcast ID field to support downgrades to < 4.0.0
-            update_post_meta($postId, 'beyondwords_podcast_id', $response['id']);
 
             if (array_key_exists('preview_token', $response)) {
                 // Save Preview Key
