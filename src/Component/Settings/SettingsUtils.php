@@ -182,7 +182,17 @@ class SettingsUtils
             <label>
                     <?php echo esc_attr($label); ?>
             </label>
-            <input name="<?php echo esc_attr($name); ?>" type="text" value="<?php echo esc_attr($value); ?>" class="small-text" />
+            <output
+                for="<?php echo esc_attr($name); ?>"
+                style="background-color: <?php echo esc_attr($value); ?>;"
+            ></output>
+            <input
+                name="<?php echo esc_attr($name); ?>"
+                type="text"
+                value="<?php echo esc_attr($value); ?>"
+                class="small-text"
+                oninput="this.previousElementSibling.style.backgroundColor = 'transparent'; this.previousElementSibling.style.backgroundColor = `${this.value}`"
+            />
         </div>
         <?php
         return ob_get_clean();

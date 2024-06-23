@@ -108,7 +108,10 @@ class Player
             ?>
         </p>
         <p>
-            <a href="<?php echo esc_url($syncUrl); ?>">
+            <a href="<?php echo esc_url($syncUrl); ?>" class="button button-secondary">
+                <?php _e('Sync from Dashboard', 'speechkit'); ?>
+            </a>
+            <a href="<?php echo esc_url($syncUrl); ?>" class="button button-secondary">
                 <?php _e('Sync to Dashboard', 'speechkit'); ?>
             </a>
         </p>
