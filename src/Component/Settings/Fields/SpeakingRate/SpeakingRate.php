@@ -38,7 +38,7 @@ abstract class SpeakingRate
     {
         $options = [];
 
-        for ($i = 5; $i <= 200; $i += 5) {
+        for ($i = 50; $i <= 200; $i += 5) {
             $options[] = [
                 'value' => "$i",
                 'label' => "$i%",

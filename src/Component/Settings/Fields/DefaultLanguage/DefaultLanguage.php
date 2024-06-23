@@ -102,6 +102,7 @@ class DefaultLanguage
                 }
                 ?>
             </select>
+            <?php submit_button('Load Voices'); ?>
         </div>
         <?php
     }

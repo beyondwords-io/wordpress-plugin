@@ -58,7 +58,18 @@ class TitleSpeakingRate extends SpeakingRate
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting--title-speaking-rate">
-            <select
+            <input
+                type="range"
+                id="volume"
+                name="beyondwords_title_speaking_rate"
+                class="beyondwords_speaking_rate"
+                min="50"
+                max="200"
+                step="5"
+                oninput="this.nextElementSibling.value = `${this.value}%`"
+            />
+            <output><?php echo esc_html($current); ?>%</output>
+            <!-- <select
                 name="beyondwords_title_speaking_rate"
                 class="beyondwords_speaking_rate"
                 style="width: 100px;"
@@ -73,7 +84,7 @@ class TitleSpeakingRate extends SpeakingRate
                     );
                 }
                 ?>
-            </select>
+            </select> -->
         </div>
         <?php
     }
