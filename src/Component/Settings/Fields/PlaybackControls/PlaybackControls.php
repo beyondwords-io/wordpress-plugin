@@ -20,6 +20,13 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
 class PlaybackControls
 {
     /**
+     * Player Settings docs URL.
+     *
+     * @var string
+     */
+    const playerSettingsDocsUrl = 'https://github.com/beyondwords-io/player/blob/main/doc/player-settings.md';
+
+    /**
      * Init.
      *
      * @since 4.0.0
@@ -94,7 +101,16 @@ class PlaybackControls
                 echo wp_kses_post(__('The style of skip buttons to show in the player.', 'speechkit')) . " ";
                 echo wp_kses_post(__('Possible values are <code>auto</code>, <code>segments</code>, <code>seconds</code> or <code>audios</code>.', 'speechkit')) . " ";
                 echo wp_kses_post(__('You can specify the number of seconds to skip, e.g. <code>seconds-15</code> or <code>seconds-15-30</code>.', 'speechkit')) . " ";
-                echo wp_kses_post(__('The <code>auto</code> style uses <code>audios</code> if there is a playlist and <code>segments</code> otherwise.', 'speechkit')) . " ";
+                // echo wp_kses_post(__('The <code>auto</code> style uses <code>audios</code> if there is a playlist and <code>segments</code> otherwise.', 'speechkit')) . " ";
+                printf(
+                    /* translators: %s is replaced with the link to the Player Settings docs */
+                    esc_html__('Refer to the %s for more details.', 'speechkit'),
+                    sprintf(
+                        '<a href="%s" target="_blank" rel="nofollow">%s</a>',
+                        esc_url(PlaybackControls::playerSettingsDocsUrl),
+                        __('Player Settings docs', 'speechkit')
+                    )
+                );
                 ?>
             </p>
         </div>
