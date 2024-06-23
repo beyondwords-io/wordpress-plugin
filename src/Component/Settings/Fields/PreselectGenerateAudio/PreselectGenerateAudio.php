@@ -90,7 +90,7 @@ class PreselectGenerateAudio
         foreach ($postTypes as $name) :
             $postType = get_post_type_object($name);
             ?>
-            <div class="beyondwords-setting--preselect--post-type">
+            <div class="beyondwords-setting__preselect--post-type">
                 <label>
                     <input
                         type="checkbox"
@@ -119,7 +119,7 @@ class PreselectGenerateAudio
 
         if ($taxonomies) {
             ?>
-            <div class="beyondwords-setting--preselect--taxonomy" style="margin: 0.5rem 0;">
+            <div class="beyondwords-setting__preselect--taxonomy" style="margin: 0.5rem 0;">
                 <?php
                 foreach ($taxonomies as $taxonomy) {
                     // Ignore the "Format" taxonomy (aside, etc)
@@ -167,7 +167,7 @@ class PreselectGenerateAudio
                         $taxonomy->name
                     );
                     ?>
-                    <li class="beyondwords-setting--preselect--term" style="margin: 0.5rem 0 0 1.5rem;">
+                    <li class="beyondwords-setting__preselect--term" style="margin: 0.5rem 0 0 1.5rem;">
                         <label>
                             <input
                                 type="checkbox"

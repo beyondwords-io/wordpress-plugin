@@ -65,7 +65,7 @@ class IncludeTitle
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_include_title', '');
+        $prependExcerpt = get_option('beyondwords_include_title', '1');
         ?>
         <div>
             <label>

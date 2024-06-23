@@ -49,7 +49,10 @@ class WidgetPosition
             __('Widget position', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -65,7 +68,7 @@ class WidgetPosition
         $current = get_option('beyondwords_player_widget_position');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--widget-position">
+        <div class="beyondwords-setting__player beyondwords-setting__widget-position">
             <select name="beyondwords_player_widget_position">
                 <?php
                 foreach ($options as $option) {

@@ -53,7 +53,10 @@ class TextHighlighting
             __('Text highlighting', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -70,7 +73,7 @@ class TextHighlighting
         $lightTheme = get_option('beyondwords_player_light_theme');
         $darkTheme  = get_option('beyondwords_player_dark_theme');
         ?>
-        <div>
+        <div class="beyondwords-setting__player beyondwords-setting__player--text-highlighting">
             <label>
                 <input
                     type="checkbox"

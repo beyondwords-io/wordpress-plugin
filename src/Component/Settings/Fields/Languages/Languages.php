@@ -97,7 +97,7 @@ class Languages
         }
 
         ?>
-        <div class="beyondwords-setting--languages">
+        <div class="beyondwords-setting__languages">
             <select
                 multiple
                 id="beyondwords_languages"

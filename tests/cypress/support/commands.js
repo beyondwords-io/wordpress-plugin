@@ -65,7 +65,7 @@ Cypress.Commands.add( 'savePluginSettings', () => {
   cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
   cy.get( '#submit' ).click().wait( 500 )
 
-  cy.get( '.beyondwords-setting--preselect--post-type input[type="checkbox"]' ).uncheck()
+  cy.get( '.beyondwords-setting__preselect--post-type input[type="checkbox"]' ).uncheck()
   cy.get( 'input[name="beyondwords_preselect[post]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[page]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check()

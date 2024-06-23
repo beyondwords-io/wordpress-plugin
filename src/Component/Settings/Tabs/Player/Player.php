@@ -85,6 +85,9 @@ class Player
             __('Playback controls', 'speechkit'),
             false,
             'beyondwords_player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -97,23 +100,26 @@ class Player
      **/
     public function sectionCallback()
     {
-        $syncUrl = admin_url('options-general.php?page=beyondwords&tab=player&sync_to_api=1');
         ?>
         <p class="description">
             <?php
             esc_html_e(
-                'Do we want a description for consistency?', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'By default, these settings are applied to the BeyondWords player for all existing and future posts.',
                 'speechkit'
             );
             ?>
         </p>
-        <p>
-            <a href="<?php echo esc_url($syncUrl); ?>" class="button button-secondary">
-                <?php _e('Sync from Dashboard', 'speechkit'); ?>
-            </a>
-            <a href="<?php echo esc_url($syncUrl); ?>" class="button button-secondary">
-                <?php _e('Sync to Dashboard', 'speechkit'); ?>
-            </a>
+        <p class="description">
+            <?php
+            printf(
+                /* translators: %s is replaced with the beyondwords_player_sdk_params docs link */
+                esc_html__('Unique player settings per-post is supported via the %s filter.', 'speechkit'),
+                sprintf(
+                    '<a href="https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters/beyondwords_player_sdk_params" target="_blank" rel="nofollow">%s</a>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'beyondwords_player_sdk_params'
+                )
+            );
+            ?>
         </p>
         <?php
     }

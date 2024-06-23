@@ -63,7 +63,7 @@ class TitleVoice extends Voice
         $current = get_option('beyondwords_project_title');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--title-voice">
+        <div class="beyondwords-setting__title-voice">
             <select
                 name="beyondwords_project_title[voice][id]"
                 class="beyondwords_project_voice"

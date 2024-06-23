@@ -51,7 +51,10 @@ class CallToAction
             __('Call-to-action', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -66,13 +69,15 @@ class CallToAction
     {
         $option = get_option('beyondwords_player_call_to_action');
         ?>
-        <input
-            type="text"
-            name="beyondwords_player_call_to_action"
-            placeholder="<?php esc_attr_e('Listen to this article', 'speechkit'); ?>"
-            value="<?php echo esc_attr($option); ?>"
-            size="50"
-        />
+        <div class="beyondwords-setting__player beyondwords-setting__player--call-to-action">
+            <input
+                type="text"
+                name="beyondwords_player_call_to_action"
+                placeholder="<?php esc_attr_e('Listen to this article', 'speechkit'); ?>"
+                value="<?php echo esc_attr($option); ?>"
+                size="50"
+            />
+        </div>
         <?php
     }
 }

@@ -83,7 +83,7 @@ class DefaultLanguage
 
         $current = get_option('beyondwords_project_language', '');
         ?>
-        <div class="beyondwords-setting--default-language">
+        <div class="beyondwords-setting__default-language">
             <select
                 id="beyondwords_project_language"
                 name="beyondwords_project_language"
@@ -102,7 +102,7 @@ class DefaultLanguage
                 }
                 ?>
             </select>
-            <?php submit_button('Load Voices'); ?>
+            <?php submit_button('Load Voices', 'secondary'); ?>
         </div>
         <?php
     }

@@ -49,3 +49,21 @@
     padding-right: 0;
     padding: 0 6px;
 }
+
+.settings_page_beyondwords .beyondwords-setting__sync p + p {
+    margin-bottom: 2em;
+}
+
+.settings_page_beyondwords .beyondwords-setting__sync p.description-warning {
+    color: #b32d2e;
+}
+
+.settings_page_beyondwords input[type="range"] {
+    accent-color: #2271b1;
+    width: 200px;
+}
+
+.settings_page_beyondwords input[type="range"] + output {
+    line-height: 1em;
+    vertical-align: top;
+}

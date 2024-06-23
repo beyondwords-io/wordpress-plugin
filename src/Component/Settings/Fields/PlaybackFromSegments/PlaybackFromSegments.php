@@ -51,7 +51,10 @@ class PlaybackFromSegments
             __('Playback from segments', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -67,7 +70,7 @@ class PlaybackFromSegments
     {
         $prependExcerpt = get_option('beyondwords_playback_from_segments', '');
         ?>
-        <div>
+        <div class="beyondwords-setting__player beyondwords-setting__player-playback-from-segments">
             <label>
                 <input
                     type="checkbox"

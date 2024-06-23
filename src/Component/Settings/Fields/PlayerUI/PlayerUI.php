@@ -73,7 +73,7 @@ class PlayerUI
         $currentUi = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
         $playerUIs = PlayerUI::getAllPlayerUIs();
         ?>
-        <div class="beyondwords-setting--player--player-ui">
+        <div class="beyondwords-setting__player--player-ui">
             <select name="beyondwords_player_ui">
                 <?php
                 foreach ($playerUIs as $value => $label) {

@@ -78,7 +78,7 @@ class Content
         <p class="description">
             <?php
             esc_html_e(
-                'Do we want a description for consistency?', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Only future content will be affected. To apply changes to existing content, please regenerate each post.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
             ?>

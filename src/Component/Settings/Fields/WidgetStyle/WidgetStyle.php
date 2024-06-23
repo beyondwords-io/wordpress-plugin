@@ -49,7 +49,10 @@ class WidgetStyle
             __('Widget style', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -65,7 +68,7 @@ class WidgetStyle
         $current = get_option('beyondwords_player_widget_style');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--widget-style">
+        <div class="beyondwords-setting__player beyondwords-setting__widget-style">
             <select name="beyondwords_player_widget_style">
                 <?php
                 foreach ($options as $option) {

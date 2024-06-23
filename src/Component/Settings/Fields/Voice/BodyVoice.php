@@ -73,7 +73,7 @@ class BodyVoice extends Voice
         $current = get_option('beyondwords_project_body');
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--body-voice">
+        <div class="beyondwords-setting__body-voice">
             <select
                 name="beyondwords_project_body[voice][id]"
                 class="beyondwords_project_voice"

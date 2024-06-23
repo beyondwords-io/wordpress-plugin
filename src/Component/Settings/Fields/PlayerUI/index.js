@@ -3,13 +3,12 @@
 ( function ( $ ) {
 	'use strict';
 
-	const $playerStyleFieldRow = $( '#beyondwords-plugin-settings' )
-		.find( '.beyondwords-setting--player--player-style' )
-		.closest( 'tr' );
-
 	const $playerUiField = $( '#beyondwords-plugin-settings' ).find(
-		'.beyondwords-setting--player--player-ui select'
+		'.beyondwords-setting__player--player-ui select'
 	);
+
+	const $playerSettingsFields = $( '#beyondwords-plugin-settings' )
+		.find( '.beyondwords-settings__player-field-toggle' );
 
 	$playerUiField.on( 'change', toggleFieldRow );
 
@@ -22,10 +21,12 @@
 	function toggleFieldRow() {
 		const playerUi = $playerUiField.find( ':selected' ).val();
 
-		if ( playerUi === 'enabled' ) {
-			$playerStyleFieldRow.show();
-		} else {
-			$playerStyleFieldRow.hide();
-		}
+		$playerSettingsFields.each(function( index ) {
+			if ( playerUi === 'enabled' ) {
+				jQuery(this).show();
+			} else {
+				jQuery(this).hide();
+			}
+		} );
 	}
 } )( jQuery );

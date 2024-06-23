@@ -54,11 +54,23 @@ class BodySpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_body_speaking_rate');
-        $options = $this->getOptions();
+        $current = get_option('beyondwords_body_speaking_rate', '1.0');
+        // $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--body-speaking-rate">
-            <select
+        <div class="beyondwords-setting__body-speaking-rate">
+            <input
+                type="range"
+                name="beyondwords_body_speaking_rate"
+                class="beyondwords_speaking_rate"
+                min="0.5"
+                max="3"
+                step="0.05"
+                value="<?php echo esc_attr($current); ?>"
+                oninput="this.nextElementSibling.value = `${Number(this.value).toFixed(1)}`"
+                onload="this.nextElementSibling.value = `${Number(this.value).toFixed(1)}`"
+            />
+            <output><?php echo esc_html(number_format((float)$current, 1)); ?></output>
+            <!-- <select
                 name="beyondwords_body_speaking_rate"
                 class="beyondwords_speaking_rate"
                 style="width: 100px;"
@@ -73,7 +85,7 @@ class BodySpeakingRate extends SpeakingRate
                     );
                 }
                 ?>
-            </select>
+            </select> -->
         </div>
         <?php
     }

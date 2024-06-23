@@ -74,7 +74,10 @@ class PlayerStyle
             __('Player style', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -90,7 +93,7 @@ class PlayerStyle
         $currentStyle = get_option('beyondwords_player_style', PlayerStyle::STANDARD);
         $options = $this->getOptions();
         ?>
-        <div class="beyondwords-setting--player--player-style">
+        <div class="beyondwords-setting__player beyondwords-setting__player--player-style">
             <select name="beyondwords_player_style">
                 <?php
                 foreach ($options as $option) {

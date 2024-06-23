@@ -54,7 +54,10 @@ class PlayerColors
             __('Player theme', 'speechkit'),
             array($this, 'renderPlayerThemeSetting'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -110,7 +113,10 @@ class PlayerColors
             __('Player colors', 'speechkit'),
             array($this, 'renderPlayerColorsSetting'),
             'beyondwords_player',
-            'player'
+            'player',
+            [
+                'class' => 'beyondwords-settings__player-field-toggle'
+            ]
         );
     }
 
@@ -126,7 +132,7 @@ class PlayerColors
         $current = get_option('beyondwords_player_theme');
         $options = $this->getPlayerThemeOptions();
         ?>
-        <div class="beyondwords-setting--player-theme">
+        <div class="beyondwords-setting__player beyondwords-setting__player--player-colors">
             <select name="beyondwords_player_theme">
                 <?php
                 foreach ($options as $option) {
