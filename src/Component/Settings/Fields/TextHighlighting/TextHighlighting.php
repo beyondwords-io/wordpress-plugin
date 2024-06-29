@@ -53,10 +53,7 @@ class TextHighlighting
             __('Text highlighting', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player',
-            [
-                'class' => 'beyondwords-settings__player-field-toggle'
-            ]
+            'player-styling'
         );
     }
 

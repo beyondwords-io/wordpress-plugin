@@ -102,7 +102,6 @@ class DefaultLanguage
                 }
                 ?>
             </select>
-            <?php submit_button('Load Voices', 'secondary'); ?>
         </div>
         <?php
     }
@@ -124,7 +123,7 @@ class DefaultLanguage
 
         $options = array_map(function ($language) {
             return [
-                'value' => $language['code'],
+                'value' => $language['id'],
                 'label' => $language['name'],
             ];
         }, $languages);

@@ -90,6 +90,7 @@ class BodyVoice extends Voice
                 }
                 ?>
             </select>
+            <img src="/wp-admin/images/spinner.gif" class="beyondwords-settings__loader" style="display:none;" />
         </div>
         <?php
     }

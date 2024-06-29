@@ -365,12 +365,21 @@ class Settings
     }
 
     /**
-     * Register WP REST API route
+     * Register WP REST API routes
      *
      * @return void
      */
     public function restApiInit()
     {
+        // settings endpoint
+        register_rest_route('beyondwords/v1', '/settings', array(
+            'methods'  => \WP_REST_Server::READABLE,
+            'callback' => array($this, 'restApiResponse'),
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ));
+
         // settings endpoint
         register_rest_route('beyondwords/v1', '/settings', array(
             'methods'  => \WP_REST_Server::READABLE,
@@ -422,7 +431,7 @@ class Settings
             wp_enqueue_script('jquery-ui-tabs');// enqueue jQuery UI Tabs
 
             // Plugin settings JS
-            wp_enqueue_script(
+            wp_register_script(
                 'beyondwords-settings',
                 BEYONDWORDS__PLUGIN_URI . 'build/settings.js',
                 ['jquery', 'jquery-ui-core', 'jquery-ui-tabs', 'underscore', 'tom-select'],
@@ -454,6 +463,21 @@ class Settings
                 false,
                 BEYONDWORDS__PLUGIN_VERSION
             );
+
+            /**
+			 * Localize the script to handle ajax requests
+			 */
+			wp_add_inline_script(
+				'beyondwords-settings',
+                '
+                var beyondwordsData = beyondwordsData || {};
+                beyondwordsData.nonce = "' . wp_create_nonce('wp_rest') . '";
+                beyondwordsData.root = "' . esc_url_raw(rest_url()) . '";
+                ',
+                'before',
+			);
+
+            wp_enqueue_script('beyondwords-settings');
         }
     }
 }

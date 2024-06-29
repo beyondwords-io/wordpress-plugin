@@ -80,14 +80,34 @@ class Player
             'beyondwords_player',
         );
 
+        $toggledSectionArgs = [
+            'before_section' => '<div class="%s">',
+            'after_section' => '</div>',
+            'section_class' => 'beyondwords-settings__player-field-toggle'
+        ];
+
+        add_settings_section(
+            'player-styling',
+            __('Player styling', 'speechkit'),
+            false,
+            'beyondwords_player',
+            $toggledSectionArgs,
+        );
+
+        add_settings_section(
+            'widget',
+            __('Widget', 'speechkit'),
+            false,
+            'beyondwords_player',
+            $toggledSectionArgs,
+        );
+
         add_settings_section(
             'playback-controls',
             __('Playback controls', 'speechkit'),
             false,
             'beyondwords_player',
-            [
-                'class' => 'beyondwords-settings__player-field-toggle'
-            ]
+            $toggledSectionArgs,
         );
     }
 

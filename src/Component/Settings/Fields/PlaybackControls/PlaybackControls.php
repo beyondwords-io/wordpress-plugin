@@ -55,13 +55,10 @@ class PlaybackControls
 
         add_settings_field(
             'beyondwords-player-skip-button-style',
-            __('Skipping', 'speechkit'),
+            __('Skip button style', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'playback-controls',
-            [
-                'class' => 'beyondwords-settings__player-field-toggle'
-            ]
+            'playback-controls'
         );
     }
 

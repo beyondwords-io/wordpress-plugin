@@ -54,10 +54,7 @@ class PlayerColors
             __('Player theme', 'speechkit'),
             array($this, 'renderPlayerThemeSetting'),
             'beyondwords_player',
-            'player',
-            [
-                'class' => 'beyondwords-settings__player-field-toggle'
-            ]
+            'player-styling'
         );
     }
 
@@ -113,10 +110,7 @@ class PlayerColors
             __('Player colors', 'speechkit'),
             array($this, 'renderPlayerColorsSetting'),
             'beyondwords_player',
-            'player',
-            [
-                'class' => 'beyondwords-settings__player-field-toggle'
-            ]
+            'player-styling'
         );
     }
 
