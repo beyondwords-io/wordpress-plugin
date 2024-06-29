@@ -357,11 +357,6 @@ Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
   return cy.get( '.beyondwords-player .user-interface.video',  ...args )
 } )
 
-// Get frontend audio player element (legacy player)
-Cypress.Commands.add( 'getLegacyFrontendPlayer', ( ...args ) => {
-  return cy.get( '.sk-app-container',  ...args )
-} )
-
 // Get Elementor admin audio player element
 Cypress.Commands.add( 'getElementorAdminPlayer', ( ...args ) => {
   return cy.get( '.sk-app-container',  ...args )

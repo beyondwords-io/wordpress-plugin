@@ -53,17 +53,6 @@ class Environment
     public const BEYONDWORDS_JS_SDK_URL = 'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js'; // phpcs:ignore Generic.Files.LineLength.TooLong
 
     /**
-     * The BeyondWords JS SDK URL (Legacy).
-     *
-     * Override with BEYONDWORDS_JS_SDK_URL_LEGACY in wp-config.php.
-     *
-     * @since  4.0.0
-     * @access private
-     * @var    string
-     */
-    public const BEYONDWORDS_JS_SDK_URL_LEGACY = 'https://proxy.beyondwords.io/npm/@beyondwords/audio-player@latest/dist/module/index.js'; // phpcs:ignore Generic.Files.LineLength.TooLong
-
-    /**
      * The BeyondWords AMP Player URL.
      *
      * Override with BEYONDWORDS_AMP_PLAYER_URL in wp-config.php.
@@ -130,18 +119,6 @@ class Environment
         }
 
         return static::BEYONDWORDS_JS_SDK_URL;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getJsSdkUrlLegacy()
-    {
-        if (defined('BEYONDWORDS_JS_SDK_URL_LEGACY') && strlen(BEYONDWORDS_JS_SDK_URL_LEGACY)) {
-            return BEYONDWORDS_JS_SDK_URL_LEGACY;
-        }
-
-        return static::BEYONDWORDS_JS_SDK_URL_LEGACY;
     }
 
     /**

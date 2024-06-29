@@ -537,48 +537,6 @@ class Player
     }
 
     /**
-     * Convert latest JS SDK params into legacy format.
-     *
-     * @codeCoverageIgnore We plan to remove support for the Legacy player very soon.
-     *
-     * @since 4.0.0
-     *
-     * @see https://docs.beyondwords.io/docs/javascript-sdk-automatic-player
-     *
-     * @param array $latestParams Latest JS SDK params
-     *
-     * @return array Legacy JS SDK params
-     */
-    public function convertLatestToLegacyParams($latestParams)
-    {
-        $skBackend = Environment::getBackendUrl();
-        $skBackendApi = Environment::getApiUrl();
-
-        $legacyParams = [
-            'projectId' => $latestParams['projectId'],
-            'podcastId' => $latestParams['contentId'],
-        ];
-
-        if ($latestParams['playerStyle'] = 'large') {
-            $legacyParams['playerType'] = 'manual';
-        }
-
-        if (strlen($skBackend)) {
-            $legacyParams['skBackend'] = esc_url($skBackend);
-        }
-
-        if (is_admin()) {
-            $legacyParams['processingStatus'] = true;
-
-            if (strlen($skBackendApi)) {
-                $legacyParams['skBackendApi'] = esc_url($skBackendApi);
-            }
-        }
-
-        return $legacyParams;
-    }
-
-    /**
      * Use Player JS SDK?
      *
      * @since 3.0.7
