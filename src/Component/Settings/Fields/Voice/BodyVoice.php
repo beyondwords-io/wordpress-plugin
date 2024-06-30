@@ -42,14 +42,7 @@ class BodyVoice extends Voice
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_body',
-            [
-                'default' => [
-                    'voice' => [
-                        'id' => ''
-                    ]
-                ],
-            ]
+            'beyondwords_project_body_voice_id',
         );
 
         add_settings_field(
@@ -70,12 +63,12 @@ class BodyVoice extends Voice
      **/
     public function render()
     {
-        $current = get_option('beyondwords_project_body');
+        $current = get_option('beyondwords_project_body_voice_id');
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting__body-voice">
             <select
-                name="beyondwords_project_body[voice][id]"
+                name="beyondwords_project_body_voice_id"
                 class="beyondwords_project_voice"
                 style="width: 300px;"
             >
@@ -84,7 +77,7 @@ class BodyVoice extends Voice
                     printf(
                         '<option value="%s" %s>%s</option>',
                         esc_attr($option['value']),
-                        selected($option['value'], $current['voice']['id'] ?? ''),
+                        selected($option['value'], $current ?? ''),
                         esc_html($option['label'])
                     );
                 }

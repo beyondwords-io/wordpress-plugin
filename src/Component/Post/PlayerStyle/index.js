@@ -58,8 +58,8 @@ export function PlayerStyle( { wrapper } ) {
 								value: '',
 								label: '',
 							},
-							...playerStyles]
-						}
+							...playerStyles
+						] }
 						onChange={ ( val ) => setPlayerStyle( val ) }
 						value={ playerStyle }
 						__nextHasNoMarginBottom

@@ -174,15 +174,15 @@ class General
             }
         }
 
-        if (false === get_option('beyondwords_project_body') && $project['body']) {
-            $updated = update_option('beyondwords_project_body', $project['body'], false);
+        if (false === get_option('beyondwords_project_body_voice_id') && $project['body']['voice']['id']) {
+            $updated = update_option('beyondwords_project_body_voice_id', $project['body']['voice']['id'], false);
             if ($updated) {
                 add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.body has been synced to WordPress', 'success');
             }
         }
 
-        if (false === get_option('beyondwords_project_title') && $project['title']) {
-            $updated = update_option('beyondwords_project_title', $project['title'], false);
+        if (false === get_option('beyondwords_project_title_voice_id') && $project['title']['voice']['id']) {
+            $updated = update_option('beyondwords_project_title_voice_id', $project['title']['voice']['id'], false);
             if ($updated) {
                 add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.title has been synced to WordPress', 'success');
             }

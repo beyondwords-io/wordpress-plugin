@@ -30,7 +30,7 @@ class TitleSpeakingRate extends SpeakingRate
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_title_speaking_rate',
+            'beyondwords_project_title_speaking_rate',
             [
                 'default' => '1.0',
             ]
@@ -54,38 +54,21 @@ class TitleSpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_title_speaking_rate', '1.0');
-        // $options = $this->getOptions();
+        $current = get_option('beyondwords_project_title_speaking_rate', '1.0');
         ?>
         <div class="beyondwords-setting__title-speaking-rate">
             <input
                 type="range"
-                name="beyondwords_title_speaking_rate"
+                name="beyondwords_project_title_speaking_rate"
                 class="beyondwords_speaking_rate"
                 min="0.5"
                 max="3"
                 step="0.05"
                 value="<?php echo esc_attr($current); ?>"
-                oninput="this.nextElementSibling.value = `${Number(this.value).toFixed(1)}`"
-                onload="this.nextElementSibling.value = `${Number(this.value).toFixed(1)}`"
+                oninput="this.nextElementSibling.value = `${Number(this.value).toFixed(2)}`"
+                onload="this.nextElementSibling.value = `${Number(this.value).toFixed(2)}`"
             />
-            <output><?php echo esc_html(number_format((float)$current, 1)); ?></output>
-            <!-- <select
-                name="beyondwords_title_speaking_rate"
-                class="beyondwords_speaking_rate"
-                style="width: 100px;"
-            >
-                <?php
-                foreach ($options as $option) {
-                    printf(
-                        '<option value="%s" %s>%s</option>',
-                        esc_attr($option['value']),
-                        selected($option['value'], $current),
-                        esc_html($option['label'])
-                    );
-                }
-                ?>
-            </select> -->
+            <output><?php echo esc_html(number_format((float)$current, 2)); ?></output>
         </div>
         <?php
     }

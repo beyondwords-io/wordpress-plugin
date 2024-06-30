@@ -551,15 +551,15 @@ class Player
      */
     public function addPluginSettingsToSdkParams( $params ) {
         $mapping = [
-            'beyondwords_title_speaking_rate' => 'playbackRate', // @todo
-            'beyondwords_body_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_project_title_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_project_body_speaking_rate' => 'playbackRate', // @todo
             'beyondwords_include_title' => '', // @todo
             'beyondwords_player_style' => 'playerStyle',
             'beyondwords_player_theme' => '', // @todo
             'beyondwords_player_colors' => '', // @todo
             'beyondwords_player_call_to_action' => 'callToAction',
-            'beyondwords_text_highlighting' => 'highlightSections',
-            'beyondwords_playback_from_segments' => 'clickableSections',
+            'beyondwords_player_text_highlighting' => 'highlightSections',
+            'beyondwords_player_playback_from_segments' => 'clickableSections',
             'beyondwords_player_widget_style' => 'widgetStyle',
             'beyondwords_player_widget_position' => 'widgetPosition',
             'beyondwords_player_skip_button_style' => 'skipButtonStyle',
