@@ -75,8 +75,8 @@ class TextHighlighting
                 <input
                     type="checkbox"
                     name="beyondwords_text_highlighting"
-                    value="1"
-                    <?php checked($enabled, '1'); ?>
+                    value="body"
+                    <?php checked($enabled, 'body'); ?>
                 />
                 <?php esc_html_e('Highlight the current paragraph during audio playback', 'speechkit'); ?>
             </label>

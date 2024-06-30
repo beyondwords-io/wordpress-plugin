@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Advanced;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings\SyncSettings;
+use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Advanced" settings tab
@@ -48,6 +49,7 @@ class Advanced
         (new SyncSettings())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_enqueue_scripts', array($this, 'syncCheck'));
     }
 
     /**
@@ -88,5 +90,53 @@ class Advanced
             ?>
         </p>
         <?php
+    }
+
+    /**
+     * Check whether we want to sync to/from the API.
+     *
+     * We don't automatically sync to the API. We only sync if a
+     * "Sync Settings to Dashboard" button is pressed.
+     *
+     * @return void
+     */
+    public function syncCheck($hook)
+    {
+        if ($hook !== 'settings_page_beyondwords') {
+            return;
+        }
+
+        $syncToApi = isset($_GET['sync_to_api']);
+
+        if ($syncToApi) {
+            $this->syncToRestApi();
+        }
+    }
+
+    /**
+     * Sync with BeyondWords REST API.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function syncToRestApi()
+    {
+        $playerOptions = [];
+
+        // @todo get all player options
+        // $playerOptions = SettingsUtils::getPlayerOptions();
+
+        // @todo Sync other settings too
+
+        if (count($playerOptions)) {
+            // Sync WordPress -> REST API
+            $result = $this->apiClient->updatePlayerSettings($playerOptions);
+
+            if (! $result) {
+                // Error notice
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
+            }
+        }
     }
 }

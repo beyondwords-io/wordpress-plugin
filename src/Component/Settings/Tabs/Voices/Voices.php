@@ -57,7 +57,6 @@ class Voices
         (new BodySpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
-        add_action('admin_enqueue_scripts', array($this, 'syncCheck'));
     }
 
     /**
@@ -98,49 +97,5 @@ class Voices
             ?>
         </p>
         <?php
-    }
-
-    public function syncCheck($hook)
-    {
-        if ($hook === 'settings_page_beyondwords') {
-            $this->syncToRestApi();
-        }
-    }
-
-    /**
-     * Sync with BeyondWords REST API.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     **/
-    public function syncToRestApi()
-    {
-        $params = [];
-
-        $options = SettingsUtils::getSyncedOptions('project');
-
-        foreach ($options as $name => $args) {
-            if (array_key_exists('path', $args)) {
-                $t = get_transient('beyondwords/sync/' . $name);
-                if ($t !== false) {
-                    $params[$args['path']] = $t;
-                    // add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Syncing ' . $name . ' to /project.' . $args['path'], 'info');
-                    delete_transient('beyondwords/sync/' . $name);
-                }
-            }
-        }
-
-        // wp_die(wp_json_encode($params));
-
-        if (count($params)) {
-            // Sync WordPress -> REST API
-            $result = $this->apiClient->updateProject($params);
-
-            if (! $result) {
-                // Error notice
-                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
-            }
-        }
     }
 }

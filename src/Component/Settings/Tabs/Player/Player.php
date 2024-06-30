@@ -21,7 +21,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition\WidgetPosition;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle\WidgetStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlighting;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Player" settings tab
@@ -63,7 +62,6 @@ class Player
         (new PlaybackControls())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
-        add_action('admin_enqueue_scripts', array($this, 'syncCheck'));
     }
 
     /**
@@ -142,61 +140,5 @@ class Player
             ?>
         </p>
         <?php
-    }
-
-    /**
-     * Check whether we want to sync to/from the API.
-     *
-     * We don't automatically sync to the API. We only sync if a
-     * "Sync Settings to Dashboard" button is pressed.
-     *
-     * @return void
-     */
-    public function syncCheck($hook)
-    {
-        if ($hook !== 'settings_page_beyondwords') {
-            return;
-        }
-
-        $syncToApi = isset($_GET['sync_to_api']);
-
-        if ($syncToApi) {
-            $this->syncToRestApi();
-        }
-    }
-
-    /**
-     * Sync with BeyondWords REST API.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     **/
-    public function syncToRestApi()
-    {
-        $params = [];
-
-        $options = SettingsUtils::getSyncedOptions('player');
-
-        foreach ($options as $name => $args) {
-            if (array_key_exists('path', $args)) {
-                $transient = get_transient('beyondwords/sync/' . $name);
-                if ($transient !== false) {
-                    $params[$args['path']] = $transient;
-                    // add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Syncing ' . $name . ' to /player.' . $args['path'], 'info');
-                    delete_transient('beyondwords/sync/' . $name);
-                }
-            }
-        }
-
-        if (count($params)) {
-            // Sync WordPress -> REST API
-            $result = $this->apiClient->updatePlayerSettings($params);
-
-            if (! $result) {
-                // Error notice
-                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', 'error');
-            }
-        }
     }
 }

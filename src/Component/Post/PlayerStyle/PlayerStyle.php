@@ -79,6 +79,7 @@ class PlayerStyle
             </label>
         </p>
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">
+            <option value=""></option>
             <?php
             foreach (static::PLAYER_STYLES as $item) {
                 printf(

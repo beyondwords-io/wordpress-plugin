@@ -72,8 +72,8 @@ class PlaybackFromSegments
                 <input
                     type="checkbox"
                     name="beyondwords_playback_from_segments"
-                    value="1"
-                    <?php checked($prependExcerpt, '1'); ?>
+                    value="body"
+                    <?php checked($prependExcerpt, 'body'); ?>
                 />
                 <?php esc_html_e('Allow readers to listen to a paragraph by clicking or tapping on it', 'speechkit'); ?>
             </label>

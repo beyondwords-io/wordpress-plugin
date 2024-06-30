@@ -14,7 +14,6 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\General;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
-use Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated\SettingsUpdated;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -49,7 +48,6 @@ class General
     {
         (new ApiKey())->init();
         (new ProjectId())->init();
-        // (new SettingsUpdated())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
         add_action('admin_enqueue_scripts', array($this, 'syncCheck'), 1, 1);
@@ -140,22 +138,6 @@ class General
      **/
     public function syncFromRestApi()
     {
-        $sync = false;
-
-        $options = SettingsUtils::getSyncedOptions('auth');
-
-        foreach ($options as $name => $args) {
-            $t = get_transient('beyondwords/sync/' . $name);
-            if ($t !== false) {
-                $sync = true;
-                delete_transient('beyondwords/sync/' . $name);
-            }
-        }
-
-        if (! $sync) {
-            return;
-        }
-
         // Assume invalid connection
         delete_option('beyondwords_valid_api_connection');
 
@@ -170,28 +152,7 @@ class General
 
         $updated = [];
 
-        if ($validConnection) {
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-
-            if ($project['language']) {
-                $updated = update_option('beyondwords_project_language', $project['language'], false);
-                if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.language has been synced to WordPress', 'success');
-                }
-            }
-            if ($project['body']) {
-                $updated = update_option('beyondwords_project_body', $project['body'], false);
-                if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.body has been synced to WordPress', 'success');
-                }
-            }
-            if ($project['title']) {
-                $updated = update_option('beyondwords_project_title', $project['title'], false);
-                if ($updated) {
-                    add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.title has been synced to WordPress', 'success');
-                }
-            }
-        } else {
+        if (! $validConnection) {
             $errors = get_transient('beyondwords_settings_errors', []);
 
             $errors['Settings/ValidApiConnection'] = __(
@@ -204,27 +165,99 @@ class General
             return false;
         }
 
-        $updated = [];
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
-        // Sync REST API -> WordPress
+        if (false === get_option('beyondwords_project_language') && $project['language']) {
+            $updated = update_option('beyondwords_project_language', $project['language'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.language has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_project_body') && $project['body']) {
+            $updated = update_option('beyondwords_project_body', $project['body'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.body has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_project_title') && $project['title']) {
+            $updated = update_option('beyondwords_project_title', $project['title'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API project.title has been synced to WordPress', 'success');
+            }
+        }
+
+        // Sync Player Settings from REST API -> WordPress
         $playerSettings = $this->apiClient->getPlayerSettings();
 
-        if ($playerSettings && is_array($playerSettings)) {
-            $options = SettingsUtils::getSyncedOptions('player');
-
-            foreach ($options as $name => $args) {
-                // wp_die(wp_json_encode($playerSettings));
-
-                if (array_key_exists('path', $args) && !empty($playerSettings[$args['path']])) {
-                    $updated = update_option($name, $playerSettings[$args['path']], false);
-
-                    if ($updated) {
-                        add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.' . $args['path'] . ' has been synced to WordPress', 'success');
-                    }
-                }
-            }
-        } else {
+        if (! $playerSettings || ! is_array($playerSettings)) {
             add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> Unable to reach BeyondWords REST API to access the player settings.', 'error');
+
+            return;
+        }
+
+        if (false === get_option('beyondwords_player_style') && $playerSettings['player_style']) {
+            $updated = update_option('beyondwords_player_style', $playerSettings['player_style'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.player_style has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_theme') && $playerSettings['theme']) {
+            $updated = update_option('beyondwords_player_theme', $playerSettings['theme'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.theme has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_dark_theme') && $playerSettings['dark_theme']) {
+            $updated = update_option('beyondwords_player_dark_theme', $playerSettings['dark_theme'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.dark_theme has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_light_theme') && $playerSettings['light_theme']) {
+            $updated = update_option('beyondwords_player_light_theme', $playerSettings['light_theme'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.light_theme has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_video_theme') && $playerSettings['video_theme']) {
+            $updated = update_option('beyondwords_player_video_theme', $playerSettings['video_theme'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.video_theme has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_call_to_action') && $playerSettings['call_to_action']) {
+            $updated = update_option('beyondwords_player_call_to_action', $playerSettings['call_to_action'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.call_to_action has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_widget_style') && $playerSettings['widget_style']) {
+            $updated = update_option('beyondwords_player_widget_style', $playerSettings['widget_style'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.widget_style has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_widget_position') && $playerSettings['widget_position']) {
+            $updated = update_option('beyondwords_player_widget_position', $playerSettings['widget_position'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.widget_position has been synced to WordPress', 'success');
+            }
+        }
+
+        if (false === get_option('beyondwords_player_skip_button_style') && $playerSettings['skip_button_style']) {
+            $updated = update_option('beyondwords_player_skip_button_style', $playerSettings['skip_button_style'], false);
+            if ($updated) {
+                add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-rest-api"></span> REST API player.skip_button_style has been synced to WordPress', 'success');
+            }
         }
     }
 }
