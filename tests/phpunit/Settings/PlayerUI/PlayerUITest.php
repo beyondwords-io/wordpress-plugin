@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PlayerUITest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI
      */
     private $_instance;
 
@@ -23,7 +23,7 @@ class PlayerUITest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -42,16 +42,16 @@ class PlayerUITest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSettingsField();
+        $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-player-ui', $wp_settings_fields['beyondwords']['player']);
+        $this->assertArrayHasKey('beyondwords-player-ui', $wp_settings_fields['beyondwords_player']['player']);
 
-        $field = $wp_settings_fields['beyondwords']['player']['beyondwords-player-ui'];
+        $field = $wp_settings_fields['beyondwords_player']['player']['beyondwords-player-ui'];
 
         $this->assertSame('beyondwords-player-ui', $field['id']);
         $this->assertSame('Player UI', $field['title']);

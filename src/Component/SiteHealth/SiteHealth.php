@@ -96,6 +96,16 @@ class SiteHealth
         $this->addPluginVersion($info);
         $this->addRestApiConnection($info);
 
+        $info['beyondwords']['fields']['compatible-post-types'] = [
+            'label' => __('Compatible post types', 'speechkit'),
+            'value' => implode(', ', SettingsUtils::getCompatiblePostTypes()),
+        ];
+
+        $info['beyondwords']['fields']['incompatible-post-types'] = [
+            'label' => __('Incompatible post types', 'speechkit'),
+            'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
+        ];
+
         $info['beyondwords']['fields']['beyondwords_api_key'] = [
             'label' => __('API Key', 'speechkit'),
             'value' => SiteHealth::maskString(get_option('beyondwords_api_key')),
@@ -106,9 +116,46 @@ class SiteHealth
             'value' => get_option('beyondwords_project_id'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_player_version'] = [
-            'label' => __('Player version', 'speechkit'),
-            'value' => get_option('beyondwords_player_version'),
+        $info['beyondwords']['fields']['beyondwords_include_title'] = [
+            'label' => __('Include title in audio', 'speechkit'),
+            'value' => get_option('beyondwords_include_title') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_include_title') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
+            'label' => __('Include excerpts in audio', 'speechkit'),
+            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_preselect'] = [
+            'label' => __('Preselect ‘Generate audio’', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_preselect'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_language'] = [
+            'label' => __('Default language', 'speechkit'),
+            'value' => get_option('beyondwords_project_language'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_title_voice_id'] = [
+            'label' => __('Title voice ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_voice_id'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_title_speaking_rate'] = [
+            'label' => __('Title speaking rate', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_speaking_rate'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_body_voice_id'] = [
+            'label' => __('Body voice ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_body_voice_id'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_body_speaking_rate'] = [
+            'label' => __('Body speaking rate', 'speechkit'),
+            'value' => get_option('beyondwords_project_body_speaking_rate'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_player_ui'] = [
@@ -116,25 +163,64 @@ class SiteHealth
             'value' => get_option('beyondwords_player_ui'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
-            'label' => __('Process excerpts', 'speechkit'),
-            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes') : __('No'),
-            'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
+        $info['beyondwords']['fields']['beyondwords_player_style'] = [
+            'label' => __('Player style', 'speechkit'),
+            'value' => get_option('beyondwords_player_style'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_preselect'] = [
-            'label' => __('Preselect ‘Generate audio’', 'speechkit'),
-            'value' => wp_json_encode(get_option('beyondwords_preselect')),
+        $info['beyondwords']['fields']['beyondwords_player_theme'] = [
+            'label' => __('Player theme', 'speechkit'),
+            'value' => get_option('beyondwords_player_theme'),
         ];
 
-        $info['beyondwords']['fields']['compatible-post-types'] = [
-            'label' => __('Compatible post types', 'speechkit'),
-            'value' => implode(', ', SettingsUtils::getCompatiblePostTypes()),
+        $info['beyondwords']['fields']['beyondwords_player_light_theme'] = [
+            'label' => __('Light theme', 'speechkit'),
+            'value' => (string) json_encode(get_option('beyondwords_player_light_theme'), JSON_PRETTY_PRINT),
         ];
 
-        $info['beyondwords']['fields']['incompatible-post-types'] = [
-            'label' => __('Incompatible post types', 'speechkit'),
-            'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
+        $info['beyondwords']['fields']['beyondwords_player_dark_theme'] = [
+            'label' => __('Dark theme', 'speechkit'),
+            'value' => (string) json_encode(get_option('beyondwords_player_dark_theme'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_video_theme'] = [
+            'label' => __('Video theme', 'speechkit'),
+            'value' => (string) json_encode(get_option('beyondwords_player_video_theme'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_call_to_action'] = [
+            'label' => __('Call-to-action', 'speechkit'),
+            'value' => get_option('beyondwords_player_call_to_action'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_highlight_sections'] = [
+            'label' => __('Text highlighting', 'speechkit'),
+            'value' => get_option('beyondwords_player_highlight_sections'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_clickable_sections'] = [
+            'label' => __('Playback from segments', 'speechkit'),
+            'value' => get_option('beyondwords_player_clickable_sections'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_widget_style'] = [
+            'label' => __('Widget style', 'speechkit'),
+            'value' => get_option('beyondwords_player_widget_style'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_widget_position'] = [
+            'label' => __('Widget position', 'speechkit'),
+            'value' => get_option('beyondwords_player_widget_position'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_skip_button_style'] = [
+            'label' => __('Skip button style', 'speechkit'),
+            'value' => get_option('beyondwords_player_skip_button_style'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_languages'] = [
+            'label' => __('Multiple languages', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_languages'), JSON_PRETTY_PRINT),
         ];
 
         $info['beyondwords']['fields']['beyondwords_settings_updated'] = [

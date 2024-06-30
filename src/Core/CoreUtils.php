@@ -145,4 +145,75 @@ class CoreUtils
 
         return $keys;
     }
+
+    /**
+     * Get the BeyondWords post meta keys.
+     *
+     * @since 4.1.0
+     *
+     * @param string $type Type (current|deprecated|all).
+     *
+     * @throws Exception
+     *
+     * @return string[] Post meta keys.
+     **/
+    public static function getOptions($type = 'current')
+    {
+        $current = [
+            // v4.x
+            'beyondwords_include_title',
+            'beyondwords_languages',
+            'beyondwords_player_ui',
+            'beyondwords_player_style',
+            'beyondwords_player_version',
+            'beyondwords_settings_updated',
+            'beyondwords_valid_api_connection',
+            // v3.7.0 beyondwords_*
+            'beyondwords_api_key',
+            'beyondwords_prepend_excerpt',
+            'beyondwords_preselect',
+            'beyondwords_project_id',
+            'beyondwords_version',
+        ];
+
+        $deprecated = [
+            // v3.0.0 speechkit_*
+            'speechkit_api_key',
+            'speechkit_prepend_excerpt',
+            'speechkit_preselect',
+            'speechkit_project_id',
+            'speechkit_version',
+            // deprecated < v3.0
+            'speechkit_settings',
+            'speechkit_enable',
+            'speechkit_id',
+            'speechkit_select_post_types',
+            'speechkit_selected_categories',
+            'speechkit_enable_telemetry',
+            'speechkit_rollbar_access_token',
+            'speechkit_rollbar_error_notice',
+            'speechkit_merge_excerpt',
+            'speechkit_enable_marfeel_comp',
+            'speechkit_wordpress_cron',
+        ];
+
+        $keys = [];
+
+        switch ($type) {
+            case 'current':
+                $keys = $current;
+                break;
+            case 'deprecated':
+                $keys = $deprecated;
+                break;
+            case 'all':
+                $keys = array_merge($current, $deprecated);
+                break;
+            default:
+                throw \Exception('Unexpected $type param for CoreUtils::getOptions()');
+                break;
+        }
+
+        return $keys;
+    }
 }

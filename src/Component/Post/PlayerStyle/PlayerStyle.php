@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\PlayerStyle;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle as PlayerStyleSetting;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle as PlayerStyleSetting;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
@@ -23,6 +23,19 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  */
 class PlayerStyle
 {
+    /**
+     * Player styles.
+     *
+     * @var array Arry of player styles.
+     */
+    const PLAYER_STYLES = [
+        'small',
+        'standard',
+        'large',
+        'screen',
+        'video',
+    ];
+
     /**
      * Constructor
      */
@@ -53,14 +66,7 @@ class PlayerStyle
      */
     public function element($post)
     {
-        $projectId = PostMetaUtils::getProjectId($post->ID);
-
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = PlayerStyleSetting::getCachedPlayerStyles($projectId);
-
-        if (! is_array($allPlayerStyles) || ! count($allPlayerStyles)) {
-            return;
-        }
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -73,8 +79,9 @@ class PlayerStyle
             </label>
         </p>
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">
+            <option value=""></option>
             <?php
-            foreach ($allPlayerStyles as $item) {
+            foreach (static::PLAYER_STYLES as $item) {
                 printf(
                     '<option value="%s" %s %s>%s</option>',
                     esc_attr($item['value']),

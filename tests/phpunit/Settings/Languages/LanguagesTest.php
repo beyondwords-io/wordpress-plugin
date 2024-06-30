@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
+use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class LanguagesTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Languages\Languages
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages
      */
     private $_instance;
 
@@ -25,7 +25,7 @@ class LanguagesTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -44,16 +44,16 @@ class LanguagesTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSettingsField();
+        $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords']['content']);
+        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_content_setings']['content']);
 
-        $field = $wp_settings_fields['beyondwords']['content']['beyondwords-languages'];
+        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-languages'];
 
         $this->assertSame('beyondwords-languages', $field['id']);
         $this->assertSame('Languages', $field['title']);
@@ -68,7 +68,7 @@ class LanguagesTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->render();
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\ApiKey\ApiKey;
+use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class ApiKeyTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\ApiKey\ApiKey
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey
      */
     private $_instance;
 
@@ -22,7 +22,7 @@ class ApiKeyTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -41,19 +41,19 @@ class ApiKeyTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSettingsField();
+        $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-api-key', $wp_settings_fields['beyondwords']['basic']);
+        $this->assertArrayHasKey('beyondwords-api-key', $wp_settings_fields['beyondwords_general']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords']['basic']['beyondwords-api-key'];
+        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-api-key'];
 
         $this->assertSame('beyondwords-api-key', $field['id']);
-        $this->assertSame('BeyondWords API key', $field['title']);
+        $this->assertSame('API key', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }

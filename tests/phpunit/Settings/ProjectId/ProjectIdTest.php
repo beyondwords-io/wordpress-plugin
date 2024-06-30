@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId;
+use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class ProjectIdTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\ProjectId\ProjectId
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId
      */
     private $_instance;
 
@@ -22,7 +22,7 @@ class ProjectIdTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -45,15 +45,15 @@ class ProjectIdTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSettingsField();
+        $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords']['basic']);
+        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_general']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords']['basic']['beyondwords-project-id'];
+        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-project-id'];
 
         $this->assertSame('beyondwords-project-id', $field['id']);
-        $this->assertSame('BeyondWords project ID', $field['title']);
+        $this->assertSame('Project ID', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }

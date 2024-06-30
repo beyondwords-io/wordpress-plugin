@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\PrependExcerpt\PrependExcerpt;
+use Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PrependExcerptTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\PrependExcerpt\PrependExcerpt
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt
      */
     private $_instance;
 
@@ -22,7 +22,7 @@ class PrependExcerptTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -41,16 +41,16 @@ class PrependExcerptTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSettingsField();
+        $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-prepend-excerpt', $wp_settings_fields['beyondwords']['content']);
+        $this->assertArrayHasKey('beyondwords-prepend-excerpt', $wp_settings_fields['beyondwords_content_setings']['content']);
 
-        $field = $wp_settings_fields['beyondwords']['content']['beyondwords-prepend-excerpt'];
+        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-prepend-excerpt'];
 
         $this->assertSame('beyondwords-prepend-excerpt', $field['id']);
         $this->assertSame('Process excerpts', $field['title']);

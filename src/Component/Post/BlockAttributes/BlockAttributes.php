@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Post\BlockAttributes;
 
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
 /**
  * BlockAttributes setup

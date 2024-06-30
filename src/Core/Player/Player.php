@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Symfony\Component\DomCrawler\Crawler;
@@ -510,12 +509,10 @@ class Player
 
         $projectId   = PostMetaUtils::getProjectId($post->ID);
         $contentId   = PostMetaUtils::getContentId($post->ID);
-        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
 
         $params = [
             'projectId'   => is_numeric($projectId) ? (int)$projectId : $projectId,
             'contentId'   => is_numeric($contentId) ? (int)$contentId : $contentId,
-            'playerStyle' => $playerStyle,
         ];
 
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
@@ -524,11 +521,12 @@ class Player
             $params['showUserInterface'] = false;
         }
 
-        /**
-         * Use legacy JS SDK params if player version setting is "0": "Legacy"
-         */
-        if (SettingsUtils::useLegacyPlayer()) {
-            $params = $this->convertLatestToLegacyParams($params);
+        $params = $this->addPluginSettingsToSdkParams( $params );
+
+        // @todo overwrite global styles with post settings
+        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
+        if (!empty($playerStyle)) {
+            $params['playerStyle'] = $playerStyle;
         }
 
         /**
@@ -545,45 +543,36 @@ class Player
     }
 
     /**
-     * Convert latest JS SDK params into legacy format.
+     * Add plugin settings to SDK params.
      *
-     * @codeCoverageIgnore We plan to remove support for the Legacy player very soon.
+     * @param array $params BeyondWords Player SDK params.
      *
-     * @since 4.0.0
-     *
-     * @see https://docs.beyondwords.io/docs/javascript-sdk-automatic-player
-     *
-     * @param array $latestParams Latest JS SDK params
-     *
-     * @return array Legacy JS SDK params
+     * @return array Modified SDK params.
      */
-    public function convertLatestToLegacyParams($latestParams)
-    {
-        $skBackend = Environment::getBackendUrl();
-        $skBackendApi = Environment::getApiUrl();
-
-        $legacyParams = [
-            'projectId' => $latestParams['projectId'],
-            'podcastId' => $latestParams['contentId'],
+    public function addPluginSettingsToSdkParams( $params ) {
+        $mapping = [
+            'beyondwords_project_title_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_project_body_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_include_title' => '', // @todo
+            'beyondwords_player_style' => 'playerStyle',
+            'beyondwords_player_theme' => '', // @todo
+            'beyondwords_player_colors' => '', // @todo
+            'beyondwords_player_call_to_action' => 'callToAction',
+            'beyondwords_player_highlight_sections' => 'highlightSections',
+            'beyondwords_player_clickable_sections' => 'clickableSections',
+            'beyondwords_player_widget_style' => 'widgetStyle',
+            'beyondwords_player_widget_position' => 'widgetPosition',
+            'beyondwords_player_skip_button_style' => 'skipButtonStyle',
         ];
 
-        if ($latestParams['playerStyle'] = 'large') {
-            $legacyParams['playerType'] = 'manual';
-        }
-
-        if (strlen($skBackend)) {
-            $legacyParams['skBackend'] = esc_url($skBackend);
-        }
-
-        if (is_admin()) {
-            $legacyParams['processingStatus'] = true;
-
-            if (strlen($skBackendApi)) {
-                $legacyParams['skBackendApi'] = esc_url($skBackendApi);
+        foreach ($mapping as $wpOption => $sdkParam) {
+            $val = get_option($wpOption);
+            if (!empty($val)) {
+                $params[$sdkParam] = $val;
             }
         }
 
-        return $legacyParams;
+        return $params;
     }
 
     /**

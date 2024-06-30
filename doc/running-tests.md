@@ -28,7 +28,7 @@ yarn cypress:run
 `/tests/phpunit/`
 
 ```bash
-composer test:phpunit
+yarn composer test:phpunit
 ```
 
 This will:
@@ -46,5 +46,5 @@ open tests/phpunit/_report/index.html
 To run code coverage independently:
 
 ```bash
-composer test:coverage-check
+yarn composer test:coverage-check
 ```

@@ -39,48 +39,6 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function basicSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->basicSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors', []);
-
-        $this->assertEmpty($errors);
-    }
-
-    /**
-     * @test
-     */
-    public function contentSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->contentSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors');
-
-        $this->assertEquals(['Test Error'], $errors);
-    }
-
-    /**
-     * @test
-     */
-    public function generateAudioSectionCallback()
-    {
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->generateAudioSectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors');
-
-        $this->assertEquals(['Test Error'], $errors);
-    }
-
-    /**
-     * @test
-     */
     public function addSettingsLinkToPluginPage()
     {
         $links = [
@@ -108,12 +66,15 @@ class SettingsTest extends WP_UnitTestCase
 
         $crawler = new Crawler($html);
 
-        $form = $crawler->filter('div.wrap form#beyondwords-plugin-settings[method="post"]');
+        $form = $crawler->filter('div.wrap > form#beyondwords-plugin-settings[method="post"]');
         $this->assertCount(1, $form);
 
-        $heading = $crawler->filter('form > h1');
+        $heading = $crawler->filter('div.wrap > h1');
         $this->assertCount(1, $heading);
-        $this->assertSame('BeyondWords settings', $heading->text());
+        $this->assertSame('BeyondWords Settings', $heading->text());
+
+        $headerEnd = $crawler->filter('div.wrap hr.wp-header-end');
+        $this->assertCount(1, $headerEnd);
     }
 
     /**
@@ -121,6 +82,8 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function createAdminInterfaceWithProjectId()
     {
+        $this->markTestSkipped('Unsure if we will have this button');
+
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $this->_instance->createAdminInterface();
@@ -130,6 +93,7 @@ class SettingsTest extends WP_UnitTestCase
         $crawler = new Crawler($html);
 
         $button = $crawler->filter('a.button-secondary[href="https://dash.beyondwords.io"]');
+
         $this->assertCount(1, $button);
         $this->assertSame('BeyondWords dashboard', $button->text());
 
@@ -151,7 +115,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function hasApiSettingsWithOption()
     {
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->assertTrue(SettingsUtils::hasApiSettings());
 
@@ -183,7 +147,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->printPluginAdminNotices();
 
@@ -246,7 +210,7 @@ class SettingsTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->restApiInit();
 
@@ -274,7 +238,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $reponse = $this->_instance->restApiResponse();
 

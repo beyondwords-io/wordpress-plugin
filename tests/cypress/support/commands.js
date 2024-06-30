@@ -65,7 +65,7 @@ Cypress.Commands.add( 'savePluginSettings', () => {
   cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
   cy.get( '#submit' ).click().wait( 500 )
 
-  cy.get( '.beyondwords-setting--preselect--post-type input[type="checkbox"]' ).uncheck()
+  cy.get( '.beyondwords-setting__preselect--post-type input[type="checkbox"]' ).uncheck()
   cy.get( 'input[name="beyondwords_preselect[post]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[page]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check()
@@ -355,11 +355,6 @@ Cypress.Commands.add( 'getFrontendLargePlayer', ( ...args ) => {
 // Get frontend video player element
 Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
   return cy.get( '.beyondwords-player .user-interface.video',  ...args )
-} )
-
-// Get frontend audio player element (legacy player)
-Cypress.Commands.add( 'getLegacyFrontendPlayer', ( ...args ) => {
-  return cy.get( '.sk-app-container',  ...args )
 } )
 
 // Get Elementor admin audio player element

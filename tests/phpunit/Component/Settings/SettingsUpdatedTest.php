@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUpdated\SettingsUpdated;
+use Beyondwords\Wordpress\Component\Settings\Fields\SettingsUpdated\SettingsUpdated;
 
 final class SettingsUpdatedTest extends WP_UnitTestCase
 {
@@ -40,23 +40,23 @@ final class SettingsUpdatedTest extends WP_UnitTestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($settingsUpdated, 'addSettingsField')));
+        $this->assertEquals(10, has_action('admin_init', array($settingsUpdated, 'addSetting')));
     }
 
     /**
      * @test
      */
-    public function addSettingsField()
+    public function addSetting()
     {
         global $wp_settings_fields;
 
         $settingsUpdated = new SettingsUpdated();
-        $settingsUpdated->addSettingsField();
+        $settingsUpdated->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-settings-updated', $wp_settings_fields['beyondwords']['basic']);
+        $this->assertArrayHasKey('beyondwords-settings-updated', $wp_settings_fields['beyondwords_general']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords']['basic']['beyondwords-settings-updated'];
+        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-settings-updated'];
 
         $this->assertSame('beyondwords-settings-updated', $field['id']);
         $this->assertSame('Settings Updated', $field['title']);
