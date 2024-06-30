@@ -558,8 +558,8 @@ class Player
             'beyondwords_player_theme' => '', // @todo
             'beyondwords_player_colors' => '', // @todo
             'beyondwords_player_call_to_action' => 'callToAction',
-            'beyondwords_player_text_highlighting' => 'highlightSections',
-            'beyondwords_player_playback_from_segments' => 'clickableSections',
+            'beyondwords_player_highlight_sections' => 'highlightSections',
+            'beyondwords_player_clickable_sections' => 'clickableSections',
             'beyondwords_player_widget_style' => 'widgetStyle',
             'beyondwords_player_widget_position' => 'widgetPosition',
             'beyondwords_player_skip_button_style' => 'skipButtonStyle',

@@ -193,14 +193,14 @@ class SiteHealth
             'value' => get_option('beyondwords_player_call_to_action'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_player_text_highlighting'] = [
+        $info['beyondwords']['fields']['beyondwords_player_highlight_sections'] = [
             'label' => __('Text highlighting', 'speechkit'),
-            'value' => get_option('beyondwords_player_text_highlighting'),
+            'value' => get_option('beyondwords_player_highlight_sections'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_player_playback_from_segments'] = [
+        $info['beyondwords']['fields']['beyondwords_player_clickable_sections'] = [
             'label' => __('Playback from segments', 'speechkit'),
-            'value' => get_option('beyondwords_player_playback_from_segments'),
+            'value' => get_option('beyondwords_player_clickable_sections'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_player_widget_style'] = [

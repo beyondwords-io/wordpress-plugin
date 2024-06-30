@@ -42,7 +42,7 @@ class TextHighlighting
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_text_highlighting',
+            'beyondwords_player_highlight_sections',
             [
                 'default' => '',
             ]
@@ -66,7 +66,7 @@ class TextHighlighting
      **/
     public function render()
     {
-        $enabled    = get_option('beyondwords_player_text_highlighting', '');
+        $enabled    = get_option('beyondwords_player_highlight_sections', '');
         $lightTheme = get_option('beyondwords_player_light_theme');
         $darkTheme  = get_option('beyondwords_player_dark_theme');
         ?>
@@ -74,7 +74,7 @@ class TextHighlighting
             <label>
                 <input
                     type="checkbox"
-                    name="beyondwords_player_text_highlighting"
+                    name="beyondwords_player_highlight_sections"
                     value="body"
                     <?php checked($enabled, 'body'); ?>
                 />

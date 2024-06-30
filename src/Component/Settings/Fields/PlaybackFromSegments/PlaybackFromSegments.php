@@ -40,7 +40,7 @@ class PlaybackFromSegments
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_playback_from_segments',
+            'beyondwords_player_clickable_sections',
             [
                 'default' => '',
             ]
@@ -65,13 +65,13 @@ class PlaybackFromSegments
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_player_playback_from_segments', '');
+        $prependExcerpt = get_option('beyondwords_player_clickable_sections', '');
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player-playback-from-segments">
             <label>
                 <input
                     type="checkbox"
-                    name="beyondwords_player_playback_from_segments"
+                    name="beyondwords_player_clickable_sections"
                     value="body"
                     <?php checked($prependExcerpt, 'body'); ?>
                 />
