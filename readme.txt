@@ -80,6 +80,12 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 4.8.0 =
+
+Release date: TBC
+
+* Stop saving `beyondwords_podcast_id`. Plugin downgrades from `v4.8.0` or later to versions before `v4.0.0` are no longer supported.
+
 = 4.7.0 =
 
 Release date: 2nd May 2024
