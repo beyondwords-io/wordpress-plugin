@@ -262,23 +262,21 @@ class Core
             return;
         }
 
-        if (CoreUtils::isGutenbergPage()) {
-            $postType = get_post_type();
+        $postType = get_post_type();
 
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-            if (in_array($postType, $postTypes, true)) {
-                $assetFile = include BEYONDWORDS__PLUGIN_DIR . 'build/index.asset.php';
+        if (in_array($postType, $postTypes, true)) {
+            $assetFile = include BEYONDWORDS__PLUGIN_DIR . 'build/index.asset.php';
 
-                // Register the Block Editor JS
-                wp_enqueue_script(
-                    'beyondwords-block-js',
-                    BEYONDWORDS__PLUGIN_URI . 'build/index.js',
-                    $assetFile['dependencies'],
-                    $assetFile['version'],
-                    true
-                );
-            }
+            // Register the Block Editor JS
+            wp_enqueue_script(
+                'beyondwords-block-js',
+                BEYONDWORDS__PLUGIN_URI . 'build/index.js',
+                $assetFile['dependencies'],
+                $assetFile['version'],
+                true
+            );
         }
     }
 

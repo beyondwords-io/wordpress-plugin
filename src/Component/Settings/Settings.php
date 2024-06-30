@@ -73,61 +73,6 @@ class Settings
         add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('plugin_action_links_speechkit/speechkit.php', array($this, 'addSettingsLinkToPluginPage'));
-
-        add_action('added_option', array($this, 'onAddedOption'), 10, 2);
-        add_action('updated_option', array($this, 'onUpdatedOption'), 10, 3);
-    }
-
-    /**
-     * On "added" option.
-     *
-     * @param mixed $option Name of the option.
-     * @param mixed $value  Value of the option.
-     */
-    public function onAddedOption($option, $value)
-    {
-        $this->setOptionTransients($option, $value);
-    }
-
-    /**
-     * On "updated" option.
-     *
-     * @param mixed $option   Name of the updated option.
-     * @param mixed $oldValue The old option value.
-     * @param mixed $value    The new option value.
-     */
-    public function onUpdatedOption($option, $oldValue, $value)
-    {
-        $this->setOptionTransients($option, $value);
-    }
-
-    /**
-     * Set option transients.
-     *
-     * When an option is added/updated we record the change and then bundle
-     * all changes together and make efficient BeyondWords REST API calls.
-     *
-     *
-     * @param mixed $option Name of the option.
-     * @param mixed $value  Value of the option.
-     */
-    public function setOptionTransients($option, $value)
-    {
-        // Only set for beyondwords_* options
-        if (substr($option, 0, 12) !== 'beyondwords_') {
-            return;
-        }
-
-        // Don't set for beyondwords_valid_api_connection
-        if ($option === 'beyondwords_valid_api_connection') {
-            return;
-        }
-
-        $options = array_keys(SettingsUtils::getSyncedOptions());
-
-        if (in_array($option, $options)) {
-            set_transient('beyondwords/sync/' . $option, $value);
-        }
     }
 
     /**

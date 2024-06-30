@@ -509,18 +509,24 @@ class Player
 
         $projectId   = PostMetaUtils::getProjectId($post->ID);
         $contentId   = PostMetaUtils::getContentId($post->ID);
-        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
 
         $params = [
             'projectId'   => is_numeric($projectId) ? (int)$projectId : $projectId,
             'contentId'   => is_numeric($contentId) ? (int)$contentId : $contentId,
-            'playerStyle' => $playerStyle,
         ];
 
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
 
         if ($playerUI === PlayerUI::HEADLESS) {
             $params['showUserInterface'] = false;
+        }
+
+        $params = $this->addPluginSettingsToSdkParams( $params );
+
+        // @todo overwrite global styles with post settings
+        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
+        if (!empty($playerStyle)) {
+            $params['playerStyle'] = $playerStyle;
         }
 
         /**
@@ -532,6 +538,39 @@ class Player
          * @param int   $postId The Post ID.
          */
         $params = apply_filters('beyondwords_player_sdk_params', $params, $post->ID);
+
+        return $params;
+    }
+
+    /**
+     * Add plugin settings to SDK params.
+     *
+     * @param array $params BeyondWords Player SDK params.
+     *
+     * @return array Modified SDK params.
+     */
+    public function addPluginSettingsToSdkParams( $params ) {
+        $mapping = [
+            'beyondwords_title_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_body_speaking_rate' => 'playbackRate', // @todo
+            'beyondwords_include_title' => '', // @todo
+            'beyondwords_player_style' => 'playerStyle',
+            'beyondwords_player_theme' => '', // @todo
+            'beyondwords_player_colors' => '', // @todo
+            'beyondwords_player_call_to_action' => 'callToAction',
+            'beyondwords_text_highlighting' => 'highlightSections',
+            'beyondwords_playback_from_segments' => 'clickableSections',
+            'beyondwords_player_widget_style' => 'widgetStyle',
+            'beyondwords_player_widget_position' => 'widgetPosition',
+            'beyondwords_player_skip_button_style' => 'skipButtonStyle',
+        ];
+
+        foreach ($mapping as $wpOption => $sdkParam) {
+            $val = get_option($wpOption);
+            if (!empty($val)) {
+                $params[$sdkParam] = $val;
+            }
+        }
 
         return $params;
     }

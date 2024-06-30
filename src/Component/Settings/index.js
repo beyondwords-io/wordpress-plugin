@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-// require( './Tabs' );
+require( './Tabs' );
 require( './Fields/DefaultLanguage' );
 require( './Fields/Languages' );
 require( './Fields/PlayerUI' );

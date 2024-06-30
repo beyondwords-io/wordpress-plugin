@@ -24,6 +24,19 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 class PlayerStyle
 {
     /**
+     * Player styles.
+     *
+     * @var array Arry of player styles.
+     */
+    const PLAYER_STYLES = [
+        'small',
+        'standard',
+        'large',
+        'screen',
+        'video',
+    ];
+
+    /**
      * Constructor
      */
     public function init()
@@ -53,14 +66,7 @@ class PlayerStyle
      */
     public function element($post)
     {
-        $projectId = PostMetaUtils::getProjectId($post->ID);
-
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = $this->apiClient->getPlayerStyles($projectId);
-
-        if (! is_array($allPlayerStyles) || ! count($allPlayerStyles)) {
-            return;
-        }
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -74,7 +80,7 @@ class PlayerStyle
         </p>
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">
             <?php
-            foreach ($allPlayerStyles as $item) {
+            foreach (static::PLAYER_STYLES as $item) {
                 printf(
                     '<option value="%s" %s %s>%s</option>',
                     esc_attr($item['value']),

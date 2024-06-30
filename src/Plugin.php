@@ -9,7 +9,6 @@ use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Core;
 use Beyondwords\Wordpress\Core\Player\Player;
-use Beyondwords\Wordpress\Core\Transients;
 use Beyondwords\Wordpress\Core\Updater;
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
@@ -91,9 +90,6 @@ class Plugin
 
         // Settings
         (new Settings($this->apiClient))->init();
-
-        // Transients
-        (new Transients())->init();
 
         /**
          * To prevent browser JS errors we skip adding admin UI components until
