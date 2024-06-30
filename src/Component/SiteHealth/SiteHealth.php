@@ -133,33 +133,28 @@ class SiteHealth
             'value' => (string) wp_json_encode(get_option('beyondwords_preselect'), JSON_PRETTY_PRINT),
         ];
 
-        $info['beyondwords']['fields']['Default language'] = [
+        $info['beyondwords']['fields']['beyondwords_project_language'] = [
             'label' => __('Default language', 'speechkit'),
-            'value' => get_option('beyondwords_language_id'),
-        ];
-
-        $info['beyondwords']['fields']['Default language'] = [
-            'label' => __('Multiple languages', 'speechkit'),
-            'value' => (string) wp_json_encode(get_option('beyondwords_languages'), JSON_PRETTY_PRINT),
+            'value' => get_option('beyondwords_project_language'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_title_voice_id'] = [
-            'label' => __('Title Voice ID', 'speechkit'),
+            'label' => __('Title voice ID', 'speechkit'),
             'value' => get_option('beyondwords_project_title_voice_id'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_title_speaking_rate'] = [
-            'label' => __('Title Speaking Rate', 'speechkit'),
+            'label' => __('Title speaking rate', 'speechkit'),
             'value' => get_option('beyondwords_project_title_speaking_rate'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_body_voice_id'] = [
-            'label' => __('Body Voice ID', 'speechkit'),
+            'label' => __('Body voice ID', 'speechkit'),
             'value' => get_option('beyondwords_project_body_voice_id'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_body_speaking_rate'] = [
-            'label' => __('Body Speaking Rate', 'speechkit'),
+            'label' => __('Body speaking rate', 'speechkit'),
             'value' => get_option('beyondwords_project_body_speaking_rate'),
         ];
 
@@ -221,6 +216,11 @@ class SiteHealth
         $info['beyondwords']['fields']['beyondwords_player_skip_button_style'] = [
             'label' => __('Skip button style', 'speechkit'),
             'value' => get_option('beyondwords_player_skip_button_style'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_languages'] = [
+            'label' => __('Multiple languages', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_languages'), JSON_PRETTY_PRINT),
         ];
 
         $info['beyondwords']['fields']['beyondwords_settings_updated'] = [
