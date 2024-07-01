@@ -154,7 +154,7 @@ jobs:
         working-directory: /tmp
 
       - name: Run plugin check
-        uses: swissspidy/wp-plugin-check-action@v1
+        uses: wordpress/plugin-check-action@v1
         with:
           build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
           exclude-directories: 'vendor'
