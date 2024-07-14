@@ -176,7 +176,7 @@ class SettingsUtils
      */
     public static function colorInput($label, $name, $value)
     {
-        ob_start();
+        $value = trim(ltrim($value, '#'));
         ?>
         <div class="color-input">
             <label>
@@ -184,17 +184,17 @@ class SettingsUtils
             </label>
             <output
                 for="<?php echo esc_attr($name); ?>"
-                style="background-color: <?php echo esc_attr($value); ?>;"
+                style="background-color: #<?php echo esc_attr($value); ?>;"
             ></output>
+            #
             <input
                 name="<?php echo esc_attr($name); ?>"
                 type="text"
                 value="<?php echo esc_attr($value); ?>"
                 class="small-text"
-                oninput="this.previousElementSibling.style.backgroundColor = 'transparent'; this.previousElementSibling.style.backgroundColor = `${this.value}`"
+                oninput="this.value = `${this.value}`.length > 1 ? `${this.value}`.replace(/[#]/g, '') : this.value; this.previousElementSibling.style.backgroundColor = 'transparent'; this.previousElementSibling.style.backgroundColor = `#${this.value}`"
             />
         </div>
         <?php
-        return ob_get_clean();
     }
 }

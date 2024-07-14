@@ -182,19 +182,19 @@ class PlayerColors
         $darkTheme  = get_option('beyondwords_player_dark_theme');
         $videoTheme = get_option('beyondwords_player_video_theme');
 
-        echo $this->playerColorsTable(
+        $this->playerColorsTable(
             __('Light theme settings'),
             'beyondwords_player_light_theme',
             $lightTheme,
         );
 
-        echo $this->playerColorsTable(
+        $this->playerColorsTable(
             __('Dark theme settings'),
             'beyondwords_player_dark_theme',
             $darkTheme,
         );
 
-        echo $this->playerColorsTable(
+        $this->playerColorsTable(
             __('Video theme settings'),
             'beyondwords_player_video_theme',
             $videoTheme,
@@ -210,7 +210,6 @@ class PlayerColors
      **/
     public function playerColorsTable($title, $name, $value)
     {
-        ob_start();
         ?>
         <h3 class="subheading">
             <?php echo esc_html($title); ?>
@@ -218,7 +217,7 @@ class PlayerColors
         <div class="color-pickers">
             <div class="row">
                 <?php
-                echo SettingsUtils::colorInput(
+                SettingsUtils::colorInput(
                     __('Background'),
                     sprintf('%s[background_color]', $name),
                     $value['background_color'] ?? ''
@@ -227,7 +226,7 @@ class PlayerColors
             </div>
             <div class="row">
                 <?php
-                echo SettingsUtils::colorInput(
+                SettingsUtils::colorInput(
                     __('Icons'),
                     sprintf('%s[icon_color]', $name),
                     $value['icon_color'] ?? ''
@@ -236,7 +235,7 @@ class PlayerColors
             </div>
             <div class="row">
                 <?php
-                echo SettingsUtils::colorInput(
+                SettingsUtils::colorInput(
                     __('Text color'),
                     sprintf('%s[text_color]', $name),
                     $value['text_color'] ?? ''
@@ -245,6 +244,5 @@ class PlayerColors
             </div>
         </div>
         <?php
-        return ob_get_clean();
     }
 }

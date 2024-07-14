@@ -84,7 +84,7 @@ class TextHighlighting
         <div>
             <h3 class="subheading">Light theme settings</h3>
             <?php
-            echo SettingsUtils::colorInput(
+            SettingsUtils::colorInput(
                 __('Highlight color'),
                 'beyondwords_player_light_theme[highlight_color]',
                 $lightTheme['highlight_color'] ?? '',
@@ -94,7 +94,7 @@ class TextHighlighting
         <div>
             <h3 class="subheading">Dark theme settings</h3>
             <?php
-            echo SettingsUtils::colorInput(
+            SettingsUtils::colorInput(
                 __('Highlight color'),
                 'beyondwords_player_dark_theme[highlight_color]',
                 $darkTheme['highlight_color'] ?? '',
