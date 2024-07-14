@@ -26,12 +26,18 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\Prese
 class Content
 {
     /**
+     * @var \Beyondwords\Wordpress\Core\ApiClient
+     */
+    private $apiClient;
+
+    /**
      * Constructor.
      *
      * @since 4.8.0
      */
-    public function __construct()
+    public function __construct($apiClient)
     {
+        $this->apiClient = $apiClient;
     }
 
     /**
@@ -39,7 +45,7 @@ class Content
      */
     public function init()
     {
-        (new IncludeTitle())->init();
+        (new IncludeTitle($this->apiClient))->init();
         (new IncludeExcerpt())->init();
         (new PreselectGenerateAudio())->init();
 

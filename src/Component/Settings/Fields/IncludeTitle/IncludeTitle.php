@@ -15,24 +15,54 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
 /**
  * IncludeTitle setup
  *
- * @since 3.0.0
+ * @since 4.8.0
  */
 class IncludeTitle
 {
     /**
+     * Default value.
+     *
+     * @var string
+     */
+    const DEFAULT_VALUE = '1';
+
+    /**
+     * Option name.
+     *
+     * @var string
+     */
+    const OPTION_NAME = 'beyondwords_include_title';
+
+    /**
+     * @var \Beyondwords\Wordpress\Core\ApiClient
+     */
+    private $apiClient;
+
+    /**
+     * Constructor.
+     *
+     * @since 4.8.0
+     */
+    public function __construct($apiClient)
+    {
+        $this->apiClient = $apiClient;
+    }
+
+    /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 4.8.0
      */
     public function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action( 'admin_init', array( $this, 'addSetting' ) );
+        add_action( 'pre_update_option_' . self::OPTION_NAME, array( $this, 'preUpdateOption' ), 10, 2 );
     }
 
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since 4.8.0
      *
      * @return void
      */
@@ -40,9 +70,11 @@ class IncludeTitle
     {
         register_setting(
             'beyondwords_content_settings',
-            'beyondwords_include_title',
+            self::OPTION_NAME,
             [
-                'default' => '',
+                'type'              => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default'           => self::DEFAULT_VALUE,
             ]
         );
 
@@ -58,26 +90,62 @@ class IncludeTitle
     /**
      * Render setting field.
      *
-     * @since 3.0.0
-     * @since 4.0.0 Updated label and description
+     * @since 4.8.0
      *
      * @return void
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_include_title', '1');
+        $optionValue = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
         ?>
         <div>
             <label>
                 <input
                     type="checkbox"
-                    name="beyondwords_include_title"
+                    id="<?php echo esc_attr(self::OPTION_NAME); ?>"
+                    name="<?php echo esc_attr(self::OPTION_NAME); ?>"
                     value="1"
-                    <?php checked($prependExcerpt, '1'); ?>
+                    <?php checked($optionValue, self::DEFAULT_VALUE); ?>
                 />
                 <?php esc_html_e('Include title in audio', 'speechkit'); ?>
             </label>
         </div>
         <?php
+    }
+
+    /**
+     * Make the REST call every time the option is updated (even  if the
+     * value is the same) by using `pre_update_option_{name}` action.
+     *
+     * @since 4.8.0
+     *
+     * @param mixed $value    The new option value.
+     * @param mixed $oldValue The old option value.
+     *
+     * @return string
+     **/
+    public function preUpdateOption($value, $oldValue)
+    {
+        // Make REST API call
+        $response = $this->apiClient->updateProject([
+            'title' => [
+                'enabled' => (bool) $value,
+            ]
+        ]);
+
+        if (
+            ! empty($response)
+            && ! empty($response['title'])
+            && is_array($response['title'])
+            && array_key_exists('enabled', $response['title'])
+        ) {
+            // Success
+            add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-controls-volumeon"></span>"Include title in audio" has been synced to the BeyondWords REST API.', 'success');
+            return $response['title']['enabled'] ? '1' : '';
+        }
+
+        // Error
+        add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-controls-volumeon"></span>Error syncing "Include title in audio" to the BeyondWords REST API. Please try again.', 'error');
+        return $oldValue;
     }
 }
