@@ -15,10 +15,10 @@ import PlayAudio from '../../PlayAudio';
 import PlayerStyle from '../../PlayerStyle';
 import SelectVoice from '../../SelectVoice';
 
-export function StatusPanel() {
+export function PlayerPanel() {
 	return (
 		<PanelBody
-			title={ __( 'Status', 'speechkit' ) }
+			title={ __( 'Player', 'speechkit' ) }
 			opened={ true }
 			className={ `beyondwords beyondwords-sidebar__status` }
 		>
@@ -33,4 +33,4 @@ export function StatusPanel() {
 	);
 }
 
-export default StatusPanel;
+export default PlayerPanel;
