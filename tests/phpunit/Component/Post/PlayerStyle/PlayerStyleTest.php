@@ -63,8 +63,6 @@ class PostPlayerStyleTest extends WP_UnitTestCase
             'post_title' => 'PostPlayerStyleTest::element',
         ]);
 
-        $transientName = sprintf('beyondwords_player_styles[%s]', BEYONDWORDS_TESTS_PROJECT_ID);
-
         /**
          * Each player style is an associative array with the following keys:
          * - string  `label`    The option label e.g. "Standard"
@@ -72,7 +70,7 @@ class PostPlayerStyleTest extends WP_UnitTestCase
          * - boolean `disabled` (Optional) Is this option disabled?
          * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
         */
-        set_transient($transientName, [
+        set_transient('beyondwords_player_styles', [
             [
                 'label' => 'Foo',
                 'value' => 'foo',

@@ -83,7 +83,7 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function getCachedPlayerStyles()
+    public function getCachedOptions()
     {
         $playerStyles = [
             'standard' => [
@@ -93,13 +93,13 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
             ]
         ];
 
-        set_transient('beyondwords_player_styles[1234]', $playerStyles);
-        $this->assertEquals($playerStyles, $this->_instance->getCachedPlayerStyles('1234'));
+        set_transient('beyondwords_player_styles', $playerStyles);
+        $this->assertEquals($playerStyles, $this->_instance->getCachedOptions());
 
-        set_transient('beyondwords_player_styles[1234]', 'Not an array');
-        $this->assertEquals([], $this->_instance->getCachedPlayerStyles('1234'));
+        set_transient('beyondwords_player_styles', 'Not an array');
+        $this->assertEquals([], $this->_instance->getCachedOptions());
 
-        delete_transient('beyondwords_player_styles[1234]');
-        $this->assertEquals([], $this->_instance->getCachedPlayerStyles('1234'));
+        delete_transient('beyondwords_player_styles');
+        $this->assertEquals([], $this->_instance->getCachedOptions());
     }
 }

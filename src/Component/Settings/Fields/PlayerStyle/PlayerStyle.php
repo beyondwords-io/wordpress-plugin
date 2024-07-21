@@ -159,6 +159,7 @@ class PlayerStyle
 
         if (isset($styles[$defaultPlayerStyle])) {
             $styles[$defaultPlayerStyle]['default'] = true;
+            $styles[$defaultPlayerStyle]['label'] .= ' ' . __('(Default)', 'speechkit');
         }
 
         /**
@@ -213,35 +214,28 @@ class PlayerStyle
          */
         $styles = apply_filters('beyondwords_settings_player_styles', $styles);
 
-        $transientName = sprintf('beyondwords_player_styles[%s]', get_option('beyondwords_project_id'));
-        set_transient($transientName, $styles);
+        set_transient('beyondwords_player_styles', $styles);
 
         return $styles;
     }
 
     /**
-     * Get the cached Player styles for a project.
-     *
-     * The transient cache should have been set when the plugin settings were
-     * updated.
+     * Get Player style options for a project.
      *
      * @since 4.1.0
      * @since 4.2.0 Fix: return empty array instead of false
-     *
-     * @param int $projectId BeyondWords Project ID.
+     * @since 4.8.0 Stop saving a dedicated player styles transient for each project ID.
      *
      * @return string[] Associative array of Player styles and labels.
      **/
-    public static function getCachedPlayerStyles($projectId = '')
+    public static function getCachedOptions()
     {
-        $transientName = sprintf('beyondwords_player_styles[%s]', $projectId);
+        $options = get_transient('beyondwords_player_styles');
 
-        $playerStyles = get_transient($transientName);
-
-        if (! is_array($playerStyles)) {
+        if (! is_array($options)) {
             return [];
         }
 
-        return $playerStyles;
+        return $options;
     }
 }

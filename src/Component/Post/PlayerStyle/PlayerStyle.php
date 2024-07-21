@@ -157,14 +157,13 @@ class PlayerStyle
      * "Player styles" WP REST API response (required for the Gutenberg editor).
      *
      * @since 4.1.0
+     * @since 4.8.0 Stop saving a dedicated player styles transient for each project ID.
      *
      * @return \WP_REST_Response
      */
     public function playerStylesRestApiResponse(\WP_REST_Request $data)
     {
-        $params = $data->get_url_params();
-
-        $response = PlayerStyleSetting::getCachedPlayerStyles($params['projectId']);
+        $response = PlayerStyleSetting::getCachedOptions();
 
         // Convert from object to array so we can use find() in Block Editor JS.
         $response = array_values($response);
