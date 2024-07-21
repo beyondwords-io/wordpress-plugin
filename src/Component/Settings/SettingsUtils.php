@@ -197,4 +197,93 @@ class SettingsUtils
         </div>
         <?php
     }
+
+    /**
+     * Get all project payload, ready for REST API call.
+     *
+     * @since 4.8.0
+     *
+     * @return array Project params.
+     */
+    public static function getProjectPayload() {
+        $params = [];
+
+        // $language = get_option('beyondwords_project_language');
+        // if (!empty($language)) {
+        //     $params['language'] = $language;
+        // }
+
+        $bodyVoiceId = get_option('beyondwords_project_body_voice_id');
+        if (!empty($bodyVoiceId) && is_numeric($bodyVoiceId)) {
+            $params['body']['voice']['id'] = (int) $bodyVoiceId;
+        }
+
+        $titleVoiceId = get_option('beyondwords_project_title_voice_id');
+        if (!empty($titleVoiceId) && is_numeric($titleVoiceId)) {
+            $params['title']['voice']['id'] = (int) $titleVoiceId;
+        }
+
+        return $params;
+    }
+
+    /**
+     * Get all player options, ready for REST API call.
+     *
+     * @since 4.8.0
+     *
+     * @return array Player options params.
+     */
+    public static function getPlayerOptionsPayload() {
+        $params = [];
+
+        // @todo sort out the colours
+        // $playerColors = get_option('beyondwords_player_colors', '');
+
+        $playerStyle = get_option('beyondwords_player_style');
+        if ($playerStyle) {
+            $params['player_style'] = $playerStyle;
+        }
+
+        $theme = get_option('beyondwords_player_theme');
+        if ($theme) {
+            $params['theme'] = $theme;
+        }
+
+        $darkTheme = get_option('beyondwords_player_dark_theme');
+        if ($darkTheme) {
+            $params['dark_theme'] = $darkTheme;
+        }
+
+        $lightTheme = get_option('beyondwords_player_light_theme');
+        if ($lightTheme) {
+            $params['light_theme'] = $lightTheme;
+        }
+
+        $videoTheme = get_option('beyondwords_player_video_theme');
+        if ($videoTheme) {
+            $params['video_theme'] = $videoTheme;
+        }
+
+        $callToAction = get_option('beyondwords_player_call_to_action');
+        if ($callToAction) {
+            $params['call_to_action'] = $callToAction;
+        }
+
+        $widgetStyle = get_option('beyondwords_player_widget_style');
+        if ($widgetStyle) {
+            $params['widget_style'] = $widgetStyle;
+        }
+
+        $widgetPosition = get_option('beyondwords_player_widget_position');
+        if ($widgetPosition) {
+            $params['widget_position'] = $widgetPosition;
+        }
+
+        $skipButtonStyle = get_option('beyondwords_player_skip_button_style');
+        if ($skipButtonStyle) {
+            $params['skip_button_style'] = $skipButtonStyle;
+        }
+
+        return $params;
+    }
 }
