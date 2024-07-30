@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 require( './Tabs' );
-require( './Fields/DefaultLanguage' );
+require( './Fields/Language' );
 require( './Fields/Languages' );
 require( './Fields/PlayerUI' );
 require( './Fields/PreselectGenerateAudio' );

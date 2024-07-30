@@ -82,26 +82,4 @@ class CredentialsTabTest extends WP_UnitTestCase
 
         $this->assertEquals(['Test Error'], $errors);
     }
-
-    /**
-     * @test
-     */
-    public function dashboardLink()
-    {
-        $this->markTestSkipped('Moved into parent?');
-
-        $this->_instance->dashboardLink();
-
-        $html = $this->getActualOutput();
-        $crawler = new Crawler($html);
-
-        echo print_r($crawler, true);
-
-        $link = $crawler->filter('p > a');
-
-        $this->assertCount(1, $link);
-        $this->assertEquals('class', $link->attr('button button-secondary'));
-        $this->assertEquals('href', 'foobar');
-        $this->assertEquals('_blank', $link->attr('target'));
-    }
 }

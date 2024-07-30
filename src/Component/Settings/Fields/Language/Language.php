@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 /**
- * Setting: Default language
+ * Setting: Language
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage;
+namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
 
 /**
- * DefaultLanguage setup
+ * Language setup
  *
  * @since 4.8.0
  */
-class DefaultLanguage
+class Language
 {
     /**
      * API Client.
@@ -63,7 +63,7 @@ class DefaultLanguage
 
         add_settings_field(
             'beyondwords-default-language',
-            __('Default language', 'speechkit'),
+            __('Language', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -103,6 +103,14 @@ class DefaultLanguage
                 ?>
             </select>
         </div>
+        <p class="description">
+            <?php
+            esc_html_e(
+                'Choose the default language of your posts.',
+                'speechkit'
+            );
+            ?>
+        </p>
         <?php
     }
 

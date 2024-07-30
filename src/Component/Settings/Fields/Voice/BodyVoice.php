@@ -47,7 +47,7 @@ class BodyVoice extends Voice
 
         add_settings_field(
             'beyondwords-body-voice',
-            __('Which voice do you want to read body content?', 'speechkit'),
+            __('Body voice', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -85,6 +85,14 @@ class BodyVoice extends Voice
             </select>
             <img src="/wp-admin/images/spinner.gif" class="beyondwords-settings__loader" style="display:none;" />
         </div>
+        <p class="description">
+            <?php
+            esc_html_e(
+                'Choose the default voice for your article body sections.',
+                'speechkit'
+            );
+            ?>
+        </p>
         <?php
     }
 }

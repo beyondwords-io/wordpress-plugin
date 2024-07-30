@@ -14,7 +14,6 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Credentials;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
-use Beyondwords\Wordpress\Core\Environment;
 
 /**
  * "Credentials" settings tab
@@ -25,21 +24,6 @@ use Beyondwords\Wordpress\Core\Environment;
  */
 class Credentials
 {
-    /**
-     * API client.
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 4.8.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
     /**
      * Init
      */
@@ -63,10 +47,6 @@ class Credentials
             __('Credentials', 'speechkit'),
             array($this, 'sectionCallback'),
             'beyondwords_credentials',
-            // [
-            //     'before_section' => '<div id="general" data-tab="general">' . $this->dashboardLink(),
-            //     'after_section' => '</div>',
-            // ]
         );
     }
 
@@ -83,40 +63,11 @@ class Credentials
         <p class="description">
             <?php
             esc_html_e(
-                'The details we need to authenticate your BeyondWords account. For more options, head to your BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Please add your Project ID and API key to authenticate your BeyondWords account.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'speechkit'
             );
             ?>
         </p>
         <?php
-    }
-
-    /**
-     * @since 3.0.0
-     * @since 4.8.0 Moved from Settings/Settings to Settings/Tabs/Credentials.
-     *
-     * @return string
-     */
-    public function dashboardLink()
-    {
-        $projectId = get_option('beyondwords_project_id');
-
-        if ($projectId) :
-            ob_start();
-            ?>
-            <p>
-                <a
-                    class="button button-secondary"
-                    href="<?php echo esc_url(Environment::getDashboardUrl()); ?>"
-                    target="_blank"
-                >
-                    <?php esc_html_e('BeyondWords dashboard', 'speechkit'); ?>
-                </a>
-            </p>
-            <?php
-            return ob_get_clean();
-        endif;
-
-        return '';
     }
 }

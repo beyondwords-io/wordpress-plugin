@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Voices;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\BodySpeakingRate;
-use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\TitleSpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\BodyVoiceSpeakingRate;
+use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\TitleVoiceSpeakingRate;
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\BodyVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\TitleVoice;
-use Beyondwords\Wordpress\Component\Settings\Fields\DefaultLanguage\DefaultLanguage;
+use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
@@ -50,11 +50,11 @@ class Voices
      */
     public function init()
     {
-        (new DefaultLanguage($this->apiClient))->init();
+        (new Language($this->apiClient))->init();
         (new TitleVoice($this->apiClient))->init();
-        (new TitleSpeakingRate())->init();
+        (new TitleVoiceSpeakingRate())->init();
         (new BodyVoice($this->apiClient))->init();
-        (new BodySpeakingRate())->init();
+        (new BodyVoiceSpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }
@@ -71,10 +71,6 @@ class Voices
             __('Voices', 'speechkit'),
             [$this, 'sectionCallback'],
             'beyondwords_voices',
-            // [
-            //     'before_section' => '<div id="voices" data-tab="voices">',
-            //     'after_section' => '</div>',
-            // ]
         );
     }
 
@@ -91,10 +87,20 @@ class Voices
         <p class="description">
             <?php
             esc_html_e(
-                'Only future content will be affected. To apply changes to existing content, please regenerate each post.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Choose the default voices you want for your audio.',
                 'speechkit'
             );
             ?>
+        </p>
+        <p class="description hint">
+            <em>
+                <?php
+                esc_html_e(
+                    'To generate audio for existing posts or apply updates to them, you must update the posts.',
+                    'speechkit'
+                );
+                ?>
+            </em>
         </p>
         <?php
     }

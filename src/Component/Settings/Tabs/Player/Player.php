@@ -80,8 +80,8 @@ class Player
 
         $toggledSectionArgs = [
             'before_section' => '<div class="%s">',
-            'after_section' => '</div>',
-            'section_class' => 'beyondwords-settings__player-field-toggle'
+            'after_section'  => '</div>',
+            'section_class'  => 'beyondwords-settings__player-field-toggle'
         ];
 
         add_settings_section(

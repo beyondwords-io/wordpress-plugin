@@ -52,10 +52,6 @@ class Pronunciations
             __('Pronunciations', 'speechkit'),
             array($this, 'sectionCallback'),
             'beyondwords_pronunciations',
-            // [
-            //     'before_section' => '<div id="pronunciations" data-tab="pronunciations">',
-            //     'after_section' => '</div>',
-            // ]
         );
     }
 
@@ -77,7 +73,7 @@ class Pronunciations
         <p class="description">
             <?php
             esc_html_e(
-                'You can use rules to substitute one word for another, force an acronym to be said as a word or a letter sequence, or provide the phonetic transcription for a word so that it is pronounced exactly the way you want it to be.',  // phpcs:ignore Generic.Files.LineLength.TooLong
+                'Create a custom pronunciation rule for any word or phrase.',
                 'speechkit'
             );
             ?>

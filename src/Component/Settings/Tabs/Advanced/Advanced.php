@@ -62,10 +62,6 @@ class Advanced
             __('Advanced', 'speechkit'),
             array($this, 'sectionCallback'),
             'beyondwords_advanced',
-            // [
-            //     'before_section' => '<div id="advanced" data-tab="advanced">',
-            //     'after_section' => '</div>',
-            // ]
         );
     }
 

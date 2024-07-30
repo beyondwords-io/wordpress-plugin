@@ -37,7 +37,7 @@ class TitleVoice extends Voice
 
         add_settings_field(
             'beyondwords-title-voice',
-            __('Which voice do you want to read titles?', 'speechkit'),
+            __('Title voice', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -75,6 +75,14 @@ class TitleVoice extends Voice
             </select>
             <img src="/wp-admin/images/spinner.gif" class="beyondwords-settings__loader" style="display:none;" />
         </div>
+        <p class="description">
+            <?php
+            esc_html_e(
+                'Choose the default voice for your article title sections.',
+                'speechkit'
+            );
+            ?>
+        </p>
         <?php
     }
 }

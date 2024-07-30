@@ -117,11 +117,6 @@ class Languages
             </select>
             <p class="description">
             <?php
-                esc_html_e('The default voice for audio is set in the “Voices” tab.', 'speechkit');
-            ?>
-            </p>
-            <p class="description">
-            <?php
                 esc_html_e('Add languages here to use voices other than the default project voice.', 'speechkit');
             ?>
             </p>

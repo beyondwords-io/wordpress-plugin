@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Setting: BodySpeakingRate
+ * Setting: Default language
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
 
 /**
- * BodySpeakingRate setup
+ * TitleVoiceSpeakingRate setup
  *
  * @since 4.8.0
  */
-class BodySpeakingRate extends SpeakingRate
+class TitleVoiceSpeakingRate extends SpeakingRate
 {
     /**
      * Add setting.
@@ -30,15 +30,15 @@ class BodySpeakingRate extends SpeakingRate
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_body_speaking_rate',
+            'beyondwords_project_title_speaking_rate',
             [
-                'default' => '100',
+                'default' => '1.0',
             ]
         );
 
         add_settings_field(
-            'beyondwords-body-speaking-rate',
-            __('Default body speaking rate', 'speechkit'),
+            'beyondwords-title-speaking-rate',
+            __('Title voice speaking rate', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -54,12 +54,12 @@ class BodySpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_project_body_speaking_rate', '1.0');
+        $current = get_option('beyondwords_project_title_speaking_rate', '1.0');
         ?>
-        <div class="beyondwords-setting__body-speaking-rate">
+        <div class="beyondwords-setting__title-speaking-rate">
             <input
                 type="range"
-                name="beyondwords_project_body_speaking_rate"
+                name="beyondwords_project_title_speaking_rate"
                 class="beyondwords_speaking_rate"
                 min="0.5"
                 max="3"
@@ -70,6 +70,14 @@ class BodySpeakingRate extends SpeakingRate
             />
             <output><?php echo esc_html(number_format((float)$current, 2)); ?></output>
         </div>
+        <p class="description">
+            <?php
+            esc_html_e(
+                'Choose the default speaking rate for your title voice.',
+                'speechkit'
+            );
+            ?>
+        </p>
         <?php
     }
 }

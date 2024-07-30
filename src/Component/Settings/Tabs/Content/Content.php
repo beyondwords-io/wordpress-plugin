@@ -64,10 +64,6 @@ class Content
             __('Content', 'speechkit'),
             array($this, 'sectionCallback'),
             'beyondwords_content',
-            // [
-            //     'before_section' => '<div id="content" data-tab="content">',
-            //     'after_section' => '</div>',
-            // ]
         );
     }
 
