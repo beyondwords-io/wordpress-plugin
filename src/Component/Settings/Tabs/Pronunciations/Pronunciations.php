@@ -87,10 +87,9 @@ class Pronunciations
             ?>
         </p> -->
         <p class="description">
-            <a href="<?php echo esc_url($rulesUrl); ?>" target="_blank" class="button button-secondary">
-                <?php esc_html_e('Edit custom pronunciations', 'speechkit'); ?>
+            <a href="<?php echo esc_url($rulesUrl); ?>" target="_blank" class="button button-primary">
+                <?php esc_html_e('Manage pronunciations', 'speechkit'); ?>
             </a>
-            <?php esc_html_e('in your BeyondWords Dashboard.', 'speechkit'); ?>
         </p>
         <?php
     }
