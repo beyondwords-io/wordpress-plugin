@@ -16,7 +16,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
-use Beyondwords\Wordpress\Component\Settings\Tabs\General\General;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
@@ -56,7 +56,7 @@ class Settings
     {
         delete_transient('beyondwords_settings_errors');
 
-        (new General($this->apiClient))->init();
+        (new Credentials($this->apiClient))->init();
 
         if (SettingsUtils::hasApiSettings()) {
             (new Voices($this->apiClient))->init();

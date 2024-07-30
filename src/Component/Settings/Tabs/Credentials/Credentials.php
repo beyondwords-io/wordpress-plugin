@@ -3,27 +3,27 @@
 declare(strict_types=1);
 
 /**
- * Settings > BeyondWords > General
+ * Settings > BeyondWords > Credentials
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   4.8.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Tabs\General;
+namespace Beyondwords\Wordpress\Component\Settings\Tabs\Credentials;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
 use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
- * "General" settings tab
+ * "Credentials" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @since 4.8.0
  */
-class General
+class Credentials
 {
     /**
      * API client.
@@ -93,7 +93,7 @@ class General
 
     /**
      * @since 3.0.0
-     * @since 4.8.0 Moved from Settings/Settings to Settings/Tabs/General.
+     * @since 4.8.0 Moved from Settings/Settings to Settings/Tabs/Credentials.
      *
      * @return string
      */

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Tabs\General\General;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class GeneralTabTest extends WP_UnitTestCase
+class CredentialsTabTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Tabs\General\General
+     * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials
      * @static
      */
     private $_instance;
@@ -21,7 +21,7 @@ class GeneralTabTest extends WP_UnitTestCase
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
 
-        $this->_instance = new General();
+        $this->_instance = new Credentials();
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Settings > BeyondWords > General
+ * Settings > BeyondWords > Pronunciations
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
