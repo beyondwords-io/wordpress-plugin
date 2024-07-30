@@ -147,7 +147,7 @@ class Settings
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
                     if (SettingsUtils::hasApiSettings()) {
-                        submit_button('Save Settings');
+                        submit_button('Save changes');
                     } else {
                         submit_button('Continue setup');
                     }
