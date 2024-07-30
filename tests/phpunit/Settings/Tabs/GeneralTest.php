@@ -61,8 +61,8 @@ class GeneralTabTest extends WP_UnitTestCase
 
         $this->_instance->addSettingsSection();
 
-        $this->assertArrayHasKey('beyondwords_general', $wp_settings_fields);
-        $this->assertArrayHasKey('credentials', $wp_settings_fields['beyondwords_general']);
+        $this->assertArrayHasKey('beyondwords_credentials', $wp_settings_fields);
+        $this->assertArrayHasKey('credentials', $wp_settings_fields['beyondwords_credentials']);
     }
 
     /**

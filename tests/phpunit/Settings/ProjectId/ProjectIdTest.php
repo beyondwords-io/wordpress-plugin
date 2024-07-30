@@ -48,9 +48,9 @@ class ProjectIdTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_general']['credentials']);
+        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_credentials']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-project-id'];
+        $field = $wp_settings_fields['beyondwords_credentials']['credentials']['beyondwords-project-id'];
 
         $this->assertSame('beyondwords-project-id', $field['id']);
         $this->assertSame('Project ID', $field['title']);

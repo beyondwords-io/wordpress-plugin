@@ -39,7 +39,7 @@ class ApiKey
     public function addSetting()
     {
         register_setting(
-            'beyondwords_general_settings',
+            'beyondwords_credentials_settings',
             'beyondwords_api_key',
             [
                 'default'           => '',
@@ -51,7 +51,7 @@ class ApiKey
             'beyondwords-api-key',
             __('API key', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_general',
+            'beyondwords_credentials',
             'credentials'
         );
     }

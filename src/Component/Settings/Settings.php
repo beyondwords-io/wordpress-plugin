@@ -181,9 +181,9 @@ class Settings
     public function getTabs()
     {
         $tabs = array(
-            'general'        => __('General', 'speechkit'),
-            'voices'         => __('Voices', 'speechkit'),
+            'credentials'    => __('Credentials', 'speechkit'),
             'content'        => __('Content', 'speechkit'),
+            'voices'         => __('Voices', 'speechkit'),
             'player'         => __('Player', 'speechkit'),
             'pronunciations' => __('Pronunciations', 'speechkit'),
             'advanced'       => __('Advanced', 'speechkit'),

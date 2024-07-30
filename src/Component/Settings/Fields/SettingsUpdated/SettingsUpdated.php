@@ -39,7 +39,7 @@ class SettingsUpdated
     public function addSetting()
     {
         register_setting(
-            'beyondwords_general_settings',
+            'beyondwords_credentials_settings',
             'beyondwords_settings_updated',
             [
                 'default'           => '',
@@ -51,7 +51,7 @@ class SettingsUpdated
             'beyondwords-settings-updated',
             __('Settings Updated', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_general',
+            'beyondwords_credentials',
             'credentials',
             [
                 'class' => 'hidden'

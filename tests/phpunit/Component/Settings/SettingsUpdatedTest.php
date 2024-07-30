@@ -54,9 +54,9 @@ final class SettingsUpdatedTest extends WP_UnitTestCase
         $settingsUpdated->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-settings-updated', $wp_settings_fields['beyondwords_general']['credentials']);
+        $this->assertArrayHasKey('beyondwords-settings-updated', $wp_settings_fields['beyondwords_credentials']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords_general']['credentials']['beyondwords-settings-updated'];
+        $field = $wp_settings_fields['beyondwords_credentials']['credentials']['beyondwords-settings-updated'];
 
         $this->assertSame('beyondwords-settings-updated', $field['id']);
         $this->assertSame('Settings Updated', $field['title']);

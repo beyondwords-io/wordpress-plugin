@@ -39,7 +39,7 @@ class ProjectId
     public function addSetting()
     {
         register_setting(
-            'beyondwords_general_settings',
+            'beyondwords_credentials_settings',
             'beyondwords_project_id',
             [
                 'default'           => '',
@@ -51,7 +51,7 @@ class ProjectId
             'beyondwords-project-id',
             __('Project ID', 'speechkit'),
             array($this, 'render'),
-            'beyondwords_general',
+            'beyondwords_credentials',
             'credentials'
         );
     }

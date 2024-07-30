@@ -62,7 +62,7 @@ class General
             'credentials',
             __('Credentials', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_general',
+            'beyondwords_credentials',
             // [
             //     'before_section' => '<div id="general" data-tab="general">' . $this->dashboardLink(),
             //     'after_section' => '</div>',
