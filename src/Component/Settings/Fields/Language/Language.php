@@ -87,7 +87,7 @@ class Language
             <select
                 id="beyondwords_project_language"
                 name="beyondwords_project_language"
-                placeholder="<?php esc_attr__('Add a language', 'speechkit'); ?>"
+                placeholder="<?php esc_attr_e('Add a language', 'speechkit'); ?>"
                 style="width: 250px;"
                 autocomplete="off"
             >

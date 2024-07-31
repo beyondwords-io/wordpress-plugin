@@ -110,7 +110,7 @@ class Settings
         ?>
         <div class="wrap">
             <h1>
-                <?php esc_attr__('BeyondWords Settings', 'speechkit'); ?>
+                <?php esc_attr_e('BeyondWords Settings', 'speechkit'); ?>
             </h1>
 
             <form
