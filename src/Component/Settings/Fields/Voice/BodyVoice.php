@@ -22,16 +22,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
 class BodyVoice extends Voice
 {
     /**
-     * Constructor
-     */
-    public function __construct($apiClient)
-    {
-        $this->languageId = get_option('beyondwords_voice_language_id');
-
-        parent::__construct($apiClient);
-    }
-
-    /**
      * Add setting.
      *
      * @since 4.5.0
