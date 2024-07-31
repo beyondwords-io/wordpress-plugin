@@ -24,14 +24,14 @@ class IncludeTitle
      *
      * @var string
      */
-    const DEFAULT_VALUE = '1';
+    public const DEFAULT_VALUE = '1';
 
     /**
      * Option name.
      *
      * @var string
      */
-    const OPTION_NAME = 'beyondwords_include_title';
+    public const OPTION_NAME = 'beyondwords_include_title';
 
     /**
      * @var \Beyondwords\Wordpress\Core\ApiClient
@@ -55,8 +55,7 @@ class IncludeTitle
      */
     public function init()
     {
-        add_action( 'admin_init', array( $this, 'addSetting' ) );
-        add_action( 'pre_update_option_' . self::OPTION_NAME, array( $this, 'preUpdateOption' ), 10, 2 );
+        add_action('admin_init', array( $this, 'addSetting' ));
     }
 
     /**
@@ -111,41 +110,5 @@ class IncludeTitle
             </label>
         </div>
         <?php
-    }
-
-    /**
-     * Make the REST call every time the option is updated (even  if the
-     * value is the same) by using `pre_update_option_{name}` action.
-     *
-     * @since 4.8.0
-     *
-     * @param mixed $value    The new option value.
-     * @param mixed $oldValue The old option value.
-     *
-     * @return string
-     **/
-    public function preUpdateOption($value, $oldValue)
-    {
-        // Make REST API call
-        $response = $this->apiClient->updateProject([
-            'title' => [
-                'enabled' => (bool) $value,
-            ]
-        ]);
-
-        if (
-            ! empty($response)
-            && ! empty($response['title'])
-            && is_array($response['title'])
-            && array_key_exists('enabled', $response['title'])
-        ) {
-            // Success
-            add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-controls-volumeon"></span>"Include title in audio" has been synced to the BeyondWords REST API.', 'success');
-            return $response['title']['enabled'] ? '1' : '';
-        }
-
-        // Error
-        add_settings_error('beyondwords_settings', 'beyondwords_settings', '<span class="dashicons dashicons-controls-volumeon"></span>Error syncing "Include title in audio" to the BeyondWords REST API. Please try again.', 'error');
-        return $oldValue;
     }
 }

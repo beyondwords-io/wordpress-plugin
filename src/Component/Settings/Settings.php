@@ -129,9 +129,14 @@ class Settings
                                 'tab'  => urlencode($id),
                             ]);
                             ?>
-                            <li><a class="nav-tab<?php esc_attr_e($activeClass); ?>" href="<?php echo esc_url($url); ?>">
-                                <?php echo wp_kses_post($title); ?>
-                            </a></li>
+                            <li>
+                                <a
+                                    class="nav-tab<?php esc_attr_e($activeClass); ?>"
+                                    href="<?php echo esc_url($url); ?>"
+                                >
+                                    <?php echo wp_kses_post($title); ?>
+                                </a>
+                            </li>
                             <?php
                         }
                         ?>
@@ -147,7 +152,7 @@ class Settings
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
                     if (SettingsUtils::hasApiSettings()) {
-                        submit_button('Save changes');
+                        submit_button('Save changes', 'primary', 'submit-' . $activeTab);
                     } else {
                         submit_button('Continue setup');
                     }
@@ -203,8 +208,8 @@ class Settings
     {
         $defaultTab = array_key_first($tabs);
 
-        if (isset($_GET['tab'])) {
-            $tab = sanitize_text_field($_GET['tab']);
+        if (isset($_GET['tab'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $tab = sanitize_text_field($_GET['tab']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         } else {
             $tab = $defaultTab;
         }
@@ -410,17 +415,17 @@ class Settings
             );
 
             /**
-			 * Localize the script to handle ajax requests
-			 */
-			wp_add_inline_script(
-				'beyondwords-settings',
+             * Localize the script to handle ajax requests
+             */
+            wp_add_inline_script(
+                'beyondwords-settings',
                 '
                 var beyondwordsData = beyondwordsData || {};
                 beyondwordsData.nonce = "' . wp_create_nonce('wp_rest') . '";
                 beyondwordsData.root = "' . esc_url_raw(rest_url()) . '";
                 ',
                 'before',
-			);
+            );
 
             wp_enqueue_script('beyondwords-settings');
         }

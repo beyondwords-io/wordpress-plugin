@@ -24,7 +24,7 @@ class PlaybackControls
      *
      * @var string
      */
-    const playerSettingsDocsUrl = 'https://github.com/beyondwords-io/player/blob/main/doc/player-settings.md';
+    public const PLAYER_SETTINGS_DOCS_URL = 'https://github.com/beyondwords-io/player/blob/main/doc/player-settings.md';
 
     /**
      * Init.
@@ -99,9 +99,8 @@ class PlaybackControls
             <p class="description" style="max-width: 740px;">
                 <?php
                 echo wp_kses_post(__('The style of skip buttons to show in the player.', 'speechkit')) . " ";
-                echo wp_kses_post(__('Possible values are <code>auto</code>, <code>segments</code>, <code>seconds</code> or <code>audios</code>.', 'speechkit')) . " ";
-                echo wp_kses_post(__('You can specify the number of seconds to skip, e.g. <code>seconds-15</code> or <code>seconds-15-30</code>.', 'speechkit')) . " ";
-                // echo wp_kses_post(__('The <code>auto</code> style uses <code>audios</code> if there is a playlist and <code>segments</code> otherwise.', 'speechkit')) . " ";
+                echo wp_kses_post(__('Possible values are <code>auto</code>, <code>segments</code>, <code>seconds</code> or <code>audios</code>.', 'speechkit')) . " "; // phpcs:ignore Generic.Files.LineLength.TooLong
+                echo wp_kses_post(__('You can specify the number of seconds to skip, e.g. <code>seconds-15</code> or <code>seconds-15-30</code>.', 'speechkit')) . " "; // phpcs:ignore Generic.Files.LineLength.TooLong
                 ?>
             </p>
             <p class="description" style="max-width: 740px;">
@@ -111,8 +110,8 @@ class PlaybackControls
                     esc_html__('Refer to the %s docs for more details.', 'speechkit'),
                     sprintf(
                         '<a href="%s" target="_blank" rel="nofollow">%s</a>',
-                        esc_url(PlaybackControls::playerSettingsDocsUrl),
-                        __('Player Settings', 'speechkit')
+                        esc_url(PlaybackControls::PLAYER_SETTINGS_DOCS_URL),
+                        esc_html__('Player Settings', 'speechkit')
                     )
                 );
                 ?>

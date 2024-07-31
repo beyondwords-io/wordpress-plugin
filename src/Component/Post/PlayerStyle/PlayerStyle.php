@@ -28,7 +28,7 @@ class PlayerStyle
      *
      * @var array Arry of player styles.
      */
-    const PLAYER_STYLES = [
+    public const PLAYER_STYLES = [
         'small',
         'standard',
         'large',
@@ -159,10 +159,8 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 4.8.0 Stop saving a dedicated player styles transient for each project ID.
-     *
-     * @return \WP_REST_Response
      */
-    public function playerStylesRestApiResponse(\WP_REST_Request $data)
+    public function playerStylesRestApiResponse()
     {
         $response = PlayerStyleSetting::getCachedOptions();
 

@@ -26,25 +26,4 @@ abstract class SpeakingRate
     {
         add_action('admin_init', array($this, 'addSetting'));
     }
-
-    // /**
-    //  * Get all options for the current component.
-    //  *
-    //  * @since 4.8.0
-    //  *
-    //  * @return string[] Associative array of options.
-    //  **/
-    // public function getOptions()
-    // {
-    //     $options = [];
-
-    //     for ($i = 50; $i <= 200; $i += 5) {
-    //         $options[] = [
-    //             'value' => "$i",
-    //             'label' => "$i%",
-    //         ];
-    //     }
-
-    //     return $options;
-    // }
 }

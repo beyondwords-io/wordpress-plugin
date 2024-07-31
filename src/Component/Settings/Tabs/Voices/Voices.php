@@ -17,7 +17,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate\TitleVoiceSpeak
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\BodyVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\TitleVoice;
 use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Voices" settings tab
@@ -57,6 +56,7 @@ class Voices
         (new BodyVoiceSpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', array($this, 'maybeSync'), 10);
     }
 
     /**
@@ -103,5 +103,70 @@ class Voices
             </em>
         </p>
         <?php
+    }
+
+    /**
+     * Maybe sync to REST API.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function maybeSync()
+    {
+        $submitted = isset($_POST['submit-voices' ]); // phpcs:ignore WordPress.Security.NonceVerification
+
+        if (! $submitted) {
+            return;
+        }
+
+        // Sync WordPress -> REST API
+        $data = $this->getBodyParams();
+
+        // Sync WordPress -> REST API
+        if (!empty($data)) {
+            $result = $this->apiClient->updateVoices($data);
+        }
+
+        if (! $result) {
+            // Error notice
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'error'
+            );
+        } else {
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-rest-api"></span> Settings synced from WordPress to the BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'success'
+            );
+        }
+    }
+
+    /**
+     * Get the body params, ready for REST API call.
+     *
+     * @since 4.8.0
+     *
+     * @return array REST API body params.
+     */
+    public function getBodyParams()
+    {
+        $params = [];
+
+        $params['player_style']      = get_option('beyondwords_player_style');
+        $params['theme']             = get_option('beyondwords_player_theme');
+        $params['dark_theme']        = get_option('beyondwords_player_dark_theme');
+        $params['light_theme']       = get_option('beyondwords_player_light_theme');
+        $params['video_theme']       = get_option('beyondwords_player_video_theme');
+        $params['call_to_action']    = get_option('beyondwords_player_call_to_action');
+        $params['widget_style']      = get_option('beyondwords_player_widget_style');
+        $params['widget_position']   = get_option('beyondwords_player_widget_position');
+        $params['skip_button_style'] = get_option('beyondwords_player_skip_button_style');
+
+        return array_filter($params);
     }
 }

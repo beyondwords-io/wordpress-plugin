@@ -26,18 +26,18 @@ class Updater
      */
     public function run()
     {
-        // $version = get_option('beyondwords_version', '1.0.0');
+        $version = get_option('beyondwords_version', '1.0.0');
 
-        // if (version_compare($version, '3.0.0', '<')) {
-        //     $this->migrateSettings();
-        // }
+        if (version_compare($version, '3.0.0', '<')) {
+            $this->migrateSettings();
+        }
 
-        // if (version_compare($version, '3.7.0', '<')) {
-        //     $this->renamePluginSettings();
-        // }
+        if (version_compare($version, '3.7.0', '<')) {
+            $this->renamePluginSettings();
+        }
 
-        // // Always update the plugin version, to handle e.g. FTP plugin updates
-        // update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
+        // Always update the plugin version, to handle e.g. FTP plugin updates
+        update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
     }
 
     /**

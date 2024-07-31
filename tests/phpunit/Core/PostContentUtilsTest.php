@@ -382,7 +382,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         $thumbnailUrl = strval(wp_get_original_image_url(get_post_thumbnail_id($postId)));
         $this->assertNotEmpty($thumbnailUrl);
         $this->assertSame($thumbnailUrl, $body->image_url);
-        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', json_encode($body->metadata));
+        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body->metadata));
         $this->assertSame(true, $body->published);
         $this->assertSame($args['post_date'], $body->publish_date);
 

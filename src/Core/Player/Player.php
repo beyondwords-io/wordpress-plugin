@@ -521,7 +521,7 @@ class Player
             $params['showUserInterface'] = false;
         }
 
-        $params = $this->addPluginSettingsToSdkParams( $params );
+        $params = $this->addPluginSettingsToSdkParams($params);
 
         // @todo overwrite global styles with post settings
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
@@ -549,7 +549,8 @@ class Player
      *
      * @return array Modified SDK params.
      */
-    public function addPluginSettingsToSdkParams( $params ) {
+    public function addPluginSettingsToSdkParams($params)
+    {
         $mapping = [
             'beyondwords_project_title_speaking_rate' => 'playbackRate', // @todo
             'beyondwords_project_body_speaking_rate' => 'playbackRate', // @todo
