@@ -110,7 +110,7 @@ class Settings
         ?>
         <div class="wrap">
             <h1>
-                <?php _e('BeyondWords Settings', 'speechkit'); ?>
+                <?php esc_attr__('BeyondWords Settings', 'speechkit'); ?>
             </h1>
 
             <form
@@ -122,7 +122,7 @@ class Settings
                     <ul>
                         <?php
                         foreach ($tabs as $id => $title) {
-                            $activeClass = $id === $activeTab ? ' nav-tab-active' : '';
+                            $activeClass = $id === $activeTab ? 'nav-tab-active' : '';
 
                             $url = add_query_arg([
                                 'page' => 'beyondwords',
@@ -131,7 +131,7 @@ class Settings
                             ?>
                             <li>
                                 <a
-                                    class="nav-tab<?php esc_attr_e($activeClass); ?>"
+                                    class="nav-tab <?php echo esc_attr($activeClass); ?>"
                                     href="<?php echo esc_url($url); ?>"
                                 >
                                     <?php echo wp_kses_post($title); ?>

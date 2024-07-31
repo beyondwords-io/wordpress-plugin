@@ -68,14 +68,14 @@ class Updater
         // Simple mapping of 'old key' -> 'new key'
         foreach ($settingsMap as $oldKey => $newKey) {
             if (array_key_exists($oldKey, $oldSettings) && ! get_option($newKey)) {
-                add_option($newKey, $oldSettings[$oldKey], false);
+                add_option($newKey, $oldSettings[$oldKey]);
             }
         }
 
         if (get_option('speechkit_preselect') === false) {
             $preselectSetting = $this->constructPreselectSetting();
 
-            add_option('speechkit_preselect', $preselectSetting, false);
+            add_option('speechkit_preselect', $preselectSetting);
         }
     }
 

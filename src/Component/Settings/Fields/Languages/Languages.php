@@ -102,7 +102,7 @@ class Languages
                 multiple
                 id="beyondwords_languages"
                 name="beyondwords_languages[]"
-                placeholder="<?php _e('Add a language', 'speechkit'); ?>"
+                placeholder="<?php esc_attr__('Add a language', 'speechkit'); ?>"
                 style="width: 500px;"
                 autocomplete="off"
             >
