@@ -6,6 +6,9 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * @group settings
+ */
 class LanguagesTest extends WP_UnitTestCase
 {
     /**
@@ -51,12 +54,12 @@ class LanguagesTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_content_setings']['content']);
+        $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_advanced']['advanced']);
 
-        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-languages'];
+        $field = $wp_settings_fields['beyondwords_advanced']['advanced']['beyondwords-languages'];
 
         $this->assertSame('beyondwords-languages', $field['id']);
-        $this->assertSame('Languages', $field['title']);
+        $this->assertSame('Multiple languages', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }

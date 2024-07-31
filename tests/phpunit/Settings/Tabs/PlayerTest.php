@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
 use Beyondwords\Wordpress\Core\ApiClient;
 
+/**
+ * @group settings
+ */
 class PlayerTabTest extends WP_UnitTestCase
 {
     /**

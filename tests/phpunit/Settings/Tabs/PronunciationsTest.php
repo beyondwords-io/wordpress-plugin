@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
 
+/**
+ * @group settings
+ */
 class PronunciationsTabTest extends WP_UnitTestCase
 {
     /**

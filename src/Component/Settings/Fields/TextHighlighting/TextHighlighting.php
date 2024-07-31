@@ -53,7 +53,7 @@ class TextHighlighting
             __('Text highlighting', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player-styling'
+            'styling'
         );
     }
 

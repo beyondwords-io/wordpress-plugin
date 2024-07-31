@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt;
+use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PrependExcerptTest extends WP_UnitTestCase
+/**
+ * @group settings
+ */
+class IncludeExcerptTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Fields\PrependExcerpt\PrependExcerpt
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt
      */
     private $_instance;
 
@@ -18,7 +21,7 @@ class PrependExcerptTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new PrependExcerpt();
+        $this->_instance = new IncludeExcerpt();
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -48,12 +51,12 @@ class PrependExcerptTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-prepend-excerpt', $wp_settings_fields['beyondwords_content_setings']['content']);
+        $this->assertArrayHasKey('beyondwords-include-excerpt', $wp_settings_fields['beyondwords_content']['content']);
 
-        $field = $wp_settings_fields['beyondwords_content_setings']['content']['beyondwords-prepend-excerpt'];
+        $field = $wp_settings_fields['beyondwords_content']['content']['beyondwords-include-excerpt'];
 
-        $this->assertSame('beyondwords-prepend-excerpt', $field['id']);
-        $this->assertSame('Process excerpts', $field['title']);
+        $this->assertSame('beyondwords-include-excerpt', $field['id']);
+        $this->assertSame('Excerpt', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }

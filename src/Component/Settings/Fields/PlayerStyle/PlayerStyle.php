@@ -74,7 +74,7 @@ class PlayerStyle
             __('Player style', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player-styling'
+            'styling'
         );
     }
 
@@ -88,7 +88,7 @@ class PlayerStyle
     public function render()
     {
         $currentStyle = get_option('beyondwords_player_style', PlayerStyle::STANDARD);
-        $options = $this->getOptions();
+        $options      = $this->getOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-style">
             <select name="beyondwords_player_style">

@@ -51,7 +51,7 @@ class CallToAction
             __('Call-to-action', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player-styling'
+            'styling'
         );
     }
 

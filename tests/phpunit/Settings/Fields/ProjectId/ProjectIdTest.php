@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey;
+use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class ApiKeyTest extends WP_UnitTestCase
+/**
+ * @group settings
+ */
+class ProjectIdTest extends WP_UnitTestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey
+     * @var \Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId
      */
     private $_instance;
 
@@ -18,7 +21,7 @@ class ApiKeyTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new ApiKey();
+        $this->_instance = new ProjectId();
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -41,19 +44,19 @@ class ApiKeyTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function addSetting()
+    public function init()
     {
         global $wp_settings_fields;
 
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-api-key', $wp_settings_fields['beyondwords_credentials']['credentials']);
+        $this->assertArrayHasKey('beyondwords-project-id', $wp_settings_fields['beyondwords_credentials']['credentials']);
 
-        $field = $wp_settings_fields['beyondwords_credentials']['credentials']['beyondwords-api-key'];
+        $field = $wp_settings_fields['beyondwords_credentials']['credentials']['beyondwords-project-id'];
 
-        $this->assertSame('beyondwords-api-key', $field['id']);
-        $this->assertSame('API key', $field['title']);
+        $this->assertSame('beyondwords-project-id', $field['id']);
+        $this->assertSame('Project ID', $field['title']);
         $this->assertSame(array($this->_instance, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
@@ -69,7 +72,7 @@ class ApiKeyTest extends WP_UnitTestCase
 
         $crawler = new Crawler($html);
 
-        $field = $crawler->filter('input[type="text"][name="beyondwords_api_key"][size="50"]');
+        $field = $crawler->filter('input[type="text"][name="beyondwords_project_id"][size="10"]');
 
         $this->assertCount(1, $field);
     }
@@ -84,11 +87,11 @@ class ApiKeyTest extends WP_UnitTestCase
         // Assert valid value does not add an error
         $result = $this->_instance->sanitize('ABCDE');
 
-        $this->assertNotContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertNotContains('Please enter your BeyondWords project ID. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
 
         // Assert empty value adds an error
         $result = $this->_instance->sanitize('');
 
-        $this->assertContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertContains('Please enter your BeyondWords project ID. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
     }
 }

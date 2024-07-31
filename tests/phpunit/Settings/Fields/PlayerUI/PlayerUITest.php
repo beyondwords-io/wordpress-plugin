@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use \Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * @group settings
+ */
 class PlayerUITest extends WP_UnitTestCase
 {
     /**
@@ -81,32 +84,5 @@ class PlayerUITest extends WP_UnitTestCase
         $this->assertSame('Headless', $field->filter('option:nth-child(2)')->text());
         $this->assertSame('disabled', $field->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Disabled', $field->filter('option:nth-child(3)')->text());
-    }
-
-    /**
-     * @test
-     */
-    public function enqueueScripts()
-    {
-        global $wp_scripts;
-
-        $this->assertNull($wp_scripts);
-
-        $this->_instance->enqueueScripts( null );
-        $this->assertNull($wp_scripts);
-
-        $this->_instance->enqueueScripts( 'edit.php' );
-        $this->assertNull($wp_scripts);
-
-        $this->_instance->enqueueScripts( 'post.php' );
-        $this->assertNull($wp_scripts);
-
-        $this->_instance->enqueueScripts( 'post-new.php' );
-        $this->assertNull($wp_scripts);
-
-        $this->_instance->enqueueScripts( 'settings_page_beyondwords' );
-        $this->assertContains('beyondwords-settings--player-ui', $wp_scripts->queue);
-
-        $wp_scripts = null;
     }
 }

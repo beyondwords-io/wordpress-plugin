@@ -66,7 +66,8 @@ class PlayerStyle
      */
     public function element($post)
     {
-        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
+        $playerStyle     = PostMetaUtils::getPlayerStyle($post->ID);
+        $allPlayerStyles = PlayerStyleSetting::getCachedOptions();
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -81,7 +82,7 @@ class PlayerStyle
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">
             <option value=""></option>
             <?php
-            foreach (static::PLAYER_STYLES as $item) {
+            foreach ($allPlayerStyles as $item) {
                 printf(
                     '<option value="%s" %s %s>%s</option>',
                     esc_attr($item['value']),

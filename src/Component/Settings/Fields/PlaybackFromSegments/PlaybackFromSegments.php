@@ -51,7 +51,7 @@ class PlaybackFromSegments
             __('Playback from segments', 'speechkit'),
             array($this, 'render'),
             'beyondwords_player',
-            'player-styling'
+            'styling'
         );
     }
 

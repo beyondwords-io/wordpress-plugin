@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use \Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * @group settings
+ */
 class CredentialsTabTest extends WP_UnitTestCase
 {
     /**

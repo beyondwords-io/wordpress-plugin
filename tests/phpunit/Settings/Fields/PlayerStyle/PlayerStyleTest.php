@@ -6,6 +6,9 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * @group settings
+ */
 class SettingsPlayerStyleTest extends WP_UnitTestCase
 {
     /**
@@ -51,9 +54,9 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
         $this->_instance->addSetting();
 
         // Check for add_settings_field() result
-        $this->assertArrayHasKey('beyondwords-player-style', $wp_settings_fields['beyondwords_player']['player']);
+        $this->assertArrayHasKey('beyondwords-player-style', $wp_settings_fields['beyondwords_player']['styling']);
 
-        $field = $wp_settings_fields['beyondwords_player']['player']['beyondwords-player-style'];
+        $field = $wp_settings_fields['beyondwords_player']['styling']['beyondwords-player-style'];
 
         $this->assertSame('beyondwords-player-style', $field['id']);
         $this->assertSame('Player style', $field['title']);

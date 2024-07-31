@@ -85,8 +85,8 @@ class Player
         ];
 
         add_settings_section(
-            'player-styling',
-            __('Player styling', 'speechkit'),
+            'styling',
+            __('Styling', 'speechkit'),
             false,
             'beyondwords_player',
             $toggledSectionArgs,
