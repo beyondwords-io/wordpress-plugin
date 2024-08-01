@@ -37,7 +37,7 @@
     "@wordpress/eslint-plugin": "^17.3.0",
     "@wordpress/scripts": "^26.17.0",
     "badge-maker": "^3.3.1",
-    "cypress": "13.7.2",
+    "cypress": "13.13.2",
     "cypress-map": "^1.37.0",
     "cypress-multi-reporters": "^1.6.4",
     "cypress-terminal-report": "^6.0.1",

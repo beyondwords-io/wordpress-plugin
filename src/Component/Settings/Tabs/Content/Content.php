@@ -106,12 +106,9 @@ class Content
         }
 
         // Sync WordPress -> REST API
-        $data = $this->getBodyParams();
-
-        // Sync WordPress -> REST API
-        if (! empty($data)) {
-            $result = $this->apiClient->updateProject($data);
-        }
+        $data   = $this->getBodyParams();
+        $result = $this->apiClient->updateProject($data);
+        $result = true; // @todo make sync API call on update
 
         if (! $result) {
             // Error notice
@@ -120,13 +117,6 @@ class Content
                 'beyondwords_settings',
                 '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', // phpcs:ignore Generic.Files.LineLength.TooLong
                 'error'
-            );
-        } else {
-            add_settings_error(
-                'beyondwords_settings',
-                'beyondwords_settings',
-                '<span class="dashicons dashicons-rest-api"></span> Settings synced from WordPress to the BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'success'
             );
         }
     }

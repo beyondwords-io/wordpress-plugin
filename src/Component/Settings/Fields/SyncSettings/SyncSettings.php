@@ -150,46 +150,21 @@ class SyncSettings
      **/
     public function syncFromRestApi($overwrite = true)
     {
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
-        // Sync REST API -> WordPress
-        $project = $this->apiClient->getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === get_option('beyondwords_project_id')
-        );
-
-        if (! $validConnection) {
-            $errors = get_transient('beyondwords_settings_errors', []);
-
-            $errors['Settings/ValidApiConnection'] = __(
-                'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
-                'speechkit'
-            );
-
-            set_transient('beyondwords_settings_errors', $errors);
-
-            return false;
-        }
-
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-
         $settings = [
             'project' => $this->apiClient->getProject(),
             'player'  => $this->apiClient->getPlayerSettings(),
         ];
+
+        $updated = [];
 
         foreach (self::MAP_SETTINGS as $optionName => $path) {
             if (! $overwrite && false === get_option($optionName) && $settings[$path]) {
                 continue;
             }
 
-            $updated = update_option($optionName, $settings[$path], false);
+            $updated[$optionName] = update_option($optionName, $settings[$path], false);
 
-            if ($updated) {
+            if (! $updated[$optionName]) {
                 add_settings_error(
                     'beyondwords_settings',
                     'beyondwords_settings',

@@ -66,6 +66,7 @@ class Settings
             (new Advanced($this->apiClient))->init();
         }
 
+        add_action('admin_init', array($this, 'validateApiConnection'));
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
@@ -429,5 +430,43 @@ class Settings
 
             wp_enqueue_script('beyondwords-settings');
         }
+    }
+
+    /**
+     * Validate the BeyondWords REST API connection.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function validateApiConnection()
+    {
+        // Assume invalid connection
+        delete_option('beyondwords_valid_api_connection');
+
+        // Sync REST API -> WordPress
+        $project = $this->apiClient->getProject();
+
+        $validConnection = (
+            is_array($project)
+            && array_key_exists('id', $project)
+            && strval($project['id']) === get_option('beyondwords_project_id')
+        );
+
+        if ($validConnection) {
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            return true;
+        }
+
+        $errors = get_transient('beyondwords_settings_errors', []);
+
+        $errors['Settings/ValidApiConnection'] = __(
+            'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
+            'speechkit'
+        );
+
+        set_transient('beyondwords_settings_errors', $errors);
+
+        return false;
     }
 }

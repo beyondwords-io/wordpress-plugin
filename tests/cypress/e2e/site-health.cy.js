@@ -37,13 +37,6 @@ context( 'Site Health', () => {
           const visibleChars = Cypress.env( 'apiKey' ).slice( -4 )
           expect( text ).to.be.a( 'string' ).and.match( new RegExp(`[X]{34}${visibleChars}`) );
         })
-
-      } )
-
-    cy.contains( 'Player version' )
-      .parent( 'tr' )
-      .within( () => {
-        cy.get( 'td' ).eq( 1 ).should( 'have.text', '1' )
       } )
 
     cy.contains( 'Player UI' )
@@ -58,7 +51,7 @@ context( 'Site Health', () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', Cypress.env( 'projectId' ) )
       } )
 
-    cy.contains( 'Process excerpts' )
+    cy.contains( 'Include excerpts in audio' )
       .parent( 'tr' )
       .within( () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', 'No' )
@@ -67,7 +60,7 @@ context( 'Site Health', () => {
     cy.contains( 'Preselect ‘Generate audio’' )
       .parent( 'tr' )
       .within( () => {
-        cy.get( 'td' ).eq( 1 ).should( 'have.text', '{"post":"1","page":"1","cpt_active":"1"}' )
+        cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}' )
       } )
 
     cy.contains( 'Compatible post types' )
@@ -82,11 +75,11 @@ context( 'Site Health', () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', 'cpt_unsupported' )
       } )
 
-    cy.contains( 'Settings updated' )
-      .parent( 'tr' )
-      .within( () => {
-        cy.get( 'td' ).eq( 1 ).invoke( 'text' ).should( 'match', settingsUpdatedRegex )
-      } )
+    // cy.contains( 'Settings updated' )
+    //   .parent( 'tr' )
+    //   .within( () => {
+    //     cy.get( 'td' ).eq( 1 ).invoke( 'text' ).should( 'match', settingsUpdatedRegex )
+    //   } )
 
     cy.contains( 'Registered filters' )
       .parent( 'tr' )

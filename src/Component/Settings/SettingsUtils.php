@@ -147,8 +147,7 @@ class SettingsUtils
     }
 
     /**
-     * Do we have both a BeyondWords API key and Project ID?
-     * We need both to call the BeyondWords API.
+     * Do we have a valid API connection to call the BeyondWords REST API?
      *
      * @since  3.0.0
      * @since  4.0.0 Moved from Settings to SettingsUtils

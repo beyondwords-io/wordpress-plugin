@@ -557,7 +557,6 @@ class Player
             'beyondwords_include_title' => '', // @todo
             'beyondwords_player_style' => 'playerStyle',
             'beyondwords_player_theme' => '', // @todo
-            'beyondwords_player_colors' => '', // @todo
             'beyondwords_player_call_to_action' => 'callToAction',
             'beyondwords_player_highlight_sections' => 'highlightSections',
             'beyondwords_player_clickable_sections' => 'clickableSections',
