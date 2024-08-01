@@ -64,7 +64,7 @@ Cypress.Commands.add( 'savePluginSettings', () => {
   cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
   cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
 
-  cy.get( '#submit-credentials' ).click()
+  cy.get( '#submit' ).click()
   cy.get( 'div.notice-success' )
 
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
@@ -76,7 +76,7 @@ Cypress.Commands.add( 'savePluginSettings', () => {
   cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should( 'not.be.checked' )
   cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should( 'not.exist' )
 
-  cy.get( '#submit-content' ).click()
+  cy.get( '#submit' ).click()
   cy.get( 'div.notice-success' )
 } )
 
@@ -87,7 +87,7 @@ Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
   cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 1' ).click().wait( 1000 )
   cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 2' ).click().wait( 1000 )
 
-  cy.get( '#submit-advanced' ).click()
+  cy.get( '#submit' ).click()
   cy.get( 'div.notice-success' )
 } )
 
@@ -95,7 +95,7 @@ Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
 
   cy.get( 'select[name="beyondwords_player_style"]' ).select( value )
-  cy.get( '#submit-player' ).click()
+  cy.get( '#submit' ).click()
   cy.get( 'div.notice-success' )
 } )
 
