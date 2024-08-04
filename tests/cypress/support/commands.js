@@ -101,7 +101,7 @@ Cypress.Commands.add( 'savePluginSettings', () => {
   cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
   cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
 
-  cy.get( '#submit' ).click()
+  cy.get( 'input[type=submit]' ).click()
   cy.get( '.notice-success' )
 
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
