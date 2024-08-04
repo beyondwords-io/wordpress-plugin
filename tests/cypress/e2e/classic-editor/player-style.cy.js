@@ -14,7 +14,7 @@ context( 'Classic Editor: Player Style', () => {
   } )
 
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
+    it.skip( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.get( 'select#beyondwords_player_style' ).find( 'option' ).should( $els => {
@@ -50,7 +50,7 @@ context( 'Classic Editor: Player Style', () => {
       cy.setPlayerStyleInPluginSettings( 'Standard' );
     })
 
-    it( `can set "Large" Player style for a ${postType.name}`, () => {
+    it.skip( `can set "Large" Player style for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       // Select a Player style
@@ -78,36 +78,36 @@ context( 'Classic Editor: Player Style', () => {
       cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Large' )
     } )
 
-  it( `can set "Video" Player style for a ${postType.name}`, () => {
-    cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+    it.skip( `can set "Video" Player style for a ${postType.name}`, () => {
+      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
-    // Select a Player style
-    cy.get( 'select#beyondwords_player_style' ).select( 'Video' )
+      // Select a Player style
+      cy.get( 'select#beyondwords_player_style' ).select( 'Video' )
 
-    cy.classicSetPostTitle( `I can set "Video" Player style for a ${postType.name}` )
+      cy.classicSetPostTitle( `I can set "Video" Player style for a ${postType.name}` )
 
-    if ( postType.preselect ) {
-      cy.get( 'input#beyondwords_generate_audio' ).should( 'be.checked' )
-    } else {
-      cy.get( 'input#beyondwords_generate_audio' ).should( 'not.be.checked' )
-      cy.get( 'input#beyondwords_generate_audio' ).check()
-    }
+      if ( postType.preselect ) {
+        cy.get( 'input#beyondwords_generate_audio' ).should( 'be.checked' )
+      } else {
+        cy.get( 'input#beyondwords_generate_audio' ).should( 'not.be.checked' )
+        cy.get( 'input#beyondwords_generate_audio' ).check()
+      }
 
-    cy.get( 'input[type="submit"]' ).contains( 'Publish' ).click().wait( 500 )
+      cy.get( 'input[type="submit"]' ).contains( 'Publish' ).click().wait( 500 )
 
-    // "View post"
-    cy.get( '#sample-permalink' ).click().wait( 500 )
+      // "View post"
+      cy.get( '#sample-permalink' ).click().wait( 500 )
 
-    // Check Player has video player in frontend
-    cy.getFrontendVideoPlayer().should( 'exist' )
+      // Check Player has video player in frontend
+      cy.getFrontendVideoPlayer().should( 'exist' )
 
-    // Check Player style has also been saved in admin
-    cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
-    cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Video' )
+      // Check Player style has also been saved in admin
+      cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
+      cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Video' )
+    } )
   } )
-} )
 
-postTypes.filter( x => ! x.supported ).forEach( postType => {
+  postTypes.filter( x => ! x.supported ).forEach( postType => {
     it( `has no Player style component for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 

@@ -526,7 +526,7 @@ class ApiClientTest extends WP_UnitTestCase
     public function errorMessageFromResponse()
     {
         $response = [
-            'body' => json_encode(['message' => 'Foo'])
+            'body' => wp_json_encode(['message' => 'Foo'])
         ];
 
         $result = $this->_instance->errorMessageFromResponse($response);
@@ -534,7 +534,7 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertEquals('Foo', $result);
 
         $response = [
-            'body' => json_encode(
+            'body' => wp_json_encode(
                 ['errors' => [
                 [
                     'code' => 500,

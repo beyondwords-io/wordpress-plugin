@@ -46,7 +46,6 @@ class UninstallerTest extends WP_UnitTestCase
             'beyondwords_languages'            => ['beyondwords_languages'],
             'beyondwords_player_ui'            => ['beyondwords_player_ui'],
             'beyondwords_player_style'         => ['beyondwords_player_style'],
-            'beyondwords_player_version'       => ['beyondwords_player_version'],
             'beyondwords_settings_updated'     => ['beyondwords_settings_updated'],
             'beyondwords_valid_api_connection' => ['beyondwords_valid_api_connection'],
             // v3.7.0 beyondwords_*

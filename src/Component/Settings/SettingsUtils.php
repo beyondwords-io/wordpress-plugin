@@ -1,11 +1,9 @@
 <?php
+// phpcs:disable Generic.Files.LineLength.TooLong
 
 declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
-
-use Beyondwords\Wordpress\Compatibility\Elementor\Elementor;
-use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
 
 /**
  * BeyondWords Settings Utilities.
@@ -149,32 +147,7 @@ class SettingsUtils
     }
 
     /**
-     * Should we use the Legacy player version?
-     *
-     * @since 4.0.0
-     *
-     * @return boolean
-     */
-    public static function useLegacyPlayer()
-    {
-        // Use "Legacy" player for Elementor
-        if (Elementor::isElementorActivated()) {
-            return true;
-        }
-
-        // Use "Latest" player for all other admin screens
-        if (is_admin()) {
-            return false;
-        }
-
-        $playerVersion = get_option('beyondwords_player_version');
-
-        return $playerVersion === PlayerVersion::LEGACY_VERSION;
-    }
-
-    /**
-     * Do we have both a BeyondWords API key and Project ID?
-     * We need both to call the BeyondWords API.
+     * Do we have a valid API connection to call the BeyondWords REST API?
      *
      * @since  3.0.0
      * @since  4.0.0 Moved from Settings to SettingsUtils
@@ -185,5 +158,41 @@ class SettingsUtils
     public static function hasApiSettings()
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
+    }
+
+    /**
+     * A color input.
+     *
+     * @since  4.8.0
+     * @static
+     *
+     * @param string $label Content for the `<label>`
+     * @param string $name  `name` attribute for the `<input />`
+     * @param string $value `value` attribute for the `<input />`
+     *
+     * @return string
+     */
+    public static function colorInput($label, $name, $value)
+    {
+        $value = trim(ltrim($value, '#'));
+        ?>
+        <div class="color-input">
+            <label>
+                    <?php echo esc_attr($label); ?>
+            </label>
+            <output
+                for="<?php echo esc_attr($name); ?>"
+                style="background-color: #<?php echo esc_attr($value); ?>;"
+            ></output>
+            #
+            <input
+                name="<?php echo esc_attr($name); ?>"
+                type="text"
+                value="<?php echo esc_attr($value); ?>"
+                class="small-text"
+                oninput="this.value = `${this.value}`.length > 1 ? `${this.value}`.replace(/[#]/g, '') : this.value; this.previousElementSibling.style.backgroundColor = 'transparent'; this.previousElementSibling.style.backgroundColor = `#${this.value}`"
+            />
+        </div>
+        <?php
     }
 }

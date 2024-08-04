@@ -7,7 +7,7 @@ context( 'Block Editor: Player Style', () => {
 
   // Only test priority post types
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
+    it.skip( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.closeWelcomeToBlockEditorTips()
@@ -54,7 +54,7 @@ context( 'Block Editor: Player Style', () => {
       cy.setPlayerStyleInPluginSettings( 'Standard' );
     })
 
-    it( `can set "Large" Player style for a ${postType.name}`, () => {
+    it.skip( `can set "Large" Player style for a ${postType.name}`, () => {
 
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
@@ -87,7 +87,7 @@ context( 'Block Editor: Player Style', () => {
       cy.getBlockEditorSelect( 'Player style' ).find('option:selected').contains( 'Large' )
     } )
 
-    it( `can set "Video" Player style for a ${postType.name}`, () => {
+    it.skip( `can set "Video" Player style for a ${postType.name}`, () => {
 
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 

@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -37,7 +37,7 @@
     "@wordpress/eslint-plugin": "^17.3.0",
     "@wordpress/scripts": "^26.17.0",
     "badge-maker": "^3.3.1",
-    "cypress": "13.7.2",
+    "cypress": "13.13.2",
     "cypress-map": "^1.37.0",
     "cypress-multi-reporters": "^1.6.4",
     "cypress-terminal-report": "^6.0.1",
@@ -66,6 +66,7 @@
     "start": "wp-scripts start",
     "test:e2e": "wp-scripts test-e2e",
     "test:unit": "wp-scripts test-unit-js",
+    "test:phpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
     "wp-env": "wp-env",
     "wp-env:start-with-xdebug": "wp-env start --xdebug=debug,coverage --update"

@@ -30,7 +30,7 @@ class SelectVoiceTest extends WP_UnitTestCase
         $this->apiClient = new ApiClient();
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
