@@ -353,7 +353,14 @@ Cypress.Commands.add( 'publishWithConfirmation', ( generateAudio ) => {
   cy.contains( '.edit-post-header button', 'Publish' ).click().wait( 1000 )
 
   // Confirm "Publish" in the Prepublish panel
-  cy.get( '.editor-post-publish-panel__header-publish-button > .components-button' ).click()
+  cy.get( '.editor-post-publish-panel__header-publish-button > .components-button' ).click().wait( 250 )
+
+  // Close "Patterns" modal if it opens (introduced in WordPress 6.6)
+  cy.get( 'body' ).then( $body => {
+    if ( $body.find('.components-modal__frame' ).length ) {
+      cy.get( '.components-modal__frame button.components-button[aria-label="Close"]' ).click()
+    }
+  })
 
   // Close Prepublish panel
   cy.get( 'button[aria-label="Close panel"]' ).click()
