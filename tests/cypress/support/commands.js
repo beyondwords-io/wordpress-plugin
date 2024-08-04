@@ -58,6 +58,43 @@ Cypress.Commands.add( 'login', () => {
   cy.url().should( 'eq', `${baseUrl}/wp-admin/` )
 } )
 
+Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' )
+} )
+
+Cypress.Commands.add( 'showsAllSettingsTabs', () => {
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' )
+  cy.get( '.nav-tab' ).contains( 'Voices' )
+  cy.get( '.nav-tab' ).contains( 'Player' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' )
+  cy.get( '.nav-tab' ).contains( 'Advanced' )
+} )
+
+Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 0 ).contains( 'To use BeyondWords, please update the plugin settings.' )
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 1 ).contains( 'Don’t have a BeyondWords account yet?' )
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 2 ).find( 'a.button.button-secondary' ).contains( 'Sign up free' )
+} )
+
+Cypress.Commands.add( 'showsInvalidApiCredsNotice', () => {
+  cy.get( '.notice-error' ).find( 'li' ).should('have.length', 1)
+  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.' )
+} )
+
+Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
+  return cy.get( '.notice.notice-info' )
+    .find( 'p' )
+    .eq( 0 )
+    .find( 'a' )
+    .then( $el => cy.wrap( $el ) )
+} )
+
 Cypress.Commands.add( 'savePluginSettings', () => {
   cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 

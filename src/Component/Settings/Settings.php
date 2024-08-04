@@ -444,13 +444,20 @@ class Settings
         // Assume invalid connection
         delete_option('beyondwords_valid_api_connection');
 
+        $projectId = get_option('beyondwords_project_id');
+        $apiKey    = get_option('beyondwords_api_key');
+
+        if (! $projectId || ! $apiKey) {
+            return false;
+        }
+
         // Sync REST API -> WordPress
         $project = $this->apiClient->getProject();
 
         $validConnection = (
             is_array($project)
             && array_key_exists('id', $project)
-            && strval($project['id']) === get_option('beyondwords_project_id')
+            && strval($project['id']) === $projectId
         );
 
         if ($validConnection) {
