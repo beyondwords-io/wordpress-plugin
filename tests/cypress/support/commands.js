@@ -291,7 +291,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
 Cypress.Commands.add( 'setPostTitle', ( title ) => {
   cy.get( 'h1[contenteditable="true"]' )
     .clear()
-    .type( `${title}{enter}` )
+    .type( title )
 } )
 
 /**
