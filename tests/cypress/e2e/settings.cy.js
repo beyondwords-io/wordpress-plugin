@@ -3,14 +3,14 @@ context( 'Settings tests',  () => {
     cy.task( 'reset' )
   } )
 
+  beforeEach( () => {
+    cy.login()
+  } )
+
   after( () => {
     cy.task( 'reset' )
     cy.login()
     cy.savePluginSettings()
-  } )
-
-  beforeEach( () => {
-    cy.login()
   } )
 
   it( 'prompts for API credentials and hides other settings tabs until they are valid', () => {
@@ -53,7 +53,7 @@ context( 'Settings tests',  () => {
     cy.showsInvalidApiCredsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
-    // Valid API Key &  Project ID
+    // Valid API Key & Project ID
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
     cy.get( 'input[type="submit"]' ).click()
@@ -67,6 +67,23 @@ context( 'Settings tests',  () => {
 
     cy.get( 'input[name="beyondwords_api_key"]' ).should( 'have.value', Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).should( 'have.value', Cypress.env( 'projectId' ) )
+  } )
+
+  // @todo tests for syncing settings on install
+  it.skip( 'has synced the settings on install', () => {
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
+
+    // // Valid API Key & Project ID
+    // cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
+    // cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
+    // cy.get( 'input[type="submit"]' ).click().wait( 500 )
+
+    // Voices tab
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
+    // cy.get('.ts-control').getValue().should( 'equal', 'foo' )
+    cy.get( 'input[name="beyondwords_project_language"]' ).find( ':selected' ).contains( 'Miscellaenous' )
+    cy.get( 'input[name="beyondwords_project_title_voice_id"]' ).find( ':selected' ).contains( 'Miscellaenous' )
+    cy.get( 'input[name="beyondwords_project_body_voice_id"]' ).find( ':selected' ).contains( 'Miscellaenous' )
   } )
 
   it( 'can set the Content plugin settings', () => {
