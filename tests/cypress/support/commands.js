@@ -161,6 +161,13 @@ Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
 } )
 
 /**
+ * "Save as draft" for block editor.
+ */
+Cypress.Commands.add( 'saveAsDraft', () => {
+  cy.contains( 'button', 'Save draft' ).click().wait( 1000 )
+} )
+
+/**
  * "Save as pending" for block editor.
  */
 Cypress.Commands.add( 'saveAsPending', () => {
@@ -188,8 +195,8 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
 } )
 
 Cypress.Commands.add( 'closeWelcomeToBlockEditorTips', () => {
-  // Waiting 1500ms here isn't ideal, but this is the most reliable method we have found
-  cy.wait( 1500 )
+  // Waiting 1000ms here isn't ideal, but this is the most reliable method we have found
+  cy.wait( 1000 )
   cy.window().then( win => {
     win.eval( 'wp.data.select( "core/edit-post" ).isFeatureActive( "welcomeGuide" ) && wp.data.dispatch( "core/edit-post" ).toggleFeature( "welcomeGuide" );' )
   } )
@@ -197,8 +204,10 @@ Cypress.Commands.add( 'closeWelcomeToBlockEditorTips', () => {
 
 Cypress.Commands.add( 'createBlockProgramatically', ( name, params = {} ) => {
   cy.window().then( win => {
-    win.eval( `var block = wp.blocks.createBlock( '${name}', ${JSON.stringify( params )} );` )
-    win.eval( `wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );` )
+    win.eval( `
+      var block = wp.blocks.createBlock( '${name}', ${JSON.stringify( params )} );
+      wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );
+    ` )
   } )
   cy.wait( 1000 );
 } )
@@ -282,7 +291,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
 Cypress.Commands.add( 'setPostTitle', ( title ) => {
   cy.get( 'h1[contenteditable="true"]' )
     .clear()
-    .type( title )
+    .type( `${title}{enter}` )
 } )
 
 /**
@@ -298,12 +307,8 @@ Cypress.Commands.add( 'classicSetPostTitle', ( title ) => {
  * Add (append) a new paragraph block with the specified text.
  */
 Cypress.Commands.add( 'addParagraphBlock', ( text ) => {
-  // Click post title to make sure "+ block" shows
-  cy.clickTitleBlock();
-
-  // Click "+ block" button
-  cy.get('p.block-editor-default-block-appender__content').click().wait( 500 );
-  cy.get( 'body' ).type( `${text}` )
+  cy.get( '.wp-block-post-content p:last-of-type' ).click();
+  cy.get( 'body' ).type( `${text}{enter}` ).wait( 100 )
 } )
 
 /**
