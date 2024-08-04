@@ -93,7 +93,6 @@ export function SelectVoice( { wrapper } ) {
 							] }
 							onChange={ ( val ) => setLanguageId( val ) }
 							value={ languageId }
-							__nextHasNoMarginBottom
 						/>
 					</FlexBlock>
 				</Flex>
@@ -114,7 +113,6 @@ export function SelectVoice( { wrapper } ) {
 							onChange={ ( val ) => setAllVoiceIds( val ) }
 							disabled={ ! voiceOptions?.length }
 							value={ bodyVoiceId }
-							__nextHasNoMarginBottom
 						/>
 					</FlexBlock>
 				</Flex>

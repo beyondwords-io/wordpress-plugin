@@ -106,7 +106,7 @@ class WidgetStyle
         $options = [
             [
                 'value' => 'standard',
-                'label' => __('Standard (default)', 'speechkit'),
+                'label' => __('Standard', 'speechkit'),
             ],
             [
                 'value' => 'none',
