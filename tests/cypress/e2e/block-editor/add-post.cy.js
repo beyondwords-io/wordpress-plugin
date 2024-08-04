@@ -77,13 +77,11 @@ context( 'Block Editor: Add Post', () => {
 
       cy.checkGenerateAudio( postType )
 
-      cy.setPostStatus( postType )
-      cy.get( '.editor-post-status button' ).click()
-      cy.get( '.editor-change-status__options input[value="pending"]' ).click()
+      cy.setPostStatus( 'pending' )
 
       cy.setPostTitle( `I can add a ${postType.name} with "Pending Review" audio` )
 
-      cy.saveAsPending()
+      cy.get('.editor-post-publish-button__button').click().wait( 1000 )
 
       cy.getLabel( 'Generate audio' ).should( 'not.exist' )
 

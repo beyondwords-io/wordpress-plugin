@@ -353,6 +353,11 @@ Cypress.Commands.add( 'assertDisplayPlayerIs', ( displayPlayer ) => {
     .should( displayPlayer ? 'exist' : 'not.exist' )
 } )
 
+Cypress.Commands.add( 'setPostStatus', ( status ) => {
+  cy.get( '.editor-post-status button' ).click()
+  cy.get( `.editor-change-status__options input[value="${status}"]` ).click()
+} )
+
 Cypress.Commands.add( 'publishWithConfirmation', ( generateAudio ) => {
   // "Publish" in top bar
   cy.get('.editor-post-publish-button__button').click().wait( 1000 )
