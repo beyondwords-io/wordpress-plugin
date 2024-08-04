@@ -349,8 +349,8 @@ Cypress.Commands.add( 'assertDisplayPlayerIs', ( displayPlayer ) => {
 } )
 
 Cypress.Commands.add( 'publishWithConfirmation', ( generateAudio ) => {
-  // "Publish" in Prepublish panel
-  cy.contains( '.edit-post-header button', 'Publish' ).click().wait( 1000 )
+  // "Publish" in top bar
+  cy.get('.editor-post-publish-button__button').click().wait( 1000 )
 
   // Confirm "Publish" in the Prepublish panel
   cy.get( '.editor-post-publish-panel__header-publish-button > .components-button' ).click().wait( 250 )
@@ -366,9 +366,9 @@ Cypress.Commands.add( 'publishWithConfirmation', ( generateAudio ) => {
   cy.get( 'button[aria-label="Close panel"]' ).click()
 } )
 
-// "Publish" in Prepublish panel
-Cypress.Commands.add( 'updatePost', () => {
-  cy.contains( '.edit-post-header button', 'Update' ).click().wait( 1000 )
+// "Save" existing post
+Cypress.Commands.add( 'savePost', () => {
+  cy.get('.editor-post-publish-button').click().wait( 1000 )
 } )
 
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
