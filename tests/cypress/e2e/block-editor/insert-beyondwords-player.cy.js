@@ -1,4 +1,10 @@
 context( 'Block Editor: Insert BeyondWords Player', () => {
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )

@@ -1,5 +1,8 @@
 context( 'Classic Editor: Add Post', () => {
   before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
     cy.activatePlugin( 'classic-editor' )
   } )
 

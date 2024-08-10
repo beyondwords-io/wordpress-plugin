@@ -2,6 +2,9 @@ context( 'Classic Editor: Player Style', () => {
   const postTypes = require( '../../../fixtures/post-types.json' )
 
   before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
     cy.activatePlugin( 'classic-editor' )
   } )
 

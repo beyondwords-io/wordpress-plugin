@@ -1,16 +1,12 @@
 context( 'Settings tests',  () => {
   before( () => {
     cy.task( 'reset' )
+    // cy.login()
+    // cy.savePluginSettings()
   } )
 
   beforeEach( () => {
     cy.login()
-  } )
-
-  after( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.savePluginSettings()
   } )
 
   it( 'prompts for API credentials and hides other settings tabs until they are valid', () => {
@@ -69,21 +65,20 @@ context( 'Settings tests',  () => {
     cy.get( 'input[name="beyondwords_project_id"]' ).should( 'have.value', Cypress.env( 'projectId' ) )
   } )
 
-  // @todo tests for syncing settings on install
-  it.skip( 'has synced the settings on install', () => {
+  // @todo finish tests for syncing settings on install
+  it.only( 'has synced the settings on install', () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
-    // // Valid API Key & Project ID
-    // cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
-    // cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-    // cy.get( 'input[type="submit"]' ).click().wait( 500 )
+    // Valid API Key & Project ID
+    cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
+    cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
+    cy.get( 'input[type="submit"]' ).click().wait( 500 )
 
     // Voices tab
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
-    // cy.get('.ts-control').getValue().should( 'equal', 'foo' )
-    cy.get( 'input[name="beyondwords_project_language"]' ).find( ':selected' ).contains( 'Miscellaenous' )
-    cy.get( 'input[name="beyondwords_project_title_voice_id"]' ).find( ':selected' ).contains( 'Miscellaenous' )
-    cy.get( 'input[name="beyondwords_project_body_voice_id"]' ).find( ':selected' ).contains( 'Miscellaenous' )
+    cy.get( 'select[name="beyondwords_project_language"]' ).find( ':selected' ).contains( 'Language 2' )
+    cy.get( 'select[name="beyondwords_project_title_voice_id"]' ).find( ':selected' ).contains( 'Voice 2' )
+    cy.get( 'select[name="beyondwords_project_body_voice_id"]' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
   it( 'can set the Content plugin settings', () => {

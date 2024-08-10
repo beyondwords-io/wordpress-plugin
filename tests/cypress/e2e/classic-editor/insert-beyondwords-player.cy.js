@@ -1,5 +1,8 @@
 context( 'Classic Editor: Insert BeyondWords Player', () => {
   before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
     cy.activatePlugin( 'classic-editor' )
   } )
 

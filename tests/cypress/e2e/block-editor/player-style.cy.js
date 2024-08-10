@@ -1,6 +1,12 @@
 context( 'Block Editor: Player Style', () => {
   const postTypes = require( '../../../fixtures/post-types.json' )
 
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )

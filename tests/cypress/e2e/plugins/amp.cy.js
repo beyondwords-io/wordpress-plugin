@@ -1,5 +1,8 @@
 context( 'Plugins: AMP', () => {
   before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
     cy.activatePlugin( 'amp' )
   } )
 

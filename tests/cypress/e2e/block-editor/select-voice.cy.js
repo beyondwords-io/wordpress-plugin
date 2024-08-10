@@ -1,14 +1,14 @@
 context( 'Block Editor: Select Voice', () => {
   const postTypes = require( '../../../fixtures/post-types.json' )
 
-  beforeEach( () => {
+  before( () => {
     cy.task( 'reset' )
     cy.login()
     cy.savePluginSettings()
   } )
 
-  after( () => {
-    cy.task( 'reset' )
+  beforeEach( () => {
+    cy.login()
   } )
 
   // Only test priority post types

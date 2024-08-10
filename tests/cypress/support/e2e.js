@@ -48,12 +48,13 @@ Cypress.on( 'uncaught:exception', ( err, runnable ) => {
 
 /**
  * Reset WordPress
+ * (This is now done in each test)
  */
-before( () => {
-  cy.task( 'reset' )
-  cy.login()
-  cy.savePluginSettings()
-} )
+// before( () => {
+//   cy.task( 'reset' )
+//   cy.login()
+//   cy.savePluginSettings()
+// } )
 
 beforeEach( () => {
   // disable Cypress's default behavior of logging all XMLHttpRequests and fetches

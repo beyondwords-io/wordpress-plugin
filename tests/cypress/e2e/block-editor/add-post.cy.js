@@ -1,4 +1,10 @@
 context( 'Block Editor: Add Post', () => {
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.savePluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )

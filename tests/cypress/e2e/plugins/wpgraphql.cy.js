@@ -1,5 +1,6 @@
 context( 'Plugins: WPGraphQL', () => {
   before( () => {
+    cy.task( 'reset' )
     cy.login()
     cy.savePluginSettings()
     cy.activatePlugin( 'wp-graphql' )

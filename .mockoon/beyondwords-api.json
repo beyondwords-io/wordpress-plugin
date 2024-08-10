@@ -96,7 +96,7 @@
         },
         {
           "uuid": "14f8b014-9397-4352-93c3-f6739c5c7d2c",
-          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"G B 7118 Amy, Brian\",\n  \"language\": \"en_GB\",\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 289,\n      \"name\": \"Amy\",\n      \"speaking_rate\": null\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 290,\n      \"name\": \"Brian\",\n      \"speaking_rate\": null\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\"\n}",
+          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"Mockoon Test Project\",\n  \"language\": \"en_GB\",\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 2,\n      \"name\": \"Voice 2\",\n      \"speaking_rate\": null\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 3,\n      \"name\": \"Voice 3\",\n      \"speaking_rate\": null\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -976,7 +976,7 @@
         },
         {
           "uuid": "9c63284f-f1d5-401e-9371-4e9bb2be2b0b",
-          "body": "[\n  {{! `filter` works here instead of `filter.language\\.id` ¯\\_(ツ)_/¯ }}\n  {{#each (queryParamRaw 'filter')}}\n    {\n      \"id\": 1,\n      \"name\": \"Voice {{this}}-a\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Voice {{this}}-b\"\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Voice {{this}}-c\"\n    }{{#unless @last}},{{/unless}}\n  {{/each}}\n]\n",
+          "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Voice 1\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Voice 2\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Voice 3\"\n  }\n]\n",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",

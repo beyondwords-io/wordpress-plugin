@@ -1,15 +1,19 @@
 context( 'Classic Editor: Select Voice', () => {
   const postTypes = require( '../../../fixtures/post-types.json' )
 
-  beforeEach( () => {
+  before( () => {
     cy.task( 'reset' )
     cy.login()
     cy.savePluginSettings()
     cy.activatePlugin( 'classic-editor' )
   } )
 
+  beforeEach( () => {
+    cy.login()
+  } )
+
   after( () => {
-    cy.task( 'reset' )
+    cy.deactivatePlugin( 'classic-editor' )
   } )
 
   // Only test priority post types
