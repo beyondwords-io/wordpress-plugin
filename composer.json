@@ -12,7 +12,8 @@
     "homepage": "https://beyondwords.io",
     "require": {
         "php": ">=7.4",
-        "symfony/dom-crawler": "^5.4"
+        "symfony/dom-crawler": "^5.4",
+        "symfony/property-access": "^7.1"
     },
     "require-dev": {
         "automattic/vipwpcs": "^2.3.3",
