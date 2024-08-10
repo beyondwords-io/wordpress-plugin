@@ -73,7 +73,7 @@ class CoreUtilsTest extends WP_UnitTestCase
             'beyondwords_content_id',
             'beyondwords_preview_token',
             'beyondwords_player_style',
-            'beyondwords_language_id',
+            'beyondwords_language_code',
             'beyondwords_title_voice_id',
             'beyondwords_body_voice_id',
             'beyondwords_summary_voice_id',
@@ -97,6 +97,7 @@ class CoreUtilsTest extends WP_UnitTestCase
     {
         $keys = [
             // Deprecated
+            'beyondwords_language_id',
             'beyondwords_podcast_id',
             'beyondwords_hash',
             'publish_post_to_speechkit',
@@ -136,7 +137,7 @@ class CoreUtilsTest extends WP_UnitTestCase
             'beyondwords_content_id',
             'beyondwords_preview_token',
             'beyondwords_player_style',
-            'beyondwords_language_id',
+            'beyondwords_language_code',
             'beyondwords_title_voice_id',
             'beyondwords_body_voice_id',
             'beyondwords_summary_voice_id',
@@ -144,6 +145,7 @@ class CoreUtilsTest extends WP_UnitTestCase
             'beyondwords_disabled',
             'beyondwords_delete_content',
             // Deprecated
+            'beyondwords_language_id',
             'beyondwords_podcast_id',
             'beyondwords_hash',
             'publish_post_to_speechkit',

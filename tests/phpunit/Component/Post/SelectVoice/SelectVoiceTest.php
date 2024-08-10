@@ -66,13 +66,13 @@ class SelectVoiceTest extends WP_UnitTestCase
      */
     public function element()
     {
-        update_option('beyondwords_languages', ['1', '2', '3']);
+        update_option('beyondwords_languages', ['en_US', 'en_GB', 'fr_FR']);
 
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PostSelectVoiceTest::element',
             'meta_input' => [
-                // Set Language ID so we see the "Voice" <select>
-                'beyondwords_language_id' => '1',
+                // Set Language code so we see the "Voice" <select>
+                'beyondwords_language_code' => 'en_GB',
             ],
         ]);
 
@@ -87,19 +87,19 @@ class SelectVoiceTest extends WP_UnitTestCase
         $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-id');
         $this->assertEquals('Language', $languageLabel->text());
 
-        $languageSelect = $crawler->filter('#beyondwords_language_id');
+        $languageSelect = $crawler->filter('#beyondwords_language_code');
         $this->assertCount(1, $languageSelect);
 
         $this->assertSame('', $languageSelect->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('Project default', $languageSelect->filter('option:nth-child(1)')->text());
 
-        $this->assertSame('1', $languageSelect->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('Language 1', $languageSelect->filter('option:nth-child(2)')->text());
 
-        $this->assertSame('2', $languageSelect->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Language 2', $languageSelect->filter('option:nth-child(3)')->text());
 
-        $this->assertSame('3', $languageSelect->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('fr_FR', $languageSelect->filter('option:nth-child(4)')->attr('value'));
         $this->assertSame('Language 3', $languageSelect->filter('option:nth-child(4)')->text());
 
         $voiceLabel = $crawler->filter('p#beyondwords-metabox-select-voice--voice-id');
@@ -145,7 +145,7 @@ class SelectVoiceTest extends WP_UnitTestCase
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
-        $_POST['beyondwords_language_id'] = '1';
+        $_POST['beyondwords_language_code'] = 'en_GB';
         $_POST['beyondwords_voice_id'] = '1';
 
         $selectVoice->save($postId);

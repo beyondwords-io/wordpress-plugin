@@ -201,21 +201,15 @@ class ApiClient
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
      * @since 4.5.1 Check the $languageId param is numeric.
-     * @since 4.8.0 Accept numeric language ID or string language code as param.
+     * @since 4.8.0 Use string language code (e.g. en_US) instead of numeric language ID.
      *
-     * @param int|string $language BeyondWords Language code or numeric ID
+     * @param string $languageCode BeyondWords Language code.
      *
      * @return array|object Array of voices or API error object.
      **/
-    public function getVoices($language)
+    public function getVoices($languageCode)
     {
-        $field = 'language.code';
-
-        if (is_numeric($language)) {
-            $field = 'language.id';
-        }
-
-        $url = sprintf('%s/organization/voices?filter[%s]=%s', Environment::getApiUrl(), $field, urlencode(strval($language))); // phpcs:ignore Generic.Files.LineLength.TooLong
+        $url = sprintf('%s/organization/voices?filter[language.code]=%s', Environment::getApiUrl(), urlencode(strval($languageCode))); // phpcs:ignore Generic.Files.LineLength.TooLong
 
         $request = new Request('GET', $url);
 

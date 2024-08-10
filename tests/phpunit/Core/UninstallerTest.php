@@ -83,6 +83,8 @@ class UninstallerTest extends WP_UnitTestCase
         $numPosts = 10;
 
         $customFields = [
+            // v5.0 Updated player & settings
+            'beyondwords_language_code' => 'beyondwords_language_code',
             // v4.x New API
             'beyondwords_content_id'       => 'beyondwords_content_id',
             'beyondwords_language_id'      => 'beyondwords_language_id',

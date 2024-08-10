@@ -22,7 +22,7 @@ export function PostInspectPanel( {
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
 	beyondwordsPlayerStyle,
-	beyondwordsLanguageId,
+	beyondwordsLanguageCode,
 	beyondwordsBodyVoiceId,
 	beyondwordsTitleVoiceId,
 	beyondwordsSummaryVoiceId,
@@ -80,7 +80,7 @@ export function PostInspectPanel( {
 			beyondwords_content_id: beyondwordsContentId,
 			beyondwords_preview_token: beyondwordsPreviewToken,
 			beyondwords_player_style: beyondwordsPlayerStyle,
-			beyondwords_language_id: beyondwordsLanguageId,
+			beyondwords_language_code: beyondwordsLanguageCode,
 			beyondwords_body_voice_id: beyondwordsBodyVoiceId,
 			beyondwords_title_voice_id: beyondwordsTitleVoiceId,
 			beyondwords_summary_voice_id: beyondwordsSummaryVoiceId,
@@ -154,7 +154,7 @@ export function PostInspectPanel( {
 			`beyondwords_content_id\r\n${ beyondwordsContentId }`,
 			`beyondwords_preview_token\r\n${ beyondwordsPreviewToken }`,
 			`beyondwords_player_style\r\n${ beyondwordsPlayerStyle }`,
-			`beyondwords_language_id\r\n${ beyondwordsLanguageId }`,
+			`beyondwords_language_code\r\n${ beyondwordsLanguageCode }`,
 			`beyondwords_body_voice_id\r\n${ beyondwordsBodyVoiceId }`,
 			`beyondwords_title_voice_id\r\n${ beyondwordsTitleVoiceId }`,
 			`beyondwords_summary_voice_id\r\n${ beyondwordsSummaryVoiceId }`,
@@ -222,9 +222,9 @@ export function PostInspectPanel( {
 			/>
 
 			<TextControl
-				label="beyondwords_language_id"
+				label="beyondwords_language_code"
 				readOnly
-				value={ beyondwordsLanguageId }
+				value={ beyondwordsLanguageCode }
 			/>
 
 			<TextControl
@@ -316,8 +316,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_preview_token,
 			beyondwordsPlayerStyle:
 				getEditedPostAttribute( 'meta' ).beyondwords_player_style,
-			beyondwordsLanguageId:
-				getEditedPostAttribute( 'meta' ).beyondwords_language_id,
+			beyondwordsLanguageCode:
+				getEditedPostAttribute( 'meta' ).beyondwords_language_code,
 			beyondwordsBodyVoiceId:
 				getEditedPostAttribute( 'meta' ).beyondwords_body_voice_id,
 			beyondwordsTitleVoiceId:

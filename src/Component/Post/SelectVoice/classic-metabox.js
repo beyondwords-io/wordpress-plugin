@@ -28,7 +28,7 @@
 		setupClickEvents() {
 			$( document ).on(
 				'change',
-				'select#beyondwords_language_id',
+				'select#beyondwords_language_code',
 				function () {
 					selectVoice.getVoices( this.value );
 				}
@@ -42,14 +42,14 @@
 		 */
 		setupAutosaveVariables() {
 			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageId = $( '#beyondwords_language_id' ).find( ':selected' ).val();
-				const voiceId    = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
+				const languageCode = $( '#beyondwords_language_code' ).find( ':selected' ).val();
+				const voiceId      = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
 
-				if ( languageId ) {
+				if ( languageCode ) {
 					settings.data +=
 						'&' +
 						$.param( {
-							beyondwords_language_id: languageId,
+							beyondwords_language_code: languageCode,
 						} );
 				}
 
@@ -68,17 +68,17 @@
 		 *
 		 * @since 4.0.0
 		 */
-		getVoices( languageId ) {
+		getVoices( languageCode ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
 
-			languageId = parseInt(languageId);
+			languageCode = parseInt(languageCode);
 
-			if ( ! languageId ) {
+			if ( ! languageCode ) {
 				$voicesSelect.empty().attr( 'disabled', true );
 				return;
 			}
 
-			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
+			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageCode}/voices`;
 
 			jQuery.ajax( {
 				url: endpoint,

@@ -203,9 +203,9 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getLanguages();
 
         $this->assertSame($response, [
-            ['id' => 1, 'name' => 'Language 1'],
-            ['id' => 2, 'name' => 'Language 2'],
-            ['id' => 3, 'name' => 'Language 3'],
+            ['id' => 1, 'code' => 'en_US', 'name' => 'Language 1'],
+            ['id' => 2, 'code' => 'en_GB', 'name' => 'Language 2'],
+            ['id' => 3, 'code' => 'fr_FR', 'name' => 'Language 3'],
         ]);
 
         delete_option('beyondwords_api_key');
@@ -225,9 +225,9 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getVoices('2');
 
         $this->assertSame($response, [
-            ['id' => 1, 'name' => 'Voice 2-a'],
-            ['id' => 2, 'name' => 'Voice 2-b'],
-            ['id' => 3, 'name' => 'Voice 2-c'],
+            ['id' => 1, 'name' => 'Voice 1'],
+            ['id' => 2, 'name' => 'Voice 2'],
+            ['id' => 3, 'name' => 'Voice 3'],
         ]);
 
         delete_option('beyondwords_api_key');
