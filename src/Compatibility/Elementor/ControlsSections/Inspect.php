@@ -46,7 +46,7 @@ class Inspect
         }
 
         $contentId      = PostMetaUtils::getContentId($post->ID);
-        $languageCode   = get_post_meta($post->ID, 'beyondwords_language_code', true);
+        $languageId     = PostMetaUtils::getLanguageId($post->ID);
         $projectId      = PostMetaUtils::getProjectId($post->ID);
         $bodyVoiceId    = PostMetaUtils::getBodyVoiceId($post->ID);
         $titleVoiceId   = PostMetaUtils::getTitleVoiceId($post->ID);
@@ -104,13 +104,13 @@ class Inspect
             ]
         );
 
-        // beyondwords_language_code
+        // beyondwords_language_id
         $document->add_control(
-            'inspect_beyondwords_language_code',
+            'inspect_beyondwords_language_id',
             [
-                'label' => 'beyondwords_language_code',
+                'label' => 'beyondwords_language_id',
                 'label_block' => true,
-                'default' => $languageCode,
+                'default' => $languageId,
                 'type' => Controls_Manager::TEXT,
             ]
         );

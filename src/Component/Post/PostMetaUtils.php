@@ -106,7 +106,6 @@ class PostMetaUtils
             'beyondwords_podcast_id',
             'beyondwords_preview_token',
             'beyondwords_player_style',
-            'beyondwords_language_code',
             'beyondwords_language_id',
             'beyondwords_body_voice_id',
             'beyondwords_title_voice_id',

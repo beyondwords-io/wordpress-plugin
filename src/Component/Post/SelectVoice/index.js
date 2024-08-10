@@ -23,13 +23,13 @@ export function SelectVoice( { wrapper } ) {
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const languageCode = meta.beyondwords_language_code;
+	const languageId = meta.beyondwords_language_id;
 	const bodyVoiceId = meta.beyondwords_body_voice_id;
 
-	const setLanguageCode = ( newLanguageCode ) => {
+	const setLanguageId = ( newLanguageId ) => {
 		setMeta( {
 			...meta,
-			beyondwords_language_code: newLanguageCode,
+			beyondwords_language_id: newLanguageId,
 		} );
 	};
 
@@ -50,9 +50,9 @@ export function SelectVoice( { wrapper } ) {
 
 	const { voices } = useSelect( ( select ) => {
 		return {
-			voices: languageCode ? select( 'beyondwords/settings' ).getVoices( languageCode ) : [],
+			voices: languageId ? select( 'beyondwords/settings' ).getVoices( languageId ) : [],
 		}
-	}, [ languageCode ] );
+	}, [ languageId ] );
 
 	const languageOptions = useMemo( () => {
 		return ( languages ?? [] ).map( ( language ) => {
@@ -91,8 +91,8 @@ export function SelectVoice( { wrapper } ) {
 								},
 								...languageOptions
 							] }
-							onChange={ ( val ) => setLanguageCode( val ) }
-							value={ languageCode }
+							onChange={ ( val ) => setLanguageId( val ) }
+							value={ languageId }
 						/>
 					</FlexBlock>
 				</Flex>

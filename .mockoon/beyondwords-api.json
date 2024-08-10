@@ -894,7 +894,7 @@
         },
         {
           "uuid": "b4facbac-041d-4800-ad1f-3b1a8b9ea2fb",
-          "body": "[\n  {\n    \"id\": 1,\n    \"code\": \"en_US\",\n    \"name\": \"Language 1\"\n  },\n  {\n    \"id\": 2,\n    \"code\": \"en_GB\",\n    \"name\": \"Language 2\"\n  },\n  {\n    \"id\": 3,\n    \"code\": \"fr_FR\",\n    \"name\": \"Language 3\"\n  }\n]",
+          "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Language 1\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Language 2\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Language 3\"\n  }\n]",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",

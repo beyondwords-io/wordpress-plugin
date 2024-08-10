@@ -19,8 +19,8 @@ const resolvers = {
 		const languages = yield actions.fetchFromAPI( path );
 		return actions.setLanguages( languages );
 	},
-	*getVoices( languageCode ) {
-		const path = `/beyondwords/v1/languages/${languageCode}/voices`;
+	*getVoices( languageId ) {
+		const path = `/beyondwords/v1/languages/${languageId}/voices`;
 		const voices = yield actions.fetchFromAPI( path );
 		return actions.setVoices( voices );
 	},

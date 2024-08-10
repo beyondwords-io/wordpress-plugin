@@ -62,8 +62,7 @@ class InspectTest extends \WP_UnitTestCase
             'beyondwords_content_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
             'beyondwords_podcast_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
             'beyondwords_preview_token'    => 'my-preview-token',
-            'beyondwords_language_code'    => 'en_GB',
-            'beyondwords_language_id'      => '42', // deprecated v4.8
+            'beyondwords_language_id'      => '42',
             'beyondwords_title_voice_id'   => '101',
             'beyondwords_body_voice_id'    => '202',
             'beyondwords_summary_voice_id' => '303',
