@@ -225,9 +225,9 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getVoices('2');
 
         $this->assertSame($response, [
-            ['id' => 1, 'name' => 'Voice 2-a'],
-            ['id' => 2, 'name' => 'Voice 2-b'],
-            ['id' => 3, 'name' => 'Voice 2-c'],
+            ['id' => 1, 'name' => 'Voice 1'],
+            ['id' => 2, 'name' => 'Voice 2'],
+            ['id' => 3, 'name' => 'Voice 3'],
         ]);
 
         delete_option('beyondwords_api_key');
