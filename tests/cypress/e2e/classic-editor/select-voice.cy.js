@@ -43,11 +43,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 1-a", "Voice 1-b", "Voice 1-c"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 1-c' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 3' )
 
       // Select another Language
       cy.get( 'select#beyondwords_language_id' ).select( 'Language 2' ).wait( 1000 )
@@ -55,11 +55,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 2-a", "Voice 2-b", "Voice 2-c"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 2-b' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 2' )
 
       cy.classicSetPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -74,7 +74,7 @@ context( 'Classic Editor: Select Voice', () => {
 
       // Check Language/Voice has been saved by refreshing the page
       cy.get( 'select#beyondwords_language_id' ).find( 'option:selected' ).should( 'have.text', 'Language 2' )
-      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Voice 2-b' )
+      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
 

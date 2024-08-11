@@ -58,11 +58,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 2", "Voice 2", "Voice 2"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 2-b' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 2' )
 
       cy.setPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -78,7 +78,7 @@ context( 'Block Editor: Select Voice', () => {
       cy.reload()
       cy.openBeyondwordsEditorPanel()
       cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'Language 2' )
-      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2-b' )
+      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
 
