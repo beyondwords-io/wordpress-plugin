@@ -70,15 +70,15 @@ context( 'Settings tests',  () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
     // Valid API Key & Project ID
-    cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
-    cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-    cy.get( 'input[type="submit"]' ).click().wait( 500 )
+    cy.get( 'input#beyondwords_api_key' ).clear().type( Cypress.env( 'apiKey' ) )
+    cy.get( 'input#beyondwords_project_id' ).clear().type( Cypress.env( 'projectId' ) )
+    cy.get( 'input#submit' ).click().wait( 500 )
 
     // Voices tab
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
-    cy.get( 'select[name="beyondwords_project_language_id"]' ).find( ':selected' ).contains( 'Language 2' )
-    cy.get( 'select[name="beyondwords_project_title_voice_id"]' ).find( ':selected' ).contains( 'Voice 2' )
-    cy.get( 'select[name="beyondwords_project_body_voice_id"]' ).find( ':selected' ).contains( 'Voice 3' )
+    cy.get( 'select#beyondwords_project_language_id' ).find( ':selected' ).contains( 'Language 2' )
+    cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Voice 2' )
+    cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
   it( 'can set the Content plugin settings', () => {

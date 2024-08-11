@@ -46,11 +46,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 1-a", "Voice 1-b", "Voice 1-c"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 1-c' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 3' )
 
       // Select another Language
       cy.getBlockEditorSelect( 'Language' ).select( 'Language 2' ).wait( 2000 )
@@ -58,7 +58,7 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 2-a", "Voice 2-b", "Voice 2-c"] )
+        expect(values).to.deep.eq( ["", "Voice 2", "Voice 2", "Voice 2"] )
       })
 
       // Select a Voice
