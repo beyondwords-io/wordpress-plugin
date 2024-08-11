@@ -72,7 +72,6 @@ class IncludeExcerpt
         ?>
         <div>
             <label>
-                <input type="hidden" name="beyondwords_prepend_excerpt" value="" />
                 <input
                     type="checkbox"
                     name="beyondwords_prepend_excerpt"

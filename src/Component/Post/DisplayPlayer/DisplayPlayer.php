@@ -88,7 +88,6 @@ class DisplayPlayer
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-display-player">
-            <input type="hidden" name="beyondwords_display_player" value="" />
             <input
                 type="checkbox"
                 id="beyondwords_display_player"

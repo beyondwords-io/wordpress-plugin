@@ -72,6 +72,7 @@ class ProjectId
         ?>
         <input
             type="text"
+            id="beyondwords_project_id"
             name="beyondwords_project_id"
             value="<?php echo esc_attr($project_id); ?>"
             size="10"

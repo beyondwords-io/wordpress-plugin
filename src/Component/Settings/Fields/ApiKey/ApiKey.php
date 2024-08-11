@@ -72,6 +72,7 @@ class ApiKey
         ?>
         <input
             type="text"
+            id="beyondwords_api_key"
             name="beyondwords_api_key"
             value="<?php echo esc_attr($api_key); ?>"
             size="50"
