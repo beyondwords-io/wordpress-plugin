@@ -22,6 +22,11 @@ abstract class Voice
     /**
      * Language code.
      */
+    public $languageId;
+
+    /**
+     * Language code.
+     */
     public $languageCode;
 
     /**
@@ -40,15 +45,8 @@ abstract class Voice
     {
         $this->apiClient = $apiClient;
 
-        $this->languageCode = get_option('beyondwords_project_language');
-    }
-
-    /**
-     * Init.
-     */
-    public function init()
-    {
-        add_action('admin_init', array($this, 'addSetting'));
+        $this->languageId = get_option('beyondwords_project_language_id');
+        $this->languageCode = get_option('beyondwords_project_language_code');
     }
 
     /**
@@ -60,7 +58,7 @@ abstract class Voice
      **/
     public function getOptions()
     {
-        $voices = $this->apiClient->getVoices($this->languageCode);
+        $voices = $this->apiClient->getVoices($this->languageId);
 
         if (! $voices) {
             return [];
@@ -68,11 +66,11 @@ abstract class Voice
 
         $options = array_map(function ($voice) {
             return [
-                'value' => $voice['id'],
-                'label' => $voice['name'],
+                'value'         => $voice['id'],
+                'label'         => $voice['name'],
+                'language_code' => $voice['language'],
             ];
         }, $voices);
-
 
         return $options;
     }

@@ -28,6 +28,10 @@ class Updater
     {
         $version = get_option('beyondwords_version', '1.0.0');
 
+        if (version_compare($version, '4.8.0', '<') && get_option('beyondwords_api_key')) {
+            add_filter('beyondwords_sync_to_wordpress', '__return_true');
+        }
+
         if (version_compare($version, '3.0.0', '<')) {
             $this->migrateSettings();
         }

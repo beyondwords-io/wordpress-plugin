@@ -76,7 +76,7 @@ context( 'Settings tests',  () => {
 
     // Voices tab
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
-    cy.get( 'select[name="beyondwords_project_language"]' ).find( ':selected' ).contains( 'Language 2' )
+    cy.get( 'select[name="beyondwords_project_language_id"]' ).find( ':selected' ).contains( 'Language 2' )
     cy.get( 'select[name="beyondwords_project_title_voice_id"]' ).find( ':selected' ).contains( 'Voice 2' )
     cy.get( 'select[name="beyondwords_project_body_voice_id"]' ).find( ':selected' ).contains( 'Voice 3' )
   } )

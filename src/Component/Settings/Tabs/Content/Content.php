@@ -51,7 +51,6 @@ class Content
         (new PreselectGenerateAudio())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
-        add_action('admin_init', array($this, 'maybeSync'), 10);
     }
 
     /**
@@ -88,48 +87,5 @@ class Content
             ?>
         </p>
         <?php
-    }
-
-    /**
-     * Maybe sync to REST API.
-     *
-     * @since 4.8.0
-     *
-     * @return void
-     **/
-    public function maybeSync()
-    {
-        $submitted = isset($_POST['submit-content' ]); // phpcs:ignore WordPress.Security.NonceVerification
-
-        if (! $submitted) {
-            return;
-        }
-
-        // Sync WordPress -> REST API
-        $projectResult    = $this->apiClient->updateProject($this->getProjectParams());
-
-        if (! $projectResult) {
-            // Error notice
-            add_settings_error(
-                'beyondwords_settings',
-                'beyondwords_settings',
-                '<span class="dashicons dashicons-rest-api"></span> Error syncing to the BeyondWords dashboard. The settings may not in sync.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'error'
-            );
-        }
-    }
-
-    /**
-     * Get the project body params, ready for REST API call.
-     *
-     * @since 4.8.0
-     *
-     * @return array REST API body params.
-     */
-    public function getProjectParams()
-    {
-        $params['title']['enabled'] = (bool) get_option('beyondwords_include_title', true);
-
-        return array_filter($params);
     }
 }

@@ -20,6 +20,16 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
 class Language
 {
     /**
+     * Option name.
+     */
+    public const OPTION_NAME_ID = 'beyondwords_project_language_id';
+
+    /**
+     * Option name.
+     */
+    public const OPTION_NAME_CODE = 'beyondwords_project_language_code';
+
+    /**
      * API Client.
      *
      * @since 4.8.0
@@ -42,6 +52,13 @@ class Language
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
+        add_action('update_option_' . self::OPTION_NAME_CODE, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME_CODE;
+                return $fields;
+            });
+        });
     }
 
     /**
@@ -55,7 +72,7 @@ class Language
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_language',
+            'beyondwords_project_language_id',
             [
                 'default' => '',
             ]
@@ -81,12 +98,12 @@ class Language
     {
         $options = $this->getOptions();
 
-        $current = get_option('beyondwords_project_language', '');
+        $current = get_option('beyondwords_project_language_id', '');
         ?>
         <div class="beyondwords-setting__default-language">
             <select
-                id="beyondwords_project_language"
-                name="beyondwords_project_language"
+                id="beyondwords_project_language_id"
+                name="beyondwords_project_language_id"
                 placeholder="<?php esc_attr_e('Add a language', 'speechkit'); ?>"
                 style="width: 250px;"
                 autocomplete="off"
@@ -137,5 +154,38 @@ class Language
         }, $languages);
 
         return $options;
+    }
+
+    /**
+     * Set the language code every time the language ID changes.
+     *
+     * @since 4.8.0
+     *
+     * @return void.
+     **/
+    public function setLanguageCode()
+    {
+        $languageId = (int)get_option(self::OPTION_NAME_ID);
+
+        if (! $languageId) {
+            return;
+        }
+
+        $languages = $this->apiClient->getLanguages();
+
+        if (! is_array($languages)) {
+            return;
+        }
+
+        foreach ($languages as $item) {
+            if (
+                ! empty($item['id'])
+                && $item['id'] === $languageId
+                && ! empty($item['code'])
+            ) {
+                update_option(self::OPTION_NAME_CODE, $item['code']);
+                break;
+            }
+        }
     }
 }

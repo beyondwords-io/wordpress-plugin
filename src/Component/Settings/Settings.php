@@ -57,6 +57,7 @@ class Settings
         delete_transient('beyondwords_settings_errors');
 
         (new Credentials($this->apiClient))->init();
+        (new Sync($this->apiClient))->init();
 
         if (SettingsUtils::hasApiSettings()) {
             (new Voices($this->apiClient))->init();

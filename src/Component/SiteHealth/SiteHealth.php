@@ -179,9 +179,14 @@ class SiteHealth
      */
     public function addProjectSettings(&$info)
     {
-        $info['beyondwords']['fields']['beyondwords_project_language'] = [
-            'label' => __('Default language', 'speechkit'),
-            'value' => get_option('beyondwords_project_language'),
+        $info['beyondwords']['fields']['beyondwords_project_language_code'] = [
+            'label' => __('Default language code', 'speechkit'),
+            'value' => get_option('beyondwords_project_language_code'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_language_id'] = [
+            'label' => __('Default language ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_language_id'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_title_voice_id'] = [

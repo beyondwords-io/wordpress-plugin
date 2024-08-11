@@ -12,13 +12,34 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
 
+use Beyondwords\Wordpress\Component\Settings\Sync;
+
 /**
  * TitleVoiceSpeakingRate setup
  *
  * @since 4.8.0
  */
-class TitleVoiceSpeakingRate extends SpeakingRate
+class TitleVoiceSpeakingRate
 {
+    /**
+     * Option name.
+     */
+    public const OPTION_NAME = 'beyondwords_title_voice_speaking_rate';
+
+    /**
+     * Constructor
+     */
+    public function init()
+    {
+        add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME;
+                return $fields;
+            });
+        });
+    }
+
     /**
      * Add setting.
      *
@@ -32,7 +53,8 @@ class TitleVoiceSpeakingRate extends SpeakingRate
             'beyondwords_voices_settings',
             'beyondwords_title_voice_speaking_rate',
             [
-                'default' => '100',
+                'type'    => 'integer',
+                'default' => 100,
             ]
         );
 
@@ -54,7 +76,7 @@ class TitleVoiceSpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_title_voice_speaking_rate', '100');
+        $current = get_option('beyondwords_title_voice_speaking_rate');
         ?>
         <div class="beyondwords-setting__title-speaking-rate">
             <input

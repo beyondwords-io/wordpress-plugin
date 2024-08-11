@@ -19,6 +19,11 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI;
  */
 class PlayerUI
 {
+    /**
+     * Option name.
+     */
+    public const OPTION_NAME = 'beyondwords_player_ui';
+
     public const ENABLED  = 'enabled';
 
     public const HEADLESS = 'headless';
@@ -33,6 +38,12 @@ class PlayerUI
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME;
+                return $fields;
+            });
+        });
     }
 
     /**

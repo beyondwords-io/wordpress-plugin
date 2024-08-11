@@ -20,6 +20,11 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
 class PlaybackControls
 {
     /**
+     * Option name.
+     */
+    public const OPTION_NAME = 'beyondwords_player_skip_button_style';
+
+    /**
      * Player Settings docs URL.
      *
      * @var string
@@ -34,6 +39,12 @@ class PlaybackControls
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME;
+                return $fields;
+            });
+        });
     }
 
     /**

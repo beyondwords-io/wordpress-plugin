@@ -27,6 +27,9 @@ class ApiKey
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_beyondwords_api_key', function () {
+            add_filter('beyondwords_sync_to_wordpress', '__return_true');
+        });
     }
 
     /**

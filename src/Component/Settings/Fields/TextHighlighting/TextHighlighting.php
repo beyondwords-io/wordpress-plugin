@@ -22,6 +22,11 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 class TextHighlighting
 {
     /**
+     * Option name.
+     */
+    public const OPTION_NAME = 'beyondwords_player_highlight_sections';
+
+    /**
      * Init.
      *
      * @since 4.0.0
@@ -29,6 +34,12 @@ class TextHighlighting
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME;
+                return $fields;
+            });
+        });
     }
 
     /**

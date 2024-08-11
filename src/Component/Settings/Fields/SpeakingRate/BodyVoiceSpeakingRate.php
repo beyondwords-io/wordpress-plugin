@@ -17,8 +17,27 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
  *
  * @since 4.8.0
  */
-class BodyVoiceSpeakingRate extends SpeakingRate
+class BodyVoiceSpeakingRate
 {
+    /**
+     * Option name.
+     */
+    public const OPTION_NAME = 'beyondwords_body_voice_speaking_rate';
+
+    /**
+     * Constructor
+     */
+    public function init()
+    {
+        add_action('admin_init', array($this, 'addSetting'));
+        add_action('update_option_' . self::OPTION_NAME, function () {
+            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
+                $fields[] = self::OPTION_NAME;
+                return $fields;
+            });
+        });
+    }
+
     /**
      * Add setting.
      *
@@ -32,7 +51,8 @@ class BodyVoiceSpeakingRate extends SpeakingRate
             'beyondwords_voices_settings',
             'beyondwords_body_voice_speaking_rate',
             [
-                'default' => '100',
+                'type'    => 'integer',
+                'default' => 100,
             ]
         );
 
@@ -54,7 +74,7 @@ class BodyVoiceSpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_body_voice_speaking_rate', '100');
+        $current = get_option('beyondwords_body_voice_speaking_rate');
         ?>
         <div class="beyondwords-setting__body-speaking-rate">
             <input

@@ -56,7 +56,7 @@ class Voices
         (new BodyVoiceSpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
-        add_action('admin_init', array($this, 'maybeSync'), 10);
+        add_action('admin_head', array($this, 'maybeSync'), 20);
     }
 
     /**
@@ -143,6 +143,11 @@ class Voices
                 'error'
             );
         }
+
+        // Save the language code from the response because we use ID on our side.
+        if ($projectResult && array_key_exists('language', $projectResult)) {
+            update_option('beyondwords_project_language_code', $projectResult['language'], false);
+        }
     }
 
     /**
@@ -155,6 +160,8 @@ class Voices
     public function getProjectRequestParams()
     {
         $params['language'] = get_option('beyondwords_project_language_code');
+        $params['title']['voice']['id'] = get_option('beyondwords_project_title_voice_id');
+        $params['body']['voice']['id'] = get_option('beyondwords_project_body_voice_id');
 
         return array_filter($params);
     }

@@ -63,7 +63,7 @@ class Player
         (new PlaybackControls())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
-        add_action('admin_init', array($this, 'maybeSync'), 10);
+        add_action('admin_head', array($this, 'maybeSync'), 20);
     }
 
     /**
