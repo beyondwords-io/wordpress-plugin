@@ -114,18 +114,27 @@ class Voices
      **/
     public function maybeSync()
     {
-        $submitted = isset($_POST['submit-voices' ]); // phpcs:ignore WordPress.Security.NonceVerification
+        $submitted = isset($_POST['submit-voices']); // phpcs:ignore WordPress.Security.NonceVerification
 
         if (! $submitted) {
             return;
         }
 
-        // Sync WordPress -> REST API
-        $data   = $this->getBodyParams();
-        $result = $this->apiClient->updateVoices($data);
-        $result = true; // @todo make sync API call on update
+        // Sync project from WordPress -> REST API
+        $projectParams = $this->getProjectRequestParams();
+        $projectResult = $this->apiClient->updateProject($projectParams);
 
-        if (! $result) {
+        // Sync title voice from WordPress -> REST API
+        $titleVoiceId     = get_option('beyondwords_project_title_voice_id');
+        $titleVoiceParams = $this->getTitleVoiceRequestParams();
+        $titleVoiceResult = $this->apiClient->updateVoice($titleVoiceId, $titleVoiceParams);
+
+        // Sync body voice from WordPress -> REST API
+        $bodyVoiceId      = get_option('beyondwords_project_body_voice_id');
+        $bodyVoiceParams  = $this->getBodyVoiceRequestParams();
+        $bodyVoiceResult  = $this->apiClient->updateVoice($bodyVoiceId, $bodyVoiceParams);
+
+        if (! $projectResult || ! $titleVoiceResult || ! $bodyVoiceResult) {
             // Error notice
             add_settings_error(
                 'beyondwords_settings',
@@ -137,25 +146,43 @@ class Voices
     }
 
     /**
-     * Get the body params, ready for REST API call.
+     * Get the params for project REST API request.
      *
      * @since 4.8.0
      *
      * @return array REST API body params.
      */
-    public function getBodyParams()
+    public function getProjectRequestParams()
     {
-        $params = [];
+        $params['language'] = get_option('beyondwords_project_language_code');
 
-        $params['player_style']      = get_option('beyondwords_player_style');
-        $params['theme']             = get_option('beyondwords_player_theme');
-        $params['dark_theme']        = get_option('beyondwords_player_dark_theme');
-        $params['light_theme']       = get_option('beyondwords_player_light_theme');
-        $params['video_theme']       = get_option('beyondwords_player_video_theme');
-        $params['call_to_action']    = get_option('beyondwords_player_call_to_action');
-        $params['widget_style']      = get_option('beyondwords_player_widget_style');
-        $params['widget_position']   = get_option('beyondwords_player_widget_position');
-        $params['skip_button_style'] = get_option('beyondwords_player_skip_button_style');
+        return array_filter($params);
+    }
+
+    /**
+     * Get the params for title voice REST API request.
+     *
+     * @since 4.8.0
+     *
+     * @return array REST API body params.
+     */
+    public function getTitleVoiceRequestParams()
+    {
+        $params['speaking_rate'] = get_option('beyondwords_title_voice_speaking_rate');
+
+        return array_filter($params);
+    }
+
+    /**
+     * Get the params for body voice REST API request.
+     *
+     * @since 4.8.0
+     *
+     * @return array REST API body params.
+     */
+    public function getBodyVoiceRequestParams()
+    {
+        $params['speaking_rate'] = get_option('beyondwords_body_voice_speaking_rate');
 
         return array_filter($params);
     }

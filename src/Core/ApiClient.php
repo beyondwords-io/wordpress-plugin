@@ -223,6 +223,28 @@ class ApiClient
     }
 
     /**
+     * PUT /voices/:id.
+     *
+     * @since 4.8.0
+     *
+     * @param array $settings Associative array of voice settings.
+     *
+     * @return Response|false Response, or false
+     **/
+    public function updateVoice($voiceId, $settings)
+    {
+        if (empty($voiceId)) {
+            return false;
+        }
+
+        $url = sprintf('%s/organization/voices/%d', Environment::getApiUrl(), $voiceId);
+
+        $request = new Request('PUT', $url, wp_json_encode($settings));
+
+        return $this->callApi($request);
+    }
+
+    /**
      * GET /projects/:id.
      *
      * @since 4.0.0

@@ -30,9 +30,9 @@ class TitleVoiceSpeakingRate extends SpeakingRate
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_title_speaking_rate',
+            'beyondwords_title_voice_speaking_rate',
             [
-                'default' => '1.0',
+                'default' => '100',
             ]
         );
 
@@ -54,21 +54,21 @@ class TitleVoiceSpeakingRate extends SpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_project_title_speaking_rate', '1.0');
+        $current = get_option('beyondwords_title_voice_speaking_rate', '100');
         ?>
         <div class="beyondwords-setting__title-speaking-rate">
             <input
                 type="range"
-                name="beyondwords_project_title_speaking_rate"
+                name="beyondwords_title_voice_speaking_rate"
                 class="beyondwords_speaking_rate"
-                min="0.5"
-                max="3"
-                step="0.05"
+                min="50"
+                max="200"
+                step="1"
                 value="<?php echo esc_attr($current); ?>"
-                oninput="this.nextElementSibling.value = `${Number(this.value).toFixed(2)}`"
-                onload="this.nextElementSibling.value = `${Number(this.value).toFixed(2)}`"
+                oninput="this.nextElementSibling.value = `${this.value}%`"
+                onload="this.nextElementSibling.value = `${this.value}%`"
             />
-            <output><?php echo esc_html(number_format((float)$current, 2)); ?></output>
+            <output><?php echo esc_html($current); ?>%</output>
         </div>
         <p class="description">
             <?php

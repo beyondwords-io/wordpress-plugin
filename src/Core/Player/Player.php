@@ -545,6 +545,8 @@ class Player
     /**
      * Add plugin settings to SDK params.
      *
+     * @since 4.8.0
+     *
      * @param array $params BeyondWords Player SDK params.
      *
      * @return array Modified SDK params.
@@ -552,17 +554,13 @@ class Player
     public function addPluginSettingsToSdkParams($params)
     {
         $mapping = [
-            'beyondwords_project_title_speaking_rate' => 'playbackRate', // @todo
-            'beyondwords_project_body_speaking_rate' => 'playbackRate', // @todo
-            'beyondwords_include_title' => '', // @todo
-            'beyondwords_player_style' => 'playerStyle',
-            'beyondwords_player_theme' => '', // @todo
-            'beyondwords_player_call_to_action' => 'callToAction',
+            'beyondwords_player_style'              => 'playerStyle',
+            'beyondwords_player_call_to_action'     => 'callToAction',
             'beyondwords_player_highlight_sections' => 'highlightSections',
             'beyondwords_player_clickable_sections' => 'clickableSections',
-            'beyondwords_player_widget_style' => 'widgetStyle',
-            'beyondwords_player_widget_position' => 'widgetPosition',
-            'beyondwords_player_skip_button_style' => 'skipButtonStyle',
+            'beyondwords_player_widget_style'       => 'widgetStyle',
+            'beyondwords_player_widget_position'    => 'widgetPosition',
+            'beyondwords_player_skip_button_style'  => 'skipButtonStyle',
         ];
 
         foreach ($mapping as $wpOption => $sdkParam) {

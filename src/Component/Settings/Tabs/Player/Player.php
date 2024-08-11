@@ -161,7 +161,6 @@ class Player
 
         $data   = $this->getBodyParams();
         $result = $this->apiClient->updatePlayerSettings($data);
-        $result = true; // @todo make sync API call on update
 
         if (! $result) {
             // Error notice

@@ -67,7 +67,7 @@ class BodyVoice extends Voice
                     printf(
                         '<option value="%s" %s>%s</option>',
                         esc_attr($option['value']),
-                        selected($option['value'], $current ?? ''),
+                        selected($option['value'], $current ?: ''),
                         esc_html($option['label'])
                     );
                 }

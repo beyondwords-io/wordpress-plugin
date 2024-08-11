@@ -106,11 +106,9 @@ class Content
         }
 
         // Sync WordPress -> REST API
-        $data   = $this->getBodyParams();
-        $result = $this->apiClient->updateProject($data);
-        $result = true; // @todo make sync API call on update
+        $projectResult    = $this->apiClient->updateProject($this->getProjectParams());
 
-        if (! $result) {
+        if (! $projectResult) {
             // Error notice
             add_settings_error(
                 'beyondwords_settings',
@@ -122,20 +120,15 @@ class Content
     }
 
     /**
-     * Get the body params, ready for REST API call.
+     * Get the project body params, ready for REST API call.
      *
      * @since 4.8.0
      *
      * @return array REST API body params.
      */
-    public function getBodyParams()
+    public function getProjectParams()
     {
-        $params = [];
-
-        $params['language']             = get_option('beyondwords_project_language');
-        $params['title']['enabled']     = (bool) get_option('beyondwords_include_title');
-        $params['body']['voice']['id']  = (int) get_option('beyondwords_project_body_voice_id');
-        $params['title']['voice']['id'] = (int) get_option('beyondwords_project_title_voice_id');
+        $params['title']['enabled'] = (bool) get_option('beyondwords_include_title', true);
 
         return array_filter($params);
     }

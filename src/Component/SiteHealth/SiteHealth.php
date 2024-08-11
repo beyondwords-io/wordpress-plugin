@@ -189,9 +189,9 @@ class SiteHealth
             'value' => get_option('beyondwords_project_title_voice_id'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_project_title_speaking_rate'] = [
+        $info['beyondwords']['fields']['beyondwords_title_voice_speaking_rate'] = [
             'label' => __('Title speaking rate', 'speechkit'),
-            'value' => get_option('beyondwords_project_title_speaking_rate'),
+            'value' => get_option('beyondwords_title_voice_speaking_rate'),
         ];
 
         $info['beyondwords']['fields']['beyondwords_project_body_voice_id'] = [
@@ -199,9 +199,9 @@ class SiteHealth
             'value' => get_option('beyondwords_project_body_voice_id'),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_project_body_speaking_rate'] = [
+        $info['beyondwords']['fields']['beyondwords_body_voice_speaking_rate'] = [
             'label' => __('Body speaking rate', 'speechkit'),
-            'value' => get_option('beyondwords_project_body_speaking_rate'),
+            'value' => get_option('beyondwords_body_voice_speaking_rate'),
         ];
     }
 
