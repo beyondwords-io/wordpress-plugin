@@ -189,7 +189,7 @@ class SyncSettings
                         'success'
                     );
                 }
-            } catch (\Exception) {
+            } catch (\Exception $e) {
                 add_settings_error(
                     'beyondwords_settings',
                     'beyondwords_settings',
