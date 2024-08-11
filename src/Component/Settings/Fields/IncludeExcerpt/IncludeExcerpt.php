@@ -43,7 +43,9 @@ class IncludeExcerpt
             'beyondwords_content_settings',
             'beyondwords_prepend_excerpt',
             [
-                'default' => '',
+                'type'              => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default'           => true,
             ]
         );
 
@@ -70,6 +72,7 @@ class IncludeExcerpt
         ?>
         <div>
             <label>
+                <input type="hidden" name="beyondwords_prepend_excerpt" value="" />
                 <input
                     type="checkbox"
                     name="beyondwords_prepend_excerpt"

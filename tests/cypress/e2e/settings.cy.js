@@ -103,7 +103,6 @@ context( 'Settings tests',  () => {
     cy.get( '#beyondwords_preselect' ).should( 'exist' )
     cy.get( '#beyondwords_project_id' ).should( 'exist' )
     cy.get( '#beyondwords_version' ).should( 'exist' )
-    // cy.get( '#beyondwords_settings_updated' ).should( 'exist' )
   } )
 
   it( 'uses "Enabled" Player UI setting', () => {

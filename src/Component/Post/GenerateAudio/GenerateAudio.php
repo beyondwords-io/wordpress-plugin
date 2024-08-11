@@ -82,6 +82,7 @@ class GenerateAudio
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-generate-audio">
+            <input type="hidden" name="beyondwords_generate_audio" value="" />
             <input
                 type="checkbox"
                 id="beyondwords_generate_audio"

@@ -74,7 +74,8 @@ class Language
             'beyondwords_voices_settings',
             'beyondwords_project_language_id',
             [
-                'default' => '',
+                'type' => 'integer',
+                'default' => null,
             ]
         );
 
@@ -98,7 +99,7 @@ class Language
     {
         $options = $this->getOptions();
 
-        $current = get_option('beyondwords_project_language_id', '');
+        $current = get_option('beyondwords_project_language_id');
         ?>
         <div class="beyondwords-setting__default-language">
             <select

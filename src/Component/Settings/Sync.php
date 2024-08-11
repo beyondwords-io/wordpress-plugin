@@ -105,35 +105,21 @@ class Sync
             return;
         }
 
-        $settings = [
-            'project'     => $this->apiClient->getProject(),
-            'player'      => $this->apiClient->getPlayerSettings(),
-            // todo move this to later on because we don't have the voice IDs yet
-            // 'title_voice' => $this->apiClient->getVoice(get_option('beyondwords_project_title_voice_id')),
-            // 'body_voice'  => $this->apiClient->getVoice(get_option('beyondwords_project_body_voice_id')),
-        ];
+        // Add the language ID to the project settings response.
+        $projectSettings = $this->apiClient->getProject();
+        $this->setLanguageId($projectSettings);
 
-        $this->setLanguageId($settings);
+        // Request the project details first, we need them for the Voice IDs.
+        $this->updateOptionsFromResponses([
+            'project' => $projectSettings,
+            'player'  => $this->apiClient->getPlayerSettings(),
+        ]);
 
-        foreach (self::MAP_SETTINGS as $optionName => $path) {
-            $value = $this->propertyAccessor->getValue($settings, $path);
-            if ($value !== null) {
-                update_option($optionName, $value, false);
-            }
-        }
-
-        // Get the voice sopeaking rates now that the Voice IDs have been saved.
-        $settings = [
+        // Use the voice IDs from previous requests to get the speaking rates.
+        $this->updateOptionsFromResponses([
             'title_voice' => $this->apiClient->getVoice(get_option('beyondwords_project_title_voice_id')),
             'body_voice'  => $this->apiClient->getVoice(get_option('beyondwords_project_body_voice_id')),
-        ];
-
-        foreach (self::MAP_SETTINGS as $optionName => $path) {
-            $value = $this->propertyAccessor->getValue($settings, $path);
-            if ($value !== null) {
-                update_option($optionName, $value, false);
-            }
-        }
+        ]);
 
         add_settings_error(
             'beyondwords_settings',
@@ -141,6 +127,23 @@ class Sync
             '<span class="dashicons dashicons-rest-api"></span> Settings synced from the BeyondWords dashboard to WordPress.', // phpcs:ignore Generic.Files.LineLength.TooLong
             'success'
         );
+    }
+
+    /**
+     * Update WordPress options from REST API responses.
+     *
+     * @since 4.8.0
+     *
+     * @return void
+     **/
+    public function updateOptionsFromResponses($responses)
+    {
+        foreach (self::MAP_SETTINGS as $optionName => $path) {
+            $value = $this->propertyAccessor->getValue($responses, $path);
+            if ($value !== null) {
+                update_option($optionName, $value, false);
+            }
+        }
     }
 
     /**

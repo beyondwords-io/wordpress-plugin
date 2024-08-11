@@ -102,9 +102,8 @@ class DisplayPlayerTest extends WP_UnitTestCase
 
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-display-player'));
 
-        $input = $crawler->filter('p#beyondwords-metabox-display-player input');
+        $input = $crawler->filter('p#beyondwords-metabox-display-player input[type="checkbox"]');
 
-        $this->assertEquals('checkbox', $input->attr('type'));
         $this->assertEquals('beyondwords_display_player', $input->attr('id'));
         $this->assertEquals('beyondwords_display_player', $input->attr('name'));
         $this->assertEquals('1', $input->attr('value'));

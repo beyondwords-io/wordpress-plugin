@@ -55,7 +55,9 @@ class TextHighlighting
             'beyondwords_player_settings',
             'beyondwords_player_highlight_sections',
             [
-                'default' => '',
+                'type'              => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default'           => false,
             ]
         );
 
@@ -83,6 +85,7 @@ class TextHighlighting
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--text-highlighting">
             <label>
+                <input type="hidden" name="beyondwords_player_highlight_sections" value="" />
                 <input
                     type="checkbox"
                     name="beyondwords_player_highlight_sections"

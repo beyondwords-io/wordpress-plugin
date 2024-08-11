@@ -35,11 +35,7 @@
 						$(this)
 							.empty()
 							.append( voices.map( ( voice ) => {
-								const option = $( '<option></option>' )
-									.val( voice.id )
-									.text( voice.name )
-									.attr( 'data-language-code', voice.language );
-								return option;
+								return $( '<option></option>' ).val( voice.id ).text( voice.name );
 							} ) )
 							.attr( 'disabled', false );
 					})

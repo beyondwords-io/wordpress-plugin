@@ -77,9 +77,9 @@ class IncludeTitle
             'beyondwords_content_settings',
             self::OPTION_NAME,
             [
-                'type'              => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
-                'default'           => self::DEFAULT_VALUE,
+                'type'              => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default'           => true,
             ]
         );
 
@@ -105,6 +105,7 @@ class IncludeTitle
         ?>
         <div>
             <label>
+                <input type="hidden" name="<?php echo esc_attr(self::OPTION_NAME); ?>" value="" />
                 <input
                     type="checkbox"
                     id="<?php echo esc_attr(self::OPTION_NAME); ?>"

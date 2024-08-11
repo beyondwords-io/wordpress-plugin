@@ -223,6 +223,32 @@ class ApiClient
     }
 
     /**
+     * Loops though GET /organization/voices, because
+     * GET /organization/voice is not available.
+     *
+     * @since 4.8.0
+     *
+     * @param int       $voiceId  Voice ID.
+     * @param int|false $language Language ID, optional.
+     *
+     * @return object|false Voice, or false if not found.
+     **/
+    public function getVoice($voiceId, $languageId = false)
+    {
+        if (! $languageId) {
+            $languageId = get_option('beyondwords_project_language_id');
+        }
+
+        $voices = $this->getVoices($languageId);
+
+        if (empty($voices)) {
+            return false;
+        }
+
+        return array_column($voices, null, 'id')[$voiceId] ?? false;
+    }
+
+    /**
      * PUT /voices/:id.
      *
      * @since 4.8.0

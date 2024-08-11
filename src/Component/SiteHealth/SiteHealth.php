@@ -125,11 +125,6 @@ class SiteHealth
             'value' => (string) wp_json_encode(get_option('beyondwords_languages'), JSON_PRETTY_PRINT),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_settings_updated'] = [
-            'label' => __('Settings updated', 'speechkit'),
-            'value' => get_option('beyondwords_settings_updated'),
-        ];
-
         $this->addFilters($info);
 
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
@@ -259,12 +254,14 @@ class SiteHealth
 
         $info['beyondwords']['fields']['beyondwords_player_highlight_sections'] = [
             'label' => __('Text highlighting', 'speechkit'),
-            'value' => get_option('beyondwords_player_highlight_sections'),
+            'value' => get_option('beyondwords_player_highlight_sections') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_player_highlight_sections') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_player_clickable_sections'] = [
             'label' => __('Playback from segments', 'speechkit'),
-            'value' => get_option('beyondwords_player_clickable_sections'),
+            'value' => get_option('beyondwords_player_clickable_sections') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_player_clickable_sections') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_player_widget_style'] = [

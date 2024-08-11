@@ -81,12 +81,6 @@ context( 'Site Health', () => {
         cy.get( 'td' ).eq( 1 ).should( 'have.text', 'cpt_unsupported' )
       } )
 
-    // cy.contains( 'Settings updated' )
-    //   .parent( 'tr' )
-    //   .within( () => {
-    //     cy.get( 'td' ).eq( 1 ).invoke( 'text' ).should( 'match', settingsUpdatedRegex )
-    //   } )
-
     cy.contains( 'Registered filters' )
       .parent( 'tr' )
       .within( () => {

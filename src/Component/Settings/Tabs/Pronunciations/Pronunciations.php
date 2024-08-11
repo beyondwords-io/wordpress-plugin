@@ -67,7 +67,7 @@ class Pronunciations
         $rulesUrl = sprintf(
             '%s/dashboard/project/%s/settings?tab=rules',
             Environment::getDashboardUrl(),
-            get_option('beyondwords_project_id', ''),
+            get_option('beyondwords_project_id'),
         );
         ?>
         <p class="description">

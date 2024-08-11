@@ -53,7 +53,9 @@ class PlaybackFromSegments
             'beyondwords_player_settings',
             'beyondwords_player_clickable_sections',
             [
-                'default' => '',
+                'type'              => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default'           => false,
             ]
         );
 
@@ -80,6 +82,7 @@ class PlaybackFromSegments
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player-playback-from-segments">
             <label>
+                <input type="hidden" name="beyondwords_player_clickable_sections" value="" />
                 <input
                     type="checkbox"
                     name="beyondwords_player_clickable_sections"

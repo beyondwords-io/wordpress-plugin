@@ -68,7 +68,6 @@ abstract class Voice
             return [
                 'value'         => $voice['id'],
                 'label'         => $voice['name'],
-                'language_code' => $voice['language'],
             ];
         }, $voices);
 
