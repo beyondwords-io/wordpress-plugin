@@ -20,7 +20,7 @@ declare(strict_types=1);
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
  * Domain Path:       /languages
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Requires at least: 5.8
  */
 // phpcs:enable

@@ -24,12 +24,12 @@ jobs:
       # ######################################
       # PHP
       # ######################################
-      - name: Setup PHP 7.4
+      - name: Setup PHP 8.0
         uses: shivammathur/setup-php@v2
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          php-version: '7.4'
+          php-version: '8.0'
           extensions: mbstring intl
           tools: composer, wp-cli
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php7.4-no-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
@@ -175,7 +175,7 @@ jobs:
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '7.4'
+        - php-version: '8.0'
           phpunit-version: '9'
           operating-system: ['ubuntu-20.04']
 
@@ -211,14 +211,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php7.4-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '7.4'
+          php_version: '8.0'
 
       - name: Check PHP Version
         run: php -v
@@ -328,7 +328,7 @@ jobs:
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '7.4'
+        - php-version: '8.0'
           phpunit-version: '9'
           operating-system: ['ubuntu-20.04']
 
@@ -363,14 +363,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php7.4-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '7.4'
+          php_version: '8.0'
 
       - name: Check PHP Version
         run: php -v
