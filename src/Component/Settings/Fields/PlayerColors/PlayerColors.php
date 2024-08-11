@@ -77,6 +77,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#EEE',
                 ],
+                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
         );
 
@@ -90,6 +91,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#EEE',
                 ],
+                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
         );
 
@@ -102,6 +104,7 @@ class PlayerColors
                     'icon_color'       => '#FFF',
                     'text_color'       => '#FFF',
                 ],
+                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
         );
 
@@ -124,12 +127,12 @@ class PlayerColors
     public function renderPlayerThemeSetting()
     {
         $current = get_option('beyondwords_player_theme');
-        $options = $this->getPlayerThemeOptions();
+        $themeOptions = $this->getPlayerThemeOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-colors">
             <select name="beyondwords_player_theme">
                 <?php
-                foreach ($options as $option) {
+                foreach ($themeOptions as $option) {
                     printf(
                         '<option value="%s" %s>%s</option>',
                         esc_attr($option['value']),
@@ -144,15 +147,61 @@ class PlayerColors
     }
 
     /**
+     * Sanitise the colors array setting value.
+     *
+     * @since  4.8.0
+     * @param  array $value The submitted value.
+     *
+     * @return array The sanitized value.
+     **/
+    public function sanitizeColorsArray($value)
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $value['background_color'] = $this->sanitizeColor($value['background_color'] ?: '');
+        $value['text_color']       = $this->sanitizeColor($value['text_color']       ?: '');
+        $value['icon_color']       = $this->sanitizeColor($value['icon_color']       ?: '');
+
+        // Highlight doesn't exist for video player
+        if (!empty($value['highlight_color'])) {
+            $value['highlight_color'] = $this->sanitizeColor($value['highlight_color']);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Sanitize an individual color value.
+     *
+     * @since 4.8.0
+     * @param string $value The submitted individual color value.
+     *
+     * @return array The sanitized value.
+     **/
+    public function sanitizeColor($value)
+    {
+        $value = trim((string)$value);
+
+        // Prepend hash to hexidecimal values if missing
+        if (preg_match("/^[0-9a-fA-F]+$/", $value)) {
+            $value = '#' . $value;
+        }
+
+        return $value;
+    }
+
+    /**
      * Get all options for the current component.
      *
      * @since 4.8.0
      *
-     * @return string[] Associative array of options.
+     * @return string[] Associative array of player theme options.
      **/
     public function getPlayerThemeOptions()
     {
-        $options = [
+        $themeOptions = [
             [
                 'value' => 'light',
                 'label' => 'Light (default)',
@@ -167,7 +216,7 @@ class PlayerColors
             ],
         ];
 
-        return $options;
+        return $themeOptions;
     }
     /**
      * Render setting field.
@@ -220,7 +269,7 @@ class PlayerColors
                 SettingsUtils::colorInput(
                     __('Background'),
                     sprintf('%s[background_color]', $name),
-                    $value['background_color'] ?? ''
+                    $value['background_color'] ?: ''
                 );
                 ?>
             </div>
@@ -229,7 +278,7 @@ class PlayerColors
                 SettingsUtils::colorInput(
                     __('Icons'),
                     sprintf('%s[icon_color]', $name),
-                    $value['icon_color'] ?? ''
+                    $value['icon_color'] ?: ''
                 );
                 ?>
             </div>
@@ -238,7 +287,7 @@ class PlayerColors
                 SettingsUtils::colorInput(
                     __('Text color'),
                     sprintf('%s[text_color]', $name),
-                    $value['text_color'] ?? ''
+                    $value['text_color'] ?: ''
                 );
                 ?>
             </div>
