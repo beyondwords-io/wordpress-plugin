@@ -77,16 +77,17 @@ class PlaybackFromSegments
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_player_clickable_sections', '');
+        $value = get_option('beyondwords_player_clickable_sections');
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player-playback-from-segments">
             <label>
                 <input type="hidden" name="beyondwords_player_clickable_sections" value="" />
                 <input
                     type="checkbox"
+                    id="beyondwords_player_clickable_sections"
                     name="beyondwords_player_clickable_sections"
-                    value="body"
-                    <?php checked($prependExcerpt, 'body'); ?>
+                    value="1"
+                    <?php checked($value); ?>
                 />
                 <?php esc_html_e('Allow readers to listen to a paragraph by clicking or tapping on it', 'speechkit'); ?>
             </label>

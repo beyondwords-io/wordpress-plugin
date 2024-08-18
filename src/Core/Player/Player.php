@@ -543,7 +543,6 @@ class Player
             'beyondwords_player_style'              => 'playerStyle',
             'beyondwords_player_call_to_action'     => 'callToAction',
             'beyondwords_player_highlight_sections' => 'highlightSections',
-            'beyondwords_player_clickable_sections' => 'clickableSections',
             'beyondwords_player_widget_style'       => 'widgetStyle',
             'beyondwords_player_widget_position'    => 'widgetPosition',
             'beyondwords_player_skip_button_style'  => 'skipButtonStyle',
@@ -554,6 +553,12 @@ class Player
             if (!empty($val)) {
                 $params[$sdkParam] = $val;
             }
+        }
+
+        // Special case for clickableSections
+        $val = get_option('beyondwords_player_clickable_sections');
+        if (!empty($val)) {
+            $params['clickableSections'] = 'body';
         }
 
         return $params;

@@ -96,7 +96,7 @@ class PreselectGenerateAudio
                         type="checkbox"
                         name="beyondwords_preselect[<?php echo esc_attr($postType->name); ?>]"
                         value="1"
-                        <?php checked($this->postTypeIsSelected($postType), true); ?>
+                        <?php checked($this->postTypeIsSelected($postType)); ?>
                     />
                     <?php echo esc_html($postType->label); ?>
                 </label>
@@ -173,7 +173,7 @@ class PreselectGenerateAudio
                                 type="checkbox"
                                 name="<?php echo esc_attr($inputName); ?>"
                                 value="<?php echo esc_attr($term->term_id); ?>"
-                                <?php checked($this->termIsSelected($postType, $taxonomy, $term), true) ?>
+                                <?php checked($this->termIsSelected($postType, $taxonomy, $term)) ?>
                             />
                             <?php echo esc_html($term->name); ?>
                         </label>

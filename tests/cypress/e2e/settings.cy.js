@@ -1,11 +1,6 @@
 context( 'Settings tests',  () => {
-  before( () => {
-    cy.task( 'reset' )
-    // cy.login()
-    // cy.savePluginSettings()
-  } )
-
   beforeEach( () => {
+    cy.task( 'reset' )
     cy.login()
   } )
 
@@ -38,21 +33,21 @@ context( 'Settings tests',  () => {
     // Empty Project ID
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear()
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
     cy.showsPluginSettingsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
     // Invalid creds
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' ) // Project 401 triggers a 403 response in Mockoon
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
     cy.showsInvalidApiCredsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
     // Valid API Key & Project ID
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
     cy.get( '.notice.notice-info' ).should( 'not.exist' )
     cy.showsAllSettingsTabs()
 
@@ -63,16 +58,22 @@ context( 'Settings tests',  () => {
 
     cy.get( 'input[name="beyondwords_api_key"]' ).should( 'have.value', Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).should( 'have.value', Cypress.env( 'projectId' ) )
+
+    cy.visit( '/wp-admin/options.php' )
+    cy.get( '#beyondwords_api_key' ).should( 'exist' )
+    cy.get( '#beyondwords_project_id' ).should( 'exist' )
+    cy.get( '#beyondwords_valid_api_connection' )
+    cy.get( '#beyondwords_version' ).should( 'exist' )
   } )
 
   // @todo finish tests for syncing settings on install
-  it.only( 'has synced the settings on install', () => {
+  it.skip( 'has synced the settings on install', () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
     // Valid API Key & Project ID
     cy.get( 'input#beyondwords_api_key' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input#beyondwords_project_id' ).clear().type( Cypress.env( 'projectId' ) )
-    cy.get( 'input#submit' ).click().wait( 500 )
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
     // Voices tab
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
@@ -81,34 +82,39 @@ context( 'Settings tests',  () => {
     cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
-  it( 'can set the Content plugin settings', () => {
+  it.only( 'can set the Content plugin settings', () => {
+    cy.saveMinimalPluginSettings()
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
-    cy.get( 'input[name="beyondwords_prepend_excerpt"]' ).should( 'not.be.checked' )
+    cy.get( '#beyondwords_include_title' ).should( 'be.checked' )
+    cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.be.checked' )
     cy.get( 'input[name="beyondwords_preselect[post]"]' ).should( 'be.checked' )
     cy.get( 'input[name="beyondwords_preselect[page]"]' ).should( 'be.checked' )
 
-    cy.get( 'input[name="beyondwords_prepend_excerpt"]' ).check()
+    cy.get( '#beyondwords_include_title' ).uncheck()
+    cy.get( '#beyondwords_prepend_excerpt' ).check()
     cy.get( 'input[name="beyondwords_preselect[post]"]' ).check()
     cy.get( 'input[name="beyondwords_preselect[page]"]' ).uncheck()
 
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
-    cy.get( 'input[name="beyondwords_prepend_excerpt"]' ).should( 'be.checked' )
+    cy.get( '#beyondwords_include_title' ).should( 'not.be.checked' )
+    cy.get( '#beyondwords_prepend_excerpt' ).should( 'be.checked' )
     cy.get( 'input[name="beyondwords_preselect[post]"]' ).should( 'be.checked' )
     cy.get( 'input[name="beyondwords_preselect[page]"]' ).should( 'not.be.checked' )
 
     cy.visit( '/wp-admin/options.php' )
-    cy.get( '#beyondwords_api_key' ).should( 'exist' )
+    cy.get( '#beyondwords_include_title' ).should( 'exist' )
     cy.get( '#beyondwords_prepend_excerpt' ).should( 'exist' )
     cy.get( '#beyondwords_preselect' ).should( 'exist' )
-    cy.get( '#beyondwords_project_id' ).should( 'exist' )
-    cy.get( '#beyondwords_version' ).should( 'exist' )
   } )
 
   it( 'uses "Enabled" Player UI setting', () => {
+    cy.saveMinimalPluginSettings()
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' )
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
     cy.createPostWithAudio( '"Enabled" Player UI' )
 
@@ -129,9 +135,11 @@ context( 'Settings tests',  () => {
   } )
 
   it( 'uses "Headless" Player UI setting', () => {
+    cy.saveMinimalPluginSettings()
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' )
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
     cy.createPostWithAudio( '"Headless" Player UI' )
 
@@ -153,9 +161,11 @@ context( 'Settings tests',  () => {
   } )
 
   it( 'uses "Disabled" Player UI setting', () => {
+    cy.saveMinimalPluginSettings()
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
     cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' )
-    cy.get( 'input[type="submit"]' ).click()
+    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
     cy.createPostWithAudio( '"Disabled" Player UI' )
 
@@ -174,11 +184,14 @@ context( 'Settings tests',  () => {
   } )
 
   it( 'removes the plugin settings when uninstalled', () => {
+    cy.saveStandardPluginSettings()
+
     cy.visit( '/wp-admin/options.php' ).wait( 500 )
     cy.get( '#beyondwords_api_key' )
     cy.get( '#beyondwords_prepend_excerpt' )
     cy.get( '#beyondwords_preselect' )
     cy.get( '#beyondwords_project_id' )
+    cy.get( '#beyondwords_valid_api_connection' )
     cy.get( '#beyondwords_version' )
 
     // The plugin files will not be deleted. Only the uninstall procedure will be run.
@@ -189,6 +202,7 @@ context( 'Settings tests',  () => {
     cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' )
     cy.get( '#beyondwords_preselect' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_id' ).should( 'not.exist' )
+    cy.get( '#beyondwords_valid_api_connection' ).should( 'not.exist' )
     cy.get( '#beyondwords_version' ).should( 'not.exist' )
   } )
 } )

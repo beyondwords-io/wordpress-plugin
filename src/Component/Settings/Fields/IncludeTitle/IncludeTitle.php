@@ -101,7 +101,7 @@ class IncludeTitle
      **/
     public function render()
     {
-        $optionValue = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
+        $optionValue = get_option(self::OPTION_NAME);
         ?>
         <div>
             <label>
@@ -111,7 +111,7 @@ class IncludeTitle
                     id="<?php echo esc_attr(self::OPTION_NAME); ?>"
                     name="<?php echo esc_attr(self::OPTION_NAME); ?>"
                     value="1"
-                    <?php checked($optionValue, self::DEFAULT_VALUE); ?>
+                    <?php checked($optionValue); ?>
                 />
                 <?php esc_html_e('Include title in audio', 'speechkit'); ?>
             </label>

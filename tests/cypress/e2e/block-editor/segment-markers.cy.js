@@ -2,7 +2,7 @@ context( 'Block Editor: Segment markers', () => {
   before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.savePluginSettings()
+    cy.saveStandardPluginSettings()
   } )
 
   beforeEach( () => {

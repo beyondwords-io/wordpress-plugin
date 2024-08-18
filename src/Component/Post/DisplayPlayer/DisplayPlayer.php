@@ -93,7 +93,7 @@ class DisplayPlayer
                 id="beyondwords_display_player"
                 name="beyondwords_display_player"
                 value="1"
-                <?php checked($displayPlayer, true); ?>
+                <?php checked($displayPlayer); ?>
             />
             <?php esc_html_e('Display player', 'speechkit'); ?>
         </p>

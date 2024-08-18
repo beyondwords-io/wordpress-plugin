@@ -70,15 +70,17 @@ class IncludeExcerpt
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_prepend_excerpt', '');
+        $prependExcerpt = get_option('beyondwords_prepend_excerpt');
         ?>
         <div>
             <label>
+                <input type="hidden" name="beyondwords_prepend_excerpt" value="" />
                 <input
                     type="checkbox"
+                    id="beyondwords_prepend_excerpt"
                     name="beyondwords_prepend_excerpt"
                     value="1"
-                    <?php checked($prependExcerpt, '1'); ?>
+                    <?php checked($prependExcerpt); ?>
                 />
                 <?php esc_html_e('Include excerpts in audio', 'speechkit'); ?>
             </label>

@@ -4,7 +4,7 @@ context( 'Block Editor: Player Style', () => {
   before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.savePluginSettings()
+    cy.saveStandardPluginSettings()
   } )
 
   beforeEach( () => {

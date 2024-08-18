@@ -87,7 +87,7 @@ class GenerateAudio
                 id="beyondwords_generate_audio"
                 name="beyondwords_generate_audio"
                 value="1"
-                <?php checked($generateAudio, true); ?>
+                <?php checked($generateAudio); ?>
             />
             <?php esc_html_e('Generate audio', 'speechkit'); ?>
         </p>

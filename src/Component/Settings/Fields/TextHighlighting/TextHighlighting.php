@@ -90,6 +90,7 @@ class TextHighlighting
                 <input type="hidden" name="beyondwords_player_highlight_sections" value="" />
                 <input
                     type="checkbox"
+                    id="beyondwords_player_highlight_sections"
                     name="beyondwords_player_highlight_sections"
                     value="body"
                     <?php checked($enabled, 'body'); ?>

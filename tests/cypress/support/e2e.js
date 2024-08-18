@@ -53,7 +53,7 @@ Cypress.on( 'uncaught:exception', ( err, runnable ) => {
 // before( () => {
 //   cy.task( 'reset' )
 //   cy.login()
-//   cy.savePluginSettings()
+//   cy.saveStandardPluginSettings()
 // } )
 
 beforeEach( () => {
