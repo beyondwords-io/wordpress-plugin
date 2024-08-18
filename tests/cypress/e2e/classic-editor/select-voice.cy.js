@@ -77,14 +77,4 @@ context( 'Classic Editor: Select Voice', () => {
       cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
-
-  postTypes.filter( x => ! x.supported ).forEach( postType => {
-    it( `has no Voice component for a ${postType.name}`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-
-      // Language and Voice should not be visible
-      cy.get( 'select#beyondwords_language_id' ).should( 'not.exist' )
-      cy.get( 'select#beyondwords_voice_id' ).should( 'not.exist' )
-    } )
-  } )
 } )

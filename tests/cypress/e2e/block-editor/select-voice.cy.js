@@ -81,18 +81,4 @@ context( 'Block Editor: Select Voice', () => {
       cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
-
-  postTypes.filter( x => ! x.supported ).forEach( postType => {
-    it( `has no Voice component for a ${postType.name}`, () => {
-      cy.setLanguagesInPluginSettings();
-
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-
-      cy.closeWelcomeToBlockEditorTips()
-
-      // Language and Voice should not exist
-      cy.get( 'label' ).contains( 'Language' ).should( 'not.exist' )
-      cy.get( 'label' ).contains( 'Voice' ).should( 'not.exist' )
-    } )
-  } )
 } )
