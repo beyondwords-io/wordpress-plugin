@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerColors;
@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 /**
  * PlayerColors setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class PlayerColors
 {
@@ -44,7 +44,7 @@ class PlayerColors
     /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -79,7 +79,7 @@ class PlayerColors
     /**
      * Init "Player color" setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -105,7 +105,7 @@ class PlayerColors
     /**
      * Init "Player colors" setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -164,7 +164,7 @@ class PlayerColors
     /**
      * Render setting field.
      *
-     * @since 3.0.0
+     * @since 5.0.0
      *
      * @return string
      **/
@@ -193,8 +193,9 @@ class PlayerColors
     /**
      * Sanitise the colors array setting value.
      *
-     * @since  4.8.0
-     * @param  array $value The submitted value.
+     * @since 5.0.0
+     *
+     * @param array $value The submitted value.
      *
      * @return array The sanitized value.
      **/
@@ -219,7 +220,8 @@ class PlayerColors
     /**
      * Sanitize an individual color value.
      *
-     * @since 4.8.0
+     * @since 5.0.0
+     *
      * @param string $value The submitted individual color value.
      *
      * @return array The sanitized value.
@@ -239,7 +241,7 @@ class PlayerColors
     /**
      * Get all options for the current component.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return string[] Associative array of player theme options.
      **/
@@ -262,10 +264,11 @@ class PlayerColors
 
         return $themeOptions;
     }
+
     /**
      * Render setting field.
      *
-     * @since 3.0.0
+     * @since 5.0.0
      *
      * @return string
      **/
@@ -297,7 +300,7 @@ class PlayerColors
     /**
      * A player colors table.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return string
      **/

@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 /**
- * Setting: Process excerpts
+ * Setting: Include excerpt
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   3.0.0
+ * @since   5.0.0 Rename labels from "Prepend excerpt" to "Include excerpt".
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt;
@@ -32,8 +33,8 @@ class IncludeExcerpt
     /**
      * Init setting.
      *
-     * @since  3.0.0
-     * @since  4.8.0 Renamed from beyondwords_prepend_excerpt to beyondwords_include_excerpt
+     * @since 3.0.0
+     * @since 5.0.0 Rename field.
      *
      * @return void
      */
@@ -63,6 +64,7 @@ class IncludeExcerpt
      *
      * @since 3.0.0
      * @since 4.0.0 Updated label and description
+     * @since 5.0.0 Updated label and description
      *
      * @return void
      **/

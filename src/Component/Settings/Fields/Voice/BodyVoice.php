@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
@@ -17,17 +17,21 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
 /**
  * BodyVoice setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class BodyVoice extends Voice
 {
     /**
      * Option name.
+     *
+     * @since 5.0.0
      */
     public const OPTION_NAME = 'beyondwords_project_body_voice_id';
 
     /**
      * Init.
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -66,7 +70,7 @@ class BodyVoice extends Voice
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

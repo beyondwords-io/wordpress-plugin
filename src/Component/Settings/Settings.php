@@ -369,7 +369,7 @@ class Settings
     /**
      * Register the settings script.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @param string $hook Page hook
      *
@@ -436,7 +436,7 @@ class Settings
     /**
      * Validate the BeyondWords REST API connection.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

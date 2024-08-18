@@ -182,7 +182,7 @@ class ApiClient
      *
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
-     * @since 4.8.0 Cache response using transients
+     * @since 5.0.0 Cache response using transients
      *
      * @return array|object Array of voices or API error object.
      **/
@@ -201,7 +201,7 @@ class ApiClient
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
      * @since 4.5.1 Check the $languageId param is numeric.
-     * @since 4.8.0 Accept numeric language ID or string language code as param.
+     * @since 5.0.0 Accept numeric language ID or string language code as param.
      *
      * @param int|string $language BeyondWords Language code or numeric ID
      *
@@ -226,7 +226,7 @@ class ApiClient
      * Loops though GET /organization/voices, because
      * GET /organization/voice is not available.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param int       $voiceId  Voice ID.
      * @param int|false $language Language ID, optional.
@@ -251,7 +251,7 @@ class ApiClient
     /**
      * PUT /voices/:id.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param array $settings Associative array of voice settings.
      *
@@ -274,7 +274,7 @@ class ApiClient
      * GET /projects/:id.
      *
      * @since 4.0.0
-     * @since 4.8.0 Cache response using transients
+     * @since 5.0.0 Cache response using transients
      *
      * @return Response|false Response, or false
      **/
@@ -296,7 +296,7 @@ class ApiClient
     /**
      * PUT /projects/:id.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param array $settings Associative array of project settings.
      *
@@ -367,7 +367,7 @@ class ApiClient
      * GET /projects/:id/video_settings.
      *
      * @since 4.1.0
-     * @since 4.8.0 Cache response using transients
+     * @since 5.0.0 Cache response using transients
      *
      * @param int $projectId BeyondWords Project ID.
      *

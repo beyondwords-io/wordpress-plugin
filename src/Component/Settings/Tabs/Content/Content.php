@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
@@ -15,14 +15,13 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Content" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Content
 {
@@ -34,7 +33,7 @@ class Content
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -43,6 +42,8 @@ class Content
 
     /**
      * Init
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -56,7 +57,7 @@ class Content
     /**
      * Add Settings sections.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      */
     public function addSettingsSection()
     {
@@ -71,7 +72,7 @@ class Content
     /**
      * Section callback
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

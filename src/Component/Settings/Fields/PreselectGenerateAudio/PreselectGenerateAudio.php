@@ -39,7 +39,7 @@ class PreselectGenerateAudio
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -235,7 +235,7 @@ class PreselectGenerateAudio
     /**
      * Register the component scripts.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @param string $hook Page hook
      *

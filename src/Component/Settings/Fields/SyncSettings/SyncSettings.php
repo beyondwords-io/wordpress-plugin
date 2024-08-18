@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings;
@@ -15,21 +15,21 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings;
 /**
  * SyncSettings setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class SyncSettings
 {
     /**
      * API Client.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     private $apiClient;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -39,7 +39,7 @@ class SyncSettings
     /**
      * Init.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -49,7 +49,7 @@ class SyncSettings
     /**
      * Init setting.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -76,7 +76,7 @@ class SyncSettings
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -108,7 +108,7 @@ class SyncSettings
     /**
      * Sanitise the setting value.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @param array $value The submitted value.
      *

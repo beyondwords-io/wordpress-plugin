@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
 /**
  * PlaybackControls setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class PlaybackControls
 {
@@ -34,7 +34,7 @@ class PlaybackControls
     /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -50,7 +50,7 @@ class PlaybackControls
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -76,30 +76,15 @@ class PlaybackControls
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
     public function render()
     {
         $current = get_option('beyondwords_player_skip_button_style');
-        $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting__player-skip-button-style">
-            <!--
-            <select name="beyondwords_player_skip_button_style">
-                <?php
-                foreach ($options as $option) {
-                    printf(
-                        '<option value="%s" %s>%s</option>',
-                        esc_attr($option['value']),
-                        selected($option['value'], $current),
-                        esc_html($option['label'])
-                    );
-                }
-                ?>
-            </select>
-            -->
             <input
                 type="text"
                 name="beyondwords_player_skip_button_style"
@@ -129,32 +114,5 @@ class PlaybackControls
             </p>
         </div>
         <?php
-    }
-
-    /**
-     * Get all options for the current component.
-     *
-     * @since 4.8.0
-     *
-     * @return string[] Associative array of options.
-     **/
-    public function getOptions()
-    {
-        $options = [
-            [
-                'value' => 'auto',
-                'label' => __('Auto (default)', 'speechkit'),
-            ],
-            [
-                'value' => 'segments',
-                'label' => __('Segments', 'speechkit'),
-            ],
-            [
-                'value' => 'seconds',
-                'label' => __('Seconds', 'speechkit'),
-            ],
-        ];
-
-        return $options;
     }
 }

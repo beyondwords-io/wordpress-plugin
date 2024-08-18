@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
@@ -15,17 +15,21 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 /**
  * Voice setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 abstract class Voice
 {
     /**
      * Language code.
+     *
+     * @since 5.0.0
      */
     public $languageId;
 
     /**
      * Language code.
+     *
+     * @since 5.0.0
      */
     public $languageCode;
 
@@ -52,7 +56,7 @@ abstract class Voice
     /**
      * Get all options for the current component.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return string[] Associative array of options.
      **/

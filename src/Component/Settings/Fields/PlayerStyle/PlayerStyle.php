@@ -35,14 +35,14 @@ class PlayerStyle
     /**
      * API Client.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     private $apiClient;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -137,6 +137,7 @@ class PlayerStyle
      * Get all Player styles for the current project.
      *
      * @since 4.1.0
+     * @since 5.0.0 Remove beyondwords_player_styles filter.
      *
      * @return string[] Associative array of Player styles and labels.
      **/
@@ -198,26 +199,6 @@ class PlayerStyle
          * - boolean `disabled` (Optional) Is this option disabled?
          * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
          *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.1.0
-         *
-         * @deprecated 4.3.0 Replaced with beyondwords_settings_player_styles.
-         *
-         * @param array $styles Associative array of player styles.
-         */
-        $styles = apply_filters('beyondwords_player_styles', $styles);
-
-        /**
-         * Filters the player styles – the "Player style" `<select>` options
-         * presented on the plugin settings page and post edit screens.
-         *
-         * Each player style is an associative array with the following keys:
-         * - string  `label`    The option label e.g. "Standard"
-         * - string  `value`    The option value e.g. "standard"
-         * - boolean `disabled` (Optional) Is this option disabled?
-         * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
-         *
          * @since 4.1.0 Introduced as beyondwords_player_styles.
          * @since 4.3.0 Renamed from beyondwords_player_styles to beyondwords_settings_player_styles.
          *
@@ -235,7 +216,7 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 4.2.0 Fix: return empty array instead of false
-     * @since 4.8.0 Stop saving a dedicated player styles transient for each project ID.
+     * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
      *
      * @return string[] Associative array of Player styles and labels.
      **/

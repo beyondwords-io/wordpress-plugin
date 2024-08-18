@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle;
@@ -15,17 +15,21 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle;
 /**
  * WidgetStyle setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class WidgetStyle
 {
     /**
      * Option name.
+     *
+     * @since 5.0.0
      */
     public const OPTION_NAME = 'beyondwords_player_widget_style';
 
     /**
      * Constructor
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -67,7 +71,7 @@ class WidgetStyle
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -108,7 +112,7 @@ class WidgetStyle
     /**
      * Get all options for the current component.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return string[] Associative array of options.
      **/

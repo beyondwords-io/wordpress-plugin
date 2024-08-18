@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
 /**
  * Language setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Language
 {
@@ -32,14 +32,14 @@ class Language
     /**
      * API Client.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     private $apiClient;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -48,6 +48,8 @@ class Language
 
     /**
      * Constructor
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -64,7 +66,7 @@ class Language
     /**
      * Add setting.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -91,7 +93,7 @@ class Language
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -135,7 +137,7 @@ class Language
     /**
      * Get options for the <select> element.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return string[] Array of options (value, label).
      **/
@@ -160,7 +162,7 @@ class Language
     /**
      * Set the language code every time the language ID changes.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void.
      **/

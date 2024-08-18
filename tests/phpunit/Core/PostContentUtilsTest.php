@@ -212,11 +212,6 @@ class PostContentUtilsTest extends WP_UnitTestCase
                 'Shortcode: [shortcode_test to_lower="Foo" to_upper="Bar"]Baz[/shortcode_test]',
                 '<p>Shortcode: <em>foo, BAR, Baz</em></p>',
             ],
-            'Post with deprecated Start/Stop shortcode' => [
-                'post',
-                'Foo [SpeechKit-Start]Bar[SpeechKit-Stop] Baz',
-                '<p>Bar</p>',
-            ],
             'Page' => [
                 'page',
                 'This is a page.',

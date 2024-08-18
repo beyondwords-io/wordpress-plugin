@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\CallToAction;
@@ -15,19 +15,21 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\CallToAction;
 /**
  * CallToAction setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class CallToAction
 {
     /**
      * Option name.
+     *
+     * @since 5.0.0
      */
     public const OPTION_NAME = 'beyondwords_player_call_to_action';
 
     /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -43,7 +45,7 @@ class CallToAction
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since  5.0.0
      *
      * @return void
      */
@@ -69,7 +71,7 @@ class CallToAction
     /**
      * Render setting field.
      *
-     * @since 3.0.0
+     * @since 5.0.0
      *
      * @return void
      **/

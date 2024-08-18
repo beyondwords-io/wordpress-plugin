@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting;
@@ -17,19 +17,21 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 /**
  * TextHighlighting setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class TextHighlighting
 {
     /**
      * Option name.
+     *
+     * @since 5.0.0
      */
     public const OPTION_NAME = 'beyondwords_player_highlight_sections';
 
     /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -45,7 +47,7 @@ class TextHighlighting
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -73,7 +75,7 @@ class TextHighlighting
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

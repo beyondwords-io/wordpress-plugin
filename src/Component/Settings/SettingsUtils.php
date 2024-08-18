@@ -70,6 +70,7 @@ class SettingsUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Settings\SettingsUtils.
      * @since 3.7.0 Refactored forbidden/allowed/supported post type methods to improve site health debugging info.
      * @since 4.5.0 Renamed from getSupportedPostTypes to getCompatiblePostTypes.
+     * @since 5.0.0 Remove beyondwords_post_types filter.
      *
      * @static
      *
@@ -78,24 +79,6 @@ class SettingsUtils
     public static function getCompatiblePostTypes()
     {
         $postTypes = SettingsUtils::getConsideredPostTypes();
-
-        /**
-         * Filters the post types supported by BeyondWords.
-         *
-         * This defaults to all registered post types with 'custom-fields' in their 'supports' array.
-         *
-         * If any of the supplied post types do not support custom fields then they will be removed
-         * from the array.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 3.3.3
-         *
-         * @deprecated 4.3.0 Replaced with beyondwords_settings_post_types.
-         *
-         * @param string[] The post types supported by BeyondWords.
-         */
-        $postTypes = apply_filters('beyondwords_post_types', $postTypes);
 
         /**
          * Filters the post types supported by BeyondWords.
@@ -163,7 +146,7 @@ class SettingsUtils
     /**
      * A color input.
      *
-     * @since  4.8.0
+     * @since  5.0.0
      * @static
      *
      * @param string $label Content for the `<label>`

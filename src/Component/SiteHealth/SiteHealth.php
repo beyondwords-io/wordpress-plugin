@@ -133,9 +133,9 @@ class SiteHealth
     }
 
     /**
-     * Add plugin version to the info debugging array.
+     * Add content settings to the info debugging array.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      * @static
      *
      * @param array $info Debugging info array
@@ -163,9 +163,9 @@ class SiteHealth
     }
 
     /**
-     * Add plugin version to the info debugging array.
+     * Add project settings to the info debugging array.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      * @static
      *
      * @param array $info Debugging info array
@@ -206,9 +206,9 @@ class SiteHealth
     }
 
     /**
-     * Add plugin version to the info debugging array.
+     * Add player settings to the info debugging array.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      * @static
      *
      * @param array $info Debugging info array
@@ -361,9 +361,9 @@ class SiteHealth
     }
 
     /**
-     * Adds debugging data for the BeyondWords REST API connection.
+     * Adds filters.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param array $info Debugging info array
      *
@@ -389,7 +389,7 @@ class SiteHealth
     }
 
     /**
-     * Add a constant to the debugging info array.
+     * Add a single constant to the debugging info array.
      *
      * @since  3.7.0
      * @static

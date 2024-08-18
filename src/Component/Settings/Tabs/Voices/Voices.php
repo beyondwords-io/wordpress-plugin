@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Voices;
@@ -23,21 +23,21 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Voices
 {
      /**
      * API Client.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     private $apiClient;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -46,6 +46,8 @@ class Voices
 
     /**
      * Init
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -61,7 +63,7 @@ class Voices
     /**
      * Add Settings sections.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      */
     public function addSettingsSection()
     {
@@ -76,7 +78,7 @@ class Voices
     /**
      * Section callback
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

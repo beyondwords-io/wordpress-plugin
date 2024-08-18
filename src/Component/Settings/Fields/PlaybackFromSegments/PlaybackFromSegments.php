@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments;
@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments;
 /**
  * PlaybackFromSegments setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class PlaybackFromSegments
 {
@@ -27,7 +27,7 @@ class PlaybackFromSegments
     /**
      * Init.
      *
-     * @since 4.0.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -43,7 +43,7 @@ class PlaybackFromSegments
     /**
      * Init setting.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -71,8 +71,7 @@ class PlaybackFromSegments
     /**
      * Render setting field.
      *
-     * @since 3.0.0
-     * @since 4.0.0 Updated label and description
+     * @since 5.0.0
      *
      * @return void
      **/

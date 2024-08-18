@@ -294,6 +294,7 @@ class Player
      * @since 3.0.0
      * @since 3.3.4 Accept int|WP_Post as method parameter.
      * @since 4.0.0 Check beyondwords_player_ui custom field.
+     * @since 5.0.0 Remove beyondwords_post_player_enabled filter.
      *
      * @return bool
      **/
@@ -317,21 +318,6 @@ class Player
         if ($enabled) {
             $enabled = get_option('beyondwords_player_ui', PlayerUI::ENABLED) === PlayerUI::ENABLED;
         }
-
-        /**
-         * Filters the enabled/disabled (shown/hidden) status of the player for each post.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 3.3.3
-         *
-         * @deprecated 4.3.0 Instead, return an empty string in the `beyondwords_player_html` filter to hide the player.
-         *                   Alternatively, you can set `published` to `false` in the BeyondWords dashboard.
-         *
-         * @param boolean $enabled   Is the player enabled (shown) for this post?
-         * @param int     $post_id    WordPress post ID.
-         */
-        $enabled = apply_filters('beyondwords_post_player_enabled', $enabled, $post->ID);
 
         return $enabled;
     }
@@ -545,7 +531,7 @@ class Player
     /**
      * Add plugin settings to SDK params.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param array $params BeyondWords Player SDK params.
      *

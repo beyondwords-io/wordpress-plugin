@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Credentials;
@@ -20,12 +20,14 @@ use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Credentials
 {
     /**
      * Init
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -38,7 +40,7 @@ class Credentials
     /**
      * Add Settings sections.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      */
     public function addSettingsSection()
     {
@@ -53,7 +55,7 @@ class Credentials
     /**
      * Section callback
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

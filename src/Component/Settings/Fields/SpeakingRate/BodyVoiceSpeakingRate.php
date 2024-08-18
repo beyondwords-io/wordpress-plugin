@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
@@ -15,17 +15,21 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\SpeakingRate;
 /**
  * BodyVoiceSpeakingRate setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class BodyVoiceSpeakingRate
 {
     /**
      * Option name.
+     *
+     * @since 5.0.0
      */
     public const OPTION_NAME = 'beyondwords_body_voice_speaking_rate';
 
     /**
      * Constructor
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -41,7 +45,7 @@ class BodyVoiceSpeakingRate
     /**
      * Add setting.
      *
-     * @since 4.5.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -68,7 +72,7 @@ class BodyVoiceSpeakingRate
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

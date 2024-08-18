@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Player;
@@ -21,26 +21,27 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition\WidgetPosition;
 use Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle\WidgetStyle;
 use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlighting;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
  * "Player" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Player
 {
     /**
      * API client.
+     *
+     * @since 5.0.0
      */
     private $apiClient;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -49,6 +50,8 @@ class Player
 
     /**
      * Init
+     *
+     * @since 5.0.0
      */
     public function init()
     {
@@ -68,7 +71,7 @@ class Player
     /**
      * Add Settings sections.
      *
-     * @since  4.8.0
+     * @since 5.0.0
      */
     public function addSettingsSection()
     {
@@ -113,7 +116,7 @@ class Player
     /**
      * Section callback
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

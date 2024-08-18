@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings;
@@ -17,14 +17,14 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 /**
  * Sync setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class Sync
 {
     /**
      * Map settings.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public const MAP_SETTINGS = [
         // Player
@@ -52,7 +52,7 @@ class Sync
     /**
      * API Client.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     private $apiClient;
 
@@ -61,14 +61,14 @@ class Sync
      *
      * @var PropertyAccessor
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public $propertyAccessor;
 
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -81,7 +81,7 @@ class Sync
     /**
      * Init.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -93,7 +93,7 @@ class Sync
     /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -132,7 +132,7 @@ class Sync
     /**
      * Update WordPress options from REST API responses.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -149,7 +149,7 @@ class Sync
     /**
      * Sync from WordPress to the dashboard/BeyondWords REST API.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/
@@ -200,7 +200,7 @@ class Sync
      * In the REST API query we receive the language code but we need a numeric
      * ID so we make a API call to get the ID and add it to the settings.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @param array $settings Project settings.
      *

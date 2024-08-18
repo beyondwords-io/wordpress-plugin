@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   4.8.0
+ * @since   5.0.0
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
 /**
  * IncludeTitle setup
  *
- * @since 4.8.0
+ * @since 5.0.0
  */
 class IncludeTitle
 {
@@ -41,7 +41,7 @@ class IncludeTitle
     /**
      * Constructor.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function __construct($apiClient)
     {
@@ -51,7 +51,7 @@ class IncludeTitle
     /**
      * Init.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      */
     public function init()
     {
@@ -67,7 +67,7 @@ class IncludeTitle
     /**
      * Init setting.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      */
@@ -95,7 +95,7 @@ class IncludeTitle
     /**
      * Render setting field.
      *
-     * @since 4.8.0
+     * @since 5.0.0
      *
      * @return void
      **/

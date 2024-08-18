@@ -158,7 +158,7 @@ class PlayerStyle
      * "Player styles" WP REST API response (required for the Gutenberg editor).
      *
      * @since 4.1.0
-     * @since 4.8.0 Stop saving a dedicated player styles transient for each project ID.
+     * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
      */
     public function playerStylesRestApiResponse()
     {
