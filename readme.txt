@@ -80,7 +80,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.0.0-beta.1 =
+= 5.0.0 =
 
 Release date: TBC
 
