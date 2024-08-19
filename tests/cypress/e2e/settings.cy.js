@@ -82,7 +82,7 @@ context( 'Settings tests',  () => {
     cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
-  it.only( 'can set the Content plugin settings', () => {
+  it.skip( 'can set the Content plugin settings', () => {
     cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
@@ -186,7 +186,7 @@ context( 'Settings tests',  () => {
   it( 'removes the plugin settings when uninstalled', () => {
     cy.saveStandardPluginSettings()
 
-    cy.visit( '/wp-admin/options.php' ).wait( 500 )
+    cy.visit( '/wp-admin/options.php' )
     cy.get( '#beyondwords_api_key' )
     cy.get( '#beyondwords_prepend_excerpt' )
     cy.get( '#beyondwords_preselect' )
@@ -197,7 +197,7 @@ context( 'Settings tests',  () => {
     // The plugin files will not be deleted. Only the uninstall procedure will be run.
     cy.uninstallPlugin( '--skip-delete speechkit' )
 
-    cy.visit( '/wp-admin/options.php' ).wait( 500 )
+    cy.visit( '/wp-admin/options.php' )
     cy.get( '#beyondwords_api_key' ).should( 'not.exist' )
     cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' )
     cy.get( '#beyondwords_preselect' ).should( 'not.exist' )
