@@ -7,6 +7,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * @group settings
+ * @group settings-tabs
+ * @group settings-tabs-advanced
  */
 class AdvancedTabTest extends WP_UnitTestCase
 {
@@ -61,14 +63,14 @@ class AdvancedTabTest extends WP_UnitTestCase
      */
     public function addSettingsSection()
     {
-        $this->markTestIncomplete('Fix after settings update');
-        global $wp_settings_fields;
+        global $wp_settings_sections;
 
         $this->_instance->addSettingsSection();
 
-        error_log(var_export($wp_settings_fields, true));
-
-        $this->assertArrayHasKey('beyondwords_advanced', $wp_settings_fields);
-        $this->assertArrayHasKey('advanced', $wp_settings_fields['beyondwords_advanced']);
+        $this->assertArrayHasKey('beyondwords_advanced', $wp_settings_sections);
+        $this->assertArrayHasKey('advanced', $wp_settings_sections['beyondwords_advanced']);
+        $this->assertSame('advanced', $wp_settings_sections['beyondwords_advanced']['advanced']['id']);
+        $this->assertSame('Advanced', $wp_settings_sections['beyondwords_advanced']['advanced']['title']);
+        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_advanced']['advanced']['callback']);
     }
 }

@@ -7,6 +7,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * @group settings
+ * @group settings-tabs
+ * @group settings-tabs-player
  */
 class PlayerTabTest extends WP_UnitTestCase
 {
@@ -60,12 +62,18 @@ class PlayerTabTest extends WP_UnitTestCase
      */
     public function addSettingsSection()
     {
-        global $wp_settings_fields;
+        global $wp_settings_sections;
 
         $this->_instance->addSettingsSection();
 
-        $this->assertArrayHasKey('beyondwords_player', $wp_settings_fields);
-        $this->assertArrayHasKey('player', $wp_settings_fields['beyondwords_player']);
+        $this->assertArrayHasKey('beyondwords_player', $wp_settings_sections);
+        $this->assertArrayHasKey('player', $wp_settings_sections['beyondwords_player']);
         // $this->assertArrayHasKey('player', $wp_settings_fields['beyondwords_player']);
+
+        $this->assertArrayHasKey('beyondwords_player', $wp_settings_sections);
+        $this->assertArrayHasKey('player', $wp_settings_sections['beyondwords_player']);
+        $this->assertSame('player', $wp_settings_sections['beyondwords_player']['player']['id']);
+        $this->assertSame('Player', $wp_settings_sections['beyondwords_player']['player']['title']);
+        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_player']['player']['callback']);
     }
 }

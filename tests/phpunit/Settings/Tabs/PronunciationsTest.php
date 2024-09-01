@@ -6,6 +6,8 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
 
 /**
  * @group settings
+ * @group settings-tabs
+ * @group settings-tabs-pronunciations
  */
 class PronunciationsTabTest extends WP_UnitTestCase
 {
@@ -52,5 +54,25 @@ class PronunciationsTabTest extends WP_UnitTestCase
 
         // Actions
         $this->assertEquals(5, has_action('admin_init', array($this->_instance, 'addSettingsSection')));
+    }
+
+    /**
+     * @test
+     */
+    public function addSettingsSection()
+    {
+        global $wp_settings_sections;
+
+        $this->_instance->addSettingsSection();
+
+        $this->assertArrayHasKey('beyondwords_pronunciations', $wp_settings_sections);
+        $this->assertArrayHasKey('pronunciations', $wp_settings_sections['beyondwords_pronunciations']);
+        // $this->assertArrayHasKey('player', $wp_settings_fields['beyondwords_player']);
+
+        $this->assertArrayHasKey('beyondwords_voices', $wp_settings_sections);
+        $this->assertArrayHasKey('pronunciations', $wp_settings_sections['beyondwords_pronunciations']);
+        $this->assertSame('pronunciations', $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['id']);
+        $this->assertSame('Pronunciations', $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['title']);
+        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['callback']);
     }
 }

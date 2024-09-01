@@ -7,6 +7,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * @group settings
+ * @group settings-tabs
+ * @group settings-tabs-voices
  */
 class VoicesTabTest extends WP_UnitTestCase
 {
@@ -61,13 +63,14 @@ class VoicesTabTest extends WP_UnitTestCase
      */
     public function addSettingsSection()
     {
-        $this->markTestIncomplete('Fix after settings update');
-
-        global $wp_settings_fields;
+        global $wp_settings_sections;
 
         $this->_instance->addSettingsSection();
 
-        $this->assertArrayHasKey('beyondwords_voices', $wp_settings_fields);
-        $this->assertArrayHasKey('voices', $wp_settings_fields['beyondwords_voices']);
+        $this->assertArrayHasKey('beyondwords_voices', $wp_settings_sections);
+        $this->assertArrayHasKey('voices', $wp_settings_sections['beyondwords_voices']);
+        $this->assertSame('voices', $wp_settings_sections['beyondwords_voices']['voices']['id']);
+        $this->assertSame('Voices', $wp_settings_sections['beyondwords_voices']['voices']['title']);
+        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_voices']['voices']['callback']);
     }
 }

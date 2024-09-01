@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
-use \Symfony\Component\DomCrawler\Crawler;
 
 /**
  * @group settings
+ * @group settings-tabs
+ * @group settings-tabs-credentials
  */
 class CredentialsTabTest extends WP_UnitTestCase
 {
@@ -60,29 +61,14 @@ class CredentialsTabTest extends WP_UnitTestCase
      */
     public function addSettingsSection()
     {
-        global $wp_settings_fields;
+        global $wp_settings_sections;
 
         $this->_instance->addSettingsSection();
 
-        $this->assertArrayHasKey('beyondwords_credentials', $wp_settings_fields);
-        $this->assertArrayHasKey('credentials', $wp_settings_fields['beyondwords_credentials']);
-    }
-
-    /**
-     * @test
-     **/
-    public function sectionCallback()
-    {
-        $this->markTestSkipped('Moved into parent?');
-
-        set_transient('beyondwords_settings_errors', ['Test Error']);
-
-        $this->_instance->sectionCallback();
-
-        $errors = get_transient('beyondwords_settings_errors', []);
-
-        $this->assertEmpty($errors);
-
-        $this->assertEquals(['Test Error'], $errors);
+        $this->assertArrayHasKey('beyondwords_credentials', $wp_settings_sections);
+        $this->assertArrayHasKey('credentials', $wp_settings_sections['beyondwords_credentials']);
+        $this->assertSame('credentials', $wp_settings_sections['beyondwords_credentials']['credentials']['id']);
+        $this->assertSame('Credentials', $wp_settings_sections['beyondwords_credentials']['credentials']['title']);
+        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_credentials']['credentials']['callback']);
     }
 }
