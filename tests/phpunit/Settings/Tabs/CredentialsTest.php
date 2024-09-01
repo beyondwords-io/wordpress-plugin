@@ -62,6 +62,7 @@ class CredentialsTabTest extends WP_UnitTestCase
     public function addSettingsSection()
     {
         global $wp_settings_sections;
+        $wp_settings_sections = null;
 
         $this->_instance->addSettingsSection();
 

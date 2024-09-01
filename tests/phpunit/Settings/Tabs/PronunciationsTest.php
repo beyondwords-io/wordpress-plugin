@@ -62,6 +62,7 @@ class PronunciationsTabTest extends WP_UnitTestCase
     public function addSettingsSection()
     {
         global $wp_settings_sections;
+        $wp_settings_sections = null;
 
         $this->_instance->addSettingsSection();
 
@@ -69,7 +70,7 @@ class PronunciationsTabTest extends WP_UnitTestCase
         $this->assertArrayHasKey('pronunciations', $wp_settings_sections['beyondwords_pronunciations']);
         // $this->assertArrayHasKey('player', $wp_settings_fields['beyondwords_player']);
 
-        $this->assertArrayHasKey('beyondwords_voices', $wp_settings_sections);
+        $this->assertArrayHasKey('beyondwords_pronunciations', $wp_settings_sections);
         $this->assertArrayHasKey('pronunciations', $wp_settings_sections['beyondwords_pronunciations']);
         $this->assertSame('pronunciations', $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['id']);
         $this->assertSame('Pronunciations', $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['title']);
