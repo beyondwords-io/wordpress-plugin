@@ -87,8 +87,6 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function renderMetaBoxContent($expectPlayer, $postArgs)
     {
-        $this->markTestIncomplete('Needs to be updated after settings updates');
-
         $postId = self::factory()->post->create($postArgs);
 
         $this->_instance->renderMetaBoxContent($postId);
