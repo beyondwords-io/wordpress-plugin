@@ -69,6 +69,6 @@
     "test:phpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
     "wp-env": "wp-env",
-    "wp-env:start-with-xdebug": "wp-env start --xdebug=debug,coverage --update"
+    "wp-env:start": "wp-env start --xdebug=debug,coverage --update"
   }
 }
