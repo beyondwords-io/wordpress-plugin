@@ -120,9 +120,11 @@ class SiteHealth
         $this->addProjectSettings($info);
         $this->addPlayerSettings($info);
 
+        $languages = get_option('beyondwords_languages');
+
         $info['beyondwords']['fields']['beyondwords_languages'] = [
             'label' => __('Multiple languages', 'speechkit'),
-            'value' => (string) wp_json_encode(get_option('beyondwords_languages'), JSON_PRETTY_PRINT),
+            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '',
         ];
 
         $this->addFilters($info);
@@ -190,7 +192,7 @@ class SiteHealth
         ];
 
         $info['beyondwords']['fields']['beyondwords_title_voice_speaking_rate'] = [
-            'label' => __('Title speaking rate', 'speechkit'),
+            'label' => __('Title voice speaking rate', 'speechkit'),
             'value' => get_option('beyondwords_title_voice_speaking_rate'),
         ];
 
@@ -200,7 +202,7 @@ class SiteHealth
         ];
 
         $info['beyondwords']['fields']['beyondwords_body_voice_speaking_rate'] = [
-            'label' => __('Body speaking rate', 'speechkit'),
+            'label' => __('Body voice speaking rate', 'speechkit'),
             'value' => get_option('beyondwords_body_voice_speaking_rate'),
         ];
     }
