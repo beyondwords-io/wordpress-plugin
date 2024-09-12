@@ -28,27 +28,25 @@ class Sync
      */
     public const MAP_SETTINGS = [
         // Player
-        'beyondwords_player_style'              => '[player][player_style]',
-        'beyondwords_player_theme'              => '[player][theme]',
-        'beyondwords_player_dark_theme'         => '[player][dark_theme]',
-        'beyondwords_player_light_theme'        => '[player][light_theme]',
-        'beyondwords_player_video_theme'        => '[player][video_theme]',
-        'beyondwords_player_call_to_action'     => '[player][call_to_action]',
-        'beyondwords_player_widget_style'       => '[player][widget_style]',
-        'beyondwords_player_widget_position'    => '[player][widget_position]',
-        'beyondwords_player_skip_button_style'  => '[player][skip_button_style]',
-        'beyondwords_player_highlight_sections' => '[player][segment_playback_enabled]',
+        'beyondwords_player_style'              => '[player_settings][player_style]',
+        'beyondwords_player_theme'              => '[player_settings][theme]',
+        'beyondwords_player_dark_theme'         => '[player_settings][dark_theme]',
+        'beyondwords_player_light_theme'        => '[player_settings][light_theme]',
+        'beyondwords_player_video_theme'        => '[player_settings][video_theme]',
+        'beyondwords_player_call_to_action'     => '[player_settings][call_to_action]',
+        'beyondwords_player_widget_style'       => '[player_settings][widget_style]',
+        'beyondwords_player_widget_position'    => '[player_settings][widget_position]',
+        'beyondwords_player_skip_button_style'  => '[player_settings][skip_button_style]',
+        'beyondwords_player_highlight_sections' => '[player_settings][segment_playback_enabled]',
         // Project
         'beyondwords_include_title'             => '[project][title][enabled]',
         'beyondwords_project_language_code'     => '[project][language]',
         'beyondwords_project_language_id'       => '[project][language_id]',
         'beyondwords_project_body_voice_id'     => '[project][body][voice][id]',
         'beyondwords_project_title_voice_id'    => '[project][title][voice][id]',
-        // Title Voice
-        'beyondwords_title_voice_speaking_rate' => '[title_voice][speaking_rate]',
-        // Body Voice
-        'beyondwords_body_voice_speaking_rate'  => '[body_voice][speaking_rate]',
-        
+        // Project body & title speaking rates are GET-only
+        'beyondwords_title_voice_speaking_rate' => '[project][title][voice][speaking_rate]',
+        'beyondwords_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
     ];
 
     /**
@@ -107,21 +105,16 @@ class Sync
             return;
         }
 
+        $responses = [
+            'project'         => $this->apiClient->getProject(),
+            'player_settings' => $this->apiClient->getPlayerSettings(),
+        ];
+
         // Add the language ID to the project settings response.
-        $projectSettings = $this->apiClient->getProject();
-        $this->setLanguageId($projectSettings);
+        $this->setLanguageId($responses);
 
         // Request the project details first, we need them for the Voice IDs.
-        $this->updateOptionsFromResponses([
-            'project' => $projectSettings,
-            'player'  => $this->apiClient->getPlayerSettings(),
-        ]);
-
-        // Use the voice IDs from previous requests to get the speaking rates.
-        $this->updateOptionsFromResponses([
-            'title_voice' => $this->apiClient->getVoice(get_option('beyondwords_project_title_voice_id')),
-            'body_voice'  => $this->apiClient->getVoice(get_option('beyondwords_project_body_voice_id')),
-        ]);
+        $this->updateOptionsFromResponses($responses);
 
         add_settings_error(
             'beyondwords_settings',
@@ -140,6 +133,7 @@ class Sync
      **/
     public function updateOptionsFromResponses($responses)
     {
+
         foreach (self::MAP_SETTINGS as $optionName => $path) {
             $value = $this->propertyAccessor->getValue($responses, $path);
             if ($value !== null) {
@@ -170,15 +164,17 @@ class Sync
         $settings = [];
 
         foreach ($beyondwordsApiSync as $option) {
-            if (empty(self::MAP_SETTINGS[$option])) {
-                continue;
+            if ($this->shouldSyncOptionToDashboard($option)) {
+                $this->propertyAccessor->setValue(
+                    $settings, 
+                    self::MAP_SETTINGS[$option], 
+                    get_option($option)
+                );
             }
-
-            $this->propertyAccessor->setValue($settings, self::MAP_SETTINGS[$option], get_option($option));
         }
 
-        if (isset($settings['player'])) {
-            $this->apiClient->updatePlayerSettings($settings['player']);
+        if (isset($settings['player_settings'])) {
+            $this->apiClient->updatePlayerSettings($settings['player_settings']);
         }
 
         if (isset($settings['project'])) {
@@ -197,6 +193,34 @@ class Sync
     }
 
     /**
+     * Should we sync this option to the dasboard?
+     *
+     * @since 5.0.0
+     *
+     * @param string $option_name Option name.
+     *
+     * @return void
+     **/
+    public function shouldSyncOptionToDashboard($option_name)
+    {
+        if (empty(self::MAP_SETTINGS[$option_name])) {
+            return false;
+        }
+
+        // Don't update voices, because they are GET-only in the /projects endpoint
+        $skip = [
+            'beyondwords_title_voice_speaking_rate',
+            'beyondwords_body_voice_speaking_rate',
+        ];
+
+        if (! in_array($option_name, $skip)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Set the language ID in the project settings.
      *
      * In the REST API query we receive the language code but we need a numeric
@@ -210,25 +234,25 @@ class Sync
      **/
     public function setLanguageId(&$settings)
     {
-        $languages = $this->apiClient->getLanguages();
-        $language  = false;
+        $project_language = $this->propertyAccessor->getValue($settings, '[project][language]');
 
-        if (
-            is_array($languages)
-            && is_array($settings['project'])
-            && array_key_exists('language', $settings['project'])
-        ) {
+        if (null === $project_language) {
+            return;
+        }
+
+        $language  = false;
+        $languages = $this->apiClient->getLanguages();
+
+        if (is_array($languages)) {
             $language = array_column(
                 $languages,
                 null,
                 'code'
-            )[$settings['project']['language']] ?? false;
+            )[$project_language] ?? false;
         }
 
-        if ($language && is_array($language) && array_key_exists('id', $language)) {
-            $settings['project']['language_id'] = $language['id'];
-        } else {
-            $settings['project']['language_id'] = '';
+        if (is_array($language) && array_key_exists('id', $language)) {
+            $this->propertyAccessor->setValue($settings, '[project][language_id]', $language['id']);
         }
     }
 }
