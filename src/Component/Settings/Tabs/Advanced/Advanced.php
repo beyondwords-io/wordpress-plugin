@@ -64,29 +64,8 @@ class Advanced
         add_settings_section(
             'advanced',
             __('Advanced', 'speechkit'),
-            array($this, 'sectionCallback'),
+            '__return_empty_string',
             'beyondwords_advanced',
         );
-    }
-
-    /**
-     * Section callback
-     *
-     * @since 5.0.0
-     *
-     * @return void
-     **/
-    public function sectionCallback()
-    {
-        ?>
-        <p class="description">
-            <?php
-            esc_html_e(
-                'Do we want a description for consistency?', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p>
-        <?php
     }
 }
