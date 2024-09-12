@@ -37,7 +37,7 @@ class Sync
         'beyondwords_player_widget_style'       => '[player_settings][widget_style]',
         'beyondwords_player_widget_position'    => '[player_settings][widget_position]',
         'beyondwords_player_skip_button_style'  => '[player_settings][skip_button_style]',
-        'beyondwords_player_highlight_sections' => '[player_settings][segment_playback_enabled]',
+        'beyondwords_player_clickable_sections' => '[player_settings][segment_playback_enabled]',
         // Project
         'beyondwords_include_title'             => '[project][title][enabled]',
         'beyondwords_project_language_code'     => '[project][language]',
