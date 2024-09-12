@@ -67,7 +67,7 @@ class PlayerStyle
     public function element($post)
     {
         $playerStyle     = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = PlayerStyleSetting::getCachedOptions();
+        $allPlayerStyles = PlayerStyleSetting::getOptions();
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -162,7 +162,7 @@ class PlayerStyle
      */
     public function playerStylesRestApiResponse()
     {
-        $response = PlayerStyleSetting::getCachedOptions();
+        $response = PlayerStyleSetting::getOptions();
 
         // Convert from object to array so we can use find() in Block Editor JS.
         $response = array_values($response);

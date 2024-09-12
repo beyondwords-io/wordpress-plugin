@@ -98,8 +98,15 @@ class PlayerStyle
      **/
     public function render()
     {
-        $currentStyle = get_option(self::OPTION_NAME, PlayerStyle::STANDARD);
-        $options      = $this->getOptions();
+        $value    = get_option(self::OPTION_NAME);
+        $selected = PlayerStyle::STANDARD;
+        $options  = self::getOptions();
+
+        foreach ($options as $option) {
+            if ($option['value'] === $value) {
+                $selected = $option['value'];
+            }
+        }
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-style">
             <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
@@ -110,7 +117,7 @@ class PlayerStyle
                     printf(
                         '<option value="%s" %s %s>%s</option>',
                         esc_attr($option['value']),
-                        selected($option['value'], $currentStyle),
+                        selected($option['value'], $selected),
                         disabled($disabled, true),
                         esc_html($option['label'])
                     );
@@ -137,11 +144,12 @@ class PlayerStyle
      * Get all Player styles for the current project.
      *
      * @since 4.1.0
-     * @since 5.0.0 Remove beyondwords_player_styles filter.
+     * @since 5.0.0 Rename beyondwords_player_styles filter to
+     *              beyondwords_settings_player_styles.
      *
      * @return string[] Associative array of Player styles and labels.
      **/
-    public function getOptions()
+    public static function getOptions()
     {
         $styles = [
             PlayerStyle::STANDARD => [
@@ -171,22 +179,6 @@ class PlayerStyle
 
         if (isset($styles[$defaultPlayerStyle])) {
             $styles[$defaultPlayerStyle]['default'] = true;
-            $styles[$defaultPlayerStyle]['label'] .= ' ' . __('(Default)', 'speechkit');
-        }
-
-        /**
-         * Is video enabled for this project?
-         * If not, the video <option> will have the "disabled" attribute.
-         */
-        $projectId = get_option('beyondwords_project_id');
-        $playerVideoSettings = $this->apiClient->getVideoSettings($projectId);
-
-        if (
-            is_array($playerVideoSettings)
-            && array_key_exists('enabled', $playerVideoSettings)
-            && $playerVideoSettings['enabled']
-        ) {
-            unset($styles[PlayerStyle::VIDEO]['disabled']);
         }
 
         /**
@@ -200,34 +192,31 @@ class PlayerStyle
          * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
          *
          * @since 4.1.0 Introduced as beyondwords_player_styles.
-         * @since 4.3.0 Renamed from beyondwords_player_styles to beyondwords_settings_player_styles.
+         * @since 5.0.0 Renamed from beyondwords_player_styles to beyondwords_settings_player_styles.
          *
          * @param array $styles Associative array of player styles.
          */
         $styles = apply_filters('beyondwords_settings_player_styles', $styles);
 
-        set_transient('beyondwords_player_styles', $styles);
-
-        return $styles;
-    }
-
-    /**
-     * Get Player style options for a project.
-     *
-     * @since 4.1.0
-     * @since 4.2.0 Fix: return empty array instead of false
-     * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
-     *
-     * @return string[] Associative array of Player styles and labels.
-     **/
-    public static function getCachedOptions()
-    {
-        $options = get_transient('beyondwords_player_styles');
-
-        if (! is_array($options)) {
+        if (empty($styles) || ! is_array($styles)) {
             return [];
         }
 
-        return $options;
+        /**
+         * Is video enabled for this project?
+         * If so, we remove the [disabled] attribute from the video <option>.
+         * If not, we force a [disabled] attribute on the video <option>.
+         */
+        if (isset($styles[PlayerStyle::VIDEO]) && is_array($styles[PlayerStyle::VIDEO])) {
+            $videoEnabled = get_option('beyondwords_video_enabled');
+
+            if ($videoEnabled) {
+                unset($styles[PlayerStyle::VIDEO]['disabled']);
+            } else {
+                $styles[PlayerStyle::VIDEO]['disabled'] = true;
+            }
+        }
+
+        return $styles;
     }
 }

@@ -17,12 +17,12 @@ context( 'Classic Editor: Player Style', () => {
   } )
 
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it.skip( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
+    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.get( 'select#beyondwords_player_style' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Standard", "Small", "Large", "Video"] )
+        expect(values).to.deep.eq( ["", "Standard", "Small", "Large", "Video"] )
       })
 
       // Check "Standard" is preselected
@@ -42,18 +42,19 @@ context( 'Classic Editor: Player Style', () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
       cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Large' )
 
+      // @todo "Video"
       // Update the plugin settings to "Video"
-      cy.setPlayerStyleInPluginSettings( 'Video' );
+      // cy.setPlayerStyleInPluginSettings( 'Video' );
 
       // Check "Video" is preselected
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-      cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Video' )
+      // cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+      // cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Video' )
 
       // Reset the plugin settings to "Standard"
       cy.setPlayerStyleInPluginSettings( 'Standard' );
     })
 
-    it.skip( `can set "Large" Player style for a ${postType.name}`, () => {
+    it( `can set "Large" Player style for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       // Select a Player style

@@ -53,7 +53,13 @@ export function PlayerStyle( { wrapper } ) {
 					<SelectControl
 						className="beyondwords--player-style"
 						label={ __( 'Player style', 'speechkit' ) }
-						options={ playerStyles }
+						options={ [
+							{
+								label: '',
+								value: '',
+							},
+							...playerStyles,
+						] }
 						onChange={ ( val ) => setPlayerStyle( val ) }
 						value={ playerStyle }
 					/>

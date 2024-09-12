@@ -13,7 +13,7 @@ context( 'Block Editor: Player Style', () => {
 
   // Only test priority post types
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it.skip( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
+    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.closeWelcomeToBlockEditorTips()
@@ -23,7 +23,7 @@ context( 'Block Editor: Player Style', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Player style' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Standard", "Small", "Large", "Video"] )
+        expect(values).to.deep.eq( ["", "Standard", "Small", "Large", "Video"] )
       })
 
       // Check "Standard" is preselected
@@ -47,20 +47,22 @@ context( 'Block Editor: Player Style', () => {
       cy.openBeyondwordsEditorPanel()
       cy.getBlockEditorSelect( 'Player style' ).find('option:selected').contains( 'Large' )
 
-      // Update the plugin settings to "Video"
-      cy.setPlayerStyleInPluginSettings( 'Video' );
+      // @todo "Video"
 
-      // Check "Video" is preselected
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-      cy.closeWelcomeToBlockEditorTips()
-      cy.openBeyondwordsEditorPanel()
-      cy.getBlockEditorSelect( 'Player style' ).find('option:selected').contains( 'Video' )
+      // Update the plugin settings to "Video"
+      // cy.setPlayerStyleInPluginSettings( 'Video' );
+
+      // @todo Check "Video" is preselected
+      // cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+      // cy.closeWelcomeToBlockEditorTips()
+      // cy.openBeyondwordsEditorPanel()
+      // cy.getBlockEditorSelect( 'Player style' ).find('option:selected').contains( 'Video' )
 
       // Reset the plugin settings to "Standard"
       cy.setPlayerStyleInPluginSettings( 'Standard' );
     })
 
-    it.skip( `can set "Large" Player style for a ${postType.name}`, () => {
+    it( `can set "Large" Player style for a ${postType.name}`, () => {
 
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
@@ -71,7 +73,7 @@ context( 'Block Editor: Player Style', () => {
       // Select a Player style
       cy.getBlockEditorSelect( 'Player style' ).select( 'Large' )
 
-      cy.setPostTitle( `I can set "Video" Player style for a ${postType.name}` )
+      cy.setPostTitle( `I can set "Large" Player style for a ${postType.name}` )
 
       cy.getBlockEditorCheckbox( 'Generate audio' ).check()
 

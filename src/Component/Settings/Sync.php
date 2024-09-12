@@ -47,6 +47,8 @@ class Sync
         // Project body & title speaking rates are GET-only
         'beyondwords_title_voice_speaking_rate' => '[project][title][voice][speaking_rate]',
         'beyondwords_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
+        // Video
+        'beyondwords_video_enabled'             => '[video_settings][enabled]',
     ];
 
     /**
@@ -108,6 +110,7 @@ class Sync
         $responses = [
             'project'         => $this->apiClient->getProject(),
             'player_settings' => $this->apiClient->getPlayerSettings(),
+            'video_settings'  => $this->apiClient->getVideoSettings(),
         ];
 
         // Add the language ID to the project settings response.
@@ -133,7 +136,6 @@ class Sync
      **/
     public function updateOptionsFromResponses($responses)
     {
-
         foreach (self::MAP_SETTINGS as $optionName => $path) {
             $value = $this->propertyAccessor->getValue($responses, $path);
             if ($value !== null) {
@@ -193,7 +195,7 @@ class Sync
     }
 
     /**
-     * Should we sync this option to the dasboard?
+     * Should we sync this option to the dashboard?
      *
      * @since 5.0.0
      *
@@ -207,10 +209,11 @@ class Sync
             return false;
         }
 
-        // Don't update voices, because they are GET-only in the /projects endpoint
+        // Don't send some WordPress options back to the REST API in POST requests
         $skip = [
-            'beyondwords_title_voice_speaking_rate',
             'beyondwords_body_voice_speaking_rate',
+            'beyondwords_title_voice_speaking_rate',
+            'beyondwords_video_enabled',
         ];
 
         if (! in_array($option_name, $skip)) {

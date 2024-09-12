@@ -82,27 +82,4 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
 
         $this->assertCount(1, $field);
     }
-
-    /**
-     * @test
-     */
-    public function getCachedOptions()
-    {
-        $playerStyles = [
-            'standard' => [
-                'value' => 'standard',
-                'label' => 'Standard',
-                'default' => false,
-            ]
-        ];
-
-        set_transient('beyondwords_player_styles', $playerStyles);
-        $this->assertEquals($playerStyles, $this->_instance->getCachedOptions());
-
-        set_transient('beyondwords_player_styles', 'Not an array');
-        $this->assertEquals([], $this->_instance->getCachedOptions());
-
-        delete_transient('beyondwords_player_styles');
-        $this->assertEquals([], $this->_instance->getCachedOptions());
-    }
 }

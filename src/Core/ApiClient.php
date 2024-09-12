@@ -383,7 +383,7 @@ class ApiClient
             }
         }
 
-        $url = sprintf('%s/projects/%d/video_settings', Environment::getApiUrl(), $projectId);
+        $url = sprintf('%s/projects/%d/video_settings', Environment::getApiUrl(), (int)$projectId);
 
         $request = new Request('GET', $url);
 

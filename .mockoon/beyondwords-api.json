@@ -1,11 +1,11 @@
 {
   "uuid": "41d79333-3454-4966-85e2-fa39bd3f9a3a",
-  "lastMigration": 20,
+  "lastMigration": 32,
   "name": "BeyondWords API",
   "endpointPrefix": "v1",
   "latency": 0,
   "port": 3000,
-  "hostname": "0.0.0.0",
+  "hostname": "",
   "routes": [
     {
       "uuid": "cd87bb47-7354-486a-a677-048cb58b8ec8",
@@ -26,12 +26,15 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "109b6b86-17ef-4bdb-87dd-805a49286cd0",
@@ -52,7 +55,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "64833f07-fd55-4594-8de0-f97a22fb5e38",
@@ -68,31 +75,39 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             },
             {
               "target": "params",
               "modifier": "projectId",
               "value": "401",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "14f8b014-9397-4352-93c3-f6739c5c7d2c",
@@ -108,24 +123,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "d2690a30-8265-4d82-a9d2-722cfe67531d",
@@ -146,7 +166,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "f36c793d-d1fd-4086-890f-4c427d0b2598",
@@ -162,19 +186,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "abd2f70e-e61d-42ea-909f-1332380be26d",
@@ -190,25 +220,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "069b5fcc-309c-4dca-bb93-f5777b5e30f2",
@@ -224,13 +261,18 @@
               "target": "header",
               "modifier": "X-Force-Response",
               "value": "invalid-json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "ecdb7657-8a38-4380-937e-54204529d2e5",
@@ -246,24 +288,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "913e6a62-d9ac-4660-b92b-cb924445f0f5",
@@ -284,7 +331,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9ee9714d-debe-47c4-824e-e7b4e83368b4",
@@ -300,19 +351,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "8035be8d-b28f-484b-a441-cf6eb6d8ddbc",
@@ -328,25 +385,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "52762211-f2da-4e53-a68f-74883e69e862",
@@ -362,24 +426,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "0c9ab669-5197-4c4e-afca-2a68e7e85a51",
@@ -400,7 +469,11 @@
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "a7f4dadc-f8fc-48b1-ab8d-cb6e5bb3f5ea",
@@ -416,19 +489,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "60a9454e-8e62-4d1f-ac92-b41a4cea5e87",
@@ -444,24 +523,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "bf826112-1999-46da-a858-75bd7231325a",
@@ -482,7 +566,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9270061d-4119-49ec-9ac7-89cead778a87",
@@ -498,19 +586,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "25ec67af-63ec-48e3-8b7a-23d51727dfe5",
@@ -526,24 +620,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "2b685998-43b3-4fac-b0b7-bdf7218c9c28",
@@ -564,7 +663,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "00f0dea1-9b58-4ce1-9c36-b028f4f49e6e",
@@ -580,25 +683,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "67b759fa-5a0f-41af-81b8-58e7a12db32d",
@@ -614,24 +724,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "7ea55ef7-f7e0-47bc-996a-4d2700e85463",
@@ -652,7 +767,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "1919617d-2089-4ade-8263-d6b196bec4ab",
@@ -668,19 +787,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Conbtent-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "4d9a2419-dd24-4951-8cac-d76c50428dbc",
@@ -696,25 +821,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "03a49052-d373-4fbf-a69f-048712fffe9b",
@@ -730,24 +862,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "e0249159-42d3-48e7-835d-4aa46214d544",
@@ -768,7 +905,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "30f6996c-7431-43bc-8642-38ccc9f69bf0",
@@ -784,25 +925,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "324ed49b-4a70-439e-873d-cabb66f686f8",
@@ -818,24 +966,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "0cd387b4-2fe4-40d9-b535-511214e4bbb4",
@@ -856,7 +1009,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "33d84d20-b2d5-4948-949e-70b388665e2a",
@@ -872,25 +1029,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "b4facbac-041d-4800-ad1f-3b1a8b9ea2fb",
@@ -906,18 +1070,22 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "8cb807f4-6c1b-41b2-a8ec-5c6d4bae3380",
@@ -938,7 +1106,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "ef5003de-95d7-4efd-8b95-c0df0636c415",
@@ -954,25 +1126,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9c63284f-f1d5-401e-9371-4e9bb2be2b0b",
@@ -988,18 +1167,22 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     }
   ],
   "proxyMode": false,
@@ -1044,5 +1227,54 @@
       "key": "",
       "value": ""
     }
-  ]
+  ],
+  "data": [],
+  "folders": [],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "cd87bb47-7354-486a-a677-048cb58b8ec8"
+    },
+    {
+      "type": "route",
+      "uuid": "109b6b86-17ef-4bdb-87dd-805a49286cd0"
+    },
+    {
+      "type": "route",
+      "uuid": "d2690a30-8265-4d82-a9d2-722cfe67531d"
+    },
+    {
+      "type": "route",
+      "uuid": "913e6a62-d9ac-4660-b92b-cb924445f0f5"
+    },
+    {
+      "type": "route",
+      "uuid": "0c9ab669-5197-4c4e-afca-2a68e7e85a51"
+    },
+    {
+      "type": "route",
+      "uuid": "bf826112-1999-46da-a858-75bd7231325a"
+    },
+    {
+      "type": "route",
+      "uuid": "2b685998-43b3-4fac-b0b7-bdf7218c9c28"
+    },
+    {
+      "type": "route",
+      "uuid": "7ea55ef7-f7e0-47bc-996a-4d2700e85463"
+    },
+    {
+      "type": "route",
+      "uuid": "e0249159-42d3-48e7-835d-4aa46214d544"
+    },
+    {
+      "type": "route",
+      "uuid": "0cd387b4-2fe4-40d9-b535-511214e4bbb4"
+    },
+    {
+      "type": "route",
+      "uuid": "8cb807f4-6c1b-41b2-a8ec-5c6d4bae3380"
+    }
+  ],
+  "callbacks": []
 }

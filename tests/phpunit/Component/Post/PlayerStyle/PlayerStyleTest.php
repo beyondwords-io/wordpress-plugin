@@ -63,28 +63,6 @@ class PostPlayerStyleTest extends WP_UnitTestCase
             'post_title' => 'PostPlayerStyleTest::element',
         ]);
 
-        /**
-         * Each player style is an associative array with the following keys:
-         * - string  `label`    The option label e.g. "Standard"
-         * - string  `value`    The option value e.g. "standard"
-         * - boolean `disabled` (Optional) Is this option disabled?
-         * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
-        */
-        set_transient('beyondwords_player_styles', [
-            [
-                'label' => 'Foo',
-                'value' => 'foo',
-            ],
-            [
-                'label' => 'Bar',
-                'value' => 'bar',
-            ],
-            [
-                'label' => 'Baz',
-                'value' => 'baz',
-            ],
-        ]);
-
         $playerStyle->element($post);
 
         $html = $this->getActualOutput();

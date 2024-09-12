@@ -178,6 +178,7 @@ class CoreUtils
             'beyondwords_project_language_id',
             'beyondwords_project_title_voice_id',
             'beyondwords_title_voice_speaking_rate',
+            'beyondwords_video_enabled',
             // v4.x
             'beyondwords_languages',
             'beyondwords_player_ui',
