@@ -51,7 +51,7 @@ class PlaybackFromSegments
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_clickable_sections',
+            self::OPTION_NAME,
             [
                 'type'              => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
@@ -77,15 +77,15 @@ class PlaybackFromSegments
      **/
     public function render()
     {
-        $value = get_option('beyondwords_player_clickable_sections');
+        $value = get_option(self::OPTION_NAME);
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player-playback-from-segments">
             <label>
-                <input type="hidden" name="beyondwords_player_clickable_sections" value="" />
+                <input type="hidden" name="<?php echo esc_attr(self::OPTION_NAME) ?>" value="" />
                 <input
                     type="checkbox"
-                    id="beyondwords_player_clickable_sections"
-                    name="beyondwords_player_clickable_sections"
+                    id="<?php echo esc_attr(self::OPTION_NAME) ?>"
+                    name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                     value="1"
                     <?php checked($value); ?>
                 />

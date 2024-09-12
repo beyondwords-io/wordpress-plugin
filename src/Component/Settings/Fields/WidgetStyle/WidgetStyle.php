@@ -53,7 +53,7 @@ class WidgetStyle
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_widget_style',
+            self::OPTION_NAME,
             [
                 'default' => '',
             ]
@@ -77,11 +77,11 @@ class WidgetStyle
      **/
     public function render()
     {
-        $current = get_option('beyondwords_player_widget_style');
+        $current = get_option(self::OPTION_NAME);
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__widget-style">
-            <select name="beyondwords_player_widget_style">
+            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php
                 foreach ($options as $option) {
                     printf(

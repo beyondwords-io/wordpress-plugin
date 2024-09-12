@@ -87,7 +87,7 @@ class PlayerColors
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_theme',
+            self::OPTION_NAME_THEME,
             [
                 'default' => '',
             ]
@@ -113,7 +113,7 @@ class PlayerColors
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_light_theme',
+            self::OPTION_NAME_LIGHT_THEME,
             [
                 'default' => [
                     'background_color' => '#F5F5F5',
@@ -127,7 +127,7 @@ class PlayerColors
 
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_dark_theme',
+            self::OPTION_NAME_DARK_THEME,
             [
                 'default' => [
                     'background_color' => '#F5F5F5',
@@ -141,7 +141,7 @@ class PlayerColors
 
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_video_theme',
+            self::OPTION_NAME_VIDEO_THEME,
             [
                 'default' => [
                     'background_color' => '#000',
@@ -170,11 +170,11 @@ class PlayerColors
      **/
     public function renderPlayerThemeSetting()
     {
-        $current = get_option('beyondwords_player_theme');
+        $current = get_option(self::OPTION_NAME_THEME);
         $themeOptions = $this->getPlayerThemeOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-colors">
-            <select name="beyondwords_player_theme">
+            <select name="<?php echo esc_attr(self::OPTION_NAME_THEME) ?>">
                 <?php
                 foreach ($themeOptions as $option) {
                     printf(
@@ -274,25 +274,25 @@ class PlayerColors
      **/
     public function renderPlayerColorsSetting()
     {
-        $lightTheme = get_option('beyondwords_player_light_theme');
-        $darkTheme  = get_option('beyondwords_player_dark_theme');
-        $videoTheme = get_option('beyondwords_player_video_theme');
+        $lightTheme = get_option(self::OPTION_NAME_LIGHT_THEME);
+        $darkTheme  = get_option(self::OPTION_NAME_DARK_THEME);
+        $videoTheme = get_option(self::OPTION_NAME_VIDEO_THEME);
 
         $this->playerColorsTable(
             __('Light theme settings'),
-            'beyondwords_player_light_theme',
+            self::OPTION_NAME_LIGHT_THEME,
             $lightTheme,
         );
 
         $this->playerColorsTable(
             __('Dark theme settings'),
-            'beyondwords_player_dark_theme',
+            self::OPTION_NAME_DARK_THEME,
             $darkTheme,
         );
 
         $this->playerColorsTable(
             __('Video theme settings'),
-            'beyondwords_player_video_theme',
+            self::OPTION_NAME_VIDEO_THEME,
             $videoTheme,
         );
     }

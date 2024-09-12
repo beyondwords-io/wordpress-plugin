@@ -53,7 +53,7 @@ class BodyVoiceSpeakingRate
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_body_voice_speaking_rate',
+            self::OPTION_NAME,
             [
                 'type'    => 'integer',
                 'default' => 100,
@@ -78,12 +78,12 @@ class BodyVoiceSpeakingRate
      **/
     public function render()
     {
-        $current = get_option('beyondwords_body_voice_speaking_rate');
+        $current = get_option(self::OPTION_NAME);
         ?>
         <div class="beyondwords-setting__body-speaking-rate">
             <input
                 type="range"
-                name="beyondwords_body_voice_speaking_rate"
+                name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 class="beyondwords_speaking_rate"
                 min="50"
                 max="200"

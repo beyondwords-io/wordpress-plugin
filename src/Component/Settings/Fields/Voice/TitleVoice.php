@@ -55,7 +55,7 @@ class TitleVoice extends Voice
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_title_voice_id',
+            self::OPTION_NAME,
         );
 
         add_settings_field(
@@ -76,12 +76,12 @@ class TitleVoice extends Voice
      **/
     public function render()
     {
-        $current = get_option('beyondwords_project_title_voice_id');
+        $current = get_option(self::OPTION_NAME);
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting__title-voice">
             <select
-                name="beyondwords_project_title_voice_id"
+                name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 class="beyondwords_project_voice"
                 style="width: 300px;"
             >

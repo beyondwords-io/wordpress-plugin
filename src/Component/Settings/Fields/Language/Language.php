@@ -74,7 +74,7 @@ class Language
     {
         register_setting(
             'beyondwords_voices_settings',
-            'beyondwords_project_language_id',
+            self::OPTION_NAME_ID,
             [
                 'type' => 'integer',
                 'default' => null,
@@ -101,12 +101,12 @@ class Language
     {
         $options = $this->getOptions();
 
-        $current = get_option('beyondwords_project_language_id');
+        $current = get_option(self::OPTION_NAME_ID);
         ?>
         <div class="beyondwords-setting__default-language">
             <select
-                id="beyondwords_project_language_id"
-                name="beyondwords_project_language_id"
+                id="<?php echo esc_attr(self::OPTION_NAME_ID) ?>"
+                name="<?php echo esc_attr(self::OPTION_NAME_ID) ?>"
                 placeholder="<?php esc_attr_e('Add a language', 'speechkit'); ?>"
                 style="width: 250px;"
                 autocomplete="off"

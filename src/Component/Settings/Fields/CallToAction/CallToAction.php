@@ -53,7 +53,7 @@ class CallToAction
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_call_to_action',
+            self::OPTION_NAME,
             [
                 'default' => '',
             ]
@@ -77,12 +77,12 @@ class CallToAction
      **/
     public function render()
     {
-        $option = get_option('beyondwords_player_call_to_action');
+        $option = get_option(self::OPTION_NAME);
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--call-to-action">
             <input
                 type="text"
-                name="beyondwords_player_call_to_action"
+                name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 placeholder="<?php esc_attr_e('Listen to this article', 'speechkit'); ?>"
                 value="<?php echo esc_attr($option); ?>"
                 size="50"

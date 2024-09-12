@@ -58,7 +58,7 @@ class PlaybackControls
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_skip_button_style',
+            self::OPTION_NAME,
             [
                 'default' => '',
             ]
@@ -82,12 +82,12 @@ class PlaybackControls
      **/
     public function render()
     {
-        $current = get_option('beyondwords_player_skip_button_style');
+        $current = get_option(self::OPTION_NAME);
         ?>
         <div class="beyondwords-setting__player-skip-button-style">
             <input
                 type="text"
-                name="beyondwords_player_skip_button_style"
+                name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 placeholder="auto"
                 value="<?php echo esc_attr($current); ?>"
                 size="20"

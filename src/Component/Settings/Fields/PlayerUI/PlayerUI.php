@@ -57,7 +57,7 @@ class PlayerUI
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_ui',
+            self::OPTION_NAME,
             [
                 'default' => PlayerUI::ENABLED,
             ]
@@ -81,11 +81,11 @@ class PlayerUI
      **/
     public function render()
     {
-        $currentUi = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
+        $currentUi = get_option(self::OPTION_NAME, PlayerUI::ENABLED);
         $playerUIs = PlayerUI::getAllPlayerUIs();
         ?>
         <div class="beyondwords-setting__player--player-ui">
-            <select name="beyondwords_player_ui">
+            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php
                 foreach ($playerUIs as $value => $label) {
                     printf(

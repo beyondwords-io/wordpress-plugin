@@ -74,7 +74,7 @@ class PlayerStyle
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_style',
+            self::OPTION_NAME,
             [
                 'default' => PlayerStyle::STANDARD,
             ]
@@ -98,11 +98,11 @@ class PlayerStyle
      **/
     public function render()
     {
-        $currentStyle = get_option('beyondwords_player_style', PlayerStyle::STANDARD);
+        $currentStyle = get_option(self::OPTION_NAME, PlayerStyle::STANDARD);
         $options      = $this->getOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-style">
-            <select name="beyondwords_player_style">
+            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php
                 foreach ($options as $option) {
                     $disabled = isset($option['disabled']) ? $option['disabled'] : false;
@@ -167,7 +167,7 @@ class PlayerStyle
          * Which player style is the default?
          * This is used to preselect the default option.
          */
-        $defaultPlayerStyle = get_option('beyondwords_player_style', PlayerStyle::STANDARD);
+        $defaultPlayerStyle = get_option(self::OPTION_NAME, PlayerStyle::STANDARD);
 
         if (isset($styles[$defaultPlayerStyle])) {
             $styles[$defaultPlayerStyle]['default'] = true;

@@ -37,6 +37,7 @@ class Sync
         'beyondwords_player_widget_style'       => '[player][widget_style]',
         'beyondwords_player_widget_position'    => '[player][widget_position]',
         'beyondwords_player_skip_button_style'  => '[player][skip_button_style]',
+        'beyondwords_player_highlight_sections' => '[player][segment_playback_enabled]',
         // Project
         'beyondwords_include_title'             => '[project][title][enabled]',
         'beyondwords_project_language_code'     => '[project][language]',
@@ -47,6 +48,7 @@ class Sync
         'beyondwords_title_voice_speaking_rate' => '[title_voice][speaking_rate]',
         // Body Voice
         'beyondwords_body_voice_speaking_rate'  => '[body_voice][speaking_rate]',
+        
     ];
 
     /**

@@ -53,7 +53,7 @@ class WidgetPosition
     {
         register_setting(
             'beyondwords_player_settings',
-            'beyondwords_player_widget_position',
+            self::OPTION_NAME,
             [
                 'default' => 'auto',
             ]
@@ -77,11 +77,11 @@ class WidgetPosition
      **/
     public function render()
     {
-        $current = get_option('beyondwords_player_widget_position');
+        $current = get_option(self::OPTION_NAME);
         $options = $this->getOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__widget-position">
-            <select name="beyondwords_player_widget_position">
+            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php
                 foreach ($options as $option) {
                     printf(
