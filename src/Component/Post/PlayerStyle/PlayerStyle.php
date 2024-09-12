@@ -124,7 +124,7 @@ class PlayerStyle
             return $postId;
         }
 
-        $playerStyle = sanitize_text_field($_POST['beyondwords_player_style']);
+        $playerStyle = sanitize_text_field(wp_unslash($_POST['beyondwords_player_style']));
 
         if (! empty($playerStyle)) {
             update_post_meta($postId, 'beyondwords_player_style', $playerStyle);

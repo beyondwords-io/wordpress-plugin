@@ -211,11 +211,13 @@ class Settings
     {
         $defaultTab = array_key_first($tabs);
 
-        if (isset($_GET['tab'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $tab = sanitize_text_field($_GET['tab']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        if (isset($_GET['tab'])) {
+            $tab = sanitize_text_field(wp_unslash($_GET['tab']));
         } else {
             $tab = $defaultTab;
         }
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         if (!empty($tab) && array_key_exists($tab, $tabs)) {
             $activeTab = $tab;

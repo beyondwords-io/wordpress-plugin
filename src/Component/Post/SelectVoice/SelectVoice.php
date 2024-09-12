@@ -171,7 +171,7 @@ class SelectVoice
             return $postId;
         }
 
-        $languageId = sanitize_text_field($_POST['beyondwords_language_id']);
+        $languageId = sanitize_text_field(wp_unslash($_POST['beyondwords_language_id']));
 
         if (! empty($languageId)) {
             update_post_meta($postId, 'beyondwords_language_id', $languageId);
@@ -179,7 +179,7 @@ class SelectVoice
             delete_post_meta($postId, 'beyondwords_language_id');
         }
 
-        $voiceId = sanitize_text_field($_POST['beyondwords_voice_id']);
+        $voiceId = sanitize_text_field(wp_unslash($_POST['beyondwords_voice_id']));
 
         if (! empty($voiceId)) {
             update_post_meta($postId, 'beyondwords_body_voice_id', $voiceId);
