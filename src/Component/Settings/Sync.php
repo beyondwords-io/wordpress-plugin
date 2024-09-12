@@ -181,12 +181,12 @@ class Sync
             $this->apiClient->updateProject($settings['project']);
         }
 
-        if (isset($settings['title_voice'])) {
+        if (isset($beyondwordsApiSync['beyondwords_project_title_voice_id'])) {
             $titleVoiceId = get_option('beyondwords_project_title_voice_id');
             $this->apiClient->updateVoice($titleVoiceId, $settings['title_voice']);
         }
 
-        if (isset($settings['body_voice'])) {
+        if (isset($beyondwordsApiSync['beyondwords_project_body_voice_id'])) {
             $bodyVoiceId = get_option('beyondwords_project_body_voice_id');
             $this->apiClient->updateVoice($bodyVoiceId, $settings['body_voice']);
         }
