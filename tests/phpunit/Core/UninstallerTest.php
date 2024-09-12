@@ -42,6 +42,24 @@ class UninstallerTest extends WP_UnitTestCase
     public function optionNamesProvider()
     {
         return [
+            // v5.x
+            'beyondwords_body_voice_speaking_rate'  => ['beyondwords_body_voice_speaking_rate'],
+            'beyondwords_include_title'             => ['beyondwords_include_title'],
+            'beyondwords_player_call_to_action'     => ['beyondwords_player_call_to_action'],
+            'beyondwords_player_clickable_sections' => ['beyondwords_player_clickable_sections'],
+            'beyondwords_player_dark_theme'         => ['beyondwords_player_dark_theme'],
+            'beyondwords_player_highlight_sections' => ['beyondwords_player_highlight_sections'],
+            'beyondwords_player_light_theme'        => ['beyondwords_player_light_theme'],
+            'beyondwords_player_skip_button_style'  => ['beyondwords_player_skip_button_style'],
+            'beyondwords_player_theme'              => ['beyondwords_player_theme'],
+            'beyondwords_player_video_theme'        => ['beyondwords_player_video_theme'],
+            'beyondwords_player_widget_position'    => ['beyondwords_player_widget_position'],
+            'beyondwords_player_widget_style'       => ['beyondwords_player_widget_style'],
+            'beyondwords_project_body_voice_id'     => ['beyondwords_project_body_voice_id'],
+            'beyondwords_project_language_code'     => ['beyondwords_project_language_code'],
+            'beyondwords_project_language_id'       => ['beyondwords_project_language_id'],
+            'beyondwords_project_title_voice_id'    => ['beyondwords_project_title_voice_id'],
+            'beyondwords_title_voice_speaking_rate' => ['beyondwords_title_voice_speaking_rate'],
             // v4.x
             'beyondwords_languages'            => ['beyondwords_languages'],
             'beyondwords_player_ui'            => ['beyondwords_player_ui'],
