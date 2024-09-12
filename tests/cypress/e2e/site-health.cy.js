@@ -11,7 +11,7 @@ context( 'Site Health', () => {
 
   const semverRegex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
-  it.only( 'has BeyondWords site health info', () => {
+  it( 'has BeyondWords site health info', () => {
     cy.visit( '/wp-admin/site-health.php?tab=debug' ).wait( 500 )
 
     cy.get( 'button[aria-controls="health-check-accordion-block-beyondwords"]' ).click()
