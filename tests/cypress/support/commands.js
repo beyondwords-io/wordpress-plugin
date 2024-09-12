@@ -110,13 +110,25 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
 
-  cy.get( '.beyondwords-setting__preselect--post-type input[type="checkbox"]' ).uncheck()
+  cy.get( '#beyondwords_prepend_excerpt' ).uncheck()
   cy.get( 'input[name="beyondwords_preselect[post]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[page]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should( 'not.be.checked' )
   cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should( 'not.exist' )
 
+  cy.get( 'input[type=submit]' ).click()
+  cy.get( '.notice-success' )
+} )
+
+Cypress.Commands.add( 'saveAllPluginSettings', () => {
+  cy.saveStandardPluginSettings()
+
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
+  cy.get( 'input[type=submit]' ).click()
+  cy.get( '.notice-success' )
+
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
   cy.get( 'input[type=submit]' ).click()
   cy.get( '.notice-success' )
 } )

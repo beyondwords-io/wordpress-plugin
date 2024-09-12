@@ -62,7 +62,7 @@ class Settings
 
         if (SettingsUtils::hasApiSettings()) {
             (new Voices($this->apiClient))->init();
-            (new Content($this->apiClient))->init();
+            (new Content())->init();
             (new Player($this->apiClient))->init();
             (new Pronunciations())->init();
             (new Advanced($this->apiClient))->init();

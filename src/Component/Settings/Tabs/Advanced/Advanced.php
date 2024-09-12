@@ -49,7 +49,7 @@ class Advanced
     public function init()
     {
         (new Languages($this->apiClient))->init();
-        (new SyncSettings($this->apiClient))->init();
+        (new SyncSettings())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }

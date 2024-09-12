@@ -70,8 +70,8 @@ abstract class Voice
 
         $options = array_map(function ($voice) {
             return [
-                'value'         => $voice['id'],
-                'label'         => $voice['name'],
+                'value' => $voice['id'],
+                'label' => $voice['name'],
             ];
         }, $voices);
 

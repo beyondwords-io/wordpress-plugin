@@ -24,7 +24,7 @@ class IncludeTitle
      *
      * @var string
      */
-    public const DEFAULT_VALUE = '1';
+    public const DEFAULT_VALUE = true;
 
     /**
      * Option name.
@@ -32,21 +32,6 @@ class IncludeTitle
      * @var string
      */
     public const OPTION_NAME = 'beyondwords_include_title';
-
-    /**
-     * @var \Beyondwords\Wordpress\Core\ApiClient
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
 
     /**
      * Init.

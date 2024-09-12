@@ -20,23 +20,6 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings;
 class SyncSettings
 {
     /**
-     * API Client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init.
      *
      * @since 5.0.0

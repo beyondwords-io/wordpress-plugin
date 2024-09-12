@@ -46,7 +46,7 @@ class IncludeExcerpt
             [
                 'type'              => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => true,
+                'default'           => false,
             ]
         );
 
