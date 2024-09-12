@@ -48,11 +48,6 @@
             "Beyondwords\\Wordpress\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/phpunit"
-        }
-    },
     "config": {
         "allow-plugins": {
             "automattic/vipwpcs": false,

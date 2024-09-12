@@ -21,6 +21,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
@@ -56,7 +57,7 @@ class Settings
     {
         delete_transient('beyondwords_settings_errors');
 
-        (new Credentials($this->apiClient))->init();
+        (new Credentials())->init();
         (new Sync($this->apiClient))->init();
 
         if (SettingsUtils::hasApiSettings()) {

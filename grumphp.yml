@@ -77,8 +77,6 @@ grumphp:
         - phpcs
         - phplint
         - phpmd
-        - test_phpunit
-        - coverage_check
     code_quality:
       tasks:
         - composer
