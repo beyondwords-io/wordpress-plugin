@@ -307,7 +307,7 @@ class Inspect
         if (
             ! isset($_POST['beyondwords_delete_content_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_delete_content_nonce']),
+                sanitize_key($_POST['beyondwords_delete_content_nonce']),
                 'beyondwords_delete_content'
             )
         ) {

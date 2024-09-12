@@ -55,7 +55,7 @@ class DisplayPlayer
         if (
             ! isset($_POST['beyondwords_display_player_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_display_player_nonce']),
+                sanitize_key($_POST['beyondwords_display_player_nonce']),
                 'beyondwords_display_player'
             )
         ) {

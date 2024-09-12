@@ -109,7 +109,7 @@ class GenerateAudio
         if (
             ! isset($_POST['beyondwords_generate_audio_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_generate_audio_nonce']),
+                sanitize_key($_POST['beyondwords_generate_audio_nonce']),
                 'beyondwords_generate_audio'
             )
         ) {

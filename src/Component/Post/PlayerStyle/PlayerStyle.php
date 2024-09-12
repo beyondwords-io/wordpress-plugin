@@ -117,7 +117,7 @@ class PlayerStyle
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_player_style_nonce']),
+                sanitize_key($_POST['beyondwords_player_style_nonce']),
                 'beyondwords_player_style'
             )
         ) {

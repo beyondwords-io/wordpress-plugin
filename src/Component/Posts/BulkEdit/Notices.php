@@ -41,7 +41,7 @@ class Notices
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
@@ -77,7 +77,7 @@ class Notices
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
@@ -113,7 +113,7 @@ class Notices
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
@@ -149,7 +149,7 @@ class Notices
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 

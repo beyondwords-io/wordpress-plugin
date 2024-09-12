@@ -97,7 +97,7 @@ class BulkEdit
          */
         if (
             ! isset($_POST['beyondwords_bulk_edit_nonce']) ||
-            ! wp_verify_nonce(sanitize_text_field($_POST['beyondwords_bulk_edit_nonce']), 'beyondwords_bulk_edit')
+            ! wp_verify_nonce(sanitize_key($_POST['beyondwords_bulk_edit_nonce']), 'beyondwords_bulk_edit')
         ) {
             wp_nonce_ays('');
         }

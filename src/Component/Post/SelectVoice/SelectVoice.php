@@ -164,7 +164,7 @@ class SelectVoice
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_select_voice_nonce']),
+                sanitize_key($_POST['beyondwords_select_voice_nonce']),
                 'beyondwords_select_voice'
             )
         ) {
