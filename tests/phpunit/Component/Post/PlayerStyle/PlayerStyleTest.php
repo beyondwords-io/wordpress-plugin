@@ -77,14 +77,17 @@ class PostPlayerStyleTest extends WP_UnitTestCase
         $this->assertSame('', $select->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('', $select->filter('option:nth-child(1)')->text());
 
-        $this->assertSame('foo', $select->filter('option:nth-child(2)')->attr('value'));
-        $this->assertSame('Foo', $select->filter('option:nth-child(2)')->text());
+        $this->assertSame('standard', $select->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('Standard', $select->filter('option:nth-child(2)')->text());
 
-        $this->assertSame('bar', $select->filter('option:nth-child(3)')->attr('value'));
-        $this->assertSame('Bar', $select->filter('option:nth-child(3)')->text());
+        $this->assertSame('small', $select->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('Small', $select->filter('option:nth-child(3)')->text());
 
-        $this->assertSame('baz', $select->filter('option:nth-child(4)')->attr('value'));
-        $this->assertSame('Baz', $select->filter('option:nth-child(4)')->text());
+        $this->assertSame('large', $select->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('Large', $select->filter('option:nth-child(4)')->text());
+
+        $this->assertSame('video', $select->filter('option:nth-child(5)')->attr('value'));
+        $this->assertSame('Video', $select->filter('option:nth-child(5)')->text());
 
         $label = $crawler->filter('p#beyondwords-metabox-player-style');
 

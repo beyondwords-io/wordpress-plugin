@@ -72,6 +72,6 @@ class AdvancedTabTest extends WP_UnitTestCase
         $this->assertArrayHasKey('advanced', $wp_settings_sections['beyondwords_advanced']);
         $this->assertSame('advanced', $wp_settings_sections['beyondwords_advanced']['advanced']['id']);
         $this->assertSame('Advanced', $wp_settings_sections['beyondwords_advanced']['advanced']['title']);
-        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_advanced']['advanced']['callback']);
+        $this->assertSame('__return_empty_string', $wp_settings_sections['beyondwords_advanced']['advanced']['callback']);
     }
 }

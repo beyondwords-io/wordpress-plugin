@@ -107,16 +107,15 @@ class Sync
             return;
         }
 
-        $responses = [
-            'project'         => $this->apiClient->getProject(),
-            'player_settings' => $this->apiClient->getPlayerSettings(),
-            'video_settings'  => $this->apiClient->getVideoSettings(),
-        ];
+        $responses = [];
+        $responses['project']         = $this->apiClient->getProject();
+        $responses['player_settings'] = $this->apiClient->getPlayerSettings();
+        $responses['video_settings']  = $this->apiClient->getVideoSettings();
 
         // Add the language ID to the project settings response.
         $this->setLanguageId($responses);
 
-        // Request the project details first, we need them for the Voice IDs.
+        // Update WordPress options using the REST API response data.
         $this->updateOptionsFromResponses($responses);
 
         add_settings_error(
@@ -138,6 +137,7 @@ class Sync
     {
         foreach (self::MAP_SETTINGS as $optionName => $path) {
             $value = $this->propertyAccessor->getValue($responses, $path);
+
             if ($value !== null) {
                 update_option($optionName, $value, false);
             }
@@ -153,7 +153,7 @@ class Sync
      **/
     public function syncToDashboard()
     {
-        if (!is_admin()) {
+        if (! is_admin()) {
             return;
         }
 
