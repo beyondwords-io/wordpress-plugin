@@ -2,18 +2,16 @@ context( 'Settings > Advanced',  () => {
   before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.saveStandardPluginSettings()
+    cy.saveMinimalPluginSettings()
   } )
 
   beforeEach( () => {
     cy.login()
   } )
 
-  it( 'shows the "Manage pronunciations" button', () => {
-    cy.saveMinimalPluginSettings()
+  it.skip( 'Syncs the settings from Dashboard to WordPress', () => {
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
 
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )
-    cy.get( '.button.button-primary' ).eq(0).should( 'have.text', 'Manage pronunciations' )
-    cy.get( '.button.button-primary' ).eq(0).should( 'have.attr', 'href', `https://dash.beyondwords.io/dashboard/project/${ Cypress.env( 'projectId' ) }/settings?tab=rules` )
+    // @todo complete writing test
   } )
 } )

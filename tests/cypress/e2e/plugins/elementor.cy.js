@@ -1,16 +1,12 @@
 describe( 'Plugins: Elementor', () => {
-  before( () => {
+  beforeEach( () => {
     cy.task( 'reset' )
     cy.login()
     cy.saveStandardPluginSettings()
     cy.activatePlugin( 'elementor' )
   } )
 
-  beforeEach( () => {
-    cy.login()
-  } )
-
-  after( () => {
+  afterEach( () => {
     cy.deactivatePlugin( 'elementor' )
   } )
 

@@ -106,9 +106,18 @@ class Languages
                 style="width: 500px;"
                 autocomplete="off"
             >
-                <?php foreach ($allLanguages as $language) : ?>
+                <?php foreach ($allLanguages as $language) : 
+                    $bodyId            = $language['default_voices']['body']['id'];
+                    $bodySpeakingRate  = $language['default_voices']['body']['speaking_rate'];
+                    $titleId           = $language['default_voices']['title']['id'];
+                    $titleSpeakingRate = $language['default_voices']['title']['speaking_rate'];
+                    ?>
                     <option
                         value="<?php echo esc_attr($language['id']); ?>"
+                        data-default-voice-body-id="<?php echo esc_attr($bodyId); ?>"
+                        data-default-voice-body-speaking-rate="<?php echo esc_attr($bodySpeakingRate); ?>"
+                        data-default-voice-title-id="<?php echo esc_attr($titleId); ?>"
+                        data-default-voice-title-speaking-rate="<?php echo esc_attr($titleSpeakingRate); ?>"
                         <?php selected(in_array($language['id'], $selectedLanguages), true); ?>
                     >
                         <?php echo esc_attr($language['name']); ?>

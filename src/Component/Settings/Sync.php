@@ -182,16 +182,6 @@ class Sync
         if (isset($settings['project'])) {
             $this->apiClient->updateProject($settings['project']);
         }
-
-        if (isset($beyondwordsApiSync['beyondwords_project_title_voice_id'])) {
-            $titleVoiceId = get_option('beyondwords_project_title_voice_id');
-            $this->apiClient->updateVoice($titleVoiceId, $settings['title_voice']);
-        }
-
-        if (isset($beyondwordsApiSync['beyondwords_project_body_voice_id'])) {
-            $bodyVoiceId = get_option('beyondwords_project_body_voice_id');
-            $this->apiClient->updateVoice($bodyVoiceId, $settings['body_voice']);
-        }
     }
 
     /**
@@ -214,6 +204,7 @@ class Sync
             'beyondwords_body_voice_speaking_rate',
             'beyondwords_title_voice_speaking_rate',
             'beyondwords_video_enabled',
+            'beyondwords_project_language_id',
         ];
 
         if (! in_array($option_name, $skip)) {
@@ -237,10 +228,10 @@ class Sync
      **/
     public function setLanguageId(&$settings)
     {
-        $project_language = $this->propertyAccessor->getValue($settings, '[project][language]');
+        $language_code = $this->propertyAccessor->getValue($settings, '[project][language]');
 
-        if (null === $project_language) {
-            return;
+        if (null === $language_code) {
+            $this->propertyAccessor->setValue($settings, '[project][language_id]', '');
         }
 
         $language  = false;
@@ -251,7 +242,7 @@ class Sync
                 $languages,
                 null,
                 'code'
-            )[$project_language] ?? false;
+            )[$language_code] ?? false;
         }
 
         if (is_array($language) && array_key_exists('id', $language)) {

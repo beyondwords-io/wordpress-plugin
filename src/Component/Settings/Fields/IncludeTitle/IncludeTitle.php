@@ -64,7 +64,7 @@ class IncludeTitle
             [
                 'type'              => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => true,
+                'default'           => self::DEFAULT_VALUE,
             ]
         );
 

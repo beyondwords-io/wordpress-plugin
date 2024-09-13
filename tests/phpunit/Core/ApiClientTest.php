@@ -202,9 +202,9 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = $this->_instance->getLanguages();
 
-        $this->assertSame('en_GB', $response[0]['code']);
-        $this->assertSame('en_GB', $response[1]['code']);
-        $this->assertSame('en_GB', $response[2]['code']);
+        $this->assertSame('aa_AA', $response[0]['code']);
+        $this->assertSame('bb_BB', $response[1]['code']);
+        $this->assertSame('cc_CC', $response[2]['code']);
 
         $this->assertSame(1, $response[0]['id']);
         $this->assertSame(2, $response[1]['id']);
@@ -216,18 +216,24 @@ class ApiClientTest extends WP_UnitTestCase
 
         $this->assertSame(2,         $response[0]['default_voices']['title']['id']);
         $this->assertSame('Voice 2', $response[0]['default_voices']['title']['name']);
+        $this->assertSame(95,        $response[0]['default_voices']['title']['speaking_rate']);
         $this->assertSame(3,         $response[0]['default_voices']['body']['id']);
         $this->assertSame('Voice 3', $response[0]['default_voices']['body']['name']);
+        $this->assertSame(105,       $response[0]['default_voices']['body']['speaking_rate']);
 
         $this->assertSame(2,         $response[1]['default_voices']['title']['id']);
         $this->assertSame('Voice 2', $response[1]['default_voices']['title']['name']);
+        $this->assertSame(90,        $response[1]['default_voices']['title']['speaking_rate']);
         $this->assertSame(3,         $response[1]['default_voices']['body']['id']);
         $this->assertSame('Voice 3', $response[1]['default_voices']['body']['name']);
+        $this->assertSame(110,       $response[1]['default_voices']['body']['speaking_rate']);
 
         $this->assertSame(2,         $response[2]['default_voices']['title']['id']);
         $this->assertSame('Voice 2', $response[2]['default_voices']['title']['name']);
+        $this->assertSame(85,        $response[2]['default_voices']['title']['speaking_rate']);
         $this->assertSame(3,         $response[2]['default_voices']['body']['id']);
         $this->assertSame('Voice 3', $response[2]['default_voices']['body']['name']);
+        $this->assertSame(115,       $response[2]['default_voices']['body']['speaking_rate']);
 
         delete_option('beyondwords_api_key');
     }
@@ -238,12 +244,12 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function getVoices()
     {
-        $response = $this->_instance->getVoices('2');
+        $response = $this->_instance->getVoices(2);
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
 
-        $response = $this->_instance->getVoices('2');
+        $response = $this->_instance->getVoices(2);
 
         $this->assertSame(1, $response[0]['id']);
         $this->assertSame(2, $response[1]['id']);
@@ -253,9 +259,9 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertSame('Voice 2', $response[1]['name']);
         $this->assertSame('Voice 3', $response[2]['name']);
 
-        $this->assertSame('en_GB', $response[0]['language']);
-        $this->assertSame('en_GB', $response[1]['language']);
-        $this->assertSame('en_GB', $response[2]['language']);
+        $this->assertSame('bb_BB', $response[0]['language']);
+        $this->assertSame('bb_BB', $response[1]['language']);
+        $this->assertSame('bb_BB', $response[2]['language']);
 
         $this->assertSame(100, $response[0]['speaking_rate']);
         $this->assertSame(100, $response[1]['speaking_rate']);
@@ -302,6 +308,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = $this->_instance->getPlayerSettings();
 
+        $this->assertArrayHasKey('enabled', $response);
         $this->assertArrayHasKey('player_version', $response);
         $this->assertArrayHasKey('player_style', $response);
         $this->assertArrayHasKey('player_title', $response);
