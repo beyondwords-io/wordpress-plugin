@@ -44,6 +44,9 @@
     "dotenv": "^16.4.5",
     "mochawesome": "^7.1.3"
   },
+  "resolutions": {
+    "path-to-regexp": "^8.1.0"
+  },
   "scripts": {
     "build": "wp-scripts build",
     "check-engines": "wp-scripts check-engines",
