@@ -28,7 +28,7 @@ context( 'Settings > Player > Skip button style',  () => {
 
       // Check for value in Site Health
       cy.visitPluginSiteHealth()
-      cy.getSiteHealthEntry( 'Skip button style' ).should( 'have.text', value )
+      cy.getSiteHealthValue( 'Skip button style' ).should( 'have.text', value )
     } )
   } )
 } )

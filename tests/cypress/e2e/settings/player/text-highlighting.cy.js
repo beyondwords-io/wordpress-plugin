@@ -23,7 +23,7 @@ context( 'Settings > Player > Text highlighting',  () => {
 
     // Check for value in Site Health
     cy.visitPluginSiteHealth()
-    cy.getSiteHealthEntry( 'Text highlighting' ).should( 'have.text', 'Yes' )
+    cy.getSiteHealthValue( 'Text highlighting' ).should( 'have.text', 'Yes' )
 
     // Uncheck
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
@@ -36,6 +36,6 @@ context( 'Settings > Player > Text highlighting',  () => {
 
     // Check for value in Site Health
     cy.visitPluginSiteHealth()
-    cy.getSiteHealthEntry( 'Text highlighting' ).should( 'have.text', 'No' )
+    cy.getSiteHealthValue( 'Text highlighting' ).should( 'have.text', 'No' )
   } )
 } )

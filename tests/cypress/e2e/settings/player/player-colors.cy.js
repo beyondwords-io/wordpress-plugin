@@ -54,17 +54,17 @@ context( 'Settings > Player > Player colors',  () => {
     // Only check for value in Site Health
     cy.visitPluginSiteHealth()
 
-    cy.getSiteHealthEntry( 'Light theme' ).then( val => {
+    cy.getSiteHealthValue( 'Light theme' ).then( val => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( light_theme )
     })
       
-    cy.getSiteHealthEntry( 'Dark theme' ).then( val => {
+    cy.getSiteHealthValue( 'Dark theme' ).then( val => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( dark_theme )
     })
       
-    cy.getSiteHealthEntry( 'Video theme' ).then( val => {
+    cy.getSiteHealthValue( 'Video theme' ).then( val => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( video_theme )
     })

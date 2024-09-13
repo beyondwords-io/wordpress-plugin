@@ -38,7 +38,7 @@ context( 'Settings > Player > Player theme',  () => {
 
       // Check for value in Site Health
       cy.visitPluginSiteHealth()
-      cy.getSiteHealthEntry( 'Player theme' ).should( 'have.text', theme.value )
+      cy.getSiteHealthValue( 'Player theme' ).should( 'have.text', theme.value )
     } )
   } )
 } )

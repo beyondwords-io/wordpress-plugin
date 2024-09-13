@@ -9,7 +9,7 @@ context( 'Settings > Advanced',  () => {
     cy.login()
   } )
 
-  it( 'opens the "Advanced" tab', () => {
+  it( 'shows the "Manage pronunciations" button', () => {
     cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )

@@ -23,7 +23,7 @@ context( 'Settings > Player > Playback from segments',  () => {
 
     // Check for value in Site Health
     cy.visitPluginSiteHealth()
-    cy.getSiteHealthEntry( 'Playback from segments' ).should( 'have.text', 'Yes' )
+    cy.getSiteHealthValue( 'Playback from segments' ).should( 'have.text', 'Yes' )
 
     // Uncheck
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
@@ -36,6 +36,6 @@ context( 'Settings > Player > Playback from segments',  () => {
 
     // Check for value in Site Health
     cy.visitPluginSiteHealth()
-    cy.getSiteHealthEntry( 'Playback from segments' ).should( 'have.text', 'No' )
+    cy.getSiteHealthValue( 'Playback from segments' ).should( 'have.text', 'No' )
   } )
 } )

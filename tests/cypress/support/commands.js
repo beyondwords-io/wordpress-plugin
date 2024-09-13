@@ -157,7 +157,7 @@ Cypress.Commands.add( 'visitPluginSiteHealth', () => {
   cy.get( 'button[aria-controls="health-check-accordion-block-beyondwords"]' ).click()
 } )
 
-Cypress.Commands.add( 'getSiteHealthEntry', ( label, ...args ) => {
+Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
   return cy.contains( label )
     .parent( 'tr' )
     .find( 'td' ).eq( 1 )

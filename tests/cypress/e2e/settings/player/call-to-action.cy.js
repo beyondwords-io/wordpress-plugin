@@ -28,7 +28,7 @@ context( 'Settings > Player > Call-to-action',  () => {
 
       // Check for value in Site Health
       cy.visitPluginSiteHealth()
-      cy.getSiteHealthEntry( 'Call-to-action' ).should( 'have.text', value )
+      cy.getSiteHealthValue( 'Call-to-action' ).should( 'have.text', value )
     } )
   } )
 } )

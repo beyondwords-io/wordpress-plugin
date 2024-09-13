@@ -43,7 +43,7 @@ context( 'Settings > Player > Widget position',  () => {
 
       // Check for value in Site Health
       cy.visitPluginSiteHealth()
-      cy.getSiteHealthEntry( 'Widget position' ).should( 'have.text', option.value )
+      cy.getSiteHealthValue( 'Widget position' ).should( 'have.text', option.value )
     } )
   } )
 } )

@@ -9,13 +9,6 @@ context( 'Settings > Content',  () => {
     cy.login()
   } )
 
-  it( 'opens the "Content" tab', () => {
-    cy.saveMinimalPluginSettings()
-
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
-    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Content' )
-  } )
-
   it( 'can set the Content plugin settings', () => {
     cy.saveMinimalPluginSettings()
 

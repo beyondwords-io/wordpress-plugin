@@ -46,7 +46,7 @@ context( 'Settings > Player > Widget style',  () => {
 
       // Check for value in Site Health
       cy.visitPluginSiteHealth()
-      cy.getSiteHealthEntry( 'Widget style' ).should( 'have.text', option.value )
+      cy.getSiteHealthValue( 'Widget style' ).should( 'have.text', option.value )
     } )
   } )
 } )
