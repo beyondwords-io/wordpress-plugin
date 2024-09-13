@@ -82,7 +82,7 @@ context( 'Classic Editor: Player Style', () => {
       cy.get( 'select#beyondwords_player_style' ).find( 'option:selected' ).contains( 'Large' )
     } )
 
-    it.skip( `can set "Video" Player style for a ${postType.name}`, () => {
+    it( `can set "Video" Player style for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       // Select a Player style

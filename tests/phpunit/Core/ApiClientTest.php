@@ -202,11 +202,32 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = $this->_instance->getLanguages();
 
-        $this->assertSame($response, [
-            ['id' => 1, 'name' => 'Language 1'],
-            ['id' => 2, 'name' => 'Language 2'],
-            ['id' => 3, 'name' => 'Language 3'],
-        ]);
+        $this->assertSame('en_GB', $response[0]['code']);
+        $this->assertSame('en_GB', $response[1]['code']);
+        $this->assertSame('en_GB', $response[2]['code']);
+
+        $this->assertSame(1, $response[0]['id']);
+        $this->assertSame(2, $response[1]['id']);
+        $this->assertSame(3, $response[2]['id']);
+
+        $this->assertSame('Language 1', $response[0]['name']);
+        $this->assertSame('Language 2', $response[1]['name']);
+        $this->assertSame('Language 3', $response[2]['name']);
+
+        $this->assertSame(2,         $response[0]['default_voices']['title']['id']);
+        $this->assertSame('Voice 2', $response[0]['default_voices']['title']['name']);
+        $this->assertSame(3,         $response[0]['default_voices']['body']['id']);
+        $this->assertSame('Voice 3', $response[0]['default_voices']['body']['name']);
+
+        $this->assertSame(2,         $response[1]['default_voices']['title']['id']);
+        $this->assertSame('Voice 2', $response[1]['default_voices']['title']['name']);
+        $this->assertSame(3,         $response[1]['default_voices']['body']['id']);
+        $this->assertSame('Voice 3', $response[1]['default_voices']['body']['name']);
+
+        $this->assertSame(2,         $response[2]['default_voices']['title']['id']);
+        $this->assertSame('Voice 2', $response[2]['default_voices']['title']['name']);
+        $this->assertSame(3,         $response[2]['default_voices']['body']['id']);
+        $this->assertSame('Voice 3', $response[2]['default_voices']['body']['name']);
 
         delete_option('beyondwords_api_key');
     }
@@ -224,13 +245,21 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = $this->_instance->getVoices('2');
 
-        $this->assertSame($response, [
-            ['id' => 1, 'name' => 'Voice 1'],
-            ['id' => 2, 'name' => 'Voice 2'],
-            ['id' => 3, 'name' => 'Voice 3'],
-        ]);
+        $this->assertSame(1, $response[0]['id']);
+        $this->assertSame(2, $response[1]['id']);
+        $this->assertSame(3, $response[2]['id']);
 
-        delete_option('beyondwords_api_key');
+        $this->assertSame('Voice 1', $response[0]['name']);
+        $this->assertSame('Voice 2', $response[1]['name']);
+        $this->assertSame('Voice 3', $response[2]['name']);
+
+        $this->assertSame('en_GB', $response[0]['language']);
+        $this->assertSame('en_GB', $response[1]['language']);
+        $this->assertSame('en_GB', $response[2]['language']);
+
+        $this->assertSame(100, $response[0]['speaking_rate']);
+        $this->assertSame(100, $response[1]['speaking_rate']);
+        $this->assertSame(100, $response[2]['speaking_rate']);
     }
 
     /**

@@ -95,7 +95,7 @@ context( 'Block Editor: Player Style', () => {
       cy.getBlockEditorSelect( 'Player style' ).find('option:selected').contains( 'Large' )
     } )
 
-    it.skip( `can set "Video" Player style for a ${postType.name}`, () => {
+    it( `can set "Video" Player style for a ${postType.name}`, () => {
 
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
