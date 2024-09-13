@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * TextHighlighting setup
+ * TextHighlighting
  *
  * @since 5.0.0
  */

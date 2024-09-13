@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * BeyondWords Bulk Edit.
+ * BeyondWords BulkEdit Notices.
  *
  * Text Domain: beyondwords
  *
@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
 
 /**
- * BulkEdit setup
+ * Notices
  *
  * @since 4.5.0
  */

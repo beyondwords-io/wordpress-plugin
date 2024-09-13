@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\ApiKey;
 
 /**
- * ApiKey setup
+ * ApiKey
  *
  * @since 3.0.0
  */

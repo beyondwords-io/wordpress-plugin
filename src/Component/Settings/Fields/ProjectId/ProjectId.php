@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\ProjectId;
 
 /**
- * ProjectId setup
+ * ProjectId
  *
  * @since 3.0.0
  */

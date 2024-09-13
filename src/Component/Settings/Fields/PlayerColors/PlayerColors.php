@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerColors;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PlayerColors setup
+ * PlayerColors
  *
  * @since 5.0.0
  */

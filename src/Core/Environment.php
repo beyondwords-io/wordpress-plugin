@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core;
 
 /**
- * Environment setup
+ * Environment
  *
  * @since 3.0.0
  */

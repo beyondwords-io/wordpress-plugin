@@ -152,6 +152,18 @@ Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
   cy.get( '.notice-success' )
 } )
 
+Cypress.Commands.add( 'visitPluginSiteHealth', () => {
+  cy.visit( '/wp-admin/site-health.php?tab=debug' ).wait( 500 )
+  cy.get( 'button[aria-controls="health-check-accordion-block-beyondwords"]' ).click()
+} )
+
+Cypress.Commands.add( 'getSiteHealthEntry', ( label, ...args ) => {
+  return cy.contains( label )
+    .parent( 'tr' )
+    .find( 'td' ).eq( 1 )
+    .then( $el => cy.wrap( $el ) )
+  } )
+
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
   args.flat().forEach( plugin => {
     cy.task( 'wp:plugin:activate', plugin )

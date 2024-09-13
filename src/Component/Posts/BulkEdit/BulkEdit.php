@@ -20,7 +20,7 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Plugin;
 
 /**
- * BulkEdit setup
+ * BulkEdit
  *
  * @since 3.0.0
  */

@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * Sync setup
+ * Sync
  *
  * @since 5.0.0
  */

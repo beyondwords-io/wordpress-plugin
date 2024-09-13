@@ -4,6 +4,25 @@ context( 'Settings',  () => {
     cy.login()
   } )
 
+  it( 'shows the tab headings', () => {
+    cy.saveMinimalPluginSettings()
+
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=credentials' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Credentials' )
+
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Content' )
+
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Voices' )
+
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Pronunciations' )
+
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Advanced' )
+  } )
+
   // @todo
   it( 'has synced the settings on install', () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )

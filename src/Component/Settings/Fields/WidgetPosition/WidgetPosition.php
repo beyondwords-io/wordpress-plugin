@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Setting: Default language
+ * Setting: Widget position
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetPosition;
 
 /**
- * WidgetPosition setup
+ * WidgetPosition
  *
  * @since 5.0.0
  */

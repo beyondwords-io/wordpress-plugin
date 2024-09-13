@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings;
 
 /**
- * SyncSettings setup
+ * SyncSettings
  *
  * @since 5.0.0
  */

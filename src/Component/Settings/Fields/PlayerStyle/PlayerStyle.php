@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle;
 
 /**
- * PlayerStyle setup
+ * PlayerStyle
  *
  * @since 4.1.0
  */

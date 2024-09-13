@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle;
 
 /**
- * IncludeTitle setup
+ * IncludeTitle
  *
  * @since 5.0.0
  */

@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle as P
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PlayerStyle setup
+ * PlayerStyle
  *
  * @since 4.1.0
  */

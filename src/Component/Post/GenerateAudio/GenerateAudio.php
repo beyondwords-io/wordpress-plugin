@@ -16,7 +16,7 @@ use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * GenerateAudio setup
+ * GenerateAudio
  *
  * @since 3.0.0
  */

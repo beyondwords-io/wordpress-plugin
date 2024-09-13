@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI;
 
 /**
- * PlayerUI setup
+ * PlayerUI
  *
  * @since 4.0.0
  */

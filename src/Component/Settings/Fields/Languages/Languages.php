@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
 
 /**
- * Languages setup
+ * Languages
  *
  * @since 4.0.0
  */

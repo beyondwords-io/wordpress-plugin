@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Setting: Default language
+ * Setting: Title voice
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
 
 /**
- * TitleVoice setup
+ * TitleVoice
  *
  * @since 5.0.0
  */

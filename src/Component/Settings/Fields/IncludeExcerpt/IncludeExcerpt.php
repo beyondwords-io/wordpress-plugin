@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt;
 
 /**
- * IncludeExcerpt setup
+ * IncludeExcerpt
  *
  * @since 3.0.0
  */

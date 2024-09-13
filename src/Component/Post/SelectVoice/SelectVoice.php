@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * SelectVoice setup
+ * SelectVoice
  *
  * @since 4.0.0
  */

@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
 
 /**
- * BodyVoice setup
+ * BodyVoice
  *
  * @since 5.0.0
  */

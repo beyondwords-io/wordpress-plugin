@@ -1,19 +1,12 @@
-context( 'Settings > Player',  () => {
+context( 'Settings > Player UI',  () => {
   before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.saveStandardPluginSettings()
+    cy.saveMinimalPluginSettings()
   } )
 
   beforeEach( () => {
     cy.login()
-  } )
-
-  it( 'opens the "Player" tab', () => {
-    cy.saveMinimalPluginSettings()
-
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Player' )
   } )
 
   it( 'uses "Enabled" Player UI setting', () => {

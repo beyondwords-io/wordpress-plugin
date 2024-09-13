@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PreselectGenerateAudio setup
+ * PreselectGenerateAudio
  *
  * @since 3.0.0
  */

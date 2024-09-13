@@ -25,7 +25,7 @@ use Beyondwords\Wordpress\Component\Settings\Sync;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
- * Settings setup
+ * Settings
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
