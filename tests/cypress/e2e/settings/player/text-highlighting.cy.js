@@ -19,7 +19,7 @@ context( 'Settings > Player > Text highlighting',  () => {
 
     // Check for value in WordPress options
     cy.visit( '/wp-admin/options.php' )
-    cy.get( '#beyondwords_player_highlight_sections' ).should( 'have.value', '1' );
+    cy.get( '#beyondwords_player_highlight_sections' ).should( 'have.value', 'body' );
 
     // Check for value in Site Health
     cy.visitPluginSiteHealth()

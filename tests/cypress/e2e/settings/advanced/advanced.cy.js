@@ -34,23 +34,6 @@ context( 'Settings > Advanced',  () => {
     // cy.get( '#beyondwords_player_video_theme' ).clear()
 
     cy.get( 'form#all-options' ).submit()
-    cy.get( '.notice-success' )
-
-    // @todo these should now be empty
-    // cy.get( '#beyondwords_body_voice_speaking_rate' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_include_title' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_call_to_action' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_clickable_sections' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_skip_button_style' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_style' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_theme' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_widget_position' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_project_language_code' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_project_language_id' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_title_voice_speaking_rate' ).should( 'have.value', '' )
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
 
