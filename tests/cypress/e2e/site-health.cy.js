@@ -74,32 +74,32 @@ context( 'Site Health', () => {
         // Default language code
         cy.get( 'tr' ).eq( 10 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'bb_BB' )
         } )
         // Default language ID
         cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '1' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
         } )
         // Title voice ID
         cy.get( 'tr' ).eq( 12 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '1' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
         } )
         // Title voice speaking rate
         cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '100' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '90' )
         } )
         // Body voice ID
         cy.get( 'tr' ).eq( 14 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '1' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3' )
         } )
         // Body voice speaking rate
         cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '100' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '110' )
         } )
         // Player UI
         cy.get( 'tr' ).eq( 16 ).within( () => {
@@ -124,17 +124,17 @@ context( 'Site Health', () => {
         // Dark theme
         cy.get( 'tr' ).eq( 20 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Dark theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#EEE"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "TRANSPARENT",\n    "icon_color": "#FFF",\n    "text_color": "#FFF",\n    "highlight_color": "#444"\n}' )
         } )
         // Video theme
         cy.get( 'tr' ).eq( 21 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Video theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#000",\n    "icon_color": "#FFF",\n    "text_color": "#FFF"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
         } )
         // Call-to-action
         cy.get( 'tr' ).eq( 22 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Call-to-action' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Listen to this article' )
         } )
         // Text highlighting
         cy.get( 'tr' ).eq( 23 ).within( () => {
@@ -144,7 +144,7 @@ context( 'Site Health', () => {
         // Playback from segments
         cy.get( 'tr' ).eq( 24 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Playback from segments' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'No' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Yes' )
         } )
         // Widget style
         cy.get( 'tr' ).eq( 25 ).within( () => {
@@ -159,7 +159,7 @@ context( 'Site Health', () => {
         // Skip button style
         cy.get( 'tr' ).eq( 27 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Skip button style' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'auto' )
         } )
         // Multiple languages
         cy.get( 'tr' ).eq( 28 ).within( () => {
