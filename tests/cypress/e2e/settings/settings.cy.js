@@ -23,8 +23,7 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Advanced' )
   } )
 
-  // @todo
-  it.skip( 'has synced the settings on install', () => {
+  it( 'has synced the settings on install', () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
     // Valid API Key & Project ID
@@ -46,19 +45,19 @@ context( 'Settings',  () => {
 
     cy.get( '#beyondwords_api_key' )
     cy.get( '#beyondwords_body_voice_speaking_rate' )
-    // cy.get( '#beyondwords_include_title' )
-    // cy.get( '#beyondwords_player_call_to_action' )
-    // cy.get( '#beyondwords_player_clickable_sections' )
-    // cy.get( '#beyondwords_player_dark_theme' )
-    // cy.get( '#beyondwords_player_highlight_sections' )
-    // cy.get( '#beyondwords_player_light_theme' )
-    // cy.get( '#beyondwords_player_skip_button_style' )
-    // cy.get( '#beyondwords_player_style' )
+    cy.get( '#beyondwords_include_title' )
+    cy.get( '#beyondwords_player_call_to_action' )
+    cy.get( '#beyondwords_player_clickable_sections' )
+    cy.get( '#beyondwords_player_dark_theme' )
+    cy.get( '#beyondwords_player_highlight_sections' )
+    cy.get( '#beyondwords_player_light_theme' )
+    cy.get( '#beyondwords_player_skip_button_style' )
+    cy.get( '#beyondwords_player_style' )
     cy.get( '#beyondwords_player_theme' )
-    // cy.get( '#beyondwords_player_video_theme' )
-    // cy.get( '#beyondwords_player_widget_position' )
+    cy.get( '#beyondwords_player_video_theme' )
+    cy.get( '#beyondwords_player_widget_position' )
     cy.get( '#beyondwords_player_widget_style' )
-    // cy.get( '#beyondwords_prepend_excerpt' )
+    cy.get( '#beyondwords_prepend_excerpt' )
     cy.get( '#beyondwords_preselect' )
     cy.get( '#beyondwords_project_body_voice_id' )
     cy.get( '#beyondwords_project_id' )
@@ -88,6 +87,8 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_player_video_theme' ).should( 'not.exist' )
     cy.get( '#beyondwords_player_widget_position' ).should( 'not.exist' )
     cy.get( '#beyondwords_player_widget_style' ).should( 'not.exist' )
+    cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' )
+    cy.get( '#beyondwords_preselect' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_body_voice_id' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_id' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_language_code' ).should( 'not.exist' )
@@ -96,8 +97,5 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_title_voice_speaking_rate' ).should( 'not.exist' )
     cy.get( '#beyondwords_valid_api_connection' ).should( 'not.exist' )
     cy.get( '#beyondwords_version' ).should( 'not.exist' )
-
-    cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' )
-    cy.get( '#beyondwords_preselect' ).should( 'not.exist' )
   } )
 } )

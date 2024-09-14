@@ -68,7 +68,7 @@ class Settings
             (new Advanced($this->apiClient))->init();
         }
 
-        add_action('admin_init', array($this, 'validateApiConnection'));
+        add_action('shutdown', array($this, 'validateApiConnection'));
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
@@ -184,6 +184,8 @@ class Settings
     }
 
     /**
+     * Get tabs.
+     *
      * @since 4.7.0
      */
     public function getTabs()
@@ -205,6 +207,8 @@ class Settings
     }
 
     /**
+     * Get active tab.
+     *
      * @since 4.7.0
      */
     public function getActiveTab($tabs)
@@ -445,6 +449,12 @@ class Settings
      **/
     public function validateApiConnection()
     {
+        $validate = apply_filters('beyondwords_validate_api_connection', false);
+
+        if (! $validate) {
+            return;
+        }
+
         // Assume invalid connection
         delete_option('beyondwords_valid_api_connection');
 
@@ -466,9 +476,14 @@ class Settings
 
         if ($validConnection) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            add_filter('beyondwords_sync_to_wordpress', '__return_true');
             return true;
         }
 
+        // Cancel any syncs
+        remove_filter('beyondwords_sync_to_wordpress', '__return_true');
+
+        // Set errors
         $errors = get_transient('beyondwords_settings_errors', []);
 
         $errors['Settings/ValidApiConnection'] = __(

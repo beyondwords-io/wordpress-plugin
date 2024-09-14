@@ -81,6 +81,7 @@ class TitleVoice extends Voice
         ?>
         <div class="beyondwords-setting__title-voice">
             <select
+                id="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 class="beyondwords_project_voice"
                 style="width: 300px;"

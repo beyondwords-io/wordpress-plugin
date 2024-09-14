@@ -27,9 +27,6 @@ class ProjectId
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
-        add_action('update_option_beyondwords_project_id', function () {
-            add_filter('beyondwords_sync_to_wordpress', '__return_true');
-        });
     }
 
     /**
@@ -90,6 +87,8 @@ class ProjectId
      **/
     public function sanitize($value)
     {
+        add_filter('beyondwords_validate_api_connection', '__return_true');
+
         $errors = get_transient('beyondwords_settings_errors', []);
 
         if (empty($value)) {
