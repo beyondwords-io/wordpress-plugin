@@ -57,9 +57,9 @@ class TextHighlighting
             'beyondwords_player_settings',
             self::OPTION_NAME,
             [
-                'type'              => 'boolean',
-                'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => false,
+                'type'              => 'string',
+                'sanitize_callback' => array($this, 'sanitize'),
+                'default'           => '',
             ]
         );
 
@@ -81,19 +81,19 @@ class TextHighlighting
      **/
     public function render()
     {
-        $enabled    = get_option(self::OPTION_NAME);
+        $value      = get_option(self::OPTION_NAME);
         $lightTheme = get_option('beyondwords_player_light_theme');
         $darkTheme  = get_option('beyondwords_player_dark_theme');
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--text-highlighting">
             <label>
-                <input type="hidden" name="<?php echo esc_attr(self::OPTION_NAME); ?>" value="" />
+                <input type="hidden" name="<?php echo esc_attr(self::OPTION_NAME); ?>"  value="" />
                 <input
                     type="checkbox"
                     id="<?php echo esc_attr(self::OPTION_NAME); ?>"
                     name="<?php echo esc_attr(self::OPTION_NAME); ?>"
-                    value="body"
-                    <?php checked($enabled, 'body'); ?>
+                    value="1"
+                    <?php checked($value, 'body'); ?>
                 />
                 <?php esc_html_e('Highlight the current paragraph during audio playback', 'speechkit'); ?>
             </label>
@@ -119,5 +119,22 @@ class TextHighlighting
             ?>
         </div>
         <?php
+    }
+
+    /**
+     * Sanitise the setting value.
+     *
+     * @since 5.0.0
+     * @param string $value The submitted value.
+     *
+     * @return void
+     **/
+    public function sanitize($value)
+    {
+        if ($value) {
+            return 'body';
+        }
+
+        return '';
     }
 }

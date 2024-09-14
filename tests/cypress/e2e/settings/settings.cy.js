@@ -23,15 +23,15 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Advanced' )
   } )
 
-  it( 'has synced the settings on install', () => {
+  it( 'has synced the voice settings on install', () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
-    // Valid API Key & Project ID
+    // Enter only a valid API Key & Project ID
     cy.get( 'input#beyondwords_api_key' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input#beyondwords_project_id' ).clear().type( Cypress.env( 'projectId' ) )
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
-    // Voices tab
+    // The language and voices from the mock API response should be synced
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
     cy.get( 'select#beyondwords_project_language_id' ).find( ':selected' ).contains( 'Language 2' )
     cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Voice 2' )
