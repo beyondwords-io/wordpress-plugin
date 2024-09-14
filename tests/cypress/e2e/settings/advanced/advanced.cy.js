@@ -33,7 +33,7 @@ context( 'Settings > Advanced',  () => {
     // cy.get( '#beyondwords_player_light_theme' ).clear()
     // cy.get( '#beyondwords_player_video_theme' ).clear()
 
-    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
+    cy.get( 'form#all-options' ).submit()
     cy.get( '.notice-success' )
 
     // @todo these should now be empty
