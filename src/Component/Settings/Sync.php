@@ -87,9 +87,44 @@ class Sync
      */
     public function init()
     {
-        // @todo put this behind another check so we only Sync on settings pages.
         add_action('shutdown', array($this, 'syncToDashboard'), 100);
         add_action('shutdown', array($this, 'syncToWordPress'), 200);
+    }
+
+    /**
+     * Should we check for syncs on the current page?
+     *
+     * @since 5.0.0
+     */
+    public function shouldCheckForSyncs()
+    {
+        global $pagenow;
+
+        if (! is_admin()) {
+            return false;
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $page = null;
+        if (isset($_GET['page'])) {
+            $page = sanitize_key($_GET['page']);
+        }
+        
+        $tab = null;
+        if (isset($_GET['tab'])) {
+            $tab = sanitize_key($_GET['tab']);
+        }
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+        
+        if (
+            $pagenow === 'options-general.php'
+            && $page === 'beyondwords'
+            && in_array($tab, [ '', 'credentials', 'advanced' ], true)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -101,6 +136,10 @@ class Sync
      **/
     public function syncToWordPress()
     {
+        if (! is_admin()) {
+            return;
+        }
+
         $beyondwordsApiSync = apply_filters('beyondwords_sync_to_wordpress', false);
 
         if (! $beyondwordsApiSync) {
