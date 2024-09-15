@@ -14,8 +14,10 @@
 			});
 
 			select.on('change', async function(languageId){
-				const $voicesSelects = $( '.beyondwords_project_voice' );
-				const endpoint       = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
+				const $voicesSelects     = $( '.beyondwords_project_voice' );
+				const $titleVoicesSelect = $( '#beyondwords_project_title_voice_id' );
+				const $bodyVoicesSelect  = $( '#beyondwords_project_body_voice_id' );
+				const endpoint           = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
 
 				$('.beyondwords-settings__loader-default-language').show();
 				$('select.beyondwords_project_voice').hide();
@@ -35,10 +37,29 @@
 						$(this)
 							.empty()
 							.append( voices.map( ( voice ) => {
-								return $( '<option></option>' ).val( voice.id ).text( voice.name );
+								return $( '<option></option>' )
+									.val( voice.id )
+									.text( voice.name );
 							} ) )
 							.attr( 'disabled', false );
 					})
+
+					const defaultVoices = $(`#beyondwords_project_language_id option[value="${languageId}"]`).data( 'voices' )
+
+					if (defaultVoices) {
+						if (defaultVoices.title && defaultVoices.title.id) {
+							$($titleVoicesSelect).find(`option[value="${defaultVoices.title.id}"]`).prop('selected', true);
+						}
+						if (defaultVoices.body && defaultVoices.body.id) {
+							$($bodyVoicesSelect).find(`option[value="${defaultVoices.body.id}"]`).prop('selected', true);
+						}
+						if (defaultVoices.title && defaultVoices.title.speaking_rate) {
+							$('#beyondwords_title_voice_speaking_rate').val(defaultVoices.title.speaking_rate);
+						}
+						if (defaultVoices.body && defaultVoices.body.speaking_rate) {
+							$('#beyondwords_body_voice_speaking_rate').val(defaultVoices.body.speaking_rate);
+						}
+					}
 				} ).fail(function ( xhr ) {
 					console.log( '🔊 Unable to load voices', xhr );
 					$('#beyondwords_project_language_id').setValue(originalLanguageId);

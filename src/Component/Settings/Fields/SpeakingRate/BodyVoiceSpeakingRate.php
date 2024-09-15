@@ -62,7 +62,7 @@ class BodyVoiceSpeakingRate
 
         add_settings_field(
             'beyondwords-body-speaking-rate',
-            __('Default body speaking rate', 'speechkit'),
+            __('Body voice speaking rate', 'speechkit'),
             array($this, 'render'),
             'beyondwords_voices',
             'voices'
@@ -83,6 +83,7 @@ class BodyVoiceSpeakingRate
         <div class="beyondwords-setting__body-speaking-rate">
             <input
                 type="range"
+                id="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 class="beyondwords_speaking_rate"
                 min="50"

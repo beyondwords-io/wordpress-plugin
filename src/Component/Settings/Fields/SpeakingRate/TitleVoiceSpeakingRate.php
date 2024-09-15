@@ -83,6 +83,7 @@ class TitleVoiceSpeakingRate
         <div class="beyondwords-setting__title-speaking-rate">
             <input
                 type="range"
+                id="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 name="<?php echo esc_attr(self::OPTION_NAME) ?>"
                 class="beyondwords_speaking_rate"
                 min="50"

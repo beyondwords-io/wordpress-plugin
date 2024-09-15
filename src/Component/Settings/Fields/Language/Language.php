@@ -114,8 +114,9 @@ class Language
                 <?php
                 foreach ($options as $option) {
                     printf(
-                        '<option value="%s" %s>%s</option>',
+                        '<option value="%s" data-voices=\'%s\' %s>%s</option>',
                         esc_attr($option['value']),
+                        esc_attr($option['voices']),
                         selected($option['value'], $current),
                         esc_html($option['label'])
                     );
@@ -151,8 +152,9 @@ class Language
 
         $options = array_map(function ($language) {
             return [
-                'value' => $language['id'],
-                'label' => $language['name'],
+                'value'  => $language['id'],
+                'label'  => $language['name'],
+                'voices' => wp_json_encode($language['default_voices']),
             ];
         }, $languages);
 
