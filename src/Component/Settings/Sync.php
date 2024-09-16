@@ -186,8 +186,11 @@ class Sync
     /**
      * Sync from WordPress to the dashboard/BeyondWords REST API.
      *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * 
      * @since 5.0.0
-     *
+     * 
      * @return void
      **/
     public function syncToDashboard()
@@ -214,11 +217,61 @@ class Sync
             }
         }
 
+        // Sync player settings back to API
         if (isset($settings['player_settings'])) {
             $this->apiClient->updatePlayerSettings($settings['player_settings']);
         }
 
+        // Sync title voice back to API
+        if (in_array('beyondwords_title_voice_speaking_rate', $beyondwordsApiSync)) {
+            $value = $this->propertyAccessor->getValue(
+                $settings, 
+                self::MAP_SETTINGS['beyondwords_title_voice_speaking_rate']
+            );
+
+            if ($value !== null) {
+                $titleVoiceId = get_option('beyondwords_project_title_voice_id');
+                $this->apiClient->updateVoice($titleVoiceId, [
+                    'speaking_rate' => (int)$value,
+                ]);
+            }
+        }
+
+        // Sync body voice back to API
+        if (in_array('beyondwords_body_voice_speaking_rate', $beyondwordsApiSync)) {
+            $value = $this->propertyAccessor->getValue(
+                $settings, 
+                self::MAP_SETTINGS['beyondwords_body_voice_speaking_rate']
+            );
+
+            if ($value !== null) {
+                $bodyVoiceId = get_option('beyondwords_project_body_voice_id');
+                $this->apiClient->updateVoice($bodyVoiceId, [
+                    'speaking_rate' => (int)$value,
+                ]);
+            }
+        }
+
+        // Sync project settings back to API
         if (isset($settings['project'])) {
+            // Don't send speaking rates back to /project endpoint
+            $titleSpeakingRate = $this->propertyAccessor->getValue(
+                $settings, 
+                self::MAP_SETTINGS['beyondwords_title_voice_speaking_rate']
+            );
+            if ($titleSpeakingRate) {
+                unset($settings['project']['title']['voice']['speaking_rate']);
+            }
+
+            // Don't send speaking rates back to /project endpoint
+            $bodySpeakingRate = $this->propertyAccessor->getValue(
+                $settings, 
+                self::MAP_SETTINGS['beyondwords_body_voice_speaking_rate']
+            );
+            if ($bodySpeakingRate) {
+                unset($settings['project']['body']['voice']['speaking_rate']);
+            }
+
             $this->apiClient->updateProject($settings['project']);
         }
     }
@@ -240,10 +293,8 @@ class Sync
 
         // Don't send some WordPress options back to the REST API in POST requests
         $skip = [
-            'beyondwords_body_voice_speaking_rate',
-            'beyondwords_title_voice_speaking_rate',
-            'beyondwords_video_enabled',
-            'beyondwords_project_language_id',
+            'beyondwords_video_enabled',       // We only read this
+            'beyondwords_project_language_id', // We send 'code' instead
         ];
 
         if (! in_array($option_name, $skip)) {
