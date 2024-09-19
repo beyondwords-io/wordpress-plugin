@@ -33,7 +33,7 @@ class PlaybackFromSegments
      *
      * @var string
      */
-    public const OPTION_NAME = 'beyondwords_include_title';
+    public const OPTION_NAME = 'beyondwords_player_clickable_sections';
 
     /**
      * Init.
