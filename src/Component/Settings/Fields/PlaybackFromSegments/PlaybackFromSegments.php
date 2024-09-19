@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments;
 
+use Beyondwords\Wordpress\Component\Settings\Settings;
+
 /**
  * PlaybackFromSegments
  *
@@ -20,9 +22,18 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackFromSegments;
 class PlaybackFromSegments
 {
     /**
-     * Option name.
+     * Default value.
+     *
+     * @var string
      */
-    public const OPTION_NAME = 'beyondwords_player_clickable_sections';
+    public const DEFAULT_VALUE = false;
+
+    /**
+     * Option name.
+     *
+     * @var string
+     */
+    public const OPTION_NAME = 'beyondwords_include_title';
 
     /**
      * Init.
@@ -32,12 +43,11 @@ class PlaybackFromSegments
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
-        add_action('update_option_' . self::OPTION_NAME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME);
+            return $value;
         });
+        add_filter('option_' . self::OPTION_NAME, 'rest_sanitize_boolean');
     }
 
     /**
@@ -55,7 +65,7 @@ class PlaybackFromSegments
             [
                 'type'              => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => false,
+                'default'           => self::DEFAULT_VALUE,
             ]
         );
 

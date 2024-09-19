@@ -71,6 +71,7 @@ class SyncSettings
                 name="beyondwords_sync"
                 class="button button-secondary"
                 value="dashboard_to_wordpress"
+                onclick="return confirm('Are you sure?');"
             >
                 <?php echo esc_attr('Dashboard to WordPress', 'speechkit'); ?>
             </button>

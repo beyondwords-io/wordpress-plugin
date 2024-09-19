@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerColors;
 
+use Beyondwords\Wordpress\Component\Settings\Settings;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
@@ -50,29 +51,21 @@ class PlayerColors
     {
         add_action('admin_init', array($this, 'addPlayerThemeSetting'));
         add_action('admin_init', array($this, 'addPlayerColorsSetting'));
-        add_action('update_option_' . self::OPTION_NAME_THEME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME_THEME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME_THEME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME_THEME);
+            return $value;
         });
-        add_action('update_option_' . self::OPTION_NAME_LIGHT_THEME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME_LIGHT_THEME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME_LIGHT_THEME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME_LIGHT_THEME);
+            return $value;
         });
-        add_action('update_option_' . self::OPTION_NAME_DARK_THEME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME_DARK_THEME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME_DARK_THEME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME_DARK_THEME);
+            return $value;
         });
-        add_action('update_option_' . self::OPTION_NAME_VIDEO_THEME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME_VIDEO_THEME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME_VIDEO_THEME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME_VIDEO_THEME);
+            return $value;
         });
     }
 

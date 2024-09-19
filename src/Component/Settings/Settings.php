@@ -495,4 +495,26 @@ class Settings
 
         return false;
     }
+
+    /**
+     * Sync an option to the WordPress dashboard.
+     *
+     * Note that this DOES NOT make the API call, it instead flags the field
+     * as one to sync so that we can group fields and send them in a single
+     * request to the BeyondWords REST API.
+     *
+     * @since 5.0.0
+     *
+     * @return void
+     **/
+    public static function syncOptionToDashboard($optionName)
+    {
+        add_filter(
+            'beyondwords_sync_to_dashboard',
+            function ($fields) use ($optionName) {
+                $fields[] = $optionName;
+                return $fields;
+            }
+        );
+    }
 }

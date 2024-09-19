@@ -21,6 +21,20 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt;
 class IncludeExcerpt
 {
     /**
+     * Default value.
+     *
+     * @var string
+     */
+    public const DEFAULT_VALUE = false;
+
+    /**
+     * Option name.
+     *
+     * @var string
+     */
+    public const OPTION_NAME = 'beyondwords_prepend_excerpt';
+
+    /**
      * Init.
      *
      * @since 4.0.0
@@ -28,6 +42,7 @@ class IncludeExcerpt
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_filter('option_' . self::OPTION_NAME, 'rest_sanitize_boolean');
     }
 
     /**
@@ -42,11 +57,11 @@ class IncludeExcerpt
     {
         register_setting(
             'beyondwords_content_settings',
-            'beyondwords_prepend_excerpt',
+            self::OPTION_NAME,
             [
                 'type'              => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => false,
+                'default'           => self::DEFAULT_VALUE,
             ]
         );
 
@@ -70,17 +85,17 @@ class IncludeExcerpt
      **/
     public function render()
     {
-        $prependExcerpt = get_option('beyondwords_prepend_excerpt');
+        $value = get_option(self::OPTION_NAME);
         ?>
         <div>
             <label>
-                <input type="hidden" name="beyondwords_prepend_excerpt" value="" />
+                <input type="hidden" name="<?php echo esc_attr(self::OPTION_NAME); ?>" value="" />
                 <input
                     type="checkbox"
-                    id="beyondwords_prepend_excerpt"
-                    name="beyondwords_prepend_excerpt"
+                    id="<?php echo esc_attr(self::OPTION_NAME); ?>"
+                    name="<?php echo esc_attr(self::OPTION_NAME); ?>"
                     value="1"
-                    <?php checked($prependExcerpt); ?>
+                    <?php checked($value); ?>
                 />
                 <?php esc_html_e('Include excerpts in audio', 'speechkit'); ?>
             </label>

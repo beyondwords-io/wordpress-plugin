@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\CallToAction;
 
+use Beyondwords\Wordpress\Component\Settings\Settings;
+
 /**
  * CallToAction
  *
@@ -34,11 +36,9 @@ class CallToAction
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
-        add_action('update_option_' . self::OPTION_NAME, function () {
-            add_filter('beyondwords_sync_to_dashboard', function ($fields) {
-                $fields[] = self::OPTION_NAME;
-                return $fields;
-            });
+        add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
+            Settings::syncOptionToDashboard(self::OPTION_NAME);
+            return $value;
         });
     }
 

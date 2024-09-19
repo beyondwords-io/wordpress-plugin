@@ -140,9 +140,9 @@ class Sync
             return;
         }
 
-        $beyondwordsApiSync = apply_filters('beyondwords_sync_to_wordpress', false);
+        $options = apply_filters('beyondwords_sync_to_wordpress', false);
 
-        if (! $beyondwordsApiSync) {
+        if (! $options) {
             return;
         }
 
@@ -199,15 +199,12 @@ class Sync
             return;
         }
 
-        $beyondwordsApiSync = apply_filters('beyondwords_sync_to_dashboard', []);
-
-        if (empty($beyondwordsApiSync)) {
-            return;
-        }
+        $options = apply_filters('beyondwords_sync_to_dashboard', []);
+        $options = array_unique($options);
 
         $settings = [];
 
-        foreach ($beyondwordsApiSync as $option) {
+        foreach ($options as $option) {
             if ($this->shouldSyncOptionToDashboard($option)) {
                 $this->propertyAccessor->setValue(
                     $settings, 
@@ -223,7 +220,7 @@ class Sync
         }
 
         // Sync title voice back to API
-        if (in_array('beyondwords_title_voice_speaking_rate', $beyondwordsApiSync)) {
+        if (in_array('beyondwords_title_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
                 $settings, 
                 self::MAP_SETTINGS['beyondwords_title_voice_speaking_rate']
@@ -238,7 +235,7 @@ class Sync
         }
 
         // Sync body voice back to API
-        if (in_array('beyondwords_body_voice_speaking_rate', $beyondwordsApiSync)) {
+        if (in_array('beyondwords_body_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
                 $settings, 
                 self::MAP_SETTINGS['beyondwords_body_voice_speaking_rate']
@@ -291,17 +288,10 @@ class Sync
             return false;
         }
 
-        // Don't send some WordPress options back to the REST API in POST requests
-        $skip = [
-            'beyondwords_video_enabled',       // We only read this
-            'beyondwords_project_language_id', // We send 'code' instead
-        ];
+        // Check the option was updated without error
+        $hasErrors = get_settings_errors($option_name);
 
-        if (! in_array($option_name, $skip)) {
-            return true;
-        }
-
-        return false;
+        return is_array($hasErrors) && count($hasErrors) === 0;
     }
 
     /**
