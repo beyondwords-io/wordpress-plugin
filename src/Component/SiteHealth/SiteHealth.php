@@ -146,10 +146,10 @@ class SiteHealth
      */
     public function addContentSettings(&$info)
     {
-        $info['beyondwords']['fields']['beyondwords_include_title'] = [
+        $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
-            'value' => get_option('beyondwords_include_title') ? __('Yes') : __('No'),
-            'debug' => get_option('beyondwords_include_title') ? 'yes' : 'no',
+            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_project_title_enabled') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [

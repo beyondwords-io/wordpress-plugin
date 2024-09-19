@@ -43,8 +43,6 @@ class UninstallerTest extends WP_UnitTestCase
     {
         return [
             // v5.x
-            'beyondwords_body_voice_speaking_rate'  => ['beyondwords_body_voice_speaking_rate'],
-            'beyondwords_include_title'             => ['beyondwords_include_title'],
             'beyondwords_player_call_to_action'     => ['beyondwords_player_call_to_action'],
             'beyondwords_player_clickable_sections' => ['beyondwords_player_clickable_sections'],
             'beyondwords_player_dark_theme'         => ['beyondwords_player_dark_theme'],
@@ -58,7 +56,9 @@ class UninstallerTest extends WP_UnitTestCase
             'beyondwords_project_body_voice_id'     => ['beyondwords_project_body_voice_id'],
             'beyondwords_project_language_code'     => ['beyondwords_project_language_code'],
             'beyondwords_project_language_id'       => ['beyondwords_project_language_id'],
+            'beyondwords_project_title_enabled'     => ['beyondwords_project_title_enabled'],
             'beyondwords_project_title_voice_id'    => ['beyondwords_project_title_voice_id'],
+            'beyondwords_body_voice_speaking_rate'  => ['beyondwords_body_voice_speaking_rate'],
             'beyondwords_title_voice_speaking_rate' => ['beyondwords_title_voice_speaking_rate'],
             'beyondwords_video_enabled'             => ['beyondwords_video_enabled'],
             // v4.x

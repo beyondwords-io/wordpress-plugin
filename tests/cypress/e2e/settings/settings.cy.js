@@ -45,7 +45,7 @@ context( 'Settings',  () => {
 
     cy.get( '#beyondwords_api_key' )
     cy.get( '#beyondwords_body_voice_speaking_rate' )
-    cy.get( '#beyondwords_include_title' )
+    cy.get( '#beyondwords_project_title_enabled' )
     cy.get( '#beyondwords_player_call_to_action' )
     cy.get( '#beyondwords_player_clickable_sections' )
     cy.get( '#beyondwords_player_dark_theme' )
@@ -75,7 +75,7 @@ context( 'Settings',  () => {
 
     cy.get( '#beyondwords_api_key' ).should( 'not.exist' )
     cy.get( '#beyondwords_body_voice_speaking_rate' ).should( 'not.exist' )
-    cy.get( '#beyondwords_include_title' ).should( 'not.exist' )
+    cy.get( '#beyondwords_project_title_enabled' ).should( 'not.exist' )
     cy.get( '#beyondwords_player_call_to_action' ).should( 'not.exist' )
     cy.get( '#beyondwords_player_clickable_sections' ).should( 'not.exist' )
     cy.get( '#beyondwords_player_dark_theme' ).should( 'not.exist' )

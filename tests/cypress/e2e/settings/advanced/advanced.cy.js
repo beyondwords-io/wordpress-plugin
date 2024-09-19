@@ -14,7 +14,7 @@ context( 'Settings > Advanced',  () => {
 
     // Clear existing plugin data.
     cy.get( '#beyondwords_body_voice_speaking_rate' ).clear()
-    cy.get( '#beyondwords_include_title' ).clear()
+    cy.get( '#beyondwords_project_title_enabled' ).clear()
     cy.get( '#beyondwords_player_call_to_action' ).clear()
     cy.get( '#beyondwords_player_clickable_sections' ).clear()
     cy.get( '#beyondwords_player_skip_button_style' ).clear()
@@ -44,7 +44,7 @@ context( 'Settings > Advanced',  () => {
 
     // These should be repopulated using the Mock API response data.
     cy.get( '#beyondwords_body_voice_speaking_rate' ).should( 'have.value', '110' )
-    cy.get( '#beyondwords_include_title' ).should( 'have.value', '1' )
+    cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_player_call_to_action' ).should( 'have.value', 'Listen to this article' )
     cy.get( '#beyondwords_player_clickable_sections' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_player_skip_button_style' ).should( 'have.value', 'auto' )

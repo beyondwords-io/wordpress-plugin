@@ -33,7 +33,7 @@ class IncludeTitle
      *
      * @var string
      */
-    public const OPTION_NAME = 'beyondwords_include_title';
+    public const OPTION_NAME = 'beyondwords_project_title_enabled';
 
     /**
      * Init.

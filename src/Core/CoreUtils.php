@@ -162,7 +162,7 @@ class CoreUtils
         $current = [
             // v4.x
             'beyondwords_body_voice_speaking_rate',
-            'beyondwords_include_title',
+            'beyondwords_project_title_enabled',
             'beyondwords_player_call_to_action',
             'beyondwords_player_clickable_sections',
             'beyondwords_player_dark_theme',
