@@ -26,7 +26,7 @@ class BodyVoiceSpeakingRate
      *
      * @since 5.0.0
      */
-    public const OPTION_NAME = 'beyondwords_body_voice_speaking_rate';
+    public const OPTION_NAME = 'beyondwords_project_body_voice_speaking_rate';
 
     /**
      * Constructor

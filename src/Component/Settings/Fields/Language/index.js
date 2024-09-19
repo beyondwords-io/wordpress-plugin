@@ -54,10 +54,10 @@
 							$($bodyVoicesSelect).find(`option[value="${defaultVoices.body.id}"]`).prop('selected', true);
 						}
 						if (defaultVoices.title && defaultVoices.title.speaking_rate) {
-							$('#beyondwords_title_voice_speaking_rate').val(defaultVoices.title.speaking_rate);
+							$('#beyondwords_project_title_voice_speaking_rate').val(defaultVoices.title.speaking_rate);
 						}
 						if (defaultVoices.body && defaultVoices.body.speaking_rate) {
-							$('#beyondwords_body_voice_speaking_rate').val(defaultVoices.body.speaking_rate);
+							$('#beyondwords_project_body_voice_speaking_rate').val(defaultVoices.body.speaking_rate);
 						}
 					}
 				} ).fail(function ( xhr ) {

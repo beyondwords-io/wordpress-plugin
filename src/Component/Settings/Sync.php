@@ -30,25 +30,24 @@ class Sync
         // Player
         'beyondwords_player_style'              => '[player_settings][player_style]',
         'beyondwords_player_theme'              => '[player_settings][theme]',
-        'beyondwords_player_dark_theme'         => '[player_settings][dark_theme]',
-        'beyondwords_player_light_theme'        => '[player_settings][light_theme]',
-        'beyondwords_player_video_theme'        => '[player_settings][video_theme]',
+        'beyondwords_player_theme_dark'         => '[player_settings][dark_theme]',
+        'beyondwords_player_theme_light'        => '[player_settings][light_theme]',
+        'beyondwords_player_theme_video'        => '[player_settings][video_theme]',
         'beyondwords_player_call_to_action'     => '[player_settings][call_to_action]',
         'beyondwords_player_widget_style'       => '[player_settings][widget_style]',
         'beyondwords_player_widget_position'    => '[player_settings][widget_position]',
         'beyondwords_player_skip_button_style'  => '[player_settings][skip_button_style]',
         'beyondwords_player_clickable_sections' => '[player_settings][segment_playback_enabled]',
         // Project
-        'beyondwords_project_title_enabled'     => '[project][title][enabled]',
-        'beyondwords_project_language_code'     => '[project][language]',
-        'beyondwords_project_language_id'       => '[project][language_id]',
-        'beyondwords_project_body_voice_id'     => '[project][body][voice][id]',
-        'beyondwords_project_title_voice_id'    => '[project][title][voice][id]',
-        // Project body & title speaking rates are GET-only
-        'beyondwords_title_voice_speaking_rate' => '[project][title][voice][speaking_rate]',
-        'beyondwords_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
+        'beyondwords_project_language_code'             => '[project][language]',
+        'beyondwords_project_language_id'               => '[project][language_id]',
+        'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
+        'beyondwords_project_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
+        'beyondwords_project_title_enabled'             => '[project][title][enabled]',
+        'beyondwords_project_title_voice_id'            => '[project][title][voice][id]',
+        'beyondwords_project_title_voice_speaking_rate' => '[project][title][voice][speaking_rate]',
         // Video
-        'beyondwords_video_enabled'             => '[video_settings][enabled]',
+        'beyondwords_video_enabled' => '[video_settings][enabled]',
     ];
 
     /**
@@ -220,10 +219,10 @@ class Sync
         }
 
         // Sync title voice back to API
-        if (in_array('beyondwords_title_voice_speaking_rate', $options)) {
+        if (in_array('beyondwords_project_title_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
                 $settings, 
-                self::MAP_SETTINGS['beyondwords_title_voice_speaking_rate']
+                self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
 
             if ($value !== null) {
@@ -235,10 +234,10 @@ class Sync
         }
 
         // Sync body voice back to API
-        if (in_array('beyondwords_body_voice_speaking_rate', $options)) {
+        if (in_array('beyondwords_project_body_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
                 $settings, 
-                self::MAP_SETTINGS['beyondwords_body_voice_speaking_rate']
+                self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
 
             if ($value !== null) {
@@ -254,7 +253,7 @@ class Sync
             // Don't send speaking rates back to /project endpoint
             $titleSpeakingRate = $this->propertyAccessor->getValue(
                 $settings, 
-                self::MAP_SETTINGS['beyondwords_title_voice_speaking_rate']
+                self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
             if ($titleSpeakingRate) {
                 unset($settings['project']['title']['voice']['speaking_rate']);
@@ -263,7 +262,7 @@ class Sync
             // Don't send speaking rates back to /project endpoint
             $bodySpeakingRate = $this->propertyAccessor->getValue(
                 $settings, 
-                self::MAP_SETTINGS['beyondwords_body_voice_speaking_rate']
+                self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
             if ($bodySpeakingRate) {
                 unset($settings['project']['body']['voice']['speaking_rate']);

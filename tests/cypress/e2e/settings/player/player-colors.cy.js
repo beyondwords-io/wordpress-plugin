@@ -34,20 +34,20 @@ context( 'Settings > Player > Player colors',  () => {
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
 
-    cy.get( 'input[name="beyondwords_player_light_theme[background_color]"]' ).clear().type( light_theme.background_color )
-    cy.get( 'input[name="beyondwords_player_light_theme[icon_color]"]' ).clear().type( light_theme.icon_color )
-    cy.get( 'input[name="beyondwords_player_light_theme[text_color]"]' ).clear().type( light_theme.text_color )
+    cy.get( 'input[name="beyondwords_player_theme_light[background_color]"]' ).clear().type( light_theme.background_color )
+    cy.get( 'input[name="beyondwords_player_theme_light[icon_color]"]' ).clear().type( light_theme.icon_color )
+    cy.get( 'input[name="beyondwords_player_theme_light[text_color]"]' ).clear().type( light_theme.text_color )
 
-    cy.get( 'input[name="beyondwords_player_dark_theme[background_color]"]' ).clear().type( dark_theme.background_color )
-    cy.get( 'input[name="beyondwords_player_dark_theme[icon_color]"]' ).clear().type( dark_theme.icon_color )
-    cy.get( 'input[name="beyondwords_player_dark_theme[text_color]"]' ).clear().type( dark_theme.text_color )
+    cy.get( 'input[name="beyondwords_player_theme_dark[background_color]"]' ).clear().type( dark_theme.background_color )
+    cy.get( 'input[name="beyondwords_player_theme_dark[icon_color]"]' ).clear().type( dark_theme.icon_color )
+    cy.get( 'input[name="beyondwords_player_theme_dark[text_color]"]' ).clear().type( dark_theme.text_color )
 
-    cy.get( 'input[name="beyondwords_player_video_theme[background_color]"]' ).clear().type( video_theme.background_color )
-    cy.get( 'input[name="beyondwords_player_video_theme[icon_color]"]' ).clear().type( video_theme.icon_color )
-    cy.get( 'input[name="beyondwords_player_video_theme[text_color]"]' ).clear().type( video_theme.text_color )
+    cy.get( 'input[name="beyondwords_player_theme_video[background_color]"]' ).clear().type( video_theme.background_color )
+    cy.get( 'input[name="beyondwords_player_theme_video[icon_color]"]' ).clear().type( video_theme.icon_color )
+    cy.get( 'input[name="beyondwords_player_theme_video[text_color]"]' ).clear().type( video_theme.text_color )
 
-    cy.get( 'input[name="beyondwords_player_light_theme[highlight_color]"]' ).clear().type( light_theme.highlight_color )
-    cy.get( 'input[name="beyondwords_player_dark_theme[highlight_color]"]' ).clear().type( dark_theme.highlight_color )
+    cy.get( 'input[name="beyondwords_player_theme_light[highlight_color]"]' ).clear().type( light_theme.highlight_color )
+    cy.get( 'input[name="beyondwords_player_theme_dark[highlight_color]"]' ).clear().type( dark_theme.highlight_color )
 
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 

@@ -30,17 +30,17 @@ class PlayerColors
     /**
      * Option name.
      */
-    public const OPTION_NAME_LIGHT_THEME = 'beyondwords_player_light_theme';
+    public const OPTION_NAME_LIGHT_THEME = 'beyondwords_player_theme_light';
 
     /**
      * Option name.
      */
-    public const OPTION_NAME_DARK_THEME = 'beyondwords_player_dark_theme';
+    public const OPTION_NAME_DARK_THEME = 'beyondwords_player_theme_dark';
 
     /**
      * Option name.
      */
-    public const OPTION_NAME_VIDEO_THEME = 'beyondwords_player_video_theme';
+    public const OPTION_NAME_VIDEO_THEME = 'beyondwords_player_theme_video';
 
     /**
      * Init.

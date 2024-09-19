@@ -26,7 +26,7 @@ class TitleVoiceSpeakingRate
      *
      * @since 5.0.0
      */
-    public const OPTION_NAME = 'beyondwords_title_voice_speaking_rate';
+    public const OPTION_NAME = 'beyondwords_project_title_voice_speaking_rate';
 
     /**
      * Constructor

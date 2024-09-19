@@ -13,8 +13,6 @@ context( 'Settings > Advanced',  () => {
     cy.visit( '/wp-admin/options.php' )
 
     // Clear existing plugin data.
-    cy.get( '#beyondwords_body_voice_speaking_rate' ).clear()
-    cy.get( '#beyondwords_project_title_enabled' ).clear()
     cy.get( '#beyondwords_player_call_to_action' ).clear()
     cy.get( '#beyondwords_player_clickable_sections' ).clear()
     cy.get( '#beyondwords_player_skip_button_style' ).clear()
@@ -23,15 +21,17 @@ context( 'Settings > Advanced',  () => {
     cy.get( '#beyondwords_player_widget_position' ).clear()
     cy.get( '#beyondwords_player_widget_style' ).clear()
     cy.get( '#beyondwords_project_body_voice_id' ).clear()
+    cy.get( '#beyondwords_project_body_voice_speaking_rate' ).clear()
     cy.get( '#beyondwords_project_language_code' ).clear()
     cy.get( '#beyondwords_project_language_id' ).clear()
+    cy.get( '#beyondwords_project_title_enabled' ).clear()
     cy.get( '#beyondwords_project_title_voice_id' ).clear()
-    cy.get( '#beyondwords_title_voice_speaking_rate' ).clear()
+    cy.get( '#beyondwords_project_title_voice_speaking_rate' ).clear()
 
     // @todo themes cannot be cleared using .clear() because they are serialized data
-    // cy.get( '#beyondwords_player_dark_theme' ).clear()
-    // cy.get( '#beyondwords_player_light_theme' ).clear()
-    // cy.get( '#beyondwords_player_video_theme' ).clear()
+    // cy.get( '#beyondwords_player_theme_dark' ).clear()
+    // cy.get( '#beyondwords_player_theme_light' ).clear()
+    // cy.get( '#beyondwords_player_theme_video' ).clear()
 
     cy.get( 'form#all-options' ).submit()
 
@@ -43,8 +43,6 @@ context( 'Settings > Advanced',  () => {
     cy.visit( '/wp-admin/options.php' )
 
     // These should be repopulated using the Mock API response data.
-    cy.get( '#beyondwords_body_voice_speaking_rate' ).should( 'have.value', '110' )
-    cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_player_call_to_action' ).should( 'have.value', 'Listen to this article' )
     cy.get( '#beyondwords_player_clickable_sections' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_player_skip_button_style' ).should( 'have.value', 'auto' )
@@ -53,14 +51,16 @@ context( 'Settings > Advanced',  () => {
     cy.get( '#beyondwords_player_widget_position' ).should( 'have.value', 'auto' )
     cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', 'standard' )
     cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '3' )
+    cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should( 'have.value', '110' )
     cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'bb_BB' )
     cy.get( '#beyondwords_project_language_id' ).should( 'have.value', '2' )
+    cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '2' )
-    cy.get( '#beyondwords_title_voice_speaking_rate' ).should( 'have.value', '90' )
+    cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should( 'have.value', '90' )
 
     // @todo themes cannot be tested using this method because they are serialized data
-    // cy.get( '#beyondwords_player_dark_theme' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_light_theme' ).should( 'have.value', '' )
-    // cy.get( '#beyondwords_player_video_theme' ).should( 'have.value', '' )
+    // cy.get( '#beyondwords_player_theme_dark' ).should( 'have.value', '' )
+    // cy.get( '#beyondwords_player_theme_light' ).should( 'have.value', '' )
+    // cy.get( '#beyondwords_player_theme_video' ).should( 'have.value', '' )
   } )
 } )

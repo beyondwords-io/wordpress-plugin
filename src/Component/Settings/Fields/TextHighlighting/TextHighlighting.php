@@ -88,8 +88,8 @@ class TextHighlighting
     public function render()
     {
         $value      = get_option(self::OPTION_NAME);
-        $lightTheme = get_option('beyondwords_player_light_theme');
-        $darkTheme  = get_option('beyondwords_player_dark_theme');
+        $lightTheme = get_option('beyondwords_player_theme_light');
+        $darkTheme  = get_option('beyondwords_player_theme_dark');
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--text-highlighting">
             <label>
@@ -109,7 +109,7 @@ class TextHighlighting
             <?php
             SettingsUtils::colorInput(
                 __('Highlight color'),
-                'beyondwords_player_light_theme[highlight_color]',
+                'beyondwords_player_theme_light[highlight_color]',
                 $lightTheme['highlight_color'] ?? '',
             );
             ?>
@@ -119,7 +119,7 @@ class TextHighlighting
             <?php
             SettingsUtils::colorInput(
                 __('Highlight color'),
-                'beyondwords_player_dark_theme[highlight_color]',
+                'beyondwords_player_theme_dark[highlight_color]',
                 $darkTheme['highlight_color'] ?? '',
             );
             ?>
