@@ -20,6 +20,13 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings;
 class SyncSettings
 {
     /**
+     * Option name.
+     *
+     * @since 5.0.0
+     */
+    public const OPTION_NAME = 'beyondwords_sync';
+
+    /**
      * Init.
      *
      * @since 5.0.0
@@ -40,7 +47,7 @@ class SyncSettings
     {
         register_setting(
             'beyondwords_advanced_settings',
-            'beyondwords_sync',
+            self::OPTION_NAME,
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
@@ -68,7 +75,7 @@ class SyncSettings
         ?>
         <div class="beyondwords-setting__sync">
             <button
-                name="beyondwords_sync"
+                name="<?php echo esc_attr(self::OPTION_NAME); ?>"
                 class="button button-secondary"
                 value="dashboard_to_wordpress"
                 onclick="return confirm('Are you sure?');"

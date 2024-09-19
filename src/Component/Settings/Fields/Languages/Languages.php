@@ -19,6 +19,18 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
  */
 class Languages
 {
+    /**
+     * Option name.
+     *
+     * @since 5.0.0
+     */
+    public const OPTION_NAME = 'beyondwords_languages';
+
+    /**
+     * Default.
+     *
+     * @since 3.0.0
+     */
     public const DEFAULT_LANGUAGES = [];
 
     /**
@@ -59,9 +71,9 @@ class Languages
     {
         register_setting(
             'beyondwords_advanced_settings',
-            'beyondwords_languages',
+            self::OPTION_NAME,
             [
-                'default'           => '',
+                'default'           => self::DEFAULT_LANGUAGES,
                 'sanitize_callback' => array($this, 'sanitize'),
             ]
         );
@@ -90,18 +102,18 @@ class Languages
             $allLanguages = [];
         }
 
-        $selectedLanguages = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
+        $selectedLanguages = get_option(self::OPTION_NAME);
 
         if (! is_array($selectedLanguages)) {
-            $selectedLanguages = Languages::DEFAULT_LANGUAGES;
+            $selectedLanguages = self::DEFAULT_LANGUAGES;
         }
 
         ?>
         <div class="beyondwords-setting__languages">
             <select
                 multiple
-                id="beyondwords_languages"
-                name="beyondwords_languages[]"
+                id="<?php echo esc_attr(self::OPTION_NAME); ?>"
+                name="<?php echo esc_attr(self::OPTION_NAME); ?>[]"
                 placeholder="<?php esc_attr_e('Add a language', 'speechkit'); ?>"
                 style="width: 500px;"
                 autocomplete="off"

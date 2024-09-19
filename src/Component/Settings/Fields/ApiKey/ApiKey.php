@@ -20,6 +20,13 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\ApiKey;
 class ApiKey
 {
     /**
+     * Option name.
+     *
+     * @since 5.0.0
+     */
+    public const OPTION_NAME = 'beyondwords_api_key';
+
+    /**
      * Init.
      *
      * @since 4.0.0
@@ -40,7 +47,7 @@ class ApiKey
     {
         register_setting(
             'beyondwords_credentials_settings',
-            'beyondwords_api_key',
+            self::OPTION_NAME,
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
@@ -65,13 +72,13 @@ class ApiKey
      **/
     public function render()
     {
-        $api_key = get_option('beyondwords_api_key');
+        $value = get_option(self::OPTION_NAME);
         ?>
         <input
             type="text"
-            id="beyondwords_api_key"
-            name="beyondwords_api_key"
-            value="<?php echo esc_attr($api_key); ?>"
+            id="<?php echo esc_attr(self::OPTION_NAME); ?>"
+            name="<?php echo esc_attr(self::OPTION_NAME); ?>"
+            value="<?php echo esc_attr($value); ?>"
             size="50"
         />
         <?php

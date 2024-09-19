@@ -21,6 +21,13 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  */
 class PreselectGenerateAudio
 {
+    /**
+     * Option name.
+     *
+     * @since 5.0.0
+     */
+    public const OPTION_NAME = 'beyondwords_preselect';
+
     public const DEFAULT_PRESELECT = [
         'post' => '1',
         'page' => '1',
@@ -47,9 +54,9 @@ class PreselectGenerateAudio
     {
         register_setting(
             'beyondwords_content_settings',
-            'beyondwords_preselect',
+            self::OPTION_NAME,
             [
-                'default' => PreselectGenerateAudio::DEFAULT_PRESELECT,
+                'default' => self::DEFAULT_PRESELECT,
             ]
         );
 
@@ -94,7 +101,7 @@ class PreselectGenerateAudio
                 <label>
                     <input
                         type="checkbox"
-                        name="beyondwords_preselect[<?php echo esc_attr($postType->name); ?>]"
+                        name="<?php echo esc_attr(self::OPTION_NAME); ?>[<?php echo esc_attr($postType->name); ?>]"
                         value="1"
                         <?php checked($this->postTypeIsSelected($postType)); ?>
                     />
@@ -162,7 +169,8 @@ class PreselectGenerateAudio
                 <?php
                 foreach ($terms as $term) :
                     $inputName = sprintf(
-                        "beyondwords_preselect[%s][%s][]",
+                        "%s[%s][%s][]",
+                        self::OPTION_NAME,
                         $postType->name,
                         $taxonomy->name
                     );
@@ -189,7 +197,7 @@ class PreselectGenerateAudio
 
     public function postTypeIsSelected($postType)
     {
-        $preselect = get_option('beyondwords_preselect');
+        $preselect = get_option(self::OPTION_NAME);
 
         if (! is_array($preselect)) {
             return false;
@@ -200,7 +208,7 @@ class PreselectGenerateAudio
 
     public function taxonomyIsSelected($postType, $taxonomy)
     {
-        $preselect = get_option('beyondwords_preselect');
+        $preselect = get_option(self::OPTION_NAME);
 
         if (! is_array($preselect)) {
             return false;
@@ -215,7 +223,7 @@ class PreselectGenerateAudio
 
     public function termIsSelected($postType, $taxonomy, $term)
     {
-        $preselect = get_option('beyondwords_preselect');
+        $preselect = get_option(self::OPTION_NAME);
 
         if (! is_array($preselect)) {
             return false;
@@ -255,7 +263,7 @@ class PreselectGenerateAudio
             // Localize the script with new data
             $data = [
                 'postType'  => get_post_type(),
-                'preselect' => get_option('beyondwords_preselect'),
+                'preselect' => get_option(self::OPTION_NAME),
             ];
 
             wp_localize_script('beyondwords-settings--preselect-post', 'beyondwords', $data);

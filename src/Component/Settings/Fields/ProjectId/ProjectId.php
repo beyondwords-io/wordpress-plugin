@@ -20,6 +20,13 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\ProjectId;
 class ProjectId
 {
     /**
+     * Option name.
+     *
+     * @since 5.0.0
+     */
+    public const OPTION_NAME = 'beyondwords_project_id';
+
+    /**
      * Init.
      *
      * @since 4.0.0
@@ -40,7 +47,7 @@ class ProjectId
     {
         register_setting(
             'beyondwords_credentials_settings',
-            'beyondwords_project_id',
+            self::OPTION_NAME,
             [
                 'default'           => '',
                 'sanitize_callback' => array($this, 'sanitize'),
@@ -65,13 +72,13 @@ class ProjectId
      **/
     public function render()
     {
-        $project_id = get_option('beyondwords_project_id');
+        $value = get_option(self::OPTION_NAME);
         ?>
         <input
             type="text"
-            id="beyondwords_project_id"
-            name="beyondwords_project_id"
-            value="<?php echo esc_attr($project_id); ?>"
+            id="<?php echo esc_attr(self::OPTION_NAME); ?>"
+            name="<?php echo esc_attr(self::OPTION_NAME); ?>"
+            value="<?php echo esc_attr($value); ?>"
             size="10"
         />
         <?php
