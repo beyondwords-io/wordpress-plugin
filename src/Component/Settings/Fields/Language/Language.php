@@ -56,7 +56,8 @@ class Language
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
-        add_action('pre_update_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
+        add_action('add_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
+        add_action('update_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
         add_action('pre_update_option_' . self::OPTION_NAME_CODE, function ($value) {
             Settings::syncOptionToDashboard(self::OPTION_NAME_CODE);
             return $value;
