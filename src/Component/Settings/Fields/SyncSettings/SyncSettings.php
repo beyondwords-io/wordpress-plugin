@@ -108,7 +108,7 @@ class SyncSettings
     public function sanitize($value)
     {
         if ($value === 'dashboard_to_wordpress') {
-            add_filter('beyondwords_sync_to_wordpress', '__return_true');
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
         }
     }
 }

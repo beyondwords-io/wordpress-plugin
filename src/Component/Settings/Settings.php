@@ -68,7 +68,7 @@ class Settings
             (new Advanced($this->apiClient))->init();
         }
 
-        add_action('shutdown', array($this, 'validateApiConnection'), 1);
+        add_action('admin_init', array($this, 'validateApiConnection'), 1);
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
@@ -155,7 +155,7 @@ class Settings
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
                     if (SettingsUtils::hasApiSettings()) {
-                        submit_button('Save changes', 'primary', 'submit-' . $activeTab);
+                        submit_button('Save changes');
                     } else {
                         submit_button('Continue setup');
                     }
@@ -449,7 +449,8 @@ class Settings
      **/
     public function validateApiConnection()
     {
-        $validate = apply_filters('beyondwords_validate_api_connection', false);
+        $validate = get_transient('beyondwords_validate_api_connection');
+        delete_transient('beyondwords_validate_api_connection');
 
         if (! $validate) {
             return;
@@ -476,15 +477,19 @@ class Settings
 
         if ($validConnection) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            add_filter('beyondwords_sync_to_wordpress', '__return_true');
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
             return true;
         }
 
         // Cancel any syncs
-        remove_filter('beyondwords_sync_to_wordpress', '__return_false');
+        delete_transient('beyondwords_sync_to_wordpress');
 
         // Set errors
-        $errors = get_transient('beyondwords_settings_errors', []);
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
 
         $errors['Settings/ValidApiConnection'] = __(
             'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
@@ -509,12 +514,15 @@ class Settings
      **/
     public static function syncOptionToDashboard($optionName)
     {
-        add_filter(
-            'beyondwords_sync_to_dashboard',
-            function ($fields) use ($optionName) {
-                $fields[] = $optionName;
-                return $fields;
-            }
-        );
+        $options = get_transient('beyondwords_sync_to_dashboard');
+
+        if (! is_array($options)) {
+            $options = [];
+        }
+
+        $options[] = $optionName;
+        $options   = array_unique($options);
+
+        set_transient('beyondwords_sync_to_dashboard', $options, 30); // 30 seconds.
     }
 }

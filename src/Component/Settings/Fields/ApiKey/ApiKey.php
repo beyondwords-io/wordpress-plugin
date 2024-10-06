@@ -94,9 +94,13 @@ class ApiKey
      **/
     public function sanitize($value)
     {
-        add_filter('beyondwords_validate_api_connection', '__return_true');
+        set_transient('beyondwords_validate_api_connection', true, 30);
 
-        $errors = get_transient('beyondwords_settings_errors', []);
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
 
         if (empty($value)) {
             $errors['Settings/ApiKey'] = __(

@@ -86,44 +86,43 @@ class Sync
      */
     public function init()
     {
-        add_action('shutdown', array($this, 'syncToDashboard'), 100);
-        add_action('shutdown', array($this, 'syncToWordPress'), 200);
+        add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 5);
+
+        add_action('settings_page_beyondwords', array($this, 'syncToWordPress'));
+        add_action('shutdown', array($this, 'syncToDashboard'));
     }
 
     /**
-     * Should we check for syncs on the current page?
+     * Should we schedule a sync on the current settings tab?
      *
      * @since 5.0.0
+     *
+     * @return void
      */
-    public function shouldCheckForSyncs()
+    public function scheduleSyncs()
     {
-        global $pagenow;
-
-        if (! is_admin()) {
-            return false;
-        }
-
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
-        $page = null;
-        if (isset($_GET['page'])) {
-            $page = sanitize_key($_GET['page']);
-        }
-        
         $tab = null;
         if (isset($_GET['tab'])) {
             $tab = sanitize_key($_GET['tab']);
         }
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
         
-        if (
-            $pagenow === 'options-general.php'
-            && $page === 'beyondwords'
-            && in_array($tab, [ '', 'credentials', 'advanced' ], true)
-        ) {
-            return true;
+        switch ($tab) {
+            case '':
+            case 'credentials':
+                set_transient('beyondwords_validate_api_connection', true, 30);
+                break;
+            case 'content':
+                set_transient('beyondwords_sync_to_wordpress', ['project'], 30);
+                break;
+            case 'voices':
+                set_transient('beyondwords_sync_to_wordpress', ['project'], 30);
+                break;
+            case 'player':
+                set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 30);
+                break;
         }
-
-        return false;
     }
 
     /**
@@ -135,33 +134,41 @@ class Sync
      **/
     public function syncToWordPress()
     {
-        if (! is_admin()) {
-            return;
-        }
+        $sync_to_wordpress = get_transient('beyondwords_sync_to_wordpress');
+        delete_transient('beyondwords_sync_to_wordpress');
 
-        $options = apply_filters('beyondwords_sync_to_wordpress', false);
-
-        if (! $options) {
+        if (empty($sync_to_wordpress) || ! is_array($sync_to_wordpress)) {
             return;
         }
 
         $responses = [];
-        $responses['project']         = $this->apiClient->getProject();
-        $responses['player_settings'] = $this->apiClient->getPlayerSettings();
-        $responses['video_settings']  = $this->apiClient->getVideoSettings();
 
-        // Add the language ID to the project settings response.
-        $this->setLanguageId($responses);
+        if (in_array('all', $sync_to_wordpress) || in_array('project', $sync_to_wordpress)) {
+            $responses['project'] = $this->apiClient->getProject();
+
+            // Add the language ID to the project settings response.
+            $this->setLanguageId($responses);
+        }
+
+        if (in_array('all', $sync_to_wordpress) || in_array('player_settings', $sync_to_wordpress)) {
+            $responses['player_settings'] = $this->apiClient->getPlayerSettings();
+        }
+
+        if (in_array('all', $sync_to_wordpress) || in_array('video_settings', $sync_to_wordpress)) {
+            $responses['video_settings']  = $this->apiClient->getVideoSettings();
+        }
 
         // Update WordPress options using the REST API response data.
-        $this->updateOptionsFromResponses($responses);
+        $updated = $this->updateOptionsFromResponses($responses);
 
-        add_settings_error(
-            'beyondwords_settings',
-            'beyondwords_settings',
-            '<span class="dashicons dashicons-rest-api"></span> Settings synced from the BeyondWords dashboard to WordPress.', // phpcs:ignore Generic.Files.LineLength.TooLong
-            'success'
-        );
+        if ($updated) {
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-controls-volumeon"></span> Settings synced from the BeyondWords dashboard to WordPress.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'success'
+            );
+        }
     }
 
     /**
@@ -169,17 +176,22 @@ class Sync
      *
      * @since 5.0.0
      *
-     * @return void
+     * @return boolean
      **/
     public function updateOptionsFromResponses($responses)
     {
+        $updated = false;
+
         foreach (self::MAP_SETTINGS as $optionName => $path) {
             $value = $this->propertyAccessor->getValue($responses, $path);
 
             if ($value !== null) {
                 update_option($optionName, $value, false);
+                $updated = true;
             }
         }
+
+        return $updated;
     }
 
     /**
@@ -194,12 +206,12 @@ class Sync
      **/
     public function syncToDashboard()
     {
-        if (! is_admin()) {
+        $options = get_transient('beyondwords_sync_to_dashboard');
+        delete_transient('beyondwords_sync_to_dashboard');
+
+        if (empty($options) || ! is_array($options)) {
             return;
         }
-
-        $options = apply_filters('beyondwords_sync_to_dashboard', []);
-        $options = array_unique($options);
 
         $settings = [];
 
@@ -216,6 +228,13 @@ class Sync
         // Sync player settings back to API
         if (isset($settings['player_settings'])) {
             $this->apiClient->updatePlayerSettings($settings['player_settings']);
+
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-rest-api"></span> Player settings synced from WordPress to the BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'success'
+            );
         }
 
         // Sync title voice back to API
@@ -269,6 +288,13 @@ class Sync
             }
 
             $this->apiClient->updateProject($settings['project']);
+
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-rest-api"></span> Project settings synced from WordPress to the BeyondWords dashboard.', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'success'
+            );
         }
     }
 
