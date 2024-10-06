@@ -481,7 +481,7 @@ class Settings
         }
 
         // Cancel any syncs
-        remove_filter('beyondwords_sync_to_wordpress', '__return_true');
+        remove_filter('beyondwords_sync_to_wordpress', '__return_false');
 
         // Set errors
         $errors = get_transient('beyondwords_settings_errors', []);
