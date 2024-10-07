@@ -18,11 +18,6 @@ context( 'Settings > Credentials',  () => {
     cy.showsPluginSettingsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
-    // @todo fix missing error notices
-    // cy.get( '.notice-error' ).find( 'li' ).should('have.length', 2)
-    // cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'Please enter the BeyondWords API key. This can be found in your project settings.' )
-    // cy.get( '.notice-error' ).find( 'li' ).eq( 1 ).contains( 'Please enter your BeyondWords project ID. This can be found in your project settings.' )
-
     // Empty API Key
     cy.get( 'input[name="beyondwords_api_key"]' ).clear()
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
@@ -41,8 +36,7 @@ context( 'Settings > Credentials',  () => {
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' ) // Project 401 triggers a 403 response in Mockoon
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
-    // @todo fix missing error notices
-    // cy.showsInvalidApiCredsNotice()
+    cy.showsInvalidApiCredsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
     // Valid API Key & Project ID
