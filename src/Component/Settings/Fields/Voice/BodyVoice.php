@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Voice\Voice;
-use Beyondwords\Wordpress\Component\Settings\Settings;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 
 /**
  * BodyVoice
@@ -38,7 +38,7 @@ class BodyVoice extends Voice
     {
         add_action('admin_init', array($this, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
         });
     }

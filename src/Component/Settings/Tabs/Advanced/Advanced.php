@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Advanced;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
-use Beyondwords\Wordpress\Component\Settings\Fields\SyncSettings\SyncSettings;
 
 /**
  * "Advanced" settings tab
@@ -49,7 +48,6 @@ class Advanced
     public function init()
     {
         (new Languages($this->apiClient))->init();
-        (new SyncSettings())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
 
-use Beyondwords\Wordpress\Component\Settings\Settings;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 
 /**
  * Language
@@ -59,7 +59,7 @@ class Language
         add_action('add_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
         add_action('update_option_' . self::OPTION_NAME_ID, array($this, 'setLanguageCode'));
         add_action('pre_update_option_' . self::OPTION_NAME_CODE, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME_CODE);
+            Sync::syncOptionToDashboard(self::OPTION_NAME_CODE);
             return $value;
         });
     }

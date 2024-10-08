@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlayerColors;
 
-use Beyondwords\Wordpress\Component\Settings\Settings;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 
 /**
  * PlayerColors
@@ -52,19 +52,19 @@ class PlayerColors
         add_action('admin_init', array($this, 'addPlayerThemeSetting'));
         add_action('admin_init', array($this, 'addPlayerColorsSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME_THEME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME_THEME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME_THEME);
             return $value;
         });
         add_action('pre_update_option_' . self::OPTION_NAME_LIGHT_THEME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME_LIGHT_THEME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME_LIGHT_THEME);
             return $value;
         });
         add_action('pre_update_option_' . self::OPTION_NAME_DARK_THEME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME_DARK_THEME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME_DARK_THEME);
             return $value;
         });
         add_action('pre_update_option_' . self::OPTION_NAME_VIDEO_THEME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME_VIDEO_THEME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME_VIDEO_THEME);
             return $value;
         });
     }
@@ -221,10 +221,10 @@ class PlayerColors
      **/
     public function sanitizeColor($value)
     {
-        $value = trim((string)$value);
+        $value = strtolower(trim((string)$value));
 
-        // Prepend hash to hexidecimal values if missing
-        if (preg_match("/^[0-9a-fA-F]+$/", $value)) {
+        // Prepend hash to hexidecimal values, if missing
+        if (preg_match("/^[0-9a-f]+$/", $value)) {
             $value = '#' . $value;
         }
 

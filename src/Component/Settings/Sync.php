@@ -18,6 +18,10 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  * Sync
  *
  * @since 5.0.0
+ * 
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.NPathComplexity)
  */
 class Sync
 {
@@ -86,9 +90,9 @@ class Sync
      */
     public function init()
     {
-        add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 5);
-
-        add_action('settings_page_beyondwords', array($this, 'syncToWordPress'));
+        add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
+        add_action('load-settings_page_beyondwords', array($this, 'validateApiConnection'), 30);
+        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
         add_action('shutdown', array($this, 'syncToDashboard'));
     }
 
@@ -126,6 +130,67 @@ class Sync
     }
 
     /**
+     * Validate the BeyondWords REST API connection.
+     *
+     * @since 5.0.0
+     *
+     * @return void
+     **/
+    public function validateApiConnection()
+    {
+        $validate = get_transient('beyondwords_validate_api_connection');
+        delete_transient('beyondwords_validate_api_connection');
+
+        if (! $validate) {
+            return;
+        }
+
+        // Assume invalid connection
+        delete_option('beyondwords_valid_api_connection');
+
+        $projectId = get_option('beyondwords_project_id');
+        $apiKey    = get_option('beyondwords_api_key');
+
+        if (! $projectId || ! $apiKey) {
+            return false;
+        }
+
+        // Sync REST API -> WordPress
+        $project = $this->apiClient->getProject();
+
+        $validConnection = (
+            is_array($project)
+            && array_key_exists('id', $project)
+            && strval($project['id']) === $projectId
+        );
+
+        if ($validConnection) {
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
+            return true;
+        }
+
+        // Cancel any syncs
+        delete_transient('beyondwords_sync_to_wordpress');
+
+        // Set errors
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
+
+        $errors['Settings/ValidApiConnection'] = __(
+            'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
+            'speechkit'
+        );
+
+        set_transient('beyondwords_settings_errors', $errors);
+
+        return false;
+    }
+
+    /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
      * @since 5.0.0
@@ -143,32 +208,32 @@ class Sync
 
         $responses = [];
 
-        if (in_array('all', $sync_to_wordpress) || in_array('project', $sync_to_wordpress)) {
-            $responses['project'] = $this->apiClient->getProject();
+        if (! empty(array_intersect($sync_to_wordpress, ['all', 'project']))) {
+            $project = $this->apiClient->getProject();
+            if (! empty($project)) {
+                $responses['project'] = $project;
+            }
 
             // Add the language ID to the project settings response.
             $this->setLanguageId($responses);
         }
 
-        if (in_array('all', $sync_to_wordpress) || in_array('player_settings', $sync_to_wordpress)) {
-            $responses['player_settings'] = $this->apiClient->getPlayerSettings();
+        if (! empty(array_intersect($sync_to_wordpress, ['all', 'player_settings']))) {
+            $player_settings = $this->apiClient->getPlayerSettings();
+            if (! empty($player_settings)) {
+                $responses['player_settings'] = $player_settings;
+            }
         }
 
-        if (in_array('all', $sync_to_wordpress) || in_array('video_settings', $sync_to_wordpress)) {
-            $responses['video_settings']  = $this->apiClient->getVideoSettings();
+        if (! empty(array_intersect($sync_to_wordpress, ['all', 'video_settings']))) {
+            $video_settings = $this->apiClient->getVideoSettings();
+            if (! empty($video_settings)) {
+                $responses['video_settings'] = $video_settings;
+            }
         }
 
         // Update WordPress options using the REST API response data.
-        $updated = $this->updateOptionsFromResponses($responses);
-
-        if ($updated) {
-            add_settings_error(
-                'beyondwords_settings',
-                'beyondwords_settings',
-                '<span class="dashicons dashicons-controls-volumeon"></span> Settings synced from the BeyondWords dashboard to WordPress.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'success'
-            );
-        }
+        $this->updateOptionsFromResponses($responses);
     }
 
     /**
@@ -180,6 +245,16 @@ class Sync
      **/
     public function updateOptionsFromResponses($responses)
     {
+        if (empty($responses)) {
+            add_settings_error(
+                'beyondwords_settings',
+                'beyondwords_settings',
+                '<span class="dashicons dashicons-controls-volumeon"></span> Unexpected BeyondWords REST API response.',
+                'error'
+            );
+            return false;
+        }
+
         $updated = false;
 
         foreach (self::MAP_SETTINGS as $optionName => $path) {
@@ -196,9 +271,6 @@ class Sync
 
     /**
      * Sync from WordPress to the dashboard/BeyondWords REST API.
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      * 
      * @since 5.0.0
      * 
@@ -317,6 +389,31 @@ class Sync
         $hasErrors = get_settings_errors($option_name);
 
         return is_array($hasErrors) && count($hasErrors) === 0;
+    }
+
+    /**
+     * Sync an option to the WordPress dashboard.
+     *
+     * Note that this DOES NOT make the API call, it instead flags the field
+     * as one to sync so that we can group fields and send them in a single
+     * request to the BeyondWords REST API.
+     *
+     * @since 5.0.0
+     *
+     * @return void
+     **/
+    public static function syncOptionToDashboard($optionName)
+    {
+        $options = get_transient('beyondwords_sync_to_dashboard');
+
+        if (! is_array($options)) {
+            $options = [];
+        }
+
+        $options[] = $optionName;
+        $options   = array_unique($options);
+
+        set_transient('beyondwords_sync_to_dashboard', $options, 30); // 30 seconds.
     }
 
     /**

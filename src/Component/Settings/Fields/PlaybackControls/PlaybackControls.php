@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\PlaybackControls;
 
-use Beyondwords\Wordpress\Component\Settings\Settings;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 
 /**
  * PlaybackControls
@@ -42,7 +42,7 @@ class PlaybackControls
     {
         add_action('admin_init', array($this, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
         });
     }

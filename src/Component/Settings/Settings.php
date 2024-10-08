@@ -68,7 +68,6 @@ class Settings
             (new Advanced($this->apiClient))->init();
         }
 
-        add_action('admin_init', array($this, 'validateApiConnection'), 1);
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
@@ -438,91 +437,5 @@ class Settings
 
             wp_enqueue_script('beyondwords-settings');
         }
-    }
-
-    /**
-     * Validate the BeyondWords REST API connection.
-     *
-     * @since 5.0.0
-     *
-     * @return void
-     **/
-    public function validateApiConnection()
-    {
-        $validate = get_transient('beyondwords_validate_api_connection');
-        delete_transient('beyondwords_validate_api_connection');
-
-        if (! $validate) {
-            return;
-        }
-
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
-        $projectId = get_option('beyondwords_project_id');
-        $apiKey    = get_option('beyondwords_api_key');
-
-        if (! $projectId || ! $apiKey) {
-            return false;
-        }
-
-        // Sync REST API -> WordPress
-        $project = $this->apiClient->getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === $projectId
-        );
-
-        if ($validConnection) {
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
-            return true;
-        }
-
-        // Cancel any syncs
-        delete_transient('beyondwords_sync_to_wordpress');
-
-        // Set errors
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
-        $errors['Settings/ValidApiConnection'] = __(
-            'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
-            'speechkit'
-        );
-
-        set_transient('beyondwords_settings_errors', $errors);
-
-        return false;
-    }
-
-    /**
-     * Sync an option to the WordPress dashboard.
-     *
-     * Note that this DOES NOT make the API call, it instead flags the field
-     * as one to sync so that we can group fields and send them in a single
-     * request to the BeyondWords REST API.
-     *
-     * @since 5.0.0
-     *
-     * @return void
-     **/
-    public static function syncOptionToDashboard($optionName)
-    {
-        $options = get_transient('beyondwords_sync_to_dashboard');
-
-        if (! is_array($options)) {
-            $options = [];
-        }
-
-        $options[] = $optionName;
-        $options   = array_unique($options);
-
-        set_transient('beyondwords_sync_to_dashboard', $options, 30); // 30 seconds.
     }
 }

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\WidgetStyle;
 
-use Beyondwords\Wordpress\Component\Settings\Settings;
+use Beyondwords\Wordpress\Component\Settings\Sync;
 
 /**
  * WidgetStyle
@@ -37,7 +37,7 @@ class WidgetStyle
     {
         add_action('admin_init', array($this, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
-            Settings::syncOptionToDashboard(self::OPTION_NAME);
+            Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
         });
     }
