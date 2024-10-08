@@ -26,7 +26,6 @@ function PlayAudio( {
 	const Wrapper = wrapper;
 
 	const [ player, setPlayer] = useState(null);
-	const [ contentStatusChangedListener, setContentStatusChangedListener ] = useState( null );
 	const [ noContentAvailableListener, setNoContentAvailableListener ] = useState( null );
 	const [ playbackErroredListener, setPlaybackErroredListener ] = useState( null );
 	const [ mediaLoadedListener, setMediaLoadedListener ] = useState( null );
@@ -44,9 +43,6 @@ function PlayAudio( {
 		return () => {
 			if ( ! player ) {
 				return;
-			}
-			if ( contentStatusChangedListener ) {
-				player.removeEventListener('ContentStatusChanged', contentStatusChangedListener);
 			}
 			if ( noContentAvailableListener ) {
 				player.removeEventListener('NoContentAvailable', noContentAvailableListener);
@@ -82,20 +78,6 @@ function PlayAudio( {
 			),
 			widgetStyle: 'none',
 		} );
-
-		setContentStatusChangedListener(playerInstance.addEventListener('ContentStatusChanged', ( payload ) => {
-			const { contentStatus } = payload;
-
-			if ( contentStatus === 'processed' ) {
-				removeNotice( noticeId );
-				initPlayer();
-			} else if ( contentStatus ) {
-				createInfoNotice( __( `🔊 Status: ${contentStatus}`, 'speechkit' ), {
-					id: noticeId,
-					isDismissible: true,
-				} );
-			}
-		} ) );
 
 		setPlaybackErroredListener(playerInstance.addEventListener('PlaybackErrored', () => {
 			createErrorNotice( __( '🔊 There was an error playing the audio. Please try again.', 'speechkit' ), {

@@ -42,11 +42,31 @@ class UninstallerTest extends WP_UnitTestCase
     public function optionNamesProvider()
     {
         return [
+            // v5.0 player settings
+            'beyondwords_player_call_to_action'     => ['beyondwords_player_call_to_action'],
+            'beyondwords_player_clickable_sections' => ['beyondwords_player_clickable_sections'],
+            'beyondwords_player_highlight_sections' => ['beyondwords_player_highlight_sections'],
+            'beyondwords_player_skip_button_style'  => ['beyondwords_player_skip_button_style'],
+            'beyondwords_player_theme'              => ['beyondwords_player_theme'],
+            'beyondwords_player_theme_dark'         => ['beyondwords_player_theme_dark'],
+            'beyondwords_player_theme_light'        => ['beyondwords_player_theme_light'],
+            'beyondwords_player_theme_video'        => ['beyondwords_player_theme_video'],
+            'beyondwords_player_widget_position'    => ['beyondwords_player_widget_position'],
+            'beyondwords_player_widget_style'       => ['beyondwords_player_widget_style'],
+            // v5.0 project settings
+            'beyondwords_project_body_voice_id'             => ['beyondwords_project_body_voice_id'],
+            'beyondwords_project_body_voice_speaking_rate'  => ['beyondwords_project_body_voice_speaking_rate'],
+            'beyondwords_project_language_code'             => ['beyondwords_project_language_code'],
+            'beyondwords_project_language_id'               => ['beyondwords_project_language_id'],
+            'beyondwords_project_title_enabled'             => ['beyondwords_project_title_enabled'],
+            'beyondwords_project_title_voice_id'            => ['beyondwords_project_title_voice_id'],
+            'beyondwords_project_title_voice_speaking_rate' => ['beyondwords_project_title_voice_speaking_rate'],
+            // v5.0 video settings
+            'beyondwords_video_enabled' => ['beyondwords_video_enabled'],
             // v4.x
             'beyondwords_languages'            => ['beyondwords_languages'],
             'beyondwords_player_ui'            => ['beyondwords_player_ui'],
             'beyondwords_player_style'         => ['beyondwords_player_style'],
-            'beyondwords_player_version'       => ['beyondwords_player_version'],
             'beyondwords_settings_updated'     => ['beyondwords_settings_updated'],
             'beyondwords_valid_api_connection' => ['beyondwords_valid_api_connection'],
             // v3.7.0 beyondwords_*

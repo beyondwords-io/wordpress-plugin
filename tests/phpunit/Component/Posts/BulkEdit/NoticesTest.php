@@ -85,6 +85,7 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         set_current_screen('edit-post');
 
         $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_deleted'] = '42';
 
         $this->expectException(\WPDieException::class);
 
@@ -99,6 +100,7 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         set_current_screen('edit-post');
 
         $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_generated'] = '42';
 
         $this->expectException(\WPDieException::class);
 
@@ -113,6 +115,7 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         set_current_screen('edit-post');
 
         $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_failed'] = '42';
 
         $this->expectException(\WPDieException::class);
 
@@ -127,6 +130,7 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         set_current_screen('edit-post');
 
         $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_error'] = 'Error message';
 
         $this->expectException(\WPDieException::class);
 

@@ -289,16 +289,16 @@ msgstr ""
 msgid "Legacy"
 msgstr ""
 
-#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:55
+#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:55
 #: src/Component/SiteHealth/SiteHealth.php:107
 msgid "Process excerpts"
 msgstr ""
 
-#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:82
+#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:82
 msgid "Use excerpts for summaries"
 msgstr ""
 
-#: src/Component/Settings/PrependExcerpt/PrependExcerpt.php:87
+#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:87
 msgid "Summaries are read aloud in-between titles and body content."
 msgstr ""
 

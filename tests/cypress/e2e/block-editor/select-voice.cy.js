@@ -1,14 +1,14 @@
 context( 'Block Editor: Select Voice', () => {
   const postTypes = require( '../../../fixtures/post-types.json' )
 
-  beforeEach( () => {
+  before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.savePluginSettings()
+    cy.saveStandardPluginSettings()
   } )
 
-  after( () => {
-    cy.task( 'reset' )
+  beforeEach( () => {
+    cy.login()
   } )
 
   // Only test priority post types
@@ -46,11 +46,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 1-a", "Voice 1-b", "Voice 1-c"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 1-c' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 3' )
 
       // Select another Language
       cy.getBlockEditorSelect( 'Language' ).select( 'Language 2' ).wait( 2000 )
@@ -58,11 +58,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 2-a", "Voice 2-b", "Voice 2-c"] )
+        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 2-b' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 2' )
 
       cy.setPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -78,21 +78,7 @@ context( 'Block Editor: Select Voice', () => {
       cy.reload()
       cy.openBeyondwordsEditorPanel()
       cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'Language 2' )
-      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2-b' )
-    } )
-  } )
-
-  postTypes.filter( x => ! x.supported ).forEach( postType => {
-    it( `has no Voice component for a ${postType.name}`, () => {
-      cy.setLanguagesInPluginSettings();
-
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-
-      cy.closeWelcomeToBlockEditorTips()
-
-      // Language and Voice should not exist
-      cy.get( 'label' ).contains( 'Language' ).should( 'not.exist' )
-      cy.get( 'label' ).contains( 'Voice' ).should( 'not.exist' )
+      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
 } )

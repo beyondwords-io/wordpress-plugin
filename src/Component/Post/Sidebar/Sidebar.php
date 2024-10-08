@@ -18,7 +18,7 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
- * Sidebar setup
+ * Sidebar
  *
  * @since 3.0.0
  */

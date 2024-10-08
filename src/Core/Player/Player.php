@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Symfony\Component\DomCrawler\Crawler;
@@ -295,6 +294,7 @@ class Player
      * @since 3.0.0
      * @since 3.3.4 Accept int|WP_Post as method parameter.
      * @since 4.0.0 Check beyondwords_player_ui custom field.
+     * @since 5.0.0 Remove beyondwords_post_player_enabled filter.
      *
      * @return bool
      **/
@@ -318,21 +318,6 @@ class Player
         if ($enabled) {
             $enabled = get_option('beyondwords_player_ui', PlayerUI::ENABLED) === PlayerUI::ENABLED;
         }
-
-        /**
-         * Filters the enabled/disabled (shown/hidden) status of the player for each post.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 3.3.3
-         *
-         * @deprecated 4.3.0 Instead, return an empty string in the `beyondwords_player_html` filter to hide the player.
-         *                   Alternatively, you can set `published` to `false` in the BeyondWords dashboard.
-         *
-         * @param boolean $enabled   Is the player enabled (shown) for this post?
-         * @param int     $post_id    WordPress post ID.
-         */
-        $enabled = apply_filters('beyondwords_post_player_enabled', $enabled, $post->ID);
 
         return $enabled;
     }
@@ -510,12 +495,10 @@ class Player
 
         $projectId   = PostMetaUtils::getProjectId($post->ID);
         $contentId   = PostMetaUtils::getContentId($post->ID);
-        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
 
         $params = [
             'projectId'   => is_numeric($projectId) ? (int)$projectId : $projectId,
             'contentId'   => is_numeric($contentId) ? (int)$contentId : $contentId,
-            'playerStyle' => $playerStyle,
         ];
 
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
@@ -524,11 +507,12 @@ class Player
             $params['showUserInterface'] = false;
         }
 
-        /**
-         * Use legacy JS SDK params if player version setting is "0": "Legacy"
-         */
-        if (SettingsUtils::useLegacyPlayer()) {
-            $params = $this->convertLatestToLegacyParams($params);
+        $params = $this->addPluginSettingsToSdkParams($params);
+
+        // @todo overwrite global styles with post settings
+        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
+        if (!empty($playerStyle)) {
+            $params['playerStyle'] = $playerStyle;
         }
 
         /**
@@ -545,45 +529,39 @@ class Player
     }
 
     /**
-     * Convert latest JS SDK params into legacy format.
+     * Add plugin settings to SDK params.
      *
-     * @codeCoverageIgnore We plan to remove support for the Legacy player very soon.
+     * @since 5.0.0
      *
-     * @since 4.0.0
+     * @param array $params BeyondWords Player SDK params.
      *
-     * @see https://docs.beyondwords.io/docs/javascript-sdk-automatic-player
-     *
-     * @param array $latestParams Latest JS SDK params
-     *
-     * @return array Legacy JS SDK params
+     * @return array Modified SDK params.
      */
-    public function convertLatestToLegacyParams($latestParams)
+    public function addPluginSettingsToSdkParams($params)
     {
-        $skBackend = Environment::getBackendUrl();
-        $skBackendApi = Environment::getApiUrl();
-
-        $legacyParams = [
-            'projectId' => $latestParams['projectId'],
-            'podcastId' => $latestParams['contentId'],
+        $mapping = [
+            'beyondwords_player_style'              => 'playerStyle',
+            'beyondwords_player_call_to_action'     => 'callToAction',
+            'beyondwords_player_highlight_sections' => 'highlightSections',
+            'beyondwords_player_widget_style'       => 'widgetStyle',
+            'beyondwords_player_widget_position'    => 'widgetPosition',
+            'beyondwords_player_skip_button_style'  => 'skipButtonStyle',
         ];
 
-        if ($latestParams['playerStyle'] = 'large') {
-            $legacyParams['playerType'] = 'manual';
-        }
-
-        if (strlen($skBackend)) {
-            $legacyParams['skBackend'] = esc_url($skBackend);
-        }
-
-        if (is_admin()) {
-            $legacyParams['processingStatus'] = true;
-
-            if (strlen($skBackendApi)) {
-                $legacyParams['skBackendApi'] = esc_url($skBackendApi);
+        foreach ($mapping as $wpOption => $sdkParam) {
+            $val = get_option($wpOption);
+            if (!empty($val)) {
+                $params[$sdkParam] = $val;
             }
         }
 
-        return $legacyParams;
+        // Special case for clickableSections
+        $val = get_option('beyondwords_player_clickable_sections');
+        if (!empty($val)) {
+            $params['clickableSections'] = 'body';
+        }
+
+        return $params;
     }
 
     /**

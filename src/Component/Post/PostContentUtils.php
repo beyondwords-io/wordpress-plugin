@@ -52,24 +52,16 @@ class PostContentUtils
     /**
      * Get the post body for the audio content.
      *
-     * The following rules are applied:
-     *
-     *     Main post body content entered in WordPress
-     *   + Optionally filtered using [SpeechKit-Start]/[SpeechKit-Stop] "shortcodes"
-     *   + With registered content filters FROM OTHER PLUGINS applied
-     *   + Optionally prepended with the Post excerpt
-     *   + Optionally filtered using the beyondwords_content filter
-     *
-     * @SuppressWarnings(PHPMD.LongVariable)
-     *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
-     *
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 3.8.0 Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
      * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
      * @since 4.6.0 Renamed from PostContentUtils::getBody() to PostContentUtils::getPostBody()
      * @since 4.7.0 Remove wpautop filter for block editor API requests.
+     * @since 5.0.0 Remove SpeechKit-Start shortcode.
+     * @since 5.0.0 Remove beyondwords_content filter.
+     *
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @return string The body (the processed $post->post_content).
      */
@@ -83,14 +75,6 @@ class PostContentUtils
 
         $content = PostContentUtils::getContentWithoutExcludedBlocks($post);
 
-        // If SpeechKit-Start/Stop tags are present then use the content within them
-        // @deprecated v3.0.0: publishers should use the beyondwords_content filter instead.
-        $regex = '/\[SpeechKit-Start\](.*?)\[SpeechKit-Stop\]/s';
-
-        if (preg_match_all($regex, $content, $match, PREG_PATTERN_ORDER) > 0) {
-            $content = implode(' ', $match[1]);
-        }
-
         if (has_blocks($post)) {
             // wpautop breaks our HTML markup when block editor paragraphs are empty
             remove_filter('the_content', 'wpautop');
@@ -103,23 +87,7 @@ class PostContentUtils
         $content = apply_filters('the_content', $content);
 
         // Trim to remove trailing newlines – common for WordPress content
-        $content = trim($content);
-
-        /**
-         * Filters the content body we send for audio processing.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.0.0
-         *
-         * @deprecated 4.3.0 Set the 'body' key in beyondwords_content_params instead.
-         *
-         * @param string $content The post content.
-         * @param int    $postId  The post ID.
-         */
-        $content = apply_filters('beyondwords_content', $content, $post->ID);
-
-        return $content;
+        return trim($content);
     }
 
     /**
@@ -287,6 +255,7 @@ class PostContentUtils
      * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
+     * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
      *
      * @return array The blocks.
      */
@@ -314,21 +283,6 @@ class PostContentUtils
             return $enabled;
         });
 
-        /**
-         * Filters the audio-enabled blocks for a post.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.0.0
-         *
-         * @deprecated 4.3.0 Replace with {@link https://docs.beyondwords.io/docs-and-guides/content/filter-content}.
-         *
-         * @param array $blocks    The audio-enabled post blocks.
-         * @param array $allBlocks All post blocks including those with audio disabled.
-         * @param int   $postId    The post ID.
-         */
-        $blocks = apply_filters('beyondwords_post_audio_enabled_blocks', $blocks, $allBlocks, $post->ID);
-
         return $blocks;
     }
 
@@ -343,6 +297,7 @@ class PostContentUtils
      * @since 4.0.3  Ensure `image_url` is always a string.
      * @since 4.3.0  Rename from getBodyJson to getContentParams.
      * @since 4.6.0  Remove summary param & prepend body with summary.
+     * @since 5.0.0  Remove beyondwords_body_params filter.
      *
      * @static
      * @param int $postId WordPress Post ID.
@@ -394,20 +349,6 @@ class PostContentUtils
         /**
          * Filters the params we send to the BeyondWords API 'content' endpoint.
          *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.0.0
-         *
-         * @deprecated 4.3.0 Replaced with beyondwords_content_params.
-         *
-         * @param array $body   The params we send to the BeyondWords API.
-         * @param array $postId WordPress post ID.
-         */
-        $body = apply_filters('beyondwords_body_params', $body, $postId);
-
-        /**
-         * Filters the params we send to the BeyondWords API 'content' endpoint.
-         *
          * @since 4.0.0 Introduced as beyondwords_body_params
          * @since 4.3.0 Renamed from beyondwords_body_params to beyondwords_content_params
          *
@@ -432,7 +373,8 @@ class PostContentUtils
      * method can be filtered using the `beyondwords_post_metadata` filter.
      *
      * @since 3.3.0
-     * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
+     * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils.
+     * @since 5.0.0 Remove beyondwords_post_metadata filter.
      *
      * @param int $postId Post ID.
      *
@@ -447,20 +389,6 @@ class PostContentUtils
         if (count((array)$taxonomy)) {
             $metadata->taxonomy = $taxonomy;
         }
-
-        /**
-         * Filters the post metadata sent to the BeyondWords API.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 3.3.0
-         *
-         * @deprecated 4.3.0 Set the 'metadata' key in beyondwords_content_params instead.
-         *
-         * @param object $metadata Post metadata. Defaults to the taxonomies and terms assigned to the post.
-         * @param int    $postId   Post ID.
-         */
-        $metadata = apply_filters('beyondwords_post_metadata', $metadata, $postId);
 
         return $metadata;
     }

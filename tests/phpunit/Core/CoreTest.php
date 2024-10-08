@@ -148,7 +148,7 @@ class CoreTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         /**
          * Enqueuing with a valid API connection should succeed
@@ -376,7 +376,7 @@ class CoreTest extends WP_UnitTestCase
     public function onTrashOrDeletePost($expectedResponse)
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::onTrashOrDeletePost',

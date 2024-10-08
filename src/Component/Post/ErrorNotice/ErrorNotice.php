@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Post\ErrorNotice;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
- * ErrorNotice setup
+ * ErrorNotice
  *
  * @since 3.0.0
  */

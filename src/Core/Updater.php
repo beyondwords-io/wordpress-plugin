@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Core;
 
-use Beyondwords\Wordpress\Component\Settings\PlayerVersion\PlayerVersion;
-
 /**
  * BeyondWords updater.
  *
@@ -28,17 +26,10 @@ class Updater
      */
     public function run()
     {
-        $version = get_option('beyondwords_version');
+        $version = get_option('beyondwords_version', '1.0.0');
 
-        if ($version) {
-            // For existing installs, set default player version to "Legacy"
-            $this->setDefaultPlayerVersion(PlayerVersion::LEGACY_VERSION);
-        } else {
-            // For new installs, set default player version to "Latest"
-            $this->setDefaultPlayerVersion(PlayerVersion::LATEST_VERSION);
-
-            // Check legacy "speechkit" version for version number
-            $version = get_option('speechkit_version', '1.0.0');
+        if (version_compare($version, '5.0.0', '<') && get_option('beyondwords_api_key')) {
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
         }
 
         if (version_compare($version, '3.0.0', '<')) {
@@ -161,41 +152,19 @@ class Updater
         $preselect      = get_option('speechkit_preselect');
 
         if ($apiKey) {
-            update_option('beyondwords_api_key', $apiKey);
+            update_option('beyondwords_api_key', $apiKey, false);
         }
 
         if ($projectId) {
-            update_option('beyondwords_project_id', $projectId);
+            update_option('beyondwords_project_id', $projectId, false);
         }
 
         if ($prependExcerpt) {
-            update_option('beyondwords_prepend_excerpt', $prependExcerpt);
+            update_option('beyondwords_prepend_excerpt', $prependExcerpt, false);
         }
 
         if ($preselect) {
-            update_option('beyondwords_preselect', $preselect);
-        }
-    }
-
-    /**
-     * Set default player version during install/upgrade.
-     *
-     * From v4.0.0 we support two players: "Legacy" and "Latest".
-     *
-     * New sites should use the Latest player by default.
-     * Sites upgrading from < v4.0.0 should use the Legacy player by default.
-     *
-     * @since 4.0.0
-     *
-     * @return void
-     */
-    public function setDefaultPlayerVersion($newPlayerVersion)
-    {
-        $playerVersion = get_option('beyondwords_player_version');
-
-        // Handle "0" version string, which is falsey in PHP
-        if (! strlen(strval($playerVersion))) {
-            update_option('beyondwords_player_version', $newPlayerVersion);
+            update_option('beyondwords_preselect', $preselect, false);
         }
     }
 }

@@ -15,10 +15,10 @@ namespace Beyondwords\Wordpress\Component\Post\BlockAttributes;
 
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
 /**
- * BlockAttributes setup
+ * BlockAttributes
  *
  * @since 3.7.0
  * @since 4.0.0 Renamed from BlockAudioAttribute to BlockAttributes to support multiple attributes

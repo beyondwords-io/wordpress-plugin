@@ -15,7 +15,7 @@ namespace Beyondwords\Wordpress\Component\Post\AddPlayer;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
- * AddPlayer setup
+ * AddPlayer
  *
  * @since 3.2.0
  */

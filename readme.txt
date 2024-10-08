@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 4.7.0
-Requires PHP: 7.4
-Tested up to: 6.5
+Stable tag: 5.0.0
+Requires PHP: 8.0
+Tested up to: 6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -80,11 +80,11 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.8.0 =
+= 5.0.0 =
 
 Release date: TBC
 
-* Stop saving `beyondwords_podcast_id`. Plugin downgrades from `v4.8.0` or later to versions before `v4.0.0` are no longer supported.
+* Stop saving the legacy `beyondwords_podcast_id` param. This means that audio generated with versions 5.x and later will play audio if the plugin is downgraded to `v3.x` or below. If you need to downgrade to `v3.x` after using `v5.x` please contact us for a downgrade path.
 
 = 4.7.0 =
 

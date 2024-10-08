@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -145,6 +145,7 @@ class PostMetaUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Renamed to getContentId() & prioritise beyondwords_content_id
+     * @since 5.0.0 Remove beyondwords_content_id filter.
      *
      * @param int $postId Post ID.
      *
@@ -159,20 +160,6 @@ class PostMetaUtils
             // Also try "Podcast ID" custom field (number, or string for > 4.x)
             $contentId = PostMetaUtils::getPodcastId($postId);
         }
-
-        /**
-         * Filters the BeyondWords Content ID.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.0.0
-         *
-         * @deprecated 4.3.0 No replacement is expected. Email support@beyondwords.io if you are using this filter.
-         *
-         * @param string $contentId The BeyondWords Content ID.
-         * @param int    $postId    The post ID.
-         */
-        $contentId = apply_filters('beyondwords_content_id', $contentId, $postId);
 
         return $contentId;
     }
@@ -310,6 +297,7 @@ class PostMetaUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Apply beyondwords_project_id filter
+     * @since 5.0.0 Remove beyondwords_project_id filter.
      *
      * @param int $postId Post ID.
      *
@@ -339,20 +327,6 @@ class PostMetaUtils
             // Return boolean false instead of numeric 0
             $projectId = false;
         }
-
-        /**
-         * Filters the BeyondWords Project ID.
-         *
-         * Scheduled for removal in plugin version 5.0.0.
-         *
-         * @since 4.0.0
-         *
-         * @deprecated 4.3.0 No replacement is expected. Email support@beyondwords.io if you are using this filter.
-         *
-         * @param string $contentId The BeyondWords Project ID.
-         * @param int    $postId    The post ID.
-         */
-        $projectId = apply_filters('beyondwords_project_id', $projectId, $postId);
 
         // todo throw ProjectIdNotFoundException?
 

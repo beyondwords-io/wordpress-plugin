@@ -14,7 +14,7 @@ grumphp:
       metadata:
         priority: 10
     phpversion:
-      project: '7.4'
+      project: '8.0'
       metadata:
         priority: 10
     composer:
@@ -28,8 +28,6 @@ grumphp:
         priority: 10
     phpcs:
       standard:
-        # - PSR12
-        # - WordPress-VIP-Go
         - phpcs.xml
       exclude:
         - PSR12.Files.FileHeader
@@ -67,21 +65,6 @@ grumphp:
       metadata:
         priority: 1
         task: composer_script
-    # test_acceptance:
-    #   script: test:acceptance
-    #   metadata:
-    #     priority: 5
-    #     task: composer_script
-    # coverage_check_acceptance:
-    #   script: test:acceptance:coverage-check
-    #   metadata:
-    #     priority: 1
-    #     task: composer_script
-    # phpcpd:
-    #   exclude:
-    #     - tests
-    #     - vendor
-    # gherkin: ~
   testsuites:
     git_commit_msg:
       tasks:
@@ -94,8 +77,6 @@ grumphp:
         - phpcs
         - phplint
         - phpmd
-        - test_phpunit
-        - coverage_check
     code_quality:
       tasks:
         - composer

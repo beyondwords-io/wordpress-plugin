@@ -44,7 +44,7 @@ class GenerateAudioTest extends WP_UnitTestCase
         $resultId = $this->_instance->save($post->ID);
 
         // Check the post object has not changed
-        $this->assertSame(json_encode($post), json_encode(get_post($resultId)));
+        $this->assertSame(json_encode($post), wp_json_encode(get_post($resultId)));
 
         wp_delete_post($post->ID, true);
     }
@@ -65,7 +65,7 @@ class GenerateAudioTest extends WP_UnitTestCase
         $resultId = $this->_instance->save($post->ID);
 
         // Check the post object has not changed
-        $this->assertSame(json_encode($post), json_encode(get_post($resultId)));
+        $this->assertSame(json_encode($post), wp_json_encode(get_post($resultId)));
 
         wp_delete_post($post->ID, true);
     }

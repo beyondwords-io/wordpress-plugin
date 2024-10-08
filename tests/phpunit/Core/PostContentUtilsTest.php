@@ -212,11 +212,6 @@ class PostContentUtilsTest extends WP_UnitTestCase
                 'Shortcode: [shortcode_test to_lower="Foo" to_upper="Bar"]Baz[/shortcode_test]',
                 '<p>Shortcode: <em>foo, BAR, Baz</em></p>',
             ],
-            'Post with deprecated Start/Stop shortcode' => [
-                'post',
-                'Foo [SpeechKit-Start]Bar[SpeechKit-Stop] Baz',
-                '<p>Bar</p>',
-            ],
             'Page' => [
                 'page',
                 'This is a page.',
@@ -382,7 +377,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         $thumbnailUrl = strval(wp_get_original_image_url(get_post_thumbnail_id($postId)));
         $this->assertNotEmpty($thumbnailUrl);
         $this->assertSame($thumbnailUrl, $body->image_url);
-        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', json_encode($body->metadata));
+        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body->metadata));
         $this->assertSame(true, $body->published);
         $this->assertSame($args['post_date'], $body->publish_date);
 

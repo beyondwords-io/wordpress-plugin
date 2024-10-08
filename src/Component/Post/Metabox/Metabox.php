@@ -21,7 +21,7 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
- * PostMetabox setup
+ * PostMetabox
  *
  * @since 3.0.0
  */

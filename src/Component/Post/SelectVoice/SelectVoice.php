@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\SelectVoice;
 
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\Languages\Languages;
+use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * SelectVoice setup
+ * SelectVoice
  *
  * @since 4.0.0
  */
@@ -164,14 +164,14 @@ class SelectVoice
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_select_voice_nonce']),
+                sanitize_key($_POST['beyondwords_select_voice_nonce']),
                 'beyondwords_select_voice'
             )
         ) {
             return $postId;
         }
 
-        $languageId = sanitize_text_field($_POST['beyondwords_language_id']);
+        $languageId = sanitize_text_field(wp_unslash($_POST['beyondwords_language_id']));
 
         if (! empty($languageId)) {
             update_post_meta($postId, 'beyondwords_language_id', $languageId);
@@ -179,7 +179,7 @@ class SelectVoice
             delete_post_meta($postId, 'beyondwords_language_id');
         }
 
-        $voiceId = sanitize_text_field($_POST['beyondwords_voice_id']);
+        $voiceId = sanitize_text_field(wp_unslash($_POST['beyondwords_voice_id']));
 
         if (! empty($voiceId)) {
             update_post_meta($postId, 'beyondwords_body_voice_id', $voiceId);

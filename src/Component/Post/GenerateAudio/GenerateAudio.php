@@ -16,7 +16,7 @@ use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * GenerateAudio setup
+ * GenerateAudio
  *
  * @since 3.0.0
  */
@@ -87,7 +87,7 @@ class GenerateAudio
                 id="beyondwords_generate_audio"
                 name="beyondwords_generate_audio"
                 value="1"
-                <?php checked($generateAudio, true); ?>
+                <?php checked($generateAudio); ?>
             />
             <?php esc_html_e('Generate audio', 'speechkit'); ?>
         </p>
@@ -109,7 +109,7 @@ class GenerateAudio
         if (
             ! isset($_POST['beyondwords_generate_audio_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_generate_audio_nonce']),
+                sanitize_key($_POST['beyondwords_generate_audio_nonce']),
                 'beyondwords_generate_audio'
             )
         ) {

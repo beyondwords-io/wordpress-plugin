@@ -1,5 +1,8 @@
 context( 'Classic Editor: Display Player', () => {
   before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.saveStandardPluginSettings()
     cy.activatePlugin( 'classic-editor' )
   } )
 
