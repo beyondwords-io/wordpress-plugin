@@ -74,32 +74,32 @@ context( 'Site Health', () => {
         // Default language code
         cy.get( 'tr' ).eq( 10 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'bb_BB' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'en_GB' )
         } )
         // Default language ID
         cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '50' )
         } )
         // Title voice ID
         cy.get( 'tr' ).eq( 12 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '290' )
         } )
         // Title voice speaking rate
         cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '90' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '100' )
         } )
         // Body voice ID
         cy.get( 'tr' ).eq( 14 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '295' )
         } )
         // Body voice speaking rate
         cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '110' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '100' )
         } )
         // Player UI
         cy.get( 'tr' ).eq( 16 ).within( () => {
@@ -119,17 +119,17 @@ context( 'Site Health', () => {
         // Light theme
         cy.get( 'tr' ).eq( 19 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Light theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#EEE"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "text_color": "#111",\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "highlight_color": "#eee"\n}' )
         } )
         // Dark theme
         cy.get( 'tr' ).eq( 20 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Dark theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "TRANSPARENT",\n    "icon_color": "#FFF",\n    "text_color": "#FFF",\n    "highlight_color": "#444"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "text_color": "#fff",\n    "background_color": "#000",\n    "icon_color": "#fff",\n    "highlight_color": "#444"\n}' )
         } )
         // Video theme
         cy.get( 'tr' ).eq( 21 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Video theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "text_color": "#fff",\n    "background_color": "#000",\n    "icon_color": "#fff"\n}' )
         } )
         // Call-to-action
         cy.get( 'tr' ).eq( 22 ).within( () => {
@@ -169,7 +169,7 @@ context( 'Site Health', () => {
         // Registered filters
         cy.get( 'tr' ).eq( 29 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered filters' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'beyondwords_content_params, beyondwords_player_sdk_params' )
         } )
         // Registered deprecated filters
         cy.get( 'tr' ).eq( 30 ).within( () => {

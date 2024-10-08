@@ -146,7 +146,7 @@ class CoreTest extends WP_UnitTestCase
 
         $this->assertNull($wp_scripts);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
@@ -375,7 +375,7 @@ class CoreTest extends WP_UnitTestCase
      */
     public function onTrashOrDeletePost($expectedResponse)
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $postId = self::factory()->post->create([

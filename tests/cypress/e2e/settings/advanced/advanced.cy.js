@@ -52,7 +52,7 @@ context( 'Settings > Advanced',  () => {
     cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', 'standard' )
     cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '3' )
     cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should( 'have.value', '110' )
-    cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'bb_BB' )
+    cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'en_GB' )
     cy.get( '#beyondwords_project_language_id' ).should( 'have.value', '2' )
     cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
     cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '2' )

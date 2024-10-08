@@ -23,7 +23,7 @@ class ApiKeyTest extends WP_UnitTestCase
         // Your set up methods here.
         $this->_instance = new ApiKey();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
