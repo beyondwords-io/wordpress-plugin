@@ -33,9 +33,14 @@
     },
     "env": {
         "tests": {
-            "config": {
-                "BEYONDWORDS_API_URL": "http://host.docker.internal:3000/v1"
-            }
+            "plugins": [
+                "WP-API/Basic-Auth",
+                "./tests/fixtures/wp-content/plugins/beyondwords-filter-e2e-testing",
+                "./tests/fixtures/wp-content/plugins/cpt-active",
+                "./tests/fixtures/wp-content/plugins/cpt-inactive",
+                "./tests/fixtures/wp-content/plugins/cpt-unsupported",
+                "./"
+            ]
         }
     }
 }

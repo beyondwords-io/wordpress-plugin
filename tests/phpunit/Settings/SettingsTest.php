@@ -122,7 +122,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function printPluginAdminNoticesWithApiSettings()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
@@ -185,7 +185,7 @@ class SettingsTest extends WP_UnitTestCase
             'post_author' => $userId
         ]);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
@@ -197,7 +197,7 @@ class SettingsTest extends WP_UnitTestCase
 
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
 
-        $this->assertSame('write_XXXXXXXXXXXXXXXX', $data['apiKey']);
+        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');
@@ -213,7 +213,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function restApiResponse()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
@@ -223,7 +223,7 @@ class SettingsTest extends WP_UnitTestCase
 
         $data = $reponse->get_data();
 
-        $this->assertSame('write_XXXXXXXXXXXXXXXX', $data['apiKey']);
+        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');

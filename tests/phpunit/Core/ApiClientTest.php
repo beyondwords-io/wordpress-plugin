@@ -63,7 +63,7 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function createAudioWithoutProjectIdSetting()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
             'post_title' => 'ApiClientTest::createAudioWithoutProjectIdSetting',
@@ -83,7 +83,7 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function createAudio()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
@@ -105,7 +105,7 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function updateAudio()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
             'post_title' => 'ApiClientTest::updateAudio',
@@ -137,7 +137,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->deleteAudio($postId);
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
             'post_title' => 'ApiClientTest::deleteAudio::2',
@@ -176,7 +176,7 @@ class ApiClientTest extends WP_UnitTestCase
         $deleted = $this->_instance->batchDeleteAudio($postIds);
         $this->assertEquals([], $deleted);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $deleted = $this->_instance->batchDeleteAudio($postIds);
 
@@ -198,7 +198,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getLanguages();
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $response = $this->_instance->getLanguages();
 
@@ -247,7 +247,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getVoices(2);
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $response = $this->_instance->getVoices(2);
 
@@ -277,7 +277,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getProject();
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = $this->_instance->getProject();
@@ -303,7 +303,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getPlayerSettings();
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = $this->_instance->getPlayerSettings();
@@ -330,7 +330,7 @@ class ApiClientTest extends WP_UnitTestCase
         $response = $this->_instance->getVideoSettings();
         $this->assertFalse($response);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = $this->_instance->getVideoSettings();
@@ -491,7 +491,7 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function callApiWithInvalidJsonResponse()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
             'post_title' => 'ApiClientTest::callApiWithInvalidJsonResponse',
