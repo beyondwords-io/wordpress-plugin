@@ -58,38 +58,111 @@ Cypress.Commands.add( 'login', () => {
   cy.url().should( 'eq', `${baseUrl}/wp-admin/` )
 } )
 
-Cypress.Commands.add( 'savePluginSettings', () => {
+Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' )
+} )
+
+Cypress.Commands.add( 'showsAllSettingsTabs', () => {
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' )
+  cy.get( '.nav-tab' ).contains( 'Voices' )
+  cy.get( '.nav-tab' ).contains( 'Player' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' )
+  cy.get( '.nav-tab' ).contains( 'Advanced' )
+} )
+
+Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 0 ).contains( 'To use BeyondWords, please update the plugin settings.' )
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 1 ).contains( 'Don’t have a BeyondWords account yet?' )
+  cy.get( '.notice.notice-info' ).find( 'p' ).eq( 2 ).find( 'a.button.button-secondary' ).contains( 'Sign up free' )
+} )
+
+Cypress.Commands.add( 'showsInvalidApiCredsNotice', () => {
+  cy.get( '.notice-error' ).find( 'li' ).should('have.length', 1)
+  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.' )
+} )
+
+Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
+  return cy.get( '.notice.notice-info' )
+    .find( 'p' )
+    .eq( 0 )
+    .find( 'a' )
+    .then( $el => cy.wrap( $el ) )
+} )
+
+Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
   cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
 
   cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
   cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( Cypress.env( 'projectId' ) )
-  cy.get( '#submit' ).click().wait( 500 )
 
-  cy.get( '.beyondwords-setting--preselect--post-type input[type="checkbox"]' ).uncheck()
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
+} )
+
+Cypress.Commands.add( 'saveStandardPluginSettings', () => {
+  cy.saveMinimalPluginSettings()
+
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
+
+  cy.get( '#beyondwords_prepend_excerpt' ).uncheck()
   cy.get( 'input[name="beyondwords_preselect[post]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[page]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check()
   cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should( 'not.be.checked' )
   cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should( 'not.exist' )
 
-  cy.get( '#submit' ).click().wait( 500 )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
+} )
+
+Cypress.Commands.add( 'saveAllPluginSettings', () => {
+  cy.saveStandardPluginSettings()
+
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
+
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
 } )
 
 Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
-  cy.visit( '/wp-admin/options-general.php?page=beyondwords' )
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
 
   cy.get('#beyondwords_languages-ts-control').click().wait( 1000 )
   cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 1' ).click().wait( 1000 )
   cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 2' ).click().wait( 1000 )
 
-  cy.get( '#submit' ).click().wait( 500 )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
 } )
 
 Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
-  cy.visit( '/wp-admin/options-general.php?page=beyondwords' ).wait( 500 )
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
+
   cy.get( 'select[name="beyondwords_player_style"]' ).select( value )
-  cy.get( '#submit' ).click().wait( 500 )
+  cy.get( 'input[type=submit]' ).click()
+  cy.get( '.notice-success' )
 } )
+
+Cypress.Commands.add( 'visitPluginSiteHealth', () => {
+  cy.visit( '/wp-admin/site-health.php?tab=debug' ).wait( 500 )
+  cy.get( 'button[aria-controls="health-check-accordion-block-beyondwords"]' ).click()
+} )
+
+Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
+  return cy.contains( label )
+    .parent( 'tr' )
+    .find( 'td' ).eq( 1 )
+    .then( $el => cy.wrap( $el ) )
+  } )
 
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
   args.flat().forEach( plugin => {
@@ -113,6 +186,13 @@ Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
   args.flat().forEach( plugin => {
     cy.task( 'wp:plugin:uninstall', plugin )
   } )
+} )
+
+/**
+ * "Save as draft" for block editor.
+ */
+Cypress.Commands.add( 'saveAsDraft', () => {
+  cy.contains( 'button', 'Save draft' ).click().wait( 1000 )
 } )
 
 /**
@@ -143,8 +223,8 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
 } )
 
 Cypress.Commands.add( 'closeWelcomeToBlockEditorTips', () => {
-  // Waiting 1500ms here isn't ideal, but this is the most reliable method we have found
-  cy.wait( 1500 )
+  // Waiting 1000ms here isn't ideal, but this is the most reliable method we have found
+  cy.wait( 1000 )
   cy.window().then( win => {
     win.eval( 'wp.data.select( "core/edit-post" ).isFeatureActive( "welcomeGuide" ) && wp.data.dispatch( "core/edit-post" ).toggleFeature( "welcomeGuide" );' )
   } )
@@ -152,8 +232,10 @@ Cypress.Commands.add( 'closeWelcomeToBlockEditorTips', () => {
 
 Cypress.Commands.add( 'createBlockProgramatically', ( name, params = {} ) => {
   cy.window().then( win => {
-    win.eval( `var block = wp.blocks.createBlock( '${name}', ${JSON.stringify( params )} );` )
-    win.eval( `wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );` )
+    win.eval( `
+      var block = wp.blocks.createBlock( '${name}', ${JSON.stringify( params )} );
+      wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );
+    ` )
   } )
   cy.wait( 1000 );
 } )
@@ -253,12 +335,8 @@ Cypress.Commands.add( 'classicSetPostTitle', ( title ) => {
  * Add (append) a new paragraph block with the specified text.
  */
 Cypress.Commands.add( 'addParagraphBlock', ( text ) => {
-  // Click post title to make sure "+ block" shows
-  cy.clickTitleBlock();
-
-  // Click "+ block" button
-  cy.get('p.block-editor-default-block-appender__content').click().wait( 500 );
-  cy.get( 'body' ).type( `${text}` )
+  cy.get( '.wp-block-post-content p:last-of-type' ).click();
+  cy.get( 'body' ).type( `${text}{enter}` ).wait( 100 )
 } )
 
 /**
@@ -303,20 +381,32 @@ Cypress.Commands.add( 'assertDisplayPlayerIs', ( displayPlayer ) => {
     .should( displayPlayer ? 'exist' : 'not.exist' )
 } )
 
+Cypress.Commands.add( 'setPostStatus', ( status ) => {
+  cy.get( '.editor-post-status button' ).click()
+  cy.get( `.editor-change-status__options input[value="${status}"]` ).click()
+} )
+
 Cypress.Commands.add( 'publishWithConfirmation', ( generateAudio ) => {
-  // "Publish" in Prepublish panel
-  cy.contains( '.edit-post-header button', 'Publish' ).click().wait( 1000 )
+  // "Publish" in top bar
+  cy.get('.editor-post-publish-button__button').click().wait( 1000 )
 
   // Confirm "Publish" in the Prepublish panel
-  cy.get( '.editor-post-publish-panel__header-publish-button > .components-button' ).click()
+  cy.get( '.editor-post-publish-panel__header-publish-button > .components-button' ).click().wait( 250 )
+
+  // Close "Patterns" modal if it opens (introduced in WordPress 6.6)
+  cy.get( 'body' ).then( $body => {
+    if ( $body.find('.components-modal__frame' ).length ) {
+      cy.get( '.components-modal__frame button.components-button[aria-label="Close"]' ).click()
+    }
+  })
 
   // Close Prepublish panel
   cy.get( 'button[aria-label="Close panel"]' ).click()
 } )
 
-// "Publish" in Prepublish panel
-Cypress.Commands.add( 'updatePost', () => {
-  cy.contains( '.edit-post-header button', 'Update' ).click().wait( 1000 )
+// "Save" existing post
+Cypress.Commands.add( 'savePost', () => {
+  cy.get('.editor-post-publish-button').click().wait( 1000 )
 } )
 
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
@@ -355,11 +445,6 @@ Cypress.Commands.add( 'getFrontendLargePlayer', ( ...args ) => {
 // Get frontend video player element
 Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
   return cy.get( '.beyondwords-player .user-interface.video',  ...args )
-} )
-
-// Get frontend audio player element (legacy player)
-Cypress.Commands.add( 'getLegacyFrontendPlayer', ( ...args ) => {
-  return cy.get( '.sk-app-container',  ...args )
 } )
 
 /**

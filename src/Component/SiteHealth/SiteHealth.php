@@ -96,37 +96,6 @@ class SiteHealth
         $this->addPluginVersion($info);
         $this->addRestApiConnection($info);
 
-        $info['beyondwords']['fields']['beyondwords_api_key'] = [
-            'label' => __('API Key', 'speechkit'),
-            'value' => SiteHealth::maskString(get_option('beyondwords_api_key')),
-        ];
-
-        $info['beyondwords']['fields']['beyondwords_project_id'] = [
-            'label' => __('Project ID', 'speechkit'),
-            'value' => get_option('beyondwords_project_id'),
-        ];
-
-        $info['beyondwords']['fields']['beyondwords_player_version'] = [
-            'label' => __('Player version', 'speechkit'),
-            'value' => get_option('beyondwords_player_version'),
-        ];
-
-        $info['beyondwords']['fields']['beyondwords_player_ui'] = [
-            'label' => __('Player UI', 'speechkit'),
-            'value' => get_option('beyondwords_player_ui'),
-        ];
-
-        $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
-            'label' => __('Process excerpts', 'speechkit'),
-            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
-            'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
-        ];
-
-        $info['beyondwords']['fields']['beyondwords_preselect'] = [
-            'label' => __('Preselect ‘Generate audio’', 'speechkit'),
-            'value' => wp_json_encode(get_option('beyondwords_preselect')),
-        ];
-
         $info['beyondwords']['fields']['compatible-post-types'] = [
             'label' => __('Compatible post types', 'speechkit'),
             'value' => implode(', ', SettingsUtils::getCompatiblePostTypes()),
@@ -137,30 +106,181 @@ class SiteHealth
             'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
         ];
 
-        $info['beyondwords']['fields']['beyondwords_settings_updated'] = [
-            'label' => __('Settings updated', 'speechkit'),
-            'value' => get_option('beyondwords_settings_updated'),
+        $info['beyondwords']['fields']['beyondwords_api_key'] = [
+            'label' => __('API Key', 'speechkit'),
+            'value' => SiteHealth::maskString(get_option('beyondwords_api_key')),
         ];
 
-        $registered = array_values(array_filter(SiteHealth::FILTERS, 'has_filter'));
-
-        $info['beyondwords']['fields']['registered-filters'] = [
-            'label' => __('Registered filters', 'speechkit'),
-            'value' => empty($registered) ? __('None', 'speechkit') : implode(', ', $registered),
-            'debug' => empty($registered) ? 'none' : implode(', ', $registered),
+        $info['beyondwords']['fields']['beyondwords_project_id'] = [
+            'label' => __('Project ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_id'),
         ];
 
-        $registered = array_values(array_filter(SiteHealth::DEPRECATED_FILTERS, 'has_filter'));
+        $this->addContentSettings($info);
+        $this->addProjectSettings($info);
+        $this->addPlayerSettings($info);
 
-        $info['beyondwords']['fields']['registered-deprecated-filters'] = [
-            'label' => __('Registered deprecated filters', 'speechkit'),
-            'value' => empty($registered) ? __('None', 'speechkit') : implode(', ', $registered),
-            'debug' => empty($registered) ? 'none' : implode(', ', $registered),
+        $languages = get_option('beyondwords_languages');
+
+        $info['beyondwords']['fields']['beyondwords_languages'] = [
+            'label' => __('Multiple languages', 'speechkit'),
+            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '',
         ];
 
+        $this->addFilters($info);
+
+        $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
 
         return $info;
+    }
+
+    /**
+     * Add content settings to the info debugging array.
+     *
+     * @since 5.0.0
+     * @static
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addContentSettings(&$info)
+    {
+        $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
+            'label' => __('Include title in audio', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_project_title_enabled') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
+            'label' => __('Include excerpts in audio', 'speechkit'),
+            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_preselect'] = [
+            'label' => __('Preselect ‘Generate audio’', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_preselect'), JSON_PRETTY_PRINT),
+        ];
+    }
+
+    /**
+     * Add project settings to the info debugging array.
+     *
+     * @since 5.0.0
+     * @static
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addProjectSettings(&$info)
+    {
+        $info['beyondwords']['fields']['beyondwords_project_language_code'] = [
+            'label' => __('Default language code', 'speechkit'),
+            'value' => get_option('beyondwords_project_language_code'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_language_id'] = [
+            'label' => __('Default language ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_language_id'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_title_voice_id'] = [
+            'label' => __('Title voice ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_voice_id'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_title_voice_speaking_rate'] = [
+            'label' => __('Title voice speaking rate', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_voice_speaking_rate'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_body_voice_id'] = [
+            'label' => __('Body voice ID', 'speechkit'),
+            'value' => get_option('beyondwords_project_body_voice_id'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_body_voice_speaking_rate'] = [
+            'label' => __('Body voice speaking rate', 'speechkit'),
+            'value' => get_option('beyondwords_project_body_voice_speaking_rate'),
+        ];
+    }
+
+    /**
+     * Add player settings to the info debugging array.
+     *
+     * @since 5.0.0
+     * @static
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addPlayerSettings(&$info)
+    {
+        $info['beyondwords']['fields']['beyondwords_player_ui'] = [
+            'label' => __('Player UI', 'speechkit'),
+            'value' => get_option('beyondwords_player_ui'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_style'] = [
+            'label' => __('Player style', 'speechkit'),
+            'value' => get_option('beyondwords_player_style'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_theme'] = [
+            'label' => __('Player theme', 'speechkit'),
+            'value' => get_option('beyondwords_player_theme'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_theme_light'] = [
+            'label' => __('Light theme', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_player_theme_light'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_theme_dark'] = [
+            'label' => __('Dark theme', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_player_theme_dark'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_theme_video'] = [
+            'label' => __('Video theme', 'speechkit'),
+            'value' => (string) wp_json_encode(get_option('beyondwords_player_theme_video'), JSON_PRETTY_PRINT),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_call_to_action'] = [
+            'label' => __('Call-to-action', 'speechkit'),
+            'value' => get_option('beyondwords_player_call_to_action'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_highlight_sections'] = [
+            'label' => __('Text highlighting', 'speechkit'),
+            'value' => get_option('beyondwords_player_highlight_sections') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_player_highlight_sections') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_clickable_sections'] = [
+            'label' => __('Playback from segments', 'speechkit'),
+            'value' => get_option('beyondwords_player_clickable_sections') ? __('Yes') : __('No'),
+            'debug' => get_option('beyondwords_player_clickable_sections') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_widget_style'] = [
+            'label' => __('Widget style', 'speechkit'),
+            'value' => get_option('beyondwords_player_widget_style'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_widget_position'] = [
+            'label' => __('Widget position', 'speechkit'),
+            'value' => get_option('beyondwords_player_widget_position'),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_player_skip_button_style'] = [
+            'label' => __('Skip button style', 'speechkit'),
+            'value' => get_option('beyondwords_player_skip_button_style'),
+        ];
     }
 
     /**
@@ -203,7 +323,6 @@ class SiteHealth
      * @static
      *
      * @param array  $info Debugging info array
-     * @param string $name Constant name
      *
      * @return array
      */
@@ -245,7 +364,35 @@ class SiteHealth
     }
 
     /**
-     * Add a constant to the debugging info array.
+     * Adds filters.
+     *
+     * @since 5.0.0
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addFilters(&$info)
+    {
+        $registered = array_values(array_filter(SiteHealth::FILTERS, 'has_filter'));
+
+        $info['beyondwords']['fields']['registered-filters'] = [
+            'label' => __('Registered filters', 'speechkit'),
+            'value' => empty($registered) ? __('None', 'speechkit') : implode(', ', $registered),
+            'debug' => empty($registered) ? 'none' : implode(', ', $registered),
+        ];
+
+        $registered = array_values(array_filter(SiteHealth::DEPRECATED_FILTERS, 'has_filter'));
+
+        $info['beyondwords']['fields']['registered-deprecated-filters'] = [
+            'label' => __('Registered deprecated filters', 'speechkit'),
+            'value' => empty($registered) ? __('None', 'speechkit') : implode(', ', $registered),
+            'debug' => empty($registered) ? 'none' : implode(', ', $registered),
+        ];
+    }
+
+    /**
+     * Add a single constant to the debugging info array.
      *
      * @since  3.7.0
      * @static

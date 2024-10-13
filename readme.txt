@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 4.7.0
-Requires PHP: 7.4
-Tested up to: 6.5
+Stable tag: 5.0.0
+Requires PHP: 8.0
+Tested up to: 6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -80,11 +80,31 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 4.8.0 =
+= 5.0.0 =
 
-Release date: TBC
+Release date: 15th October 2024
 
-* Stop saving `beyondwords_podcast_id`. Plugin downgrades from `v4.8.0` or later to versions before `v4.0.0` are no longer supported.
+**Enhancements**
+
+* [#385](https://github.com/beyondwords-io/wordpress-plugin/pull/385) Extend plugin settings using a tabbed interface.
+    * The plugin settings screen has been expanded to include settings from the BeyondWords dashboard, allowing you to set various BeyondWords settings without leaving WordPress.
+    * Changes made in WordPress will be immediately copied over to the BeyondWords dashboard when the "Save settings" is pressed.
+    * Changes made in the BeyondWords dashboard will be copied over to WordPress when you visit the relevant plugin settings tab.
+
+**Breaking changes**
+
+* Legacy audio player support has been removed.
+    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin. 
+    * The standard [BeyondWords player](https://docs.beyondwords.io/docs-and-guides/player/overview) is now the only built-in option for the audio player.
+* Remove built-in Elementor compatibility.
+    * Basic support for audio generation and auto-player embeds should still work for posts that are created with Elementor, although you will be unable to see a BeyondWords player in the Elementor post edit screens. To view our player in WordPress admin you can temporarily switch to the Block or Classic editors.
+    * Refer to our [WordPress filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress) docs and the [Elementor hooks](https://developers.elementor.com/docs/hooks/) docs if you wish to add Elementor support to your site.
+* Stop saving the legacy `beyondwords_podcast_id` param. 
+    * This change means that audio generated with versions 5.x and later will play audio if the plugin is downgraded to `v3.x` or below. 
+    * If you need to downgrade to `v3.x` after using `v5.x` please contact us for instructions.
+* Remove deprecated filters.
+    * The following deprecated filters have been removed:
+        * ...
 
 = 4.7.0 =
 

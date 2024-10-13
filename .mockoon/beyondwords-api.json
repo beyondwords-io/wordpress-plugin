@@ -1,11 +1,11 @@
 {
   "uuid": "41d79333-3454-4966-85e2-fa39bd3f9a3a",
-  "lastMigration": 20,
+  "lastMigration": 32,
   "name": "BeyondWords API",
   "endpointPrefix": "v1",
   "latency": 0,
   "port": 3000,
-  "hostname": "0.0.0.0",
+  "hostname": "",
   "routes": [
     {
       "uuid": "cd87bb47-7354-486a-a677-048cb58b8ec8",
@@ -26,12 +26,15 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "109b6b86-17ef-4bdb-87dd-805a49286cd0",
@@ -52,7 +55,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "64833f07-fd55-4594-8de0-f97a22fb5e38",
@@ -68,35 +75,43 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             },
             {
               "target": "params",
               "modifier": "projectId",
               "value": "401",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "14f8b014-9397-4352-93c3-f6739c5c7d2c",
-          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"G B 7118 Amy, Brian\",\n  \"language\": \"en_GB\",\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 289,\n      \"name\": \"Amy\",\n      \"speaking_rate\": null\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 290,\n      \"name\": \"Brian\",\n      \"speaking_rate\": null\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\"\n}",
+          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"Mockoon Test Project\",\n  \"language\": \"bb_BB\",\n  \"language_id\": 2,\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 2,\n      \"name\": \"Voice 2\",\n      \"speaking_rate\": 90\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 3,\n      \"name\": \"Voice 3\",\n      \"speaking_rate\": 110\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\",\n  \"background_track\": null\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -108,24 +123,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "d2690a30-8265-4d82-a9d2-722cfe67531d",
@@ -146,7 +166,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "f36c793d-d1fd-4086-890f-4c427d0b2598",
@@ -162,19 +186,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "abd2f70e-e61d-42ea-909f-1332380be26d",
@@ -190,25 +220,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "069b5fcc-309c-4dca-bb93-f5777b5e30f2",
@@ -224,13 +261,18 @@
               "target": "header",
               "modifier": "X-Force-Response",
               "value": "invalid-json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "ecdb7657-8a38-4380-937e-54204529d2e5",
@@ -246,24 +288,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "913e6a62-d9ac-4660-b92b-cb924445f0f5",
@@ -284,7 +331,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9ee9714d-debe-47c4-824e-e7b4e83368b4",
@@ -300,19 +351,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "8035be8d-b28f-484b-a441-cf6eb6d8ddbc",
@@ -328,25 +385,32 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "52762211-f2da-4e53-a68f-74883e69e862",
@@ -362,24 +426,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "0c9ab669-5197-4c4e-afca-2a68e7e85a51",
@@ -400,7 +469,11 @@
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "a7f4dadc-f8fc-48b1-ab8d-cb6e5bb3f5ea",
@@ -416,19 +489,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "60a9454e-8e62-4d1f-ac92-b41a4cea5e87",
@@ -444,24 +523,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "bf826112-1999-46da-a858-75bd7231325a",
@@ -482,7 +566,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9270061d-4119-49ec-9ac7-89cead778a87",
@@ -498,19 +586,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Content-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "25ec67af-63ec-48e3-8b7a-23d51727dfe5",
@@ -526,24 +620,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "2b685998-43b3-4fac-b0b7-bdf7218c9c28",
@@ -564,7 +663,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "00f0dea1-9b58-4ce1-9c36-b028f4f49e6e",
@@ -580,29 +683,36 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "67b759fa-5a0f-41af-81b8-58e7a12db32d",
-          "body": "{\n  \"player_version\": \"1\",\n  \"player_style\": \"standard\",\n  \"player_title\": \"G B 7118 Amy, Brian\",\n  \"call_to_action\": \"Listen to this article\",\n  \"image_url\": \"\",\n  \"theme\": \"light\",\n  \"dark_theme\": {\n    \"text_color\": \"#FFF\",\n    \"background_color\": \"TRANSPARENT\",\n    \"icon_color\": \"#FFF\",\n    \"highlight_color\": \"#444\"\n  },\n  \"light_theme\": {\n    \"text_color\": \"#111\",\n    \"background_color\": \"#F5F5F5\",\n    \"icon_color\": \"#000\",\n    \"highlight_color\": \"#EEE\"\n  },\n  \"title_enabled\": false,\n  \"image_enabled\": true,\n  \"persistent_ad_image\": false,\n  \"widget_style\": \"standard\",\n  \"widget_position\": \"auto\",\n  \"segment_playback_enabled\": true,\n  \"skip_button_style\": \"auto\",\n  \"intro_url\": null,\n  \"outro_url\": null,\n  \"intro_outro_enabled\": false,\n  \"paywall_type\": \"none\",\n  \"paywall_url\": null,\n  \"download_button_enabled\": false,\n  \"share_button_enabled\": false,\n  \"voice_icon_enabled\": false,\n  \"logo_icon_enabled\": true,\n  \"analytics_enabled\": true,\n  \"analytics_uuid_enabled\": true,\n  \"analytics_url\": \"https://metrics.beyondwords.io/events\",\n  \"analytics_id\": 3814,\n  \"analytics_tag_enabled\": false,\n  \"analytics_tag\": null,\n  \"analytics_custom_url\": null,\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
+          "body": "{\n  \"enabled\": true,\n  \"player_version\": \"1\",\n  \"player_style\": \"standard\",\n  \"player_title\": \"G B 7118 Amy, Brian\",\n  \"call_to_action\": \"Listen to this article\",\n  \"image_url\": \"\",\n  \"theme\": \"light\",\n  \"dark_theme\": {\n    \"background_color\": \"TRANSPARENT\",\n    \"icon_color\": \"#FFF\",\n    \"text_color\": \"#FFF\",\n    \"highlight_color\": \"#444\"\n  },\n  \"light_theme\": {\n    \"background_color\": \"#F5F5F5\",\n    \"icon_color\": \"#000\",\n    \"text_color\": \"#111\",\n    \"highlight_color\": \"#EEE\"\n  },\n  \"video_theme\": {\n    \"background_color\": \"#F5F5F5\",\n    \"icon_color\": \"#000\",\n    \"text_color\": \"#111\"\n  },\n  \"title_enabled\": false,\n  \"image_enabled\": true,\n  \"persistent_ad_image\": false,\n  \"widget_style\": \"standard\",\n  \"widget_position\": \"auto\",\n  \"segment_playback_enabled\": true,\n  \"skip_button_style\": \"auto\",\n  \"intros_outros\": [],\n  \"intro_url\": null,\n  \"outro_url\": null,\n  \"intro_outro_enabled\": false,\n  \"paywall_type\": \"none\",\n  \"paywall_url\": null,\n  \"download_button_enabled\": false,\n  \"share_button_enabled\": false,\n  \"voice_icon_enabled\": false,\n  \"logo_icon_enabled\": true,\n  \"analytics_enabled\": true,\n  \"analytics_uuid_enabled\": true,\n  \"analytics_url\": \"https://metrics.beyondwords.io/events\",\n  \"analytics_id\": 3814,\n  \"analytics_tag_enabled\": false,\n  \"analytics_tag\": null,\n  \"analytics_custom_url\": null,\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -614,24 +724,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "7ea55ef7-f7e0-47bc-996a-4d2700e85463",
@@ -652,7 +767,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "1919617d-2089-4ade-8263-d6b196bec4ab",
@@ -668,19 +787,25 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "Conbtent-Type",
               "value": "^(?!application\\/json)$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "4d9a2419-dd24-4951-8cac-d76c50428dbc",
@@ -696,29 +821,36 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "03a49052-d373-4fbf-a69f-048712fffe9b",
-          "body": "{\n  \"player_version\": \"{{body 'player_version' '1'}}\",\n  \"player_style\": \"{{body 'player_style' 'standard'}}\",\n  \"player_title\": \"{{body 'player_title' 'G B 7118 Amy, Brian'}}\",\n  \"call_to_action\": \"{{body 'call_to_action' 'Listen to this article'}}\",\n  \"image_url\": \"{{body 'image_url' 'image_url'}}\",\n  \"theme\": \"{{body 'theme' 'light'}}\",\n  \"dark_theme\": {\n    \"text_color\": \"{{body 'dark_theme.text_color' '#FFF'}}\",\n    \"background_color\": \"{{body 'dark_theme.background_color' 'TRANSPARENT'}}\",\n    \"icon_color\": \"{{body 'dark_theme.icon_color' '#FFF'}}\",\n    \"highlight_color\": \"{{body 'dark_theme.highlight_color' '#444'}}\",\n  },\n  \"light_theme\": {\n    \"text_color\": \"{{body 'light_theme.text_color' '#111'}}\",\n    \"background_color\": \"{{body 'light_theme.background_color' '#F5F5F5'}}\",\n    \"icon_color\": \"{{body 'light_theme.icon_color' '#000'}}\",\n    \"highlight_color\": \"{{body 'light_theme.highlight_color' '#EEE'}}\",\n  },\n  \"title_enabled\": \"{{body 'title_enabled' false}}\",\n  \"image_enabled\": \"{{body 'image_enabled' true}}\",\n  \"persistent_ad_image\": \"{{body 'persistent_ad_image' false}}\",\n  \"widget_style\": \"{{body 'widget_style' 'standard'}}\",\n  \"widget_position\": \"{{body 'widget_position' 'auto'}}\",\n  \"segment_playback_enabled\": \"{{body 'segment_playback_enabled' true}}\",\n  \"skip_button_style\": \"{{body 'skip_button_style' 'auto'}}\",\n  \"intro_url\": \"{{body 'intro_url' null}}\",\n  \"outro_url\": \"{{body 'outro_url' null}}\",\n  \"intro_outro_enabled\": \"{{body 'intro_outro_enabled' false}}\",\n  \"paywall_type\": \"{{body 'paywall_type' 'none'}}\",\n  \"paywall_url\": \"{{body 'paywall_url' null}}\",\n  \"download_button_enabled\": \"{{body 'download_button_enabled' false}}\",\n  \"share_button_enabled\": \"{{body 'share_button_enabled' false}}\",\n  \"voice_icon_enabled\": \"{{body 'voice_icon_enabled' false}}\",\n  \"logo_icon_enabled\": \"{{body 'logo_icon_enabled' true}}\",\n  \"analytics_enabled\": \"{{body 'analytics_enabled' true}}\",\n  \"analytics_uuid_enabled\": \"{{body 'analytics_uuid_enabled' true}}\",\n  \"analytics_url\": \"{{body 'analytics_url' 'https://metrics.beyondwords.io/events'}}\",\n  \"analytics_id\": \"{{body 'analytics_id' 3814}}\",\n  \"analytics_tag_enabled\": \"{{body 'analytics_tag_enabled' false}}\",\n  \"analytics_tag\": \"{{body 'analytics_tag' null}}\",\n  \"analytics_custom_url\": \"{{body 'analytics_custom_url' null}}\",\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
+          "body": "{\n  \"enabled\": \"{{body 'enabled' true}}\",\n  \"player_version\": \"{{body 'player_version' '1'}}\",\n  \"player_style\": \"{{body 'player_style' 'standard'}}\",\n  \"player_title\": \"{{body 'player_title' 'G B 7118 Amy, Brian'}}\",\n  \"call_to_action\": \"{{body 'call_to_action' 'Listen to this article'}}\",\n  \"image_url\": \"{{body 'image_url' 'image_url'}}\",\n  \"theme\": \"{{body 'theme' 'light'}}\",\n  \"dark_theme\": {\n    \"text_color\": \"{{body 'dark_theme.text_color' '#FFF'}}\",\n    \"background_color\": \"{{body 'dark_theme.background_color' 'TRANSPARENT'}}\",\n    \"icon_color\": \"{{body 'dark_theme.icon_color' '#FFF'}}\",\n    \"highlight_color\": \"{{body 'dark_theme.highlight_color' '#444'}}\",\n  },\n  \"light_theme\": {\n    \"text_color\": \"{{body 'light_theme.text_color' '#111'}}\",\n    \"background_color\": \"{{body 'light_theme.background_color' '#F5F5F5'}}\",\n    \"icon_color\": \"{{body 'light_theme.icon_color' '#000'}}\",\n    \"highlight_color\": \"{{body 'light_theme.highlight_color' '#EEE'}}\",\n  },\n  \"video_theme\": {\n    \"text_color\": \"{{body 'video_theme.text_color' '#111'}}\",\n    \"background_color\": \"{{body 'video_theme.background_color' '#F5F5F5'}}\",\n    \"icon_color\": \"{{body 'video_theme.icon_color' '#000'}}\",\n  },\n  \"title_enabled\": \"{{body 'title_enabled' false}}\",\n  \"image_enabled\": \"{{body 'image_enabled' true}}\",\n  \"persistent_ad_image\": \"{{body 'persistent_ad_image' false}}\",\n  \"widget_style\": \"{{body 'widget_style' 'standard'}}\",\n  \"widget_position\": \"{{body 'widget_position' 'auto'}}\",\n  \"segment_playback_enabled\": \"{{body 'segment_playback_enabled' true}}\",\n  \"skip_button_style\": \"{{body 'skip_button_style' 'auto'}}\",\n  \"intros_outros\":\"{{body 'intro_url' []}}\",\n  \"intro_url\": \"{{body 'intro_url' null}}\",\n  \"outro_url\": \"{{body 'outro_url' null}}\",\n  \"intro_outro_enabled\": \"{{body 'intro_outro_enabled' false}}\",\n  \"paywall_type\": \"{{body 'paywall_type' 'none'}}\",\n  \"paywall_url\": \"{{body 'paywall_url' null}}\",\n  \"download_button_enabled\": \"{{body 'download_button_enabled' false}}\",\n  \"share_button_enabled\": \"{{body 'share_button_enabled' false}}\",\n  \"voice_icon_enabled\": \"{{body 'voice_icon_enabled' false}}\",\n  \"logo_icon_enabled\": \"{{body 'logo_icon_enabled' true}}\",\n  \"analytics_enabled\": \"{{body 'analytics_enabled' true}}\",\n  \"analytics_uuid_enabled\": \"{{body 'analytics_uuid_enabled' true}}\",\n  \"analytics_url\": \"{{body 'analytics_url' 'https://metrics.beyondwords.io/events'}}\",\n  \"analytics_id\": \"{{body 'analytics_id' 3814}}\",\n  \"analytics_tag_enabled\": \"{{body 'analytics_tag_enabled' false}}\",\n  \"analytics_tag\": \"{{body 'analytics_tag' null}}\",\n  \"analytics_custom_url\": \"{{body 'analytics_custom_url' null}}\",\n  \"updated\": \"2023-06-22T12:16:11Z\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -730,24 +862,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "e0249159-42d3-48e7-835d-4aa46214d544",
@@ -768,7 +905,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "30f6996c-7431-43bc-8642-38ccc9f69bf0",
@@ -784,29 +925,36 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "324ed49b-4a70-439e-873d-cabb66f686f8",
-          "body": "{\n  \"enabled\": true,\n  \"logo_image_url\": null,\n  \"logo_image_position\": \"top-right\",\n  \"background_color\": \"white\",\n  \"text_background_color\": \"rgba(255, 255, 255, 0.88)\",\n  \"text_color\": \"black\",\n  \"text_highlight_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"waveform_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"content_image_enabled\": true\n}",
+          "body": "{\n  \"enabled\": true,\n  \"logo_image_url\": null,\n  \"logo_image_position\": \"top-right\",\n  \"background_color\": \"white\",\n  \"text_background_color\": \"rgba(255, 255, 255, 0.88)\",\n  \"text_color\": \"black\",\n  \"text_highlight_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"waveform_color\": \"linear-gradient(to right, #933AFB, #FB3A41)\",\n  \"content_image_enabled\": true,\n  \"image_extraction_enabled\": true,\n  \"pan_and_zoom_enabled\": true\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -818,24 +966,29 @@
               "target": "header",
               "modifier": "Content-Type",
               "value": "application/json",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "0cd387b4-2fe4-40d9-b535-511214e4bbb4",
@@ -856,7 +1009,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "33d84d20-b2d5-4948-949e-70b388665e2a",
@@ -872,29 +1029,36 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "b4facbac-041d-4800-ad1f-3b1a8b9ea2fb",
-          "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Language 1\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Language 2\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Language 3\"\n  }\n]",
+          "body": "[\n  {\n    \"code\": \"aa_AA\",\n    \"name\": \"Language 1\",\n    \"id\": 1,\n    \"created\": \"2022-01-25T07:40:27Z\",\n    \"default_voices\": {\n      \"title\": {\n        \"id\": 2,\n        \"name\": \"Voice 2\",\n        \"speaking_rate\": 95\n      },\n      \"body\": {\n        \"id\": 3,\n        \"name\": \"Voice 3\",\n        \"speaking_rate\": 105\n      }\n    }\n  },\n  {\n    \"code\": \"bb_BB\",\n    \"name\": \"Language 2\",\n    \"id\": 2,\n    \"created\": \"2022-01-25T07:40:27Z\",\n    \"default_voices\": {\n      \"title\": {\n        \"id\": 2,\n        \"name\": \"Voice 2\",\n        \"speaking_rate\": 90\n      },\n      \"body\": {\n        \"id\": 3,\n        \"name\": \"Voice 3\",\n        \"speaking_rate\": 110\n      }\n    }\n  },\n  {\n    \"code\": \"cc_CC\",\n    \"name\": \"Language 3\",\n    \"id\": 3,\n    \"created\": \"2022-01-25T07:40:27Z\",\n    \"default_voices\": {\n      \"title\": {\n        \"id\": 2,\n        \"name\": \"Voice 2\",\n        \"speaking_rate\": 85\n      },\n      \"body\": {\n        \"id\": 3,\n        \"name\": \"Voice 3\",\n        \"speaking_rate\": 115\n      }\n    }\n  }\n]",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -906,18 +1070,22 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
     },
     {
       "uuid": "8cb807f4-6c1b-41b2-a8ec-5c6d4bae3380",
@@ -938,7 +1106,11 @@
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "ef5003de-95d7-4efd-8b95-c0df0636c415",
@@ -954,29 +1126,36 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "null"
+              "operator": "null",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "",
-              "operator": "equals"
+              "operator": "equals",
+              "invert": false
             },
             {
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         },
         {
           "uuid": "9c63284f-f1d5-401e-9371-4e9bb2be2b0b",
-          "body": "[\n  {{! `filter` works here instead of `filter.language\\.id` ¯\\_(ツ)_/¯ }}\n  {{#each (queryParamRaw 'filter')}}\n    {\n      \"id\": 1,\n      \"name\": \"Voice {{this}}-a\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Voice {{this}}-b\"\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Voice {{this}}-c\"\n    }{{#unless @last}},{{/unless}}\n  {{/each}}\n]\n",
+          "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Voice 1\",\n    \"language\": \"bb_BB\",\n    \"service\": \"GCP\",\n    \"premium\": false,\n    \"preview_url\": \"https://d22tbkdovk5ea2.cloudfront.net/audio/previews/he/gc/5a9f46eb37a249754be8eaed655cba12.mp3\",\n    \"exclusive\": false,\n    \"speaking_rate\": 100,\n    \"created\": \"2023-03-01T08:31:11Z\",\n    \"updated\": \"2023-03-01T08:31:12Z\",\n    \"secondary_languages\": []\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Voice 2\",\n    \"language\": \"bb_BB\",\n    \"service\": \"GCP\",\n    \"premium\": false,\n    \"preview_url\": \"https://d22tbkdovk5ea2.cloudfront.net/audio/previews/he/gc/5a9f46eb37a249754be8eaed655cba12.mp3\",\n    \"exclusive\": false,\n    \"speaking_rate\": 100,\n    \"created\": \"2023-03-01T08:31:11Z\",\n    \"updated\": \"2023-03-01T08:31:12Z\",\n    \"secondary_languages\": []\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Voice 3\",\n    \"language\": \"bb_BB\",\n    \"service\": \"GCP\",\n    \"premium\": false,\n    \"preview_url\": \"https://d22tbkdovk5ea2.cloudfront.net/audio/previews/he/gc/5a9f46eb37a249754be8eaed655cba12.mp3\",\n    \"exclusive\": false,\n    \"speaking_rate\": 100,\n    \"created\": \"2023-03-01T08:31:11Z\",\n    \"updated\": \"2023-03-01T08:31:12Z\",\n    \"secondary_languages\": []\n  }\n]\n",
           "latency": 0,
           "statusCode": 200,
           "label": "OK",
@@ -988,18 +1167,298 @@
               "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
-              "operator": "regex"
+              "operator": "regex",
+              "invert": false
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": false
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
         }
       ],
-      "enabled": true,
-      "randomResponse": false,
-      "sequentialResponse": false
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "c13a0742-8f91-40dd-ab59-cc2beee69766",
+      "documentation": "Update voice",
+      "method": "put",
+      "endpoint": "organization/voices/:voiceId",
+      "responses": [
+        {
+          "uuid": "c762fe2b-ce9f-412a-9c35-d0d23019a704",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "b14d8582-3593-4ee9-84f3-dd429157dcc0",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "b0965773-9b4b-47a4-8474-cbec04d0e68a",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "equals",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "6a203263-138d-4b04-a8dd-addec47ce41e",
+          "body": "{\n  \"id\": \"{{urlParam 'voiceId'}}\",\n  \"name\": \"Voice 1\",\n  \"language\": \"en_GB\",\n  \"service\": \"GCP\",\n  \"premium\": false,\n  \"preview_url\": \"https://d22tbkdovk5ea2.cloudfront.net/audio/previews/he/gc/5a9f46eb37a249754be8eaed655cba12.mp3\",\n  \"exclusive\": false,\n  \"speaking_rate\": 100,\n  \"created\": \"2023-03-01T08:31:11Z\",\n  \"updated\": \"2023-03-01T08:31:12Z\",\n  \"secondary_languages\": []\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "464ebbc4-7b5a-41b0-a200-045e9edbf724",
+      "documentation": "Update project",
+      "method": "put",
+      "endpoint": "projects/:projectId",
+      "responses": [
+        {
+          "uuid": "b078498b-24b4-4857-9bfd-bf52271d64f7",
+          "body": "{\"type\": \"application_error\", \"message\": \"Unexpected Error.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal server error",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "325dbfdb-5a5c-44ff-8d03-4cdea1f12c12",
+          "body": "{\"type\": \"invalid_content_type\", \"message\": \"Invalid Content-Type.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Invalid Content-Type",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "",
+              "operator": "null",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "Conbtent-Type",
+              "value": "^(?!application\\/json)$",
+              "operator": "regex",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "50105bcb-3773-444a-9613-530a8a542e32",
+          "body": "{\"type\": \"permission_error\", \"message\": \"Authentication token was not recognized.\", \"context\": {}}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Invalid Authentication",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "null",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "",
+              "operator": "equals",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "^(?!write_([a-zA-Z0-9_]+)).*$",
+              "operator": "equals",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "e5372d98-67a1-45c4-81a8-19fc8aaa4f4e",
+          "body": "{\n  \"id\": {{urlParam 'projectId'}},\n  \"name\": \"Mockoon Test Project\",\n  \"language\": \"bb_BB\",\n  \"auto_publish_enabled\": true,\n  \"title\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 2,\n      \"name\": \"Voice 2\",\n      \"speaking_rate\": 90\n    }\n  },\n  \"body\": {\n    \"enabled\": true,\n    \"voice\": {\n      \"id\": 3,\n      \"name\": \"Voice 3\",\n      \"speaking_rate\": 110\n    }\n  },\n  \"summary\": {\n    \"enabled\": false\n  },\n  \"time_zone\": \"London\",\n  \"created\": \"2020-09-05T11:52:14Z\",\n  \"updated\": \"2023-03-30T12:14:37Z\",\n  \"background_track\": null\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "OK",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Content-Type",
+              "value": "application/json",
+              "operator": "equals",
+              "invert": false
+            },
+            {
+              "target": "header",
+              "modifier": "X-Api-Key",
+              "value": "write_([a-zA-Z0-9_]+)",
+              "operator": "regex",
+              "invert": false
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
     }
   ],
   "proxyMode": false,
@@ -1044,5 +1503,62 @@
       "key": "",
       "value": ""
     }
-  ]
+  ],
+  "data": [],
+  "folders": [],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "cd87bb47-7354-486a-a677-048cb58b8ec8"
+    },
+    {
+      "type": "route",
+      "uuid": "109b6b86-17ef-4bdb-87dd-805a49286cd0"
+    },
+    {
+      "type": "route",
+      "uuid": "464ebbc4-7b5a-41b0-a200-045e9edbf724"
+    },
+    {
+      "type": "route",
+      "uuid": "d2690a30-8265-4d82-a9d2-722cfe67531d"
+    },
+    {
+      "type": "route",
+      "uuid": "913e6a62-d9ac-4660-b92b-cb924445f0f5"
+    },
+    {
+      "type": "route",
+      "uuid": "0c9ab669-5197-4c4e-afca-2a68e7e85a51"
+    },
+    {
+      "type": "route",
+      "uuid": "bf826112-1999-46da-a858-75bd7231325a"
+    },
+    {
+      "type": "route",
+      "uuid": "2b685998-43b3-4fac-b0b7-bdf7218c9c28"
+    },
+    {
+      "type": "route",
+      "uuid": "7ea55ef7-f7e0-47bc-996a-4d2700e85463"
+    },
+    {
+      "type": "route",
+      "uuid": "e0249159-42d3-48e7-835d-4aa46214d544"
+    },
+    {
+      "type": "route",
+      "uuid": "0cd387b4-2fe4-40d9-b535-511214e4bbb4"
+    },
+    {
+      "type": "route",
+      "uuid": "8cb807f4-6c1b-41b2-a8ec-5c6d4bae3380"
+    },
+    {
+      "type": "route",
+      "uuid": "c13a0742-8f91-40dd-ab59-cc2beee69766"
+    }
+  ],
+  "callbacks": []
 }

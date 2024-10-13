@@ -7,7 +7,6 @@ namespace Beyondwords\Wordpress;
 use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Core;
-use Beyondwords\Wordpress\Core\Player\LegacyPlayer;
 use Beyondwords\Wordpress\Core\Player\Player;
 use Beyondwords\Wordpress\Core\Updater;
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
@@ -85,11 +84,7 @@ class Plugin
         (new SiteHealth())->init();
 
         // Player
-        if (SettingsUtils::useLegacyPlayer()) {
-            (new LegacyPlayer())->init();
-        } else {
-            (new Player())->init();
-        }
+        (new Player())->init();
 
         // Settings
         (new Settings($this->apiClient))->init();

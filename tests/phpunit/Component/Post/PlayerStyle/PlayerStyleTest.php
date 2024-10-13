@@ -23,7 +23,7 @@ class PostPlayerStyleTest extends WP_UnitTestCase
         // Your set up methods here.
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(DATE_ISO8601));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -63,30 +63,6 @@ class PostPlayerStyleTest extends WP_UnitTestCase
             'post_title' => 'PostPlayerStyleTest::element',
         ]);
 
-        $transientName = sprintf('beyondwords_player_styles[%s]', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        /**
-         * Each player style is an associative array with the following keys:
-         * - string  `label`    The option label e.g. "Standard"
-         * - string  `value`    The option value e.g. "standard"
-         * - boolean `disabled` (Optional) Is this option disabled?
-         * - boolean `default`  (Optional) Is this the default player style, assigned in the plugin settings?
-        */
-        set_transient($transientName, [
-            [
-                'label' => 'Foo',
-                'value' => 'foo',
-            ],
-            [
-                'label' => 'Bar',
-                'value' => 'bar',
-            ],
-            [
-                'label' => 'Baz',
-                'value' => 'baz',
-            ],
-        ]);
-
         $playerStyle->element($post);
 
         $html = $this->getActualOutput();
@@ -98,14 +74,20 @@ class PostPlayerStyleTest extends WP_UnitTestCase
         $select = $crawler->filter('#beyondwords_player_style');
         $this->assertCount(1, $select);
 
-        $this->assertSame('foo', $select->filter('option:nth-child(1)')->attr('value'));
-        $this->assertSame('Foo', $select->filter('option:nth-child(1)')->text());
+        $this->assertSame('', $select->filter('option:nth-child(1)')->attr('value'));
+        $this->assertSame('', $select->filter('option:nth-child(1)')->text());
 
-        $this->assertSame('bar', $select->filter('option:nth-child(2)')->attr('value'));
-        $this->assertSame('Bar', $select->filter('option:nth-child(2)')->text());
+        $this->assertSame('standard', $select->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('Standard', $select->filter('option:nth-child(2)')->text());
 
-        $this->assertSame('baz', $select->filter('option:nth-child(3)')->attr('value'));
-        $this->assertSame('Baz', $select->filter('option:nth-child(3)')->text());
+        $this->assertSame('small', $select->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('Small', $select->filter('option:nth-child(3)')->text());
+
+        $this->assertSame('large', $select->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('Large', $select->filter('option:nth-child(4)')->text());
+
+        $this->assertSame('video', $select->filter('option:nth-child(5)')->attr('value'));
+        $this->assertSame('Video', $select->filter('option:nth-child(5)')->text());
 
         $label = $crawler->filter('p#beyondwords-metabox-player-style');
 

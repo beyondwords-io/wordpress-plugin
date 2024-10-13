@@ -16,7 +16,7 @@ use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PostMetabox setup
+ * PostMetabox
  *
  * @since 3.0.0
  */
@@ -55,7 +55,7 @@ class DisplayPlayer
         if (
             ! isset($_POST['beyondwords_display_player_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_display_player_nonce']),
+                sanitize_key($_POST['beyondwords_display_player_nonce']),
                 'beyondwords_display_player'
             )
         ) {
@@ -93,7 +93,7 @@ class DisplayPlayer
                 id="beyondwords_display_player"
                 name="beyondwords_display_player"
                 value="1"
-                <?php checked($displayPlayer, true); ?>
+                <?php checked($displayPlayer); ?>
             />
             <?php esc_html_e('Display player', 'speechkit'); ?>
         </p>

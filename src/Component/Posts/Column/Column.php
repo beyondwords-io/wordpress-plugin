@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
- * Column setup
+ * Column
  *
  * @since 3.0.0
  */

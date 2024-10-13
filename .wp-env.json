@@ -11,9 +11,14 @@
     "config": {
         "AUTOMATIC_UPDATER_DISABLED": true,
         "WP_AUTO_UPDATE_CORE": false,
-        "WP_DEBUG": false
+        "WP_DEBUG": true,
+        "WP_DEBUG_LOG": true,
+        "SCRIPT_DEBUG": true,
+        "WP_DEBUG_DISPLAY": true,
+        "WP_PHP_BINARY": "php"
     },
     "mappings": {
+        "wp-content/debug.log": "./log/debug.log",
         "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
         "wp-content/plugins/classic-editor": "https://downloads.wordpress.org/plugin/classic-editor.zip",
         "wp-content/plugins/beyondwords-filter-content-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-content-params",
@@ -28,7 +33,8 @@
     "env": {
         "tests": {
             "config": {
-                "BEYONDWORDS_API_URL": "http://host.docker.internal:3000/v1"
+                "BEYONDWORDS_API_URL": "http://host.docker.internal:3000/v1",
+                "BEYONDWORDS_AUTO_SYNC_SETTINGS": false
             }
         }
     }

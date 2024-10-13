@@ -1,4 +1,10 @@
 context( 'Block Editor: Display Player', () => {
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.saveStandardPluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )
@@ -45,7 +51,7 @@ context( 'Block Editor: Display Player', () => {
       cy.getLabel( 'Display player' ).click()
       cy.getBlockEditorCheckbox( 'Display player' ).should( 'not.be.checked' )
 
-      cy.updatePost()
+      cy.savePost()
 
       // "View post"
       cy.viewPostViaSnackbar()
@@ -68,7 +74,7 @@ context( 'Block Editor: Display Player', () => {
       cy.getLabel( 'Display player' ).click()
       cy.getBlockEditorCheckbox( 'Display player' ).should( 'be.checked' )
 
-      cy.updatePost()
+      cy.savePost()
 
       // "View post"
       cy.viewPostViaSnackbar()

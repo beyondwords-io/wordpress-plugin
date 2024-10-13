@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
 
 /**

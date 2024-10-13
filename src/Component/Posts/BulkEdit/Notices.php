@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * BeyondWords Bulk Edit.
+ * BeyondWords BulkEdit Notices.
  *
  * Text Domain: beyondwords
  *
@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
 
 /**
- * BulkEdit setup
+ * Notices
  *
  * @since 4.5.0
  */
@@ -37,15 +37,18 @@ class Notices
      */
     public function generatedNotice()
     {
-        if (! isset($_GET['beyondwords_bulk_edit_result_nonce'])) {
+        if (
+            ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
+            || ! isset($_GET['beyondwords_bulk_generated'])
+        ) {
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
-        $count = intval(sanitize_text_field($_GET['beyondwords_bulk_generated'] ?? ''));
+        $count = intval(sanitize_text_field(wp_unslash($_GET['beyondwords_bulk_generated'])));
 
         if ($count) {
             $message = sprintf(
@@ -73,15 +76,18 @@ class Notices
      */
     public function deletedNotice()
     {
-        if (! isset($_GET['beyondwords_bulk_edit_result_nonce'])) {
+        if (
+            ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
+            || ! isset($_GET['beyondwords_bulk_deleted'])
+        ) {
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
-        $count = intval(sanitize_text_field($_GET['beyondwords_bulk_deleted'] ?? ''));
+        $count = intval(sanitize_text_field(wp_unslash($_GET['beyondwords_bulk_deleted'])));
 
         if ($count) {
             $message = sprintf(
@@ -109,15 +115,18 @@ class Notices
      */
     public function failedNotice()
     {
-        if (! isset($_GET['beyondwords_bulk_edit_result_nonce'])) {
+        if (
+            ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
+            || ! isset($_GET['beyondwords_bulk_failed'])
+        ) {
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
-        $count = intval(sanitize_text_field($_GET['beyondwords_bulk_failed'] ?? ''));
+        $count = intval(sanitize_text_field(wp_unslash($_GET['beyondwords_bulk_failed'])));
 
         if ($count) {
             $message = sprintf(
@@ -145,15 +154,18 @@ class Notices
      */
     public function errorNotice()
     {
-        if (! isset($_GET['beyondwords_bulk_edit_result_nonce'])) {
+        if (
+            ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
+            || ! isset($_GET['beyondwords_bulk_error'])
+        ) {
             return;
         }
 
-        if (! wp_verify_nonce(sanitize_text_field($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
+        if (! wp_verify_nonce(sanitize_key($_GET['beyondwords_bulk_edit_result_nonce']), 'beyondwords_bulk_edit_result')) { // phpcs:ignore Generic.Files.LineLength.TooLong
             wp_nonce_ays('');
         }
 
-        $message = sanitize_text_field($_GET['beyondwords_bulk_error'] ?? '');
+        $message = sanitize_text_field(wp_unslash($_GET['beyondwords_bulk_error']));
 
         if ($message) {
             ?>

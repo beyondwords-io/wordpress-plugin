@@ -17,6 +17,13 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		index: path.resolve( process.cwd(), 'src', 'index.js' ),
+		settings: path.resolve(
+			process.cwd(),
+			'src',
+			'Component',
+			'Settings',
+			'index.js'
+		),
 	},
 	plugins: [
 		...defaultConfig.plugins,
@@ -36,11 +43,6 @@ module.exports = {
 			'process.env.BEYONDWORDS_JS_SDK_URL': JSON.stringify(
 				process.env.BEYONDWORDS_JS_SDK_URL ||
 					'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js'
-			),
-			'process.env.BEYONDWORDS_JS_SDK_URL_LEGACY': JSON.stringify(
-				process.env.BEYONDWORDS_JS_SDK_URL_LEGACY ||
-					// eslint-disable-next-line max-len
-					'https://proxy.beyondwords.io/npm/@beyondwords/audio-player@latest/dist/module/index.js'
 			),
 		} ),
 	],

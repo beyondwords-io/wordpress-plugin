@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
+import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/editor';
 import { Component, Fragment } from '@wordpress/element';
 
 /**
@@ -10,7 +10,7 @@ import { Component, Fragment } from '@wordpress/element';
  */
 import HelpPanel from '../../Post/Panel/Help';
 import InspectPanel from '../../Post/Panel/Inspect';
-import StatusPanel from '../../Post/Panel/Status';
+import PlayerPanel from '../../Post/Panel/Player';
 
 export default class Sidebar extends Component {
 	render() {
@@ -23,7 +23,7 @@ export default class Sidebar extends Component {
 					name="plugin-sidebar"
 					title={ __( 'BeyondWords', 'speechkit' ) }
 				>
-					<StatusPanel />
+					<PlayerPanel />
 					<HelpPanel />
 					<InspectPanel />
 				</PluginSidebar>

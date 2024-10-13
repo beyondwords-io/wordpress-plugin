@@ -49,7 +49,7 @@ yarn composer install
 Ensure that Docker is running, then:
 
 ```bash
-yarn wp-env start
+yarn wp-env:start
 ```
 
 After a few minutes, you should see something like:

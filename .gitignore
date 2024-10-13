@@ -14,6 +14,7 @@
 /build
 /codeception.yml
 /cypress.env.json
+/log
 /node_modules
 /tests/cypress/downloads
 /tests/cypress/results

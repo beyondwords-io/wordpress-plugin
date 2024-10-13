@@ -1,7 +1,7 @@
 <?php
 
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
-use Beyondwords\Wordpress\Component\Settings\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
 class BlockAttributesTest extends WP_UnitTestCase
 {

@@ -13,16 +13,29 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\PlayerStyle;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\PlayerStyle\PlayerStyle as PlayerStyleSetting;
+use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle as PlayerStyleSetting;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
 /**
- * PlayerStyle setup
+ * PlayerStyle
  *
  * @since 4.1.0
  */
 class PlayerStyle
 {
+    /**
+     * Player styles.
+     *
+     * @var array Arry of player styles.
+     */
+    public const PLAYER_STYLES = [
+        'small',
+        'standard',
+        'large',
+        'screen',
+        'video',
+    ];
+
     /**
      * Constructor
      */
@@ -53,14 +66,8 @@ class PlayerStyle
      */
     public function element($post)
     {
-        $projectId = PostMetaUtils::getProjectId($post->ID);
-
-        $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = PlayerStyleSetting::getCachedPlayerStyles($projectId);
-
-        if (! is_array($allPlayerStyles) || ! count($allPlayerStyles)) {
-            return;
-        }
+        $playerStyle     = PostMetaUtils::getPlayerStyle($post->ID);
+        $allPlayerStyles = PlayerStyleSetting::getOptions();
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -73,6 +80,7 @@ class PlayerStyle
             </label>
         </p>
         <select id="beyondwords_player_style" name="beyondwords_player_style" style="width: 100%;">
+            <option value=""></option>
             <?php
             foreach ($allPlayerStyles as $item) {
                 printf(
@@ -109,14 +117,14 @@ class PlayerStyle
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
             ! wp_verify_nonce(
-                sanitize_text_field($_POST['beyondwords_player_style_nonce']),
+                sanitize_key($_POST['beyondwords_player_style_nonce']),
                 'beyondwords_player_style'
             )
         ) {
             return $postId;
         }
 
-        $playerStyle = sanitize_text_field($_POST['beyondwords_player_style']);
+        $playerStyle = sanitize_text_field(wp_unslash($_POST['beyondwords_player_style']));
 
         if (! empty($playerStyle)) {
             update_post_meta($postId, 'beyondwords_player_style', $playerStyle);
@@ -150,14 +158,11 @@ class PlayerStyle
      * "Player styles" WP REST API response (required for the Gutenberg editor).
      *
      * @since 4.1.0
-     *
-     * @return \WP_REST_Response
+     * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
      */
-    public function playerStylesRestApiResponse(\WP_REST_Request $data)
+    public function playerStylesRestApiResponse()
     {
-        $params = $data->get_url_params();
-
-        $response = PlayerStyleSetting::getCachedPlayerStyles($params['projectId']);
+        $response = PlayerStyleSetting::getOptions();
 
         // Convert from object to array so we can use find() in Block Editor JS.
         $response = array_values($response);

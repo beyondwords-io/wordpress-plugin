@@ -1,4 +1,10 @@
 context( 'Block Editor: Add Post', () => {
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.saveStandardPluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )
@@ -77,11 +83,11 @@ context( 'Block Editor: Add Post', () => {
 
       cy.checkGenerateAudio( postType )
 
-      cy.getLabel( 'Pending review' ).click();
+      cy.setPostStatus( 'pending' )
 
       cy.setPostTitle( `I can add a ${postType.name} with "Pending Review" audio` )
 
-      cy.saveAsPending()
+      cy.get('.editor-post-publish-button__button').click().wait( 1000 )
 
       cy.getLabel( 'Generate audio' ).should( 'not.exist' )
 

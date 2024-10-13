@@ -60,11 +60,9 @@ class SiteHealthTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey('beyondwords_api_key', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_project_id', $info['beyondwords']['fields']);
-        $this->assertArrayHasKey('beyondwords_player_version', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_player_ui', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_prepend_excerpt', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_preselect', $info['beyondwords']['fields']);
-        $this->assertArrayHasKey('beyondwords_settings_updated', $info['beyondwords']['fields']);
 
         $this->assertArrayHasKey('compatible-post-types', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('incompatible-post-types', $info['beyondwords']['fields']);
@@ -72,6 +70,7 @@ class SiteHealthTest extends WP_UnitTestCase
         $this->assertArrayHasKey('registered-filters', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('registered-deprecated-filters', $info['beyondwords']['fields']);
 
+        $this->assertArrayHasKey('BEYONDWORDS_AUTO_SYNC_SETTINGS', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('BEYONDWORDS_AUTOREGENERATE', $info['beyondwords']['fields']);
     }
 

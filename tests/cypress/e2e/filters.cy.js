@@ -1,4 +1,10 @@
 describe( 'WordPress Filters', () => {
+  before( () => {
+    cy.task( 'reset' )
+    cy.login()
+    cy.saveStandardPluginSettings()
+  } )
+
   beforeEach( () => {
     cy.login()
   } )

@@ -23,7 +23,10 @@
         </testsuite>
     </testsuites>
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
-              processUncoveredFiles="true">
+            includeUncoveredFiles="true"
+            processUncoveredFiles="true"
+            ignoreDeprecatedCodeUnits="true"
+            disableCodeCoverageIgnore="true">
         <include>
             <directory suffix=".php">src</directory>
         </include>
@@ -37,7 +40,4 @@
             <text outputFile="tests/phpunit/_report/coverage.txt" showUncoveredFiles="false" showOnlySummary="true"/>
         </report>
     </coverage>
-    <logging>
-        <log type="coverage-clover" target="clover.xml"/>
-    </logging>
 </phpunit>

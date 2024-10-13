@@ -1,0 +1,69 @@
+.settings_page_beyondwords h3.subheading {
+    padding: 0;
+    vertical-align: top;
+    font-size: 14px;
+}
+
+/* .settings_page_beyondwords h3.subheading:first-child {
+	margin-top: 6px;
+} */
+
+.settings_page_beyondwords .color-pickers {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.settings_page_beyondwords .color-pickers .row {
+    flex-grow: 1;
+    width: 33%;
+    max-width: 160px;
+}
+
+.settings_page_beyondwords .colors-table th, .settings_page_beyondwords .colors-table td {
+	margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+.settings_page_beyondwords .color-input  {
+    position: relative;
+}
+.settings_page_beyondwords .color-input output  {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #8c8f94;
+    float: left;
+    height: 30px;
+	width: 30px;
+    margin-right: 4px;
+}
+
+.settings_page_beyondwords .color-input label  {
+	display: block;
+    margin-bottom: 0.25em;
+}
+
+.settings_page_beyondwords .color-input .small-text {
+	margin: 0 0 1em;
+    width: 100px;
+    padding-right: 0;
+    padding: 0 6px;
+}
+
+.settings_page_beyondwords .beyondwords-setting__sync p + p {
+    margin-bottom: 2em;
+}
+
+.settings_page_beyondwords .beyondwords-setting__sync p.description-warning {
+    color: #b32d2e;
+}
+
+.settings_page_beyondwords input[type="range"] {
+    accent-color: #2271b1;
+    width: 200px;
+}
+
+.settings_page_beyondwords input[type="range"] + output {
+    line-height: 1em;
+    vertical-align: top;
+}
