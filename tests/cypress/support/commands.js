@@ -362,33 +362,6 @@ Cypress.Commands.add( 'getLegacyFrontendPlayer', ( ...args ) => {
   return cy.get( '.sk-app-container',  ...args )
 } )
 
-// Get Elementor admin audio player element
-Cypress.Commands.add( 'getElementorAdminPlayer', ( ...args ) => {
-  return cy.get( '.sk-app-container',  ...args )
-} )
-
-// Get Elementor "Generate Audio" label
-Cypress.Commands.add( 'getElementorGenerateAudioLabel', ( ...args ) => {
-  return cy.get('.elementor-control-control_beyondwords_generate_audio > .elementor-control-content > .elementor-control-field > .elementor-control-title',  ...args )
-} )
-
-// Get Elementor "Display Player" label
-Cypress.Commands.add( 'getElementorDisplayPlayerLabel', ( ...args ) => {
-  return cy.get('.elementor-control-control_beyondwords_display_player > .elementor-control-content > .elementor-control-field > .elementor-control-title',  ...args )
-} )
-
-Cypress.Commands.add( 'closeElementorAnnouncements', () => {
-  cy.get( 'body' ).then( $body => {
-    // Give the announcements modal some time to appear
-    cy.wait( 2000 )
-
-    if ( $body.find( '.announcements-container .close-button' ).length ) {
-      // Then give the announcements modal some time to disappear
-      cy.get( '.announcements-container .close-button' ).click( { force: true } ).wait( 2000 )
-    }
-  } )
-} )
-
 /**
  * Simulates a paste event.
  * Modified from https://gist.github.com/nickytonline/bcdef8ef00211b0faf7c7c0e7777aaf6

@@ -444,7 +444,6 @@ jobs:
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
           wp plugin install amp --force
           wp plugin install classic-editor --force
-          wp plugin install elementor --force
           wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
           wp plugin install wp-reset --force

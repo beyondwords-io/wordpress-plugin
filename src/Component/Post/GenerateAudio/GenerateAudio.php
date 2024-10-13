@@ -41,7 +41,7 @@ class GenerateAudio
     }
 
     /**
-     * todo move this function to somewhere reusable, for the Block editor & Elementor.
+     * todo move this function to somewhere reusable for the Block editor.
      */
     public function shouldPreselectGenerateAudio($post)
     {

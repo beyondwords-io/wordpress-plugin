@@ -17,14 +17,6 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		index: path.resolve( process.cwd(), 'src', 'index.js' ),
-		elementor: path.resolve(
-			process.cwd(),
-			'src',
-			'Compatibility',
-			'Elementor',
-			'js',
-			'index.js'
-		),
 	},
 	plugins: [
 		...defaultConfig.plugins,
