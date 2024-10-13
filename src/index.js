@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+require( 'https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js' );
+
+/**
  * Internal dependencies
  */
 require( './Core' );

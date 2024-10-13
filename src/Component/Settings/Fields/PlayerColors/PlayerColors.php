@@ -272,19 +272,19 @@ class PlayerColors
         $videoTheme = get_option(self::OPTION_NAME_VIDEO_THEME);
 
         $this->playerColorsTable(
-            __('Light theme settings'),
+            __('Light theme settings', 'speechkit'),
             self::OPTION_NAME_LIGHT_THEME,
             $lightTheme,
         );
 
         $this->playerColorsTable(
-            __('Dark theme settings'),
+            __('Dark theme settings', 'speechkit'),
             self::OPTION_NAME_DARK_THEME,
             $darkTheme,
         );
 
         $this->playerColorsTable(
-            __('Video theme settings'),
+            __('Video theme settings', 'speechkit'),
             self::OPTION_NAME_VIDEO_THEME,
             $videoTheme,
         );
@@ -307,7 +307,7 @@ class PlayerColors
             <div class="row">
                 <?php
                 SettingsUtils::colorInput(
-                    __('Background'),
+                    __('Background', 'speechkit'),
                     sprintf('%s[background_color]', $name),
                     $value['background_color'] ?: ''
                 );
@@ -316,7 +316,7 @@ class PlayerColors
             <div class="row">
                 <?php
                 SettingsUtils::colorInput(
-                    __('Icons'),
+                    __('Icons', 'speechkit'),
                     sprintf('%s[icon_color]', $name),
                     $value['icon_color'] ?: ''
                 );
@@ -325,7 +325,7 @@ class PlayerColors
             <div class="row">
                 <?php
                 SettingsUtils::colorInput(
-                    __('Text color'),
+                    __('Text color', 'speechkit'),
                     sprintf('%s[text_color]', $name),
                     $value['text_color'] ?: ''
                 );

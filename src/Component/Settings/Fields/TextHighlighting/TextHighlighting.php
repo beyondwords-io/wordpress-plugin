@@ -108,7 +108,7 @@ class TextHighlighting
             <h3 class="subheading">Light theme settings</h3>
             <?php
             SettingsUtils::colorInput(
-                __('Highlight color'),
+                __('Highlight color', 'speechkit'),
                 'beyondwords_player_theme_light[highlight_color]',
                 $lightTheme['highlight_color'] ?? '',
             );
@@ -118,7 +118,7 @@ class TextHighlighting
             <h3 class="subheading">Dark theme settings</h3>
             <?php
             SettingsUtils::colorInput(
-                __('Highlight color'),
+                __('Highlight color', 'speechkit'),
                 'beyondwords_player_theme_dark[highlight_color]',
                 $darkTheme['highlight_color'] ?? '',
             );
