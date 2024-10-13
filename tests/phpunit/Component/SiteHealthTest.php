@@ -70,6 +70,7 @@ class SiteHealthTest extends WP_UnitTestCase
         $this->assertArrayHasKey('registered-filters', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('registered-deprecated-filters', $info['beyondwords']['fields']);
 
+        $this->assertArrayHasKey('BEYONDWORDS_AUTO_SYNC_SETTINGS', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('BEYONDWORDS_AUTOREGENERATE', $info['beyondwords']['fields']);
     }
 

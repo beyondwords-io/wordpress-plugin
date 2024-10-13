@@ -90,10 +90,13 @@ class Sync
      */
     public function init()
     {
-        add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
         add_action('load-settings_page_beyondwords', array($this, 'validateApiConnection'), 30);
-        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
-        add_action('shutdown', array($this, 'syncToDashboard'));
+
+        if (defined('BEYONDWORDS_SYNC_SETTINGS') && BEYONDWORDS_SYNC_SETTINGS) {
+            add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
+            add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
+            add_action('shutdown', array($this, 'syncToDashboard'));
+        }
     }
 
     /**

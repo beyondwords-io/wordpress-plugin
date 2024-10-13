@@ -129,6 +129,7 @@ class SiteHealth
 
         $this->addFilters($info);
 
+        $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
 
         return $info;

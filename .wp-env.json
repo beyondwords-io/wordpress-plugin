@@ -34,7 +34,8 @@
     "env": {
         "tests": {
             "config": {
-                "BEYONDWORDS_API_URL": "http://host.docker.internal:3000/v1"
+                "BEYONDWORDS_API_URL": "http://host.docker.internal:3000/v1",
+                "BEYONDWORDS_AUTO_SYNC_SETTINGS": false
             }
         }
     }

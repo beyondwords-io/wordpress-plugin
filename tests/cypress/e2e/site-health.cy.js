@@ -176,8 +176,13 @@ context( 'Site Health', () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered deprecated filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
-        // BEYONDWORDS_AUTOREGENERATE
+        // BEYONDWORDS_AUTO_SYNC_SETTINGS
         cy.get( 'tr' ).eq( 31 ).within( () => {
+          cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'True' )
+        } )
+        // BEYONDWORDS_AUTOREGENERATE
+        cy.get( 'tr' ).eq( 32 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTOREGENERATE' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )
