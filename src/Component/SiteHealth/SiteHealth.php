@@ -118,7 +118,7 @@ class SiteHealth
 
         $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
             'label' => __('Process excerpts', 'speechkit'),
-            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes') : __('No'),
+            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
             'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
         ];
 
@@ -226,16 +226,16 @@ class SiteHealth
 
         if (! is_wp_error($response)) {
             $info['beyondwords']['fields']['api-communication'] = array(
-                'label' => __('Communication with REST API'),
-                'value' => __('BeyondWords API is reachable'),
+                'label' => __('Communication with REST API', 'speechkit'),
+                'value' => __('BeyondWords API is reachable', 'speechkit'),
                 'debug' => 'true',
             );
         } else {
             $info['beyondwords']['fields']['api-communication'] = array(
-                'label' => __('Communication with REST API'),
+                'label' => __('Communication with REST API', 'speechkit'),
                 'value' => sprintf(
                     /* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
-                    __('Unable to reach BeyondWords API at %1$s: %2$s'),
+                    __('Unable to reach BeyondWords API at %1$s: %2$s', 'speechkit'),
                     gethostbyname(Environment::getApiUrl()),
                     $response->get_error_message()
                 ),
@@ -259,7 +259,7 @@ class SiteHealth
     {
         $info['beyondwords']['fields'][$name] = [
             'label' => $name,
-            'value' => ( defined($name) ? constant($name) : __('Undefined') ),
+            'value' => ( defined($name) ? constant($name) : __('Undefined', 'speechkit') ),
             'debug' => ( defined($name) ? constant($name) : 'undefined' ),
         ];
     }

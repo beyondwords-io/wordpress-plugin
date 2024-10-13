@@ -114,7 +114,7 @@ export function PostInspectPanel( {
 	function ClipboardToolbarButton( { text, disabled } ) {
 		const { createNotice } = useDispatch( noticesStore );
 		const ref = useCopyToClipboard( text, () => {
-			createNotice( 'info', __( 'Copied data to clipboard.' ), {
+			createNotice( 'info', __( 'Copied data to clipboard.', 'speechkit' ), {
 				isDismissible: true,
 				type: 'snackbar',
 			} );
