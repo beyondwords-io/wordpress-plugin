@@ -380,7 +380,7 @@ class Core
             ! array_key_exists('deleted', $response) ||
             ! $response['deleted'] === true
         ) {
-            $errorMessage = __('Unable to delete audio from BeyondWords dashboard');
+            $errorMessage = __('Unable to delete audio from BeyondWords dashboard', 'speechkit');
 
             if (is_array($response) && array_key_exists('message', $response)) {
                 $errorMessage .= ': ' . $response['message'];
@@ -423,7 +423,7 @@ class Core
             ! array_key_exists('deleted', $response) ||
             ! $response['deleted'] === false
         ) {
-            $errorMessage = __('Unable to restore audio to BeyondWords dashboard');
+            $errorMessage = __('Unable to restore audio to BeyondWords dashboard', 'speechkit');
 
             if (is_array($response) && array_key_exists('message', $response)) {
                 $errorMessage .= ': ' . $response['message'];
