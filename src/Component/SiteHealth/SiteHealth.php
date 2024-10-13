@@ -149,13 +149,13 @@ class SiteHealth
     {
         $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
-            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes') : __('No'),
+            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
             'debug' => get_option('beyondwords_project_title_enabled') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
             'label' => __('Include excerpts in audio', 'speechkit'),
-            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes') : __('No'),
+            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
             'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
         ];
 
@@ -257,13 +257,13 @@ class SiteHealth
 
         $info['beyondwords']['fields']['beyondwords_player_highlight_sections'] = [
             'label' => __('Text highlighting', 'speechkit'),
-            'value' => get_option('beyondwords_player_highlight_sections') ? __('Yes') : __('No'),
+            'value' => get_option('beyondwords_player_highlight_sections') ? __('Yes', 'speechkit') : __('No', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'debug' => get_option('beyondwords_player_highlight_sections') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_player_clickable_sections'] = [
             'label' => __('Playback from segments', 'speechkit'),
-            'value' => get_option('beyondwords_player_clickable_sections') ? __('Yes') : __('No'),
+            'value' => get_option('beyondwords_player_clickable_sections') ? __('Yes', 'speechkit') : __('No', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'debug' => get_option('beyondwords_player_clickable_sections') ? 'yes' : 'no',
         ];
 

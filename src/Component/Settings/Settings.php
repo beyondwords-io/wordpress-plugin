@@ -398,6 +398,7 @@ class Settings
             );
 
             // Tom Select JS
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading
             wp_enqueue_script(
                 'tom-select',
                 'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js',
@@ -415,6 +416,7 @@ class Settings
             );
 
             // Tom Select CSS
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading
             wp_enqueue_style(
                 'tom-select',
                 'https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css',
