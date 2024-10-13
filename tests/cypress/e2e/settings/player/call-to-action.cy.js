@@ -16,7 +16,7 @@ context( 'Settings > Player > Call-to-action',  () => {
 
   values.forEach( value => {
     // @todo skipping because this fails now we auto-sync the API with WordPress
-    it.skip( `sets "${value}"`, () => {
+    it( `sets "${value}"`, () => {
       cy.saveMinimalPluginSettings()
 
       cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )

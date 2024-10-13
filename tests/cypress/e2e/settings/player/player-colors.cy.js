@@ -30,7 +30,7 @@ context( 'Settings > Player > Player colors',  () => {
   };
 
   // @todo skipping because this fails now we auto-sync the API with WordPress
-  it.skip( `sets Player colors"`, () => {
+  it( `sets Player colors"`, () => {
     cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )

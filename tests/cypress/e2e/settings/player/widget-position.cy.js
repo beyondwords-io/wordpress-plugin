@@ -31,7 +31,7 @@ context( 'Settings > Player > Widget position',  () => {
 
   options.forEach( option => {
     // @todo skipping because this fails now we auto-sync the API with WordPress
-    it.skip( `sets "${option.label}"`, () => {
+    it( `sets "${option.label}"`, () => {
       cy.saveMinimalPluginSettings()
 
       cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )

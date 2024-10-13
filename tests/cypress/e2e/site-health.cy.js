@@ -169,7 +169,7 @@ context( 'Site Health', () => {
         // Registered filters
         cy.get( 'tr' ).eq( 29 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered filters' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'beyondwords_content_params, beyondwords_player_sdk_params' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'beyondwords_content_params' )
         } )
         // Registered deprecated filters
         cy.get( 'tr' ).eq( 30 ).within( () => {

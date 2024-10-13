@@ -34,7 +34,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
      * https://on.cypress.io/renderer-process-crashed
      */
     // @todo test fails because '.block-editor-default-block-appender button' is no longer available
-    it.skip( `can add a player block into a ${postType.name}`, () => {
+    it( `can add a player block into a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` )
 
       cy.closeWelcomeToBlockEditorTips()
@@ -69,7 +69,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
     } )
 
     // @todo test fails because '.block-editor-default-block-appender button' is no longer available
-    it.skip( `can add a shortcode into a ${postType.name}`, () => {
+    it( `can add a shortcode into a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` )
 
       cy.closeWelcomeToBlockEditorTips()

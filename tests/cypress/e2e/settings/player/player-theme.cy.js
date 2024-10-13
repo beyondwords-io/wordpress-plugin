@@ -26,7 +26,7 @@ context( 'Settings > Player > Player theme',  () => {
 
   themes.forEach( theme => {
     // @todo skipping because this fails now we auto-sync the API with WordPress
-    it.skip( `sets "${theme.label}"`, () => {
+    it( `sets "${theme.label}"`, () => {
       cy.saveMinimalPluginSettings()
 
       cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )

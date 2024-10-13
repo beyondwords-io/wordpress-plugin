@@ -14,7 +14,7 @@ describe( 'Plugins: Elementor', () => {
 
   // Only test "Post" post type in Elementor
   postTypes.filter( x => [ 'post' ].includes( x.slug ) ).forEach( postType => {
-    it.skip( `can "Generate Audio" for a new ${postType.name} in Elementor`, () => {
+    it( `can "Generate Audio" for a new ${postType.name} in Elementor`, () => {
       cy.visit( '/wp-admin/post-new.php' )
 
       cy.closeWelcomeToBlockEditorTips()
@@ -78,7 +78,7 @@ describe( 'Plugins: Elementor', () => {
       cy.getFrontendPlayer().should( 'exist' )
     } )
 
-    it.skip( `shows a player in Elementor for a ${postType.name} with existing audio`, () => {
+    it( `shows a player in Elementor for a ${postType.name} with existing audio`, () => {
       cy.createPostWithAudio( `An Elementor ${postType.name} with existing audio` )
 
       // Admin should have latest player
