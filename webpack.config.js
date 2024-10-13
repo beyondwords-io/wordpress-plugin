@@ -24,14 +24,6 @@ module.exports = {
 			'Settings',
 			'index.js'
 		),
-		elementor: path.resolve(
-			process.cwd(),
-			'src',
-			'Compatibility',
-			'Elementor',
-			'js',
-			'index.js'
-		),
 	},
 	plugins: [
 		...defaultConfig.plugins,
