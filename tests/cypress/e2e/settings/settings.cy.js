@@ -39,7 +39,7 @@ context( 'Settings',  () => {
   } )
 
   // Skip this test in CI because auto-syncing settings is not supported in CI
-  it.skip( 'syncs the settings from the Dashboard to WordPress', () => {
+  it( 'syncs the settings from the Dashboard to WordPress', () => {
     cy.saveAllPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )

@@ -10,7 +10,7 @@ context( 'Settings > Player UI',  () => {
   } )
 
   // @todo skipping because this fails now we auto-sync the API with WordPress
-  it.skip( 'uses "Enabled" Player UI setting', () => {
+  it( 'uses "Enabled" Player UI setting', () => {
     cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
