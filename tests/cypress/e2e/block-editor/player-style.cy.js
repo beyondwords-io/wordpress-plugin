@@ -14,7 +14,7 @@ context( 'Block Editor: Player Style', () => {
   // Only test priority post types
   postTypes.filter( x => x.priority ).forEach( postType => {
     // @todo skipping because this fails now we auto-sync the API with WordPress
-    it.skip( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
+    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.closeWelcomeToBlockEditorTips()
