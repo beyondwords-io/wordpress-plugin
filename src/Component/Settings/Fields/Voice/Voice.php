@@ -20,20 +20,6 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 abstract class Voice
 {
     /**
-     * Language code.
-     *
-     * @since 5.0.0
-     */
-    public $languageId;
-
-    /**
-     * Language code.
-     *
-     * @since 5.0.0
-     */
-    public $languageCode;
-
-    /**
      * API Client.
      *
      * @since 3.0.0
@@ -48,9 +34,6 @@ abstract class Voice
     public function __construct($apiClient)
     {
         $this->apiClient = $apiClient;
-
-        $this->languageId = get_option('beyondwords_project_language_id');
-        $this->languageCode = get_option('beyondwords_project_language_code');
     }
 
     /**
@@ -62,7 +45,8 @@ abstract class Voice
      **/
     public function getOptions()
     {
-        $voices = $this->apiClient->getVoices($this->languageId);
+        $languageId = get_option('beyondwords_project_language_id');
+        $voices     = $this->apiClient->getVoices($languageId);
 
         if (! $voices) {
             return [];
