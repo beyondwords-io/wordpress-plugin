@@ -22,9 +22,28 @@ use Beyondwords\Wordpress\Core\CoreUtils;
 class Uninstaller
 {
     /**
+     * Clean up (delete) all BeyondWords transients.
+     *
+     * @since 5.0.0
+     *
+     * @return int The number of transients deleted.
+     */
+    public static function cleanupPluginTransients()
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $count = $wpdb->query("DELETE FROM $wpdb->options WHERE `option_name` LIKE '_transient_beyondwords_%'");
+
+        return $count;
+    }
+
+    /**
      * Clean up (delete) all BeyondWords plugin options.
      *
      * @since 3.7.0
+     *
+     * @return int The number of options deleted.
      */
     public static function cleanupPluginOptions()
     {
@@ -52,6 +71,8 @@ class Uninstaller
      *
      * @since 3.7.0
      * @since 4.6.1 Use $wpdb->postmeta variable for table name.
+     *
+     * @return int The number of custom fields deleted.
      */
     public static function cleanupCustomFields()
     {
