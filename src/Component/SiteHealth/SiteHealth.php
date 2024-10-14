@@ -139,7 +139,6 @@ class SiteHealth
      * Add content settings to the info debugging array.
      *
      * @since 5.0.0
-     * @static
      *
      * @param array $info Debugging info array
      *
@@ -169,7 +168,6 @@ class SiteHealth
      * Add project settings to the info debugging array.
      *
      * @since 5.0.0
-     * @static
      *
      * @param array $info Debugging info array
      *
@@ -212,7 +210,6 @@ class SiteHealth
      * Add player settings to the info debugging array.
      *
      * @since 5.0.0
-     * @static
      *
      * @param array $info Debugging info array
      *
@@ -287,7 +284,6 @@ class SiteHealth
      * Add plugin version to the info debugging array.
      *
      * @since  3.7.0
-     * @static
      *
      * @param array  $info Debugging info array
      *
@@ -319,8 +315,7 @@ class SiteHealth
     /**
      * Adds debugging data for the BeyondWords REST API connection.
      *
-     * @since  3.7.0
-     * @static
+     * @since 3.7.0
      *
      * @param array  $info Debugging info array
      *
@@ -394,8 +389,8 @@ class SiteHealth
     /**
      * Add a single constant to the debugging info array.
      *
-     * @since  3.7.0
-     * @static
+     * @since 3.7.0
+     * @since 5.0.0 Handle boolean values.
      *
      * @param array  $info Debugging info array
      * @param string $name Constant name
@@ -404,10 +399,17 @@ class SiteHealth
      */
     public function addConstant(&$info, $name)
     {
+        $value = __('Undefined', 'speechkit');
+
+        if (defined($name)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+            $value = var_export(constant($name), true);
+        }
+
         $info['beyondwords']['fields'][$name] = [
             'label' => $name,
-            'value' => ( defined($name) ? constant($name) : __('Undefined', 'speechkit') ),
-            'debug' => ( defined($name) ? constant($name) : 'undefined' ),
+            'value' => $value, 
+            'debug' => $value,
         ];
     }
 

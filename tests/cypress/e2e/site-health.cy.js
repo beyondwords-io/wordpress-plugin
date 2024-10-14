@@ -119,17 +119,17 @@ context( 'Site Health', () => {
         // Light theme
         cy.get( 'tr' ).eq( 19 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Light theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#EEE"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#eee"\n}' )
         } )
         // Dark theme
         cy.get( 'tr' ).eq( 20 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Dark theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "TRANSPARENT",\n    "icon_color": "#FFF",\n    "text_color": "#FFF",\n    "highlight_color": "#444"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "transparent",\n    "icon_color": "#fff",\n    "text_color": "#fff",\n    "highlight_color": "#444"\n}' )
         } )
         // Video theme
         cy.get( 'tr' ).eq( 21 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Video theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
         } )
         // Call-to-action
         cy.get( 'tr' ).eq( 22 ).within( () => {
@@ -179,7 +179,7 @@ context( 'Site Health', () => {
         // BEYONDWORDS_AUTO_SYNC_SETTINGS
         cy.get( 'tr' ).eq( 31 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'True' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'false' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
         cy.get( 'tr' ).eq( 32 ).within( () => {

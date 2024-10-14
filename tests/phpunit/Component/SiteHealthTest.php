@@ -154,7 +154,7 @@ class SiteHealthTest extends WP_UnitTestCase
 
         $this->assertSame('SOME_UNDEFINED_CONSTANT', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['label']);
         $this->assertSame('Undefined', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['value']);
-        $this->assertSame('undefined', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['debug']);
+        $this->assertSame('Undefined', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['debug']);
     }
 
     /**

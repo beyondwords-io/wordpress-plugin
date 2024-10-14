@@ -93,7 +93,7 @@ class Sync
         add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
         add_action('load-settings_page_beyondwords', array($this, 'validateApiConnection'), 30);
 
-        if (defined('BEYONDWORDS_SYNC_SETTINGS') && BEYONDWORDS_SYNC_SETTINGS) {
+        if (defined('BEYONDWORDS_AUTO_SYNC_SETTINGS') && BEYONDWORDS_AUTO_SYNC_SETTINGS) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
             add_action('shutdown', array($this, 'syncToDashboard'));
         }
