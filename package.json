@@ -12,7 +12,6 @@
   "homepage": "https://beyondwords.io",
   "main": "index.js",
   "dependencies": {
-    "@beyondwords/audio-player": "^0.0.21",
     "@wordpress/api-fetch": "^7.7.0",
     "@wordpress/components": "^28.7.0",
     "@wordpress/compose": "^7.7.0",
