@@ -402,8 +402,12 @@ class SiteHealth
         $value = __('Undefined', 'speechkit');
 
         if (defined($name)) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-            $value = var_export(constant($name), true);
+            $value = constant($name);
+
+            if (is_bool($value)) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+                $value = (true === $value) ? 'True' : 'False';
+            }
         }
 
         $info['beyondwords']['fields'][$name] = [
