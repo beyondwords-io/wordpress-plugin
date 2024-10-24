@@ -70,6 +70,7 @@ class Settings
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
+        add_action('admin_notices', array($this, 'maybePrintPluginReviewNotice'));
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
@@ -316,6 +317,51 @@ class Settings
                     >
                         <?php esc_html_e('Sign up free', 'speechkit'); ?>
                     </a>
+                </p>
+            </div>
+            <?php
+        endif;
+    }
+
+    /**
+     * Maybe print plugin review notice.
+     *
+     * @since 5.0.1
+     *
+     * @return void
+     */
+    public function maybePrintPluginReviewNotice()
+    {
+        $dateActivated       = get_option('beyondwords_date_activated', '2024-10-28');
+        $dateNoticeDismissed = get_option('beyondwords_date_review_notice_dismissed', '');
+
+        $showNotice = false;
+
+        if (empty($dateNoticeDismissed)) {
+            $dateActivated = strtotime($dateActivated);
+
+            if ($dateActivated < strtotime('-30 days')) {
+                $showNotice = true;
+            }
+        }
+
+        if ($showNotice) :
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                    <strong>
+                        <?php
+                        printf(
+                            /* translators: %s is replaced with a "Add my review" link */
+                            esc_html__('You have been using our plugin for a while - would you like to add a review? %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                            sprintf(
+                                '<a href="%s">%s</a>',
+                                'https://wordpress.org/support/plugin/speechkit/reviews/',
+                                esc_html__('Add my review', 'speechkit')
+                            )
+                        );
+                        ?>
+                    </strong>
                 </p>
             </div>
             <?php
