@@ -99,7 +99,12 @@ class AutoPublish
                     value="1"
                     <?php checked($value); ?>
                 />
-                <?php esc_html_e('Auto-publish audio', 'speechkit'); ?>
+                <?php 
+                esc_html_e(
+                    'When auto-publish is disabled all audio content created in WordPress will need to be manually published in the BeyondWords dashboard.',  // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'speechkit'
+                ); 
+                ?>
             </label>
         </div>
         <?php
