@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\AutoPublish\AutoPublish;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
@@ -33,6 +34,7 @@ class Content
     public function init()
     {
         (new IncludeTitle())->init();
+        (new AutoPublish())->init();
         (new IncludeExcerpt())->init();
         (new PreselectGenerateAudio())->init();
 

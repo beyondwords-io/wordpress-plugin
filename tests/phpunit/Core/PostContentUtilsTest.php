@@ -335,7 +335,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     /**
      * @test
      *
-     * @group bodyJson
+     * @group getContentParams
      **/
     public function getContentParams()
     {
@@ -363,11 +363,13 @@ class PostContentUtilsTest extends WP_UnitTestCase
         set_post_thumbnail($postId, $attachmentId);
 
         update_option('beyondwords_prepend_excerpt', '1');
+        update_option('beyondwords_project_auto_publish_enabled', true);
 
         $body = PostContentUtils::getContentParams($postId);
         $body = json_decode($body);
 
         delete_option('beyondwords_prepend_excerpt');
+        delete_option('beyondwords_project_auto_publish_enabled');
 
         $this->assertSame($args['post_title'], $body->title);
         $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body->body);
@@ -378,15 +380,21 @@ class PostContentUtilsTest extends WP_UnitTestCase
         $this->assertNotEmpty($thumbnailUrl);
         $this->assertSame($thumbnailUrl, $body->image_url);
         $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body->metadata));
-        $this->assertSame(true, $body->published);
         $this->assertSame($args['post_date'], $body->publish_date);
 
-        // { published: true } should be sent because post_status is NOT "pending"
+        // { published: true } should be sent because auto-publish is true
         $this->assertTrue(property_exists($body, 'published'));
         $this->assertTrue($body->published);
 
-        // { external_id } has been removed
-        $this->assertFalse(property_exists($body, 'external_id'));
+        update_option('beyondwords_project_auto_publish_enabled', false);
+
+        $body = PostContentUtils::getContentParams($postId);
+        $body = json_decode($body);
+
+        delete_option('beyondwords_project_auto_publish_enabled');
+
+        // { published: false } should not exist because auto-publish is false
+        $this->assertFalse(property_exists($body, 'published'));
 
         wp_delete_post($postId, true);
     }
@@ -394,7 +402,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
     /**
      * @test
      *
-     * @group bodyJson
+     * @group getContentParams
      **/
     public function getContentParamsForPendingReviewStatus()
     {
@@ -415,10 +423,13 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
         $postId = self::factory()->post->create($args);
 
-        $body = PostContentUtils::getContentParams($postId);
+        update_option('beyondwords_project_auto_publish_enabled', true);
 
+        $body = PostContentUtils::getContentParams($postId);
         $body = json_decode($body);
 
+        delete_option('beyondwords_project_auto_publish_enabled');
+        
         $this->assertSame($args['post_title'], $body->title);
         $this->assertSame(PostContentUtils::getPostBody($postId), $body->body);
         $this->assertSame('Jane Smith', $body->author);
@@ -434,14 +445,25 @@ class PostContentUtilsTest extends WP_UnitTestCase
          */
         $this->assertFalse(property_exists($body, 'publish_date'));
 
-        // { external_id } has been removed
-        $this->assertFalse(property_exists($body, 'external_id'));
+        // Set auto-publish to false
+        update_option('beyondwords_project_auto_publish_enabled', false);
+
+        $body = PostContentUtils::getContentParams($postId);
+        $body = json_decode($body);
+
+        delete_option('beyondwords_project_auto_publish_enabled');
+
+        // { published: false } SHOULD be sent because post_status is "pending"
+        $this->assertTrue(property_exists($body, 'published'));
+        $this->assertFalse($body->published);
 
         wp_delete_post($postId, true);
     }
 
     /**
      * @test
+     *
+     * @group getContentParams
      **/
     public function getPostBodyParamsFilterTest()
     {

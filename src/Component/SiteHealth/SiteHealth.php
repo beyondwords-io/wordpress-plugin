@@ -124,7 +124,7 @@ class SiteHealth
 
         $info['beyondwords']['fields']['beyondwords_languages'] = [
             'label' => __('Multiple languages', 'speechkit'),
-            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '',
+            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '', // phpcs:ignore Generic.Files.LineLength.TooLong
         ];
 
         $this->addFilters($info);
@@ -148,13 +148,19 @@ class SiteHealth
     {
         $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
-            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
+            'value' => get_option('beyondwords_project_title_enabled') ? __('Yes', 'speechkit') : __('No', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'debug' => get_option('beyondwords_project_title_enabled') ? 'yes' : 'no',
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_project_auto_publish_enabled'] = [
+            'label' => __('Auto-publish audio', 'speechkit'),
+            'value' => get_option('beyondwords_project_auto_publish_enabled') ? __('Yes', 'speechkit') : __('No', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+            'debug' => get_option('beyondwords_project_auto_publish_enabled') ? 'yes' : 'no',
         ];
 
         $info['beyondwords']['fields']['beyondwords_prepend_excerpt'] = [
             'label' => __('Include excerpts in audio', 'speechkit'),
-            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes', 'speechkit') : __('No', 'speechkit'),
+            'value' => get_option('beyondwords_prepend_excerpt') ? __('Yes', 'speechkit') : __('No', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'debug' => get_option('beyondwords_prepend_excerpt') ? 'yes' : 'no',
         ];
 

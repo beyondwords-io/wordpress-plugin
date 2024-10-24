@@ -160,7 +160,7 @@ class CoreUtils
     public static function getOptions($type = 'current')
     {
         $current = [
-            // v4.x
+            // v5.x
             'beyondwords_player_call_to_action',
             'beyondwords_player_clickable_sections',
             'beyondwords_player_highlight_sections',
@@ -171,6 +171,7 @@ class CoreUtils
             'beyondwords_player_theme_video',
             'beyondwords_player_widget_position',
             'beyondwords_player_widget_style',
+            'beyondwords_project_auto_publish_enabled',
             'beyondwords_project_body_voice_id',
             'beyondwords_project_body_voice_speaking_rate',
             'beyondwords_project_language_code',

@@ -315,23 +315,24 @@ class PostContentUtils
             'author'       => PostContentUtils::getAuthorName($postId),
             'image_url'    => strval(wp_get_original_image_url(get_post_thumbnail_id($postId))),
             'metadata'     => PostContentUtils::getMetadata($postId),
-            'published'    => true,
             'publish_date' => get_post_time(PostContentUtils::DATE_FORMAT, true, $postId),
         ];
 
         $status = get_post_status($postId);
 
         /*
-         * If the post status is "pending" then we send { published: false } to
-         * the BeyondWords API, to prevent the generated audio from being
-         * published in playlists.
+         * If the post status is draft/pending then we explicity send 
+         * { published: false } to the BeyondWords API, to prevent the 
+         * generated audio from being published in playlists.
          *
          * We also omit { publish_date } because get_post_time() returns `false`
          * for posts which are "Pending Review".
          */
-        if ($status === 'pending') {
+        if (in_array($status, ['draft', 'pending'])) {
             $body['published'] = false;
             unset($body['publish_date']);
+        } elseif (get_option('beyondwords_project_auto_publish_enabled')) {
+            $body['published'] = true;
         }
 
         $bodyVoiceId = intval(get_post_meta($postId, 'beyondwords_body_voice_id', true));
