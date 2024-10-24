@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.0.0
+Stable tag: 5.0.1
 Requires PHP: 8.0
 Tested up to: 6.6
 License: GPLv2 or later
@@ -79,6 +79,16 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.0.1 =
+
+Release date: 28th October 2024
+
+**Fixes**
+
+* [#404](https://github.com/beyondwords-io/wordpress-plugin/pull/404) Bring auto-publish setting into WordPress to fix auto-publishing.
+    * In some cases WordPress was publishing audio regardless of the auto-publish setting in the dashboard.
+    * After this update any content created with the WordPress plugin will need to be published in the BeyondWords dashboard.
 
 = 5.0.0 =
 

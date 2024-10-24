@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   5.1.0
+ * @since   5.0.1
  */
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\AutoPublish;
@@ -17,7 +17,7 @@ use Beyondwords\Wordpress\Component\Settings\Sync;
 /**
  * AutoPublish
  *
- * @since 5.1.0
+ * @since 5.0.1
  */
 class AutoPublish
 {
@@ -38,7 +38,7 @@ class AutoPublish
     /**
      * Init.
      *
-     * @since 5.1.0
+     * @since 5.0.1
      */
     public function init()
     {
@@ -53,7 +53,7 @@ class AutoPublish
     /**
      * Init setting.
      *
-     * @since 5.1.0
+     * @since 5.0.1
      *
      * @return void
      */
@@ -81,7 +81,7 @@ class AutoPublish
     /**
      * Render setting field.
      *
-     * @since 5.1.0
+     * @since 5.0.1
      *
      * @return void
      **/
