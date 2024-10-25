@@ -25,9 +25,6 @@
     "@wordpress/notices": "^5.7.0",
     "@wordpress/plugins": "^7.7.0",
     "@wordpress/url": "^4.7.0",
-    "babel-runtime": "^6.26.0",
-    "dashify": "^2.0.0",
-    "react-player-controls": "^1.1.0",
     "react-script-tag": "^1.1.2",
     "uuid": "^10.0.0"
   },
