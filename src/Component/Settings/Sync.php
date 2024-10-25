@@ -43,6 +43,7 @@ class Sync
         'beyondwords_player_skip_button_style'  => '[player_settings][skip_button_style]',
         'beyondwords_player_clickable_sections' => '[player_settings][segment_playback_enabled]',
         // Project
+        'beyondwords_project_auto_publish_enabled'      => '[project][auto_publish_enabled]',
         'beyondwords_project_language_code'             => '[project][language]',
         'beyondwords_project_language_id'               => '[project][language_id]',
         'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
