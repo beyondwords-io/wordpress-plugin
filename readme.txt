@@ -89,7 +89,8 @@ Release date: 29th October 2024
 * [#404](https://github.com/beyondwords-io/wordpress-plugin/pull/404) Bring auto-publish setting into WordPress to fix auto-publishing.
     * In some cases WordPress was publishing audio regardless of the auto-publish setting in the dashboard.
     * After this update any content created with the WordPress plugin will need to be published in the BeyondWords dashboard.
-* If a post has a content ID for audio then we now always make PUT requests to the BeyondWords REST API when the post is updated.
+* [#407](https://github.com/beyondwords-io/wordpress-plugin/pull/407) Regenerate audio for all post statuses
+    * If a post has a content ID for audio then we now *always* make PUT requests to the BeyondWords REST API when the post is updated.
     * This fixes an issue where the `published` property of audio was not set to `false` when WordPress posts were moved back to `draft` status.
 
 = 5.0.0 =
