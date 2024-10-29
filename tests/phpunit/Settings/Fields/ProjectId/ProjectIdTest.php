@@ -46,6 +46,19 @@ class ProjectIdTest extends WP_UnitTestCase
      */
     public function init()
     {
+        $projectId = new ProjectId();
+        $projectId->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($projectId, 'addSetting')));
+    }
+
+    /**
+     * @test
+     */
+    public function addSetting()
+    {
         global $wp_settings_fields;
 
         $this->_instance->addSetting();

@@ -92,6 +92,8 @@ Release date: 29th October 2024
 * [#407](https://github.com/beyondwords-io/wordpress-plugin/pull/407) Regenerate audio for all post statuses
     * If a post has a content ID for audio then we now *always* make PUT requests to the BeyondWords REST API when the post is updated.
     * This fixes an issue where the `published` property of audio was not set to `false` when WordPress posts were moved back to `draft` status.
+* [#408](https://github.com/beyondwords-io/wordpress-plugin/pull/408) Generate Audio checkbox in Classic Editor doesn't reflect the "Preselect" setting
+    * A change in the `v5.0` update meant the "Preselect generate audio" JS script was no longer being enqueued. This should now be fixed.
 
 = 5.0.0 =
 

@@ -33,6 +33,20 @@ class GenerateAudioTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $generateAudio = new GenerateAudio();
+        $generateAudio->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('save_post_post', array($generateAudio, 'save')));
+        $this->assertEquals(10, has_action('save_post_page', array($generateAudio, 'save')));
+    }
+
+    /**
+     * @test
+     */
     public function saveWithoutNonce()
     {
         $post = self::factory()->post->create_and_get([

@@ -39,6 +39,27 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $apiClient = new ApiClient();
+        $settings = new Settings($apiClient);
+        $settings->init();
+
+        do_action('wp_loaded');
+
+        // Actions
+        $this->assertEquals(1, has_action('admin_menu', array($settings, 'addOptionsPage')));
+        $this->assertEquals(100, has_action('admin_notices', array($settings, 'printPluginAdminNotices')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($settings, 'enqueueScripts')));
+        $this->assertEquals(10, has_action('rest_api_init', array($settings, 'restApiInit')));
+
+        // Filters
+        $this->assertEquals(10, has_filter('plugin_action_links_speechkit/speechkit.php', array($settings, 'addSettingsLinkToPluginPage')));
+    }
+
+    /**
+     * @test
+     */
     public function addSettingsLinkToPluginPage()
     {
         $links = [
