@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.1.0 =
 
-Release date: 29th October 2024
+Release date: 30th October 2024
 
 **Fixes**
 
@@ -120,21 +120,6 @@ Release date: 15th October 2024
 * Remove deprecated filters. 
     * A number of deprecated filters have now been removed from the source code.
     * Refer to our [WordPress Filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) documentation to view the current filters we provide.
-
-= 4.7.0 =
-
-Release date: 2nd May 2024
-
-**Fixes**
-
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) If the post body [has_blocks](https://developer.wordpress.org/reference/functions/has_blocks/) then remove the `wpautop` filter before sending it to our REST API. This filter was stripping closing `</p>` tags from empty paragraph blocks.
-
-**Enhancements**
-
-* [#386](https://github.com/beyondwords-io/wordpress-plugin/pull/386) Prepend custom plugin links instead of appending them
-* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
-* Prevent empty `data-beyondwords-marker` attributes
 
 --------
 
