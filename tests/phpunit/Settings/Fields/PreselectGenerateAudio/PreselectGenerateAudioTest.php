@@ -44,6 +44,20 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $preselectGenerateAudio = new PreselectGenerateAudio();
+        $preselectGenerateAudio->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($preselectGenerateAudio, 'addSetting')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($preselectGenerateAudio, 'enqueueScripts')));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;

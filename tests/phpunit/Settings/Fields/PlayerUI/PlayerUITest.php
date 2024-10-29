@@ -45,6 +45,20 @@ class PlayerUITest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $playerUi = new PlayerUI();
+        $playerUi->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($playerUi, 'addSetting')));
+        $this->assertTrue(has_action('pre_update_option_beyondwords_player_ui'));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;

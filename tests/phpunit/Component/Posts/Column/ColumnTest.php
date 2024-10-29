@@ -39,13 +39,16 @@ class ColumnTest extends WP_UnitTestCase
 
         // Post type: post
         $this->assertEquals(10, has_filter('manage_post_posts_columns', array($column, 'renderColumnsHead')));
-        $this->assertEquals(10, has_filter('manage_post_posts_custom_column', array($column, 'renderColumnsContent')));
+        $this->assertEquals(10, has_action('manage_post_posts_custom_column', array($column, 'renderColumnsContent')));
+        $this->assertEquals(10, has_filter('manage_edit-post_sortable_columns', array($column, 'makeColumnSortable')));
 
         // Post type: page
         $this->assertEquals(10, has_filter('manage_page_posts_columns', array($column, 'renderColumnsHead')));
-        $this->assertEquals(10, has_filter('manage_page_posts_custom_column', array($column, 'renderColumnsContent')));
+        $this->assertEquals(10, has_action('manage_page_posts_custom_column', array($column, 'renderColumnsContent')));
+        $this->assertEquals(10, has_filter('manage_edit-page_sortable_columns', array($column, 'makeColumnSortable')));
 
-        // todo test custom post types
+        // @todo set CoreUtils::isEditScreen() to true for this assertion
+        // $this->assertEquals(10, has_filter('pre_get_posts', array($column, 'setSortQuery')));
     }
 
     public function testRenderColumnsHead()

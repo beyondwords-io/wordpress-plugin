@@ -47,6 +47,20 @@ class LanguagesTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $apiClient = new ApiClient();
+        $languages = new Languages($apiClient);
+        $languages->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($languages, 'addSetting')));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;

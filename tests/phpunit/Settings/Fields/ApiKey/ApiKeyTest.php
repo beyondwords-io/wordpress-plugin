@@ -44,6 +44,19 @@ class ApiKeyTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $apiKey = new ApiKey();
+        $apiKey->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($apiKey, 'addSetting')));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;

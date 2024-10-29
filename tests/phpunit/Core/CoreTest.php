@@ -44,6 +44,8 @@ class CoreTest extends WP_UnitTestCase
         $this->assertEquals(10, has_action('before_delete_post', array($core, 'onTrashOrDeletePost')));
         $this->assertEquals(10, has_action('trashed_post', array($core, 'onTrashOrDeletePost')));
         $this->assertEquals(10, has_action('untrashed_post', array($core, 'onUntrashPost')));
+
+        $this->assertEquals(10, has_action('is_protected_meta', array($core, 'isProtectedMeta')));
     }
 
     /**

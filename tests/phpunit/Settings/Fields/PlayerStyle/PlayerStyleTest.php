@@ -47,6 +47,21 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $apiClient = new ApiClient();
+        $playerStyle = new PlayerStyle($apiClient);
+        $playerStyle->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($playerStyle, 'addSetting')));
+        $this->assertTrue(has_action('pre_update_option_beyondwords_player_style'));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;
