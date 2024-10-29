@@ -99,7 +99,8 @@ class Core
      * Should generate audio for post?
      *
      * @since 3.5.0
-     * @since 3.10.0 remove wp_is_post_revision check.
+     * @since 3.10.0 Remove wp_is_post_revision check
+     * @since 5.1.0  Regenerate audio for all post statuses
      *
      * @param int $postId WordPress Post ID.
      *
@@ -107,34 +108,42 @@ class Core
      */
     public function shouldGenerateAudioForPost($postId)
     {
-        // Bail if this is an autosave
+        // Autosaves don't generate audio
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return false;
         }
 
-        $status = get_post_status($postId);
-
-        // Bail if the post status is invalid
-        if (! $this->shouldProcessPostStatus($status)) {
+        // A project ID is required
+        $projectId = PostMetaUtils::getProjectId($postId);
+        if (! $projectId) {
             return false;
+        }
+
+        // Regenerate if post has audio (regardless of post status)
+        $contentId = PostMetaUtils::getContentId($postId);
+        if ($contentId) {
+            return true;
         }
 
         $generateAudio = PostMetaUtils::hasGenerateAudio($postId);
+        $status        = get_post_status($postId);
 
-        // Bail if 'Generate Audio' has not been selected
-        if (! $generateAudio) {
-            return false;
+        // Generate if audio has been requested for a valid post status
+        if ($generateAudio && $this->shouldProcessPostStatus($status)) {
+            return true;
         }
 
-        return true;
+        // Default is no audio
+        return false;
     }
 
     /**
-     * Generate audio for post.
+     * Generate audio for a post if certain conditions are met.
      *
      * @since 3.0.0
      * @since 3.2.0 Added speechkit_post_statuses filter
      * @since 3.5.0 Refactored, adding $this->shouldGenerateAudioForPost()
+     * @since 5.1.0 Move project ID check into $this->shouldGenerateAudioForPost()
      *
      * @param int $postId WordPress Post ID.
      *
@@ -144,13 +153,6 @@ class Core
     {
         // Perform checks to see if this post should be processed
         if (! $this->shouldGenerateAudioForPost($postId)) {
-            return false;
-        }
-
-        $projectId = PostMetaUtils::getProjectId($postId);
-
-        // Bail if we cannot determine a Project ID
-        if (! $projectId) {
             return false;
         }
 
@@ -167,6 +169,8 @@ class Core
         } else {
             $response = $this->apiClient->createAudio($postId);
         }
+
+        $projectId = PostMetaUtils::getProjectId($postId);
 
         $this->processResponse($response, $projectId, $postId);
 
@@ -348,7 +352,7 @@ class Core
      **/
     public function onTrashOrDeletePost($postId)
     {
-        // Bail if this post has no Project ID / Content ID
+        // Exit if this post has no Project ID / Content ID
         if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
             return false;
         }
@@ -390,7 +394,7 @@ class Core
      **/
     public function onUntrashPost($postId)
     {
-        // Bail if this post has no Project ID / Content ID
+        // Exit if this post has no Project ID / Content ID
         if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
             return false;
         }
@@ -429,8 +433,9 @@ class Core
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Delete audio if beyondwords_delete_content custom field is set.
      * @since 4.5.0 Remove unwanted debugging custom fields.
+     * @since 5.1.0 Move post status check out of here
      *
-     * @param int          $postId     Post ID.
+     * @param int $postId Post ID.
      *
      * @return bool|Response
      **/
@@ -447,14 +452,6 @@ class Core
             return false;
         }
 
-        $status = get_post_status($postId);
-
-        // Bail if the post status is invalid
-        if (! $this->shouldProcessPostStatus($status)) {
-            return false;
-        }
-
-        // Generate Audio for the updated post
         $this->generateAudioForPost($postId);
 
         return true;
