@@ -2,6 +2,21 @@
 
 **This is a list detailing changes for past BeyondWords releases. For more information about the current release, see readme.txt.**
 
+= 4.7.0 =
+
+Release date: 2nd May 2024
+
+**Fixes**
+
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) If the post body [has_blocks](https://developer.wordpress.org/reference/functions/has_blocks/) then remove the `wpautop` filter before sending it to our REST API. This filter was stripping closing `</p>` tags from empty paragraph blocks.
+
+**Enhancements**
+
+* [#386](https://github.com/beyondwords-io/wordpress-plugin/pull/386) Prepend custom plugin links instead of appending them
+* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality
+* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
+* Prevent empty `data-beyondwords-marker` attributes
+
 = 4.6.2 =
 
 Release date: 11th April 2024

@@ -63,126 +63,131 @@ context( 'Site Health', () => {
         } )
         // Include excerpts in audio
         cy.get( 'tr' ).eq( 8 ).within( () => {
+          cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Auto-publish audio' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Yes' )
+        } )
+        // Include excerpts in audio
+        cy.get( 'tr' ).eq( 9 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Include excerpts in audio' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'No' )
         } )
         // Preselect ‘Generate audio’
-        cy.get( 'tr' ).eq( 9 ).within( () => {
+        cy.get( 'tr' ).eq( 10 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Preselect ‘Generate audio’' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}' )
         } )
         // Default language code
-        cy.get( 'tr' ).eq( 10 ).within( () => {
+        cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'bb_BB' )
         } )
         // Default language ID
-        cy.get( 'tr' ).eq( 11 ).within( () => {
+        cy.get( 'tr' ).eq( 12 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language ID' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
         } )
         // Title voice ID
-        cy.get( 'tr' ).eq( 12 ).within( () => {
+        cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
         } )
         // Title voice speaking rate
-        cy.get( 'tr' ).eq( 13 ).within( () => {
+        cy.get( 'tr' ).eq( 14 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice speaking rate' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '90' )
         } )
         // Body voice ID
-        cy.get( 'tr' ).eq( 14 ).within( () => {
+        cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '3' )
         } )
         // Body voice speaking rate
-        cy.get( 'tr' ).eq( 15 ).within( () => {
+        cy.get( 'tr' ).eq( 16 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice speaking rate' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '110' )
         } )
         // Player UI
-        cy.get( 'tr' ).eq( 16 ).within( () => {
+        cy.get( 'tr' ).eq( 17 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Player UI' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'enabled' )
         } )
         // Player style
-        cy.get( 'tr' ).eq( 17 ).within( () => {
+        cy.get( 'tr' ).eq( 18 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Player style' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'standard' )
         } )
         // Player theme
-        cy.get( 'tr' ).eq( 18 ).within( () => {
+        cy.get( 'tr' ).eq( 19 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Player theme' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'light' )
         } )
         // Light theme
-        cy.get( 'tr' ).eq( 19 ).within( () => {
+        cy.get( 'tr' ).eq( 20 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Light theme' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#eee"\n}' )
         } )
         // Dark theme
-        cy.get( 'tr' ).eq( 20 ).within( () => {
+        cy.get( 'tr' ).eq( 21 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Dark theme' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "transparent",\n    "icon_color": "#fff",\n    "text_color": "#fff",\n    "highlight_color": "#444"\n}' )
         } )
         // Video theme
-        cy.get( 'tr' ).eq( 21 ).within( () => {
+        cy.get( 'tr' ).eq( 22 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Video theme' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
         } )
         // Call-to-action
-        cy.get( 'tr' ).eq( 22 ).within( () => {
+        cy.get( 'tr' ).eq( 23 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Call-to-action' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Listen to this article' )
         } )
         // Text highlighting
-        cy.get( 'tr' ).eq( 23 ).within( () => {
+        cy.get( 'tr' ).eq( 24 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Text highlighting' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'No' )
         } )
         // Playback from segments
-        cy.get( 'tr' ).eq( 24 ).within( () => {
+        cy.get( 'tr' ).eq( 25 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Playback from segments' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Yes' )
         } )
         // Widget style
-        cy.get( 'tr' ).eq( 25 ).within( () => {
+        cy.get( 'tr' ).eq( 26 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Widget style' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'standard' )
         } )
         // Widget position
-        cy.get( 'tr' ).eq( 26 ).within( () => {
+        cy.get( 'tr' ).eq( 27 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Widget position' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'auto' )
         } )
         // Skip button style
-        cy.get( 'tr' ).eq( 27 ).within( () => {
+        cy.get( 'tr' ).eq( 28 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Skip button style' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'auto' )
         } )
         // Multiple languages
-        cy.get( 'tr' ).eq( 28 ).within( () => {
+        cy.get( 'tr' ).eq( 29 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Multiple languages' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
         } )
         // Registered filters
-        cy.get( 'tr' ).eq( 29 ).within( () => {
+        cy.get( 'tr' ).eq( 30 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // Registered deprecated filters
-        cy.get( 'tr' ).eq( 30 ).within( () => {
+        cy.get( 'tr' ).eq( 31 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered deprecated filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // BEYONDWORDS_AUTO_SYNC_SETTINGS
-        cy.get( 'tr' ).eq( 31 ).within( () => {
+        cy.get( 'tr' ).eq( 32 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'False' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
-        cy.get( 'tr' ).eq( 32 ).within( () => {
+        cy.get( 'tr' ).eq( 33 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTOREGENERATE' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )

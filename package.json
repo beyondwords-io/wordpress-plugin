@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -25,16 +25,13 @@
     "@wordpress/notices": "^5.7.0",
     "@wordpress/plugins": "^7.7.0",
     "@wordpress/url": "^4.7.0",
-    "babel-runtime": "^6.26.0",
-    "dashify": "^2.0.0",
-    "react-player-controls": "^1.1.0",
     "react-script-tag": "^1.1.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@mockoon/cli": "^8.4.0",
-    "@wordpress/eslint-plugin": "^21.0.0",
-    "@wordpress/scripts": "^29.0.0",
+    "@wordpress/eslint-plugin": "^21.3.0",
+    "@wordpress/scripts": "^30.3.0",
     "badge-maker": "^4.0.0",
     "cypress": "13.14.2",
     "cypress-map": "^1.40.0",

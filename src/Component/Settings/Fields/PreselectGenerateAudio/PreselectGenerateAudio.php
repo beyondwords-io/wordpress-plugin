@@ -41,6 +41,7 @@ class PreselectGenerateAudio
     public function init()
     {
         add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
     }
 
     /**

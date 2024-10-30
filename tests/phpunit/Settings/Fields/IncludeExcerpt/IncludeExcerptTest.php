@@ -44,6 +44,20 @@ class IncludeExcerptTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $includeExcerpt = new IncludeExcerpt();
+        $includeExcerpt->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_init', array($includeExcerpt, 'addSetting')));
+        $this->assertEquals(10, has_action('option_beyondwords_prepend_excerpt', 'rest_sanitize_boolean'));
+    }
+
+    /**
+     * @test
+     */
     public function addSetting()
     {
         global $wp_settings_fields;

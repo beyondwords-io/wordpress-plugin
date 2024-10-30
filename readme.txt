@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.0.0
+Stable tag: 5.1.0
 Requires PHP: 8.0
 Tested up to: 6.6
 License: GPLv2 or later
@@ -80,6 +80,21 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.1.0 =
+
+Release date: 30th October 2024
+
+**Fixes**
+
+* [#404](https://github.com/beyondwords-io/wordpress-plugin/pull/404) Bring auto-publish setting into WordPress to fix auto-publishing.
+    * In some cases WordPress was publishing audio regardless of the auto-publish setting in the dashboard.
+    * After this update any content created with the WordPress plugin will need to be published in the BeyondWords dashboard.
+* [#407](https://github.com/beyondwords-io/wordpress-plugin/pull/407) Regenerate audio for all post statuses
+    * If a post has a content ID for audio then we now *always* make PUT requests to the BeyondWords REST API when the post is updated.
+    * This fixes an issue where the `published` property of audio was not set to `false` when WordPress posts were moved back to `draft` status.
+* [#408](https://github.com/beyondwords-io/wordpress-plugin/pull/408) Generate Audio checkbox in Classic Editor doesn't reflect the "Preselect" setting
+    * A change in the `v5.0` update meant the "Preselect generate audio" JS script was no longer being enqueued. This should now be fixed.
+
 = 5.0.0 =
 
 Release date: 15th October 2024
@@ -105,21 +120,6 @@ Release date: 15th October 2024
 * Remove deprecated filters. 
     * A number of deprecated filters have now been removed from the source code.
     * Refer to our [WordPress Filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) documentation to view the current filters we provide.
-
-= 4.7.0 =
-
-Release date: 2nd May 2024
-
-**Fixes**
-
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) If the post body [has_blocks](https://developer.wordpress.org/reference/functions/has_blocks/) then remove the `wpautop` filter before sending it to our REST API. This filter was stripping closing `</p>` tags from empty paragraph blocks.
-
-**Enhancements**
-
-* [#386](https://github.com/beyondwords-io/wordpress-plugin/pull/386) Prepend custom plugin links instead of appending them
-* [#384](https://github.com/beyondwords-io/wordpress-plugin/pull/384) Refactoring to improve code quality
-* [#388](https://github.com/beyondwords-io/wordpress-plugin/pull/388) Unit tests for empty paragraphs
-* Prevent empty `data-beyondwords-marker` attributes
 
 --------
 

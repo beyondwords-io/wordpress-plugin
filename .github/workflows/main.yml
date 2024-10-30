@@ -16,7 +16,7 @@ jobs:
   # ######################################
   build:
     name: Build Plugin ZIP
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
   # ######################################
   grumphp:
     name: GrumPHP
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -136,7 +136,7 @@ jobs:
   # ######################################
   plugin-check:
     name: Plugin Check
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: production
     needs: [build]
 
@@ -184,7 +184,7 @@ jobs:
         include:
         - php-version: '8.0'
           phpunit-version: '9'
-          operating-system: ['ubuntu-20.04']
+          operating-system: ['ubuntu-latest']
 
     env:
       DB_HOST: 127.0.0.1
@@ -337,7 +337,7 @@ jobs:
         include:
         - php-version: '8.0'
           phpunit-version: '9'
-          operating-system: ['ubuntu-20.04']
+          operating-system: ['ubuntu-latest']
 
     env:
       DB_HOST: 127.0.0.1

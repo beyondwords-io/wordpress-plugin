@@ -34,6 +34,25 @@ class PlayerTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function init()
+    {
+        $player = new Player();
+        $player->init();
+
+        do_action('wp_loaded');
+
+        // Actions
+        $this->assertEquals(10, has_action('init', array($player, 'registerShortcodes')));
+        $this->assertEquals(10, has_action('wp_enqueue_scripts', array($player, 'enqueueScripts')));
+
+        // Filters
+        $this->assertEquals(1000000, has_filter('the_content', array($player, 'autoPrependPlayer')));
+        $this->assertEquals(10, has_filter('newsstand_the_content', array($player, 'autoPrependPlayer')));
+    }
+
+    /**
+     * @test
+     */
     public function addShortcode()
     {
         global $post;

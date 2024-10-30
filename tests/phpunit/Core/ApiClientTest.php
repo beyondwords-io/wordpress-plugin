@@ -46,6 +46,19 @@ class ApiClientTest extends WP_UnitTestCase
     }
 
     /**
+     * @test
+     */
+    public function init()
+    {
+        $apiClient = new ApiClient();
+        $apiClient->init();
+
+        do_action('wp_loaded');
+
+        $this->assertEquals(10, has_action('admin_notices', array($apiClient, 'adminNotices')));
+    }
+
+    /**
      * Helper function to check that an API 200 OK response is the structure we expect.
      *
      * We only use the id (UUID) for now.

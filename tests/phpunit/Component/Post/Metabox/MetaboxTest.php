@@ -44,6 +44,7 @@ class MetaboxTest extends WP_UnitTestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('admin_enqueue_scripts', array($this->_instance, 'adminEnqueueScripts')));
+        $this->assertEquals(10, has_action('add_meta_boxes', array($this->_instance, 'addMetaBox')));
     }
 
     /**
