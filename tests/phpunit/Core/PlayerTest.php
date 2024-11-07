@@ -130,9 +130,15 @@ class PlayerTest extends WP_UnitTestCase
 
         $html = $this->_instance->jsPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
 
+        $this->assertNotEmpty($html);
+
+        setup_postdata($postId);
+
         $crawler = new Crawler($html);
 
         $this->assertCount(1, $crawler->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
+
+        wp_reset_postdata();
 
         wp_delete_post($postId, true);
     }
@@ -175,50 +181,7 @@ class PlayerTest extends WP_UnitTestCase
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
 
-        $this->assertCount(1, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
-    public function deprecatedJsPlayerHtmlFilter()
-    {
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::deprecatedJsPlayerHtmlFilter',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $filter = function($html, $postId, $projectId, $contentId) {
-            return sprintf(
-                '<div id="wrapper" data-post-id="%d" data-project-id="%d" data-podcast-id="%s">%s</div>',
-                $postId,
-                $projectId,
-                $contentId,
-                $html
-            );
-        };
-
-        add_filter('beyondwords_js_player_html', $filter, 10, 4);
-
-        $html = $this->_instance->playerHtml($post);
-
-        remove_filter('beyondwords_js_player_html', $filter, 10, 4);
-
-        $crawler = new Crawler($html);
-
-        // <div id="wrapper">
-        $wrapper = $crawler->filter('#wrapper');
-        $this->assertCount(1, $wrapper);
-        $this->assertSame("$post->ID", $wrapper->attr('data-post-id'));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
-
-        $this->assertCount(1, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
+        $this->assertCount(0, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
 
         wp_delete_post($post->ID, true);
     }

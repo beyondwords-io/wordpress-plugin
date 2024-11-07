@@ -25,7 +25,6 @@ class Environment
      * Override with BEYONDWORDS_API_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_API_URL = 'https://api.beyondwords.io/v1';
@@ -36,7 +35,6 @@ class Environment
      * Override with BEYONDWORDS_BACKEND_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_BACKEND_URL = '';
@@ -47,7 +45,6 @@ class Environment
      * Override with BEYONDWORDS_JS_SDK_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_JS_SDK_URL = 'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js'; // phpcs:ignore Generic.Files.LineLength.TooLong
@@ -58,7 +55,6 @@ class Environment
      * Override with BEYONDWORDS_AMP_PLAYER_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_AMP_PLAYER_URL = 'https://audio.beyondwords.io/amp/%d?podcast_id=%s';
@@ -69,7 +65,6 @@ class Environment
      * Override with BEYONDWORDS_AMP_IMG_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_AMP_IMG_URL = 'https://s3-eu-west-1.amazonaws.com/beyondwords-assets/logo.svg';
@@ -80,10 +75,19 @@ class Environment
      * Override with BEYONDWORDS_DASHBOARD_URL in wp-config.php.
      *
      * @since  3.0.0
-     * @access private
      * @var    string
      */
     public const BEYONDWORDS_DASHBOARD_URL = 'https://dash.beyondwords.io';
+
+    /**
+     * Use the inline player script.
+     *
+     * Override with BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG in wp-config.php.
+     *
+     * @since  5.2.0
+     * @var    bool
+     */
+    public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;
 
     /**
      * @return string
@@ -155,5 +159,24 @@ class Environment
         }
 
         return static::BEYONDWORDS_DASHBOARD_URL;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function hasPlayerInlineScriptTag()
+    {
+        $value = static::BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
+
+        if (defined('BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG')) {
+            $value = (bool) BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
+        }
+
+        /**
+         * Filters whether the inline player script tag should be loaded.
+         */
+        $value = apply_filters('beyondwords_player_inline_script_tag', $value);
+
+        return $value;
     }
 }
