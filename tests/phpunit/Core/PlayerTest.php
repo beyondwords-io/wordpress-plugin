@@ -181,7 +181,7 @@ class PlayerTest extends WP_UnitTestCase
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
 
-        $this->assertCount(0, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
+        $this->assertCount(1, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
 
         wp_delete_post($post->ID, true);
     }
