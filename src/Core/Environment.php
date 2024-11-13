@@ -84,7 +84,7 @@ class Environment
      *
      * Override with BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG in wp-config.php.
      *
-     * @since  5.2.0
+     * @since  5.2.0-beta.1
      * @var    bool
      */
     public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;

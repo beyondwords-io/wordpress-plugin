@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.1.0
+Stable tag: 5.2.0-beta.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -79,6 +79,19 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.2.0 =
+
+Release date: TBC
+
+**Experimental**
+
+* [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
+    * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
+    * Opt-in to the inline `<script>` tag method of auto-embedding audio players by defining the constant `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` as `true` in your `wp-config.php`.
+    * This was added because the recent removal of the deprecated `beyondwords_content_id` filter caused problems for a publisher who had been using it to display an audio player from another post on their homepage.
+    * After opting-in, audio players that are auto-prepended to the post body should now use the `beyondwords_content_id` and `beyondwords_project_id` from the associated post being queried within The Loop.
+    * A known-issue is the current implementation is currently incompatible with both the *BeyondWords shortcode* and the *BeyondWords player block*. Compatibility will be ensured before this experimental opt-in feature is shipped to all users. In the meantime players added using either the shortcode or player block are unlikely to appear when the `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` is `true`.
 
 = 5.1.0 =
 
