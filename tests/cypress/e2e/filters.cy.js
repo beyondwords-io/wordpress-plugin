@@ -23,6 +23,7 @@ describe( 'WordPress Filters', () => {
 
       // Frontend should have a player div
       cy.viewPostViaSnackbar()
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       // window.BeyondWords should contain desired SDK params from
@@ -51,6 +52,7 @@ describe( 'WordPress Filters', () => {
 
       // Frontend should have a player div
       cy.viewPostViaSnackbar()
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       // Check we have called console.log with expected values from testing plugin
@@ -67,6 +69,32 @@ describe( 'WordPress Filters', () => {
       });
 
       cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' )
+    } )
+
+    it( `can filter Player inline script tag for a ${postType.name}`, () => {
+      cy.activatePlugin( 'beyondwords-filter-player-inline-script-tag' )
+
+      cy.createPostWithAudio( `I see the inline player script for a ${postType.name}`, postType )
+
+      // Admin should have latest player
+      cy.getAdminPlayer().should( 'exist' )
+
+      // Frontend SHOULD NOT have enqueued player script 
+      cy.viewPostViaSnackbar()
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
+      cy.getFrontendPlayer().should( 'exist' )
+
+      cy.deactivatePlugin( 'beyondwords-filter-player-inline-script-tag' )
+
+      cy.createPostWithAudio( `I see the legacy player script for a ${postType.name}`, postType )
+
+      // Admin should have latest player
+      cy.getAdminPlayer().should( 'exist' )
+
+      // Frontend SHOULD have enqueued player script 
+      cy.viewPostViaSnackbar()
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
     } )
   } )
 } )

@@ -33,6 +33,7 @@ context( 'Block Editor: Display Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
@@ -56,6 +57,7 @@ context( 'Block Editor: Display Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.getFrontendPlayer().should( 'not.exist' )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
@@ -79,6 +81,7 @@ context( 'Block Editor: Display Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
     } )
   } )

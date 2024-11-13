@@ -447,6 +447,11 @@ Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
   return cy.get( '.beyondwords-player .user-interface.video',  ...args )
 } )
 
+// Get frontend audio player element (standard)
+Cypress.Commands.add( 'getEnqueuedPlayerScriptTag', ( ...args ) => {
+  return cy.get( 'script[data-beyondwords-sdk]',  ...args )
+} )
+
 /**
  * Simulates a paste event.
  * Modified from https://gist.github.com/nickytonline/bcdef8ef00211b0faf7c7c0e7777aaf6

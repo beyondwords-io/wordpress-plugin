@@ -41,6 +41,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.getFrontendPlayer().should( 'not.exist' )
 
       cy.contains( 'p' , 'One.' ).should( 'not.have.attr', 'data-beyondwords-marker' )
@@ -100,6 +101,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       testCases.forEach( testCase => {
@@ -159,6 +161,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -203,6 +206,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -243,6 +247,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -300,6 +305,7 @@ context( 'Block Editor: Segment markers', () => {
     // "View post"
     cy.viewPostViaSnackbar()
 
+    cy.getEnqueuedPlayerScriptTag().should( 'exist' )
     cy.getFrontendPlayer().should( 'exist' )
 
     cy.get( '.entry-content p:not(:empty)' )
