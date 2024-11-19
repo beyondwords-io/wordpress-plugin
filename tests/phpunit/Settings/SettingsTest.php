@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Settings;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class SettingsTest extends WP_UnitTestCase
@@ -23,8 +22,7 @@ class SettingsTest extends WP_UnitTestCase
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
 
-        $apiClient       = new ApiClient();
-        $this->_instance = new Settings($apiClient);
+        $this->_instance = new Settings();
     }
 
     public function tearDown(): void
@@ -41,8 +39,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $apiClient = new ApiClient();
-        $settings = new Settings($apiClient);
+        $settings = new Settings();
         $settings->init();
 
         do_action('wp_loaded');
@@ -111,7 +108,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function hasApiCredsWithOnlyApiKey()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $this->assertFalse(SettingsUtils::hasApiCreds());
 
@@ -165,7 +162,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function printPluginAdminNoticesWithApiSettings()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $this->_instance->printPluginAdminNotices();
@@ -226,7 +223,7 @@ class SettingsTest extends WP_UnitTestCase
             'post_author' => $userId
         ]);
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
 
         $this->_instance->restApiInit();
@@ -237,7 +234,7 @@ class SettingsTest extends WP_UnitTestCase
 
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
 
-        $this->assertSame('write_XXXXXXXXXXXXXXXX', $data['apiKey']);
+        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');
@@ -252,7 +249,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function restApiResponse()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
 
         $reponse = $this->_instance->restApiResponse();
@@ -261,7 +258,7 @@ class SettingsTest extends WP_UnitTestCase
 
         $data = $reponse->get_data();
 
-        $this->assertSame('write_XXXXXXXXXXXXXXXX', $data['apiKey']);
+        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');

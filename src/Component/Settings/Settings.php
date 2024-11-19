@@ -34,23 +34,6 @@ use Beyondwords\Wordpress\Core\Environment;
 class Settings
 {
     /**
-     * API Client.
-     *
-     * @since 3.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 3.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init
      */
     public function init()
@@ -58,14 +41,14 @@ class Settings
         delete_transient('beyondwords_settings_errors');
 
         (new Credentials())->init();
-        (new Sync($this->apiClient))->init();
+        (new Sync())->init();
 
         if (SettingsUtils::hasApiCreds()) {
-            (new Voices($this->apiClient))->init();
+            (new Voices())->init();
             (new Content())->init();
-            (new Player($this->apiClient))->init();
+            (new Player())->init();
             (new Pronunciations())->init();
-            (new Advanced($this->apiClient))->init();
+            (new Advanced())->init();
         }
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
@@ -148,6 +131,11 @@ class Settings
                 <hr class="wp-header-end">
 
                 <?php
+                if ($activeTab === 'credentials') {
+                    Sync::validateApiConnection();
+                }
+
+                settings_errors('beyondwords_messages');
                 settings_fields("beyondwords_{$activeTab}_settings");
                 do_settings_sections("beyondwords_{$activeTab}");
 

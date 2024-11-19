@@ -195,14 +195,6 @@ class PostMetaUtils
             return intval($matches[1]);
         }
 
-        // It may also be found by parsing post_meta.speechkit_response
-        $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
-        preg_match('/"podcast_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
-        // $matches[2] is the Podcast ID (response.podcast_id)
-        if ($matches && $matches[2]) {
-            return intval($matches[2]);
-        }
-
         /**
          * It may also be found by parsing post_meta.speechkit_info
          *
@@ -307,16 +299,6 @@ class PostMetaUtils
     {
         // Check custom fields
         $projectId = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
-
-        if (! $projectId) {
-            // It may also be found by parsing post_meta.speechkit_response
-            $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
-            preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
-            // $matches[2] is the Project ID (response.project_id)
-            if ($matches && $matches[2]) {
-                $projectId = intval($matches[2]);
-            }
-        }
 
         // If we still don't have an ID then use the default from the plugin settings
         if (! $projectId) {
@@ -444,38 +426,5 @@ class PostMetaUtils
     public static function getDisabled($postId)
     {
         return PostMetaUtils::getRenamedPostMeta($postId, 'disabled');
-    }
-
-    /**
-     * Get HTTP response body from post meta.
-     *
-     * The data may have been saved as a WordPress HTTP response array. If it was,
-     * then return the 'body' key of the HTTP response instead of the raw post meta.
-     *
-     * The data may also have been saved as a WordPress WP_Error instance. If it was,
-     * then return a string containing the WP_Error code and message.
-     *
-     * @since 3.0.3
-     * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
-     * @since 3.6.1 Handle responses saved as object of class WP_Error
-     *
-     * @param int    $postId   Post ID.
-     * @param string $metaName Post Meta name.
-     *
-     * @return string
-     */
-    public static function getHttpResponseBodyFromPostMeta($postId, $metaName)
-    {
-        $postMeta = get_post_meta($postId, $metaName, true);
-
-        if (is_array($postMeta)) {
-            return (string)wp_remote_retrieve_body($postMeta);
-        }
-
-        if (is_wp_error($postMeta)) {
-            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $postMeta->get_error_code(), $postMeta->get_error_message());
-        }
-
-        return (string)$postMeta;
     }
 }

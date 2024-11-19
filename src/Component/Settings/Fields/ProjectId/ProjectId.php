@@ -87,15 +87,15 @@ class ProjectId
     /**
      * Sanitise the setting value.
      *
-     * @since  3.0.0
-     * @param  array $value The submitted value.
+     * @since 3.0.0
+     * @since 5.2.0 Replace API creds validation with attempted sync.
+     *
+     * @param array $value The submitted value.
      *
      * @return void
      **/
     public function sanitize($value)
     {
-        set_transient('beyondwords_validate_api_connection', true, 30);
-
         $errors = get_transient('beyondwords_settings_errors');
 
         if (empty($errors)) {
@@ -108,6 +108,8 @@ class ProjectId
                 'speechkit'
             );
             set_transient('beyondwords_settings_errors', $errors);
+        } else {
+            set_transient('beyondwords_validate_api_connection', true);
         }
 
         return $value;

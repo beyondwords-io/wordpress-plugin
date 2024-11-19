@@ -4,7 +4,7 @@ context( 'Settings > Credentials',  () => {
     cy.login()
   } )
 
-  it( 'prompts for API credentials and hides other settings tabs until they are valid', () => {
+  it( 'prompts for API credentials and hides other settings tabs until they are supplied', () => {
     cy.visit( '/wp-admin' )
 
     cy.showsPluginSettingsNotice()
@@ -32,12 +32,14 @@ context( 'Settings > Credentials',  () => {
     cy.showsPluginSettingsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
-    // Invalid creds
+    // Invalid creds (this used to show the invalid creds notice, but we don't validate creds anymore)
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' ) // Project 401 triggers a 403 response in Mockoon
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
-    cy.showsInvalidApiCredsNotice()
-    cy.showsOnlyCredentialsSettingsTab()
+    cy.showsAllSettingsTabs()
+
+    // No notices
+    cy.get( '.notice-error' ).should( 'not.exist' )
 
     // Valid API Key & Project ID
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )

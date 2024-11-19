@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
 
+use Beyondwords\Wordpress\Core\ApiClient;
+
 /**
  * Languages
  *
@@ -32,23 +34,6 @@ class Languages
      * @since 3.0.0
      */
     public const DEFAULT_LANGUAGES = [];
-
-    /**
-     * API Client.
-     *
-     * @since 3.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 3.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
 
     /**
      * Init.
@@ -96,7 +81,7 @@ class Languages
      **/
     public function render()
     {
-        $allLanguages = $this->apiClient->getLanguages();
+        $allLanguages = ApiClient::getLanguages();
 
         if (! is_array($allLanguages)) {
             $allLanguages = [];

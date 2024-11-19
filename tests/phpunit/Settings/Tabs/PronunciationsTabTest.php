@@ -27,7 +27,7 @@ class PronunciationsTabTest extends WP_UnitTestCase
 
         $this->_instance = new Pronunciations();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 

@@ -28,21 +28,6 @@ use Beyondwords\Wordpress\Core\Environment;
 class Metabox
 {
     /**
-     * @var \Beyondwords\Wordpress\Core\ApiClient
-     */
-    private $apiClient;
-
-    /**
-     * Init.
-     *
-     * @since 4.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init.
      *
      * @since 4.0.0
@@ -135,7 +120,7 @@ class Metabox
         }
 
         // Enable these components for posts with/without audio
-        (new SelectVoice($this->apiClient))->element($post);
+        (new SelectVoice())->element($post);
         (new PlayerStyle())->element($post);
 
         echo '<hr />';

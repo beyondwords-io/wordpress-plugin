@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Plugin;
-use Beyondwords\Wordpress\Core\ApiClient;
+use Beyondwords\Wordpress\Core\Core;
 
 class PluginTest extends WP_UnitTestCase
 {
@@ -29,7 +29,8 @@ class PluginTest extends WP_UnitTestCase
     public function constructor()
     {
         $plugin = new Plugin();
+        $plugin->init();
 
-        $this->assertInstanceOf(ApiClient::class, $plugin->apiClient);
+        $this->assertInstanceOf(Core::class, $plugin->core);
     }
 }

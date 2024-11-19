@@ -35,23 +35,6 @@ class PlayerStyle
     public const VIDEO = 'video';
 
     /**
-     * API Client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Constructor
      */
     public function init()

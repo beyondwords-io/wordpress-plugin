@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
-use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * @group settings
@@ -26,10 +25,9 @@ class VoicesTabTest extends WP_UnitTestCase
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
 
-        $apiClient       = new ApiClient();
-        $this->_instance = new Voices($apiClient);
+        $this->_instance = new Voices();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 

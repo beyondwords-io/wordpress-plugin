@@ -27,23 +27,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
  */
 class Voices
 {
-     /**
-     * API Client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
     /**
      * Init
      *
@@ -51,10 +34,10 @@ class Voices
      */
     public function init()
     {
-        (new Language($this->apiClient))->init();
-        (new TitleVoice($this->apiClient))->init();
+        (new Language())->init();
+        (new TitleVoice())->init();
         (new TitleVoiceSpeakingRate())->init();
-        (new BodyVoice($this->apiClient))->init();
+        (new BodyVoice())->init();
         (new BodyVoiceSpeakingRate())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -23,10 +22,9 @@ class LanguagesTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $apiClient       = new ApiClient();
-        $this->_instance = new Languages($apiClient);
+        $this->_instance = new Languages();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
@@ -47,8 +45,7 @@ class LanguagesTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $apiClient = new ApiClient();
-        $languages = new Languages($apiClient);
+        $languages = new Languages();
         $languages->init();
 
         do_action('wp_loaded');
@@ -81,7 +78,7 @@ class LanguagesTest extends WP_UnitTestCase
      */
     public function render()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $this->_instance->render();

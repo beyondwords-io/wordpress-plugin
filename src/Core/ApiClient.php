@@ -14,26 +14,26 @@ use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
  **/
 class ApiClient
 {
-    public const ERROR_FORMAT = '#%s: %s';
-
     /**
-     * Init.
+     * Error format.
+     * 
+     * The error format used to display error messages in WordPress admin.
+     * 
+     * @var string
      */
-    public function init()
-    {
-        add_action('admin_notices', array($this, 'adminNotices'));
-    }
+    public const ERROR_FORMAT = '#%s: %s';
 
     /**
      * POST /projects/:id/content.
      *
      * @since 3.0.0
+     * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress Post ID
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function createAudio($postId)
+    public static function createAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
 
@@ -47,19 +47,20 @@ class ApiClient
 
         $request = new Request('POST', $url, $body);
 
-        return $this->callApi($request, $postId);
+        return self::callApi($request, $postId);
     }
 
     /**
      * PUT /projects/:id/content/:id.
      *
      * @since 3.0.0
+     * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress Post ID
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function updateAudio($postId)
+    public static function updateAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
         $contentId = PostMetaUtils::getContentId($postId);
@@ -74,19 +75,20 @@ class ApiClient
 
         $request = new Request('PUT', $url, $body);
 
-        return $this->callApi($request, $postId);
+        return self::callApi($request, $postId);
     }
 
     /**
      * DELETE /projects/:id/content/:id.
      *
      * @since 3.0.0
+     * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress Post ID
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function deleteAudio($postId)
+    public static function deleteAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
         $contentId = PostMetaUtils::getContentId($postId);
@@ -99,20 +101,21 @@ class ApiClient
 
         $request = new Request('DELETE', $url);
 
-        return $this->callApi($request, $postId);
+        return self::callApi($request, $postId);
     }
 
     /**
      * DELETE /projects/:id/content/:id.
      *
      * @since 4.1.0
+     * @since 5.2.0 Make static.
      *
      * @param int[] $postIds Array of WordPress Post IDs.
      *
      * @throws \Exception
-     * @return int[] The Post IDs with deleted audio.
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function batchDeleteAudio($postIds)
+    public static function batchDeleteAudio($postIds)
     {
         $contentIds = [];
         $updatedPostIds = [];
@@ -183,16 +186,17 @@ class ApiClient
      * @since 4.0.0 Introduced
      * @since 4.0.2 Prefix endpoint with /organization
      * @since 5.0.0 Cache response using transients
+     * @since 5.2.0 Make static.
      *
-     * @return array|object Array of voices or API error object.
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function getLanguages()
+    public static function getLanguages()
     {
         $url = sprintf('%s/organization/languages', Environment::getApiUrl());
 
         $request = new Request('GET', $url);
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
@@ -202,12 +206,13 @@ class ApiClient
      * @since 4.0.2 Prefix endpoint with /organization
      * @since 4.5.1 Check the $languageId param is numeric.
      * @since 5.0.0 Accept numeric language ID or string language code as param.
+     * @since 5.2.0 Make static.
      *
      * @param int|string $language BeyondWords Language code or numeric ID
      *
-     * @return array|object Array of voices or API error object.
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function getVoices($language)
+    public static function getVoices($language)
     {
         $field = 'language.code';
 
@@ -219,7 +224,7 @@ class ApiClient
 
         $request = new Request('GET', $url);
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
@@ -227,19 +232,20 @@ class ApiClient
      * GET /organization/voice is not available.
      *
      * @since 5.0.0
+     * @since 5.2.0 Make static.
      *
      * @param int       $voiceId  Voice ID.
      * @param int|false $language Language ID, optional.
      *
      * @return object|false Voice, or false if not found.
      **/
-    public function getVoice($voiceId, $languageId = false)
+    public static function getVoice($voiceId, $languageId = false)
     {
         if (! $languageId) {
             $languageId = get_option('beyondwords_project_language_id');
         }
 
-        $voices = $this->getVoices($languageId);
+        $voices = self::getVoices($languageId);
 
         if (empty($voices)) {
             return false;
@@ -252,12 +258,13 @@ class ApiClient
      * PUT /voices/:id.
      *
      * @since 5.0.0
+     * @since 5.2.0 Make static.
      *
      * @param array $settings Associative array of voice settings.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function updateVoice($voiceId, $settings)
+    public static function updateVoice($voiceId, $settings)
     {
         if (empty($voiceId)) {
             return false;
@@ -267,7 +274,7 @@ class ApiClient
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
@@ -275,10 +282,11 @@ class ApiClient
      *
      * @since 4.0.0
      * @since 5.0.0 Cache response using transients
+     * @since 5.2.0 Make static.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function getProject()
+    public static function getProject()
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -290,19 +298,20 @@ class ApiClient
 
         $request = new Request('GET', $url);
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
      * PUT /projects/:id.
      *
      * @since 5.0.0
+     * @since 5.2.0 Make static.
      *
      * @param array $settings Associative array of project settings.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function updateProject($settings)
+    public static function updateProject($settings)
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -314,17 +323,18 @@ class ApiClient
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
      * GET /projects/:id/player_settings.
      *
      * @since 4.0.0
+     * @since 5.2.0 Make static.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function getPlayerSettings()
+    public static function getPlayerSettings()
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -336,19 +346,20 @@ class ApiClient
 
         $request = new Request('GET', $url);
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
      * PUT /projects/:id/player_settings.
      *
      * @since 4.0.0
+     * @since 5.2.0 Make static.
      *
      * @param array $settings Associative array of player settings.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function updatePlayerSettings($settings)
+    public static function updatePlayerSettings($settings)
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -360,7 +371,7 @@ class ApiClient
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
@@ -368,12 +379,13 @@ class ApiClient
      *
      * @since 4.1.0
      * @since 5.0.0 Cache response using transients
+     * @since 5.2.0 Make static.
      *
      * @param int $projectId BeyondWords Project ID.
      *
-     * @return Response|false Response, or false
+     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function getVideoSettings($projectId = null)
+    public static function getVideoSettings($projectId = null)
     {
         if (! $projectId) {
             $projectId = get_option('beyondwords_project_id');
@@ -387,7 +399,7 @@ class ApiClient
 
         $request = new Request('GET', $url);
 
-        return $this->callApi($request);
+        return self::callApi($request);
     }
 
     /**
@@ -397,52 +409,40 @@ class ApiClient
      * @since 3.9.0 Stop saving the speechkit_status post meta - downgrades to plugin v2.x are no longer expected.
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Handle 204 responses with no body.
+     * @since 5.2.0 Make static.
      *
      * @param Request $request Request.
      * @param int     $postId  WordPress Post ID
      *
      * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
      **/
-    public function callApi($request, $postId = false)
+    public static function callApi($request, $postId = false)
     {
-        // Pure
-        $args = $this->buildRequestArgs($request);
+        self::deleteErrors($postId);
 
-        if ($postId) {
-            // Side-effect: db write
-            $this->deleteErrors($postId);
+        $args = self::buildRequestArgs($request);
+        self::addRequestLogs($postId, $request, $args);
 
-            // Side-effect: db write
-            $this->addRequestLog($request, $args, $postId);
-        }
+        // Get response
+        $response = wp_remote_request($request->getUrl(), $args);
 
-        // WordPress core methods
-        $response        = wp_remote_request($request->getUrl(), $args);
-        $responseCode    = wp_remote_retrieve_response_code($response);
-        $responseMessage = wp_remote_retrieve_response_message($response);
-        $responseBody    = json_decode(wp_remote_retrieve_body($response), true);
+        // Get response details
+        $responseCode    = strval(wp_remote_retrieve_response_code($response));
+        $responseBodyRaw = wp_remote_retrieve_body($response);
+        $responseBody    = json_decode($responseBodyRaw, true);
 
         // 204 responses have no body
         if ($responseCode === 204) {
+            self::deleteLogs($postId);
+
             return null;
         }
 
         // Handle HTTP errors
         if (is_wp_error($response) || $responseCode > 299) {
-            // Prefer the response "message" field over the HTTP status message
-            if (is_array($responseBody) && array_key_exists('message', $responseBody)) {
-                $responseMessage = $responseBody['message'];
-            }
-        }
+            $message = self::errorMessageFromResponse($response);
 
-        $responseBodyJson = wp_remote_retrieve_body($response);
-        $responseBody     = json_decode($responseBodyJson, true);
-
-        // Response had a HTTP error code (3XX, 4XX, 5XX)
-        if ($responseCode > 299) {
-            $errorMessage = $this->errorMessageFromResponse($response);
-
-            $this->saveErrorMessage($postId, $responseMessage, $responseCode);
+            self::saveErrorMessage($postId, $message, $responseCode);
 
             return false;
         }
@@ -456,15 +456,12 @@ class ApiClient
                 wp_kses(json_last_error_msg(), [])
             );
 
-            $this->saveErrorMessage($postId, $errorMessage, 500);
+            self::saveErrorMessage($postId, $errorMessage, 500);
 
             return false;
         }
 
-        if ($postId) {
-            // Modifies db
-            $this->deleteRequestLog($postId);
-        }
+        self::deleteLogs($postId);
 
         return $responseBody;
     }
@@ -475,12 +472,13 @@ class ApiClient
      * @since 3.0.0
      * @since 4.0.0 Removed hash comparison and display 403 errors.
      * @since 4.1.0 Introduced.
+     * @since 5.2.0 Make static.
      *
      * @param Request $request BeyondWords Request.
      *
      * @return array WordPress HTTP Request arguments.
      */
-    public function buildRequestArgs($request)
+    public static function buildRequestArgs($request)
     {
         return [
             'blocking'    => true,
@@ -495,15 +493,18 @@ class ApiClient
      * Error message from BeyondWords REST API response.
      *
      * @since 4.1.0
+     * @since 5.2.0 Make static.
      *
      * @param mixed[] $response BeyondWords REST API response.
      *
      * @return string Error message.
      */
-    public function errorMessageFromResponse($response)
+    public static function errorMessageFromResponse($response)
     {
         $body = wp_remote_retrieve_body($response);
         $body = json_decode($body, true);
+
+        $message = wp_remote_retrieve_response_message($response);
 
         if (is_array($body) && array_key_exists('errors', $body)) {
             $messages = [];
@@ -515,8 +516,6 @@ class ApiClient
             $message = implode(", ", $messages);
         } elseif (is_array($body) && array_key_exists('message', $body)) {
             $message = $body['message'];
-        } else {
-            $message = wp_remote_retrieve_response_message($response);
         }
 
         return $message;
@@ -526,11 +525,18 @@ class ApiClient
      * Deletes errors for a post.
      *
      * @since 4.1.0 Introduced.
+     * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress post ID.
+     *
+     * @return void
      */
-    public function deleteErrors($postId)
+    public static function deleteErrors($postId)
     {
+        if (! $postId) {
+            return;
+        }
+
         // Reset any existing errors before making this API call
         delete_post_meta($postId, 'speechkit_error_message');
         delete_post_meta($postId, 'beyondwords_error_message');
@@ -538,32 +544,44 @@ class ApiClient
 
     /**
      * Log the request details for a post.
+     * 
+     * Logs are removed later if the request was successful and retained if not.
      *
      * @since 4.1.0 Introduced.
+     * @since 5.2.0 Make static.
      *
-     * @param int    $postId   WordPress post ID.
+     * @param int     $postId  WordPress post ID.
      * @param Request $request BeyondWords Request.
+     * @param array   $args    BeyondWords Request args.
      *
-     * @param array WordPress HTTP Request arguments.
+     * @return void
      */
-    public function addRequestLog($request, $args, $postId)
+    public static function addRequestLogs($postId, $request, $args)
     {
-        // Log the request URL and args for debugging
-        // (these are removed for successful requests)
+        if (! $postId) {
+            return;
+        }
+
         update_post_meta($postId, 'beyondwords_request_url', $request->getUrl());
         update_post_meta($postId, 'beyondwords_request_args', var_export($args, true)); // phpcs:ignore
     }
 
     /**
-     * Deletes request details for a post.
+     * Deletes request/response logs for a post.
      *
      * @since 4.1.0 Introduced.
+     * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress post ID.
+     *
+     * @return void
      */
-    public function deleteRequestLog($postId)
+    public static function deleteLogs($postId)
     {
-        // Success, so remove request URL and args log
+        if (! $postId) {
+            return;
+        }
+
         delete_post_meta($postId, 'beyondwords_request_url');
         delete_post_meta($postId, 'beyondwords_request_args');
     }
@@ -573,13 +591,20 @@ class ApiClient
      *
      * @since 4.1.0 Introduced.
      * @since 4.4.0 Rename from error() to saveErrorMessage().
+     * @since 5.2.0 Make static.
      *
      * @param int    $postId  WordPress post ID.
      * @param string $message Error message.
      * @param int    $code    Error code.
+     *
+     * @return void
      */
-    public function saveErrorMessage($postId, $message = '', $code = 500)
+    public static function saveErrorMessage($postId, $message = '', $code = 500)
     {
+        if (! $postId) {
+            return;
+        }
+
         if (! $message) {
             $message = sprintf(
                 /* translators: %s is replaced with the support email link */
