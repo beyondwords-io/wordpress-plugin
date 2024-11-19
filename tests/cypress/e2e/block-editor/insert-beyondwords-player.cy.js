@@ -65,6 +65,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'have.length', 1 )
     } )
 
@@ -98,6 +99,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'have.length', 1 )
     } )
   } )

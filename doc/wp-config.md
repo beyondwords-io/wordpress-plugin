@@ -20,3 +20,13 @@ Defaults to `true`.
 ```php
 define('BEYONDWORDS_AUTOREGENERATE', false);
 ```
+
+##  BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG
+
+Use the recommended BeyondWords inline player script.
+Defaults to `false`.
+From plugin version `6.0` this will default to `true`.
+
+```php
+define('BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG', true);
+```

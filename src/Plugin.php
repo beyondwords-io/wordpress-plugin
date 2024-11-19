@@ -7,7 +7,9 @@ namespace Beyondwords\Wordpress;
 use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Core;
+use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\Player;
+use Beyondwords\Wordpress\Core\Player\PlayerInline;
 use Beyondwords\Wordpress\Core\Updater;
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
@@ -83,8 +85,12 @@ class Plugin
         // Site health
         (new SiteHealth())->init();
 
-        // Player
-        (new Player())->init();
+        // Player (inline or not)
+        if (Environment::hasPlayerInlineScriptTag()) {
+            (new PlayerInline())->init();
+        } else {
+            (new Player())->init();
+        }
 
         // Settings
         (new Settings($this->apiClient))->init();

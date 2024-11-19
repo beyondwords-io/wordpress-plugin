@@ -131,6 +131,7 @@ class SiteHealth
 
         $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
+        $this->addConstant($info, 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG');
 
         return $info;
     }
