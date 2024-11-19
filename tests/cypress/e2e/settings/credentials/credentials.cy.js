@@ -57,7 +57,6 @@ context( 'Settings > Credentials',  () => {
     cy.visit( '/wp-admin/options.php' )
     cy.get( '#beyondwords_api_key' ).should( 'exist' )
     cy.get( '#beyondwords_project_id' ).should( 'exist' )
-    cy.get( '#beyondwords_valid_api_connection' )
     cy.get( '#beyondwords_version' ).should( 'exist' )
   } )
 } )

@@ -121,7 +121,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_project_language_id' )
     cy.get( '#beyondwords_project_title_voice_id' )
     cy.get( '#beyondwords_project_title_voice_speaking_rate' )
-    cy.get( '#beyondwords_valid_api_connection' )
     cy.get( '#beyondwords_version' )
 
     // The plugin files will not be deleted. Only the uninstall procedure will be run.
@@ -151,7 +150,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_project_language_id' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_title_voice_id' ).should( 'not.exist' )
     cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should( 'not.exist' )
-    cy.get( '#beyondwords_valid_api_connection' ).should( 'not.exist' )
     cy.get( '#beyondwords_version' ).should( 'not.exist' )
   } )
 } )

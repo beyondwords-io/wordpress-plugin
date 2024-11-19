@@ -101,21 +101,43 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function hasApiSettingsWithoutOption()
+    public function hasApiCredsWithoutAnyField()
     {
-        delete_option('beyondwords_valid_api_connection');
-
-        $this->assertFalse(SettingsUtils::hasApiSettings());
+        $this->assertFalse(SettingsUtils::hasApiCreds());
     }
 
     /**
      * @test
      */
-    public function hasApiSettingsWithOption()
+    public function hasApiCredsWithOnlyApiKey()
+    {
+        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+
+        $this->assertFalse(SettingsUtils::hasApiCreds());
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
+    public function hasApiCredsWithOnlyProjectId()
+    {
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $this->assertFalse(SettingsUtils::hasApiCreds());
+
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function hasApiCredsWithRemovedOption()
     {
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
-        $this->assertTrue(SettingsUtils::hasApiSettings());
+        $this->assertFalse(SettingsUtils::hasApiCreds());
 
         delete_option('beyondwords_valid_api_connection');
     }
@@ -145,7 +167,6 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->printPluginAdminNotices();
 
@@ -154,7 +175,6 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
     }
 
     /**
@@ -208,7 +228,6 @@ class SettingsTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->restApiInit();
 
@@ -223,7 +242,6 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
-        delete_option('beyondwords_valid_api_connection');
 
         wp_delete_post($postId);
         wp_delete_user($userId);
@@ -236,7 +254,6 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $reponse = $this->_instance->restApiResponse();
 
@@ -249,6 +266,5 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
-        delete_option('beyondwords_valid_api_connection');
     }
 }

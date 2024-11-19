@@ -60,7 +60,7 @@ class Settings
         (new Credentials())->init();
         (new Sync($this->apiClient))->init();
 
-        if (SettingsUtils::hasApiSettings()) {
+        if (SettingsUtils::hasApiCreds()) {
             (new Voices($this->apiClient))->init();
             (new Content())->init();
             (new Player($this->apiClient))->init();
@@ -153,7 +153,7 @@ class Settings
 
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
-                    if (SettingsUtils::hasApiSettings()) {
+                    if (SettingsUtils::hasApiCreds()) {
                         submit_button('Save changes');
                     } else {
                         submit_button('Continue setup');
@@ -198,7 +198,7 @@ class Settings
             'advanced'       => __('Advanced', 'speechkit'),
         );
 
-        if (! SettingsUtils::hasApiSettings()) {
+        if (! SettingsUtils::hasApiCreds()) {
             $tabs = array_splice($tabs, 0, 1);
         }
 
@@ -240,7 +240,7 @@ class Settings
      */
     public function printPluginAdminNotices()
     {
-        $hasApiSettings = SettingsUtils::hasApiSettings();
+        $hasApiSettings = SettingsUtils::hasApiCreds();
         $settingsErrors = get_transient('beyondwords_settings_errors');
 
         if (is_array($settingsErrors) && count($settingsErrors)) :

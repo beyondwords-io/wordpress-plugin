@@ -99,7 +99,7 @@ class Plugin
          * To prevent browser JS errors we skip adding admin UI components until
          * we have a valid REST API connection.
          */
-        if (SettingsUtils::hasApiSettings()) {
+        if (SettingsUtils::hasApiCreds()) {
             // Posts screen
             (new BulkEdit())->init();
             (new BulkEditNotices())->init();

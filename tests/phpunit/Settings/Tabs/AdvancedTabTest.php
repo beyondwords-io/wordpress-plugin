@@ -31,7 +31,6 @@ class AdvancedTabTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -41,7 +40,6 @@ class AdvancedTabTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();

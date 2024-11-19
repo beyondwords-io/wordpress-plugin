@@ -23,7 +23,6 @@ class PostPlayerStyleTest extends WP_UnitTestCase
         // Your set up methods here.
         update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -31,7 +30,6 @@ class PostPlayerStyleTest extends WP_UnitTestCase
         // Your tear down methods here.
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();

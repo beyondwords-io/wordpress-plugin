@@ -64,11 +64,10 @@ class UninstallerTest extends WP_UnitTestCase
             // v5.0 video settings
             'beyondwords_video_enabled' => ['beyondwords_video_enabled'],
             // v4.x
-            'beyondwords_languages'            => ['beyondwords_languages'],
-            'beyondwords_player_ui'            => ['beyondwords_player_ui'],
-            'beyondwords_player_style'         => ['beyondwords_player_style'],
-            'beyondwords_settings_updated'     => ['beyondwords_settings_updated'],
-            'beyondwords_valid_api_connection' => ['beyondwords_valid_api_connection'],
+            'beyondwords_languages'        => ['beyondwords_languages'],
+            'beyondwords_player_ui'        => ['beyondwords_player_ui'],
+            'beyondwords_player_style'     => ['beyondwords_player_style'],
+            'beyondwords_settings_updated' => ['beyondwords_settings_updated'],
             // v3.7.0 beyondwords_*
             'beyondwords_version'         => ['beyondwords_version'],
             'beyondwords_api_key'         => ['beyondwords_api_key'],
@@ -81,6 +80,8 @@ class UninstallerTest extends WP_UnitTestCase
             'speechkit_project_id'      => ['speechkit_project_id'],
             'speechkit_preselect'       => ['speechkit_preselect'],
             'speechkit_prepend_excerpt' => ['speechkit_prepend_excerpt'],
+            // deprecated v5.0
+            'beyondwords_valid_api_connection' => ['beyondwords_valid_api_connection'],
             // deprecated < v3.0
             'speechkit_settings'             => ['speechkit_settings'],
             'speechkit_enable'               => ['speechkit_enable'],

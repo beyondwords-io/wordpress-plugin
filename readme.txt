@@ -82,9 +82,9 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.2.0 =
 
-Release date: TBC
+Release date: 19th November 2024
 
-**Experimental**
+**Enhancements**
 
 * [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
     * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
@@ -92,6 +92,12 @@ Release date: TBC
     * This was added because the recent removal of the deprecated `beyondwords_content_id` filter caused problems for a publisher who had been using it to display an audio player from another post on their homepage.
     * After opting-in, audio players that are auto-prepended to the post body should now use the `beyondwords_content_id` and `beyondwords_project_id` from the associated post being queried within The Loop.
     * A known-issue is the current implementation is currently incompatible with both the *BeyondWords shortcode* and the *BeyondWords player block*. Compatibility will be ensured before this experimental opt-in feature is shipped to all users. In the meantime players added using either the shortcode or player block are unlikely to appear when the `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` is `true`.
+
+**Fixes**
+
+* [#411](https://github.com/beyondwords-io/wordpress-plugin/pull/411) Remove `beyondwords_valid_api_connection` check.
+    * Since upgrading to version 5 a few publishers have reported problems with their valid API credentials being flagged as invalid, so the checks we had in place to validate the API Key and Project ID have been removed.
+    * API calls to create/update BeyondWords content can now be made with potentially invalid credentials. If this happens (fe.g. if your API Key has been revoked) the 401 Unauthorized error code and error message will be stored for your requests and visible in WordPress admin.
 
 = 5.1.0 =
 

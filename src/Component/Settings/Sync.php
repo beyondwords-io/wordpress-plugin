@@ -149,9 +149,6 @@ class Sync
             return;
         }
 
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
         $projectId = get_option('beyondwords_project_id');
         $apiKey    = get_option('beyondwords_api_key');
 
@@ -169,7 +166,6 @@ class Sync
         );
 
         if ($validConnection) {
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
             set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
             return true;
         }

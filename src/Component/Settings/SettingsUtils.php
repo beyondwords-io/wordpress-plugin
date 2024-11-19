@@ -130,17 +130,22 @@ class SettingsUtils
     }
 
     /**
-     * Do we have a valid API connection to call the BeyondWords REST API?
+     * Do we have creds for the BeyondWords REST API?
+     * 
+     * Note that this does not check whether the creds are valid, only that 
+     * they exist and are non-empty.
      *
-     * @since  3.0.0
-     * @since  4.0.0 Moved from Settings to SettingsUtils
+     * @since  5.2.0
      * @static
      *
      * @return boolean
      */
-    public static function hasApiSettings()
+    public static function hasApiCreds()
     {
-        return boolval(get_option('beyondwords_valid_api_connection'));
+        $apiKey    = trim(strval(get_option('beyondwords_api_key')));
+        $projectId = trim(strval(get_option('beyondwords_project_id')));
+    
+        return (strlen($apiKey) > 0) && (strlen($projectId) > 0);
     }
 
     /**
