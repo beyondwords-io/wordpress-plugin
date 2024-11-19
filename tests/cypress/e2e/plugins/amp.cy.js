@@ -39,6 +39,7 @@ context( 'Plugins: AMP', () => {
       cy.viewPostViaSnackbar()
 
       cy.get( 'amp-iframe' ).should( 'not.exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
       cy.url().then(url => {
@@ -47,6 +48,7 @@ context( 'Plugins: AMP', () => {
       } )
 
       cy.get( 'amp-iframe' ).should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.getFrontendPlayer().should( 'not.exist' )
     } )
   } )

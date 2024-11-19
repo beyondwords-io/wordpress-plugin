@@ -191,6 +191,11 @@ context( 'Site Health', () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTOREGENERATE' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )
+        // BEYONDWORDS_AUTOREGENERATE
+        cy.get( 'tr' ).eq( 34 ).within( () => {
+          cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
+        } )
       } )
   } )
 } )
