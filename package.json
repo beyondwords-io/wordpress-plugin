@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "5.1.0",
+  "version": "5.2.0-beta.1",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -29,7 +29,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@mockoon/cli": "^8.4.0",
+    "@mockoon/cli": "^9.0.0",
     "@wordpress/eslint-plugin": "^21.3.0",
     "@wordpress/scripts": "^30.3.0",
     "badge-maker": "^4.0.0",
