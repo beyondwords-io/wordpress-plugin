@@ -86,6 +86,10 @@ Release date: TBC
 
 **Experimental**
 
+* [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
+    * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
+    * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
+    * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
 * [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
     * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
     * Opt-in to the inline `<script>` tag method of auto-embedding audio players by defining the constant `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` as `true` in your `wp-config.php`.

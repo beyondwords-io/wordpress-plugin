@@ -326,21 +326,21 @@ class Settings
     /**
      * Maybe print plugin review notice.
      *
-     * @since 5.0.1
+     * @since 5.2.0
      *
      * @return void
      */
     public function maybePrintPluginReviewNotice()
     {
-        $dateActivated       = get_option('beyondwords_date_activated', '2024-10-28');
-        $dateNoticeDismissed = get_option('beyondwords_date_review_notice_dismissed', '');
+        $dateActivated       = get_option('beyondwords_date_activated', '2024-11-19');
+        $dateNoticeDismissed = get_option('beyondwords_notice_review_dismissed', '');
 
         $showNotice = false;
 
         if (empty($dateNoticeDismissed)) {
             $dateActivated = strtotime($dateActivated);
 
-            if ($dateActivated < strtotime('-30 days')) {
+            if ($dateActivated < strtotime('-14 days')) {
                 $showNotice = true;
             }
         }
@@ -352,12 +352,12 @@ class Settings
                     <strong>
                         <?php
                         printf(
-                            /* translators: %s is replaced with a "Add my review" link */
-                            esc_html__('You have been using our plugin for a while - would you like to add a review? %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                            /* translators: %s is replaced with a "WordPress Plugin Repo" link */
+                            esc_html__('Happy with our work? Help us spread the word with a rating on the %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
                             sprintf(
                                 '<a href="%s">%s</a>',
                                 'https://wordpress.org/support/plugin/speechkit/reviews/',
-                                esc_html__('Add my review', 'speechkit')
+                                esc_html__('WordPress Plugin Repo.', 'speechkit')
                             )
                         );
                         ?>

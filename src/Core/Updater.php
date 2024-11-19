@@ -23,6 +23,7 @@ class Updater
      * Run
      *
      * @since 4.0.0
+     * @since 5.2.0 Add beyondwords_date_activated option.
      */
     public function run()
     {
@@ -39,6 +40,9 @@ class Updater
         if (version_compare($version, '3.7.0', '<')) {
             $this->renamePluginSettings();
         }
+
+        // Record the date activated so we can track how long users have been using the plugin.
+        add_option('beyondwords_date_activated', gmdate(\DateTime::ATOM), '', false);
 
         // Always update the plugin version, to handle e.g. FTP plugin updates
         update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
