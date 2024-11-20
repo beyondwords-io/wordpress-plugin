@@ -135,7 +135,6 @@ class Settings
                     Sync::validateApiConnection();
                 }
 
-                settings_errors('beyondwords_messages');
                 settings_fields("beyondwords_{$activeTab}_settings");
                 do_settings_sections("beyondwords_{$activeTab}");
 
