@@ -38,8 +38,6 @@ class Settings
      */
     public function init()
     {
-        delete_transient('beyondwords_settings_errors');
-
         (new Credentials())->init();
         (new Sync())->init();
 
@@ -220,7 +218,9 @@ class Settings
     public function printPluginAdminNotices()
     {
         $hasValidConnection = SettingsUtils::hasValidApiConnection();
-        $settingsErrors        = get_transient('beyondwords_settings_errors');
+        $settingsErrors     = get_transient('beyondwords_settings_errors');
+
+        delete_transient('beyondwords_settings_errors');
 
         if (is_array($settingsErrors) && count($settingsErrors)) :
             ?>
@@ -251,7 +251,6 @@ class Settings
                     ?>
                 </ul>
             </div>
-
             <?php
         elseif (false === $hasValidConnection) :
             ?>

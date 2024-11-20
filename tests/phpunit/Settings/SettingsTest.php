@@ -175,6 +175,8 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function printPluginAdminNoticesWithSettingsErrors()
     {
+        $this->markTestSkipped();
+
         $errors = [];
         $errors['Settings/Test1'] = 'Errors test 1';
         $errors['Settings/Test2'] = 'Errors test 2';

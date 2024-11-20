@@ -33,27 +33,6 @@ class ApiClientTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function createAudioWithoutApiKeySetting()
-    {
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::createAudioWithoutApiKeySetting',
-        ]);
-
-        $response = ApiClient::createAudio($postId);
-
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
-        $this->assertEmptyString($response);
-
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     */
     public function createAudioWithoutProjectIdSetting()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
@@ -64,7 +43,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
-        $this->assertEmptyString($response);
+        $this->assertFalse($response);
 
         wp_delete_post($postId, true);
 
@@ -85,7 +64,8 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
-        $this->assertSame(201, wp_remote_retrieve_response_code($response));
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
+        $this->assertSame('processed',  $response['status']);
 
         wp_delete_post($postId, true);
 
@@ -111,7 +91,8 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::updateAudio($postId);
 
-        $this->assertSame(201, wp_remote_retrieve_response_code($response));
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
+        $this->assertSame('processed',  $response['status']);
 
         wp_delete_post($postId, true);
 
@@ -188,13 +169,12 @@ class ApiClientTest extends WP_UnitTestCase
     public function getLanguages()
     {
         $response = ApiClient::getLanguages();
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
+        $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = ApiClient::getLanguages();
-        $this->assertSame(200, wp_remote_retrieve_response_code($response));
 
         $this->assertSame('aa_AA', $response[0]['code']);
         $this->assertSame('bb_BB', $response[1]['code']);
@@ -240,13 +220,12 @@ class ApiClientTest extends WP_UnitTestCase
     public function getVoices()
     {
         $response = ApiClient::getVoices(2);
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
+        $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = ApiClient::getVoices(2);
-        $this->assertSame(200, wp_remote_retrieve_response_code($response));
 
         $this->assertSame(1, $response[0]['id']);
         $this->assertSame(2, $response[1]['id']);

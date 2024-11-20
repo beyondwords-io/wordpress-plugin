@@ -156,8 +156,7 @@ class CoreTest extends WP_UnitTestCase
 
         $this->assertNull($wp_scripts);
 
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', true);
 
         /**
          * Enqueuing with a valid API connection should succeed
@@ -168,8 +167,7 @@ class CoreTest extends WP_UnitTestCase
 
         $wp_scripts = null;
 
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
+        delete_option('beyondwords_valid_api_connection');
 
         wp_delete_post($post->ID, true);
     }
@@ -331,7 +329,7 @@ class CoreTest extends WP_UnitTestCase
     public function onTrashOrDeletePost($expectedResponse)
     {
         $this->markTestIncomplete();
-        
+
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -399,9 +397,9 @@ class CoreTest extends WP_UnitTestCase
      * @dataProvider notFoundResponse
      */
     public function onTrashOrDeletePostWithoutBeyondwordsData($expectedResponse)
-    {        
+    {
         $this->markTestIncomplete();
-        
+
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
@@ -429,7 +427,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPost($expectedResponse)
     {
         $this->markTestIncomplete();
-        
+
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -466,7 +464,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPostHandlesInvalidResponse($expectedResponse)
     {
         $this->markTestIncomplete();
-        
+
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::untrashingPostHandlesInvalidResponse',
             'post_status' => 'trash',
@@ -495,7 +493,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPostWithoutBeyondwordsData($expectedResponse)
     {
         $this->markTestIncomplete();
-        
+
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::onUntrashPostWithoutBeyondwordsData',
             'post_status' => 'trash',

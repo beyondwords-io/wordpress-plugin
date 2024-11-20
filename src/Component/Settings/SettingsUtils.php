@@ -131,8 +131,8 @@ class SettingsUtils
 
     /**
      * Do we have a valid REST API connection for the BeyondWords REST API?
-     * 
-     * Note that this only whether a valid REST API connection was made when 
+     *
+     * Note that this only whether a valid REST API connection was made when
      * the API Key was supplied. The API connection may be invalidated at a later
      * date e.g. if the API Key is revoked.
      *

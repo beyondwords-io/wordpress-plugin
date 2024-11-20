@@ -48,7 +48,7 @@ class ApiClient
         $request  = new Request('POST', $url, $body);
         $response = self::callApi($request, $postId);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -74,10 +74,10 @@ class ApiClient
 
         $body = PostContentUtils::getContentParams($postId);
 
-        $request = new Request('PUT', $url, $body);
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request, $postId);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -110,7 +110,7 @@ class ApiClient
             return false;
         }
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -203,10 +203,10 @@ class ApiClient
     {
         $url = sprintf('%s/organization/languages', Environment::getApiUrl());
 
-        $request = new Request('GET', $url);
+        $request  = new Request('GET', $url);
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -232,10 +232,10 @@ class ApiClient
 
         $url = sprintf('%s/organization/voices?filter[%s]=%s', Environment::getApiUrl(), $field, urlencode(strval($language))); // phpcs:ignore Generic.Files.LineLength.TooLong
 
-        $request = new Request('GET', $url);
+        $request  = new Request('GET', $url);
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -283,10 +283,10 @@ class ApiClient
 
         $url = sprintf('%s/organization/voices/%d', Environment::getApiUrl(), $voiceId);
 
-        $request = new Request('PUT', $url, wp_json_encode($settings));
+        $request  = new Request('PUT', $url, wp_json_encode($settings));
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -308,10 +308,10 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
-        $request = new Request('GET', $url);
+        $request  = new Request('GET', $url);
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -334,10 +334,10 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
-        $request = new Request('PUT', $url, wp_json_encode($settings));
+        $request  = new Request('PUT', $url, wp_json_encode($settings));
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -358,10 +358,10 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
-        $request = new Request('GET', $url);
+        $request  = new Request('GET', $url);
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -384,10 +384,10 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
-        $request = new Request('PUT', $url, wp_json_encode($settings));
+        $request  = new Request('PUT', $url, wp_json_encode($settings));
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -413,10 +413,10 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/video_settings', Environment::getApiUrl(), (int)$projectId);
 
-        $request = new Request('GET', $url);
+        $request  = new Request('GET', $url);
         $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -441,10 +441,12 @@ class ApiClient
         // By default we delete the request logs we temporarily store
         $deleteRequestLogs = true;
 
+        // Delete existing errors before making this API call
         self::deleteErrors($postId);
 
         $args = self::buildRequestArgs($request);
 
+        // Log the request details
         self::addRequestLogs($postId, $request, $args);
 
         // Get response
