@@ -4,7 +4,7 @@ context( 'Settings > Credentials',  () => {
     cy.login()
   } )
 
-  it( 'prompts for API credentials and hides other settings tabs until they are supplied', () => {
+  it( 'prompts for API credentials and hides other settings tabs until they are validated', () => {
     cy.visit( '/wp-admin' )
 
     cy.showsPluginSettingsNotice()
@@ -32,14 +32,12 @@ context( 'Settings > Credentials',  () => {
     cy.showsPluginSettingsNotice()
     cy.showsOnlyCredentialsSettingsTab()
 
-    // Invalid creds (this used to show the invalid creds notice, but we don't validate creds anymore)
+    // Invalid creds
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
     cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' ) // Project 401 triggers a 403 response in Mockoon
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
-    cy.showsAllSettingsTabs()
-
-    // No notices
-    cy.get( '.notice-error' ).should( 'not.exist' )
+    cy.showsInvalidApiCredsNotice()
+    cy.showsOnlyCredentialsSettingsTab()
 
     // Valid API Key & Project ID
     cy.get( 'input[name="beyondwords_api_key"]' ).clear().type( Cypress.env( 'apiKey' ) )
@@ -57,8 +55,9 @@ context( 'Settings > Credentials',  () => {
     cy.get( 'input[name="beyondwords_project_id"]' ).should( 'have.value', Cypress.env( 'projectId' ) )
 
     cy.visit( '/wp-admin/options.php' )
-    cy.get( '#beyondwords_api_key' ).should( 'exist' )
-    cy.get( '#beyondwords_project_id' ).should( 'exist' )
+    cy.get( '#beyondwords_api_key' ).should( 'have.value', Cypress.env( 'apiKey' ) );
+    cy.get( '#beyondwords_project_id' ).should( 'have.value', Cypress.env( 'projectId' ) );
+    cy.get( '#beyondwords_valid_api_connection' ).should( 'exist' )
     cy.get( '#beyondwords_version' ).should( 'exist' )
   } )
 } )

@@ -100,6 +100,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function hasValidApiConnectionWithoutAnyField()
     {
+        delete_option('beyondwords_valid_api_connection');
         $this->assertFalse(SettingsUtils::hasValidApiConnection());
     }
 
@@ -223,6 +224,7 @@ class SettingsTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->restApiInit();
 
@@ -237,6 +239,7 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
+        delete_option('beyondwords_valid_api_connection');
 
         wp_delete_post($postId);
         wp_delete_user($userId);
@@ -249,6 +252,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $reponse = $this->_instance->restApiResponse();
 
@@ -261,5 +265,6 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
+        delete_option('beyondwords_valid_api_connection');
     }
 }

@@ -109,7 +109,7 @@ class ProjectId
             );
             set_transient('beyondwords_settings_errors', $errors);
         } else {
-            set_transient('beyondwords_validate_api_connection', true);
+            set_transient('beyondwords_validate_api_connection', true, 60);
         }
 
         return $value;

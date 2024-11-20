@@ -105,7 +105,7 @@ class ApiClient
         $response = self::callApi($request, $postId);
         $code     = wp_remote_retrieve_response_code($response);
 
-        // Expect 201 for deleted response
+        // Expect 204 Deleted
         if ($code !== 204) {
             return false;
         }

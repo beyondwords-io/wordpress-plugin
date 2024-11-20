@@ -294,6 +294,29 @@ class PostContentUtilsTest extends WP_UnitTestCase
     /**
      *
      */
+    public function exportedDataHelper($path)
+    {
+        $handle = fopen($path, 'r');
+
+        $output = [];
+
+        // Ignore first line of CSV
+        fgetcsv($handle, 0, ',', '"', "\0");
+
+        // Process remaining lines
+        while (($data = fgetcsv($handle, 0, ',', '"', "\0")) !== false) {
+            // Only test Posts with a state of "Processed"
+            if (strtolower($data[11]) == 'processed') {
+                $output['spktdotblog ID ' . $data[0]] = $data;
+            }
+        }
+
+        return $output;
+    }
+
+    /**
+     *
+     */
     public function hasGenerateAudioProvider()
     {
         return [
