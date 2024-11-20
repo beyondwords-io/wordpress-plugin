@@ -98,44 +98,38 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function hasApiCredsWithoutAnyField()
+    public function hasValidApiConnectionWithoutAnyField()
     {
-        $this->assertFalse(SettingsUtils::hasApiCreds());
+        $this->assertFalse(SettingsUtils::hasValidApiConnection());
     }
 
     /**
      * @test
      */
-    public function hasApiCredsWithOnlyApiKey()
+    public function hasValidApiConnectionWithExpectedOption()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-
-        $this->assertFalse(SettingsUtils::hasApiCreds());
-
-        delete_option('beyondwords_api_key');
-    }
-
-    /**
-     * @test
-     */
-    public function hasApiCredsWithOnlyProjectId()
-    {
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->assertFalse(SettingsUtils::hasApiCreds());
+        $this->assertFalse(SettingsUtils::hasValidApiConnection());
 
+        delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
 
     /**
      * @test
      */
-    public function hasApiCredsWithRemovedOption()
+    public function hasValidApiConnectionWithoutExpectedOption()
     {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
-        $this->assertFalse(SettingsUtils::hasApiCreds());
+        $this->assertTrue(SettingsUtils::hasValidApiConnection());
 
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
         delete_option('beyondwords_valid_api_connection');
     }
 
@@ -164,6 +158,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
         $this->_instance->printPluginAdminNotices();
 
@@ -172,6 +167,7 @@ class SettingsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
+        delete_option('beyondwords_valid_api_connection');
     }
 
     /**

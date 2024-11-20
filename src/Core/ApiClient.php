@@ -16,9 +16,9 @@ class ApiClient
 {
     /**
      * Error format.
-     * 
+     *
      * The error format used to display error messages in WordPress admin.
-     * 
+     *
      * @var string
      */
     public const ERROR_FORMAT = '#%s: %s';
@@ -31,7 +31,7 @@ class ApiClient
      *
      * @param int $postId WordPress Post ID
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function createAudio($postId)
     {
@@ -45,9 +45,10 @@ class ApiClient
 
         $body = PostContentUtils::getContentParams($postId);
 
-        $request = new Request('POST', $url, $body);
+        $request  = new Request('POST', $url, $body);
+        $response = self::callApi($request, $postId);
 
-        return self::callApi($request, $postId);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -58,7 +59,7 @@ class ApiClient
      *
      * @param int $postId WordPress Post ID
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function updateAudio($postId)
     {
@@ -74,8 +75,9 @@ class ApiClient
         $body = PostContentUtils::getContentParams($postId);
 
         $request = new Request('PUT', $url, $body);
+        $response = self::callApi($request, $postId);
 
-        return self::callApi($request, $postId);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -86,7 +88,7 @@ class ApiClient
      *
      * @param int $postId WordPress Post ID
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function deleteAudio($postId)
     {
@@ -99,9 +101,16 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/content/%s', Environment::getApiUrl(), $projectId, $contentId);
 
-        $request = new Request('DELETE', $url);
+        $request  = new Request('DELETE', $url);
+        $response = self::callApi($request, $postId);
+        $code     = wp_remote_retrieve_response_code($response);
 
-        return self::callApi($request, $postId);
+        // Expect 201 for deleted response
+        if ($code !== 204) {
+            return false;
+        }
+
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -113,7 +122,7 @@ class ApiClient
      * @param int[] $postIds Array of WordPress Post IDs.
      *
      * @throws \Exception
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function batchDeleteAudio($postIds)
     {
@@ -188,15 +197,16 @@ class ApiClient
      * @since 5.0.0 Cache response using transients
      * @since 5.2.0 Make static.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function getLanguages()
     {
         $url = sprintf('%s/organization/languages', Environment::getApiUrl());
 
         $request = new Request('GET', $url);
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -210,7 +220,7 @@ class ApiClient
      *
      * @param int|string $language BeyondWords Language code or numeric ID
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function getVoices($language)
     {
@@ -223,8 +233,9 @@ class ApiClient
         $url = sprintf('%s/organization/voices?filter[%s]=%s', Environment::getApiUrl(), $field, urlencode(strval($language))); // phpcs:ignore Generic.Files.LineLength.TooLong
 
         $request = new Request('GET', $url);
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -262,7 +273,7 @@ class ApiClient
      *
      * @param array $settings Associative array of voice settings.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function updateVoice($voiceId, $settings)
     {
@@ -273,8 +284,9 @@ class ApiClient
         $url = sprintf('%s/organization/voices/%d', Environment::getApiUrl(), $voiceId);
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -284,7 +296,7 @@ class ApiClient
      * @since 5.0.0 Cache response using transients
      * @since 5.2.0 Make static.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function getProject()
     {
@@ -297,8 +309,9 @@ class ApiClient
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
         $request = new Request('GET', $url);
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -309,7 +322,7 @@ class ApiClient
      *
      * @param array $settings Associative array of project settings.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function updateProject($settings)
     {
@@ -322,8 +335,9 @@ class ApiClient
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -332,7 +346,7 @@ class ApiClient
      * @since 4.0.0
      * @since 5.2.0 Make static.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function getPlayerSettings()
     {
@@ -345,8 +359,9 @@ class ApiClient
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
         $request = new Request('GET', $url);
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -357,7 +372,7 @@ class ApiClient
      *
      * @param array $settings Associative array of player settings.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function updatePlayerSettings($settings)
     {
@@ -370,8 +385,9 @@ class ApiClient
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
         $request = new Request('PUT', $url, wp_json_encode($settings));
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -383,7 +399,7 @@ class ApiClient
      *
      * @param int $projectId BeyondWords Project ID.
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return mixed JSON-decoded response body
      **/
     public static function getVideoSettings($projectId = null)
     {
@@ -398,72 +414,62 @@ class ApiClient
         $url = sprintf('%s/projects/%d/video_settings', Environment::getApiUrl(), (int)$projectId);
 
         $request = new Request('GET', $url);
+        $response = self::callApi($request);
 
-        return self::callApi($request);
+        return json_decode(wp_remote_retrieve_body($response));
     }
 
     /**
-     * Call the BeyondWords API backend.
+     * Call the BeyondWords API backend, logging any errors if the requests for a particular post.
+     *
+     * @todo investigate whether we can move the logging into a WordPress HTTP filter.
      *
      * @since 3.0.0
      * @since 3.9.0 Stop saving the speechkit_status post meta - downgrades to plugin v2.x are no longer expected.
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Handle 204 responses with no body.
-     * @since 5.2.0 Make static.
+     * @since 5.2.0 Make static, return result from wp_remote_request.
      *
      * @param Request $request Request.
      * @param int     $postId  WordPress Post ID
      *
-     * @return array|null|false JSON-decoded response body, or null for 204, or false on failure
+     * @return array|WP_Error The response array or a WP_Error on failure. See WP_Http::request() for
+     *                        information on return value.
      **/
     public static function callApi($request, $postId = false)
     {
+        // By default we delete the request logs we temporarily store
+        $deleteRequestLogs = true;
+
         self::deleteErrors($postId);
 
         $args = self::buildRequestArgs($request);
+
         self::addRequestLogs($postId, $request, $args);
 
         // Get response
-        $response = wp_remote_request($request->getUrl(), $args);
+        $response     = wp_remote_request($request->getUrl(), $args);
+        $responseCode = wp_remote_retrieve_response_code($response);
 
-        // Get response details
-        $responseCode    = strval(wp_remote_retrieve_response_code($response));
-        $responseBodyRaw = wp_remote_retrieve_body($response);
-        $responseBody    = json_decode($responseBodyRaw, true);
-
-        // 204 responses have no body
-        if ($responseCode === 204) {
-            self::deleteLogs($postId);
-
-            return null;
+        // Mark API connection as invalid for 401 (API key may have been revoked)
+        if ($responseCode === 401) {
+            delete_option('beyondwords_valid_api_connection');
         }
 
-        // Handle HTTP errors
+        // Save error messages from WordPress HTTP errors and BeyondWords REST API error responses
         if (is_wp_error($response) || $responseCode > 299) {
+            $deleteRequestLogs = false;
+
             $message = self::errorMessageFromResponse($response);
 
             self::saveErrorMessage($postId, $message, $responseCode);
-
-            return false;
         }
 
-        // Handle invalid JSON
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $errorMessage = sprintf(
-                /* translators: %s is replaced with the reason that JSON parsing failed */
-                __('Unable to parse JSON in BeyondWords API response. Reason: %s.', 'speechkit'),
-                // Don't allow any tags
-                wp_kses(json_last_error_msg(), [])
-            );
-
-            self::saveErrorMessage($postId, $errorMessage, 500);
-
-            return false;
+        if ($deleteRequestLogs) {
+            self::deleteLogs($postId);
         }
 
-        self::deleteLogs($postId);
-
-        return $responseBody;
+        return $response;
     }
 
     /**
@@ -506,16 +512,18 @@ class ApiClient
 
         $message = wp_remote_retrieve_response_message($response);
 
-        if (is_array($body) && array_key_exists('errors', $body)) {
-            $messages = [];
+        if (is_array($body)) {
+            if (array_key_exists('errors', $body)) {
+                $messages = [];
 
-            foreach ($body['errors'] as $error) {
-                $messages[] = implode(" ", array_values($error));
+                foreach ($body['errors'] as $error) {
+                    $messages[] = implode(' ', array_values($error));
+                }
+
+                $message = implode(', ', $messages);
+            } elseif (array_key_exists('message', $body)) {
+                $message = $body['message'];
             }
-
-            $message = implode(", ", $messages);
-        } elseif (is_array($body) && array_key_exists('message', $body)) {
-            $message = $body['message'];
         }
 
         return $message;
@@ -544,11 +552,11 @@ class ApiClient
 
     /**
      * Log the request details for a post.
-     * 
+     *
      * Logs are removed later if the request was successful and retained if not.
      *
      * @since 4.1.0 Introduced.
-     * @since 5.2.0 Make static.
+     * @since 5.2.0 Make static, use wp_json_encode(), don't save headers.
      *
      * @param int     $postId  WordPress post ID.
      * @param Request $request BeyondWords Request.
@@ -562,8 +570,11 @@ class ApiClient
             return;
         }
 
+        // Don't store headers in the logs
+        unset($args['headers']);
+
         update_post_meta($postId, 'beyondwords_request_url', $request->getUrl());
-        update_post_meta($postId, 'beyondwords_request_args', var_export($args, true)); // phpcs:ignore
+        update_post_meta($postId, 'beyondwords_request_args', wp_json_encode($args));
     }
 
     /**

@@ -43,7 +43,7 @@ class Settings
         (new Credentials())->init();
         (new Sync())->init();
 
-        if (SettingsUtils::hasApiCreds()) {
+        if (SettingsUtils::hasValidApiConnection()) {
             (new Voices())->init();
             (new Content())->init();
             (new Player())->init();
@@ -131,20 +131,12 @@ class Settings
                 <hr class="wp-header-end">
 
                 <?php
-                if ($activeTab === 'credentials') {
-                    Sync::validateApiConnection();
-                }
-
                 settings_fields("beyondwords_{$activeTab}_settings");
                 do_settings_sections("beyondwords_{$activeTab}");
 
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
-                    if (SettingsUtils::hasApiCreds()) {
-                        submit_button('Save changes');
-                    } else {
-                        submit_button('Continue setup');
-                    }
+                    submit_button('Save changes');
                 }
                 ?>
             </form>
@@ -185,7 +177,7 @@ class Settings
             'advanced'       => __('Advanced', 'speechkit'),
         );
 
-        if (! SettingsUtils::hasApiCreds()) {
+        if (! SettingsUtils::hasValidApiConnection()) {
             $tabs = array_splice($tabs, 0, 1);
         }
 
@@ -227,27 +219,12 @@ class Settings
      */
     public function printPluginAdminNotices()
     {
-        $hasApiSettings = SettingsUtils::hasApiCreds();
-        $settingsErrors = get_transient('beyondwords_settings_errors');
+        $hasValidConnection = SettingsUtils::hasValidApiConnection();
+        $settingsErrors        = get_transient('beyondwords_settings_errors');
 
         if (is_array($settingsErrors) && count($settingsErrors)) :
             ?>
             <div class="notice notice-error">
-                <p>
-                    <strong>
-                        <?php
-                        printf(
-                            /* translators: %s is replaced with a "plugin settings" link */
-                            esc_html__('To use BeyondWords, please update the %s.', 'speechkit'),
-                            sprintf(
-                                '<a href="%s">%s</a>',
-                                esc_url(admin_url('options-general.php?page=beyondwords')),
-                                esc_html__('plugin settings', 'speechkit')
-                            )
-                        );
-                        ?>
-                    </strong>
-                </p>
                 <ul class="ul-disc">
                     <?php
                     foreach ($settingsErrors as $error) {
@@ -265,6 +242,8 @@ class Settings
                                     'strong' => array(),
                                     'i' => array(),
                                     'em' => array(),
+                                    'br' => array(),
+                                    'code' => array(),
                                 )
                             )
                         );
@@ -274,7 +253,7 @@ class Settings
             </div>
 
             <?php
-        elseif (false === $hasApiSettings) :
+        elseif (false === $hasValidConnection) :
             ?>
             <div class="notice notice-info">
                 <p>

@@ -19,7 +19,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  * Sync
  *
  * @since 5.0.0
- * 
+ *
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -88,6 +88,7 @@ class Sync
 
         if (! defined('BEYONDWORDS_AUTO_SYNC_SETTINGS') || false != BEYONDWORDS_AUTO_SYNC_SETTINGS) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
+            add_action('load-settings_page_beyondwords', array(__CLASS__, 'validateApiConnection'), 30);
             add_action('shutdown', array($this, 'syncToDashboard'));
         }
     }
@@ -108,7 +109,7 @@ class Sync
             $tab = sanitize_key($_GET['tab']);
         }
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
-        
+
         switch ($tab) {
             case 'content':
                 set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
@@ -139,6 +140,9 @@ class Sync
             return;
         }
 
+        // Assume invalid connection
+        delete_option('beyondwords_valid_api_connection');
+
         $projectId = get_option('beyondwords_project_id');
         $apiKey    = get_option('beyondwords_api_key');
 
@@ -156,6 +160,7 @@ class Sync
         );
 
         if ($validConnection) {
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
             set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
             return true;
         }
@@ -170,16 +175,20 @@ class Sync
             $errors = [];
         }
 
-        $errors['Settings/ValidApiConnection'] = __(
-            'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
-            'speechkit'
+        $errors['Settings/ValidApiConnection'] = sprintf(
+            /* translators: %s is replaced with the JSON encoded REST API response body */
+            __(
+                'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'speechkit'
+            ),
+            wp_json_encode($project)
         );
 
         set_transient('beyondwords_settings_errors', $errors);
 
         return false;
     }
-    
+
     /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
@@ -261,9 +270,9 @@ class Sync
 
     /**
      * Sync from WordPress to the dashboard/BeyondWords REST API.
-     * 
+     *
      * @since 5.0.0
-     * 
+     *
      * @return void
      **/
     public function syncToDashboard()
@@ -280,8 +289,8 @@ class Sync
         foreach ($options as $option) {
             if ($this->shouldSyncOptionToDashboard($option)) {
                 $this->propertyAccessor->setValue(
-                    $settings, 
-                    self::MAP_SETTINGS[$option], 
+                    $settings,
+                    self::MAP_SETTINGS[$option],
                     get_option($option)
                 );
             }
@@ -302,7 +311,7 @@ class Sync
         // Sync title voice back to API
         if (in_array('beyondwords_project_title_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
 
@@ -317,7 +326,7 @@ class Sync
         // Sync body voice back to API
         if (in_array('beyondwords_project_body_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
 
@@ -333,7 +342,7 @@ class Sync
         if (isset($settings['project'])) {
             // Don't send speaking rates back to /project endpoint
             $titleSpeakingRate = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
             if ($titleSpeakingRate) {
@@ -342,7 +351,7 @@ class Sync
 
             // Don't send speaking rates back to /project endpoint
             $bodySpeakingRate = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
             if ($bodySpeakingRate) {

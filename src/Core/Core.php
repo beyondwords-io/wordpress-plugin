@@ -224,7 +224,7 @@ class Core
      */
     public function enqueueBlockEditorAssets()
     {
-        if (! SettingsUtils::hasApiCreds()) {
+        if (! SettingsUtils::hasValidApiConnection()) {
             return;
         }
 

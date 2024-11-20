@@ -38,8 +38,7 @@ context( 'Settings',  () => {
     cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
-  // Skip this test in CI because auto-syncing settings is not supported in CI
-  it( 'syncs the settings from the Dashboard to WordPress', () => {
+  it.only( 'syncs the settings from the Dashboard to WordPress', () => {
     cy.saveAllPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )

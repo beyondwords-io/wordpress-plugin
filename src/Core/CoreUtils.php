@@ -186,6 +186,7 @@ class CoreUtils
             'beyondwords_player_style',
             'beyondwords_player_version',
             'beyondwords_settings_updated',
+            'beyondwords_valid_api_connection',
             // v3.7.0 beyondwords_*
             'beyondwords_api_key',
             'beyondwords_prepend_excerpt',
@@ -195,8 +196,6 @@ class CoreUtils
         ];
 
         $deprecated = [
-            // v5.x
-            'beyondwords_valid_api_connection',
             // v3.0.0 speechkit_*
             'speechkit_api_key',
             'speechkit_prepend_excerpt',

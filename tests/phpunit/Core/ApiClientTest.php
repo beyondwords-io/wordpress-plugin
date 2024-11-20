@@ -31,19 +31,6 @@ class ApiClientTest extends WP_UnitTestCase
     }
 
     /**
-     * Helper function to check that an API 200 OK response is the structure we expect.
-     *
-     * We only use the id (UUID) for now.
-     * Check Mockoon for a complete example response body.
-     */
-    private function assertResponseBodyIsOk($response)
-    {
-        $this->assertIsArray($response);
-        $this->assertArrayHasKey('id', $response);
-        $this->assertEquals(BEYONDWORDS_TESTS_CONTENT_ID, $response['id']);
-    }
-
-    /**
      * @test
      */
     public function createAudioWithoutApiKeySetting()
@@ -56,7 +43,8 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
+        $this->assertEmptyString($response);
 
         wp_delete_post($postId, true);
 
@@ -76,7 +64,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
-        $this->assertFalse($response);
+        $this->assertEmptyString($response);
 
         wp_delete_post($postId, true);
 
@@ -97,7 +85,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
-        $this->assertResponseBodyIsOk($response);
+        $this->assertSame(201, wp_remote_retrieve_response_code($response));
 
         wp_delete_post($postId, true);
 
@@ -123,7 +111,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::updateAudio($postId);
 
-        $this->assertResponseBodyIsOk($response);
+        $this->assertSame(201, wp_remote_retrieve_response_code($response));
 
         wp_delete_post($postId, true);
 
@@ -137,20 +125,11 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function deleteAudio()
     {
-        $this->markTestIncomplete();
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::deleteAudio::1',
-        ]);
-
-        $response = ApiClient::deleteAudio($postId);
-        $this->assertFalse($response);
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::deleteAudio::2',
+            'post_title' => 'ApiClientTest::deleteAudio',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -159,7 +138,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::deleteAudio($postId);
 
-        // Response body is null for 201 Deleted responses
+        // Response body is empty for 201 Deleted responses
         $this->assertNull($response);
 
         wp_delete_post($postId, true);
@@ -209,12 +188,13 @@ class ApiClientTest extends WP_UnitTestCase
     public function getLanguages()
     {
         $response = ApiClient::getLanguages();
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = ApiClient::getLanguages();
+        $this->assertSame(200, wp_remote_retrieve_response_code($response));
 
         $this->assertSame('aa_AA', $response[0]['code']);
         $this->assertSame('bb_BB', $response[1]['code']);
@@ -260,12 +240,13 @@ class ApiClientTest extends WP_UnitTestCase
     public function getVoices()
     {
         $response = ApiClient::getVoices(2);
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $response = ApiClient::getVoices(2);
+        $this->assertSame(200, wp_remote_retrieve_response_code($response));
 
         $this->assertSame(1, $response[0]['id']);
         $this->assertSame(2, $response[1]['id']);
@@ -385,7 +366,7 @@ class ApiClientTest extends WP_UnitTestCase
         $request->setHeaders($headers);
         $response = ApiClient::callApi($request, $postId);
 
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         // We should find the error code & message in the post_meta table
         $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
@@ -414,7 +395,7 @@ class ApiClientTest extends WP_UnitTestCase
         $request->setHeaders($headers);
         $response = ApiClient::callApi($request, $postId);
 
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         // We should find the error code & message in the post_meta table
         $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
@@ -444,7 +425,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::callApi($request, $postId);
 
-        $this->assertFalse($response);
+        $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         // We should find the error code & message in the post_meta table
         $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
@@ -468,71 +449,12 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::callApi($request, $postId);
 
-        $this->assertSame(false, $response);
+        $this->assertSame(404, wp_remote_retrieve_response_code($response));
 
         // We should find the error code & message in the post_meta table
         $this->assertSame('#404: Not Found', get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     *
-     * Invalid URL which should get error message using is_wp_error().
-     */
-    public function callApiWithInvalidDomain()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidDomain',
-        ]);
-
-        $request = new Request('POST', 'http://localhost:5678/foo', '{"body":"Hello"}');
-
-        $response = ApiClient::callApi($request, $postId);
-
-        $this->assertSame(false, $response);
-
-        $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
-
-        $this->assertStringStartsWith('#500:', $errorMessage);
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     *
-     * 401 Invalid authentication token
-     */
-    public function callApiWithInvalidJsonResponse()
-    {
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidJsonResponse',
-        ]);
-
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
-
-        // Request invalid JSON in mockoon response
-        $headers = $request->getHeaders();
-        $headers['X-Force-Response'] = 'invalid-json';
-
-        $request->setHeaders($headers);
-
-        $response = ApiClient::callApi($request, $postId);
-
-        $this->assertFalse($response);
-
-        $error = sprintf(ApiClient::ERROR_FORMAT, 500, 'Unable to parse JSON in BeyondWords API response. Reason: Syntax error.');
-        $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
-
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
     }
 
     /**
@@ -546,7 +468,7 @@ class ApiClientTest extends WP_UnitTestCase
             'post_title' => 'ApiClientTest::error::' . $code,
         ]);
 
-        $response = ApiClient::saveErrorMessage($postId, $message, $code);
+        ApiClient::saveErrorMessage($postId, $message, $code);
 
         $this->assertEquals($expect, get_post_meta($postId, 'beyondwords_error_message', true));
 

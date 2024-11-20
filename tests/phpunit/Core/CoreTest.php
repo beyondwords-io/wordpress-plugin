@@ -331,7 +331,7 @@ class CoreTest extends WP_UnitTestCase
     public function onTrashOrDeletePost($expectedResponse)
     {
         $this->markTestIncomplete();
-
+        
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -367,7 +367,7 @@ class CoreTest extends WP_UnitTestCase
     public function onTrashOrDeletePostHandlesInvalidResponse($expectedResponse)
     {
         $this->markTestIncomplete();
-        
+
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -399,7 +399,7 @@ class CoreTest extends WP_UnitTestCase
      * @dataProvider notFoundResponse
      */
     public function onTrashOrDeletePostWithoutBeyondwordsData($expectedResponse)
-    {
+    {        
         $this->markTestIncomplete();
         
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
@@ -429,7 +429,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPost($expectedResponse)
     {
         $this->markTestIncomplete();
-
+        
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -466,7 +466,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPostHandlesInvalidResponse($expectedResponse)
     {
         $this->markTestIncomplete();
-
+        
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::untrashingPostHandlesInvalidResponse',
             'post_status' => 'trash',
@@ -495,7 +495,7 @@ class CoreTest extends WP_UnitTestCase
     public function onUntrashPostWithoutBeyondwordsData($expectedResponse)
     {
         $this->markTestIncomplete();
-
+        
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::onUntrashPostWithoutBeyondwordsData',
             'post_status' => 'trash',

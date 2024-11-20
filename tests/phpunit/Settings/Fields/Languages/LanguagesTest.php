@@ -10,20 +10,12 @@ use \Symfony\Component\DomCrawler\Crawler;
  */
 class LanguagesTest extends WP_UnitTestCase
 {
-    /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages
-     */
-    private $_instance;
-
-
     public function setUp(): void
     {
         // Before...
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new Languages();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -31,8 +23,6 @@ class LanguagesTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -60,7 +50,8 @@ class LanguagesTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        $languages = new Languages();
+        $languages->addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_advanced']['advanced']);
@@ -69,7 +60,7 @@ class LanguagesTest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-languages', $field['id']);
         $this->assertSame('Multiple languages', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array($languages, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -81,7 +72,8 @@ class LanguagesTest extends WP_UnitTestCase
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->_instance->render();
+        $languages = new Languages();
+        $languages->render();
 
         $html = $this->getActualOutput();
 
