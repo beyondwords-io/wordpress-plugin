@@ -90,7 +90,7 @@ class ApiKey
      * Sanitise the setting value.
      *
      * @since 3.0.0
-     * @since 5.2.0 Replace API creds validation with attempted sync.
+     * @since 5.2.0 Remove creds validation from here.
      *
      * @param array $value The submitted value.
      *
