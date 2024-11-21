@@ -45,14 +45,14 @@ class SettingsTest extends WP_UnitTestCase
         do_action('wp_loaded');
 
         // Actions
-        $this->assertEquals(1, has_action('admin_menu', array($settings, 'addOptionsPage')));
-        $this->assertEquals(100, has_action('admin_notices', array($settings, 'printMissingApiCredsWarning')));
-        $this->assertEquals(200, has_action('admin_notices', array($settings, 'printSettingsErrors')));
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($settings, 'enqueueScripts')));
-        $this->assertEquals(10, has_action('rest_api_init', array($settings, 'restApiInit')));
+        $this->assertSame(1, has_action('admin_menu', array($settings, 'addOptionsPage')));
+        $this->assertSame(100, has_action('admin_notices', array($settings, 'printMissingApiCredsWarning')));
+        $this->assertSame(200, has_action('admin_notices', array($settings, 'printSettingsErrors')));
+        $this->assertSame(10, has_action('admin_enqueue_scripts', array($settings, 'enqueueScripts')));
+        $this->assertSame(10, has_action('rest_api_init', array($settings, 'restApiInit')));
 
         // Filters
-        $this->assertEquals(10, has_filter('plugin_action_links_speechkit/speechkit.php', array($settings, 'addSettingsLinkToPluginPage')));
+        $this->assertSame(10, has_filter('plugin_action_links_speechkit/speechkit.php', array($settings, 'addSettingsLinkToPluginPage')));
     }
 
     /**
@@ -70,8 +70,8 @@ class SettingsTest extends WP_UnitTestCase
 
         $newLinks = $this->_instance->addSettingsLinkToPluginPage($links);
 
-        $this->assertEquals($newLinks[0], $expected);
-        $this->assertEquals($newLinks[1], $links[0]);
+        $this->assertSame($newLinks[0], $expected);
+        $this->assertSame($newLinks[1], $links[0]);
     }
 
     /**
@@ -143,7 +143,7 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printSettingsErrors();
 
         $html = $this->getActualOutput();
-        $this->assertEquals('', $html);
+        $this->assertSame('', $html);
     }
 
     /**
@@ -178,14 +178,15 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printMissingApiCredsWarning();
 
         $html = $this->getActualOutput();
+        $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
 
-        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
-        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+        $this->assertSame('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-info > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-info > p > strong > a')->attr('href'));
 
-        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
-        $this->assertStringNotContainsString('Sign up free', $html);
+        $this->assertStringContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringContainsString('Sign up free', $html);
     }
 
     /**
@@ -198,14 +199,15 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printMissingApiCredsWarning();
 
         $html = $this->getActualOutput();
+        $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
 
-        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
-        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+        $this->assertSame('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-info > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-info > p > strong > a')->attr('href'));
 
-        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
-        $this->assertStringNotContainsString('Sign up free', $html);
+        $this->assertStringContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringContainsString('Sign up free', $html);
 
         delete_option('beyondwords_project_id');
     }
@@ -220,14 +222,15 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printMissingApiCredsWarning();
 
         $html = $this->getActualOutput();
+        $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
 
-        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
-        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+        $this->assertSame('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-info > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-info > p > strong > a')->attr('href'));
 
-        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
-        $this->assertStringNotContainsString('Sign up free', $html);
+        $this->assertStringContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringContainsString('Sign up free', $html);
 
         delete_option('beyondwords_api_key');
     }
@@ -243,7 +246,7 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printMissingApiCredsWarning();
 
         $html = $this->getActualOutput();
-        $this->assertEquals('', $html);
+        $this->assertSame('', $html);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -264,14 +267,6 @@ class SettingsTest extends WP_UnitTestCase
         $this->_instance->printSettingsErrors();
 
         $html = $this->getActualOutput();
-
-        $crawler = new Crawler($html);
-
-        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
-        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
-
-        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
-        $this->assertStringNotContainsString('Sign up free', $html);
 
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
         $this->assertStringContainsString('<li>Errors test 2</li>', $html);

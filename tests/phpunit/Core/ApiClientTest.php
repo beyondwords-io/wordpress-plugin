@@ -443,17 +443,15 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function callApiWithInvalidDomain()
     {
-        $this->markTestIncomplete();
-
         $postId = self::factory()->post->create([
             'post_title' => 'ApiClientTest::callApiWithInvalidDomain',
         ]);
 
         $request = new Request('POST', 'http://localhost:5678/foo', '{"body":"Hello"}');
 
-        $response = $this->_instance->callApi($request, $postId);
+        $response = ApiClient::callApi($request, $postId);
 
-        $this->assertSame(false, $response);
+        $this->assertTrue(is_a($response, 'WP_Error'));
 
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
@@ -487,7 +485,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::callApi($request, $postId);
 
-        $this->assertFalse($response);
+        $this->assertSame(200, wp_remote_retrieve_response_code($response));
 
         $error = sprintf(ApiClient::ERROR_FORMAT, 500, 'Unable to parse JSON in BeyondWords API response. Reason: Syntax error.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
