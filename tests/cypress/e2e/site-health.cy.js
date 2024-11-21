@@ -184,7 +184,7 @@ context( 'Site Health', () => {
         // BEYONDWORDS_AUTO_SYNC_SETTINGS
         cy.get( 'tr' ).eq( 32 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'False' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
         cy.get( 'tr' ).eq( 33 ).within( () => {

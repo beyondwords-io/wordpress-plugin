@@ -5,6 +5,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
+use Beyondwords\Wordpress\Core\ApiClient;
+
 /**
  * BeyondWords Settings Utilities.
  *
@@ -130,6 +132,22 @@ class SettingsUtils
     }
 
     /**
+     * Do we have both an API Key and Project ID?
+     *
+     * @since  5.2.0
+     * @static
+     *
+     * @return boolean
+     */
+    public static function hasApiCreds()
+    {
+        $projectId = trim(strval(get_option('beyondwords_project_id')));
+        $apiKey    = trim(strval(get_option('beyondwords_api_key')));
+
+        return strlen($projectId) && strlen($apiKey);
+    }
+
+    /**
      * Do we have a valid REST API connection for the BeyondWords REST API?
      *
      * Note that this only whether a valid REST API connection was made when
@@ -144,6 +162,70 @@ class SettingsUtils
     public static function hasValidApiConnection()
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
+    }
+
+    /**
+     * Validate the BeyondWords REST API connection.
+     *
+     * @since 5.0.0
+     * @since 5.2.0 Moved from Sync class into SettingsUtils class.
+     * @static
+     *
+     * @return void
+     **/
+    public static function validateApiConnection()
+    {
+        // This may have been left over from previous versions
+        delete_transient('beyondwords_validate_api_connection');
+
+        // Assume invalid connection
+        delete_option('beyondwords_valid_api_connection');
+
+        $projectId = get_option('beyondwords_project_id');
+        $apiKey    = get_option('beyondwords_api_key');
+
+        if (! $projectId || ! $apiKey) {
+            return false;
+        }
+
+        // Sync REST API -> WordPress
+        $project = ApiClient::getProject();
+
+        $validConnection = (
+            is_array($project)
+            && array_key_exists('id', $project)
+            && strval($project['id']) === strval($projectId)
+        );
+
+        if ($validConnection) {
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            delete_transient('beyondwords_settings_errors');
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
+            return true;
+        }
+
+        // Cancel any syncs
+        delete_transient('beyondwords_sync_to_wordpress');
+
+        // Set errors
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
+
+        $errors['Settings/ValidApiConnection'] = sprintf(
+            /* translators: %s is replaced with the JSON encoded REST API response body */
+            __(
+                'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                'speechkit'
+            ),
+            wp_json_encode($project)
+        );
+
+        set_transient('beyondwords_settings_errors', $errors);
+
+        return false;
     }
 
     /**

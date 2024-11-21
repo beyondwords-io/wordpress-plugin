@@ -86,7 +86,6 @@ class Sync
     public function init()
     {
         add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
-        add_action('load-settings_page_beyondwords', array(__CLASS__, 'validateApiConnection'), 30);
 
         if (Environment::hasAutoSyncSettings()) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
@@ -122,72 +121,6 @@ class Sync
                 set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 60);
                 break;
         }
-    }
-
-    /**
-     * Validate the BeyondWords REST API connection.
-     *
-     * @since 5.0.0
-     * @static
-     *
-     * @return void
-     **/
-    public static function validateApiConnection()
-    {
-        $validate = get_transient('beyondwords_validate_api_connection');
-        delete_transient('beyondwords_validate_api_connection');
-
-        if (! $validate) {
-            return;
-        }
-
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
-        $projectId = get_option('beyondwords_project_id');
-        $apiKey    = get_option('beyondwords_api_key');
-
-        if (! $projectId || ! $apiKey) {
-            return false;
-        }
-
-        // Sync REST API -> WordPress
-        $project = ApiClient::getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === strval($projectId)
-        );
-
-        if ($validConnection) {
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
-            return true;
-        }
-
-        // Cancel any syncs
-        delete_transient('beyondwords_sync_to_wordpress');
-
-        // Set errors
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
-        $errors['Settings/ValidApiConnection'] = sprintf(
-            /* translators: %s is replaced with the JSON encoded REST API response body */
-            __(
-                'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            ),
-            wp_json_encode($project)
-        );
-
-        set_transient('beyondwords_settings_errors', $errors);
-
-        return false;
     }
 
     /**

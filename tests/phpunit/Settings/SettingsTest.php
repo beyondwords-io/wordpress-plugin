@@ -46,7 +46,8 @@ class SettingsTest extends WP_UnitTestCase
 
         // Actions
         $this->assertEquals(1, has_action('admin_menu', array($settings, 'addOptionsPage')));
-        $this->assertEquals(100, has_action('admin_notices', array($settings, 'printPluginAdminNotices')));
+        $this->assertEquals(100, has_action('admin_notices', array($settings, 'printMissingApiCredsWarning')));
+        $this->assertEquals(200, has_action('admin_notices', array($settings, 'printSettingsErrors')));
         $this->assertEquals(10, has_action('admin_enqueue_scripts', array($settings, 'enqueueScripts')));
         $this->assertEquals(10, has_action('rest_api_init', array($settings, 'restApiInit')));
 
@@ -137,47 +138,19 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function printPluginAdminNoticesWithoutApiSettings()
+    public function printSettingsErrorsWithoutErrors()
     {
-        $this->_instance->printPluginAdminNotices();
-
-        $html = $this->getActualOutput();
-
-        $crawler = new Crawler($html);
-
-        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-info > p > strong')->text());
-        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-info > p > strong > a')->attr('href'));
-
-        $this->assertStringContainsString('Don’t have a BeyondWords account yet?', $html);
-        $this->assertStringContainsString('Sign up free', $html);
-    }
-
-    /**
-     * @test
-     */
-    public function printPluginAdminNoticesWithApiSettings()
-    {
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-
-        $this->_instance->printPluginAdminNotices();
+        $this->_instance->printSettingsErrors();
 
         $html = $this->getActualOutput();
         $this->assertEquals('', $html);
-
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
     }
 
     /**
      * @test
      */
-    public function printPluginAdminNoticesWithSettingsErrors()
+    public function printSettingsErrorsWithErrors()
     {
-        $this->markTestSkipped();
-
         $errors = [];
         $errors['Settings/Test1'] = 'Errors test 1';
         $errors['Settings/Test2'] = 'Errors test 2';
@@ -185,7 +158,110 @@ class SettingsTest extends WP_UnitTestCase
 
         set_transient('beyondwords_settings_errors', $errors);
 
-        $this->_instance->printPluginAdminNotices();
+        $this->_instance->printSettingsErrors();
+
+        $html = $this->getActualOutput();
+
+        $this->assertStringContainsString('<li>Errors test 1</li>', $html);
+        $this->assertStringContainsString('<li>Errors test 2</li>', $html);
+        $this->assertStringContainsString('<li>Errors test 3</li>', $html);
+    }
+
+    /**
+     * @test
+     */
+    public function printMissingApiCredsWarningWithoutApiCreds()
+    {
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $this->_instance->printMissingApiCredsWarning();
+
+        $html = $this->getActualOutput();
+
+        $crawler = new Crawler($html);
+
+        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+
+        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringNotContainsString('Sign up free', $html);
+    }
+
+    /**
+     * @test
+     */
+    public function printMissingApiCredsWarningWithoutApiKey()
+    {
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $this->_instance->printMissingApiCredsWarning();
+
+        $html = $this->getActualOutput();
+
+        $crawler = new Crawler($html);
+
+        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+
+        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringNotContainsString('Sign up free', $html);
+
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function printMissingApiCredsWarningWithoutProjectId()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $this->_instance->printMissingApiCredsWarning();
+
+        $html = $this->getActualOutput();
+
+        $crawler = new Crawler($html);
+
+        $this->assertEquals('To use BeyondWords, please update the plugin settings.', $crawler->filter('div.notice.notice-error > p > strong')->text());
+        $this->assertStringEndsWith('/wp-admin/options-general.php?page=beyondwords', $crawler->filter('div.notice.notice-error > p > strong > a')->attr('href'));
+
+        $this->assertStringNotContainsString('Don’t have a BeyondWords account yet?', $html);
+        $this->assertStringNotContainsString('Sign up free', $html);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
+    public function printMissingApiCredsWarningWithApiCreds()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $this->_instance->printMissingApiCredsWarning();
+
+        $html = $this->getActualOutput();
+        $this->assertEquals('', $html);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function printSettingsErrorsWithMissingApiCreds()
+    {
+        $errors = [];
+        $errors['Settings/Test1'] = 'Errors test 1';
+        $errors['Settings/Test2'] = 'Errors test 2';
+        $errors['Settings/Test3'] = 'Errors test 3';
+
+        set_transient('beyondwords_settings_errors', $errors);
+
+        $this->_instance->printSettingsErrors();
 
         $html = $this->getActualOutput();
 

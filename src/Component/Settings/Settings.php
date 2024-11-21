@@ -50,8 +50,10 @@ class Settings
         }
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
-        add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
+        add_action('admin_notices', array($this, 'printMissingApiCredsWarning'), 100);
+        add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
+        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'), 40);
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
@@ -77,6 +79,25 @@ class Settings
         );
     }
 
+    /**
+     * Validate API creds on admin init.
+     *
+     * @since 5.2.0
+     */
+    public function validateApiCreds()
+    {
+        $tabs = $this->getTabs();
+
+        if (! count($tabs)) {
+            return;
+        }
+
+        $activeTab = $this->getActiveTab($tabs);
+
+        if ($activeTab === 'credentials') {
+            SettingsUtils::validateApiConnection();
+        }
+    }
     /**
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
@@ -209,16 +230,59 @@ class Settings
     }
 
     /**
-     * Print Admin Notices.
+     * Print missing API creds warning.
+     *
+     * @since 5.2.0
+     *
+     * @return void
+     */
+    public function printMissingApiCredsWarning()
+    {
+        if (! SettingsUtils::hasApiCreds()) :
+            ?>
+            <div class="notice notice-info">
+                <p>
+                    <strong>
+                        <?php
+                        printf(
+                            /* translators: %s is replaced with a "plugin settings" link */
+                            esc_html__('To use BeyondWords, please update the %s.', 'speechkit'),
+                            sprintf(
+                                '<a href="%s">%s</a>',
+                                esc_url(admin_url('options-general.php?page=beyondwords')),
+                                esc_html__('plugin settings', 'speechkit')
+                            )
+                        );
+                        ?>
+                    </strong>
+                </p>
+                <p>
+                    <?php esc_html_e('Don’t have a BeyondWords account yet?', 'speechkit'); ?>
+                </p>
+                <p>
+                    <a
+                        class="button button-secondary"
+                        href="<?php echo esc_url(sprintf('%s/auth/signup', Environment::getDashboardUrl())); ?>"
+                        target="_blank"
+                    >
+                        <?php esc_html_e('Sign up free', 'speechkit'); ?>
+                    </a>
+                </p>
+            </div>
+            <?php
+        endif;
+    }
+
+    /**
+     * Print settings errors.
      *
      * @since 3.0.0
      *
      * @return void
      */
-    public function printPluginAdminNotices()
+    public function printSettingsErrors()
     {
-        $hasValidConnection = SettingsUtils::hasValidApiConnection();
-        $settingsErrors     = get_transient('beyondwords_settings_errors');
+        $settingsErrors = get_transient('beyondwords_settings_errors');
 
         delete_transient('beyondwords_settings_errors');
 
@@ -250,38 +314,6 @@ class Settings
                     }
                     ?>
                 </ul>
-            </div>
-            <?php
-        elseif (false === $hasValidConnection) :
-            ?>
-            <div class="notice notice-info">
-                <p>
-                    <strong>
-                        <?php
-                        printf(
-                            /* translators: %s is replaced with a "plugin settings" link */
-                            esc_html__('To use BeyondWords, please update the %s.', 'speechkit'),
-                            sprintf(
-                                '<a href="%s">%s</a>',
-                                esc_url(admin_url('options-general.php?page=beyondwords')),
-                                esc_html__('plugin settings', 'speechkit')
-                            )
-                        );
-                        ?>
-                    </strong>
-                </p>
-                <p>
-                    <?php esc_html_e('Don’t have a BeyondWords account yet?', 'speechkit'); ?>
-                </p>
-                <p>
-                    <a
-                        class="button button-secondary"
-                        href="<?php echo esc_url(sprintf('%s/auth/signup', Environment::getDashboardUrl())); ?>"
-                        target="_blank"
-                    >
-                        <?php esc_html_e('Sign up free', 'speechkit'); ?>
-                    </a>
-                </p>
             </div>
             <?php
         endif;
