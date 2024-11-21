@@ -4,7 +4,7 @@ context( 'Settings > Credentials',  () => {
     cy.login()
   } )
 
-  it.only( 'prompts for API credentials and hides other settings tabs until they are validated', () => {
+  it( 'prompts for API credentials and hides other settings tabs until they are validated', () => {
     cy.visit( '/wp-admin' )
 
     cy.showsPluginSettingsNotice()

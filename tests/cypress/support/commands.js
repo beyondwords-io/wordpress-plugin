@@ -84,7 +84,7 @@ Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
 
 Cypress.Commands.add( 'showsInvalidApiCredsNotice', () => {
   cy.get( '.notice-error' ).find( 'li' ).should('have.length', 1)
-  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'We were unable to validate your BeyondWords API connection. Please check your project ID and API key, Save changes, and contact us for support if this message remains.' )
+  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'We were unable to validate your BeyondWords REST API connection.' )
 } )
 
 Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
