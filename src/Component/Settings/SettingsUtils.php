@@ -199,31 +199,25 @@ class SettingsUtils
 
         if ($validConnection) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            delete_transient('beyondwords_settings_errors');
             set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
+            delete_transient('beyondwords_settings_errors');
             return true;
         }
 
         // Cancel any syncs
         delete_transient('beyondwords_sync_to_wordpress');
 
-        // Set errors
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
-        $errors['Settings/ValidApiConnection'] = sprintf(
-            /* translators: %s is replaced with the JSON encoded REST API response body */
-            __(
-                'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
+        self::addSettingsErrorMessage(
+            sprintf(
+                /* translators: %s is replaced with the JSON encoded REST API response body */
+                __(
+                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'speechkit'
+                ),
+                wp_json_encode($project)
             ),
-            wp_json_encode($project)
+            'Settings/ValidApiConnection'
         );
-
-        set_transient('beyondwords_settings_errors', $errors);
 
         return false;
     }
@@ -260,5 +254,33 @@ class SettingsUtils
             />
         </div>
         <?php
+    }
+
+    /**
+     * Add settings error message.
+     *
+     * @since 5.2.0
+     * @static
+     *
+     * @param string $message The error message.
+     * @param string $errorId The error ID.
+     *
+     * @return void
+     **/
+    public static function addSettingsErrorMessage($message, $errorId = '')
+    {
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
+
+        if (empty($errorId)) {
+            $errorId = bin2hex(random_bytes(8));
+        }
+
+        $errors[$errorId] = $message;
+
+        set_transient('beyondwords_settings_errors', $errors);
     }
 }

@@ -2,7 +2,7 @@ context( 'Site Health', () => {
   before( () => {
     cy.task( 'reset' )
     cy.login()
-    cy.saveAllPluginSettings()
+    cy.saveMinimalPluginSettings()
   } )
 
   beforeEach( () => {
@@ -74,7 +74,7 @@ context( 'Site Health', () => {
         // Preselect ‘Generate audio’
         cy.get( 'tr' ).eq( 10 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Preselect ‘Generate audio’' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "post": "1",\n    "page": "1"\n}' )
         } )
         // Default language code
         cy.get( 'tr' ).eq( 11 ).within( () => {
@@ -124,17 +124,17 @@ context( 'Site Health', () => {
         // Light theme
         cy.get( 'tr' ).eq( 20 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Light theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#eee"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#EEE"\n}' )
         } )
         // Dark theme
         cy.get( 'tr' ).eq( 21 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Dark theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "transparent",\n    "icon_color": "#fff",\n    "text_color": "#fff",\n    "highlight_color": "#444"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "TRANSPARENT",\n    "icon_color": "#FFF",\n    "text_color": "#FFF",\n    "highlight_color": "#444"\n}' )
         } )
         // Video theme
         cy.get( 'tr' ).eq( 22 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Video theme' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}' )
         } )
         // Call-to-action
         cy.get( 'tr' ).eq( 23 ).within( () => {

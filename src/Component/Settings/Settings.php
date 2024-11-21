@@ -53,7 +53,7 @@ class Settings
         add_action('admin_notices', array($this, 'printMissingApiCredsWarning'), 100);
         add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
-        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'), 40);
+        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
@@ -86,31 +86,21 @@ class Settings
      */
     public function validateApiCreds()
     {
-        $tabs = $this->getTabs();
-
-        if (! count($tabs)) {
-            return;
-        }
-
-        $activeTab = $this->getActiveTab($tabs);
+        $activeTab = self::getActiveTab();
 
         if ($activeTab === 'credentials') {
             SettingsUtils::validateApiConnection();
         }
     }
+
     /**
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
      */
     public function createAdminInterface()
     {
-        $tabs = $this->getTabs();
-
-        if (! count($tabs)) {
-            return;
-        }
-
-        $activeTab = $this->getActiveTab($tabs);
+        $tabs      = self::getTabs();
+        $activeTab = self::getActiveTab();
         ?>
         <div class="wrap">
             <h1>
@@ -184,8 +174,11 @@ class Settings
      * Get tabs.
      *
      * @since 4.7.0
+     * @since 5.2.0 Make static.
+     *
+     * @return array Tabs
      */
-    public function getTabs()
+    public static function getTabs()
     {
         $tabs = array(
             'credentials'    => __('Credentials', 'speechkit'),
@@ -207,9 +200,18 @@ class Settings
      * Get active tab.
      *
      * @since 4.7.0
+     * @since 5.2.0 Make static.
+     *
+     * @return string Active tab
      */
-    public function getActiveTab($tabs)
+    public static function getActiveTab()
     {
+        $tabs = self::getTabs();
+
+        if (! count($tabs)) {
+            return '';
+        }
+
         $defaultTab = array_key_first($tabs);
 
         // phpcs:disable WordPress.Security.NonceVerification.Recommended

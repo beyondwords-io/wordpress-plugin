@@ -39,7 +39,7 @@ context( 'Settings',  () => {
   } )
 
   it( 'syncs the settings from the Dashboard to WordPress', () => {
-    cy.saveAllPluginSettings()
+    cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )
 
@@ -94,7 +94,7 @@ context( 'Settings',  () => {
   } )
 
   it( 'removes the plugin settings when uninstalled', () => {
-    cy.saveAllPluginSettings()
+    cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )
 

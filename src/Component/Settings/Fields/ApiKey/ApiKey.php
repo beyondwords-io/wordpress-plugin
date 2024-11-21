@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\ApiKey;
 
+use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+
 /**
  * ApiKey
  *
@@ -96,18 +98,14 @@ class ApiKey
      **/
     public function sanitize($value)
     {
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
         if (empty($value)) {
-            $errors['Settings/ApiKey'] = __(
-                'Please enter the BeyondWords API key. This can be found in your project settings.',
-                'speechkit'
+            SettingsUtils::addSettingsErrorMessage(
+                __(
+                    'Please enter the BeyondWords API key. This can be found in your project settings.',
+                    'speechkit'
+                ),
+                'Settings/ApiKey'
             );
-            set_transient('beyondwords_settings_errors', $errors);
         }
 
         return $value;

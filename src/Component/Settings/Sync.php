@@ -85,7 +85,7 @@ class Sync
      */
     public function init()
     {
-        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
+        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 30);
 
         if (Environment::hasAutoSyncSettings()) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
@@ -103,14 +103,12 @@ class Sync
      */
     public function scheduleSyncs()
     {
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended
-        $tab = null;
-        if (isset($_GET['tab'])) {
-            $tab = sanitize_key($_GET['tab']);
-        }
-        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+        $tab = Settings::getActiveTab();
 
         switch ($tab) {
+            case 'credentials':
+                set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
+                break;
             case 'content':
                 set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
                 break;
