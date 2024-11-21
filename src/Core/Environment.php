@@ -84,10 +84,18 @@ class Environment
      *
      * Override with BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG in wp-config.php.
      *
-     * @since  5.2.0-beta.1
+     * @since  5.2.0
      * @var    bool
      */
     public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;
+
+    /**
+     * Auto-sync settings.
+     *
+     * @since  5.2.0
+     * @var    bool
+     */
+    public const BEYONDWORDS_AUTO_SYNC_SETTINGS = true;
 
     /**
      * @return string
@@ -176,6 +184,20 @@ class Environment
          * Filters whether the inline player script tag should be loaded.
          */
         $value = apply_filters('beyondwords_player_inline_script_tag', $value);
+
+        return $value;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function hasAutoSyncSettings()
+    {
+        $value = static::BEYONDWORDS_AUTO_SYNC_SETTINGS;
+
+        if (defined('BEYONDWORDS_AUTO_SYNC_SETTINGS')) {
+            $value = (bool) BEYONDWORDS_AUTO_SYNC_SETTINGS;
+        }
 
         return $value;
     }

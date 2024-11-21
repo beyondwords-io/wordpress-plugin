@@ -156,7 +156,7 @@ class CoreTest extends WP_UnitTestCase
 
         $this->assertNull($wp_scripts);
 
-        update_option('beyondwords_valid_api_connection', true);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         /**
          * Enqueuing with a valid API connection should succeed

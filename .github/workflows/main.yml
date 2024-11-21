@@ -411,10 +411,6 @@ jobs:
         run: |
           wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
 
-      - name: Disable BEYONDWORDS_AUTO_SYNC_SETTINGS
-        run: |
-          wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
-
       - name: Set WordPress core config values
         run: |
           wp config set AUTOMATIC_UPDATER_DISABLED true --raw

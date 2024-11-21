@@ -125,7 +125,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         $this->assertTrue(SettingsUtils::hasValidApiConnection());
 
@@ -159,7 +159,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         $this->_instance->printPluginAdminNotices();
 
@@ -224,7 +224,7 @@ class SettingsTest extends WP_UnitTestCase
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         $this->_instance->restApiInit();
 
@@ -252,7 +252,7 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         $reponse = $this->_instance->restApiResponse();
 

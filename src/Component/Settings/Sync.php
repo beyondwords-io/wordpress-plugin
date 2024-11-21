@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Core\ApiClient;
+use Beyondwords\Wordpress\Core\Environment;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
@@ -86,7 +87,7 @@ class Sync
     {
         add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
 
-        if (! defined('BEYONDWORDS_AUTO_SYNC_SETTINGS') || false != BEYONDWORDS_AUTO_SYNC_SETTINGS) {
+        if (Environment::hasAutoSyncSettings()) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
             add_action('load-settings_page_beyondwords', array(__CLASS__, 'validateApiConnection'), 30);
             add_action('shutdown', array($this, 'syncToDashboard'));
@@ -156,7 +157,7 @@ class Sync
         $validConnection = (
             is_array($project)
             && array_key_exists('id', $project)
-            && strval($project['id']) === $projectId
+            && strval($project['id']) === strval($projectId)
         );
 
         if ($validConnection) {
