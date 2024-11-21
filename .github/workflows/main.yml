@@ -452,6 +452,7 @@ jobs:
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/filter-pre-http-request.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
           wp plugin install amp --force
