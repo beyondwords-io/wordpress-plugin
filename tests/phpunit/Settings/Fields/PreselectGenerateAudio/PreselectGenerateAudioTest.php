@@ -113,12 +113,6 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
         $this->_instance->enqueueScripts( 'edit.php' );
         $this->assertNull($wp_scripts);
 
-        // @todo check this setting works in admin
-        // $this->_instance->enqueueScripts( 'settings_page_beyondwords' );
-        // $this->assertContains('beyondwords-settings--preselect-settings', $wp_scripts->queue);
-
-        // $wp_scripts = null;
-
         $this->_instance->enqueueScripts( 'post.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
 
