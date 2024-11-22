@@ -95,9 +95,9 @@ Release date: 19th November 2024
 
 **Fixes**
 
-* [#411](https://github.com/beyondwords-io/wordpress-plugin/pull/411) Remove `beyondwords_valid_api_connection` check.
-    * Since upgrading to version 5 a few publishers have reported problems with their valid API credentials being flagged as invalid, so the checks we had in place to validate the API Key and Project ID have been removed.
-    * API calls to create/update BeyondWords content can now be made with potentially invalid credentials. If this happens (fe.g. if your API Key has been revoked) the 401 Unauthorized error code and error message will be stored for your requests and visible in WordPress admin.
+* [#413](https://github.com/beyondwords-io/wordpress-plugin/pull/413) Refactor API calls to prevent "invalid creds" messages
+    * Since upgrading to version 5 a few publishers have reported problems with their valid API credentials being flagged as invalid, so the checks we had in place to validate the API Key and Project ID have been updated.
+    * API calls to create/update BeyondWords content can now be made with potentially invalid credentials. If this happens (e.g. if your API Key has been revoked) the 401 Unauthorized error code and error message will be stored for your requests and visible in WordPress admin.
 
 = 5.1.0 =
 

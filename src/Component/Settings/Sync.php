@@ -106,9 +106,6 @@ class Sync
         $tab = Settings::getActiveTab();
 
         switch ($tab) {
-            case 'credentials':
-                set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
-                break;
             case 'content':
                 set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
                 break;
