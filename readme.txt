@@ -86,6 +86,7 @@ Release date: 19th November 2024
 
 **Enhancements**
 
+* Tested up to WordPress 6.7.
 * [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
     * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
     * Opt-in to the inline `<script>` tag method of auto-embedding audio players by defining the constant `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` as `true` in your `wp-config.php`.
