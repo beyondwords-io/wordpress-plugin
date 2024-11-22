@@ -14,26 +14,6 @@ use Beyondwords\Wordpress\Core\CoreUtils;
 class Core
 {
     /**
-     * API Client.
-     *
-     * @since 3.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 3.0.0
-     * @since 3.7.1 Remove the "X BeyondWords errors found" notice after a reported slow MySQL query.
-     * @since 3.9.0 Add actions for deleting/trashing/restoring posts.
-     * @since 4.0.0 Moved side-effects into init() method.
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init.
      *
      * @since 4.0.0
@@ -165,9 +145,9 @@ class Core
                 return false;
             }
 
-            $response = $this->apiClient->updateAudio($postId);
+            $response = ApiClient::updateAudio($postId);
         } else {
-            $response = $this->apiClient->createAudio($postId);
+            $response = ApiClient::createAudio($postId);
         }
 
         $projectId = PostMetaUtils::getProjectId($postId);
@@ -188,7 +168,7 @@ class Core
      */
     public function deleteAudioForPost($postId)
     {
-        return $this->apiClient->deleteAudio($postId);
+        return ApiClient::deleteAudio($postId);
     }
 
     /**
@@ -202,7 +182,7 @@ class Core
      */
     public function batchDeleteAudioForPosts($postIds)
     {
-        return $this->apiClient->batchDeleteAudio($postIds);
+        return ApiClient::batchDeleteAudio($postIds);
     }
 
     /**
@@ -244,7 +224,7 @@ class Core
      */
     public function enqueueBlockEditorAssets()
     {
-        if (! SettingsUtils::hasApiSettings()) {
+        if (! SettingsUtils::hasValidApiConnection()) {
             return;
         }
 
@@ -357,7 +337,7 @@ class Core
             return false;
         }
 
-        $response = $this->apiClient->deleteAudio($postId);
+        $response = ApiClient::deleteAudio($postId);
 
         if (
             ! is_array($response) ||
@@ -399,7 +379,7 @@ class Core
             return false;
         }
 
-        $response = $this->apiClient->updateAudio($postId);
+        $response = ApiClient::updateAudio($postId);
 
         if (
             ! is_array($response) ||

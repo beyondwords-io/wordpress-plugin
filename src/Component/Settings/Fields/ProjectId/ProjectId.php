@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\ProjectId;
 
+use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+
 /**
  * ProjectId
  *
@@ -87,27 +89,23 @@ class ProjectId
     /**
      * Sanitise the setting value.
      *
-     * @since  3.0.0
-     * @param  array $value The submitted value.
+     * @since 3.0.0
+     * @since 5.2.0 Remove creds validation from here.
+     *
+     * @param array $value The submitted value.
      *
      * @return void
      **/
     public function sanitize($value)
     {
-        set_transient('beyondwords_validate_api_connection', true, 30);
-
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
         if (empty($value)) {
-            $errors['Settings/ProjectId'] = __(
-                'Please enter your BeyondWords project ID. This can be found in your project settings.',
-                'speechkit'
+            SettingsUtils::addSettingsErrorMessage(
+                __(
+                    'Please enter your BeyondWords project ID. This can be found in your project settings.',
+                    'speechkit'
+                ),
+                'Settings/ProjectId'
             );
-            set_transient('beyondwords_settings_errors', $errors);
         }
 
         return $value;

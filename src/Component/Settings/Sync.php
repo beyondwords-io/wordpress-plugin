@@ -12,13 +12,15 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
+use Beyondwords\Wordpress\Core\ApiClient;
+use Beyondwords\Wordpress\Core\Environment;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * Sync
  *
  * @since 5.0.0
- * 
+ *
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -56,13 +58,6 @@ class Sync
     ];
 
     /**
-     * API Client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
      * PropertyAccessor.
      *
      * @var PropertyAccessor
@@ -76,9 +71,8 @@ class Sync
      *
      * @since 5.0.0
      */
-    public function __construct($apiClient)
+    public function __construct()
     {
-        $this->apiClient        = $apiClient;
         $this->propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
             ->disableExceptionOnInvalidPropertyPath()
             ->getPropertyAccessor();
@@ -91,10 +85,9 @@ class Sync
      */
     public function init()
     {
-        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 40);
-        add_action('load-settings_page_beyondwords', array($this, 'validateApiConnection'), 30);
+        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 30);
 
-        if (! defined('BEYONDWORDS_AUTO_SYNC_SETTINGS') || false != BEYONDWORDS_AUTO_SYNC_SETTINGS) {
+        if (Environment::hasAutoSyncSettings()) {
             add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
             add_action('shutdown', array($this, 'syncToDashboard'));
         }
@@ -104,94 +97,25 @@ class Sync
      * Should we schedule a sync on the current settings tab?
      *
      * @since 5.0.0
+     * @since 5.2.0 Remove API creds validation.
      *
      * @return void
      */
     public function scheduleSyncs()
     {
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended
-        $tab = null;
-        if (isset($_GET['tab'])) {
-            $tab = sanitize_key($_GET['tab']);
-        }
-        // phpcs:enable WordPress.Security.NonceVerification.Recommended
-        
+        $tab = Settings::getActiveTab();
+
         switch ($tab) {
-            case '':
-            case 'credentials':
-                set_transient('beyondwords_validate_api_connection', true, 30);
-                break;
             case 'content':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 30);
+                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
                 break;
             case 'voices':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 30);
+                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
                 break;
             case 'player':
-                set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 30);
+                set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 60);
                 break;
         }
-    }
-
-    /**
-     * Validate the BeyondWords REST API connection.
-     *
-     * @since 5.0.0
-     *
-     * @return void
-     **/
-    public function validateApiConnection()
-    {
-        $validate = get_transient('beyondwords_validate_api_connection');
-        delete_transient('beyondwords_validate_api_connection');
-
-        if (! $validate) {
-            return;
-        }
-
-        // Assume invalid connection
-        delete_option('beyondwords_valid_api_connection');
-
-        $projectId = get_option('beyondwords_project_id');
-        $apiKey    = get_option('beyondwords_api_key');
-
-        if (! $projectId || ! $apiKey) {
-            return false;
-        }
-
-        // Sync REST API -> WordPress
-        $project = $this->apiClient->getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === $projectId
-        );
-
-        if ($validConnection) {
-            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
-            return true;
-        }
-
-        // Cancel any syncs
-        delete_transient('beyondwords_sync_to_wordpress');
-
-        // Set errors
-        $errors = get_transient('beyondwords_settings_errors');
-
-        if (empty($errors)) {
-            $errors = [];
-        }
-
-        $errors['Settings/ValidApiConnection'] = __(
-            'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.',
-            'speechkit'
-        );
-
-        set_transient('beyondwords_settings_errors', $errors);
-
-        return false;
     }
 
     /**
@@ -213,7 +137,7 @@ class Sync
         $responses = [];
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'project']))) {
-            $project = $this->apiClient->getProject();
+            $project = ApiClient::getProject();
             if (! empty($project)) {
                 $responses['project'] = $project;
             }
@@ -223,14 +147,14 @@ class Sync
         }
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'player_settings']))) {
-            $player_settings = $this->apiClient->getPlayerSettings();
+            $player_settings = ApiClient::getPlayerSettings();
             if (! empty($player_settings)) {
                 $responses['player_settings'] = $player_settings;
             }
         }
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'video_settings']))) {
-            $video_settings = $this->apiClient->getVideoSettings();
+            $video_settings = ApiClient::getVideoSettings();
             if (! empty($video_settings)) {
                 $responses['video_settings'] = $video_settings;
             }
@@ -275,9 +199,9 @@ class Sync
 
     /**
      * Sync from WordPress to the dashboard/BeyondWords REST API.
-     * 
+     *
      * @since 5.0.0
-     * 
+     *
      * @return void
      **/
     public function syncToDashboard()
@@ -294,8 +218,8 @@ class Sync
         foreach ($options as $option) {
             if ($this->shouldSyncOptionToDashboard($option)) {
                 $this->propertyAccessor->setValue(
-                    $settings, 
-                    self::MAP_SETTINGS[$option], 
+                    $settings,
+                    self::MAP_SETTINGS[$option],
                     get_option($option)
                 );
             }
@@ -303,7 +227,7 @@ class Sync
 
         // Sync player settings back to API
         if (isset($settings['player_settings'])) {
-            $this->apiClient->updatePlayerSettings($settings['player_settings']);
+            ApiClient::updatePlayerSettings($settings['player_settings']);
 
             add_settings_error(
                 'beyondwords_settings',
@@ -316,13 +240,13 @@ class Sync
         // Sync title voice back to API
         if (in_array('beyondwords_project_title_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
 
             if ($value !== null) {
                 $titleVoiceId = get_option('beyondwords_project_title_voice_id');
-                $this->apiClient->updateVoice($titleVoiceId, [
+                ApiClient::updateVoice($titleVoiceId, [
                     'speaking_rate' => (int)$value,
                 ]);
             }
@@ -331,13 +255,13 @@ class Sync
         // Sync body voice back to API
         if (in_array('beyondwords_project_body_voice_speaking_rate', $options)) {
             $value = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
 
             if ($value !== null) {
                 $bodyVoiceId = get_option('beyondwords_project_body_voice_id');
-                $this->apiClient->updateVoice($bodyVoiceId, [
+                ApiClient::updateVoice($bodyVoiceId, [
                     'speaking_rate' => (int)$value,
                 ]);
             }
@@ -347,7 +271,7 @@ class Sync
         if (isset($settings['project'])) {
             // Don't send speaking rates back to /project endpoint
             $titleSpeakingRate = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
             if ($titleSpeakingRate) {
@@ -356,14 +280,14 @@ class Sync
 
             // Don't send speaking rates back to /project endpoint
             $bodySpeakingRate = $this->propertyAccessor->getValue(
-                $settings, 
+                $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
             if ($bodySpeakingRate) {
                 unset($settings['project']['body']['voice']['speaking_rate']);
             }
 
-            $this->apiClient->updateProject($settings['project']);
+            ApiClient::updateProject($settings['project']);
 
             add_settings_error(
                 'beyondwords_settings',
@@ -441,7 +365,7 @@ class Sync
         }
 
         $language  = false;
-        $languages = $this->apiClient->getLanguages();
+        $languages = ApiClient::getLanguages();
 
         if (is_array($languages)) {
             $language = array_column(

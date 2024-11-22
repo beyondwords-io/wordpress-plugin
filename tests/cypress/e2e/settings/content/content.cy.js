@@ -27,17 +27,16 @@ context( 'Settings > Content',  () => {
 
     cy.get( 'input[type="submit"]' ).click().wait( 1000 )
 
-    // @todo skipping because this fails now we auto-sync the API with WordPress
-    // cy.get( '#beyondwords_project_title_enabled' ).should( 'not.be.checked' )
-    // cy.get( '#beyondwords_project_auto_publish_enabled' ).should( 'not.be.checked' )
-    // cy.get( '#beyondwords_prepend_excerpt' ).should( 'be.checked' )
-    // cy.get( 'input[name="beyondwords_preselect[post]"]' ).should( 'be.checked' )
-    // cy.get( 'input[name="beyondwords_preselect[page]"]' ).should( 'not.be.checked' )
+    cy.get( '#beyondwords_project_title_enabled' ).should( 'not.be.checked' )
+    cy.get( '#beyondwords_project_auto_publish_enabled' ).should( 'not.be.checked' )
+    cy.get( '#beyondwords_prepend_excerpt' ).should( 'be.checked' )
+    cy.get( 'input[name="beyondwords_preselect[post]"]' ).should( 'be.checked' )
+    cy.get( 'input[name="beyondwords_preselect[page]"]' ).should( 'not.be.checked' )
 
-    // cy.visit( '/wp-admin/options.php' )
-    // cy.get( '#beyondwords_project_title_enabled' ).should( 'exist' )
-    // cy.get( '#beyondwords_project_auto_publish_enabled' ).should( 'exist' )
-    // cy.get( '#beyondwords_prepend_excerpt' ).should( 'exist' )
-    // cy.get( '#beyondwords_preselect' ).should( 'exist' )
+    cy.visit( '/wp-admin/options.php' )
+    cy.get( '#beyondwords_project_title_enabled' ).should( 'exist' )
+    cy.get( '#beyondwords_project_auto_publish_enabled' ).should( 'exist' )
+    cy.get( '#beyondwords_prepend_excerpt' ).should( 'exist' )
+    cy.get( '#beyondwords_preselect' ).should( 'exist' )
   } )
 } )

@@ -29,7 +29,7 @@ class Updater
         $version = get_option('beyondwords_version', '1.0.0');
 
         if (version_compare($version, '5.0.0', '<') && get_option('beyondwords_api_key')) {
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 30);
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
         }
 
         if (version_compare($version, '3.0.0', '<')) {

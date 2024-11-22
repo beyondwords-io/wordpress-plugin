@@ -32,23 +32,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlig
 class Player
 {
     /**
-     * API client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init
      *
      * @since 5.0.0
@@ -56,7 +39,7 @@ class Player
     public function init()
     {
         (new PlayerUI())->init();
-        (new PlayerStyle($this->apiClient))->init();
+        (new PlayerStyle())->init();
         (new PlayerColors())->init();
         (new CallToAction())->init();
         (new WidgetStyle())->init();

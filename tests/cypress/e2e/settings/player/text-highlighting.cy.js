@@ -9,7 +9,6 @@ context( 'Settings > Player > Text highlighting',  () => {
     cy.login()
   } )
 
-  // @todo skipping because this fails now we auto-sync the API with WordPress
   it( `sets "Text highlighting"`, () => {
     cy.saveMinimalPluginSettings()
 

@@ -1,7 +1,6 @@
 <?php
 
 use Beyondwords\Wordpress\Component\Post\Metabox\Metabox;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class MetaboxTest extends WP_UnitTestCase
@@ -21,8 +20,7 @@ class MetaboxTest extends WP_UnitTestCase
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
 
-        $apiClient = new ApiClient();
-        $this->_instance = new Metabox($apiClient);
+        $this->_instance = new Metabox();
     }
 
     public function tearDown(): void

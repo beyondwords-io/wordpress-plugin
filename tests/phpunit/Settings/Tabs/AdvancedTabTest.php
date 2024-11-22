@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
-use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * @group settings
@@ -26,12 +25,11 @@ class AdvancedTabTest extends WP_UnitTestCase
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
 
-        $apiClient       = new ApiClient();
-        $this->_instance = new Advanced($apiClient);
+        $this->_instance = new Advanced();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
     }
 
     public function tearDown(): void

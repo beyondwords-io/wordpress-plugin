@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -11,34 +10,21 @@ use \Symfony\Component\DomCrawler\Crawler;
  */
 class LanguagesTest extends WP_UnitTestCase
 {
-    /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages
-     */
-    private $_instance;
-
-
     public function setUp(): void
     {
         // Before...
         parent::setUp();
 
         // Your set up methods here.
-        $apiClient       = new ApiClient();
-        $this->_instance = new Languages($apiClient);
-
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();
@@ -49,8 +35,7 @@ class LanguagesTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $apiClient = new ApiClient();
-        $languages = new Languages($apiClient);
+        $languages = new Languages();
         $languages->init();
 
         do_action('wp_loaded');
@@ -65,7 +50,8 @@ class LanguagesTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        $languages = new Languages();
+        $languages->addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-languages', $wp_settings_fields['beyondwords_advanced']['advanced']);
@@ -74,7 +60,7 @@ class LanguagesTest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-languages', $field['id']);
         $this->assertSame('Multiple languages', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array($languages, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -83,11 +69,11 @@ class LanguagesTest extends WP_UnitTestCase
      */
     public function render()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
 
-        $this->_instance->render();
+        $languages = new Languages();
+        $languages->render();
 
         $html = $this->getActualOutput();
 
@@ -128,6 +114,5 @@ class LanguagesTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
     }
 }

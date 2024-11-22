@@ -29,7 +29,6 @@ context( 'Settings > Player > Player colors',  () => {
     text_color: '#b00',
   };
 
-  // @todo skipping because this fails now we auto-sync the API with WordPress
   it( `sets Player colors"`, () => {
     cy.saveMinimalPluginSettings()
 
@@ -59,12 +58,12 @@ context( 'Settings > Player > Player colors',  () => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( light_theme )
     })
-      
+
     cy.getSiteHealthValue( 'Dark theme' ).then( val => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( dark_theme )
     })
-      
+
     cy.getSiteHealthValue( 'Video theme' ).then( val => {
       const data = JSON.parse( val.text() )
       expect( data ).to.deep.equal( video_theme )

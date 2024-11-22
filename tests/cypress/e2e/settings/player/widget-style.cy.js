@@ -33,7 +33,6 @@ context( 'Settings > Player > Widget style',  () => {
   ];
 
   options.forEach( option => {
-    // @todo skipping because this fails now we auto-sync the API with WordPress
     it( `sets "${option.label}"`, () => {
       cy.saveMinimalPluginSettings()
 
