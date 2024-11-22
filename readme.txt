@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.0-beta.1
+Stable tag: 5.2.0-beta.2
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -128,15 +128,15 @@ Release date: 15th October 2024
 **Breaking changes**
 
 * Legacy audio player support has been removed.
-    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin. 
+    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin.
     * The standard [BeyondWords Player](https://docs.beyondwords.io/docs-and-guides/player/overview) is now the only built-in option for the audio player.
 * Remove built-in Elementor compatibility.
     * Basic support for audio generation and auto-player embeds should still work for posts that are created with Elementor, although you will be unable to see a BeyondWords player in the Elementor post edit screens. To view our player in WordPress admin you can temporarily switch to the Block or Classic editors.
     * Refer to our [WordPress filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) docs and the [Elementor hooks](https://developers.elementor.com/docs/hooks/) docs if you wish to add Elementor support to your site.
-* Stop saving the legacy `beyondwords_podcast_id` param. 
-    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below. 
+* Stop saving the legacy `beyondwords_podcast_id` param.
+    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below.
     * If you need to downgrade to `v3.x` after using `v5.x` please contact us for support.
-* Remove deprecated filters. 
+* Remove deprecated filters.
     * A number of deprecated filters have now been removed from the source code.
     * Refer to our [WordPress Filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) documentation to view the current filters we provide.
 
