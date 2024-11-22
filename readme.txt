@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.0-beta.1
+Stable tag: 5.2.0-beta.2
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -82,16 +82,23 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.2.0 =
 
-Release date: TBC
+Release date: 19th November 2024
 
-**Experimental**
+**Enhancements**
 
+* Tested up to WordPress 6.7.
 * [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
     * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
     * Opt-in to the inline `<script>` tag method of auto-embedding audio players by defining the constant `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` as `true` in your `wp-config.php`.
     * This was added because the recent removal of the deprecated `beyondwords_content_id` filter caused problems for a publisher who had been using it to display an audio player from another post on their homepage.
     * After opting-in, audio players that are auto-prepended to the post body should now use the `beyondwords_content_id` and `beyondwords_project_id` from the associated post being queried within The Loop.
     * A known-issue is the current implementation is currently incompatible with both the *BeyondWords shortcode* and the *BeyondWords player block*. Compatibility will be ensured before this experimental opt-in feature is shipped to all users. In the meantime players added using either the shortcode or player block are unlikely to appear when the `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` is `true`.
+
+**Fixes**
+
+* [#413](https://github.com/beyondwords-io/wordpress-plugin/pull/413) Refactor API calls to prevent "invalid creds" messages
+    * Since upgrading to version 5 a few publishers have reported problems with their valid API credentials being flagged as invalid, so the checks we had in place to validate the API Key and Project ID have been updated.
+    * API calls to create/update BeyondWords content can now be made with potentially invalid credentials. If this happens (e.g. if your API Key has been revoked) the 401 Unauthorized error code and error message will be stored for your requests and visible in WordPress admin.
 
 = 5.1.0 =
 
@@ -122,15 +129,15 @@ Release date: 15th October 2024
 **Breaking changes**
 
 * Legacy audio player support has been removed.
-    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin. 
+    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin.
     * The standard [BeyondWords Player](https://docs.beyondwords.io/docs-and-guides/player/overview) is now the only built-in option for the audio player.
 * Remove built-in Elementor compatibility.
     * Basic support for audio generation and auto-player embeds should still work for posts that are created with Elementor, although you will be unable to see a BeyondWords player in the Elementor post edit screens. To view our player in WordPress admin you can temporarily switch to the Block or Classic editors.
     * Refer to our [WordPress filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) docs and the [Elementor hooks](https://developers.elementor.com/docs/hooks/) docs if you wish to add Elementor support to your site.
-* Stop saving the legacy `beyondwords_podcast_id` param. 
-    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below. 
+* Stop saving the legacy `beyondwords_podcast_id` param.
+    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below.
     * If you need to downgrade to `v3.x` after using `v5.x` please contact us for support.
-* Remove deprecated filters. 
+* Remove deprecated filters.
     * A number of deprecated filters have now been removed from the source code.
     * Refer to our [WordPress Filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) documentation to view the current filters we provide.
 

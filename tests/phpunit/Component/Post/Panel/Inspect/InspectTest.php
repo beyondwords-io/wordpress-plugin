@@ -128,7 +128,7 @@ class InspectTest extends \WP_UnitTestCase
      */
     public function saveWithRemove()
     {
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = $this->factory->post->create([

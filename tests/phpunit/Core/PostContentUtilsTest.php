@@ -366,35 +366,35 @@ class PostContentUtilsTest extends WP_UnitTestCase
         update_option('beyondwords_project_auto_publish_enabled', true);
 
         $body = PostContentUtils::getContentParams($postId);
-        $body = json_decode($body);
+        $body = json_decode($body, true);
 
         delete_option('beyondwords_prepend_excerpt');
         delete_option('beyondwords_project_auto_publish_enabled');
 
-        $this->assertSame($args['post_title'], $body->title);
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body->body);
-        $this->assertSame(get_the_permalink($postId), $body->source_url);
-        $this->assertSame(strval($postId), $body->source_id);
-        $this->assertSame('Jane Smith', $body->author);
+        $this->assertSame($args['post_title'], $body['title']);
+        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
+        $this->assertSame(get_the_permalink($postId), $body['source_url']);
+        $this->assertSame(strval($postId), $body['source_id']);
+        $this->assertSame('Jane Smith', $body['author']);
         $thumbnailUrl = strval(wp_get_original_image_url(get_post_thumbnail_id($postId)));
         $this->assertNotEmpty($thumbnailUrl);
-        $this->assertSame($thumbnailUrl, $body->image_url);
-        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body->metadata));
-        $this->assertSame($args['post_date'], $body->publish_date);
+        $this->assertSame($thumbnailUrl, $body['image_url']);
+        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body['metadata']));
+        $this->assertSame($args['post_date'], $body['publish_date']);
 
         // { published: true } should be sent because auto-publish is true
-        $this->assertTrue(property_exists($body, 'published'));
-        $this->assertTrue($body->published);
+        $this->assertArrayHasKey('published', $body);
+        $this->assertTrue($body['published']);
 
         update_option('beyondwords_project_auto_publish_enabled', false);
 
         $body = PostContentUtils::getContentParams($postId);
-        $body = json_decode($body);
+        $body = json_decode($body, true);
 
         delete_option('beyondwords_project_auto_publish_enabled');
 
         // { published: false } should not exist because auto-publish is false
-        $this->assertFalse(property_exists($body, 'published'));
+        $this->assertArrayNotHasKey('published', $body);
 
         wp_delete_post($postId, true);
     }
@@ -426,36 +426,36 @@ class PostContentUtilsTest extends WP_UnitTestCase
         update_option('beyondwords_project_auto_publish_enabled', true);
 
         $body = PostContentUtils::getContentParams($postId);
-        $body = json_decode($body);
+        $body = json_decode($body, true);
 
         delete_option('beyondwords_project_auto_publish_enabled');
-        
-        $this->assertSame($args['post_title'], $body->title);
-        $this->assertSame(PostContentUtils::getPostBody($postId), $body->body);
-        $this->assertSame('Jane Smith', $body->author);
-        $this->assertSame(get_the_permalink($postId), $body->source_url);
+
+        $this->assertSame($args['post_title'], $body['title']);
+        $this->assertSame(PostContentUtils::getPostBody($postId), $body['body']);
+        $this->assertSame('Jane Smith', $body['author']);
+        $this->assertSame(get_the_permalink($postId), $body['source_url']);
 
         // { published: false } SHOULD be sent because post_status is "pending"
-        $this->assertTrue(property_exists($body, 'published'));
-        $this->assertFalse($body->published);
+        $this->assertArrayHasKey('published', $body);
+        $this->assertFalse($body['published']);
 
         /*
          * Posts with "Pending Review" status will not have a `publish_date` date because
          * get_post_time() returns `false` for posts which are "Pending Review".
          */
-        $this->assertFalse(property_exists($body, 'publish_date'));
+        $this->assertArrayNotHasKey('publish_date', $body);
 
         // Set auto-publish to false
         update_option('beyondwords_project_auto_publish_enabled', false);
 
         $body = PostContentUtils::getContentParams($postId);
-        $body = json_decode($body);
+        $body = json_decode($body, true);
 
         delete_option('beyondwords_project_auto_publish_enabled');
 
         // { published: false } SHOULD be sent because post_status is "pending"
-        $this->assertTrue(property_exists($body, 'published'));
-        $this->assertFalse($body->published);
+        $this->assertArrayHasKey('published', $body);
+        $this->assertFalse($body['published']);
 
         wp_delete_post($postId, true);
     }
@@ -489,10 +489,10 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
         remove_filter('beyondwords_content_params', $filter);
 
-        $params = json_decode($params);
+        $params = json_decode($params, true);
 
-        $this->assertSame('[POST ID: ' . $postId. ']<p>Baz bar foo.</p>[ADDED AFTER]', $params->body);
-        $this->assertSame($postId, $params->metadata->custom);
+        $this->assertSame('[POST ID: ' . $postId. ']<p>Baz bar foo.</p>[ADDED AFTER]', $params['body']);
+        $this->assertSame($postId, $params['metadata']['custom']);
 
         wp_delete_post($postId, true);
     }

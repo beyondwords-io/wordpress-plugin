@@ -5,6 +5,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
+use Beyondwords\Wordpress\Core\ApiClient;
+
 /**
  * BeyondWords Settings Utilities.
  *
@@ -130,17 +132,94 @@ class SettingsUtils
     }
 
     /**
-     * Do we have a valid API connection to call the BeyondWords REST API?
+     * Do we have both an API Key and Project ID?
      *
-     * @since  3.0.0
-     * @since  4.0.0 Moved from Settings to SettingsUtils
+     * @since  5.2.0
      * @static
      *
      * @return boolean
      */
-    public static function hasApiSettings()
+    public static function hasApiCreds()
+    {
+        $projectId = trim(strval(get_option('beyondwords_project_id')));
+        $apiKey    = trim(strval(get_option('beyondwords_api_key')));
+
+        return strlen($projectId) && strlen($apiKey);
+    }
+
+    /**
+     * Do we have a valid REST API connection for the BeyondWords REST API?
+     *
+     * Note that this only whether a valid REST API connection was made when
+     * the API Key was supplied. The API connection may be invalidated at a later
+     * date e.g. if the API Key is revoked.
+     *
+     * @since  5.2.0
+     * @static
+     *
+     * @return boolean
+     */
+    public static function hasValidApiConnection()
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
+    }
+
+    /**
+     * Validate the BeyondWords REST API connection.
+     *
+     * @since 5.0.0
+     * @since 5.2.0 Moved from Sync class into SettingsUtils class.
+     * @static
+     *
+     * @return void
+     **/
+    public static function validateApiConnection()
+    {
+        // This may have been left over from previous versions
+        delete_transient('beyondwords_validate_api_connection');
+
+        // Assume invalid connection
+        delete_option('beyondwords_valid_api_connection');
+
+        $projectId = get_option('beyondwords_project_id');
+        $apiKey    = get_option('beyondwords_api_key');
+
+        if (! $projectId || ! $apiKey) {
+            return false;
+        }
+
+        // Sync REST API -> WordPress
+        $project = ApiClient::getProject();
+
+        $validConnection = (
+            is_array($project)
+            && array_key_exists('id', $project)
+            && strval($project['id']) === strval($projectId)
+        );
+
+        if ($validConnection) {
+            update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
+            delete_transient('beyondwords_settings_errors');
+            return true;
+        }
+
+        // Cancel any syncs
+        delete_transient('beyondwords_sync_to_wordpress');
+
+        self::addSettingsErrorMessage(
+            sprintf(
+                /* translators: %s is replaced with the JSON encoded REST API response body */
+                __(
+                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'speechkit'
+                ),
+                wp_json_encode($project)
+            ),
+            'Settings/ValidApiConnection'
+        );
+
+        return false;
     }
 
     /**
@@ -175,5 +254,33 @@ class SettingsUtils
             />
         </div>
         <?php
+    }
+
+    /**
+     * Add settings error message.
+     *
+     * @since 5.2.0
+     * @static
+     *
+     * @param string $message The error message.
+     * @param string $errorId The error ID.
+     *
+     * @return void
+     **/
+    public static function addSettingsErrorMessage($message, $errorId = '')
+    {
+        $errors = get_transient('beyondwords_settings_errors');
+
+        if (empty($errors)) {
+            $errors = [];
+        }
+
+        if (empty($errorId)) {
+            $errorId = bin2hex(random_bytes(8));
+        }
+
+        $errors[$errorId] = $message;
+
+        set_transient('beyondwords_settings_errors', $errors);
     }
 }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Language;
 
 use Beyondwords\Wordpress\Component\Settings\Sync;
+use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * Language
@@ -30,23 +31,6 @@ class Language
      * Option name.
      */
     public const OPTION_NAME_CODE = 'beyondwords_project_language_code';
-
-    /**
-     * API Client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
 
     /**
      * Constructor
@@ -145,7 +129,7 @@ class Language
      **/
     public function getOptions()
     {
-        $languages = $this->apiClient->getLanguages();
+        $languages = ApiClient::getLanguages();
 
         if (! is_array($languages)) {
             $languages = [];
@@ -177,7 +161,7 @@ class Language
             return;
         }
 
-        $languages = $this->apiClient->getLanguages();
+        $languages = ApiClient::getLanguages();
 
         if (! is_array($languages)) {
             return;

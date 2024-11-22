@@ -34,43 +34,26 @@ use Beyondwords\Wordpress\Core\Environment;
 class Settings
 {
     /**
-     * API Client.
-     *
-     * @since 3.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 3.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init
      */
     public function init()
     {
-        delete_transient('beyondwords_settings_errors');
-
         (new Credentials())->init();
-        (new Sync($this->apiClient))->init();
+        (new Sync())->init();
 
-        if (SettingsUtils::hasApiSettings()) {
-            (new Voices($this->apiClient))->init();
+        if (SettingsUtils::hasValidApiConnection()) {
+            (new Voices())->init();
             (new Content())->init();
-            (new Player($this->apiClient))->init();
+            (new Player())->init();
             (new Pronunciations())->init();
-            (new Advanced($this->apiClient))->init();
+            (new Advanced())->init();
         }
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
-        add_action('admin_notices', array($this, 'printPluginAdminNotices'), 100);
+        add_action('admin_notices', array($this, 'printMissingApiCredsWarning'), 100);
+        add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
+        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
@@ -97,18 +80,27 @@ class Settings
     }
 
     /**
+     * Validate API creds on admin init.
+     *
+     * @since 5.2.0
+     */
+    public function validateApiCreds()
+    {
+        $activeTab = self::getActiveTab();
+
+        if ($activeTab === 'credentials') {
+            SettingsUtils::validateApiConnection();
+        }
+    }
+
+    /**
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
      */
     public function createAdminInterface()
     {
-        $tabs = $this->getTabs();
-
-        if (! count($tabs)) {
-            return;
-        }
-
-        $activeTab = $this->getActiveTab($tabs);
+        $tabs      = self::getTabs();
+        $activeTab = self::getActiveTab();
         ?>
         <div class="wrap">
             <h1>
@@ -153,11 +145,7 @@ class Settings
 
                 // Pronunciations currently has no fields to submit
                 if ($activeTab !== 'pronunciations') {
-                    if (SettingsUtils::hasApiSettings()) {
-                        submit_button('Save changes');
-                    } else {
-                        submit_button('Continue setup');
-                    }
+                    submit_button('Save changes');
                 }
                 ?>
             </form>
@@ -186,8 +174,11 @@ class Settings
      * Get tabs.
      *
      * @since 4.7.0
+     * @since 5.2.0 Make static.
+     *
+     * @return array Tabs
      */
-    public function getTabs()
+    public static function getTabs()
     {
         $tabs = array(
             'credentials'    => __('Credentials', 'speechkit'),
@@ -198,7 +189,7 @@ class Settings
             'advanced'       => __('Advanced', 'speechkit'),
         );
 
-        if (! SettingsUtils::hasApiSettings()) {
+        if (! SettingsUtils::hasValidApiConnection()) {
             $tabs = array_splice($tabs, 0, 1);
         }
 
@@ -209,9 +200,18 @@ class Settings
      * Get active tab.
      *
      * @since 4.7.0
+     * @since 5.2.0 Make static.
+     *
+     * @return string Active tab
      */
-    public function getActiveTab($tabs)
+    public static function getActiveTab()
     {
+        $tabs = self::getTabs();
+
+        if (! count($tabs)) {
+            return '';
+        }
+
         $defaultTab = array_key_first($tabs);
 
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
@@ -232,62 +232,15 @@ class Settings
     }
 
     /**
-     * Print Admin Notices.
+     * Print missing API creds warning.
      *
-     * @since 3.0.0
+     * @since 5.2.0
      *
      * @return void
      */
-    public function printPluginAdminNotices()
+    public function printMissingApiCredsWarning()
     {
-        $hasApiSettings = SettingsUtils::hasApiSettings();
-        $settingsErrors = get_transient('beyondwords_settings_errors');
-
-        if (is_array($settingsErrors) && count($settingsErrors)) :
-            ?>
-            <div class="notice notice-error">
-                <p>
-                    <strong>
-                        <?php
-                        printf(
-                            /* translators: %s is replaced with a "plugin settings" link */
-                            esc_html__('To use BeyondWords, please update the %s.', 'speechkit'),
-                            sprintf(
-                                '<a href="%s">%s</a>',
-                                esc_url(admin_url('options-general.php?page=beyondwords')),
-                                esc_html__('plugin settings', 'speechkit')
-                            )
-                        );
-                        ?>
-                    </strong>
-                </p>
-                <ul class="ul-disc">
-                    <?php
-                    foreach ($settingsErrors as $error) {
-                        printf(
-                            '<li>%s</li>',
-                            // Only allow links with href and target attributes
-                            wp_kses(
-                                $error,
-                                array(
-                                    'a' => array(
-                                        'href'   => array(),
-                                        'target' => array(),
-                                    ),
-                                    'b' => array(),
-                                    'strong' => array(),
-                                    'i' => array(),
-                                    'em' => array(),
-                                )
-                            )
-                        );
-                    }
-                    ?>
-                </ul>
-            </div>
-
-            <?php
-        elseif (false === $hasApiSettings) :
+        if (! SettingsUtils::hasApiCreds()) :
             ?>
             <div class="notice notice-info">
                 <p>
@@ -317,6 +270,52 @@ class Settings
                         <?php esc_html_e('Sign up free', 'speechkit'); ?>
                     </a>
                 </p>
+            </div>
+            <?php
+        endif;
+    }
+
+    /**
+     * Print settings errors.
+     *
+     * @since 3.0.0
+     *
+     * @return void
+     */
+    public function printSettingsErrors()
+    {
+        $settingsErrors = get_transient('beyondwords_settings_errors');
+
+        delete_transient('beyondwords_settings_errors');
+
+        if (is_array($settingsErrors) && count($settingsErrors)) :
+            ?>
+            <div class="notice notice-error">
+                <ul class="ul-disc">
+                    <?php
+                    foreach ($settingsErrors as $error) {
+                        printf(
+                            '<li>%s</li>',
+                            // Only allow links with href and target attributes
+                            wp_kses(
+                                $error,
+                                array(
+                                    'a' => array(
+                                        'href'   => array(),
+                                        'target' => array(),
+                                    ),
+                                    'b' => array(),
+                                    'strong' => array(),
+                                    'i' => array(),
+                                    'em' => array(),
+                                    'br' => array(),
+                                    'code' => array(),
+                                )
+                            )
+                        );
+                    }
+                    ?>
+                </ul>
             </div>
             <?php
         endif;

@@ -24,30 +24,13 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 class Advanced
 {
     /**
-     * API client.
-     *
-     * @since 5.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
-    /**
      * Init
      *
      * @since 5.0.0
      */
     public function init()
     {
-        (new Languages($this->apiClient))->init();
+        (new Languages())->init();
 
         add_action('admin_init', array($this, 'addSettingsSection'), 5);
     }

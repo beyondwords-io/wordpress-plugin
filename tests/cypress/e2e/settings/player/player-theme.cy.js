@@ -25,7 +25,6 @@ context( 'Settings > Player > Player theme',  () => {
   ];
 
   themes.forEach( theme => {
-    // @todo skipping because this fails now we auto-sync the API with WordPress
     it( `sets "${theme.label}"`, () => {
       cy.saveMinimalPluginSettings()
 
