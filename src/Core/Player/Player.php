@@ -72,7 +72,7 @@ class Player
     {
         $autoPrepend = false;
 
-        if (is_singular() && in_the_loop() && is_main_query()) {
+        if (is_singular() && is_main_query()) {
             $autoPrepend = true;
         }
 
