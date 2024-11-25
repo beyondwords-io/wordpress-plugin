@@ -13,10 +13,12 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * The BeyondWords Player.
  *
- * This is an alternate Player class using the inline script method that 
+ * This is an alternate Player class using the inline script method that
  * is recommended in the player docs.
- * 
+ *
  * @link https://github.com/beyondwords-io/player/blob/main/doc/getting-started.md.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  **/
 class PlayerInline
 {
@@ -64,6 +66,7 @@ class PlayerInline
      * @since 4.2.0 Renamed from addPlayerToContent to autoPrependPlayer.
      * @since 4.2.0 Perform hasCustomPlayer() check here.
      * @since 4.6.1 Only auto-prepend player for frontend is_singular screens.
+     * @since 5.2.0 Add beyondwords_player_auto_prepend filter.
      *
      * @param string $content WordPress content.
      *
@@ -71,15 +74,32 @@ class PlayerInline
      */
     public function autoPrependPlayer($content)
     {
-        if (! is_singular()) {
-            return $content;
+        $autoPrepend = false;
+
+        if (is_singular() && in_the_loop() && is_main_query()) {
+            $autoPrepend = true;
         }
 
+        // Don't auto-prepend if the post content already contains a player
         if ($this->hasCustomPlayer($content)) {
-            return $content;
+            $autoPrepend = false;
         }
 
-        return $this->playerHtml() . $content;
+        /**
+         * Filter whether the BeyondWords Player will be auto-prepended to the post body content.
+         *
+         * @since 5.2.1
+         *
+         * @param bool      $autoPrepend Whether a player is auto-prepended to the post body content.
+         * @param int|false $postId      The ID of the current item in the WordPress Loop. False if $post is not set.
+         */
+        $autoPrepend = apply_filters('beyondwords_player_auto_prepend', $autoPrepend, get_the_ID());
+
+        if ($autoPrepend) {
+            return $this->playerHtml() . $content;
+        }
+
+        return $content;
     }
 
     /**

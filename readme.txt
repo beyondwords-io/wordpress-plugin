@@ -80,6 +80,14 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.2.1 =
+
+Release date: TBC
+
+**Enhancements**
+
+* Provide a `beyondwords_player_auto_prepend` filter to control whether the player is auto-prepended to the post body.
+
 = 5.2.0 =
 
 Release date: 22nd November 2024

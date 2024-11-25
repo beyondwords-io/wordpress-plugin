@@ -79,7 +79,7 @@ describe( 'WordPress Filters', () => {
       // Admin should have latest player
       cy.getAdminPlayer().should( 'exist' )
 
-      // Frontend SHOULD NOT have enqueued player script 
+      // Frontend SHOULD NOT have enqueued player script
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.getFrontendPlayer().should( 'exist' )
@@ -91,9 +91,33 @@ describe( 'WordPress Filters', () => {
       // Admin should have latest player
       cy.getAdminPlayer().should( 'exist' )
 
-      // Frontend SHOULD have enqueued player script 
+      // Frontend SHOULD have enqueued player script
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
+    } )
+
+    it( `can filter Player auto-prepend for a ${postType.name}`, () => {
+      cy.activatePlugin( 'beyondwords-filter-player-auto-prepend' )
+
+      cy.createPostWithAudio( `I don't see an auto-prepended player for a ${postType.name}`, postType )
+
+      // Admin should have latest player
+      cy.getAdminPlayer().should( 'exist' )
+
+      // Frontend SHOULD NOT have an auto-prepended player
+      cy.viewPostViaSnackbar()
+      cy.getFrontendPlayer().should( 'not.exist' )
+
+      cy.deactivatePlugin( 'beyondwords-filter-player-auto-prepend' )
+
+      cy.createPostWithAudio( `I see an auto-prepended player for a ${postType.name}`, postType )
+
+      // Admin should have latest player
+      cy.getAdminPlayer().should( 'exist' )
+
+      // Frontend SHOULD have an auto-prepended player
+      cy.viewPostViaSnackbar()
       cy.getFrontendPlayer().should( 'exist' )
     } )
   } )

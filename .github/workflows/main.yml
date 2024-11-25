@@ -446,6 +446,7 @@ jobs:
           wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
           wp plugin install /tmp/Basic-Auth.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-auto-prepend.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force

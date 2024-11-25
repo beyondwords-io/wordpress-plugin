@@ -22,6 +22,7 @@
         "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
         "wp-content/plugins/classic-editor": "https://downloads.wordpress.org/plugin/classic-editor.zip",
         "wp-content/plugins/beyondwords-filter-content-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-content-params",
+        "wp-content/plugins/beyondwords-filter-player-auto-prepend": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-auto-prepend",
         "wp-content/plugins/beyondwords-filter-player-script-onload": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload",
         "wp-content/plugins/beyondwords-filter-player-inline-script-tag": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag",
         "wp-content/plugins/beyondwords-filter-player-sdk-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params",
