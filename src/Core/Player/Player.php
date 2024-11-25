@@ -72,7 +72,8 @@ class Player
     {
         $autoPrepend = false;
 
-        if (is_singular() && is_main_query()) {
+        // @todo consider checking in_the_loop() and is_main_query() whilst maintaining support for AMP
+        if (is_singular()) {
             $autoPrepend = true;
         }
 

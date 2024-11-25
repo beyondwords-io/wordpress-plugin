@@ -81,37 +81,42 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
+     * @group player_auto_prepend
      */
     public function autoPrependPlayer()
     {
-        $this->markTestIncomplete('Need to test in_the_loop() and is_main_query()');
-
         global $post;
 
-        $content = '<p>Test content.</p>';
+        $player       = '<div data-beyondwords-player="true" contenteditable="false"></div>';
+        $post_content = '<p>Test content.</p>';
 
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PlayerTest::autoPrependPlayer',
-            'post_content' => $content,
+            'post_content' => $post_content,
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 
         setup_postdata($post);
 
-        $output = $this->_instance->autoPrependPlayer($content);
-
-        // autoPrependPlayer() should not affect $content unless is_singular()
-        // $this->assertSame($content, $output);
-
         $this->go_to("/?p={$post->ID}");
 
-        $output = $this->_instance->autoPrependPlayer($content);
+        $the_content = $this->_instance->autoPrependPlayer($post_content);
 
-        // We are now is_singular() so player should be prepended
-        $this->assertSame('<div data-beyondwords-player="true" contenteditable="false"></div>' . $content, $output);
+        // the_content() has a player prepended
+        $this->assertSame($player . $post_content, $the_content);
+
+        add_filter('beyondwords_player_auto_prepend', '__return_false');
+
+        $the_content = $this->_instance->autoPrependPlayer($post_content);
+
+        remove_filter('beyondwords_player_auto_prepend', '__return_false');
+
+        // the_content() no longer has a player prepended
+        $this->assertSame($post_content, $the_content);
 
         wp_reset_postdata();
 

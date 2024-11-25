@@ -76,7 +76,8 @@ class PlayerInline
     {
         $autoPrepend = false;
 
-        if (is_singular() && in_the_loop() && is_main_query()) {
+        // @todo consider checking in_the_loop() and is_main_query() whilst maintaining support for AMP
+        if (is_singular()) {
             $autoPrepend = true;
         }
 
