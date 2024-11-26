@@ -20,7 +20,7 @@ class SettingsTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        delete_transient('beyondwords_settings_errors');
+        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
         $this->_instance = new Settings();
     }
@@ -156,7 +156,7 @@ class SettingsTest extends WP_UnitTestCase
         $errors['Settings/Test2'] = 'Errors test 2';
         $errors['Settings/Test3'] = 'Errors test 3';
 
-        set_transient('beyondwords_settings_errors', $errors);
+        wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
         $this->_instance->printSettingsErrors();
 
@@ -262,7 +262,7 @@ class SettingsTest extends WP_UnitTestCase
         $errors['Settings/Test2'] = 'Errors test 2';
         $errors['Settings/Test3'] = 'Errors test 3';
 
-        set_transient('beyondwords_settings_errors', $errors);
+        wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
         $this->_instance->printSettingsErrors();
 

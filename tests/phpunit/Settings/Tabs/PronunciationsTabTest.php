@@ -23,7 +23,7 @@ class PronunciationsTabTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        delete_transient('beyondwords_settings_errors');
+        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
         $this->_instance = new Pronunciations();
 
