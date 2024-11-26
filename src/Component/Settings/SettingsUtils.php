@@ -6,6 +6,8 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Core\ApiClient;
+use Beyondwords\Wordpress\Core\Environment;
+use Beyondwords\Wordpress\Core\Request;
 
 /**
  * BeyondWords Settings Utilities.
@@ -188,19 +190,15 @@ class SettingsUtils
             return false;
         }
 
-        // Sync REST API -> WordPress
-        $project = ApiClient::getProject();
-
-        $validConnection = (
-            is_array($project)
-            && array_key_exists('id', $project)
-            && strval($project['id']) === strval($projectId)
+        // Use ApiClient::callApi directly to access HTTP response code
+        $response = ApiClient::callApi(
+            new Request('GET', sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId))
         );
 
-        if ($validConnection) {
+        $statusCode = wp_remote_retrieve_response_code($response);
+
+        if ($statusCode === 200) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            wp_cache_set('beyondwords_sync_to_wordpress', ['all'], 'beyondwords', 60);
-            wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
             return true;
         }
 
@@ -211,10 +209,11 @@ class SettingsUtils
             sprintf(
                 /* translators: %s is replaced with the JSON encoded REST API response body */
                 __(
-                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>: <code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
                     'speechkit'
                 ),
-                wp_json_encode($project)
+                wp_remote_retrieve_response_code($response),
+                wp_remote_retrieve_body($response)
             ),
             'Settings/ValidApiConnection'
         );
