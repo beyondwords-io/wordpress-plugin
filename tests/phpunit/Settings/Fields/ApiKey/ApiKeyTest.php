@@ -93,16 +93,16 @@ class ApiKeyTest extends WP_UnitTestCase
      */
     public function sanitize()
     {
-        set_transient('beyondwords_settings_errors', []);
+        wp_cache_set('beyondwords_settings_errors', [], 'beyondwords');
 
         // Assert valid value does not add an error
         $result = $this->_instance->sanitize('ABCDE');
 
-        $this->assertNotContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertNotContains('Please enter the BeyondWords API key. This can be found in your project settings.', wp_cache_get('beyondwords_settings_errors', 'beyondwords'));
 
         // Assert empty value adds an error
         $result = $this->_instance->sanitize('');
 
-        $this->assertContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertContains('Please enter the BeyondWords API key. This can be found in your project settings.', wp_cache_get('beyondwords_settings_errors', 'beyondwords'));
     }
 }

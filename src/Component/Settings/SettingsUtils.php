@@ -199,13 +199,13 @@ class SettingsUtils
 
         if ($validConnection) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
-            delete_transient('beyondwords_settings_errors');
+            wp_cache_set('beyondwords_sync_to_wordpress', ['all'], 'beyondwords', 60);
+            wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
             return true;
         }
 
         // Cancel any syncs
-        delete_transient('beyondwords_sync_to_wordpress');
+        wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
 
         self::addSettingsErrorMessage(
             sprintf(
@@ -269,7 +269,7 @@ class SettingsUtils
      **/
     public static function addSettingsErrorMessage($message, $errorId = '')
     {
-        $errors = get_transient('beyondwords_settings_errors');
+        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
 
         if (empty($errors)) {
             $errors = [];
@@ -281,6 +281,6 @@ class SettingsUtils
 
         $errors[$errorId] = $message;
 
-        set_transient('beyondwords_settings_errors', $errors);
+        wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
     }
 }
