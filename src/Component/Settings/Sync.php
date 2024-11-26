@@ -118,7 +118,7 @@ class Sync
                 break;
         }
 
-        if ($endpoints) {
+        if (count($endpoints)) {
             wp_cache_set('beyondwords_sync_to_wordpress', $endpoints, 'beyondwords', 60);
         }
     }
