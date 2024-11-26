@@ -53,11 +53,13 @@ export function PostInspectPanel( {
 	createWarningNotice,
 	removeWarningNotice,
 	setDeleteContent,
+	setFetchContent,
 	didPostSaveRequestSucceed,
 	isSavingPost,
 	isAutosavingPost,
 } ) {
 	const [ removed, setRemoved ] = useState( false );
+	const [ fetched, setFetched ] = useState( false );
 
 	useEffect( () => {
 		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed ) {
@@ -70,6 +72,12 @@ export function PostInspectPanel( {
 			setRemoved( false );
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
+
+	useEffect( () => {
+		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed && fetched ) {
+			setFetched( false );
+		}
+	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, fetched ] );
 
 	const memoizedMeta = useMemo(
 		() => ( {
@@ -87,6 +95,7 @@ export function PostInspectPanel( {
 			beyondwords_error_message: beyondwordsErrorMessage,
 			beyondwords_disabled: beyondwordsDisabled,
 			beyondwords_delete_content: beyondwordsDeleteContent,
+			beyondwords_fetch_content: beyondwordsFetchContent,
 			// Deprecated
 			beyondwords_podcast_id: beyondwordsPodcastId,
 			publish_post_to_speechkit: publishPostToSpeechkit,
@@ -146,6 +155,20 @@ export function PostInspectPanel( {
 		}
 	};
 
+	const handleFetchButtonClick = ( e ) => {
+		e.stopPropagation();
+
+		if ( removed ) {
+			setRemoved( false );
+			setFetchContent( false );
+			removeWarningNotice();
+		} else {
+			setRemoved( true );
+			setFetchContent( true );
+			createWarningNotice();
+		}
+	};
+
 	const textToCopy =
 		[
 			'```',
@@ -161,6 +184,7 @@ export function PostInspectPanel( {
 			`beyondwords_error_message\r\n${ beyondwordsErrorMessage }`,
 			`beyondwords_disabled\r\n${ beyondwordsDisabled }`,
 			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
+			`beyondwords_fetch_content\r\n${ beyondwordsFetchContent }`,
 			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
 			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
 			`publish_post_to_speechkit\r\n${ publishPostToSpeechkit }`,
@@ -265,12 +289,30 @@ export function PostInspectPanel( {
 				value={ beyondwordsDeleteContent }
 			/>
 
+			<TextControl
+				label="beyondwords_fetch_content"
+				readOnly
+				value={ beyondwordsFetchContent }
+			/>
+
 			<hr />
 
 			<ClipboardToolbarButton
 				text={ textToCopy }
 				disabled={ removed }
 			/>
+
+			<Button
+				variant='secondary'
+				style={ { margin: 'auto' } }
+				id="beyondwords-inspect-fetch"
+				onClick={ handleFetchButtonClick }
+				disabled={ ! hasBeyondwordsData }
+			>
+				{ fetched
+					? __( 'Undo', 'speechkit' )
+					: __( 'Fetch', 'speechkit' ) }
+			</Button>
 
 			<Button
 				isDestructive
@@ -308,6 +350,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_delete_content,
 			beyondwordsDisabled:
 				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
+			beyondwordsFetchContent:
+				getEditedPostAttribute( 'meta' ).beyondwords_fetch_content,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
 			beyondwordsContentId:
@@ -392,6 +436,15 @@ export default compose( [
 					meta: {
 						/* eslint-disable-next-line camelcase */
 						beyondwords_delete_content: deleteContent ? '1' : '',
+					},
+				} );
+			},
+			setFetchContent: ( fetchContent ) => {
+				// Update the Post Meta (AKA the Custom Field)
+				editPost( {
+					meta: {
+						/* eslint-disable-next-line camelcase */
+						beyondwords_fetch_content: fetchContent ? '1' : '',
 					},
 				} );
 			},
