@@ -199,6 +199,7 @@ class SettingsUtils
 
         if ($statusCode === 200) {
             update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
             return true;
         }
 
