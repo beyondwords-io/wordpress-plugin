@@ -309,7 +309,7 @@ class Sync
      **/
     public function shouldSyncOptionToDashboard($option_name)
     {
-        if (empty(self::MAP_SETTINGS[$option_name])) {
+        if (! array_key_exists($option_name, self::MAP_SETTINGS)) {
             return false;
         }
 
