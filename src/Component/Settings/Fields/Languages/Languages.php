@@ -37,27 +37,6 @@ class Languages
     public const DEFAULT_LANGUAGES = [];
 
     /**
-     * PropertyAccessor.
-     *
-     * @var PropertyAccess
-     *
-     * @since 5.2.1
-     */
-    public $propertyAccessor;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct()
-    {
-        $this->propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
-            ->disableExceptionOnInvalidPropertyPath()
-            ->getPropertyAccessor();
-    }
-
-    /**
      * Init.
      *
      * @since 4.0.0
@@ -103,6 +82,10 @@ class Languages
      **/
     public function render()
     {
+        $propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
+
         $allLanguages = ApiClient::getLanguages();
 
         if (! is_array($allLanguages)) {
@@ -126,12 +109,12 @@ class Languages
                 autocomplete="off"
             >
                 <?php foreach ($allLanguages as $language) :
-                    $languageId        = $this->propertyAccessor->getValue($language, '[id]');
-                    $languageName      = $this->propertyAccessor->getValue($language, '[name]');
-                    $bodyId            = $this->propertyAccessor->getValue($language, '[default_voices][body][id]');
-                    $bodySpeakingRate  = $this->propertyAccessor->getValue($language, '[default_voices][body][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
-                    $titleId           = $this->propertyAccessor->getValue($language, '[default_voices][title][id]');
-                    $titleSpeakingRate = $this->propertyAccessor->getValue($language, '[default_voices][title][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $languageId        = $propertyAccessor->getValue($language, '[id]');
+                    $languageName      = $propertyAccessor->getValue($language, '[name]');
+                    $bodyId            = $propertyAccessor->getValue($language, '[default_voices][body][id]');
+                    $bodySpeakingRate  = $propertyAccessor->getValue($language, '[default_voices][body][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $titleId           = $propertyAccessor->getValue($language, '[default_voices][title][id]');
+                    $titleSpeakingRate = $propertyAccessor->getValue($language, '[default_voices][title][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
                     ?>
                     <option
                         value="<?php echo esc_attr($languageId); ?>"
