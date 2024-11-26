@@ -94,7 +94,7 @@ class Languages
 
         $selectedLanguages = get_option(self::OPTION_NAME);
 
-        if (! is_array($selectedLanguages) || empty($selectedLanguages)) {
+        if (empty($selectedLanguages) || ! is_array($selectedLanguages)) {
             $selectedLanguages = self::DEFAULT_LANGUAGES;
         }
 
