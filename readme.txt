@@ -80,6 +80,18 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.2.1 =
+
+Release date: 27th November 2024
+
+**Fixes**
+
+* [#417](https://github.com/beyondwords-io/wordpress-plugin/pull/417) Improve handling of failed REST API requests when syncing settings.
+    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
+    * Replace transients with object cache to reduce db writes.
+    * Add HTTP status code into failed API credentials validation message to improve debugging for empty response body.
+    * Fix the undefined index errors that are logged when REST API responses do not contain the expected structure.
+
 = 5.2.0 =
 
 Release date: 22nd November 2024
