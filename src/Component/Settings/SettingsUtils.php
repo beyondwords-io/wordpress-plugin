@@ -206,15 +206,20 @@ class SettingsUtils
         // Cancel any syncs
         wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
 
+        $debug = sprintf(
+            '<code>%s</code>: <code>%s</code>',
+            wp_remote_retrieve_response_code($response),
+            wp_remote_retrieve_body($response)
+        );
+
         self::addSettingsErrorMessage(
             sprintf(
-                /* translators: %s is replaced with the JSON encoded REST API response body */
+                /* translators: %s is replaced with the BeyondWords REST API response debug data */
                 __(
-                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br /><code>%s</code>: <code>%s</code>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br />%s', // phpcs:ignore Generic.Files.LineLength.TooLong
                     'speechkit'
                 ),
-                wp_remote_retrieve_response_code($response),
-                wp_remote_retrieve_body($response)
+                $debug,
             ),
             'Settings/ValidApiConnection'
         );
