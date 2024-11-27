@@ -26,7 +26,12 @@ function PlayAudio( {
 	const Wrapper = wrapper;
 
 	const [ player, setPlayer] = useState(null);
+	const [ noContentAvailableListener, setNoContentAvailableListener ] = useState( null );
 	const [ playbackErroredListener, setPlaybackErroredListener ] = useState( null );
+	const [ mediaLoadedListener, setMediaLoadedListener ] = useState( null );
+	const [ playbackPlayingListener, setPlaybackPlayingListener ] = useState( null );
+
+	const noticeId = 'beyondwords-player-notice';
 
 	const {
 		createErrorNotice,
@@ -37,8 +42,17 @@ function PlayAudio( {
 			if ( ! player ) {
 				return;
 			}
+			if ( noContentAvailableListener ) {
+				player.removeEventListener('NoContentAvailable', noContentAvailableListener);
+			}
 			if ( playbackErroredListener ) {
 				player.removeEventListener('PlaybackErrored', playbackErroredListener);
+			}
+			if ( mediaLoadedListener ) {
+				player.removeEventListener('MediaLoaded', mediaLoadedListener);
+			}
+			if ( playbackPlayingListener ) {
+				player.removeEventListener('PlaybackPlaying', playbackPlayingListener);
 			}
 			player.destroy();
 		}
@@ -63,9 +77,17 @@ function PlayAudio( {
 
 		setPlaybackErroredListener(playerInstance.addEventListener('PlaybackErrored', () => {
 			createErrorNotice( __( '🔊 There was an error playing the audio. Please try again.', 'speechkit' ), {
-				id: 'beyondwords-player-notice',
+				id: noticeId,
 				isDismissible: true,
 			} );
+		} ) );
+
+		setMediaLoadedListener(playerInstance.addEventListener('MediaLoaded', () => {
+			removeNotice( noticeId );
+		} ) );
+
+		setPlaybackPlayingListener(playerInstance.addEventListener('PlaybackPlaying', () => {
+			removeNotice( noticeId );
 		} ) );
 
 		setPlayer( playerInstance );
