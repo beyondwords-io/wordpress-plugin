@@ -346,7 +346,7 @@ class Sync
         $options[] = $optionName;
         $options   = array_unique($options);
 
-        wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 30);
+        wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 60);
     }
 
     /**
