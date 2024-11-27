@@ -230,7 +230,12 @@ class ApiClient
             $field = 'language.id';
         }
 
-        $url = sprintf('%s/organization/voices?filter[%s]=%s', Environment::getApiUrl(), $field, urlencode(strval($language))); // phpcs:ignore Generic.Files.LineLength.TooLong
+        $url = sprintf(
+            '%s/organization/voices?filter[%s]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
+            Environment::getApiUrl(),
+            $field,
+            urlencode(strval($language))
+        );
 
         $request  = new Request('GET', $url);
         $response = self::callApi($request);
