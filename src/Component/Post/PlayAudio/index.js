@@ -34,7 +34,9 @@ function PlayAudio( {
 	const noticeId = 'beyondwords-player-notice';
 
 	const {
+		createInfoNotice,
 		createErrorNotice,
+		removeNotice,
 	} = useDispatch( noticesStore );
 
 	useEffect(() => {
