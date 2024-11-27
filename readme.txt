@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.0
+Stable tag: 5.2.1-beta.2
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -79,6 +79,18 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.2.1 =
+
+Release date: 27th November 2024
+
+**Fixes**
+
+* [#417](https://github.com/beyondwords-io/wordpress-plugin/pull/417) Improve handling of failed REST API requests when syncing settings.
+    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
+    * Replace transients with object cache to reduce db writes.
+    * Add HTTP status code into failed API credentials validation message to improve debugging for empty response body.
+    * Fix the undefined index errors that are logged when REST API responses do not contain the expected structure.
 
 = 5.2.0 =
 
