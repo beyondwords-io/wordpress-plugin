@@ -29,4 +29,12 @@ jQuery( document ).ready( function ( $ ) {
 			$( '[data-beyondwords-metavalue]' ).val( '' );
 		}
 	} );
+
+	$( 'body' ).on( 'click', '#beyondwords__inspect--edit', function () {
+		$( '#beyondwords-inspect-beyondwords_project_id-key' ).removeAttr( 'readonly' );
+		$( '#beyondwords-inspect-beyondwords_content_id-key' ).removeAttr( 'readonly' );
+
+		$( '#beyondwords__inspect--edit' ).setAttribute( 'disabled', true );
+		$( '#beyondwords__inspect--edit-confirm' ).show();
+	} );
 } );
