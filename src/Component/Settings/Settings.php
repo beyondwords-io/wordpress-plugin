@@ -284,9 +284,8 @@ class Settings
      */
     public function printSettingsErrors()
     {
-        $settingsErrors = get_transient('beyondwords_settings_errors');
-
-        delete_transient('beyondwords_settings_errors');
+        $settingsErrors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
         if (is_array($settingsErrors) && count($settingsErrors)) :
             ?>

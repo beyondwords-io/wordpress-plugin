@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Settings\Fields\Languages;
 
 use Beyondwords\Wordpress\Core\ApiClient;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * Languages
@@ -81,6 +82,10 @@ class Languages
      **/
     public function render()
     {
+        $propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
+
         $allLanguages = ApiClient::getLanguages();
 
         if (! is_array($allLanguages)) {
@@ -89,7 +94,7 @@ class Languages
 
         $selectedLanguages = get_option(self::OPTION_NAME);
 
-        if (! is_array($selectedLanguages)) {
+        if (empty($selectedLanguages) || ! is_array($selectedLanguages)) {
             $selectedLanguages = self::DEFAULT_LANGUAGES;
         }
 
@@ -103,21 +108,23 @@ class Languages
                 style="width: 500px;"
                 autocomplete="off"
             >
-                <?php foreach ($allLanguages as $language) : 
-                    $bodyId            = $language['default_voices']['body']['id'];
-                    $bodySpeakingRate  = $language['default_voices']['body']['speaking_rate'];
-                    $titleId           = $language['default_voices']['title']['id'];
-                    $titleSpeakingRate = $language['default_voices']['title']['speaking_rate'];
+                <?php foreach ($allLanguages as $language) :
+                    $languageId        = $propertyAccessor->getValue($language, '[id]');
+                    $languageName      = $propertyAccessor->getValue($language, '[name]');
+                    $bodyId            = $propertyAccessor->getValue($language, '[default_voices][body][id]');
+                    $bodySpeakingRate  = $propertyAccessor->getValue($language, '[default_voices][body][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $titleId           = $propertyAccessor->getValue($language, '[default_voices][title][id]');
+                    $titleSpeakingRate = $propertyAccessor->getValue($language, '[default_voices][title][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
                     ?>
                     <option
-                        value="<?php echo esc_attr($language['id']); ?>"
+                        value="<?php echo esc_attr($languageId); ?>"
                         data-default-voice-body-id="<?php echo esc_attr($bodyId); ?>"
                         data-default-voice-body-speaking-rate="<?php echo esc_attr($bodySpeakingRate); ?>"
                         data-default-voice-title-id="<?php echo esc_attr($titleId); ?>"
                         data-default-voice-title-speaking-rate="<?php echo esc_attr($titleSpeakingRate); ?>"
-                        <?php selected(in_array($language['id'], $selectedLanguages), true); ?>
+                        <?php selected(in_array($languageId, $selectedLanguages), true); ?>
                     >
-                        <?php echo esc_attr($language['name']); ?>
+                        <?php echo esc_attr($languageName); ?>
                     </option>
                 <?php endforeach; ?>
             </select>

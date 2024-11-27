@@ -25,6 +25,7 @@
         "wp-content/plugins/beyondwords-filter-player-script-onload": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload",
         "wp-content/plugins/beyondwords-filter-player-inline-script-tag": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag",
         "wp-content/plugins/beyondwords-filter-player-sdk-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params",
+        "wp-content/plugins/query-monitor": "https://downloads.wordpress.org/plugin/query-monitor.zip",
         "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.zip",
         "wp-content/plugins/rest-api-insert": "./tests/fixtures/wp-content/plugins/rest-api-insert",
         "wp-content/plugins/rest-api-publish": "./tests/fixtures/wp-content/plugins/rest-api-publish",

@@ -103,18 +103,23 @@ class Sync
      */
     public function scheduleSyncs()
     {
-        $tab = Settings::getActiveTab();
+        $tab       = Settings::getActiveTab();
+        $endpoints = [];
 
         switch ($tab) {
             case 'content':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
+                $endpoints = ['project'];
                 break;
             case 'voices':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
+                $endpoints = ['project'];
                 break;
             case 'player':
-                set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 60);
+                $endpoints = ['player_settings', 'video_settings'];
                 break;
+        }
+
+        if (count($endpoints)) {
+            wp_cache_set('beyondwords_sync_to_wordpress', $endpoints, 'beyondwords', 60);
         }
     }
 
@@ -127,8 +132,8 @@ class Sync
      **/
     public function syncToWordPress()
     {
-        $sync_to_wordpress = get_transient('beyondwords_sync_to_wordpress');
-        delete_transient('beyondwords_sync_to_wordpress');
+        $sync_to_wordpress = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
+        wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
 
         if (empty($sync_to_wordpress) || ! is_array($sync_to_wordpress)) {
             return;
@@ -206,8 +211,8 @@ class Sync
      **/
     public function syncToDashboard()
     {
-        $options = get_transient('beyondwords_sync_to_dashboard');
-        delete_transient('beyondwords_sync_to_dashboard');
+        $options = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        wp_cache_delete('beyondwords_sync_to_dashboard', 'beyondwords');
 
         if (empty($options) || ! is_array($options)) {
             return;
@@ -309,7 +314,7 @@ class Sync
      **/
     public function shouldSyncOptionToDashboard($option_name)
     {
-        if (empty(self::MAP_SETTINGS[$option_name])) {
+        if (! array_key_exists($option_name, self::MAP_SETTINGS)) {
             return false;
         }
 
@@ -332,7 +337,7 @@ class Sync
      **/
     public static function syncOptionToDashboard($optionName)
     {
-        $options = get_transient('beyondwords_sync_to_dashboard');
+        $options = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
 
         if (! is_array($options)) {
             $options = [];
@@ -341,7 +346,7 @@ class Sync
         $options[] = $optionName;
         $options   = array_unique($options);
 
-        set_transient('beyondwords_sync_to_dashboard', $options, 30); // 30 seconds.
+        wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 60);
     }
 
     /**
