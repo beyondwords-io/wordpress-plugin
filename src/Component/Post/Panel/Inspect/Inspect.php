@@ -113,23 +113,9 @@ class Inspect
         ?>
         <button
             type="button"
-            id="beyondwords__inspect--edit"
-            class="button button-large"
-            style="margin: 10px 0 0;"
-        >
-            <?php esc_html_e('Edit', 'speechkit'); ?>
-            <span
-                id="beyondwords__inspect--edit-confirm"
-                style="display: none; margin: 5px 0 0;"
-                class="dashicons dashicons-yes"
-            ></span>
-        </button>
-
-        <button
-            type="button"
             id="beyondwords__inspect--copy"
             class="button button-large"
-            style="margin: 10px 10px 0;"
+            style="margin: 10px 0 0;"
             data-clipboard-text="<?php echo esc_attr($this->getClipboardText($metadata)); ?>"
         >
             <?php esc_html_e('Copy', 'speechkit'); ?>
