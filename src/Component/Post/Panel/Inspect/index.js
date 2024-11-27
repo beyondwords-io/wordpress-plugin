@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import {
 	Button,
+	ButtonGroup,
 	PanelBody,
 	TextareaControl,
 	TextControl,
@@ -52,11 +53,14 @@ export function PostInspectPanel( {
 	currentPostType,
 	createWarningNotice,
 	removeWarningNotice,
+	setContentId,
 	setDeleteContent,
+	setProjectId,
 	didPostSaveRequestSucceed,
 	isSavingPost,
 	isAutosavingPost,
 } ) {
+	const [ readOnly, setReadOnly ] = useState( true );
 	const [ removed, setRemoved ] = useState( false );
 
 	useEffect( () => {
@@ -122,15 +126,20 @@ export function PostInspectPanel( {
 
 		return (
 			<Button
-				isSecondary
+				variant='secondary'
 				id="beyondwords-inspect-copy"
 				ref={ ref }
 				disabled={ disabled }
-				>
+			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
 		);
 	}
+
+	const handleEditButtonClick = ( e ) => {
+		e.stopPropagation();
+		setReadOnly( ! readOnly );
+	};
 
 	const handleRemoveButtonClick = ( e ) => {
 		e.stopPropagation();
@@ -199,20 +208,26 @@ export function PostInspectPanel( {
 
 			<TextControl
 				label="beyondwords_project_id"
-				readOnly
+				readOnly={ readOnly }
 				value={ beyondwordsProjectId }
+				onChange={ ( projectId ) => {
+					setProjectId( projectId );
+				} }
+			/>
+
+			<TextControl
+				label="beyondwords_content_id"
+				readOnly={ readOnly }
+				value={ beyondwordsContentId }
+				onChange={ ( contentId ) => {
+					setContentId( contentId );
+				} }
 			/>
 
 			<TextControl
 				label="beyondwords_preview_token"
 				readOnly
 				value={ beyondwordsPreviewToken }
-			/>
-
-			<TextControl
-				label="beyondwords_content_id"
-				readOnly
-				value={ beyondwordsContentId }
 			/>
 
 			<TextControl
@@ -267,10 +282,24 @@ export function PostInspectPanel( {
 
 			<hr />
 
-			<ClipboardToolbarButton
-				text={ textToCopy }
-				disabled={ removed }
-			/>
+			<ButtonGroup>
+				<Button
+					variant='secondary'
+					style={ { margin: 'auto' } }
+					id="beyondwords-inspect-edit"
+					onClick={ handleEditButtonClick }
+					disabled={ ! hasBeyondwordsData }
+				>
+				{ readOnly
+					? __( 'Edit', 'speechkit' )
+					: __( 'Lock', 'speechkit' ) }
+				</Button>
+
+				<ClipboardToolbarButton
+					text={ textToCopy }
+					disabled={ removed }
+				/>
+			</ButtonGroup>
 
 			<Button
 				isDestructive
@@ -386,12 +415,27 @@ export default compose( [
 				),
 			removeWarningNotice: () =>
 				removeNotice( 'beyondwords-remove-post-data--warning' ),
+			setContentId: ( contentId ) => {
+				editPost( {
+					meta: {
+						/* eslint-disable-next-line camelcase */
+						beyondwords_content_id: contentId,
+					},
+				} );
+			},
 			setDeleteContent: ( deleteContent ) => {
-				// Update the Post Meta (AKA the Custom Field)
 				editPost( {
 					meta: {
 						/* eslint-disable-next-line camelcase */
 						beyondwords_delete_content: deleteContent ? '1' : '',
+					},
+				} );
+			},
+			setProjectId: ( projectId ) => {
+				editPost( {
+					meta: {
+						/* eslint-disable-next-line camelcase */
+						beyondwords_project_id: projectId,
 					},
 				} );
 			},
