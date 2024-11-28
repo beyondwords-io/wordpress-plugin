@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.2.1 =
 
-Release date: 27th November 2024
+Release date: 28th November 2024
 
 **Fixes**
 
