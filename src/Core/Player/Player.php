@@ -413,14 +413,10 @@ class Player
                 $onload = 'new BeyondWords.Player(' . $paramsJson . ');';
             } else {
                 // Standard mode instantiates player(s) with every div[data-beyondwords-player] as the target(s)
-                $onload = <<<EOD
-                    document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el) {
-                        new BeyondWords.Player({
-                            ...$paramsJson,
-                            target: el
-                        });
-                    });
-                    EOD;
+                $onload = sprintf(
+                    'document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el) { new BeyondWords.Player({ ...%s, target: el });});', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $paramsJson
+                );
             }
 
             // strip newlines to prevent "invalid character" errors
