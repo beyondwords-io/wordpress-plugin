@@ -77,6 +77,7 @@ class BodyVoice extends Voice
     {
         $current = get_option(self::OPTION_NAME);
         $options = $this->getOptions();
+        // phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
         ?>
         <div class="beyondwords-setting__body-voice">
             <select
@@ -108,5 +109,6 @@ class BodyVoice extends Voice
             ?>
         </p>
         <?php
+        // phpcs:enable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
     }
 }
