@@ -82,15 +82,17 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.2.1 =
 
-Release date: 27th November 2024
+Release date: 28th November 2024
 
 **Fixes**
 
+* [#421](https://github.com/beyondwords-io/wordpress-plugin/pull/421) Update WordPress GET voice queries to use scopes.
+    * Fixes the issue where multilingual voices were not being shown in voices dropdown menus.
 * [#417](https://github.com/beyondwords-io/wordpress-plugin/pull/417) Improve handling of failed REST API requests when syncing settings.
-    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
-    * Replace transients with object cache to reduce db writes.
     * Add HTTP status code into failed API credentials validation message to improve debugging for empty response body.
     * Fix the undefined index errors that are logged when REST API responses do not contain the expected structure.
+    * Replace transients with object cache to reduce db writes.
+    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
 
 = 5.2.0 =
 
