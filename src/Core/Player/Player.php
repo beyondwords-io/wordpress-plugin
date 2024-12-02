@@ -414,7 +414,7 @@ class Player
             } else {
                 // Standard mode instantiates player(s) with every div[data-beyondwords-player] as the target(s)
                 $onload = sprintf(
-                    'document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el){new BeyondWords.Player({...%s, target: el})});', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    'document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el) { new BeyondWords.Player({ ...%s, target: el });});', // phpcs:ignore Generic.Files.LineLength.TooLong
                     $paramsJson
                 );
             }
