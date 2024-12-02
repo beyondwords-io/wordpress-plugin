@@ -303,10 +303,20 @@ class Core
      *
      * https://github.com/WordPress/gutenberg/issues/23078
      *
-     * @since 4.0.0
+     * @since 4.0.0 Introduced.
+     * @since 5.2.2 Only apply this filter when the Block Editor is active.
+     *
+     * @param bool   $protected Whether the meta key is protected.
+     * @param string $metaKey   Meta key.
+     *
+     * @return bool
      */
     public function isProtectedMeta($protected, $metaKey)
     {
+        if (! CoreUtils::isGutenbergPage()) {
+            return $protected;
+        }
+
         $keysToProtect = CoreUtils::getPostMetaKeys('all');
 
         if (in_array($metaKey, $keysToProtect, true)) {
