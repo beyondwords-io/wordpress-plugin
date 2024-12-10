@@ -80,6 +80,16 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.2.2 =
+
+Release date: 10th December 2024
+
+**Fixes**
+
+* [423](https://github.com/beyondwords-io/wordpress-plugin/pull/423) Optimise WordPress HTTP calls to BeyondWords REST API.
+    * Increase the WordPress default `timeout` param from `5` to `30`. This is to address a reported issue where REST API calls are sometimes timing out in WordPress/PHP before the REST API is able to respond.
+    * Also removed the `sslverify` param for API calls. This is no longer recommended.
+
 = 5.2.1 =
 
 Release date: 28th November 2024

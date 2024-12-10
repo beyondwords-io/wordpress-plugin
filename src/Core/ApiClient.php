@@ -118,6 +118,7 @@ class ApiClient
      *
      * @since 4.1.0
      * @since 5.2.0 Make static.
+     * @since 5.2.2 Remove sslverify param & increase timeout to 30s for REST API calls.
      *
      * @param int[] $postIds Array of WordPress Post IDs.
      *
@@ -163,11 +164,11 @@ class ApiClient
         $request = new Request('POST', $url, $body);
 
         $args = array(
-            'blocking'    => true,
-            'body'        => $request->getBody(),
-            'headers'     => $request->getHeaders(),
-            'method'      => $request->getMethod(),
-            'sslverify'   => true,
+            'blocking' => true,
+            'body'     => $request->getBody(),
+            'headers'  => $request->getHeaders(),
+            'method'   => $request->getMethod(),
+            'timeout'  => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
         );
 
         $response = wp_remote_request($request->getUrl(), $args);
@@ -486,6 +487,7 @@ class ApiClient
      * @since 4.0.0 Removed hash comparison and display 403 errors.
      * @since 4.1.0 Introduced.
      * @since 5.2.0 Make static.
+     * @since 5.2.2 Remove sslverify param & increase timeout to 30s for REST API calls.
      *
      * @param Request $request BeyondWords Request.
      *
@@ -494,11 +496,11 @@ class ApiClient
     public static function buildRequestArgs($request)
     {
         return [
-            'blocking'    => true,
-            'body'        => $request->getBody(),
-            'headers'     => $request->getHeaders(),
-            'method'      => $request->getMethod(),
-            'sslverify'   => true,
+            'blocking' => true,
+            'body'     => $request->getBody(),
+            'headers'  => $request->getHeaders(),
+            'method'   => $request->getMethod(),
+            'timeout'  => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
         ];
     }
 
