@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.1
+Stable tag: 5.2.2
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -79,6 +79,16 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.2.2 =
+
+Release date: 10th December 2024
+
+**Fixes**
+
+* [423](https://github.com/beyondwords-io/wordpress-plugin/pull/423) Optimise WordPress HTTP calls to BeyondWords REST API.
+    * Increase the WordPress default `timeout` param from `5` to `30`. This is to address a reported issue where REST API calls are sometimes timing out in WordPress/PHP before the REST API is able to respond.
+    * Also removed the `sslverify` param for API calls. This is no longer recommended.
 
 = 5.2.1 =
 
