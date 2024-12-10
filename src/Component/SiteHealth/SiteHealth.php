@@ -323,6 +323,7 @@ class SiteHealth
      * Adds debugging data for the BeyondWords REST API connection.
      *
      * @since 3.7.0
+     * @since 5.2.2 Remove sslverify param for REST API calls.
      *
      * @param array  $info Debugging info array
      *
@@ -342,7 +343,6 @@ class SiteHealth
             'blocking'    => true,
             'body'        => '',
             'method'      => 'GET',
-            'sslverify'   => true,
         ]);
 
         if (! is_wp_error($response)) {
@@ -419,7 +419,7 @@ class SiteHealth
 
         $info['beyondwords']['fields'][$name] = [
             'label' => $name,
-            'value' => $value, 
+            'value' => $value,
             'debug' => $value,
         ];
     }
