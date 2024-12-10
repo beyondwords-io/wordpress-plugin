@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
+import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, withSelect } from '@wordpress/data';
 import { Fragment, useEffect, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
@@ -61,7 +61,7 @@ function PlayAudio( {
 	}, [] );
 
 	function initPlayer() {
-		if ( ! window.BeyondWords ) {
+		if ( player || ! window.BeyondWords ) {
 			return;
 		}
 
@@ -73,9 +73,7 @@ function PlayAudio( {
 			playerStyle: 'small',
 			previewToken,
 			projectId,
-			target: document.querySelector(
-				'div[data-beyondwords-admin-player]'
-			),
+			target: this,
 			widgetStyle: 'none',
 		} );
 
@@ -97,6 +95,10 @@ function PlayAudio( {
 		setPlayer( playerInstance );
 	}
 
+	// Debounce initPlayer to prevent multiple stacked player instances
+	const debouncedInitPlayer = useDebounce(initPlayer, 500);
+
+	// @todo allow player script src to be overridden for testing
 	const umdSrc =
 		'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
 
@@ -105,13 +107,12 @@ function PlayAudio( {
 			<Wrapper>
 				<div>
 					<div className="beyondwords-player-box-wrapper">
-						<div data-beyondwords-admin-player={ true } />
 						<ScriptTag
 							isHydrating={ false }
 							async
 							defer
 							src={ umdSrc }
-							onLoad={ initPlayer }
+							onLoad={ debouncedInitPlayer }
 						/>
 					</div>
 				</div>
