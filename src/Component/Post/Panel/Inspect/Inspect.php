@@ -104,19 +104,24 @@ class Inspect
      * Render Meta Box content.
      *
      * @param WP_Post $post The post object.
+     *
+     * @since 3.0.0 Introduced.
+     * @since 5.2.3 Copy more metadata than we display.
      */
     public function renderMetaBoxContent($post)
     {
-        $metadata = PostMetaUtils::getAllBeyondwordsMetadata($post->ID);
+        // Copy all metadata, but only display a subset
+        $copy    = PostMetaUtils::getMetadata($post->ID, 'all');
+        $display = PostMetaUtils::getMetadata($post->ID);
 
-        $this->postMetaTable($metadata);
+        $this->postMetaTable($display);
         ?>
         <button
             type="button"
             id="beyondwords__inspect--copy"
             class="button button-large"
-            style="margin: 10px 0 0;"
-            data-clipboard-text="<?php echo esc_attr($this->getClipboardText($metadata)); ?>"
+            style="margin: 10px 10px 0 0;"
+            data-clipboard-text="<?php echo esc_attr($this->getClipboardText($copy)); ?>"
         >
             <?php esc_html_e('Copy', 'speechkit'); ?>
             <span
@@ -126,20 +131,30 @@ class Inspect
             ></span>
         </button>
 
-        <button
-            type="button"
-            id="beyondwords__inspect--remove"
-            class="button button-large button-link-delete"
-            style="margin: 10px 0 0; float: right;"
-        >
-            <?php esc_html_e('Remove', 'speechkit'); ?>
-            <span
-                id="beyondwords__inspect--remove"
-                style="display: none; margin: 5px 0 0;"
-                class="dashicons dashicons-yes"
-            ></span>
-        </button>
+        <div style="float: right;">
+            <button
+                type="button"
+                id="beyondwords__inspect--edit"
+                class="button button-large"
+                style="margin: 10px 0 0 10px;"
+            >
+                <?php esc_html_e('Edit', 'speechkit'); ?>
+            </button>
 
+            <button
+                type="button"
+                id="beyondwords__inspect--remove"
+                class="button button-large button-link-delete"
+                style="margin: 10px 0 0 10px;"
+            >
+                <?php esc_html_e('Remove', 'speechkit'); ?>
+                <span
+                    id="beyondwords__inspect--remove"
+                    style="display: none; margin: 5px 0 0;"
+                    class="dashicons dashicons-yes"
+                ></span>
+            </button>
+        </div>
         <?php
     }
 

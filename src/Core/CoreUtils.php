@@ -81,8 +81,9 @@ class CoreUtils
      * Get the BeyondWords post meta keys.
      *
      * @since 4.1.0
+     * @since 5.2.3 Include request debugging keys.
      *
-     * @param string $type Type (current|deprecated|all).
+     * @param string $type Type (current|request|deprecated|all).
      *
      * @throws Exception
      *
@@ -103,6 +104,11 @@ class CoreUtils
             'beyondwords_error_message',
             'beyondwords_disabled',
             'beyondwords_delete_content',
+        ];
+
+        $request = [
+            'beyondwords_request_args',
+            'beyondwords_request_url',
         ];
 
         $deprecated = [
@@ -132,11 +138,14 @@ class CoreUtils
             case 'current':
                 $keys = $current;
                 break;
+            case 'request':
+                $keys = $request;
+                break;
             case 'deprecated':
                 $keys = $deprecated;
                 break;
             case 'all':
-                $keys = array_merge($current, $deprecated);
+                $keys = array_merge($current, $request, $deprecated);
                 break;
             default:
                 throw \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()');

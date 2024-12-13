@@ -56,80 +56,81 @@ class PostMetaUtils
      * Get the BeyondWords metadata for a Post.
      *
      * @since 4.1.0 Append 'beyondwords_version' and 'wordpress_version'.
+     * @since 5.2.3 Introduce $type parameter to customize the metadata returned.
      */
-    public static function getAllBeyondwordsMetadata($postId)
+    public static function getMetadata($postId, $type = 'current')
     {
         global $wp_version;
 
-        $keysToCheck = CoreUtils::getPostMetaKeys('all');
+        $keys = CoreUtils::getPostMetaKeys($type);
 
+        // Get all meta in a single query for performance
         $metadata = has_meta($postId);
 
-        $metadata = array_filter($metadata, function ($item) use ($keysToCheck) {
-            return in_array($item['meta_key'], $keysToCheck);
+        // Filter out non-BeyondWords meta
+        $metadata = array_filter($metadata, function ($item) use ($keys) {
+            return in_array($item['meta_key'], $keys);
         });
 
-        // Prepend the WordPress Post ID to the meta data
-        // phpcs:disable WordPress.DB.SlowDBQuery
-        array_push(
-            $metadata,
-            [
-                'meta_id'    => null,
-                'meta_key'   => 'beyondwords_version',
-                'meta_value' => BEYONDWORDS__PLUGIN_VERSION,
-            ],
-            [
-                'meta_id'    => null,
-                'meta_key'   => 'wordpress_version',
-                'meta_value' => $wp_version,
-            ],
-            [
-                'meta_id'    => null,
-                'meta_key'   => 'wordpress_post_id',
-                'meta_value' => $postId,
-            ],
-        );
-        // phpcs:enable WordPress.DB.SlowDBQuery
+        // Create empty values for missing meta
+        foreach ($keys as $key) {
+            $hasMeta = array_search($key, array_column($metadata, 'meta_key'));
+
+            if (! $hasMeta) {
+                // phpcs:disable WordPress.DB.SlowDBQuery
+                array_push(
+                    $metadata,
+                    [
+                        'meta_id'    => null,
+                        'meta_key'   => $key,
+                        'meta_value' => '',
+                    ]
+                );
+                // phpcs:enable WordPress.DB.SlowDBQuery
+            }
+        }
+
+        // Optionally prepend useful non-meta values
+        if ($type === 'all') {
+            // phpcs:disable WordPress.DB.SlowDBQuery
+            array_push(
+                $metadata,
+                [
+                    'meta_id'    => null,
+                    'meta_key'   => 'beyondwords_version',
+                    'meta_value' => BEYONDWORDS__PLUGIN_VERSION,
+                    'readonly'   => true,
+                ],
+                [
+                    'meta_id'    => null,
+                    'meta_key'   => 'wordpress_version',
+                    'meta_value' => $wp_version,
+                    'readonly'   => true,
+                ],
+                [
+                    'meta_id'    => null,
+                    'meta_key'   => 'wordpress_post_id',
+                    'meta_value' => $postId,
+                    'readonly'   => true,
+                ],
+            );
+            // phpcs:enable WordPress.DB.SlowDBQuery
+        }
 
         return $metadata;
     }
 
     /**
      * Remove the BeyondWords metadata for a Post.
+     *
+     * @since 3.9.0 Introduced.
+     * @since 5.2.3 Use CoreUtils::getPostMetaKeys('all') to get all meta keys.
      */
     public static function removeAllBeyondwordsMetadata($postId)
     {
-        $keysToCheck = [
-            'beyondwords_generate_audio',
-            'beyondwords_project_id',
-            'beyondwords_content_id',
-            'beyondwords_podcast_id',
-            'beyondwords_preview_token',
-            'beyondwords_player_style',
-            'beyondwords_language_id',
-            'beyondwords_body_voice_id',
-            'beyondwords_title_voice_id',
-            'beyondwords_summary_voice_id',
-            'beyondwords_error_message',
-            'beyondwords_disabled',
-            'beyondwords_delete_content',
-            'publish_post_to_speechkit',
-            'speechkit_generate_audio',
-            'speechkit_project_id',
-            'speechkit_podcast_id',
-            'speechkit_error_message',
-            'speechkit_disabled',
-            'speechkit_access_key',
-            'speechkit_error',
-            'speechkit_info',
-            'speechkit_response',
-            'speechkit_retries',
-            'speechkit_status',
-            '_speechkit_link',
-            '_speechkit_text',
-        ];
+        $keys = CoreUtils::getPostMetaKeys('all');
 
-        foreach ($keysToCheck as $key) {
+        foreach ($keys as $key) {
             delete_post_meta($postId, $key, null);
         }
 
