@@ -29,4 +29,18 @@ jQuery( document ).ready( function ( $ ) {
 			$( '[data-beyondwords-metavalue]' ).val( '' );
 		}
 	} );
+
+	$( 'body' ).on( 'click', '#beyondwords__inspect--edit', function () {
+		/* eslint-disable-next-line no-alert */
+		const confirm = window.confirm(
+			wp.i18n.__(
+				'Make BeyondWords editable?',
+				'speechkit'
+			)
+		);
+
+		if ( confirm ) {
+			$( '[data-beyondwords-metavalue]' ).removeAttr( 'readonly' );
+		}
+	} );
 } );
