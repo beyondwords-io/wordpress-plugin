@@ -67,7 +67,7 @@ class Environment
      * @since  3.0.0
      * @var    string
      */
-    public const BEYONDWORDS_AMP_IMG_URL = 'https://s3-eu-west-1.amazonaws.com/beyondwords-assets/logo.svg';
+    public const BEYONDWORDS_AMP_IMG_URL = 'https://beyondwords-cdn-b7fyckdeejejb6dj.a03.azurefd.net/assets/logo.svg';
 
     /**
      * The BeyondWords dashboard URL.
