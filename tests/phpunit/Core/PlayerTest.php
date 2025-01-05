@@ -299,6 +299,7 @@ class PlayerTest extends WP_UnitTestCase
             $params['projectId']     = 4321;
             $params['contentId']     = 87654321;
             $params['playerStyle']   = 'screen';
+            $params['playerContent'] = 'custom content value';
             $params['myCustomParam'] = 'my custom value';
 
             return $params;
@@ -313,6 +314,7 @@ class PlayerTest extends WP_UnitTestCase
         $this->assertEquals($params['projectId'], 4321);
         $this->assertEquals($params['contentId'], 87654321);
         $this->assertEquals($params['playerStyle'], 'screen');
+        $this->assertEquals($params['playerContent'], 'custom content value');
         $this->assertEquals($params['myCustomParam'], 'my custom value');
 
         wp_delete_post($post->ID, true);

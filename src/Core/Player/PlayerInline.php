@@ -13,9 +13,9 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * The BeyondWords Player.
  *
- * This is an alternate Player class using the inline script method that 
+ * This is an alternate Player class using the inline script method that
  * is recommended in the player docs.
- * 
+ *
  * @link https://github.com/beyondwords-io/player/blob/main/doc/getting-started.md.
  **/
 class PlayerInline
@@ -206,7 +206,7 @@ class PlayerInline
         $params['projectId'] = $projectId;
         $params['contentId'] = $contentId;
 
-        $json = wp_json_encode($params, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES);
+        $json = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
 
         // Headless instantiates a player without a target
         if ($playerUI !== PlayerUI::HEADLESS) {
@@ -428,16 +428,13 @@ class PlayerInline
     /**
      * JavaScript SDK parameters.
      *
-     * Note that the default return value for this method is an associative array, but
-     * the HTML output will be forced to an object due to `wp_json_encode($params, JSON_FORCE_OBJECT)`
-     * in `Player::jsPlayerHtml()`.
-     *
      * @since 3.1.0
      * @since 4.0.0 Use new JS SDK params format.
+     * @since 5.3.0 Support loadContentAs param and return an object.
      *
      * @param WP_Post $post WordPress Post.
      *
-     * @return array
+     * @return object
      */
     public function jsPlayerParams($post)
     {
@@ -453,19 +450,27 @@ class PlayerInline
             'contentId' => is_numeric($contentId) ? (int)$contentId : $contentId,
         ];
 
+        // Player UI
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
-
         if ($playerUI === PlayerUI::HEADLESS) {
             $params['showUserInterface'] = false;
         }
 
-        $params = $this->addPluginSettingsToSdkParams($params);
-
+        // Player Style
         // @todo overwrite global styles with post settings
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
         if (!empty($playerStyle)) {
             $params['playerStyle'] = $playerStyle;
         }
+
+        // Player content
+        $playerContent = get_post_meta($post->ID, 'beyondwords_player_content', true);
+        if (!empty($playerContent)) {
+            $params['loadContentAs'] = [ $playerContent ];
+        }
+
+        // SDK params from plugin settings
+        $params = $this->addPluginSettingsToSdkParams($params);
 
         /**
          * Filters the BeyondWords JavaScript SDK parameters.
@@ -477,7 +482,8 @@ class PlayerInline
          */
         $params = apply_filters('beyondwords_player_sdk_params', $params, $post->ID);
 
-        return $params;
+        // Cast assoc array to object
+        return (object)$params;
     }
 
     /**
