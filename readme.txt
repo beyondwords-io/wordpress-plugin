@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.3
+Stable tag: 5.3.0
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -80,9 +80,16 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.2.3 =
+= 5.3.0 =
 
 Release date: 6th January 2025
+
+**Enhancements**
+
+* Add support for summaries.
+    * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
+    * Selecting "Summary" will load the summary audio into the audio player.
+    * The default value of "Article" loads the article content into the player as standard.
 
 **Fixes**
 
