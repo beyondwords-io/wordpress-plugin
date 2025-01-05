@@ -64,7 +64,8 @@ class Environment
      *
      * Override with BEYONDWORDS_AMP_IMG_URL in wp-config.php.
      *
-     * @since  3.0.0
+     * @since  3.0.0 Introduced
+     * @since  5.2.3 Update asset URL to Azure Storage
      * @var    string
      */
     public const BEYONDWORDS_AMP_IMG_URL = 'https://beyondwords-cdn-b7fyckdeejejb6dj.a03.azurefd.net/assets/logo.svg';
