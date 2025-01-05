@@ -511,6 +511,12 @@ class Player
             $params['playerStyle'] = $playerStyle;
         }
 
+        // Player content
+        $playerContent = get_post_meta($post->ID, 'beyondwords_player_content', true);
+        if (!empty($playerContent)) {
+            $params['loadContentAs'] = [ $playerContent ];
+        }
+
         /**
          * Filters the BeyondWords JavaScript SDK parameters.
          *
@@ -555,6 +561,12 @@ class Player
         $val = get_option('beyondwords_player_clickable_sections');
         if (!empty($val)) {
             $params['clickableSections'] = 'body';
+        }
+
+        // Special case for loadContentAs
+        $val = get_option('beyondwords_player_content');
+        if (!empty($val)) {
+            $params['loadContentAs'] = [ $val ];
         }
 
         return $params;

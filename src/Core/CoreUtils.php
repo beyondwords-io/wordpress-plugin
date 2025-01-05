@@ -95,6 +95,7 @@ class CoreUtils
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',
+            'beyondwords_player_content',
             'beyondwords_player_style',
             'beyondwords_language_id',
             'beyondwords_title_voice_id',
@@ -163,6 +164,7 @@ class CoreUtils
             // v5.x
             'beyondwords_player_call_to_action',
             'beyondwords_player_clickable_sections',
+            'beyondwords_player_content',
             'beyondwords_player_highlight_sections',
             'beyondwords_player_skip_button_style',
             'beyondwords_player_theme',

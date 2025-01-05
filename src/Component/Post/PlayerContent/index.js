@@ -7,61 +7,43 @@ import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 
-export function PlayerStyle( { wrapper } ) {
+export function PlayerContent( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
-	const { postType, playerStyles, defaultPlayerStyle } = useSelect( ( select ) => {
-		let playerStyles = [];
-
-		const postType = select( 'core/editor' ).getCurrentPostType();
-		const { beyondwords_project_id: postProjectId } = select('core/editor').getEditedPostAttribute('meta');
-
-		if ( postProjectId ) {
-			playerStyles = select( 'beyondwords/settings' ).getPlayerStyles( postProjectId ) || [];
-		} else {
-			const { getSettings } = select( 'beyondwords/settings' );
-			const { projectId: settingsProjectId } = getSettings();
-			playerStyles = select( 'beyondwords/settings' ).getPlayerStyles( settingsProjectId ) || [];
-		}
-
-		return {
-			postType,
-			playerStyles,
-			defaultPlayerStyle: playerStyles.find(x => x.default)
-		}
+	const postType = useSelect( ( select ) => {
+		return select( 'core/editor' ).getCurrentPostType()
 	}, [] );
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const playerStyle = meta.beyondwords_player_style || defaultPlayerStyle?.value;
+	const playerContent = meta.beyondwords_player_content || '';
 
-	const setPlayerStyle = ( newPlayerStyle ) => {
+	const setPlayerContent = ( value ) => {
 		setMeta( {
 			...meta,
-			beyondwords_player_style: newPlayerStyle,
+			beyondwords_player_content: value,
 		} );
 	};
-
-	if (! playerStyles.length) {
-		return false;
-	}
 
 	return (
 		<Wrapper>
 			<Flex>
 				<FlexBlock>
 					<SelectControl
-						className="beyondwords--player-style"
-						label={ __( 'Player style', 'speechkit' ) }
+						className="beyondwords--player-content"
+						label={ __( 'Player content', 'speechkit' ) }
 						options={ [
 							{
-								label: '',
+								label: 'Article',
 								value: '',
 							},
-							...playerStyles,
+							{
+								label: 'Summary',
+								value: 'summary',
+							},
 						] }
-						onChange={ ( val ) => setPlayerStyle( val ) }
-						value={ playerStyle }
+						onChange={ ( val ) => setPlayerContent( val ) }
+						value={ playerContent }
 					/>
 				</FlexBlock>
 			</Flex>
@@ -69,4 +51,4 @@ export function PlayerStyle( { wrapper } ) {
 	);
 }
 
-export default PlayerStyle;
+export default PlayerContent;

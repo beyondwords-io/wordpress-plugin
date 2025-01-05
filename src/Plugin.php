@@ -99,6 +99,7 @@ class Plugin
             (new GenerateAudio())->init();
             (new DisplayPlayer())->init();
             (new SelectVoice())->init();
+            (new PlayerContent())->init();
             (new PlayerStyle())->init();
             (new PlayerContent())->init();
             (new Metabox())->init();

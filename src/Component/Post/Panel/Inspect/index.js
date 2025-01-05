@@ -21,6 +21,7 @@ export function PostInspectPanel( {
 	beyondwordsGenerateAudio,
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
+	beyondwordsPlayerContent,
 	beyondwordsPlayerStyle,
 	beyondwordsLanguageId,
 	beyondwordsBodyVoiceId,
@@ -79,6 +80,7 @@ export function PostInspectPanel( {
 			beyondwords_project_id: beyondwordsProjectId,
 			beyondwords_content_id: beyondwordsContentId,
 			beyondwords_preview_token: beyondwordsPreviewToken,
+			beyondwords_player_content: beyondwordsPlayerContent,
 			beyondwords_player_style: beyondwordsPlayerStyle,
 			beyondwords_language_id: beyondwordsLanguageId,
 			beyondwords_body_voice_id: beyondwordsBodyVoiceId,
@@ -153,6 +155,7 @@ export function PostInspectPanel( {
 			`beyondwords_project_id\r\n${ beyondwordsProjectId }`,
 			`beyondwords_content_id\r\n${ beyondwordsContentId }`,
 			`beyondwords_preview_token\r\n${ beyondwordsPreviewToken }`,
+			`beyondwords_player_content\r\n${ beyondwordsPlayerContent }`,
 			`beyondwords_player_style\r\n${ beyondwordsPlayerStyle }`,
 			`beyondwords_language_id\r\n${ beyondwordsLanguageId }`,
 			`beyondwords_body_voice_id\r\n${ beyondwordsBodyVoiceId }`,
@@ -213,6 +216,12 @@ export function PostInspectPanel( {
 				label="beyondwords_content_id"
 				readOnly
 				value={ beyondwordsContentId }
+			/>
+
+			<TextControl
+				label="beyondwords_player_content"
+				readOnly
+				value={ beyondwordsPlayerContent }
 			/>
 
 			<TextControl
@@ -314,6 +323,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_content_id,
 			beyondwordsPreviewToken:
 				getEditedPostAttribute( 'meta' ).beyondwords_preview_token,
+			beyondwordsPlayerContent:
+				getEditedPostAttribute( 'meta' ).beyondwords_player_content,
 			beyondwordsPlayerStyle:
 				getEditedPostAttribute( 'meta' ).beyondwords_player_style,
 			beyondwordsLanguageId:
