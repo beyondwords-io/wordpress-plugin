@@ -336,7 +336,7 @@ class Inspect
                 $currentMetaKeys = CoreUtils::getPostMetaKeys('current');
 
                 foreach ($postedFields as $metaKey => $metaValue) {
-                    if (array_key_exists($metaKey, $currentMetaKeys)) {
+                    if (in_array($metaKey, $currentMetaKeys)) {
                         update_post_meta($postId, $metaKey, $metaValue);
                     }
                 }
