@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Post\Panel\Inspect;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
  * Inspect
@@ -221,6 +222,7 @@ class Inspect
                                 </label>
                                 <textarea
                                     id="beyondwords-inspect-<?php echo esc_attr($metaId); ?>-value"
+                                    name="beyondwords_inspect_panel[<?php echo esc_attr($metaKey); ?>]"
                                     rows="2"
                                     cols="30"
                                     data-beyondwords-metavalue="true"
@@ -231,14 +233,13 @@ class Inspect
                         <?php
                     endforeach;
 
-                    wp_nonce_field('beyondwords_delete_content', 'beyondwords_delete_content_nonce');
+                    wp_nonce_field('beyondwords_inspect_panel', 'beyondwords_inspect_panel_nonce');
                     ?>
                     <input
                         type="hidden"
-                        id="beyondwords_delete_content"
-                        name="beyondwords_delete_content"
-                        value="1"
-                        disabled
+                        id="beyondwords_inspect_panel_action"
+                        name="beyondwords_inspect_panel_action"
+                        value=""
                     />
                 </tbody>
             </table>
@@ -311,18 +312,35 @@ class Inspect
 
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
-            ! isset($_POST['beyondwords_delete_content_nonce']) ||
+            ! isset($_POST['beyondwords_inspect_panel_nonce']) ||
             ! wp_verify_nonce(
-                sanitize_key($_POST['beyondwords_delete_content_nonce']),
-                'beyondwords_delete_content'
+                sanitize_key($_POST['beyondwords_inspect_panel_nonce']),
+                'beyondwords_inspect_panel'
             )
         ) {
             return $postId;
         }
 
-        if (isset($_POST['beyondwords_delete_content'])) {
-            // Set the flag - the DELETE request is performed at a later priority
+        $action = '';
+        if (isset($_POST['beyondwords_inspect_panel_action'])) {
+            $action = sanitize_key($_POST['beyondwords_inspect_panel_action']);
+        }
+
+        if ('delete' === $action) {
+            // Set a flag - the post meta is deleted later along with a DELETE REST API request
             update_post_meta($postId, 'beyondwords_delete_content', '1');
+        } elseif ('edit' === $action) {
+            $postedFields = $_POST['beyondwords_inspect_panel'] ?? [];
+
+            if (is_array($postedFields)) {
+                $currentMetaKeys = CoreUtils::getPostMetaKeys('current');
+
+                foreach ($postedFields as $metaKey => $metaValue) {
+                    if (array_key_exists($metaKey, $currentMetaKeys)) {
+                        update_post_meta($postId, $metaKey, $metaValue);
+                    }
+                }
+            }
         }
 
         return $postId;
