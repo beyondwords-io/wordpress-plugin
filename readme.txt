@@ -80,6 +80,15 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.2.3 =
+
+Release date: 6th January 2025
+
+**Fixes**
+
+* [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
+    * The AMP logo image has been moved from AWS S3 to Azure Storage.
+
 = 5.2.2 =
 
 Release date: 10th December 2024
