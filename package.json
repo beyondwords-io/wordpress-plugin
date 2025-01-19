@@ -11,24 +11,9 @@
   "license": "MIT",
   "homepage": "https://beyondwords.io",
   "main": "index.js",
-  "dependencies": {
-    "@wordpress/api-fetch": "^7.16.0",
-    "@wordpress/components": "^29.2.0",
-    "@wordpress/compose": "^7.16.0",
-    "@wordpress/core-data": "^7.16.0",
-    "@wordpress/data": "^10.16.0",
-    "@wordpress/edit-post": "^8.16.0",
-    "@wordpress/element": "^6.16.0",
-    "@wordpress/env": "^10.16.0",
-    "@wordpress/html-entities": "^4.16.0",
-    "@wordpress/i18n": "^5.16.0",
-    "@wordpress/notices": "^5.16.0",
-    "@wordpress/plugins": "^7.16.0",
-    "@wordpress/url": "^4.16.0",
-    "uuid": "^11.0.5"
-  },
   "devDependencies": {
     "@mockoon/cli": "^9.1.0",
+    "@wordpress/env": "^10.16.0",
     "@wordpress/eslint-plugin": "^22.2.0",
     "@wordpress/scripts": "^30.9.0",
     "badge-maker": "^4.1.0",
@@ -37,7 +22,8 @@
     "cypress-multi-reporters": "^1.6.4",
     "cypress-terminal-report": "^6.2.0",
     "dotenv": "^16.4.7",
-    "mochawesome": "^7.1.3"
+    "mochawesome": "^7.1.3",
+    "uuid": "^11.0.5"
   },
   "scripts": {
     "build": "wp-scripts build",

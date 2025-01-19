@@ -25,7 +25,7 @@ export default class Sidebar extends Component {
 				>
 					<PlayerPanel />
 					<HelpPanel />
-					{/* <InspectPanel /> */}
+					<InspectPanel />
 				</PluginSidebar>
 			</Fragment>
 		);

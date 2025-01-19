@@ -108,53 +108,7 @@ export function PostInspectPanel( {
 		[]
 	);
 
-	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
-		( x ) => !! x?.length
-	);
-
-	function ClipboardToolbarButton( { text, disabled } ) {
-		const ref = useCopyToClipboard( text, () => {
-			createNotice(
-				'info',
-				__( 'Copied data to clipboard.', 'speechkit' ),
-				{
-					isDismissible: true,
-					type: 'snackbar',
-				}
-			);
-		} );
-
-		if ( ! text ) {
-			return null;
-		}
-
-		return (
-			<Button
-				id="beyondwords-inspect-copy"
-				variant="secondary"
-				ref={ ref }
-				disabled={ disabled }
-			>
-				{ __( 'Copy', 'speechkit' ) }
-			</Button>
-		);
-	}
-
-	const handleRemoveButtonClick = ( e ) => {
-		e.stopPropagation();
-
-		if ( removed ) {
-			setRemoved( false );
-			setDeleteContent( false );
-			removeWarningNotice();
-		} else {
-			setRemoved( true );
-			setDeleteContent( true );
-			createWarningNotice();
-		}
-	};
-
-	const textToCopy =
+	const getTextToCopy = () =>
 		[
 			'```',
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
@@ -193,6 +147,31 @@ export function PostInspectPanel( {
 			`=== ${ __( 'Copied using the Block Editor', 'speechkit' ) } ===`,
 			'```',
 		].join( '\r\n\r\n' ) + '\r\n\r\n';
+
+	const copyToClipboardRef = useCopyToClipboard( getTextToCopy(), () => {
+		createNotice( 'info', __( 'Copied data to clipboard.', 'speechkit' ), {
+			isDismissible: true,
+			type: 'snackbar',
+		} );
+	} );
+
+	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
+		( x ) => !! x?.length
+	);
+
+	const handleRemoveButtonClick = ( e ) => {
+		e.stopPropagation();
+
+		if ( removed ) {
+			setRemoved( false );
+			setDeleteContent( false );
+			removeWarningNotice();
+		} else {
+			setRemoved( true );
+			setDeleteContent( true );
+			createWarningNotice();
+		}
+	};
 
 	return (
 		<PanelBody
@@ -282,7 +261,14 @@ export function PostInspectPanel( {
 
 			<hr />
 
-			<ClipboardToolbarButton text={ textToCopy } disabled={ removed } />
+			<Button
+				id="beyondwords-inspect-copy"
+				variant="secondary"
+				ref={ copyToClipboardRef }
+				disabled={ removed }
+			>
+				{ __( 'Copy', 'speechkit' ) }
+			</Button>
 
 			<Button
 				isDestructive
