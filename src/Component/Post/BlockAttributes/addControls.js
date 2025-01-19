@@ -88,6 +88,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 											value={ beyondwordsMarker }
 											disabled
 											readOnly
+											__nextHasNoMarginBottom
 										/>
 									</PanelRow>
 								) }

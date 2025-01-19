@@ -183,60 +183,70 @@ export function PostInspectPanel( {
 				label="beyondwords_generate_audio"
 				readOnly
 				value={ beyondwordsGenerateAudio }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_project_id"
 				readOnly
 				value={ beyondwordsProjectId }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_preview_token"
 				readOnly
 				value={ beyondwordsPreviewToken }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_content_id"
 				readOnly
 				value={ beyondwordsContentId }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_player_content"
 				readOnly
 				value={ beyondwordsPlayerContent }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_player_style"
 				readOnly
 				value={ beyondwordsPlayerStyle }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_language_id"
 				readOnly
 				value={ beyondwordsLanguageId }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_body_voice_id"
 				readOnly
 				value={ beyondwordsBodyVoiceId }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_title_voice_id"
 				readOnly
 				value={ beyondwordsTitleVoiceId }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_summary_voice_id"
 				readOnly
 				value={ beyondwordsSummaryVoiceId }
+				__nextHasNoMarginBottom
 			/>
 
 			{ /* eslint-disable-next-line prettier/prettier */ }
@@ -251,12 +261,14 @@ export function PostInspectPanel( {
 				label="beyondwords_disabled"
 				readOnly
 				value={ beyondwordsDisabled }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_delete_content"
 				readOnly
 				value={ beyondwordsDeleteContent }
+				__nextHasNoMarginBottom
 			/>
 
 			<hr />
