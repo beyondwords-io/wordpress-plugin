@@ -76,6 +76,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 										label={ toggleLabel }
 										checked={ !! beyondwordsAudio }
 										onChange={ toggleBeyondwordsAudio }
+										__nextHasNoMarginBottom
 									/>
 								</PanelRow>
 								{ !! beyondwordsAudio && (

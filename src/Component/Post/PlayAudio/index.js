@@ -19,53 +19,44 @@ function PlayAudio( {
 	const Wrapper = wrapper;
 
 	const targetRef = useRef( null );
-	const [ player, setPlayer ] = useState( null );
+	const [ scriptAppended, setScriptAppended ] = useState( false );
+
+	const script = document.createElement( 'script' );
+	script.src =
+		'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
+	script.async = true;
+	script.onload = function () {
+		new window.BeyondWords.Player( {
+			adverts: [],
+			analyticsConsent: 'none',
+			contentId,
+			introsOutros: [],
+			playerStyle: 'small',
+			previewToken: previewToken || '',
+			projectId,
+			target: targetRef.current,
+			widgetStyle: 'none',
+		} );
+	};
 
 	useEffect( () => {
-		if ( contentId && projectId && ! player ) {
-			const script = document.createElement( 'script' );
-
-			script.src =
-				'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
-			script.async = true;
-			script.defer = true;
-			script.onload = () => {
-				if ( ! window.BeyondWords ) {
-					return;
-				}
-
-				const playerInstance = new window.BeyondWords.Player( {
-					adverts: [],
-					analyticsConsent: 'none',
-					contentId,
-					introsOutros: [],
-					playerStyle: 'small',
-					previewToken: previewToken || '',
-					projectId,
-					target: targetRef.current,
-					widgetStyle: 'none',
-				} );
-
-				setPlayer( playerInstance );
-			};
-
+		if ( contentId && projectId && ! scriptAppended ) {
 			document.body.appendChild( script );
+			setScriptAppended( true );
 		}
 
 		return () => {
-			if ( player ) {
-				player.destroy();
+			if ( document.body.contains( script ) ) {
+				document.body.removeChild( script );
 			}
 		};
-	}, [ contentId, player, previewToken, projectId ] );
+	}, [ contentId, projectId, scriptAppended, script ] );
 
 	return (
 		<PlayAudioCheck>
 			<Wrapper>
-				<div>
-					<div className="beyondwords-player-box-wrapper">
-						<div ref={ targetRef }></div>
-					</div>
+				<div className="beyondwords-player-box-wrapper">
+					<div ref={ targetRef }></div>
 				</div>
 			</Wrapper>
 		</PlayAudioCheck>
