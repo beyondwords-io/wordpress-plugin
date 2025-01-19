@@ -45,12 +45,13 @@ class Inspect
 
     /**
      * Enqueue JS for Inspect feature.
+     *
+     * @since 5.2.3 Replace Clipboard.js script with the WordPress core version.
      */
     public function adminEnqueueScripts($hook)
     {
         // Only enqueue for Post screens
         if ($hook === 'post.php' || $hook === 'post-new.php') {
-            // @todo Add Clipboard.js as an npm dependency (it's in the inspect.js file for now)
             wp_enqueue_script(
                 'beyondwords-inspect',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Panel/Inspect/js/inspect.js',

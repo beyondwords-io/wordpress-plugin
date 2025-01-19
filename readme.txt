@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.3
+Stable tag: 5.2.3-beta.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -82,10 +82,12 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.2.3 =
 
-Release date: 6th January 2025
+Release date: 24th January 2025
 
 **Fixes**
 
+* [427](https://github.com/beyondwords-io/wordpress-plugin/pull/427) Fix Clipboard.js error.
+    * Replace Clipboard.js script with the WordPress core version.
 * [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
     * The AMP logo image has been moved from AWS S3 to Azure Storage.
 
