@@ -22,42 +22,42 @@ function PlayAudio( {
 	const [ player, setPlayer ] = useState( null );
 
 	useEffect( () => {
-		const script = document.createElement( 'script' );
+		if ( contentId && projectId && ! player ) {
+			const script = document.createElement( 'script' );
 
-		script.src =
-			'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
-		script.async = true;
-		script.defer = true;
-		script.onload = () => {
-			if ( player || ! window.BeyondWords ) {
-				return;
-			}
+			script.src =
+				'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
+			script.async = true;
+			script.defer = true;
+			script.onload = () => {
+				if ( ! window.BeyondWords ) {
+					return;
+				}
 
-			const playerInstance = new window.BeyondWords.Player( {
-				adverts: [],
-				analyticsConsent: 'none',
-				contentId,
-				introsOutros: [],
-				playerStyle: 'small',
-				previewToken,
-				projectId,
-				target: targetRef.current,
-				widgetStyle: 'none',
-			} );
+				const playerInstance = new window.BeyondWords.Player( {
+					adverts: [],
+					analyticsConsent: 'none',
+					contentId,
+					introsOutros: [],
+					playerStyle: 'small',
+					previewToken: previewToken || '',
+					projectId,
+					target: targetRef.current,
+					widgetStyle: 'none',
+				} );
 
-			setPlayer( playerInstance );
-		};
+				setPlayer( playerInstance );
+			};
 
-		document.body.appendChild( script );
+			document.body.appendChild( script );
+		}
 
 		return () => {
 			if ( player ) {
 				player.destroy();
 			}
-
-			document.body.removeChild( script );
 		};
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ contentId, player, previewToken, projectId ] );
 
 	return (
 		<PlayAudioCheck>
