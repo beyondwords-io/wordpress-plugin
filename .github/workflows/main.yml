@@ -251,6 +251,9 @@ jobs:
       - name: Start Mockoon CLI
         run: yarn mockoon:start &
 
+      - name: Install SVN
+        run: sudo apt-get install subversion
+
       - name: Install WP Tests
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
@@ -534,6 +537,8 @@ jobs:
     if: success() && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
+      - name: Install SVN
+        run: sudo apt-get install subversion
       - name: Deploy assets to WordPress plugin directory
         run: .github/scripts/deploy-assets.sh
         shell: bash
@@ -563,6 +568,8 @@ jobs:
         run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
         working-directory: /tmp
       - run: ls -la /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+      - name: Install SVN
+        run: sudo apt-get install subversion
       - name: Deploy plugin to WordPress plugin directory
         run: .github/scripts/deploy-plugin.sh
         shell: bash
