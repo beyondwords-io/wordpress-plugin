@@ -110,7 +110,6 @@ export function PostInspectPanel( {
 
 	const getTextToCopy = () =>
 		[
-			'```',
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
 			`beyondwords_project_id\r\n${ beyondwordsProjectId }`,
 			`beyondwords_content_id\r\n${ beyondwordsContentId }`,
@@ -145,7 +144,6 @@ export function PostInspectPanel( {
 			`wp_version\r\n${ wpVersion }`,
 			`wp_post_id\r\n${ wpPostId }`,
 			`=== ${ __( 'Copied using the Block Editor', 'speechkit' ) } ===`,
-			'```',
 		].join( '\r\n\r\n' ) + '\r\n\r\n';
 
 	const copyToClipboardRef = useCopyToClipboard( getTextToCopy(), () => {
