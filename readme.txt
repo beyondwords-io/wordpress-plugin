@@ -90,6 +90,8 @@ Release date: 6th January 2025
     * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
     * Selecting "Summary" will load the summary audio into the audio player.
     * The default value of "Article" loads the article content into the player as standard.
+* Refactor React player code.
+    * Replace `react-script-tag` dependency with an equivalent inline `<script>` tag.
 
 **Fixes**
 
