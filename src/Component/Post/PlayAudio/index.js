@@ -1,16 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
-import { useDispatch, withSelect } from '@wordpress/data';
-import { Fragment, useEffect, useState } from '@wordpress/element';
-import { store as noticesStore } from '@wordpress/notices';
-
-/**
- * External dependencies
- */
-import ScriptTag from 'react-script-tag';
+import { withSelect } from '@wordpress/data';
+import { Fragment, useEffect, useState, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -25,94 +18,53 @@ function PlayAudio( {
 } ) {
 	const Wrapper = wrapper;
 
-	const [ player, setPlayer] = useState(null);
-	const [ noContentAvailableListener, setNoContentAvailableListener ] = useState( null );
-	const [ playbackErroredListener, setPlaybackErroredListener ] = useState( null );
-	const [ mediaLoadedListener, setMediaLoadedListener ] = useState( null );
-	const [ playbackPlayingListener, setPlaybackPlayingListener ] = useState( null );
+	const targetRef = useRef( null );
+	const [ player, setPlayer ] = useState( null );
 
-	const noticeId = 'beyondwords-player-notice';
+	useEffect( () => {
+		const script = document.createElement( 'script' );
 
-	const {
-		createInfoNotice,
-		createErrorNotice,
-		removeNotice,
-	} = useDispatch( noticesStore );
-
-	useEffect(() => {
-		return () => {
-			if ( ! player ) {
+		script.src =
+			'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
+		script.async = true;
+		script.defer = true;
+		script.onload = () => {
+			if ( player || ! window.BeyondWords ) {
 				return;
 			}
-			if ( noContentAvailableListener ) {
-				player.removeEventListener('NoContentAvailable', noContentAvailableListener);
-			}
-			if ( playbackErroredListener ) {
-				player.removeEventListener('PlaybackErrored', playbackErroredListener);
-			}
-			if ( mediaLoadedListener ) {
-				player.removeEventListener('MediaLoaded', mediaLoadedListener);
-			}
-			if ( playbackPlayingListener ) {
-				player.removeEventListener('PlaybackPlaying', playbackPlayingListener);
-			}
-			player.destroy();
-		}
-	}, [] );
 
-	function initPlayer() {
-		if ( ! window.BeyondWords ) {
-			return;
-		}
-
-		const playerInstance = new window.BeyondWords.Player( {
-			adverts: [],
-			analyticsConsent: 'none',
-			contentId,
-			introsOutros: [],
-			playerStyle: 'small',
-			previewToken,
-			projectId,
-			target: document.querySelector(
-				'div[data-beyondwords-admin-player]'
-			),
-			widgetStyle: 'none',
-		} );
-
-		setPlaybackErroredListener(playerInstance.addEventListener('PlaybackErrored', () => {
-			createErrorNotice( __( '🔊 There was an error playing the audio. Please try again.', 'speechkit' ), {
-				id: noticeId,
-				isDismissible: true,
+			const playerInstance = new window.BeyondWords.Player( {
+				adverts: [],
+				analyticsConsent: 'none',
+				contentId,
+				introsOutros: [],
+				playerStyle: 'small',
+				previewToken,
+				projectId,
+				target: targetRef.current,
+				widgetStyle: 'none',
 			} );
-		} ) );
 
-		setMediaLoadedListener(playerInstance.addEventListener('MediaLoaded', () => {
-			removeNotice( noticeId );
-		} ) );
+			setPlayer( playerInstance );
+		};
 
-		setPlaybackPlayingListener(playerInstance.addEventListener('PlaybackPlaying', () => {
-			removeNotice( noticeId );
-		} ) );
+		document.body.appendChild( script );
 
-		setPlayer( playerInstance );
-	}
+		return () => {
+			if ( player ) {
+				player.destroy();
+			}
 
-	const umdSrc =
-		'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
+			document.body.removeChild( script );
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<PlayAudioCheck>
 			<Wrapper>
 				<div>
 					<div className="beyondwords-player-box-wrapper">
-						<div data-beyondwords-admin-player={ true } />
-						<ScriptTag
-							isHydrating={ false }
-							async
-							defer
-							src={ umdSrc }
-							onLoad={ initPlayer }
-						/>
+						<div ref={ targetRef }></div>
 					</div>
 				</div>
 			</Wrapper>

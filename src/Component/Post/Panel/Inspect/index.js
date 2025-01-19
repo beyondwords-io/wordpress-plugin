@@ -9,7 +9,6 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { compose, useCopyToClipboard } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
@@ -50,7 +49,6 @@ export function PostInspectPanel( {
 	wpVersion,
 	wpPostId,
 	// Other
-	currentPostType,
 	createWarningNotice,
 	removeWarningNotice,
 	setDeleteContent,
@@ -59,6 +57,7 @@ export function PostInspectPanel( {
 	isAutosavingPost,
 } ) {
 	const [ removed, setRemoved ] = useState( false );
+	const { createNotice } = useDispatch( noticesStore );
 
 	useEffect( () => {
 		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed ) {
@@ -114,21 +113,28 @@ export function PostInspectPanel( {
 	);
 
 	function ClipboardToolbarButton( { text, disabled } ) {
-		const { createNotice } = useDispatch( noticesStore );
 		const ref = useCopyToClipboard( text, () => {
-			createNotice( 'info', __( 'Copied data to clipboard.', 'speechkit' ), {
-				isDismissible: true,
-				type: 'snackbar',
-			} );
+			createNotice(
+				'info',
+				__( 'Copied data to clipboard.', 'speechkit' ),
+				{
+					isDismissible: true,
+					type: 'snackbar',
+				}
+			);
 		} );
+
+		if ( ! text ) {
+			return null;
+		}
 
 		return (
 			<Button
-				isSecondary
 				id="beyondwords-inspect-copy"
+				variant="secondary"
 				ref={ ref }
 				disabled={ disabled }
-				>
+			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
 		);
@@ -276,10 +282,7 @@ export function PostInspectPanel( {
 
 			<hr />
 
-			<ClipboardToolbarButton
-				text={ textToCopy }
-				disabled={ removed }
-			/>
+			<ClipboardToolbarButton text={ textToCopy } disabled={ removed } />
 
 			<Button
 				isDestructive
