@@ -255,6 +255,7 @@ export function PostInspectPanel( {
 				readOnly
 				rows="3"
 				value={ beyondwordsErrorMessage }
+				__nextHasNoMarginBottom
 			/>
 
 			<TextControl
