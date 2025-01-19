@@ -101,7 +101,7 @@ class PostPlayerContentTest extends WP_UnitTestCase
 
         $this->assertFalse(metadata_exists('post', $postId, 'beyondwords_player_content'));
 
-        $_POST['beyondwords_player_content'] = 'article';
+        $_POST['beyondwords_player_content'] = '';
 
         $playerContent->save($postId);
 
@@ -113,7 +113,7 @@ class PostPlayerContentTest extends WP_UnitTestCase
 
         $this->assertEquals('summary', get_post_meta($postId, 'beyondwords_player_content', true));
 
-        unset($_POST['beyondwords_player_content']);
+        $_POST['beyondwords_player_content'] = '';
 
         $playerContent->save($postId);
 
