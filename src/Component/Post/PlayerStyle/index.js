@@ -62,6 +62,7 @@ export function PlayerStyle( { wrapper } ) {
 						] }
 						onChange={ ( val ) => setPlayerStyle( val ) }
 						value={ playerStyle }
+						__nextHasNoMarginBottom
 					/>
 				</FlexBlock>
 			</Flex>

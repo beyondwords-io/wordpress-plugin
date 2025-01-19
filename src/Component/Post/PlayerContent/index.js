@@ -44,6 +44,7 @@ export function PlayerContent( { wrapper } ) {
 						] }
 						onChange={ ( val ) => setPlayerContent( val ) }
 						value={ playerContent }
+						__nextHasNoMarginBottom
 					/>
 				</FlexBlock>
 			</Flex>
