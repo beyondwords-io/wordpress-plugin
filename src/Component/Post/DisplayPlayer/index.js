@@ -41,6 +41,7 @@ export function DisplayPlayer( { wrapper } ) {
 					onChange={ () => {
 						onUpdateDisplayPlayer( ! displayPlayer );
 					} }
+					__nextHasNoMarginBottom
 				/>
 			</Wrapper>
 		</DisplayPlayerCheck>
