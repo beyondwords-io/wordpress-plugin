@@ -50,6 +50,14 @@ context( 'Classic Editor: Player Content', () => {
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
 
+      // window.BeyondWords should contain 1 player instance
+      cy.window().then( win => {
+        cy.wait( 2000 )
+        expect( win.BeyondWords ).to.not.be.undefined;
+        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
+        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.eq( [ 'article' ] );
+      } );
+
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
       cy.get( 'select#beyondwords_player_content' ).find( 'option:selected' ).contains( 'Article' )
@@ -78,6 +86,14 @@ context( 'Classic Editor: Player Content', () => {
       // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.getFrontendPlayer().should( 'exist' )
+
+      // window.BeyondWords should contain 1 player instance
+      cy.window().then( win => {
+        cy.wait( 2000 )
+        expect( win.BeyondWords ).to.not.be.undefined;
+        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
+        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.eq( [ 'summary' ] );
+      } );
 
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
