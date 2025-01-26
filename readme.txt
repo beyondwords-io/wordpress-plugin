@@ -95,9 +95,9 @@ Release date: 28th January 2025
 
 * Prioritise post-specific player settings.
     * It was previously possible for the plugin settings in the "Player" tab to overwrite any post-specific settings such as the player style.
-    * The order has now been corrected so any post-specific settings will overwrite the plugin settings.
+    * The priority has now been corrected so any post-specific settings will overwrite the plugin settings.
 * Fix Clipboard.js error.
-    * Replace Clipboard.js script with the WordPress core version.
+    * Replace Clipboard.js script with the WordPress core version to address a console error in the block editor.
 * [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
     * The AMP logo image has been moved from AWS S3 to Azure Storage.
 
@@ -107,7 +107,7 @@ Release date: 28th January 2025
     * Updated the block editor player embed script to align with React players we use in other BeyondWords projects.
     * This included removing the `react-script-tag` dependency.
 * Added the `__nextHasNoMarginBottom` property to various components.
-    * `__nextHasNoMarginBottom` has been set in various places o address a WordPress core console warning.
+    * `__nextHasNoMarginBottom` has been set in various places to address a console warning from WordPress core.
 * Updated dependencies.
     * Updated several dependencies including `@mockoon/cli`, `@wordpress/env`, `@wordpress/eslint-plugin`, `@wordpress/scripts`, and `uuid`.
     * Removed unused dependencies.
