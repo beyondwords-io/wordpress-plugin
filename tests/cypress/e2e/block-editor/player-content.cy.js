@@ -62,7 +62,7 @@ context( 'Block Editor: Player Content', () => {
         cy.wait( 2000 )
         expect( win.BeyondWords ).to.not.be.undefined;
         expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.eq( [ 'article' ] );
+        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.deep.eq( [ 'article' ] );
       } );
 
       // Check Player content has also been saved in admin
@@ -100,7 +100,7 @@ context( 'Block Editor: Player Content', () => {
         cy.wait( 2000 )
         expect( win.BeyondWords ).to.not.be.undefined;
         expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.eq( [ 'summary' ] );
+        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.deep.eq( [ 'summary' ] );
       } );
 
       // Check Player content has also been saved in admin
