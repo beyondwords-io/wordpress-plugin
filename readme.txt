@@ -84,14 +84,12 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 Release date: 28th January 2025
 
-**Enhancements**
+**Enhancements and Features:**
 
 * [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for summaries.
     * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
     * Selecting "Summary" will load the summary audio into the audio player.
     * The default value of "Article" loads the article content into the player as standard.
-* Refactor React player code.
-    * Replace `react-script-tag` dependency with an equivalent inline `<script>` tag.
 
 **Fixes**
 
@@ -102,6 +100,17 @@ Release date: 28th January 2025
     * Replace Clipboard.js script with the WordPress core version.
 * [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
     * The AMP logo image has been moved from AWS S3 to Azure Storage.
+
+**Codebase Enhancements**
+
+* Refactor React code for the player.
+    * Updated the block editor player embed script to align with React players we use in other BeyondWords projects.
+    * This included removing the `react-script-tag` dependency.
+* Added the `__nextHasNoMarginBottom` property to various components.
+    * `__nextHasNoMarginBottom` has been set in various places o address a WordPress core console warning.
+* Updated dependencies.
+    * Updated several dependencies including `@mockoon/cli`, `@wordpress/env`, `@wordpress/eslint-plugin`, `@wordpress/scripts`, and `uuid`.
+    * Removed unused dependencies.
 
 = 5.2.2 =
 
