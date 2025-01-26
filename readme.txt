@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.3.0 =
 
-Release date: 6th January 2025
+Release date: 28th January 2025
 
 **Enhancements**
 

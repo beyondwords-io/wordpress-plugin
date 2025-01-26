@@ -3,15 +3,17 @@
  */
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { Fragment, useEffect, useState, useRef } from '@wordpress/element';
+import { Fragment, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import PlayAudioCheck from './check';
+import { useBeyondWordsPlayer } from './hooks';
 
 function PlayAudio( {
 	contentId,
+	loadContentAs,
 	previewToken,
 	projectId,
 	wrapper = Fragment,
@@ -19,38 +21,14 @@ function PlayAudio( {
 	const Wrapper = wrapper;
 
 	const targetRef = useRef( null );
-	const [ scriptAppended, setScriptAppended ] = useState( false );
 
-	const script = document.createElement( 'script' );
-	script.src =
-		'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
-	script.async = true;
-	script.onload = function () {
-		new window.BeyondWords.Player( {
-			adverts: [],
-			analyticsConsent: 'none',
-			contentId,
-			introsOutros: [],
-			playerStyle: 'small',
-			previewToken: previewToken || '',
-			projectId,
-			target: targetRef.current,
-			widgetStyle: 'none',
-		} );
-	};
-
-	useEffect( () => {
-		if ( contentId && projectId && ! scriptAppended ) {
-			document.body.appendChild( script );
-			setScriptAppended( true );
-		}
-
-		return () => {
-			if ( document.body.contains( script ) ) {
-				document.body.removeChild( script );
-			}
-		};
-	}, [ contentId, projectId, scriptAppended, script ] );
+	useBeyondWordsPlayer( {
+		target: targetRef.current,
+		projectId,
+		contentId,
+		previewToken,
+		loadContentAs,
+	} );
 
 	return (
 		<PlayAudioCheck>
@@ -67,13 +45,13 @@ export default compose( [
 	withSelect( ( select ) => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
 
-		const beyondwordsPreviewToken =
-			getEditedPostAttribute( 'meta' ).beyondwords_preview_token;
+		// Project ID.
 		const beyondwordsProjectId =
 			getEditedPostAttribute( 'meta' ).beyondwords_project_id;
 		const speechkitProjectId =
 			getEditedPostAttribute( 'meta' ).speechkit_project_id;
 
+		// Content ID.
 		const beyondwordsContentId =
 			getEditedPostAttribute( 'meta' ).beyondwords_content_id;
 		const beyondwordsPodcastId =
@@ -81,11 +59,20 @@ export default compose( [
 		const speechkitPodcastId =
 			getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
 
+		// Other attributes.
+		const beyondwordsPlayerContent =
+			getEditedPostAttribute( 'meta' ).beyondwords_player_content;
+		const beyondwordsPreviewToken =
+			getEditedPostAttribute( 'meta' ).beyondwords_preview_token;
+
 		return {
 			contentId:
 				beyondwordsContentId ||
 				beyondwordsPodcastId ||
 				speechkitPodcastId,
+			loadContentAs: beyondwordsPlayerContent
+				? [ beyondwordsPlayerContent ]
+				: [ 'article' ],
 			previewToken: beyondwordsPreviewToken,
 			projectId: beyondwordsProjectId || speechkitProjectId,
 		};
