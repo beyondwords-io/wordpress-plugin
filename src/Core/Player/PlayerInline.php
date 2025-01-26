@@ -189,6 +189,7 @@ class PlayerInline
      * @since 3.1.0 Added speechkit_js_player_html filter
      * @since 4.2.0 Remove hasCustomPlayer() check from here.
      * @since 5.2.0 Replace div[data-beyondwords-player] with script[onload]
+     * @since 5.3.0 Use new jsPlayerParams() object return.
      *
      * @return string
      */
@@ -203,17 +204,17 @@ class PlayerInline
 
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
 
-        $params['projectId'] = $projectId;
-        $params['contentId'] = $contentId;
+        $params->projectId = $projectId;
+        $params->contentId = $contentId;
 
-        $json = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
+        $jsonParams = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
 
         // Headless instantiates a player without a target
         if ($playerUI !== PlayerUI::HEADLESS) {
-            $json = sprintf('{...%s, target:this}', $json);
+            $jsonParams = sprintf('{...%s, target:this}', $jsonParams);
         }
 
-        $onload = sprintf('new BeyondWords.Player(%s);', $json);
+        $onload = sprintf('new BeyondWords.Player(%s);', $jsonParams);
 
         /**
          * Filters the onload attribute of the BeyondWords Player script.
