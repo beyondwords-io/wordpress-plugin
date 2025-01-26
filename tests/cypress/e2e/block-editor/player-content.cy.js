@@ -25,7 +25,7 @@ context( 'Block Editor: Player Content', () => {
         const labels = [ ...$els ].map( el => el.innerText.trim() )
         expect(labels).to.deep.eq( ["Article", "Summary"] )
 
-        const values = [ ...$els ].map( el => el.innerText.trim() )
+        const values = [ ...$els ].map( el => el.value )
         expect(values).to.deep.eq( ["", "summary"] )
       })
 
@@ -53,9 +53,9 @@ context( 'Block Editor: Player Content', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // Check Player has video player in frontend
+      // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendLargePlayer().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
 
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
@@ -83,9 +83,9 @@ context( 'Block Editor: Player Content', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // Check Player has video player in frontend
+      // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendVideoPlayer().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
 
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )

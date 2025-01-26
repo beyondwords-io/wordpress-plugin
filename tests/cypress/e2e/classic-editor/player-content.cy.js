@@ -46,9 +46,9 @@ context( 'Classic Editor: Player Content', () => {
       // "View post"
       cy.get( '#sample-permalink' ).click().wait( 500 )
 
-      // Check Player has large player in frontend
+      // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendLargePlayer().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
 
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
@@ -75,13 +75,13 @@ context( 'Classic Editor: Player Content', () => {
       // "View post"
       cy.get( '#sample-permalink' ).click().wait( 500 )
 
-      // Check Player has video player in frontend
+      // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendVideoPlayer().should( 'exist' )
+      cy.getFrontendPlayer().should( 'exist' )
 
       // Check Player content has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
-      cy.get( 'select#beyondwords_player_content' ).find( 'option:selected' ).contains( 'Video' )
+      cy.get( 'select#beyondwords_player_content' ).find( 'option:selected' ).contains( 'Summary' )
     } )
   } )
 
