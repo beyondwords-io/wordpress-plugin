@@ -86,7 +86,7 @@ Release date: 28th January 2025
 
 **Enhancements**
 
-* Add support for summaries.
+* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for summaries.
     * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
     * Selecting "Summary" will load the summary audio into the audio player.
     * The default value of "Article" loads the article content into the player as standard.
@@ -97,6 +97,8 @@ Release date: 28th January 2025
 
 * [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
     * The AMP logo image has been moved from AWS S3 to Azure Storage.
+* Fix Clipboard.js error.
+    * Replace Clipboard.js script with the WordPress core version.
 
 = 5.2.2 =
 
