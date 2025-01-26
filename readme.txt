@@ -95,10 +95,13 @@ Release date: 28th January 2025
 
 **Fixes**
 
-* [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
-    * The AMP logo image has been moved from AWS S3 to Azure Storage.
+* Prioritise post-specific player settings.
+    * It was previously possible for the plugin settings in the "Player" tab to overwrite any post-specific settings such as the player style.
+    * The order has now been corrected so any post-specific settings will overwrite the plugin settings.
 * Fix Clipboard.js error.
     * Replace Clipboard.js script with the WordPress core version.
+* [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
+    * The AMP logo image has been moved from AWS S3 to Azure Storage.
 
 = 5.2.2 =
 

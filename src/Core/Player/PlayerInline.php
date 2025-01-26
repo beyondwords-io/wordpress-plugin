@@ -431,6 +431,8 @@ class PlayerInline
      *
      * @since 3.1.0
      * @since 4.0.0 Use new JS SDK params format.
+     * @since 5.3.0 Prioritise post-specific player settings, falling-back to the
+     *              values of the "Player" tab in the plugin settings.
      * @since 5.3.0 Support loadContentAs param and return an object.
      *
      * @param WP_Post $post WordPress Post.
@@ -451,6 +453,9 @@ class PlayerInline
             'contentId' => is_numeric($contentId) ? (int)$contentId : $contentId,
         ];
 
+        // Set initial SDK params from plugin settings
+        $params = $this->addPluginSettingsToSdkParams($params);
+
         // Player UI
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
         if ($playerUI === PlayerUI::HEADLESS) {
@@ -469,9 +474,6 @@ class PlayerInline
         if (!empty($playerContent)) {
             $params['loadContentAs'] = [ $playerContent ];
         }
-
-        // SDK params from plugin settings
-        $params = $this->addPluginSettingsToSdkParams($params);
 
         /**
          * Filters the BeyondWords JavaScript SDK parameters.

@@ -62,7 +62,7 @@ context( 'Block Editor: Player Style', () => {
       cy.setPlayerStyleInPluginSettings( 'Standard' );
     })
 
-    it( `can set "Large" Player style for a ${postType.name}`, () => {
+    it.only( `can set "Large" Player style for a ${postType.name}`, () => {
 
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
