@@ -54,14 +54,11 @@ export function useBeyondWordsPlayer( {
 } ) {
 	const BeyondWords = useBeyondWordsNamespace();
 
-	const [ { player, loaded }, setPlayer ] = useState( {
-		player: null,
-		loaded: false,
-	} );
+	const [ player, setPlayer ] = useState( null );
 
 	useEffect( () => {
 		if ( ! BeyondWords?.Player || ! target ) {
-			setPlayer( { player: null, loaded: false } );
+			setPlayer( null );
 			return;
 		}
 
@@ -81,17 +78,17 @@ export function useBeyondWordsPlayer( {
 				adverts: [],
 			} );
 		} catch ( error ) {
-			setPlayer( { player: null, loaded: false } );
+			setPlayer( null );
 
 			// @todo display error notice in Wordpress admin.
 
 			return;
 		}
 
-		setPlayer( { player: newPlayer, loaded: false } );
+		setPlayer( newPlayer );
 
 		return () => {
-			setPlayer( { player: null, loaded: false } );
+			setPlayer( null );
 			newPlayer.destroy();
 		};
 	}, [
@@ -103,5 +100,5 @@ export function useBeyondWordsPlayer( {
 		previewToken,
 	] );
 
-	return { player, loaded };
+	return player;
 }
