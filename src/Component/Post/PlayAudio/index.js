@@ -3,7 +3,7 @@
  */
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { Fragment, useRef } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -20,10 +20,10 @@ function PlayAudio( {
 } ) {
 	const Wrapper = wrapper;
 
-	const targetRef = useRef( null );
+	const [ target, setTarget ] = useState( null );
 
 	useBeyondWordsPlayer( {
-		target: targetRef.current,
+		target,
 		projectId,
 		contentId,
 		previewToken,
@@ -34,7 +34,7 @@ function PlayAudio( {
 		<PlayAudioCheck>
 			<Wrapper>
 				<div className="beyondwords-player-box-wrapper">
-					<div ref={ targetRef }></div>
+					<div ref={ setTarget }></div>
 				</div>
 			</Wrapper>
 		</PlayAudioCheck>
