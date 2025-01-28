@@ -37,6 +37,7 @@ export function GenerateAudio( {
 					onChange={ () => {
 						setGenerateAudio( ! generateAudio );
 					} }
+					__nextHasNoMarginBottom
 				/>
 			</Wrapper>
 		</GenerateAudioCheck>

@@ -11,6 +11,7 @@ import { Component } from '@wordpress/element';
  */
 import ErrorNotice from '../../../Post/ErrorNotice';
 import GenerateAudio from '../../../Post/GenerateAudio';
+import PlayerContent from '../../../Post/PlayerContent';
 import PlayerStyle from '../../../Post/PlayerStyle';
 import SelectVoice from '../../../Post/SelectVoice';
 
@@ -25,6 +26,7 @@ export default class PrepublishPanel extends Component {
 			>
 				<GenerateAudio wrapper={ PanelRow } />
 				<PlayerStyle wrapper={ PanelRow } />
+				<PlayerContent wrapper={ PanelRow } />
 				<SelectVoice wrapper={ PanelRow } />
 				<ErrorNotice wrapper={ PanelRow } />
 			</PluginPrePublishPanel>
