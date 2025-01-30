@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.3.0 =
 
-Release date: 28th January 2025
+Release date: 31st January 2025
 
 **Enhancements and Features:**
 
@@ -90,6 +90,8 @@ Release date: 28th January 2025
     * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
     * Selecting "Summary" will load the summary audio into the audio player.
     * The default value of "Article" loads the article content into the player as standard.
+* [428](https://github.com/beyondwords-io/wordpress-plugin/pull/428) Add Summarization tab in plugin settings.
+    * Adds a link to manage summarization settings for your project, including the summarization voice.
 
 **Fixes**
 
