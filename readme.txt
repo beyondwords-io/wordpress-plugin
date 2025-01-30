@@ -86,11 +86,12 @@ Release date: 31st January 2025
 
 **Enhancements and Features:**
 
-* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for summaries.
-    * A **Player content** field has been added to the post edit screens for both the Block Editor and Classic Editor.
-    * Selecting "Summary" will load the summary audio into the audio player.
-    * The default value of "Article" loads the article content into the player as standard.
-* [428](https://github.com/beyondwords-io/wordpress-plugin/pull/428) Add Summarization tab in plugin settings.
+* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for article summarisation.
+    * A new "Player Content" field has been added to the post edit screens for both the Block Editor and Classic Editor.
+        * Selecting "Summary" in the BeyondWords side panel loads the summarised audio into the player.
+        * The default value, "Article," continues to load the full article content.
+    * To use this feature, ensure that summarisation is included in your plan and enabled in your BeyondWords dashboard.
+* [429](https://github.com/beyondwords-io/wordpress-plugin/pull/429) Add Summarization tab in plugin settings.
     * Adds a link to manage summarization settings for your project, including the summarization voice.
 
 **Fixes**
