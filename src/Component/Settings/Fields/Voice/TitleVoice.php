@@ -55,6 +55,9 @@ class TitleVoice extends Voice
         register_setting(
             'beyondwords_voices_settings',
             self::OPTION_NAME,
+            [
+                'sanitize_callback' => 'absint',
+            ]
         );
 
         add_settings_field(
