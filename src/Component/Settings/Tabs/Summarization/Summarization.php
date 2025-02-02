@@ -3,30 +3,30 @@
 declare(strict_types=1);
 
 /**
- * Settings > BeyondWords > Pronunciations
+ * Settings > BeyondWords > Summarization
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   5.0.0
+ * @since   5.3.0
  */
 
-namespace Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations;
+namespace Beyondwords\Wordpress\Component\Settings\Tabs\Summarization;
 
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
- * "Pronunciations" settings tab
+ * "Summarization" settings tab
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
- * @since 5.0.0
+ * @since 5.3.0
  */
-class Pronunciations
+class Summarization
 {
     /**
      * Init
      *
-     * @since 5.0.0
+     * @since 5.3.0
      */
     public function init()
     {
@@ -36,29 +36,29 @@ class Pronunciations
     /**
      * Add Settings sections.
      *
-     * @since 5.0.0
+     * @since 5.3.0
      */
     public function addSettingsSection()
     {
         add_settings_section(
-            'pronunciations',
-            __('Pronunciations', 'speechkit'),
+            'summarization',
+            __('Summarization', 'speechkit'),
             array($this, 'sectionCallback'),
-            'beyondwords_pronunciations',
+            'beyondwords_summarization',
         );
     }
 
     /**
      * Section callback
      *
-     * @since 5.0.0
+     * @since 5.3.0
      *
      * @return void
      **/
     public function sectionCallback()
     {
-        $rulesUrl = sprintf(
-            '%s/dashboard/project/%s/settings?tab=rules',
+        $linkUrl = sprintf(
+            '%s/dashboard/project/%s/settings?tab=summarization',
             Environment::getDashboardUrl(),
             get_option('beyondwords_project_id'),
         );
@@ -66,14 +66,14 @@ class Pronunciations
         <p class="description">
             <?php
             esc_html_e(
-                'Create a custom pronunciation rule for any word or phrase.',
+                'Generate summarized versions of your audio articles.',
                 'speechkit'
             );
             ?>
         </p>
         <p class="description">
-            <a href="<?php echo esc_url($rulesUrl); ?>" target="_blank" class="button button-primary">
-                <?php esc_html_e('Manage pronunciations', 'speechkit'); ?>
+            <a href="<?php echo esc_url($linkUrl); ?>" target="_blank" class="button button-primary">
+                <?php esc_html_e('Manage summarization', 'speechkit'); ?>
             </a>
         </p>
         <?php
