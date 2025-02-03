@@ -190,6 +190,7 @@ class PlayerInline
      * @since 4.2.0 Remove hasCustomPlayer() check from here.
      * @since 5.2.0 Replace div[data-beyondwords-player] with script[onload]
      * @since 5.3.0 Use new jsPlayerParams() object return.
+     * @since 5.3.1 Add charset attribute to script tag.
      *
      * @return string
      */
@@ -242,7 +243,7 @@ class PlayerInline
 
         $html = sprintf(
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-            '<script async defer src="%s" onload=\'%s\'></script>',
+            '<script async defer charset="utf-8" src="%s" onload=\'%s\'></script>',
             Environment::getJsSdkUrl(),
             $onload
         );

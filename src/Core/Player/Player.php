@@ -389,6 +389,7 @@ class Player
      *
      * @since 3.0.0
      * @since 4.0.0 Updated Player SDK and added `beyondwords_player_script_onload` filter
+     * @since 5.3.1 Add charset attribute to script tag.
      *
      * @see https://developer.wordpress.org/reference/hooks/script_loader_tag/
      * @see https://stackoverflow.com/a/59594789
@@ -457,6 +458,7 @@ class Player
                     data-beyondwords-sdk="true"
                     async
                     defer
+                    charset="utf-8"
                     src="<?php echo esc_url($src); ?>"
                     onload='<?php echo esc_js($onload); ?>'
                 ></script>

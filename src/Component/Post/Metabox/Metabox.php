@@ -174,6 +174,7 @@ class Metabox
      *
      * @since 3.x   Introduced
      * @since 4.0.1 Admin player init is now all in this one function.
+     * @since 5.3.1 Add charset attribute to script tag.
      */
     public function playerEmbed($post = null)
     {
@@ -193,6 +194,7 @@ class Metabox
 
         ?>
         <script async defer
+            charset="utf-8"
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
             onload='const player = new BeyondWords.Player({
                 target: this,

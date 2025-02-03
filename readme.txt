@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.0
+Stable tag: 5.3.1-beta.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -79,6 +79,15 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.3.1 =
+
+Release date: 10th February 2025
+
+**Fixes:**
+
+* Add `charset="utf-8"` to script tags to help prevent encoding issues.
+    * We have added the `charset` param to address reports that UTF-8 chars are not displayed correctly on some sites.
 
 = 5.3.0 =
 
