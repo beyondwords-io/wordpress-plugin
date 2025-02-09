@@ -86,8 +86,8 @@ Release date: 10th February 2025
 
 **Fixes:**
 
-* Add `charset="utf-8"` to script tags to help prevent encoding issues.
-    * We have added the `charset` param to address reports that UTF-8 chars are not displayed correctly on some sites.
+* Replace `esc_js` with `esc_attr` for the player `onload` attribute.
+    * Fixes a reported issue where UTF-8 characters in the *Call to Action* setting were not being output correctly.
 
 = 5.3.0 =
 

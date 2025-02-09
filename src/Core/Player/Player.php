@@ -389,7 +389,7 @@ class Player
      *
      * @since 3.0.0
      * @since 4.0.0 Updated Player SDK and added `beyondwords_player_script_onload` filter
-     * @since 5.3.1 Add charset attribute to script tag.
+     * @since 5.3.1 Use esc_attr for the onload attribute to support UTF-8 characters.
      *
      * @see https://developer.wordpress.org/reference/hooks/script_loader_tag/
      * @see https://stackoverflow.com/a/59594789
@@ -429,7 +429,7 @@ class Player
             /**
              * Filters the onload attribute of the BeyondWords Player script.
              *
-             * Also note that to support multiple players on one page, the
+             * Note that to support multiple players on one page, the
              * default script uses `document.querySelectorAll() to target all
              * instances of `div[data-beyondwords-player]` in the HTML source.
              * If this approach is removed then multiple occurrences of the
@@ -453,7 +453,6 @@ class Player
                     data-beyondwords-sdk="true"
                     async
                     defer
-                    charset="utf-8"
                     src="<?php echo esc_url($src); ?>"
                     onload='<?php echo esc_attr($onload); ?>'
                 ></script>

@@ -394,7 +394,7 @@ class PlayerTest extends WP_UnitTestCase
         $handle = 'beyondwords-sdk';
         $src    = 'https://proxy.beyondwords.io/npm/@beyondwords/beyondwords-audio-player-v2@latest/dist/module/index.js';
 
-        $playerScript = '<script data-beyondwords-sdk="true" async defer charset="utf-8" src="https://proxy.beyondwords.io/npm/@beyondwords/beyondwords-audio-player-v2@latest/dist/module/index.js" onload=\'document.querySelectorAll(&quot;div[data-beyondwords-player]&quot;).forEach(function(el) { new BeyondWords.Player({ ...{&quot;projectId&quot;:9969,&quot;contentId&quot;:&quot;9279c9e0-e0b5-4789-9040-f44478ed3e9e&quot;,&quot;playerStyle&quot;:&quot;standard&quot;}, target: el });});\' ></script>';
+        $playerScript = '<script data-beyondwords-sdk="true" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/beyondwords-audio-player-v2@latest/dist/module/index.js" onload=\'document.querySelectorAll(&quot;div[data-beyondwords-player]&quot;).forEach(function(el) { new BeyondWords.Player({ ...{&quot;projectId&quot;:9969,&quot;contentId&quot;:&quot;9279c9e0-e0b5-4789-9040-f44478ed3e9e&quot;,&quot;playerStyle&quot;:&quot;standard&quot;}, target: el });});\' ></script>';
 
         return [
             'invalid handle' => [
