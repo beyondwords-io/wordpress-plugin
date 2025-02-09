@@ -429,11 +429,6 @@ class Player
             /**
              * Filters the onload attribute of the BeyondWords Player script.
              *
-             * Note that the strings should be in double quotes, because the output
-             * of this is run through esc_js() before it is output into the DOM.
-             *
-             * @link https://developer.wordpress.org/reference/functions/esc_js/
-             *
              * Also note that to support multiple players on one page, the
              * default script uses `document.querySelectorAll() to target all
              * instances of `div[data-beyondwords-player]` in the HTML source.
@@ -460,7 +455,7 @@ class Player
                     defer
                     charset="utf-8"
                     src="<?php echo esc_url($src); ?>"
-                    onload='<?php echo esc_js($onload); ?>'
+                    onload='<?php echo esc_attr($onload); ?>'
                 ></script>
                 <?php
             endif;
