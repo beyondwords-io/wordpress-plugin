@@ -16,6 +16,9 @@ context( 'Settings',  () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Voices' )
 
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=summarization' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Summarization' )
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Pronunciations' )
 

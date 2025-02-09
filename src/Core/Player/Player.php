@@ -406,21 +406,17 @@ class Player
             $params   = $this->jsPlayerParams($post);
             $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
 
-            $paramsJson = wp_json_encode($params, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES);
+            $paramsJson = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
 
             if ($playerUI === PlayerUI::HEADLESS) {
                 // Headless instantiates a player without a target
                 $onload = 'new BeyondWords.Player(' . $paramsJson . ');';
             } else {
                 // Standard mode instantiates player(s) with every div[data-beyondwords-player] as the target(s)
-                $onload = <<<EOD
-                    document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el) {
-                        new BeyondWords.Player({
-                            ...$paramsJson,
-                            target: el
-                        });
-                    });
-                    EOD;
+                $onload = sprintf(
+                    'document.querySelectorAll("div[data-beyondwords-player]").forEach(function(el) { new BeyondWords.Player({ ...%s, target: el });});', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $paramsJson
+                );
             }
 
             // strip newlines to prevent "invalid character" errors
@@ -476,16 +472,15 @@ class Player
     /**
      * JavaScript SDK parameters.
      *
-     * Note that the default return value for this method is an associative array, but
-     * the HTML output will be forced to an object due to `wp_json_encode($params, JSON_FORCE_OBJECT)`
-     * in `Player::scriptLoaderTag()`.
-     *
      * @since 3.1.0
      * @since 4.0.0 Use new JS SDK params format.
+     * @since 5.3.0 Prioritise post-specific player settings, falling-back to the
+     *              values of the "Player" tab in the plugin settings.
+     * @since 5.3.0 Support loadContentAs param and return an object.
      *
      * @param WP_Post $post WordPress Post.
      *
-     * @return array
+     * @return object
      */
     public function jsPlayerParams($post)
     {
@@ -493,26 +488,34 @@ class Player
             return [];
         }
 
-        $projectId   = PostMetaUtils::getProjectId($post->ID);
-        $contentId   = PostMetaUtils::getContentId($post->ID);
+        $projectId = PostMetaUtils::getProjectId($post->ID);
+        $contentId = PostMetaUtils::getContentId($post->ID);
 
         $params = [
-            'projectId'   => is_numeric($projectId) ? (int)$projectId : $projectId,
-            'contentId'   => is_numeric($contentId) ? (int)$contentId : $contentId,
+            'projectId' => is_numeric($projectId) ? (int)$projectId : $projectId,
+            'contentId' => is_numeric($contentId) ? (int)$contentId : $contentId,
         ];
 
-        $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
+        // Set initial SDK params from plugin settings
+        $params = $this->addPluginSettingsToSdkParams($params);
 
+        // Player UI
+        $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
         if ($playerUI === PlayerUI::HEADLESS) {
             $params['showUserInterface'] = false;
         }
 
-        $params = $this->addPluginSettingsToSdkParams($params);
-
+        // Player Style
         // @todo overwrite global styles with post settings
         $playerStyle = PostMetaUtils::getPlayerStyle($post->ID);
         if (!empty($playerStyle)) {
             $params['playerStyle'] = $playerStyle;
+        }
+
+        // Player Content
+        $playerContent = get_post_meta($post->ID, 'beyondwords_player_content', true);
+        if (!empty($playerContent)) {
+            $params['loadContentAs'] = [ $playerContent ];
         }
 
         /**
@@ -525,7 +528,8 @@ class Player
          */
         $params = apply_filters('beyondwords_player_sdk_params', $params, $post->ID);
 
-        return $params;
+        // Cast assoc array to object
+        return (object)$params;
     }
 
     /**
