@@ -84,6 +84,7 @@ jobs:
             src \
             vendor \
             changelog.txt \
+            composer.json \
             index.php \
             LICENSE.txt \
             readme.txt \
