@@ -56,12 +56,12 @@ function setupNodeEvents( on, config ) {
         await exec( 'wp plugin activate wp-reset' )
         await exec( 'wp reset reset --yes' )
         await exec( 'wp plugin deactivate --all' )
-        await exec( 'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported' )
+        await exec( 'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported filter-pre-http-request' )
       } else {
         await exec( `yarn wp-env run tests-cli wp plugin activate wp-reset` )
         await exec( `yarn wp-env run tests-cli wp reset reset --yes` )
         await exec( `yarn wp-env run tests-cli wp plugin deactivate --all` )
-        await exec( `yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported` )
+        await exec( `yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported filter-pre-http-request` )
       }
       return null
     },
