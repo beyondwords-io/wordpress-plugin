@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.1-beta.1
+Stable tag: 5.3.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.3.1 =
 
-Release date: 10th February 2025
+Release date: 11th February 2025
 
 **Fixes:**
 
