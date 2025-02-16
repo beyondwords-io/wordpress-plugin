@@ -28,10 +28,8 @@ class Core
         // Actions for adding/updating posts
         add_action('wp_after_insert_post', array($this, 'onAddOrUpdatePost'), 99);
 
-        // Actions for deleting/trashing/restoring posts
-        add_action('before_delete_post', array($this, 'onTrashOrDeletePost'));
-        add_action('trashed_post', array($this, 'onTrashOrDeletePost'));
-        add_action('untrashed_post', array($this, 'onUntrashPost'), 10);
+        // Actions for deleting posts
+        add_action('before_delete_post', array($this, 'onDeletePost'));
 
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
     }
@@ -317,20 +315,21 @@ class Core
     }
 
     /**
-     * WP Trash/Delete Post action.
+     * WP Delete Post action.
      *
-     * Fires before a post has been trashed or deleted.
+     * Fires before a post has been deleted.
      *
      * We want to send a DELETE HTTP request when a post is either trashed or deleted, so the
      * audio no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * @since 3.9.0
+     * @since 3.9.0 Introduced.
+     * @since 5.4.0 Renamed method from onTrashOrDeletePost to onDeletePost.
      *
      * @param int $postId Post ID.
      *
      * @return bool
      **/
-    public function onTrashOrDeletePost($postId)
+    public function onDeletePost($postId)
     {
         // Exit if this post has no Project ID / Content ID
         if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
@@ -345,49 +344,6 @@ class Core
             ! $response['deleted'] === true
         ) {
             $errorMessage = __('Unable to delete audio from BeyondWords dashboard', 'speechkit');
-
-            if (is_array($response) && array_key_exists('message', $response)) {
-                $errorMessage .= ': ' . $response['message'];
-            }
-
-            update_post_meta($postId, 'beyondwords_error_message', $errorMessage);
-
-            return false;
-        }
-
-        return $response;
-    }
-
-    /**
-     * WP Untrash ("Restore") Post action.
-     *
-     * Fires before a post is restored from the Trash.
-     *
-     * We want to send a PUT HTTP request when a post is Untrashed, to "undelete" it from the BeyondWords dashboard.
-     *
-     * @since 3.9.0
-     *
-     * @param int    $postId         Post ID.
-     * @param string $previousStatus The status of the post at the point where it was trashed.
-     *
-     * @return bool|Response
-     **/
-    public function onUntrashPost($postId)
-    {
-        // Exit if this post has no Project ID / Content ID
-        if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
-            return false;
-        }
-
-        $response = ApiClient::updateAudio($postId);
-
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('id', $response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === false
-        ) {
-            $errorMessage = __('Unable to restore audio to BeyondWords dashboard', 'speechkit');
 
             if (is_array($response) && array_key_exists('message', $response)) {
                 $errorMessage .= ': ' . $response['message'];
