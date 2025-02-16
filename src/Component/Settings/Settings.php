@@ -34,6 +34,8 @@ use Beyondwords\Wordpress\Core\Environment;
  */
 class Settings
 {
+    public const REVIEW_NOTICE_TIME_FORMAT = '-14 days';
+
     /**
      * Init
      */
@@ -85,7 +87,7 @@ class Settings
     /**
      * Validate API creds on admin init.
      *
-     * @since 5.2.0
+     * @since 5.4.0
      */
     public function validateApiCreds()
     {
@@ -238,7 +240,7 @@ class Settings
     /**
      * Print missing API creds warning.
      *
-     * @since 5.2.0
+     * @since 5.4.0
      *
      * @return void
      */
@@ -282,13 +284,18 @@ class Settings
     /**
      * Maybe print plugin review notice.
      *
-     * @since 5.2.0
+     * @since 5.4.0
      *
      * @return void
      */
     public function maybePrintPluginReviewNotice()
     {
-        $dateActivated       = get_option('beyondwords_date_activated', '2024-11-19');
+        $screen = get_current_screen();
+        if ($screen && 'settings_page_beyondwords' !== $screen->id) {
+            return;
+        }
+
+        $dateActivated       = get_option('beyondwords_date_activated', '2025-01-01');
         $dateNoticeDismissed = get_option('beyondwords_notice_review_dismissed', '');
 
         $showNotice = false;
@@ -296,14 +303,14 @@ class Settings
         if (empty($dateNoticeDismissed)) {
             $dateActivated = strtotime($dateActivated);
 
-            if ($dateActivated < strtotime('-14 days')) {
+            if ($dateActivated < strtotime(self::REVIEW_NOTICE_TIME_FORMAT)) {
                 $showNotice = true;
             }
         }
 
         if ($showNotice) :
             ?>
-            <div class="notice notice-info is-dismissible">
+            <div id="beyondwords_notice_review" class="notice notice-info is-dismissible">
                 <p>
                     <strong>
                         <?php
@@ -313,7 +320,7 @@ class Settings
                             sprintf(
                                 '<a href="%s">%s</a>',
                                 'https://wordpress.org/support/plugin/speechkit/reviews/',
-                                esc_html__('WordPress Plugin Repo.', 'speechkit')
+                                esc_html__('WordPress Plugin Repo', 'speechkit')
                             )
                         );
                         ?>
@@ -393,6 +400,15 @@ class Settings
                 return current_user_can('edit_posts');
             },
         ));
+
+        // dismiss review notice endpoint
+        register_rest_route('beyondwords/v1', '/settings/notices/review/dismiss', array(
+            'methods'  => \WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'dismissReviewNotice'),
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+        ));
     }
 
     /**
@@ -417,6 +433,25 @@ class Settings
             'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
             'wpVersion'     => $wp_version,
         ]);
+    }
+
+    /**
+     * Dismiss review notice.
+     *
+     * @since 5.4.0
+     *
+     * @return \WP_REST_Response
+     */
+    public function dismissReviewNotice()
+    {
+        $success = update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM));
+
+        return new \WP_REST_Response(
+            [
+                'success' => $success
+            ],
+            $success ? 200 : 500
+        );
     }
 
     /**

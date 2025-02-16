@@ -23,7 +23,7 @@ class Updater
      * Run
      *
      * @since 4.0.0
-     * @since 5.2.0 Add beyondwords_date_activated option.
+     * @since 5.4.0 Add beyondwords_date_activated option.
      */
     public function run()
     {
