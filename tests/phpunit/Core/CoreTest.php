@@ -30,19 +30,11 @@ class CoreTest extends WP_UnitTestCase
         $core = new Core();
         $core->init();
 
-        // Actions
         $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array($core, 'enqueueBlockEditorAssets')));
         $this->assertEquals(10, has_action('init', array($core, 'loadPluginTextdomain')));
         $this->assertEquals(99, has_action('init', array($core, 'registerMeta')));
-
-        // Actions for adding/updating posts
         $this->assertEquals(99, has_action('wp_after_insert_post', array($core, 'onAddOrUpdatePost')));
-
-        // Actions for deleting/trashing/restoring posts
-        $this->assertEquals(10, has_action('before_delete_post', array($core, 'onTrashOrDeletePost')));
-        $this->assertEquals(10, has_action('trashed_post', array($core, 'onTrashOrDeletePost')));
-        $this->assertEquals(10, has_action('untrashed_post', array($core, 'onUntrashPost')));
-
+        $this->assertEquals(10, has_action('before_delete_post', array($core, 'onDeletePost')));
         $this->assertEquals(10, has_action('is_protected_meta', array($core, 'isProtectedMeta')));
     }
 
@@ -323,10 +315,9 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      * @dataProvider deleteResponse
      */
-    public function onTrashOrDeletePost($expectedResponse)
+    public function onDeletePost($expectedResponse)
     {
         $this->markTestIncomplete();
 
@@ -334,7 +325,7 @@ class CoreTest extends WP_UnitTestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePost',
+            'post_title' => 'CoreTest::onDeletePost',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -343,7 +334,7 @@ class CoreTest extends WP_UnitTestCase
 
         $core = new Core();
 
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
+        $response = $core->onDeletePost($postId, 'publish');
 
         $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, get_post_meta($postId, 'beyondwords_project_id', true));
@@ -359,10 +350,9 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      * @dataProvider successResponse
      */
-    public function onTrashOrDeletePostHandlesInvalidResponse($expectedResponse)
+    public function onDeletePostHandlesInvalidResponse($expectedResponse)
     {
         $this->markTestIncomplete();
 
@@ -370,7 +360,7 @@ class CoreTest extends WP_UnitTestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePostHandlesInvalidResponse',
+            'post_title' => 'CoreTest::onDeletePostHandlesInvalidResponse',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -379,7 +369,7 @@ class CoreTest extends WP_UnitTestCase
 
         $core = new Core();
 
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
+        $response = $core->onDeletePost($postId, 'publish');
 
         $this->assertSame('Unable to delete audio from BeyondWords dashboard', get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -393,22 +383,21 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      * @dataProvider notFoundResponse
      */
-    public function onTrashOrDeletePostWithoutBeyondwordsData($expectedResponse)
+    public function onDeletePostWithoutBeyondwordsData($expectedResponse)
     {
         $this->markTestIncomplete();
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePostWithoutBeyondwordsData',
+            'post_title' => 'CoreTest::onDeletePostWithoutBeyondwordsData',
         ]);
 
         $core = new Core();
 
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
+        $response = $core->onDeletePost($postId, 'publish');
 
         $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -417,97 +406,6 @@ class CoreTest extends WP_UnitTestCase
         wp_delete_post($postId, true);
 
         delete_option('beyondwords_api_key');
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider successResponse
-     */
-    public function onUntrashPost($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::untrashingPostWillUpdateAudio',
-            'post_status' => 'trash',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider deleteResponse
-     */
-    public function onUntrashPostHandlesInvalidResponse($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::untrashingPostHandlesInvalidResponse',
-            'post_status' => 'trash',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('Unable to restore audio to BeyondWords dashboard', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider notFoundResponse
-     */
-    public function onUntrashPostWithoutBeyondwordsData($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onUntrashPostWithoutBeyondwordsData',
-            'post_status' => 'trash',
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
     }
 
     /**
@@ -720,8 +618,6 @@ class CoreTest extends WP_UnitTestCase
 
     function removeDeleteActions($core) {
         // Actions for deleting/trashing/restoring posts
-        remove_action('before_delete_post', array($core, 'onTrashOrDeletePost'));
-        remove_action('trashed_post', array($core, 'onTrashOrDeletePost'));
-        remove_action('untrashed_post', array($core, 'onUntrashPost'), 10, 2);
+        remove_action('before_delete_post', array($core, 'onDeletePost'));
     }
 }

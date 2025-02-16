@@ -102,7 +102,6 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      */
     public function deleteAudio()
     {
@@ -130,7 +129,6 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      */
     public function batchDeleteAudio()
     {
