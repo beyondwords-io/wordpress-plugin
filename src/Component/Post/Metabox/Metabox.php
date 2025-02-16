@@ -16,6 +16,7 @@ use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
+use Beyondwords\Wordpress\Component\Post\PlayerContent\PlayerContent;
 use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
@@ -27,21 +28,6 @@ use Beyondwords\Wordpress\Core\Environment;
  */
 class Metabox
 {
-    /**
-     * @var \Beyondwords\Wordpress\Core\ApiClient
-     */
-    private $apiClient;
-
-    /**
-     * Init.
-     *
-     * @since 4.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
     /**
      * Init.
      *
@@ -135,8 +121,9 @@ class Metabox
         }
 
         // Enable these components for posts with/without audio
-        (new SelectVoice($this->apiClient))->element($post);
+        (new SelectVoice())->element($post);
         (new PlayerStyle())->element($post);
+        (new PlayerContent())->element($post);
 
         echo '<hr />';
         $this->help();

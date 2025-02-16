@@ -15,7 +15,6 @@ context( 'Settings > Player > Skip button style',  () => {
   ];
 
   values.forEach( value => {
-    // @todo skipping because this fails now we auto-sync the API with WordPress
     it( `sets "${value}"`, () => {
       cy.saveMinimalPluginSettings()
 

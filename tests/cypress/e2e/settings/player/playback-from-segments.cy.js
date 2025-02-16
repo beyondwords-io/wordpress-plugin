@@ -9,7 +9,6 @@ context( 'Settings > Player > Playback from segments',  () => {
     cy.login()
   } )
 
-  // @todo skipping because this fails now we auto-sync the API with WordPress
   it( `sets "Playback from segments"`, () => {
     cy.saveMinimalPluginSettings()
 

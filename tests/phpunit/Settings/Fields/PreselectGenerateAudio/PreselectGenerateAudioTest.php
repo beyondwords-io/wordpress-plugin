@@ -23,9 +23,8 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
         // Your set up methods here.
         $this->_instance = new PreselectGenerateAudio();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -35,7 +34,6 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();
@@ -114,12 +112,6 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         $this->_instance->enqueueScripts( 'edit.php' );
         $this->assertNull($wp_scripts);
-
-        // @todo check this setting works in admin
-        // $this->_instance->enqueueScripts( 'settings_page_beyondwords' );
-        // $this->assertContains('beyondwords-settings--preselect-settings', $wp_scripts->queue);
-
-        // $wp_scripts = null;
 
         $this->_instance->enqueueScripts( 'post.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);

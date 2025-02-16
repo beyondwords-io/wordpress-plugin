@@ -63,6 +63,7 @@ Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
   cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' )
 } )
@@ -72,6 +73,7 @@ Cypress.Commands.add( 'showsAllSettingsTabs', () => {
   cy.get( '.nav-tab' ).contains( 'Content' )
   cy.get( '.nav-tab' ).contains( 'Voices' )
   cy.get( '.nav-tab' ).contains( 'Player' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' )
   cy.get( '.nav-tab' ).contains( 'Advanced' )
 } )
@@ -84,7 +86,7 @@ Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
 
 Cypress.Commands.add( 'showsInvalidApiCredsNotice', () => {
   cy.get( '.notice-error' ).find( 'li' ).should('have.length', 1)
-  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid.' )
+  cy.get( '.notice-error' ).find( 'li' ).eq( 0 ).contains( 'We were unable to validate your BeyondWords REST API connection.' )
 } )
 
 Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
@@ -430,21 +432,6 @@ Cypress.Commands.add( 'getAdminPlayer', ( ...args ) => {
 // Get frontend audio player element (standard)
 Cypress.Commands.add( 'getFrontendPlayer', ( ...args ) => {
   return cy.get( '.beyondwords-player .user-interface',  ...args )
-} )
-
-// Get frontend small player element
-Cypress.Commands.add( 'getFrontendSmallPlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.small',  ...args )
-} )
-
-// Get frontend large player element
-Cypress.Commands.add( 'getFrontendLargePlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.large',  ...args )
-} )
-
-// Get frontend video player element
-Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.video',  ...args )
 } )
 
 // Get frontend audio player element (standard)

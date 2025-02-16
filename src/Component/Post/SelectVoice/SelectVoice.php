@@ -15,6 +15,7 @@ namespace Beyondwords\Wordpress\Component\Post\SelectVoice;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * SelectVoice
@@ -23,23 +24,6 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  */
 class SelectVoice
 {
-    /**
-     * API Client.
-     *
-     * @since 3.0.0
-     */
-    private $apiClient;
-
-    /**
-     * Constructor.
-     *
-     * @since 3.0.0
-     */
-    public function __construct($apiClient)
-    {
-        $this->apiClient = $apiClient;
-    }
-
     /**
      * Init.
      *
@@ -80,7 +64,7 @@ class SelectVoice
         $languages         = $this->getFilteredLanguages();
         $currentLanguageId = get_post_meta($post->ID, 'beyondwords_language_id', true);
 
-        $voices         = $this->apiClient->getVoices($currentLanguageId);
+        $voices         = ApiClient::getVoices($currentLanguageId);
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
         if (! is_array($voices)) {
@@ -232,7 +216,7 @@ class SelectVoice
      */
     public function getFilteredLanguages()
     {
-        $languages = $this->apiClient->getLanguages();
+        $languages = ApiClient::getLanguages();
 
         if (! is_array($languages)) {
             return [];
@@ -306,7 +290,7 @@ class SelectVoice
     {
         $params = $data->get_url_params();
 
-        $voices = $this->apiClient->getVoices($params['languageId']);
+        $voices = ApiClient::getVoices($params['languageId']);
 
         return new \WP_REST_Response($voices);
     }

@@ -11,35 +11,25 @@
  */
 
 use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
-use Beyondwords\Wordpress\Core\ApiClient;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class SelectVoiceTest extends WP_UnitTestCase
 {
-    /**
-     * @var ApiClient
-     */
-    private $apiClient;
-
     public function setUp(): void
     {
         // Before...
         parent::setUp();
 
         // Your set up methods here.
-        $this->apiClient = new ApiClient();
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->apiClient = null;
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();
@@ -50,7 +40,7 @@ class SelectVoiceTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $selectVoice = new SelectVoice($this->apiClient);
+        $selectVoice = new SelectVoice();
         $selectVoice->init();
 
         do_action('wp_loaded');
@@ -76,7 +66,7 @@ class SelectVoiceTest extends WP_UnitTestCase
             ],
         ]);
 
-        $selectVoice = new SelectVoice($this->apiClient);
+        $selectVoice = new SelectVoice();
 
         $selectVoice->element($post);
 
@@ -129,7 +119,7 @@ class SelectVoiceTest extends WP_UnitTestCase
     {
         $_POST['beyondwords_select_voice_nonce'] = wp_create_nonce('beyondwords_select_voice');
 
-        $selectVoice = new SelectVoice($this->apiClient);
+        $selectVoice = new SelectVoice();
 
         $postId = self::factory()->post->create([
             'post_title' => 'SelectVoiceTest::save',

@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.0-beta.1
+Stable tag: 5.3.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -80,22 +80,93 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.3.1 =
+
+Release date: 11th February 2025
+
+**Fixes:**
+
+* Replace `esc_js` with `esc_attr` for the player `onload` attribute.
+    * Fixes a reported issue where UTF-8 characters in the *Call to Action* setting were not being output correctly.
+
+= 5.3.0 =
+
+Release date: 3rd February 2025
+
+**Enhancements and Features:**
+
+* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for article summarisation.
+    * A new "Player Content" field has been added to the post edit screens for both the Block Editor and Classic Editor.
+        * Selecting "Summary" in the BeyondWords side panel loads the summarised audio into the player.
+        * The default value, "Article," continues to load the full article content.
+    * To use this feature, ensure that summarisation is included in your plan and enabled in your BeyondWords dashboard.
+* [429](https://github.com/beyondwords-io/wordpress-plugin/pull/429) Add Summarization tab in plugin settings.
+    * Adds a link to manage summarization settings for your project, including the summarization voice.
+
+**Fixes**
+
+* Prioritise post-specific player settings.
+    * It was previously possible for the plugin settings in the "Player" tab to overwrite any post-specific settings such as the player style.
+    * The priority has now been corrected so any post-specific settings will overwrite the plugin settings.
+* Fix Clipboard.js error.
+    * Replace Clipboard.js script with the WordPress core version to address a console error in the block editor.
+* [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
+    * The AMP logo image has been moved from AWS S3 to Azure Storage.
+
+**Codebase Enhancements**
+
+* Refactor React code for the player.
+    * Updated the block editor player embed script to align with React players we use in other BeyondWords projects.
+    * This included removing the `react-script-tag` dependency.
+* Added the `__nextHasNoMarginBottom` property to various components.
+    * `__nextHasNoMarginBottom` has been set in various places to address a console warning from WordPress core.
+* Updated dependencies.
+    * Updated several dependencies including `@mockoon/cli`, `@wordpress/env`, `@wordpress/eslint-plugin`, `@wordpress/scripts`, and `uuid`.
+    * Removed unused dependencies.
+
+= 5.2.2 =
+
+Release date: 10th December 2024
+
+**Fixes**
+
+* [423](https://github.com/beyondwords-io/wordpress-plugin/pull/423) Optimise WordPress HTTP calls to BeyondWords REST API.
+    * Increase the WordPress default `timeout` param from `5` to `30`. This is to address a reported issue where REST API calls are sometimes timing out in WordPress/PHP before the REST API is able to respond.
+    * Also removed the `sslverify` param for API calls. This is no longer recommended.
+
+= 5.2.1 =
+
+Release date: 28th November 2024
+
+**Fixes**
+
+* [#421](https://github.com/beyondwords-io/wordpress-plugin/pull/421) Update WordPress GET voice queries to use scopes.
+    * Fixes the issue where multilingual voices were not being shown in voices dropdown menus.
+* [#417](https://github.com/beyondwords-io/wordpress-plugin/pull/417) Improve handling of failed REST API requests when syncing settings.
+    * Add HTTP status code into failed API credentials validation message to improve debugging for empty response body.
+    * Fix the undefined index errors that are logged when REST API responses do not contain the expected structure.
+    * Replace transients with object cache to reduce db writes.
+    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
+
 = 5.2.0 =
 
-Release date: TBC
+Release date: 22nd November 2024
 
-**Experimental**
+**Enhancements**
 
-* [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
-    * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
-    * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
-    * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
-* [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the recommended inline script tag method to embed players.
+* [#414](https://github.com/beyondwords-io/wordpress-plugin/pull/414) Tested up to WordPress 6.7.
+* [#409](https://github.com/beyondwords-io/wordpress-plugin/pull/409) Support the [recommended inline script tag method](https://github.com/beyondwords-io/player/blob/main/doc/getting-started.md) to embed players.
     * ***This opt-in feature is experimental and may change, or be removed, in the near future***.
     * Opt-in to the inline `<script>` tag method of auto-embedding audio players by defining the constant `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` as `true` in your `wp-config.php`.
     * This was added because the recent removal of the deprecated `beyondwords_content_id` filter caused problems for a publisher who had been using it to display an audio player from another post on their homepage.
     * After opting-in, audio players that are auto-prepended to the post body should now use the `beyondwords_content_id` and `beyondwords_project_id` from the associated post being queried within The Loop.
     * A known-issue is the current implementation is currently incompatible with both the *BeyondWords shortcode* and the *BeyondWords player block*. Compatibility will be ensured before this experimental opt-in feature is shipped to all users. In the meantime players added using either the shortcode or player block are unlikely to appear when the `BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG` is `true`.
+
+**Fixes**
+
+* [#413](https://github.com/beyondwords-io/wordpress-plugin/pull/413) Refactor API calls to prevent "invalid creds" messages
+    * Since upgrading to version 5 a few publishers have reported problems with their valid API credentials being flagged as invalid, so the checks we had in place to validate the API Key and Project ID have been updated.
+    * API calls to create/update BeyondWords content can now be made with potentially invalid credentials. If this happens (e.g. if your API Key has been revoked) the 401 Unauthorized error code and error message will be stored for your requests and visible in WordPress admin.
 
 = 5.1.0 =
 
@@ -126,15 +197,15 @@ Release date: 15th October 2024
 **Breaking changes**
 
 * Legacy audio player support has been removed.
-    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin. 
+    * The legacy BeyondWords player is no longer natively supported in the WordPress plugin.
     * The standard [BeyondWords Player](https://docs.beyondwords.io/docs-and-guides/player/overview) is now the only built-in option for the audio player.
 * Remove built-in Elementor compatibility.
     * Basic support for audio generation and auto-player embeds should still work for posts that are created with Elementor, although you will be unable to see a BeyondWords player in the Elementor post edit screens. To view our player in WordPress admin you can temporarily switch to the Block or Classic editors.
     * Refer to our [WordPress filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) docs and the [Elementor hooks](https://developers.elementor.com/docs/hooks/) docs if you wish to add Elementor support to your site.
-* Stop saving the legacy `beyondwords_podcast_id` param. 
-    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below. 
+* Stop saving the legacy `beyondwords_podcast_id` param.
+    * This change means that posts generated with versions `v5.0.0` and later will not play audio if the plugin is downgraded to `v3.x` or below.
     * If you need to downgrade to `v3.x` after using `v5.x` please contact us for support.
-* Remove deprecated filters. 
+* Remove deprecated filters.
     * A number of deprecated filters have now been removed from the source code.
     * Refer to our [WordPress Filters](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters) documentation to view the current filters we provide.
 

@@ -55,6 +55,9 @@ class TitleVoice extends Voice
         register_setting(
             'beyondwords_voices_settings',
             self::OPTION_NAME,
+            [
+                'sanitize_callback' => 'absint',
+            ]
         );
 
         add_settings_field(
@@ -77,6 +80,7 @@ class TitleVoice extends Voice
     {
         $current = get_option(self::OPTION_NAME);
         $options = $this->getOptions();
+        // phpcs:disable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
         ?>
         <div class="beyondwords-setting__title-voice">
             <select
@@ -108,5 +112,6 @@ class TitleVoice extends Voice
             ?>
         </p>
         <?php
+        // phpcs:enable PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
     }
 }

@@ -23,9 +23,8 @@ class ApiKeyTest extends WP_UnitTestCase
         // Your set up methods here.
         $this->_instance = new ApiKey();
 
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM));
     }
 
     public function tearDown(): void
@@ -35,7 +34,6 @@ class ApiKeyTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_option('beyondwords_valid_api_connection');
 
         // Then...
         parent::tearDown();
@@ -95,16 +93,16 @@ class ApiKeyTest extends WP_UnitTestCase
      */
     public function sanitize()
     {
-        set_transient('beyondwords_settings_errors', []);
+        wp_cache_set('beyondwords_settings_errors', [], 'beyondwords');
 
         // Assert valid value does not add an error
         $result = $this->_instance->sanitize('ABCDE');
 
-        $this->assertNotContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertNotContains('Please enter the BeyondWords API key. This can be found in your project settings.', wp_cache_get('beyondwords_settings_errors', 'beyondwords'));
 
         // Assert empty value adds an error
         $result = $this->_instance->sanitize('');
 
-        $this->assertContains('Please enter the BeyondWords API key. This can be found in your project settings.', get_transient('beyondwords_settings_errors'));
+        $this->assertContains('Please enter the BeyondWords API key. This can be found in your project settings.', wp_cache_get('beyondwords_settings_errors', 'beyondwords'));
     }
 }

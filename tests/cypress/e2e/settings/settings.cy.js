@@ -16,6 +16,9 @@ context( 'Settings',  () => {
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Voices' )
 
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=summarization' )
+    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Summarization' )
+
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Pronunciations' )
 
@@ -38,9 +41,8 @@ context( 'Settings',  () => {
     cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
   } )
 
-  // Skip this test in CI because auto-syncing settings is not supported in CI
   it( 'syncs the settings from the Dashboard to WordPress', () => {
-    cy.saveAllPluginSettings()
+    cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )
 
@@ -67,8 +69,7 @@ context( 'Settings',  () => {
 
     cy.get( 'form#all-options' ).submit()
 
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' )
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
+    cy.visit( '/wp-admin/options-general.php?page=beyondwords' ).wait( 2000 )
 
     cy.visit( '/wp-admin/options.php' )
 
@@ -95,7 +96,7 @@ context( 'Settings',  () => {
   } )
 
   it( 'removes the plugin settings when uninstalled', () => {
-    cy.saveAllPluginSettings()
+    cy.saveMinimalPluginSettings()
 
     cy.visit( '/wp-admin/options.php' )
 
@@ -105,7 +106,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_player_call_to_action' )
     cy.get( '#beyondwords_player_clickable_sections' )
     cy.get( '#beyondwords_player_theme_dark' )
-    // cy.get( '#beyondwords_player_highlight_sections' ) // @todo get this to appear
     cy.get( '#beyondwords_player_theme_light' )
     cy.get( '#beyondwords_player_skip_button_style' )
     cy.get( '#beyondwords_player_style' )
@@ -113,8 +113,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_player_theme_video' )
     cy.get( '#beyondwords_player_widget_position' )
     cy.get( '#beyondwords_player_widget_style' )
-    // cy.get( '#beyondwords_prepend_excerpt' ) // @todo get this to appear
-    // cy.get( '#beyondwords_preselect' ) // @todo get this to appear
     cy.get( '#beyondwords_project_body_voice_id' )
     cy.get( '#beyondwords_project_id' )
     cy.get( '#beyondwords_project_language_code' )

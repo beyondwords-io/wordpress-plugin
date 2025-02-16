@@ -89,10 +89,11 @@ export function SelectVoice( { wrapper } ) {
 									label: __( 'Project default', 'speechkit' ),
 									value: '',
 								},
-								...languageOptions
+								...languageOptions,
 							] }
 							onChange={ ( val ) => setLanguageId( val ) }
 							value={ languageId }
+							__nextHasNoMarginBottom
 						/>
 					</FlexBlock>
 				</Flex>
@@ -108,11 +109,12 @@ export function SelectVoice( { wrapper } ) {
 									label: '',
 									value: '',
 								},
-								...voiceOptions
+								...voiceOptions,
 							] }
 							onChange={ ( val ) => setAllVoiceIds( val ) }
 							disabled={ ! voiceOptions?.length }
 							value={ bodyVoiceId }
+							__nextHasNoMarginBottom
 						/>
 					</FlexBlock>
 				</Flex>

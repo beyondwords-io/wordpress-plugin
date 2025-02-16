@@ -15,6 +15,7 @@ const panel = ( { generateAudio, onGenerateAudioChange } ) => (
 				onChange={ ( value ) => {
 					onGenerateAudioChange( value );
 				} }
+				__nextHasNoMarginBottom
 			/>
 		</PanelRow>
 	</PanelBody>

@@ -302,7 +302,7 @@ class PostContentUtils
      * @static
      * @param int $postId WordPress Post ID.
      *
-     * @return Response
+     * @return string JSON endoded params.
      **/
     public static function getContentParams($postId)
     {
@@ -321,8 +321,8 @@ class PostContentUtils
         $status = get_post_status($postId);
 
         /*
-         * If the post status is draft/pending then we explicity send 
-         * { published: false } to the BeyondWords API, to prevent the 
+         * If the post status is draft/pending then we explicity send
+         * { published: false } to the BeyondWords API, to prevent the
          * generated audio from being published in playlists.
          *
          * We also omit { publish_date } because get_post_time() returns `false`

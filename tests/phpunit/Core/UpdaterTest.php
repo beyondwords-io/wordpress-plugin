@@ -47,7 +47,7 @@ class UpdaterTest extends WP_UnitTestCase
         $this->assertFalse(get_option('speechkit_preselect'));
         $this->assertFalse(get_option('speechkit_prepend_excerpt'));
 
-        $apiKey = 'write_12345678ABCDEFGH';
+        $apiKey = BEYONDWORDS_TESTS_API_KEY;
         $projectId = BEYONDWORDS_TESTS_PROJECT_ID;
         $postTypes = array('post', 'page', 'my_custom_post_type');
         $categories = array('-1', '1', '2', '42');
@@ -101,7 +101,7 @@ class UpdaterTest extends WP_UnitTestCase
         $this->assertFalse(get_option('beyondwords_preselect'));
         $this->assertFalse(get_option('beyondwords_prepend_excerpt'));
 
-        $apiKey = 'write_12345678ABCDEFGH';
+        $apiKey = BEYONDWORDS_TESTS_API_KEY;
         $projectId = BEYONDWORDS_TESTS_PROJECT_ID;
         $prependExcerpt = '1';
         $preselect = [

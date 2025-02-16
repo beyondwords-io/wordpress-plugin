@@ -9,7 +9,6 @@ context( 'Settings > Player UI',  () => {
     cy.login()
   } )
 
-  // @todo skipping because this fails now we auto-sync the API with WordPress
   it( 'uses "Enabled" Player UI setting', () => {
     cy.saveMinimalPluginSettings()
 
