@@ -80,6 +80,13 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.4.0 =
+
+* [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
+    * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
+    * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
+    * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
+
 = 5.3.1 =
 
 Release date: 11th February 2025
