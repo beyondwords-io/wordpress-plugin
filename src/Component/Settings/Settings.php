@@ -38,6 +38,9 @@ class Settings
 
     /**
      * Init
+     *
+     * @since 3.0.0 Introduced.
+     * @since 5.4.0 Add plugin review notice.
      */
     public function init()
     {
@@ -246,7 +249,7 @@ class Settings
     /**
      * Print missing API creds warning.
      *
-     * @since 5.4.0
+     * @since 5.2.0
      *
      * @return void
      */
@@ -384,6 +387,8 @@ class Settings
 
     /**
      * Register WP REST API routes
+     *
+     * @since 5.4.0 Add REST API route to dismiss review notice.
      *
      * @return void
      */
