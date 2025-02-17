@@ -301,7 +301,7 @@ class Settings
             return;
         }
 
-        $dateActivated       = get_option('beyondwords_date_activated', '2025-01-01');
+        $dateActivated       = get_option('beyondwords_date_activated', '2025-03-01');
         $dateNoticeDismissed = get_option('beyondwords_notice_review_dismissed', '');
 
         $showNotice = false;
