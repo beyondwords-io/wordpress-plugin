@@ -58,7 +58,7 @@ class Settings
         add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
         add_action('admin_notices', array($this, 'maybePrintPluginReviewNotice'));
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
-        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'));
+        add_action('load-settings_page_beyondwords', array($this, 'maybeValidateApiCreds'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
@@ -85,11 +85,13 @@ class Settings
     }
 
     /**
-     * Validate API creds on admin init.
+     * Validate API creds if we are on the credentials tab.
      *
      * @since 5.4.0
+     *
+     * @return void
      */
-    public function validateApiCreds()
+    public function maybeValidateApiCreds()
     {
         $activeTab = self::getActiveTab();
 
@@ -99,8 +101,12 @@ class Settings
     }
 
     /**
+     * Prints the admin interface for plugin settings.
+     *
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
+     *
+     * @return void
      */
     public function createAdminInterface()
     {
