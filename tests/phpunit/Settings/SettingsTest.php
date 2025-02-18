@@ -290,10 +290,6 @@ class SettingsTest extends WP_UnitTestCase
             'advanced'       => 'Advanced',
         );
 
-        $firstTab = array_filter($tabs, function($value, $key) {
-            return $key === 0;
-        });
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
@@ -303,6 +299,10 @@ class SettingsTest extends WP_UnitTestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
         delete_option('beyondwords_valid_api_connection');
+
+        $firstTab = array(
+            'credentials' => 'Credentials',
+        );
 
         $this->assertSame($firstTab, $this->_instance->getTabs());
     }
@@ -421,7 +421,7 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function maybePrintPluginReviewNoticeWithExpectedConditions()
     {
-        set_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
+        update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
 
         $this->_instance->maybePrintPluginReviewNotice();
         $html = $this->getActualOutput();

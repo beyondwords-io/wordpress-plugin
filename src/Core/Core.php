@@ -339,11 +339,9 @@ class Core
 
         $response = ApiClient::deleteAudio($postId);
 
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === true
-        ) {
+        $code = wp_remote_retrieve_response_code($response);
+
+        if ($code !== 204) {
             $errorMessage = __('Unable to delete audio from BeyondWords dashboard', 'speechkit');
 
             if (is_array($response) && array_key_exists('message', $response)) {
