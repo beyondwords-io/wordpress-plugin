@@ -406,6 +406,11 @@ class SiteHealth
      */
     public function addNoticeSettings(&$info)
     {
+        $info['beyondwords']['fields']['beyondwords_date_activated'] = [
+            'label' => __('Date Activated', 'speechkit'),
+            'value' => get_option('beyondwords_date_activated', ''),
+        ];
+
         $info['beyondwords']['fields']['beyondwords_notice_review_dismissed'] = [
             'label' => __('Review Notice Dismissed', 'speechkit'),
             'value' => get_option('beyondwords_notice_review_dismissed', ''),
