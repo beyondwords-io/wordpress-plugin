@@ -17,6 +17,7 @@ use Beyondwords\Wordpress\Component\Post\ErrorNotice\ErrorNotice;
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 use Beyondwords\Wordpress\Component\Post\Metabox\Metabox;
 use Beyondwords\Wordpress\Component\Post\Panel\Inspect\Inspect;
+use Beyondwords\Wordpress\Component\Post\PlayerContent\PlayerContent;
 use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
 use Beyondwords\Wordpress\Component\Posts\Column\Column;
@@ -98,7 +99,9 @@ class Plugin
             (new GenerateAudio())->init();
             (new DisplayPlayer())->init();
             (new SelectVoice())->init();
+            (new PlayerContent())->init();
             (new PlayerStyle())->init();
+            (new PlayerContent())->init();
             (new Metabox())->init();
         }
     }

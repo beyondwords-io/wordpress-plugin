@@ -15,6 +15,7 @@ import OpenSidebar from '../../../Post/OpenSidebar';
 import PendingNotice from '../../../Post/PendingNotice';
 import PlayAudio from '../../../Post/PlayAudio';
 import SelectVoice from '../../../Post/SelectVoice';
+import PlayerContent from '../../../Post/PlayerContent';
 import PlayerStyle from '../../../Post/PlayerStyle';
 
 export default class DocumentSettingPanel extends Component {
@@ -30,6 +31,7 @@ export default class DocumentSettingPanel extends Component {
 				<PendingNotice wrapper={ PanelRow } />
 				<PlayAudio wrapper={ PanelRow } />
 				<PlayerStyle wrapper={ PanelRow } />
+				<PlayerContent wrapper={ PanelRow } />
 				<SelectVoice wrapper={ PanelRow } />
 				<OpenSidebar wrapper={ PanelRow } />
 			</PluginDocumentSettingPanel>

@@ -12,6 +12,7 @@ import ErrorNotice from '../../ErrorNotice';
 import GenerateAudio from '../../GenerateAudio';
 import PendingNotice from '../../PendingNotice';
 import PlayAudio from '../../PlayAudio';
+import PlayerContent from '../../PlayerContent';
 import PlayerStyle from '../../PlayerStyle';
 import SelectVoice from '../../SelectVoice';
 
@@ -27,6 +28,7 @@ export function PlayerPanel() {
 			<PlayAudio wrapper={ PanelRow } />
 			<DisplayPlayer wrapper={ PanelRow } />
 			<PlayerStyle wrapper={ PanelRow } />
+			<PlayerContent wrapper={ PanelRow } />
 			<SelectVoice wrapper={ PanelRow } />
 			<ErrorNotice wrapper={ PanelRow } />
 		</PanelBody>

@@ -124,7 +124,7 @@ class PostMetaUtils
      * Remove the BeyondWords metadata for a Post.
      *
      * @since 3.9.0 Introduced.
-     * @since 5.2.3 Use CoreUtils::getPostMetaKeys('all') to get all meta keys.
+     * @since 5.4.0 Use CoreUtils::getPostMetaKeys('all') to get all meta keys.
      */
     public static function removeAllBeyondwordsMetadata($postId)
     {

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 /**
@@ -51,7 +50,6 @@ class Inspect
     {
         // Only enqueue for Post screens
         if ($hook === 'post.php' || $hook === 'post-new.php') {
-            // @todo Add Clipboard.js as an npm dependency (it's in the inspect.js file for now)
             wp_enqueue_script(
                 'beyondwords-inspect',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Panel/Inspect/js/inspect.js',
@@ -300,6 +298,8 @@ class Inspect
      * attempt to regenerate audio for a post that has audio content "Removed" in
      * WordPress but still exists in the REST API.
      *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @since 4.0.7
      *
      * @param int $postId The ID of the post being saved.
@@ -330,6 +330,7 @@ class Inspect
             // Set a flag - the post meta is deleted later along with a DELETE REST API request
             update_post_meta($postId, 'beyondwords_delete_content', '1');
         } elseif ('edit' === $action) {
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             $postedFields = $_POST['beyondwords_inspect_panel'] ?? [];
 
             if (is_array($postedFields)) {

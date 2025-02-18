@@ -19,6 +19,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Summarization\Summarization;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Component\Settings\Sync;
@@ -45,6 +46,7 @@ class Settings
             (new Voices())->init();
             (new Content())->init();
             (new Player())->init();
+            (new Summarization())->init();
             (new Pronunciations())->init();
             (new Advanced())->init();
         }
@@ -143,8 +145,8 @@ class Settings
                 settings_fields("beyondwords_{$activeTab}_settings");
                 do_settings_sections("beyondwords_{$activeTab}");
 
-                // Pronunciations currently has no fields to submit
-                if ($activeTab !== 'pronunciations') {
+                // Some tabs have no fields to submit
+                if (! in_array($activeTab, ['summarization', 'pronunciations'])) {
                     submit_button('Save changes');
                 }
                 ?>
@@ -185,6 +187,7 @@ class Settings
             'content'        => __('Content', 'speechkit'),
             'voices'         => __('Voices', 'speechkit'),
             'player'         => __('Player', 'speechkit'),
+            'summarization'  => __('Summarization', 'speechkit'),
             'pronunciations' => __('Pronunciations', 'speechkit'),
             'advanced'       => __('Advanced', 'speechkit'),
         );

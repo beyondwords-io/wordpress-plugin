@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.3
+Stable tag: 5.3.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -80,14 +80,49 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.2.3 =
+= 5.3.1 =
 
-Release date: 6th January 2025
+Release date: 11th February 2025
+
+**Fixes:**
+
+* Replace `esc_js` with `esc_attr` for the player `onload` attribute.
+    * Fixes a reported issue where UTF-8 characters in the *Call to Action* setting were not being output correctly.
+
+= 5.3.0 =
+
+Release date: 3rd February 2025
+
+**Enhancements and Features:**
+
+* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for article summarisation.
+    * A new "Player Content" field has been added to the post edit screens for both the Block Editor and Classic Editor.
+        * Selecting "Summary" in the BeyondWords side panel loads the summarised audio into the player.
+        * The default value, "Article," continues to load the full article content.
+    * To use this feature, ensure that summarisation is included in your plan and enabled in your BeyondWords dashboard.
+* [429](https://github.com/beyondwords-io/wordpress-plugin/pull/429) Add Summarization tab in plugin settings.
+    * Adds a link to manage summarization settings for your project, including the summarization voice.
 
 **Fixes**
 
+* Prioritise post-specific player settings.
+    * It was previously possible for the plugin settings in the "Player" tab to overwrite any post-specific settings such as the player style.
+    * The priority has now been corrected so any post-specific settings will overwrite the plugin settings.
+* Fix Clipboard.js error.
+    * Replace Clipboard.js script with the WordPress core version to address a console error in the block editor.
 * [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
     * The AMP logo image has been moved from AWS S3 to Azure Storage.
+
+**Codebase Enhancements**
+
+* Refactor React code for the player.
+    * Updated the block editor player embed script to align with React players we use in other BeyondWords projects.
+    * This included removing the `react-script-tag` dependency.
+* Added the `__nextHasNoMarginBottom` property to various components.
+    * `__nextHasNoMarginBottom` has been set in various places to address a console warning from WordPress core.
+* Updated dependencies.
+    * Updated several dependencies including `@mockoon/cli`, `@wordpress/env`, `@wordpress/eslint-plugin`, `@wordpress/scripts`, and `uuid`.
+    * Removed unused dependencies.
 
 = 5.2.2 =
 

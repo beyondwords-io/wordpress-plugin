@@ -3,12 +3,6 @@
     "description": "The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player.",
     "license": "GPL-2.0-or-later",
     "type": "project",
-    "authors": [
-        {
-            "name": "Stuart McAlpine",
-            "email": "stu@beyondwords.io"
-        }
-    ],
     "homepage": "https://beyondwords.io",
     "require": {
         "php": ">=8.0",

@@ -270,14 +270,14 @@ class PlayerTest extends WP_UnitTestCase
 
         $params = $this->_instance->jsPlayerParams($post);
 
-        $this->assertEquals($params['projectId'], BEYONDWORDS_TESTS_PROJECT_ID);
-        $this->assertEquals($params['contentId'], BEYONDWORDS_TESTS_CONTENT_ID);
-        $this->assertEquals($params['playerStyle'], 'standard');
+        $this->assertEquals($params->projectId, BEYONDWORDS_TESTS_PROJECT_ID);
+        $this->assertEquals($params->contentId, BEYONDWORDS_TESTS_CONTENT_ID);
+        $this->assertEquals($params->playerStyle, 'standard');
 
-        $this->assertArrayNotHasKey('playerType', $params);
-        $this->assertArrayNotHasKey('skBackend', $params);
-        $this->assertArrayNotHasKey('processingStatus', $params);
-        $this->assertArrayNotHasKey('apiWriteKey', $params);
+        $this->assertObjectNotHasProperty('playerType', $params);
+        $this->assertObjectNotHasProperty('skBackend', $params);
+        $this->assertObjectNotHasProperty('processingStatus', $params);
+        $this->assertObjectNotHasProperty('apiWriteKey', $params);
 
         wp_delete_post($post->ID, true);
     }
@@ -299,6 +299,7 @@ class PlayerTest extends WP_UnitTestCase
             $params['projectId']     = 4321;
             $params['contentId']     = 87654321;
             $params['playerStyle']   = 'screen';
+            $params['playerContent'] = 'custom content value';
             $params['myCustomParam'] = 'my custom value';
 
             return $params;
@@ -310,10 +311,11 @@ class PlayerTest extends WP_UnitTestCase
 
         remove_filter('beyondwords_player_sdk_params', $filter, 10);
 
-        $this->assertEquals($params['projectId'], 4321);
-        $this->assertEquals($params['contentId'], 87654321);
-        $this->assertEquals($params['playerStyle'], 'screen');
-        $this->assertEquals($params['myCustomParam'], 'my custom value');
+        $this->assertEquals($params->projectId, 4321);
+        $this->assertEquals($params->contentId, 87654321);
+        $this->assertEquals($params->playerStyle, 'screen');
+        $this->assertEquals($params->playerContent, 'custom content value');
+        $this->assertEquals($params->myCustomParam, 'my custom value');
 
         wp_delete_post($post->ID, true);
     }
