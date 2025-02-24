@@ -322,7 +322,7 @@ class Core
      * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
      * @since 3.9.0 Introduced.
-     * @since 5.4.0 Renamed from onTrashOrDeletePost, and we now remove all
+     * @since 5.3.2 Renamed from onTrashOrDeletePost, and we now remove all
      *              BeyondWords data when a post is trashed.
      *
      * @param int $postId Post ID.
@@ -341,7 +341,7 @@ class Core
      * We attempt to send a DELETE REST API request when a post is deleted so the audio
      * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * @since 5.4.0 Introduced, replacing onTrashOrDeletePost.
+     * @since 5.3.2 Introduced, replacing onTrashOrDeletePost.
      *
      * @param int $postId Post ID.
      *

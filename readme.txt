@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.1
+Stable tag: 5.3.2-beta.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -79,6 +79,17 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.3.2 =
+
+Release date: 27th February 2025
+
+**Fixes:**
+
+* [432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
+    * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
+    * After this update you will need to regenerate audio again if you restore posts from the trash.
 
 = 5.3.1 =
 
