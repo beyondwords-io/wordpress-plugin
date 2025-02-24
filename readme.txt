@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.1
+Stable tag: 5.3.2-beta.1
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -80,7 +80,9 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.4.0 =
+= 5.3.2 =
+
+Release date: 27th February 2025
 
 * [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
     * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.

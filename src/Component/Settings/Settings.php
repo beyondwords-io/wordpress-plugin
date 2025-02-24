@@ -40,7 +40,7 @@ class Settings
      * Init
      *
      * @since 3.0.0 Introduced.
-     * @since 5.4.0 Add plugin review notice.
+     * @since 5.3.2 Add plugin review notice.
      */
     public function init()
     {
@@ -90,7 +90,7 @@ class Settings
     /**
      * Validate API creds if we are on the credentials tab.
      *
-     * @since 5.4.0
+     * @since 5.3.2
      *
      * @return void
      */
@@ -293,7 +293,7 @@ class Settings
     /**
      * Maybe print plugin review notice.
      *
-     * @since 5.4.0
+     * @since 5.3.2
      *
      * @return void
      */
@@ -388,7 +388,7 @@ class Settings
     /**
      * Register WP REST API routes
      *
-     * @since 5.4.0 Add REST API route to dismiss review notice.
+     * @since 5.3.2 Add REST API route to dismiss review notice.
      *
      * @return void
      */
@@ -449,7 +449,7 @@ class Settings
     /**
      * Dismiss review notice.
      *
-     * @since 5.4.0
+     * @since 5.3.2
      *
      * @return \WP_REST_Response
      */
