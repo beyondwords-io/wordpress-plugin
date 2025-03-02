@@ -173,7 +173,7 @@ class SettingsUtils
      * @since 5.2.0 Moved from Sync class into SettingsUtils class.
      * @static
      *
-     * @return void
+     * @return boolean
      **/
     public static function validateApiConnection()
     {

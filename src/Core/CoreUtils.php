@@ -162,6 +162,8 @@ class CoreUtils
     {
         $current = [
             // v5.x
+            'beyondwords_date_activated',
+            'beyondwords_notice_review_dismissed',
             'beyondwords_player_call_to_action',
             'beyondwords_player_clickable_sections',
             'beyondwords_player_content',

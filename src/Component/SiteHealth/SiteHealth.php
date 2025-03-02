@@ -129,6 +129,8 @@ class SiteHealth
 
         $this->addFilters($info);
 
+        $this->addNoticeSettings($info);
+
         $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
         $this->addConstant($info, 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG');
@@ -390,6 +392,28 @@ class SiteHealth
             'label' => __('Registered deprecated filters', 'speechkit'),
             'value' => empty($registered) ? __('None', 'speechkit') : implode(', ', $registered),
             'debug' => empty($registered) ? 'none' : implode(', ', $registered),
+        ];
+    }
+
+    /**
+     * Add notice settings to the info debugging array.
+     *
+     * @since 5.3.2
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addNoticeSettings(&$info)
+    {
+        $info['beyondwords']['fields']['beyondwords_date_activated'] = [
+            'label' => __('Date Activated', 'speechkit'),
+            'value' => get_option('beyondwords_date_activated', ''),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_notice_review_dismissed'] = [
+            'label' => __('Review Notice Dismissed', 'speechkit'),
+            'value' => get_option('beyondwords_notice_review_dismissed', ''),
         ];
     }
 
