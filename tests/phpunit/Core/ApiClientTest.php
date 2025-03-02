@@ -461,41 +461,6 @@ class ApiClientTest extends WP_UnitTestCase
     /**
      * @test
      *
-     * 401 Invalid authentication token
-     */
-    public function callApiWithInvalidJsonResponse()
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidJsonResponse',
-        ]);
-
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
-
-        // Request invalid JSON in mockoon response
-        $headers = $request->getHeaders();
-        $headers['X-Force-Response'] = 'invalid-json';
-
-        $request->setHeaders($headers);
-
-        $response = ApiClient::callApi($request, $postId);
-
-        $this->assertSame(200, wp_remote_retrieve_response_code($response));
-
-        $error = sprintf(ApiClient::ERROR_FORMAT, 500, 'Unable to parse JSON in BeyondWords API response. Reason: Syntax error.');
-        $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
-
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-    }
-
-    /**
-     * @test
-     *
      * @dataProvider saveErrorMessageProvider
      */
     public function saveErrorMessage(string $message, int $code, string $expect)

@@ -48,10 +48,12 @@ class SettingsTest extends WP_UnitTestCase
         $this->assertSame(1, has_action('admin_menu', array($settings, 'addOptionsPage')));
         $this->assertSame(100, has_action('admin_notices', array($settings, 'printMissingApiCredsWarning')));
         $this->assertSame(200, has_action('admin_notices', array($settings, 'printSettingsErrors')));
+        $this->assertSame(10, has_action('admin_notices', array($settings, 'maybePrintPluginReviewNotice')));
         $this->assertSame(10, has_action('admin_enqueue_scripts', array($settings, 'enqueueScripts')));
+        $this->assertSame(10, has_action('load-settings_page_beyondwords', array($settings, 'maybeValidateApiCreds')));
+
         $this->assertSame(10, has_action('rest_api_init', array($settings, 'restApiInit')));
 
-        // Filters
         $this->assertSame(10, has_filter('plugin_action_links_speechkit/speechkit.php', array($settings, 'addSettingsLinkToPluginPage')));
     }
 
@@ -276,6 +278,38 @@ class SettingsTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function getTabs()
+    {
+        $tabs = array(
+            'credentials'    => 'Credentials',
+            'content'        => 'Content',
+            'voices'         => 'Voices',
+            'player'         => 'Player',
+            'summarization'  => 'Summarization',
+            'pronunciations' => 'Pronunciations',
+            'advanced'       => 'Advanced',
+        );
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $this->assertSame($tabs, $this->_instance->getTabs());
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_preselect');
+        delete_option('beyondwords_valid_api_connection');
+
+        $firstTab = array(
+            'credentials' => 'Credentials',
+        );
+
+        $this->assertSame($firstTab, $this->_instance->getTabs());
+    }
+
+    /**
+     * @test
+     */
     public function restApiInit()
     {
         // Initiating the REST API.
@@ -337,5 +371,67 @@ class SettingsTest extends WP_UnitTestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
         delete_option('beyondwords_valid_api_connection');
+    }
+
+    /**
+     * @test
+     */
+    public function maybePrintPluginReviewNoticeWithNoOptions()
+    {
+        $this->_instance->maybePrintPluginReviewNotice();
+        $html = $this->getActualOutput();
+
+        $this->assertSame('', $html);
+    }
+
+    /**
+     * @test
+     */
+    public function maybePrintPluginReviewNoticeWithRecentDate()
+    {
+        update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-13 days')));
+
+        $this->_instance->maybePrintPluginReviewNotice();
+        $html = $this->getActualOutput();
+
+        $this->assertSame('', $html);
+
+        delete_option('beyondwords_date_activated');
+    }
+
+    /**
+     * @test
+     */
+    public function maybePrintPluginReviewNoticeWithAlreadyDismissed()
+    {
+        update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
+        update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM, strtotime('-1 second')));
+
+        $this->_instance->maybePrintPluginReviewNotice();
+        $html = $this->getActualOutput();
+
+        $this->assertSame('', $html);
+
+        delete_option('beyondwords_date_activated');
+        delete_option('beyondwords_notice_review_dismissed');
+    }
+
+    /**
+     * @test
+     */
+    public function maybePrintPluginReviewNoticeWithExpectedConditions()
+    {
+        update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
+
+        $this->_instance->maybePrintPluginReviewNotice();
+        $html = $this->getActualOutput();
+
+        $crawler = new Crawler($html);
+
+        $field = $crawler->filter('#beyondwords_notice_review.notice.notice-info.is-dismissible');
+
+        $this->assertCount(1, $field);
+
+        delete_option('beyondwords_date_activated');
     }
 }
