@@ -28,10 +28,9 @@ class Core
         // Actions for adding/updating posts
         add_action('wp_after_insert_post', array($this, 'onAddOrUpdatePost'), 99);
 
-        // Actions for deleting/trashing/restoring posts
-        add_action('before_delete_post', array($this, 'onTrashOrDeletePost'));
-        add_action('trashed_post', array($this, 'onTrashOrDeletePost'));
-        add_action('untrashed_post', array($this, 'onUntrashPost'), 10);
+        // Actions for trashing/deleting posts
+        add_action('wp_trash_post', array($this, 'onTrashPost'));
+        add_action('before_delete_post', array($this, 'onDeletePost'));
 
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
     }
@@ -317,88 +316,40 @@ class Core
     }
 
     /**
-     * WP Trash/Delete Post action.
+     * On trash post.
      *
-     * Fires before a post has been trashed or deleted.
+     * We attempt to send a DELETE REST API request when a post is trashed so the audio
+     * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * We want to send a DELETE HTTP request when a post is either trashed or deleted, so the
-     * audio no longer appears in playlists, or in the publishers BeyondWords dashboard.
-     *
-     * @since 3.9.0
+     * @since 3.9.0 Introduced.
+     * @since 5.3.2 Renamed from onTrashOrDeletePost, and we now remove all
+     *              BeyondWords data when a post is trashed.
      *
      * @param int $postId Post ID.
      *
      * @return bool
      **/
-    public function onTrashOrDeletePost($postId)
+    public function onTrashPost($postId)
     {
-        // Exit if this post has no Project ID / Content ID
-        if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
-            return false;
-        }
-
-        $response = ApiClient::deleteAudio($postId);
-
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === true
-        ) {
-            $errorMessage = __('Unable to delete audio from BeyondWords dashboard', 'speechkit');
-
-            if (is_array($response) && array_key_exists('message', $response)) {
-                $errorMessage .= ': ' . $response['message'];
-            }
-
-            update_post_meta($postId, 'beyondwords_error_message', $errorMessage);
-
-            return false;
-        }
-
-        return $response;
+        ApiClient::deleteAudio($postId);
+        PostMetaUtils::removeAllBeyondwordsMetadata($postId);
     }
 
     /**
-     * WP Untrash ("Restore") Post action.
+     * On delete post.
      *
-     * Fires before a post is restored from the Trash.
+     * We attempt to send a DELETE REST API request when a post is deleted so the audio
+     * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * We want to send a PUT HTTP request when a post is Untrashed, to "undelete" it from the BeyondWords dashboard.
+     * @since 5.3.2 Introduced, replacing onTrashOrDeletePost.
      *
-     * @since 3.9.0
+     * @param int $postId Post ID.
      *
-     * @param int    $postId         Post ID.
-     * @param string $previousStatus The status of the post at the point where it was trashed.
-     *
-     * @return bool|Response
+     * @return bool
      **/
-    public function onUntrashPost($postId)
+    public function onDeletePost($postId)
     {
-        // Exit if this post has no Project ID / Content ID
-        if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
-            return false;
-        }
-
-        $response = ApiClient::updateAudio($postId);
-
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('id', $response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === false
-        ) {
-            $errorMessage = __('Unable to restore audio to BeyondWords dashboard', 'speechkit');
-
-            if (is_array($response) && array_key_exists('message', $response)) {
-                $errorMessage .= ': ' . $response['message'];
-            }
-
-            update_post_meta($postId, 'beyondwords_error_message', $errorMessage);
-
-            return false;
-        }
-
-        return $response;
+        ApiClient::deleteAudio($postId);
     }
 
     /**

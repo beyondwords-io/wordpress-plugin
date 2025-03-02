@@ -26,11 +26,31 @@ class PluginTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function constructor()
+    public function initWithoutValidApiConnection()
     {
         $plugin = new Plugin();
         $plugin->init();
 
         $this->assertInstanceOf(Core::class, $plugin->core);
+    }
+
+    /**
+     * @test
+     */
+    public function initWithValidApiConnection()
+    {
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $plugin = new Plugin();
+        $plugin->init();
+
+        $this->assertInstanceOf(Core::class, $plugin->core);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+        delete_option('beyondwords_valid_api_connection');
     }
 }
