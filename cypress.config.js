@@ -1,5 +1,3 @@
-import cypressFailFast from 'cypress-fail-fast/plugin';
-
 const { defineConfig } = require( 'cypress' );
 const util = require( 'util' );
 const exec = util.promisify( require( 'child_process' ).exec );
@@ -36,9 +34,7 @@ module.exports = defineConfig( {
 
 function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
-
-	// Fail fast
-	cypressFailFast( on, config );
+	require( 'cypress-fail-fast/plugin' )( on, config );
 
 	// implement node event listeners here
 	on( 'task', {
