@@ -82,7 +82,16 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.3.2 =
 
-Release date: 27th February 2025
+Release date: 3rd March 2025
+
+**Fixes:**
+
+* [432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
+    * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
+    * After this update you will need to regenerate audio again if you restore posts from the trash.
+
+**Enhancements and Features:**
 
 * [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
     * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.

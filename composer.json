@@ -67,8 +67,8 @@
         "sort-packages": true
     },
     "scripts": {
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 57.5",
-        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 57.5 --only-percentage | sed 's/[^0-9.]*//g'",
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 60",
+        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 60 --only-percentage | sed 's/[^0-9.]*//g'",
         "test:phpunit": [
             "yarn wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
