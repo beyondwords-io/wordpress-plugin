@@ -120,14 +120,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.3-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.4-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.3'
+          php_version: '8.4'
 
       - name: Run GrumPHP code_quality test suite
         run: ./vendor/bin/grumphp run --testsuite code_quality
@@ -179,7 +179,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3']
+        php-version: ['8.4']
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
@@ -305,7 +305,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           # Publish results only for the latest PHP version
-          name: PHPUnit Test Results - PHP 8.3
+          name: PHPUnit Test Results - PHP 8.4
           path: .
 
       - name: Setup Pages
@@ -335,7 +335,7 @@ jobs:
       # don't fail the entire matrix on failure
       fail-fast: false
       matrix:
-        php-version: ['8.3']
+        php-version: ['8.4']
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
