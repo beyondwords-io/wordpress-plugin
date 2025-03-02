@@ -182,37 +182,6 @@ class CoreTest extends WP_UnitTestCase
         ];
     }
 
-    public function deleteResponse()
-    {
-        return [
-            'delete response' => [
-                [
-                    'id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                    'external_id' => 42,
-                    'state' => 'unprocessed',
-                    'media' => [],
-                    'image_url' => '',
-                    'deleted' => true,
-                    'access_key' => 'abcd9969abcd9969abcd9969abcd9969',
-                    'metadata' => [],
-                ]
-            ],
-        ];
-    }
-
-    public function notFoundResponse()
-    {
-        return [
-            'Not found response' => [
-                [
-                    'type' => 'application_error',
-                    'message' => 'Record not found',
-                    'context' => new StdClass(),
-                ]
-            ],
-        ];
-    }
-
     /**
      * @test
      */
@@ -315,12 +284,9 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @dataProvider deleteResponse
      */
-    public function onDeletePost($expectedResponse)
+    public function onDeletePost()
     {
-        $this->markTestIncomplete();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -333,16 +299,13 @@ class CoreTest extends WP_UnitTestCase
         ]);
 
         $core = new Core();
+        $core->onDeletePost($postId);
 
-        $response = $core->onDeletePost($postId, 'publish');
+        wp_delete_post($postId);
 
         $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -350,17 +313,11 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @dataProvider successResponse
      */
-    public function onDeletePostHandlesInvalidResponse($expectedResponse)
+    public function onTrashPost()
     {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onDeletePostHandlesInvalidResponse',
+            'post_title' => 'CoreTest::onTrashPost',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -368,44 +325,16 @@ class CoreTest extends WP_UnitTestCase
         ]);
 
         $core = new Core();
+        $core->onTrashPost($postId);
 
-        $response = $core->onDeletePost($postId, 'publish');
+        wp_trash_post($postId);
 
-        $this->assertSame('Unable to delete audio from BeyondWords dashboard', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     * @dataProvider notFoundResponse
-     */
-    public function onDeletePostWithoutBeyondwordsData($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onDeletePostWithoutBeyondwordsData',
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onDeletePost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
     }
 
     /**
