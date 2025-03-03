@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.2-beta.1
+Stable tag: 5.3.2-beta.2
 Requires PHP: 8.0
 Tested up to: 6.7
 License: GPLv2 or later
@@ -82,7 +82,7 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 = 5.3.2 =
 
-Release date: 3rd March 2025
+Release date: 4th March 2025
 
 **Fixes:**
 
@@ -97,6 +97,8 @@ Release date: 3rd March 2025
     * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
     * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
     * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
+* [#433](https://github.com/beyondwords-io/wordpress-plugin/pull/433) Test against and support PHP 8.4.
+* [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
 
 = 5.3.1 =
 
