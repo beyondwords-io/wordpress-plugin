@@ -61,10 +61,16 @@ class SelectVoice
             return;
         }
 
-        $languages         = $this->getFilteredLanguages();
-        $currentLanguageId = get_post_meta($post->ID, 'beyondwords_language_id', true);
+        $languages           = $this->getFilteredLanguages();
+        $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
+        $currentLanguageId   = get_post_meta($post->ID, 'beyondwords_language_id', true);
 
-        $voices         = ApiClient::getVoices($currentLanguageId);
+        if ($currentLanguageCode) {
+            $voices = ApiClient::getVoices($currentLanguageCode);
+        } else {
+            $voices = ApiClient::getVoicesLegacy($$currentLanguageId);
+        }
+
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
         if (! is_array($voices)) {
@@ -74,21 +80,21 @@ class SelectVoice
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
         ?>
         <p
-            id="beyondwords-metabox-select-voice--language-id"
+            id="beyondwords-metabox-select-voice--language-code"
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
-            <label class="post-attributes-label" for="beyondwords_language_id">
+            <label class="post-attributes-label" for="beyondwords_language_code">
                 Language
             </label>
         </p>
-        <select id="beyondwords_language_id" name="beyondwords_language_id" style="width: 100%;">
+        <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <option value="">Project default</option>
             <?php
             foreach ($languages as $language) {
                 printf(
                     '<option value="%s" %s>%s</option>',
-                    esc_attr($language['id']),
-                    selected(strval($language['id']), $currentLanguageId),
+                    esc_attr($language['code']),
+                    selected(strval($language['code']), $currentLanguageCode),
                     esc_html($language['name'])
                 );
             }
@@ -197,9 +203,18 @@ class SelectVoice
         ));
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[0-9]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[A-Za-z_]+)/voices', array(
             'methods'  => \WP_REST_Server::READABLE,
             'callback' => array($this, 'voicesRestApiResponse'),
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ));
+
+        // Voices endpoint
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[0-9]+)/voices', array(
+            'methods'  => \WP_REST_Server::READABLE,
+            'callback' => array($this, 'voicesLegacyRestApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -290,7 +305,24 @@ class SelectVoice
     {
         $params = $data->get_url_params();
 
-        $voices = ApiClient::getVoices($params['languageId']);
+        $voices = ApiClient::getVoices($params['languageCode']);
+
+        return new \WP_REST_Response($voices);
+    }
+
+    /**
+     * "Voices" WP REST API response (required for the Gutenberg editor
+     * and Block Editor).
+     *
+     * @since 4.0.0
+     *
+     * @return \WP_REST_Response
+     */
+    public function voicesLegacyRestApiResponse(\WP_REST_Request $data)
+    {
+        $params = $data->get_url_params();
+
+        $voices = ApiClient::getVoicesLegacy($params['languageId']);
 
         return new \WP_REST_Response($voices);
     }
