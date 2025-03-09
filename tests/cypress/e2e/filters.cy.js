@@ -19,12 +19,12 @@ describe( 'WordPress Filters', () => {
       cy.createPostWithAudio( `I can filter Player SDK params for a ${postType.name}`, postType )
 
       // Admin should have latest player
-      cy.getAdminPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // Frontend should have a player div
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // window.BeyondWords should contain desired SDK params from
       // tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
@@ -48,12 +48,12 @@ describe( 'WordPress Filters', () => {
       cy.createPostWithAudio( `I can filter Player script onload for a ${postType.name}`, postType )
 
       // Admin should have latest player
-      cy.getAdminPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // Frontend should have a player div
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // Check we have called console.log with expected values from testing plugin
       cy.get("@consoleLog").should(log => {
@@ -77,24 +77,24 @@ describe( 'WordPress Filters', () => {
       cy.createPostWithAudio( `I see the inline player script for a ${postType.name}`, postType )
 
       // Admin should have latest player
-      cy.getAdminPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
-      // Frontend SHOULD NOT have enqueued player script 
+      // Frontend SHOULD NOT have enqueued player script
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       cy.deactivatePlugin( 'beyondwords-filter-player-inline-script-tag' )
 
       cy.createPostWithAudio( `I see the legacy player script for a ${postType.name}`, postType )
 
       // Admin should have latest player
-      cy.getAdminPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
-      // Frontend SHOULD have enqueued player script 
+      // Frontend SHOULD have enqueued player script
       cy.viewPostViaSnackbar()
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
     } )
   } )
 } )

@@ -42,7 +42,7 @@ context( 'Block Editor: Segment markers', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.getFrontendPlayer().should( 'not.exist' )
+      cy.hasNoPlayerInstance()
 
       cy.contains( 'p' , 'One.' ).should( 'not.have.attr', 'data-beyondwords-marker' )
       cy.contains( 'p' , 'Two.' ).should( 'not.have.attr', 'data-beyondwords-marker' )
@@ -102,7 +102,7 @@ context( 'Block Editor: Segment markers', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       testCases.forEach( testCase => {
         cy.get( `@marker${testCase.id}` ).then( marker => {
@@ -162,7 +162,7 @@ context( 'Block Editor: Segment markers', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       cy.get( '.entry-content p:not(:empty)' )
         .should( 'have.length', 2 )
@@ -207,7 +207,7 @@ context( 'Block Editor: Segment markers', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       cy.get( '.entry-content p:not(:empty)' )
         .should( 'have.length', 2 )
@@ -248,7 +248,7 @@ context( 'Block Editor: Segment markers', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       cy.get( '.entry-content p:not(:empty)' )
         .should( 'have.length', 2 )
@@ -306,7 +306,7 @@ context( 'Block Editor: Segment markers', () => {
     cy.viewPostViaSnackbar()
 
     cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-    cy.getFrontendPlayer().should( 'exist' )
+    cy.hasPlayerInstance()
 
     cy.get( '.entry-content p:not(:empty)' )
       .should( 'have.length', 3 )
