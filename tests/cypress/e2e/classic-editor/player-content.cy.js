@@ -48,7 +48,7 @@ context( 'Classic Editor: Player Content', () => {
 
       // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // window.BeyondWords should contain 1 player instance
       cy.window().then( win => {
@@ -85,7 +85,7 @@ context( 'Classic Editor: Player Content', () => {
 
       // Check Player appears frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstance()
 
       // window.BeyondWords should contain 1 player instance
       cy.window().then( win => {

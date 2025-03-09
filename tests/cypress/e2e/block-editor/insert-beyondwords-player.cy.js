@@ -66,7 +66,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
+      cy.hasPlayerInstance()
     } )
 
     // @todo test fails because '.block-editor-default-block-appender button' is no longer available
@@ -100,7 +100,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
+      cy.hasPlayerInstance()
     } )
   } )
 } )
