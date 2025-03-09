@@ -25,13 +25,19 @@ abstract class Voice
      * Get all options for the current component.
      *
      * @since 5.0.0
+     * @since 5.4.0
      *
      * @return string[] Associative array of options.
      **/
     public function getOptions()
     {
-        $languageId = get_option('beyondwords_project_language_id');
-        $voices     = ApiClient::getVoices($languageId);
+        $languageCode = get_option('beyondwords_project_language_code');
+        if ($languageCode) {
+            $voices = ApiClient::getVoices($languageCode);
+        } else {
+            $languageId = get_option('beyondwords_project_language_id');
+            $voices = ApiClient::getVoicesLegacy($languageId);
+        }
 
         if (! $voices) {
             return [];
@@ -39,7 +45,7 @@ abstract class Voice
 
         $options = array_map(function ($voice) {
             return [
-                'value' => $voice['id'],
+                'value' => $voice['code'],
                 'label' => $voice['name'],
             ];
         }, $voices);

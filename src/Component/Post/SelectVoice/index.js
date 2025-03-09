@@ -23,8 +23,16 @@ export function SelectVoice( { wrapper } ) {
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
+	const languageCode = meta.beyondwords_language_code;
 	const languageId = meta.beyondwords_language_id;
 	const bodyVoiceId = meta.beyondwords_body_voice_id;
+
+	const setLanguageCode = ( newLanguageCode ) => {
+		setMeta( {
+			...meta,
+			beyondwords_language_code: newLanguageCode,
+		} );
+	};
 
 	const setLanguageId = ( newLanguageId ) => {
 		setMeta( {
@@ -50,7 +58,13 @@ export function SelectVoice( { wrapper } ) {
 
 	const { voices } = useSelect( ( select ) => {
 		return {
-			voices: languageId ? select( 'beyondwords/settings' ).getVoices( languageId ) : [],
+			voices: languageCode ? select( 'beyondwords/settings' ).getVoices( languageCode ) : [],
+		}
+	}, [ languageCode ] );
+
+	const { voices } = useSelect( ( select ) => {
+		return {
+			voices: languageId ? select( 'beyondwords/settings' ).getVoicesLegacy( languageId ) : [],
 		}
 	}, [ languageId ] );
 
@@ -58,7 +72,7 @@ export function SelectVoice( { wrapper } ) {
 		return ( languages ?? [] ).map( ( language ) => {
 			return {
 				label: decodeEntities( language.name ),
-				value: decodeEntities( language.id ),
+				value: decodeEntities( language.code ),
 			};
 		} );
 	}, [ languages ] );

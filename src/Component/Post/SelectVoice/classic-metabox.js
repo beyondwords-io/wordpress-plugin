@@ -23,6 +23,21 @@
 		/**
 		 * Setup click events.
 		 *
+		 * @since 5.4.0
+		 */
+		setupClickEvents() {
+			$( document ).on(
+				'change',
+				'select#beyondwords_language_code',
+				function () {
+					selectVoice.getVoices( this.value );
+				}
+			);
+		},
+
+		/**
+		 * Setup click events.
+		 *
 		 * @since 4.0.0
 		 */
 		setupClickEvents() {
@@ -30,7 +45,7 @@
 				'change',
 				'select#beyondwords_language_id',
 				function () {
-					selectVoice.getVoices( this.value );
+					selectVoice.getVoicesLegacy( this.value );
 				}
 			);
 		},
@@ -66,9 +81,45 @@
 		/**
 		 * Get voices for a language.
 		 *
+		 * @since 5.4.0
+		 */
+		getVoices( languageCode ) {
+			const $voicesSelect = $( '#beyondwords_voice_id' );
+
+			if ( ! languageCode ) {
+				$voicesSelect.empty().attr( 'disabled', true );
+				return;
+			}
+
+			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageCode}/voices`;
+
+			jQuery.ajax( {
+				url: endpoint,
+				method: 'GET',
+				beforeSend: function ( xhr ) {
+					xhr.setRequestHeader( 'X-WP-Nonce', beyondwordsData.nonce );
+				}
+			} ).done( function( voices ) {
+				$voicesSelect
+					.empty()
+					.append( '<option value=""></option>' )
+					.append( voices.map( ( voice ) => {
+						return $( '<option></option>' ).val( voice.id ).text( voice.name );
+					} ) )
+					.attr( 'disabled', false );
+			} ).fail(function ( xhr ) {
+				console.log( '🔊 Unable to load voices', xhr );
+				$voicesSelect.empty().attr( 'disabled', true )
+			} );
+		},
+	};
+
+		/**
+		 * Get voices for a language.
+		 *
 		 * @since 4.0.0
 		 */
-		getVoices( languageId ) {
+		getVoicesLegacy( languageId ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
 
 			languageId = parseInt(languageId);
