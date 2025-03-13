@@ -47,7 +47,6 @@ class Sync
         // Project
         'beyondwords_project_auto_publish_enabled'      => '[project][auto_publish_enabled]',
         'beyondwords_project_language_code'             => '[project][language]',
-        'beyondwords_project_language_id'               => '[project][language_id]',
         'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
         'beyondwords_project_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
         'beyondwords_project_title_enabled'             => '[project][title][enabled]',
@@ -365,10 +364,6 @@ class Sync
     {
         $language_code = $this->propertyAccessor->getValue($settings, '[project][language]');
 
-        if (null === $language_code) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', '');
-        }
-
         $language  = false;
         $languages = ApiClient::getLanguages();
 
@@ -380,8 +375,8 @@ class Sync
             )[$language_code] ?? false;
         }
 
-        if (is_array($language) && array_key_exists('id', $language)) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', $language['id']);
+        if (is_array($language) && array_key_exists('code', $language)) {
+            $this->propertyAccessor->setValue($settings, '[project][language]', $language['code']);
         }
     }
 }

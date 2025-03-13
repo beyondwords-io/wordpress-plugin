@@ -63,12 +63,9 @@ class SelectVoice
 
         $languages           = $this->getFilteredLanguages();
         $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
-        $currentLanguageId   = get_post_meta($post->ID, 'beyondwords_language_id', true);
 
         if ($currentLanguageCode) {
             $voices = ApiClient::getVoices($currentLanguageCode);
-        } else {
-            $voices = ApiClient::getVoicesLegacy($$currentLanguageId);
         }
 
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
@@ -112,7 +109,7 @@ class SelectVoice
             id="beyondwords_voice_id"
             name="beyondwords_voice_id"
             style="width: 100%;"
-            <?php echo disabled(!strval($currentLanguageId)) ?>
+            <?php echo disabled(!strval($currentLanguageCode)) ?>
         >
             <option value=""></option>
             <?php
@@ -144,7 +141,7 @@ class SelectVoice
 
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
-            ! isset($_POST['beyondwords_language_id']) ||
+            ! isset($_POST['beyondwords_language_code']) ||
             ! isset($_POST['beyondwords_voice_id']) ||
             ! isset($_POST['beyondwords_select_voice_nonce'])
         ) {
@@ -161,12 +158,12 @@ class SelectVoice
             return $postId;
         }
 
-        $languageId = sanitize_text_field(wp_unslash($_POST['beyondwords_language_id']));
+        $languageCode = sanitize_text_field(wp_unslash($_POST['beyondwords_language_code']));
 
-        if (! empty($languageId)) {
-            update_post_meta($postId, 'beyondwords_language_id', $languageId);
+        if (! empty($languageCode)) {
+            update_post_meta($postId, 'beyondwords_language_code', $languageCode);
         } else {
-            delete_post_meta($postId, 'beyondwords_language_id');
+            delete_post_meta($postId, 'beyondwords_language_code');
         }
 
         $voiceId = sanitize_text_field(wp_unslash($_POST['beyondwords_voice_id']));
@@ -203,18 +200,9 @@ class SelectVoice
         ));
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[A-Za-z_]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[A-Za-z_]+)/voices', array(
             'methods'  => \WP_REST_Server::READABLE,
             'callback' => array($this, 'voicesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
-
-        // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[0-9]+)/voices', array(
-            'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'voicesLegacyRestApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -262,7 +250,7 @@ class SelectVoice
             return false;
         }
 
-        if (! array_key_exists('id', $language)) {
+        if (! array_key_exists('code', $language)) {
             return false;
         }
 
@@ -272,7 +260,7 @@ class SelectVoice
             return false;
         }
 
-        if (! in_array(strval($language['id']), $languagesSetting)) {
+        if (! in_array(strval($language['code']), $languagesSetting)) {
             return false;
         }
 
@@ -309,24 +297,6 @@ class SelectVoice
 
         return new \WP_REST_Response($voices);
     }
-
-    /**
-     * "Voices" WP REST API response (required for the Gutenberg editor
-     * and Block Editor).
-     *
-     * @since 4.0.0
-     *
-     * @return \WP_REST_Response
-     */
-    public function voicesLegacyRestApiResponse(\WP_REST_Request $data)
-    {
-        $params = $data->get_url_params();
-
-        $voices = ApiClient::getVoicesLegacy($params['languageId']);
-
-        return new \WP_REST_Response($voices);
-    }
-
 
     /**
      * Register the component scripts.

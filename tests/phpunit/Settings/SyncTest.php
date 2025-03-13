@@ -127,10 +127,6 @@ class SyncTest extends WP_UnitTestCase
                 'option' => 'beyondwords_project_language_code',
                 'path'   => '[project][language]',
             ],
-            'beyondwords_project_language_id' => [
-                'option' => 'beyondwords_project_language_id',
-                'path'   => '[project][language_id]',
-            ],
             'beyondwords_project_body_voice_id' => [
                 'option' => 'beyondwords_project_body_voice_id',
                 'path'   => '[project][body][voice][id]',

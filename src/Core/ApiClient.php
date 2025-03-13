@@ -312,7 +312,7 @@ class ApiClient
     public static function getVoiceLegacy($voiceId, $languageId = false)
     {
         if (! $languageId) {
-            $languageId = get_option('beyondwords_project_language_id');
+            $languageId = get_option('beyondwords_project_language_code');
         }
 
         $voices = self::getVoicesLegacy($languageId);

@@ -34,9 +34,6 @@ abstract class Voice
         $languageCode = get_option('beyondwords_project_language_code');
         if ($languageCode) {
             $voices = ApiClient::getVoices($languageCode);
-        } else {
-            $languageId = get_option('beyondwords_project_language_id');
-            $voices = ApiClient::getVoicesLegacy($languageId);
         }
 
         if (! $voices) {

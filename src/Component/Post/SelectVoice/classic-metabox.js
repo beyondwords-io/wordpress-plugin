@@ -36,35 +36,20 @@
 		},
 
 		/**
-		 * Setup click events.
-		 *
-		 * @since 4.0.0
-		 */
-		setupClickEvents() {
-			$( document ).on(
-				'change',
-				'select#beyondwords_language_id',
-				function () {
-					selectVoice.getVoicesLegacy( this.value );
-				}
-			);
-		},
-
-		/**
 		 * Add our checkbox value to the autosave POST vars (if it's checked).
 		 *
 		 * @since 4.0.0
 		 */
 		setupAutosaveVariables() {
 			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageId = $( '#beyondwords_language_id' ).find( ':selected' ).val();
-				const voiceId    = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
+				const languageCode = $( '#beyondwords_language_code' ).find( ':selected' ).val();
+				const voiceId      = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
 
-				if ( languageId ) {
+				if ( languageCode ) {
 					settings.data +=
 						'&' +
 						$.param( {
-							beyondwords_language_id: languageId,
+							beyondwords_language_code: languageCode,
 						} );
 				}
 

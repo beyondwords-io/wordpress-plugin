@@ -109,7 +109,7 @@ class Languages
                 autocomplete="off"
             >
                 <?php foreach ($allLanguages as $language) :
-                    $languageId        = $propertyAccessor->getValue($language, '[id]');
+                    $languageCode      = $propertyAccessor->getValue($language, '[code]');
                     $languageName      = $propertyAccessor->getValue($language, '[name]');
                     $bodyId            = $propertyAccessor->getValue($language, '[default_voices][body][id]');
                     $bodySpeakingRate  = $propertyAccessor->getValue($language, '[default_voices][body][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
@@ -117,12 +117,12 @@ class Languages
                     $titleSpeakingRate = $propertyAccessor->getValue($language, '[default_voices][title][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
                     ?>
                     <option
-                        value="<?php echo esc_attr($languageId); ?>"
+                        value="<?php echo esc_attr($languageCode); ?>"
                         data-default-voice-body-id="<?php echo esc_attr($bodyId); ?>"
                         data-default-voice-body-speaking-rate="<?php echo esc_attr($bodySpeakingRate); ?>"
                         data-default-voice-title-id="<?php echo esc_attr($titleId); ?>"
                         data-default-voice-title-speaking-rate="<?php echo esc_attr($titleSpeakingRate); ?>"
-                        <?php selected(in_array($languageId, $selectedLanguages), true); ?>
+                        <?php selected(in_array($languageCode, $selectedLanguages), true); ?>
                     >
                         <?php echo esc_attr($languageName); ?>
                     </option>

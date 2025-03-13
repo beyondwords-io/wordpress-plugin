@@ -2,10 +2,10 @@
 'use strict';
 ( function ( $ ) {
 	$( document ).ready( function () {
-		const originalLanguageId = $('#beyondwords_project_language_id').value;
+		const originalLanguageCode = $('#beyondwords_project_language_code').value;
 
-		if ($('#beyondwords_project_language_id').length) {
-			const select = new TomSelect( '#beyondwords_project_language_id', {
+		if ($('#beyondwords_project_language_code').length) {
+			const select = new TomSelect( '#beyondwords_project_language_code', {
 				maxOptions: null,
 				sortField: {
 					field: "text",
@@ -44,7 +44,7 @@
 							.attr( 'disabled', false );
 					})
 
-					const defaultVoices = $(`#beyondwords_project_language_id option[value="${languageId}"]`).data( 'voices' )
+					const defaultVoices = $(`#beyondwords_project_language_code option[value="${languageId}"]`).data( 'voices' )
 
 					if (defaultVoices) {
 						if (defaultVoices.title && defaultVoices.title.id) {
@@ -62,7 +62,7 @@
 					}
 				} ).fail(function ( xhr ) {
 					console.log( '🔊 Unable to load voices', xhr );
-					$('#beyondwords_project_language_id').setValue(originalLanguageId);
+					$('#beyondwords_project_language_code').setValue(originalLanguageCode);
 				} ).always(function () {
 					$('.beyondwords-setting__title-voice .beyondwords-settings__loader').hide();
 					$('.beyondwords-setting__body-voice .beyondwords-settings__loader').hide();
@@ -74,4 +74,3 @@
 		}
 	} );
 } )( jQuery );
-

@@ -91,21 +91,21 @@ class LanguagesTest extends WP_UnitTestCase
         $this->assertCount(3, $field->filter('option'));
 
         // Options should be populated from Mock API response
-        $this->assertSame('1', $field->filter('option:nth-child(1)')->attr('value'));
+        $this->assertSame('aa_AA', $field->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('Language 1', $field->filter('option:nth-child(1)')->text());
         $this->assertSame('2', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-id'));
         $this->assertSame('95', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-speaking-rate'));
         $this->assertSame('3', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-id'));
         $this->assertSame('105', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-speaking-rate'));
 
-        $this->assertSame('2', $field->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('bb_BB', $field->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('Language 2', $field->filter('option:nth-child(2)')->text());
         $this->assertSame('2', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-id'));
         $this->assertSame('90', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-speaking-rate'));
         $this->assertSame('3', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-id'));
         $this->assertSame('110', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-speaking-rate'));
 
-        $this->assertSame('3', $field->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('cc_CC', $field->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Language 3', $field->filter('option:nth-child(3)')->text());
         $this->assertSame('2', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-id'));
         $this->assertSame('85', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-speaking-rate'));
