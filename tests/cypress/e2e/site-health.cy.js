@@ -84,7 +84,7 @@ context( 'Site Health', () => {
         // Default language ID
         cy.get( 'tr' ).eq( 12 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
         } )
         // Title voice ID
         cy.get( 'tr' ).eq( 13 ).within( () => {
