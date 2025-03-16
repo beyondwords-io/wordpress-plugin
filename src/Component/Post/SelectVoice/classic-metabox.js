@@ -4,7 +4,6 @@
 	'use strict';
 
 	const selectVoice = {
-
 		/**
 		 * Init.
 		 *
@@ -12,6 +11,7 @@
 		 */
 		init() {
 			if ( ! beyondwordsData ) {
+				// eslint-disable-next-line no-console
 				console.log( '🔊 Unable to retrive WP REST API settings' );
 				return;
 			}
@@ -42,8 +42,12 @@
 		 */
 		setupAutosaveVariables() {
 			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageCode = $( '#beyondwords_language_code' ).find( ':selected' ).val();
-				const voiceId      = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
+				const languageCode = $( '#beyondwords_language_code' )
+					.find( ':selected' )
+					.val();
+				const voiceId = $( '#beyondwords_voice_id' )
+					.find( ':selected' )
+					.val();
 
 				if ( languageCode ) {
 					settings.data +=
@@ -67,6 +71,7 @@
 		 * Get voices for a language.
 		 *
 		 * @since 5.4.0
+		 * @param {string} languageCode
 		 */
 		getVoices( languageCode ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
@@ -76,64 +81,37 @@
 				return;
 			}
 
-			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageCode}/voices`;
+			const { root, nonce } = beyondwordsData;
 
-			jQuery.ajax( {
-				url: endpoint,
-				method: 'GET',
-				beforeSend: function ( xhr ) {
-					xhr.setRequestHeader( 'X-WP-Nonce', beyondwordsData.nonce );
-				}
-			} ).done( function( voices ) {
-				$voicesSelect
-					.empty()
-					.append( '<option value=""></option>' )
-					.append( voices.map( ( voice ) => {
-						return $( '<option></option>' ).val( voice.id ).text( voice.name );
-					} ) )
-					.attr( 'disabled', false );
-			} ).fail(function ( xhr ) {
-				console.log( '🔊 Unable to load voices', xhr );
-				$voicesSelect.empty().attr( 'disabled', true )
-			} );
-		},
-	};
+			// eslint-disable-next-line max-len
+			const endpoint = `${ root }beyondwords/v1/languages/${ languageCode }/voices`;
 
-		/**
-		 * Get voices for a language.
-		 *
-		 * @since 4.0.0
-		 */
-		getVoicesLegacy( languageId ) {
-			const $voicesSelect = $( '#beyondwords_voice_id' );
-
-			languageId = parseInt(languageId);
-
-			if ( ! languageId ) {
-				$voicesSelect.empty().attr( 'disabled', true );
-				return;
-			}
-
-			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
-
-			jQuery.ajax( {
-				url: endpoint,
-				method: 'GET',
-				beforeSend: function ( xhr ) {
-					xhr.setRequestHeader( 'X-WP-Nonce', beyondwordsData.nonce );
-				}
-			} ).done( function( voices ) {
-				$voicesSelect
-					.empty()
-					.append( '<option value=""></option>' )
-					.append( voices.map( ( voice ) => {
-						return $( '<option></option>' ).val( voice.id ).text( voice.name );
-					} ) )
-					.attr( 'disabled', false );
-			} ).fail(function ( xhr ) {
-				console.log( '🔊 Unable to load voices', xhr );
-				$voicesSelect.empty().attr( 'disabled', true )
-			} );
+			jQuery
+				.ajax( {
+					url: endpoint,
+					method: 'GET',
+					beforeSend( xhr ) {
+						xhr.setRequestHeader( 'X-WP-Nonce', nonce );
+					},
+				} )
+				.done( function ( voices ) {
+					$voicesSelect
+						.empty()
+						.append( '<option value=""></option>' )
+						.append(
+							voices.map( ( voice ) => {
+								return $( '<option></option>' )
+									.val( voice.id )
+									.text( voice.name );
+							} )
+						)
+						.attr( 'disabled', false );
+				} )
+				.fail( function ( xhr ) {
+					// eslint-disable-next-line no-console
+					console.log( '🔊 Unable to load voices', xhr );
+					$voicesSelect.empty().attr( 'disabled', true );
+				} );
 		},
 	};
 
