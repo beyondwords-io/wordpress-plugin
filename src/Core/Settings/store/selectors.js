@@ -14,9 +14,6 @@ const selectors = {
 	getVoices( state ) {
 		return state.voices;
 	},
-	getVoicesLegacy( state ) {
-		return state.voices;
-	},
 };
 
 export default selectors;

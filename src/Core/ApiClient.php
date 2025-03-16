@@ -238,40 +238,6 @@ class ApiClient
     }
 
     /**
-     * GET /organization/voices
-     *
-     * @since 4.0.0 Introduced
-     * @since 4.0.2 Prefix endpoint with /organization
-     * @since 4.5.1 Check the $languageId param is numeric.
-     * @since 5.0.0 Accept numeric language ID or string language code as param.
-     * @since 5.2.0 Make static.
-     *
-     * @param int|string $language BeyondWords Language code or numeric ID
-     *
-     * @return mixed JSON-decoded response body
-     **/
-    public static function getVoicesLegacy($language)
-    {
-        $field = 'language.code';
-
-        if (is_numeric($language)) {
-            $field = 'language.id';
-        }
-
-        $url = sprintf(
-            '%s/organization/voices?filter[%s]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
-            Environment::getApiUrl(),
-            $field,
-            urlencode(strval($language))
-        );
-
-        $request  = new Request('GET', $url);
-        $response = self::callApi($request);
-
-        return json_decode(wp_remote_retrieve_body($response), true);
-    }
-
-    /**
      * Loops though GET /organization/voices, because
      * GET /organization/voice is not available.
      *
@@ -289,33 +255,6 @@ class ApiClient
         }
 
         $voices = self::getVoices($languageCode);
-
-        if (empty($voices)) {
-            return false;
-        }
-
-        return array_column($voices, null, 'id')[$voiceId] ?? false;
-    }
-
-    /**
-     * Loops though GET /organization/voices, because
-     * GET /organization/voice is not available.
-     *
-     * @since 5.0.0
-     * @since 5.2.0 Make static.
-     *
-     * @param int       $voiceId  Voice ID.
-     * @param int|false $language Language ID, optional.
-     *
-     * @return object|false Voice, or false if not found.
-     **/
-    public static function getVoiceLegacy($voiceId, $languageId = false)
-    {
-        if (! $languageId) {
-            $languageId = get_option('beyondwords_project_language_code');
-        }
-
-        $voices = self::getVoicesLegacy($languageId);
 
         if (empty($voices)) {
             return false;

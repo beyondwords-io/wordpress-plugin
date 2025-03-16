@@ -217,13 +217,13 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function getVoices()
     {
-        $response = ApiClient::getVoices(2);
+        $response = ApiClient::getVoices('bb_BB');
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getVoices(2);
+        $response = ApiClient::getVoices('bb_BB');
 
         $this->assertSame(1, $response[0]['id']);
         $this->assertSame(2, $response[1]['id']);
