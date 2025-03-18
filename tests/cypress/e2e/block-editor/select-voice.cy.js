@@ -37,11 +37,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Language' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Project default", "Language 1", "Language 2"] )
+        expect(values).to.deep.eq( ["Project default", "English (American)", "English (British)"] )
       })
 
       // Select a Language
-      cy.getBlockEditorSelect( 'Language' ).select( 'Language 1' ).wait( 2000 )
+      cy.getBlockEditorSelect( 'Language' ).select( 'English (American)' ).wait( 2000 )
 
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
@@ -53,7 +53,7 @@ context( 'Block Editor: Select Voice', () => {
       cy.getBlockEditorSelect( 'Voice' ).select( 'Voice 3' )
 
       // Select another Language
-      cy.getBlockEditorSelect( 'Language' ).select( 'Language 2' ).wait( 2000 )
+      cy.getBlockEditorSelect( 'Language' ).select( 'English (British)' ).wait( 2000 )
 
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
@@ -77,7 +77,7 @@ context( 'Block Editor: Select Voice', () => {
       // Check Language/Voice has been saved by refreshing the page
       cy.reload()
       cy.openBeyondwordsEditorPanel()
-      cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'Language 2' )
+      cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
       cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )

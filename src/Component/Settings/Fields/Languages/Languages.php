@@ -111,6 +111,7 @@ class Languages
                 <?php foreach ($allLanguages as $language) :
                     $languageCode      = $propertyAccessor->getValue($language, '[code]');
                     $languageName      = $propertyAccessor->getValue($language, '[name]');
+                    $languageAccent    = $propertyAccessor->getValue($language, '[accent]');
                     $bodyId            = $propertyAccessor->getValue($language, '[default_voices][body][id]');
                     $bodySpeakingRate  = $propertyAccessor->getValue($language, '[default_voices][body][speaking_rate]'); // phpcs:ignore Generic.Files.LineLength.TooLong
                     $titleId           = $propertyAccessor->getValue($language, '[default_voices][title][id]');
@@ -124,7 +125,7 @@ class Languages
                         data-default-voice-title-speaking-rate="<?php echo esc_attr($titleSpeakingRate); ?>"
                         <?php selected(in_array($languageCode, $selectedLanguages), true); ?>
                     >
-                        <?php echo esc_attr($languageName); ?>
+                        <?php echo esc_attr($languageName); ?> (<?php echo esc_attr($languageAccent); ?>)
                     </option>
                 <?php endforeach; ?>
             </select>

@@ -89,10 +89,11 @@ class SelectVoice
             <?php
             foreach ($languages as $language) {
                 printf(
-                    '<option value="%s" %s>%s</option>',
+                    '<option value="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
                     selected(strval($language['code']), $currentLanguageCode),
-                    esc_html($language['name'])
+                    esc_html($language['name']),
+                    esc_html($language['accent'])
                 );
             }
             ?>

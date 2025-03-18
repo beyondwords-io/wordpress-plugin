@@ -139,8 +139,8 @@ Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
 
   cy.get('#beyondwords_languages-ts-control').click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 1' ).click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 2' ).click().wait( 1000 )
+  cy.contains('#beyondwords_languages-ts-dropdown .option', 'English (American)' ).click().wait( 1000 )
+  cy.contains('#beyondwords_languages-ts-dropdown .option', 'English (British)' ).click().wait( 1000 )
 
   cy.get( 'input[type=submit]' ).click().wait( 2000 )
   cy.get( '.notice-success' )

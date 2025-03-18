@@ -56,7 +56,7 @@ class SelectVoiceTest extends WP_UnitTestCase
      */
     public function element()
     {
-        update_option('beyondwords_languages', ['aa_AA', 'bb_BB', 'cc_CC']);
+        update_option('beyondwords_languages', ['en_US', 'en_GB', 'cy_GB']);
 
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PostSelectVoiceTest::element',
@@ -83,14 +83,14 @@ class SelectVoiceTest extends WP_UnitTestCase
         $this->assertSame('', $languageSelect->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('Project default', $languageSelect->filter('option:nth-child(1)')->text());
 
-        $this->assertSame('aa_AA', $languageSelect->filter('option:nth-child(2)')->attr('value'));
-        $this->assertSame('Language 1', $languageSelect->filter('option:nth-child(2)')->text());
+        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('English (American)', $languageSelect->filter('option:nth-child(2)')->text());
 
-        $this->assertSame('bb_BB', $languageSelect->filter('option:nth-child(3)')->attr('value'));
-        $this->assertSame('Language 2', $languageSelect->filter('option:nth-child(3)')->text());
+        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('English (British)', $languageSelect->filter('option:nth-child(3)')->text());
 
-        $this->assertSame('cc_CC', $languageSelect->filter('option:nth-child(4)')->attr('value'));
-        $this->assertSame('Language 3', $languageSelect->filter('option:nth-child(4)')->text());
+        $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('Welsh (British)', $languageSelect->filter('option:nth-child(4)')->text());
 
         $voiceLabel = $crawler->filter('p#beyondwords-metabox-select-voice--voice-id');
         $this->assertEquals('Voice', $voiceLabel->text());
@@ -135,7 +135,7 @@ class SelectVoiceTest extends WP_UnitTestCase
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
-        $_POST['beyondwords_language_code'] = 'aa_AA';
+        $_POST['beyondwords_language_code'] = 'en_US';
         $_POST['beyondwords_voice_id'] = '1';
 
         $selectVoice->save($postId);

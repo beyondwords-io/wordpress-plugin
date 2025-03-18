@@ -121,8 +121,8 @@ class Language
 
         $options = array_map(function ($language) {
             return [
-                'value'  => $language['id'],
-                'label'  => $language['name'],
+                'value'  => $language['code'],
+                'label'  => $language['name'] . '(' . $language['accent'] . ')',
                 'voices' => wp_json_encode($language['default_voices']),
             ];
         }, $languages);

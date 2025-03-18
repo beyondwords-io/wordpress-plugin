@@ -79,7 +79,7 @@ context( 'Site Health', () => {
         // Default language code
         cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'bb_BB' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'en_GB' )
         } )
         // Default language ID
         cy.get( 'tr' ).eq( 12 ).within( () => {

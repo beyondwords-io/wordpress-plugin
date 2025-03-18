@@ -62,7 +62,7 @@ export function SelectVoice( { wrapper } ) {
 	const languageOptions = useMemo( () => {
 		return ( languages ?? [] ).map( ( language ) => {
 			return {
-				label: decodeEntities( language.name ),
+				label: `${ decodeEntities( language.name ) } ( ${ decodeEntities( language.accent ) } )`,
 				value: decodeEntities( language.code ),
 			};
 		} );

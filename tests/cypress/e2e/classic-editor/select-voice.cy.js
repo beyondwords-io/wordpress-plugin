@@ -34,11 +34,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Languages
       cy.get( 'select#beyondwords_language_code' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Project default", "Language 1", "Language 2"] )
+        expect(values).to.deep.eq( ["Project default", "English (American)", "English (British)"] )
       })
 
       // Select a Language
-      cy.get( 'select#beyondwords_language_code' ).select( 'Language 1' ).wait( 1000 )
+      cy.get( 'select#beyondwords_language_code' ).select( 'English (American)' ).wait( 1000 )
 
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
@@ -50,7 +50,7 @@ context( 'Classic Editor: Select Voice', () => {
       cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 3' )
 
       // Select another Language
-      cy.get( 'select#beyondwords_language_code' ).select( 'Language 2' ).wait( 1000 )
+      cy.get( 'select#beyondwords_language_code' ).select( 'English (British)' ).wait( 1000 )
 
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
@@ -73,7 +73,7 @@ context( 'Classic Editor: Select Voice', () => {
       cy.contains( 'input[type="submit"]', 'Publish' ).click().wait( 1000 )
 
       // Check Language/Voice has been saved by refreshing the page
-      cy.get( 'select#beyondwords_language_code' ).find( 'option:selected' ).should( 'have.text', 'Language 2' )
+      cy.get( 'select#beyondwords_language_code' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
       cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
     } )
   } )
