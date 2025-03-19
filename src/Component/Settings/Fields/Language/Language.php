@@ -120,9 +120,15 @@ class Language
         }
 
         $options = array_map(function ($language) {
+            $label = $language['name'];
+
+            if (isset($language['accent'])) {
+                $label .= ' (' . $language['accent'] . ')';
+            }
+
             return [
                 'value'  => $language['code'],
-                'label'  => $language['name'] . '(' . $language['accent'] . ')',
+                'label'  => $label,
                 'voices' => wp_json_encode($language['default_voices']),
             ];
         }, $languages);
