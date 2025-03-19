@@ -559,15 +559,15 @@ class CoreTest extends WP_UnitTestCase
         $core = new Core();
 
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashPost',
+            'post_title' => 'CoreTest::getLangCodeFromJsonIfEmpty',
             'meta_input' => [
                 'beyondwords_language_id' => $language_id,
             ],
         ]);
 
-        $this->assertSame("$language_code", $core->getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
-        $this->assertSame("en_GB", $core->getLangCodeFromJsonIfEmpty('en_GB', $postId, 'beyondwords_language_code', true));
-        $this->assertSame("bar", $core->getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_foo', true));
+        $this->assertSame('foo', $core->getLangCodeFromJsonIfEmpty('foo', $postId, 'beyondwords_language_foo', true));
+        $this->assertSame('bar', $core->getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_code', true));
+        $this->assertSame(["$language_code"], $core->getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
     }
 
     public function langCodes()

@@ -35,7 +35,7 @@ class Core
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
 
         // Older posts may be missing beyondwords_language_code, so we'll try to set it.
-        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 4);
+        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 3);
     }
 
     /**
@@ -403,7 +403,7 @@ class Core
      *
      * @return mixed
      */
-    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key, $single)
+    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);
@@ -411,10 +411,8 @@ class Core
             if ($languageId) {
                 $langCodes = json_decode(file_get_contents(BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json'), true);
 
-                if (is_array($langCodes) && isset($langCodes[$languageId])) {
-                    update_post_meta($object_id, 'beyondwords_language_code', $langCodes[$languageId]);
-
-                    return $single ? $langCodes[$languageId] : array($langCodes[$languageId]);
+                if (is_array($langCodes) && array_key_exists($languageId, $langCodes)) {
+                    return [$langCodes[$languageId]];
                 }
             }
         }
