@@ -45,7 +45,7 @@ export function SelectVoice( { wrapper } ) {
 	const { languages } = useSelect( ( select ) => {
 		return {
 			languages: select( 'beyondwords/settings' ).getLanguages(),
-		}
+		};
 	}, [] );
 
 	const { voices } = useSelect(
@@ -61,9 +61,11 @@ export function SelectVoice( { wrapper } ) {
 
 	const languageOptions = useMemo( () => {
 		return ( languages ?? [] ).map( ( language ) => {
+			const { accent, code, name } = language;
 			return {
-				label: `${ decodeEntities( language.name ) } ( ${ decodeEntities( language.accent ) } )`,
-				value: decodeEntities( language.code ),
+				// eslint-disable-next-line prettier/prettier
+				label: `${ decodeEntities( name ) } (${ decodeEntities( accent ) })`,
+				value: decodeEntities( code ),
 			};
 		} );
 	}, [ languages ] );

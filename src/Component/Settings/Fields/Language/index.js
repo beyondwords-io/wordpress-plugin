@@ -13,11 +13,11 @@
 				}
 			});
 
-			select.on('change', async function(languageId){
+			select.on('change', async function(languageCode){
 				const $voicesSelects     = $( '.beyondwords_project_voice' );
 				const $titleVoicesSelect = $( '#beyondwords_project_title_voice_id' );
 				const $bodyVoicesSelect  = $( '#beyondwords_project_body_voice_id' );
-				const endpoint           = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
+				const endpoint           = `${beyondwordsData.root}beyondwords/v1/languages/${languageCode}/voices`;
 
 				$('.beyondwords-settings__loader-default-language').show();
 				$('select.beyondwords_project_voice').hide();
@@ -44,7 +44,7 @@
 							.attr( 'disabled', false );
 					})
 
-					const defaultVoices = $(`#beyondwords_project_language_code option[value="${languageId}"]`).data( 'voices' )
+					const defaultVoices = $(`#beyondwords_project_language_code option[value="${languageCode}"]`).data( 'voices' )
 
 					if (defaultVoices) {
 						if (defaultVoices.title && defaultVoices.title.id) {
