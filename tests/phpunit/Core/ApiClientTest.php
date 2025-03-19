@@ -244,13 +244,13 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::getVoices('en_GB');
 
-        $this->assertSame(1, $response[0]['id']);
-        $this->assertSame(2, $response[1]['id']);
-        $this->assertSame(3, $response[2]['id']);
+        $this->assertSame(101, $response[0]['id']);
+        $this->assertSame(102, $response[1]['id']);
+        $this->assertSame(103, $response[2]['id']);
 
-        $this->assertSame('Voice 1', $response[0]['name']);
-        $this->assertSame('Voice 2', $response[1]['name']);
-        $this->assertSame('Voice 3', $response[2]['name']);
+        $this->assertSame('Ada (Multilingual)', $response[0]['name']);
+        $this->assertSame('Ava (Multilingual)', $response[1]['name']);
+        $this->assertSame('Ryan (Multilingual)', $response[2]['name']);
 
         $this->assertSame('en_GB', $response[0]['language']);
         $this->assertSame('en_GB', $response[1]['language']);

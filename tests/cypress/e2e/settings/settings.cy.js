@@ -37,8 +37,8 @@ context( 'Settings',  () => {
     // The language and voices from the mock API response should be synced
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
     cy.get( 'select#beyondwords_project_language_code' ).find( ':selected' ).contains( 'English (British)' )
-    cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Voice 2' )
-    cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
+    cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Ava (Multilingual)' )
+    cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Ryan (Multilingual)' )
   } )
 
   it( 'syncs the settings from the Dashboard to WordPress', () => {

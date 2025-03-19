@@ -43,11 +43,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
+        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 3' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Ryan (Multilingual)' )
 
       // Select another Language
       cy.get( 'select#beyondwords_language_code' ).select( 'English (British)' ).wait( 1000 )
@@ -55,11 +55,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Voice 1", "Voice 2", "Voice 3"] )
+        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Voice 2' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Ava (Multilingual)' )
 
       cy.classicSetPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -74,7 +74,7 @@ context( 'Classic Editor: Select Voice', () => {
 
       // Check Language/Voice has been saved by refreshing the page
       cy.get( 'select#beyondwords_language_code' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
-      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Voice 2' )
+      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Ava (Multilingual)' )
     } )
   } )
 } )

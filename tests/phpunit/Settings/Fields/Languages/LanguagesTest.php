@@ -93,24 +93,24 @@ class LanguagesTest extends WP_UnitTestCase
         // Options should be populated from Mock API response
         $this->assertSame('en_US', $field->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('English (American)', $field->filter('option:nth-child(1)')->text());
-        $this->assertSame('2', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-id'));
-        $this->assertSame('95', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-speaking-rate'));
-        $this->assertSame('3', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-id'));
-        $this->assertSame('105', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-speaking-rate'));
+        $this->assertSame('201', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-id'));
+        $this->assertSame('90', $field->filter('option:nth-child(1)')->attr('data-default-voice-title-speaking-rate'));
+        $this->assertSame('201', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-id'));
+        $this->assertSame('95', $field->filter('option:nth-child(1)')->attr('data-default-voice-body-speaking-rate'));
 
         $this->assertSame('en_GB', $field->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('English (British)', $field->filter('option:nth-child(2)')->text());
-        $this->assertSame('2', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-id'));
-        $this->assertSame('90', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-speaking-rate'));
-        $this->assertSame('3', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-id'));
-        $this->assertSame('110', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-speaking-rate'));
+        $this->assertSame('202', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-id'));
+        $this->assertSame('95', $field->filter('option:nth-child(2)')->attr('data-default-voice-title-speaking-rate'));
+        $this->assertSame('202', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-id'));
+        $this->assertSame('100', $field->filter('option:nth-child(2)')->attr('data-default-voice-body-speaking-rate'));
 
         $this->assertSame('cy_GB', $field->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Welsh (British)', $field->filter('option:nth-child(3)')->text());
-        $this->assertSame('2', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-id'));
-        $this->assertSame('85', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-speaking-rate'));
-        $this->assertSame('3', $field->filter('option:nth-child(3)')->attr('data-default-voice-body-id'));
-        $this->assertSame('115', $field->filter('option:nth-child(3)')->attr('data-default-voice-body-speaking-rate'));
+        $this->assertSame('203', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-id'));
+        $this->assertSame('100', $field->filter('option:nth-child(3)')->attr('data-default-voice-title-speaking-rate'));
+        $this->assertSame('203', $field->filter('option:nth-child(3)')->attr('data-default-voice-body-id'));
+        $this->assertSame('105', $field->filter('option:nth-child(3)')->attr('data-default-voice-body-speaking-rate'));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
