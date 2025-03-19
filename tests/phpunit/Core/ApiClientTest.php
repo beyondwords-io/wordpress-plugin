@@ -236,25 +236,25 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function getVoices()
     {
-        $response = ApiClient::getVoices('en_GB');
+        $response = ApiClient::getVoices('en_US');
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getVoices('en_GB');
+        $response = ApiClient::getVoices('en_US');
 
-        $this->assertSame(101, $response[0]['id']);
-        $this->assertSame(102, $response[1]['id']);
-        $this->assertSame(103, $response[2]['id']);
+        $this->assertSame(201, $response[0]['id']);
+        $this->assertSame(202, $response[1]['id']);
+        $this->assertSame(203, $response[2]['id']);
 
         $this->assertSame('Ada (Multilingual)', $response[0]['name']);
         $this->assertSame('Ava (Multilingual)', $response[1]['name']);
         $this->assertSame('Ryan (Multilingual)', $response[2]['name']);
 
-        $this->assertSame('en_GB', $response[0]['language']);
-        $this->assertSame('en_GB', $response[1]['language']);
-        $this->assertSame('en_GB', $response[2]['language']);
+        $this->assertSame('en_US', $response[0]['language']);
+        $this->assertSame('en_US', $response[1]['language']);
+        $this->assertSame('en_US', $response[2]['language']);
 
         $this->assertSame(100, $response[0]['speaking_rate']);
         $this->assertSame(100, $response[1]['speaking_rate']);
