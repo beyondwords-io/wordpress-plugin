@@ -79,7 +79,7 @@ context( 'Site Health', () => {
         // Default language code
         cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'en_GB' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'en_US' )
         } )
         // Default language ID
         cy.get( 'tr' ).eq( 12 ).within( () => {
@@ -89,7 +89,7 @@ context( 'Site Health', () => {
         // Title voice ID
         cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '201' )
         } )
         // Title voice speaking rate
         cy.get( 'tr' ).eq( 14 ).within( () => {
@@ -99,12 +99,12 @@ context( 'Site Health', () => {
         // Body voice ID
         cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '201' )
         } )
         // Body voice speaking rate
         cy.get( 'tr' ).eq( 16 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '110' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '95' )
         } )
         // Player UI
         cy.get( 'tr' ).eq( 17 ).within( () => {
