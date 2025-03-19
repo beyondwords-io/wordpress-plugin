@@ -33,6 +33,9 @@ class Core
         add_action('before_delete_post', array($this, 'onDeletePost'));
 
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
+
+        // Older posts may be missing beyondwords_language_code, so we'll try to set it.
+        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 4);
     }
 
     /**
@@ -386,5 +389,36 @@ class Core
         $this->generateAudioForPost($postId);
 
         return true;
+    }
+
+    /**
+     * Get the language code from a JSON mapping if it is empty.
+     *
+     * @since 5.6.0 Introduced.
+     *
+     * @param mixed  $value     The value of the metadata.
+     * @param int    $object_id The ID of the object metadata is for.
+     * @param string $meta_key  The key of the metadata.
+     * @param bool   $single    Whether to return a single value.
+     *
+     * @return mixed
+     */
+    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key, $single)
+    {
+        if ('beyondwords_language_code' === $meta_key && empty($value)) {
+            $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);
+
+            if ($languageId) {
+                $langCodes = json_decode(file_get_contents(BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json'), true);
+
+                if (is_array($langCodes) && isset($langCodes[$languageId])) {
+                    update_post_meta($object_id, 'beyondwords_language_code', $langCodes[$languageId]);
+
+                    return $single ? $langCodes[$languageId] : array($langCodes[$languageId]);
+                }
+            }
+        }
+
+        return $value;
     }
 }

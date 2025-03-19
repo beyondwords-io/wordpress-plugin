@@ -36,6 +36,7 @@ class CoreTest extends WP_UnitTestCase
         $this->assertEquals(99, has_action('wp_after_insert_post', array($core, 'onAddOrUpdatePost')));
         $this->assertEquals(10, has_action('before_delete_post', array($core, 'onDeletePost')));
         $this->assertEquals(10, has_action('is_protected_meta', array($core, 'isProtectedMeta')));
+        $this->assertEquals(10, has_action('get_post_metadata', array($core, 'getLangCodeFromJsonIfEmpty')));
     }
 
     /**
@@ -548,5 +549,54 @@ class CoreTest extends WP_UnitTestCase
     function removeDeleteActions($core) {
         // Actions for deleting/trashing/restoring posts
         remove_action('before_delete_post', array($core, 'onDeletePost'));
+    }
+
+    /**
+     * @test
+     * @dataProvider langCodes
+     */
+    public function getLangCodeFromJsonIfEmpty($language_id, $language_code) {
+        $core = new Core();
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onTrashPost',
+            'meta_input' => [
+                'beyondwords_language_id' => $language_id,
+            ],
+        ]);
+
+        $this->assertSame("$language_code", $core->getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
+        $this->assertSame("en_GB", $core->getLangCodeFromJsonIfEmpty('en_GB', $postId, 'beyondwords_language_code', true));
+        $this->assertSame("bar", $core->getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_foo', true));
+    }
+
+    public function langCodes()
+    {
+        return [
+            'en_GB' => [
+                'language_id' => "50",
+                'language_code' => "en_GB",
+            ],
+            'en_US' => [
+                'language_id' => "58",
+                'language_code' => "en_US",
+            ],
+            'ar_SA' => [
+                'language_id' => "10",
+                'language_code' => "ar_SA",
+            ],
+            'zh_CN_shandong' => [
+                'language_id' => "273",
+                'language_code' => "zh_CN_shandong",
+            ],
+            'zh_CN_liaoning' => [
+                'language_id' => "269",
+                'language_code' => "zh_CN_liaoning",
+            ],
+            'zh_TW' => [
+                'language_id' => "234",
+                'language_code' => "zh_TW",
+            ],
+        ];
     }
 }
