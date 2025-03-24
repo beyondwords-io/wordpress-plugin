@@ -202,27 +202,27 @@ class Core
             return $response;
         }
 
-        if ($projectId && array_key_exists('id', $response)) {
+        if ($projectId && ! empty($response['id'])) {
             update_post_meta($postId, 'beyondwords_project_id', $projectId);
             update_post_meta($postId, 'beyondwords_content_id', $response['id']);
 
-            if (array_key_exists('preview_token', $response)) {
+            if (! empty($response['preview_token'])) {
                 update_post_meta($postId, 'beyondwords_preview_token', $response['preview_token']);
             }
 
-            if (array_key_exists('language', $response)) {
-                update_post_meta($postId, 'beyondwords_language_code', $response['language']);
+            if (! empty($response['language'])) {
+                update_post_meta($postId, 'beyondwords_language', $response['language']);
             }
 
-            if (array_key_exists('title_voice_id', $response)) {
+            if (! empty($response['title_voice_id'])) {
                 update_post_meta($postId, 'beyondwords_title_voice_id', $response['title_voice_id']);
             }
 
-            if (array_key_exists('summary_voice_id', $response)) {
+            if (! empty($response['summary_voice_id'])) {
                 update_post_meta($postId, 'beyondwords_summary_voice_id', $response['summary_voice_id']);
             }
 
-            if (array_key_exists('body_voice_id', $response)) {
+            if (! empty($response['body_voice_id'])) {
                 update_post_meta($postId, 'beyondwords_body_voice_id', $response['body_voice_id']);
             }
         }
