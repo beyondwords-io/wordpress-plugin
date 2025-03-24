@@ -12,7 +12,7 @@
   "homepage": "https://beyondwords.io",
   "main": "index.js",
   "devDependencies": {
-    "@mockoon/cli": "^9.1.0",
+    "@mockoon/cli": "^9.2.0",
     "@wordpress/env": "^10.16.0",
     "@wordpress/eslint-plugin": "^22.2.0",
     "@wordpress/scripts": "^30.9.0",
