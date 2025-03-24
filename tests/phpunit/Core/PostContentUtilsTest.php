@@ -352,8 +352,11 @@ class PostContentUtilsTest extends WP_UnitTestCase
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
-            'meta_input'    => [
+            'meta_input'   => [
+                'beyondwords_language_code'    => 'en_US',
                 'beyondwords_summary_voice_id' => '42',
+                'beyondwords_title_voice_id'   => '43',
+                'beyondwords_body_voice_id'    => '44',
             ],
         ];
 
@@ -385,6 +388,10 @@ class PostContentUtilsTest extends WP_UnitTestCase
         // { published: true } should be sent because auto-publish is true
         $this->assertArrayHasKey('published', $body);
         $this->assertTrue($body['published']);
+
+        $this->assertSame('en_US', $body['language']);
+        $this->assertSame(43, $body['title_voice_id']);
+        $this->assertSame(44, $body['body_voice_id']);
 
         update_option('beyondwords_project_auto_publish_enabled', false);
 

@@ -79,6 +79,7 @@ jobs:
       - name: Copy plugin files to /tmp
         run: |
           cp -rp \
+            assets \
             build \
             languages \
             src \
