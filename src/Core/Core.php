@@ -202,16 +202,28 @@ class Core
             return $response;
         }
 
-        if (array_key_exists('id', $response)) {
-            // Save Project ID
+        if ($projectId && array_key_exists('id', $response)) {
             update_post_meta($postId, 'beyondwords_project_id', $projectId);
-
-            // Save Content ID
             update_post_meta($postId, 'beyondwords_content_id', $response['id']);
 
             if (array_key_exists('preview_token', $response)) {
-                // Save Preview Key
                 update_post_meta($postId, 'beyondwords_preview_token', $response['preview_token']);
+            }
+
+            if (array_key_exists('language', $response)) {
+                update_post_meta($postId, 'beyondwords_language_code', $response['language']);
+            }
+
+            if (array_key_exists('title_voice_id', $response)) {
+                update_post_meta($postId, 'beyondwords_title_voice_id', $response['title_voice_id']);
+            }
+
+            if (array_key_exists('summary_voice_id', $response)) {
+                update_post_meta($postId, 'beyondwords_summary_voice_id', $response['summary_voice_id']);
+            }
+
+            if (array_key_exists('body_voice_id', $response)) {
+                update_post_meta($postId, 'beyondwords_body_voice_id', $response['body_voice_id']);
             }
         }
 
