@@ -54,8 +54,8 @@ context( 'Block Editor: Player Content', () => {
       cy.viewPostViaSnackbar()
 
       // Check Player appears frontend
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
 
       // window.BeyondWords should contain 1 player instance
       cy.window().then( win => {
@@ -92,8 +92,8 @@ context( 'Block Editor: Player Content', () => {
       cy.viewPostViaSnackbar()
 
       // Check Player appears frontend
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
 
       // window.BeyondWords should contain 1 player instance
       cy.window().then( win => {

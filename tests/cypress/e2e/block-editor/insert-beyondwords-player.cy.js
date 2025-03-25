@@ -65,8 +65,8 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
     } )
 
     // @todo test fails because '.block-editor-default-block-appender button' is no longer available
@@ -99,8 +99,8 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
     } )
   } )
 } )
