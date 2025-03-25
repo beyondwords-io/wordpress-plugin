@@ -47,7 +47,6 @@ class Sync
         // Project
         'beyondwords_project_auto_publish_enabled'      => '[project][auto_publish_enabled]',
         'beyondwords_project_language_code'             => '[project][language]',
-        'beyondwords_project_language_id'               => '[project][language_id]',
         'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
         'beyondwords_project_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
         'beyondwords_project_title_enabled'             => '[project][title][enabled]',
@@ -126,7 +125,8 @@ class Sync
     /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
-     * @since 5.0.0
+     * @since 5.0.0 Introduced.
+     * @since 5.4.0 Stop saving language ID – we only need the ISO code now.
      *
      * @return void
      **/
@@ -146,9 +146,6 @@ class Sync
             if (! empty($project)) {
                 $responses['project'] = $project;
             }
-
-            // Add the language ID to the project settings response.
-            $this->setLanguageId($responses);
         }
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'player_settings']))) {
@@ -347,41 +344,5 @@ class Sync
         $options   = array_unique($options);
 
         wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 60);
-    }
-
-    /**
-     * Set the language ID in the project settings.
-     *
-     * In the REST API query we receive the language code but we need a numeric
-     * ID so we make a API call to get the ID and add it to the settings.
-     *
-     * @since 5.0.0
-     *
-     * @param array $settings Project settings.
-     *
-     * @return void
-     **/
-    public function setLanguageId(&$settings)
-    {
-        $language_code = $this->propertyAccessor->getValue($settings, '[project][language]');
-
-        if (null === $language_code) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', '');
-        }
-
-        $language  = false;
-        $languages = ApiClient::getLanguages();
-
-        if (is_array($languages)) {
-            $language = array_column(
-                $languages,
-                null,
-                'code'
-            )[$language_code] ?? false;
-        }
-
-        if (is_array($language) && array_key_exists('id', $language)) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', $language['id']);
-        }
     }
 }

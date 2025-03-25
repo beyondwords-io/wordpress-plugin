@@ -61,10 +61,13 @@ class SelectVoice
             return;
         }
 
-        $languages         = $this->getFilteredLanguages();
-        $currentLanguageId = get_post_meta($post->ID, 'beyondwords_language_id', true);
+        $languages           = $this->getFilteredLanguages();
+        $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
 
-        $voices         = ApiClient::getVoices($currentLanguageId);
+        if ($currentLanguageCode) {
+            $voices = ApiClient::getVoices($currentLanguageCode);
+        }
+
         $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
         if (! is_array($voices)) {
@@ -74,22 +77,23 @@ class SelectVoice
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
         ?>
         <p
-            id="beyondwords-metabox-select-voice--language-id"
+            id="beyondwords-metabox-select-voice--language-code"
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
-            <label class="post-attributes-label" for="beyondwords_language_id">
+            <label class="post-attributes-label" for="beyondwords_language_code">
                 Language
             </label>
         </p>
-        <select id="beyondwords_language_id" name="beyondwords_language_id" style="width: 100%;">
+        <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <option value="">Project default</option>
             <?php
             foreach ($languages as $language) {
                 printf(
-                    '<option value="%s" %s>%s</option>',
-                    esc_attr($language['id']),
-                    selected(strval($language['id']), $currentLanguageId),
-                    esc_html($language['name'])
+                    '<option value="%s" %s>%s (%s)</option>',
+                    esc_attr($language['code']),
+                    selected(strval($language['code']), $currentLanguageCode),
+                    esc_html($language['name']),
+                    esc_html($language['accent'])
                 );
             }
             ?>
@@ -106,7 +110,7 @@ class SelectVoice
             id="beyondwords_voice_id"
             name="beyondwords_voice_id"
             style="width: 100%;"
-            <?php echo disabled(!strval($currentLanguageId)) ?>
+            <?php echo disabled(!strval($currentLanguageCode)) ?>
         >
             <option value=""></option>
             <?php
@@ -138,7 +142,7 @@ class SelectVoice
 
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
-            ! isset($_POST['beyondwords_language_id']) ||
+            ! isset($_POST['beyondwords_language_code']) ||
             ! isset($_POST['beyondwords_voice_id']) ||
             ! isset($_POST['beyondwords_select_voice_nonce'])
         ) {
@@ -155,12 +159,12 @@ class SelectVoice
             return $postId;
         }
 
-        $languageId = sanitize_text_field(wp_unslash($_POST['beyondwords_language_id']));
+        $languageCode = sanitize_text_field(wp_unslash($_POST['beyondwords_language_code']));
 
-        if (! empty($languageId)) {
-            update_post_meta($postId, 'beyondwords_language_id', $languageId);
+        if (! empty($languageCode)) {
+            update_post_meta($postId, 'beyondwords_language_code', $languageCode);
         } else {
-            delete_post_meta($postId, 'beyondwords_language_id');
+            delete_post_meta($postId, 'beyondwords_language_code');
         }
 
         $voiceId = sanitize_text_field(wp_unslash($_POST['beyondwords_voice_id']));
@@ -197,7 +201,7 @@ class SelectVoice
         ));
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[0-9]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', array(
             'methods'  => \WP_REST_Server::READABLE,
             'callback' => array($this, 'voicesRestApiResponse'),
             'permission_callback' => function () {
@@ -247,7 +251,7 @@ class SelectVoice
             return false;
         }
 
-        if (! array_key_exists('id', $language)) {
+        if (! array_key_exists('code', $language)) {
             return false;
         }
 
@@ -257,7 +261,7 @@ class SelectVoice
             return false;
         }
 
-        if (! in_array(strval($language['id']), $languagesSetting)) {
+        if (! in_array(strval($language['code']), $languagesSetting)) {
             return false;
         }
 
@@ -290,11 +294,10 @@ class SelectVoice
     {
         $params = $data->get_url_params();
 
-        $voices = ApiClient::getVoices($params['languageId']);
+        $voices = ApiClient::getVoices($params['languageCode']);
 
         return new \WP_REST_Response($voices);
     }
-
 
     /**
      * Register the component scripts.

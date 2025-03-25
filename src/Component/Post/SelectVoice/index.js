@@ -23,13 +23,13 @@ export function SelectVoice( { wrapper } ) {
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const languageId = meta.beyondwords_language_id;
+	const languageCode = meta.beyondwords_language_code;
 	const bodyVoiceId = meta.beyondwords_body_voice_id;
 
-	const setLanguageId = ( newLanguageId ) => {
+	const setLanguageCode = ( newLanguageCode ) => {
 		setMeta( {
 			...meta,
-			beyondwords_language_id: newLanguageId,
+			beyondwords_language_code: newLanguageCode,
 		} );
 	};
 
@@ -45,20 +45,27 @@ export function SelectVoice( { wrapper } ) {
 	const { languages } = useSelect( ( select ) => {
 		return {
 			languages: select( 'beyondwords/settings' ).getLanguages(),
-		}
+		};
 	}, [] );
 
-	const { voices } = useSelect( ( select ) => {
-		return {
-			voices: languageId ? select( 'beyondwords/settings' ).getVoices( languageId ) : [],
-		}
-	}, [ languageId ] );
+	const { voices } = useSelect(
+		( select ) => {
+			return {
+				voices: languageCode
+					? select( 'beyondwords/settings' ).getVoices( languageCode )
+					: [],
+			};
+		},
+		[ languageCode ]
+	);
 
 	const languageOptions = useMemo( () => {
 		return ( languages ?? [] ).map( ( language ) => {
+			const { accent, code, name } = language;
 			return {
-				label: decodeEntities( language.name ),
-				value: decodeEntities( language.id ),
+				// eslint-disable-next-line prettier/prettier
+				label: `${ decodeEntities( name ) } (${ decodeEntities( accent ) })`,
+				value: decodeEntities( code ),
 			};
 		} );
 	}, [ languages ] );
@@ -72,7 +79,7 @@ export function SelectVoice( { wrapper } ) {
 		} );
 	}, [ voices ] );
 
-	if (! languageOptions.length) {
+	if ( ! languageOptions.length ) {
 		return false;
 	}
 
@@ -91,8 +98,8 @@ export function SelectVoice( { wrapper } ) {
 								},
 								...languageOptions,
 							] }
-							onChange={ ( val ) => setLanguageId( val ) }
-							value={ languageId }
+							onChange={ ( val ) => setLanguageCode( val ) }
+							value={ languageCode }
 							__nextHasNoMarginBottom
 						/>
 					</FlexBlock>

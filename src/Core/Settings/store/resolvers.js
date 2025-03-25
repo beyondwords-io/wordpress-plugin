@@ -7,10 +7,10 @@ const resolvers = {
 		return actions.setSettings( settings );
 	},
 	*getPlayerStyles( projectId ) {
-		if (! projectId) {
+		if ( ! projectId ) {
 			return [];
 		}
-		const path = `/beyondwords/v1/projects/${projectId}/player-styles`;
+		const path = `/beyondwords/v1/projects/${ projectId }/player-styles`;
 		const playerStyles = yield actions.fetchFromAPI( path );
 		return actions.setPlayerStyles( playerStyles );
 	},
@@ -19,8 +19,8 @@ const resolvers = {
 		const languages = yield actions.fetchFromAPI( path );
 		return actions.setLanguages( languages );
 	},
-	*getVoices( languageId ) {
-		const path = `/beyondwords/v1/languages/${languageId}/voices`;
+	*getVoices( languageCode ) {
+		const path = `/beyondwords/v1/languages/${ languageCode }/voices`;
 		const voices = yield actions.fetchFromAPI( path );
 		return actions.setVoices( voices );
 	},

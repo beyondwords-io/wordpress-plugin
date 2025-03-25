@@ -36,9 +36,9 @@ context( 'Settings',  () => {
 
     // The language and voices from the mock API response should be synced
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
-    cy.get( 'select#beyondwords_project_language_id' ).find( ':selected' ).contains( 'Language 2' )
-    cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Voice 2' )
-    cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Voice 3' )
+    cy.get( 'select#beyondwords_project_language_code' ).find( ':selected' ).contains( 'English (American)' )
+    cy.get( 'select#beyondwords_project_title_voice_id' ).find( ':selected' ).contains( 'Ada (Multilingual)' )
+    cy.get( 'select#beyondwords_project_body_voice_id' ).find( ':selected' ).contains( 'Ada (Multilingual)' )
   } )
 
   it( 'syncs the settings from the Dashboard to WordPress', () => {
@@ -57,7 +57,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_project_body_voice_id' ).clear()
     cy.get( '#beyondwords_project_body_voice_speaking_rate' ).clear()
     cy.get( '#beyondwords_project_language_code' ).clear()
-    cy.get( '#beyondwords_project_language_id' ).clear()
     cy.get( '#beyondwords_project_title_enabled' ).clear()
     cy.get( '#beyondwords_project_title_voice_id' ).clear()
     cy.get( '#beyondwords_project_title_voice_speaking_rate' ).clear()
@@ -81,12 +80,11 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_player_theme' ).should( 'have.value', 'light' )
     cy.get( '#beyondwords_player_widget_position' ).should( 'have.value', 'auto' )
     cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', 'standard' )
-    cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '3' )
-    cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should( 'have.value', '110' )
-    cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'bb_BB' )
-    cy.get( '#beyondwords_project_language_id' ).should( 'have.value', '2' )
+    cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '201' )
+    cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should( 'have.value', '95' )
+    cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'en_US' )
     cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
-    cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '2' )
+    cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '201' )
     cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should( 'have.value', '90' )
 
     // @todo themes cannot be tested using this method because they are serialized data
@@ -116,7 +114,6 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_project_body_voice_id' )
     cy.get( '#beyondwords_project_id' )
     cy.get( '#beyondwords_project_language_code' )
-    cy.get( '#beyondwords_project_language_id' )
     cy.get( '#beyondwords_project_title_voice_id' )
     cy.get( '#beyondwords_project_title_voice_speaking_rate' )
     cy.get( '#beyondwords_valid_api_connection' )

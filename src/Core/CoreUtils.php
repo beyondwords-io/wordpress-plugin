@@ -97,7 +97,8 @@ class CoreUtils
             'beyondwords_preview_token',
             'beyondwords_player_content',
             'beyondwords_player_style',
-            'beyondwords_language_id',
+            'beyondwords_language_code',
+            'beyondwords_language_id', // @todo deprecate in v5.6
             'beyondwords_title_voice_id',
             'beyondwords_body_voice_id',
             'beyondwords_summary_voice_id',
@@ -179,7 +180,7 @@ class CoreUtils
             'beyondwords_project_body_voice_id',
             'beyondwords_project_body_voice_speaking_rate',
             'beyondwords_project_language_code',
-            'beyondwords_project_language_id',
+            'beyondwords_project_language_id', // @todo deprecate in v5.6
             'beyondwords_project_title_enabled',
             'beyondwords_project_title_voice_id',
             'beyondwords_project_title_voice_speaking_rate',
