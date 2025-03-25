@@ -52,6 +52,7 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group current
      */
     public function createAudio()
     {
@@ -64,6 +65,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
+        $this->assertIsArray($response);
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
         $this->assertSame('processed',  $response['status']);
 

@@ -440,7 +440,7 @@ class CoreTest extends WP_UnitTestCase
      * @test
      * @dataProvider processResponseProvider
      */
-    public function processResponse($response, $projectId, $contentId, $language, $titleVoiceId, $bodyVoiceId) {
+    public function processResponse($response, $projectId, $contentId, $language, $summaryVoiceId, $titleVoiceId, $bodyVoiceId) {
         $core = new Core();
 
         $postId = self::factory()->post->create([
@@ -452,6 +452,7 @@ class CoreTest extends WP_UnitTestCase
         $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
         $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
         $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
+        $this->assertSame($summaryVoiceId, get_post_meta($postId, 'beyondwords_summary_voice_id', true));
         $this->assertSame($titleVoiceId, get_post_meta($postId, 'beyondwords_title_voice_id', true));
         $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
@@ -462,24 +463,27 @@ class CoreTest extends WP_UnitTestCase
         return [
             'Response includes Content ID' => [
                 'response' => [
-                    'id'             => BEYONDWORDS_TESTS_CONTENT_ID,
-                    'language'       => 'en_US',
-                    'title_voice_id' => '43',
-                    'body_voice_id'  => '44',
+                    'id'               => BEYONDWORDS_TESTS_CONTENT_ID,
+                    'language'         => 'en_US',
+                    'summary_voice_id' => '42',
+                    'title_voice_id'   => '43',
+                    'body_voice_id'    => '44',
                 ],
-                'projectId'    => BEYONDWORDS_TESTS_PROJECT_ID,
-                'contentId'    => BEYONDWORDS_TESTS_CONTENT_ID,
-                'language'     => 'en_US',
-                'titleVoiceId' => '43',
-                'bodyVoiceId'  => '44',
+                'projectId'      => BEYONDWORDS_TESTS_PROJECT_ID,
+                'contentId'      => BEYONDWORDS_TESTS_CONTENT_ID,
+                'language'       => 'en_US',
+                'summaryVoiceId' => '42',
+                'titleVoiceId'   => '43',
+                'bodyVoiceId'    => '44',
             ],
             'Response is not an array' => [
-                'response'     => new StdClass(),
-                'projectId'    => '',
-                'contentId'    => '',
-                'language'     => '',
-                'titleVoiceId' => '',
-                'bodyVoiceId'  => '',
+                'response'       => new StdClass(),
+                'projectId'      => '',
+                'contentId'      => '',
+                'language'       => '',
+                'summaryVoiceId' => '',
+                'titleVoiceId'   => '',
+                'bodyVoiceId'    => '',
             ],
         ];
     }
