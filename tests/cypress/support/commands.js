@@ -468,24 +468,18 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 	return cy.get( 'label', ...args ).contains( text );
 } );
 
-// Get frontend audio player element (standard)
+// Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstance', ( num ) => {
-	// cy.window().its('BeyondWords').should('exist');
-	// cy.window().its('BeyondWords.Player').should('exist');
-	cy.window().its('BeyondWords.Player.instances').should('exist');
-	return cy.window().then( ( win ) => {
-		expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
+	cy.window().should( ( win ) => {
+		expect( win.BeyondWords ).to.have.property( 'Player' );
+		expect( win.BeyondWords.Player ).to.have.property( 'instances' );
+		expect( win.BeyondWords.Player.instances() ).to.have.length( num ?? 1 );
 	} );
 } );
 
-// Get frontend audio player element (standard)
+// Check for no player instances.
 Cypress.Commands.add( 'hasNoPlayerInstance', () => {
-	// cy.window().its('BeyondWords').should('exist');
-	// cy.window().its('BeyondWords.Player').should('exist');
-	cy.window().its('BeyondWords.Player.instances').should('exist');
-	return cy.window().then( ( win ) => {
-		expect( win.BeyondWords.Player.instances() ).to.have.length( 0 );
-	} );
+	return cy.hasPlayerInstance( 0 );
 } );
 
 // Get frontend audio player element (standard)
