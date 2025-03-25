@@ -211,7 +211,7 @@ class Core
             }
 
             if (! empty($response['language'])) {
-                update_post_meta($postId, 'beyondwords_language', $response['language']);
+                update_post_meta($postId, 'beyondwords_language_code', $response['language']);
             }
 
             if (! empty($response['title_voice_id'])) {
