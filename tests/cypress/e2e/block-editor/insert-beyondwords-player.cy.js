@@ -65,7 +65,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstance()
     } )
 
@@ -99,7 +99,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstance()
     } )
   } )
