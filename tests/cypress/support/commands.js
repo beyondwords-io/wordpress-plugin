@@ -460,7 +460,7 @@ Cypress.Commands.add( 'savePost', () => {
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
 	cy.get( '.components-snackbar' ).find( 'a' ).click();
 	// Use a longer wait() time here to allow the page and any players to load
-	cy.wait( 1500 );
+	cy.wait( 3000 );
 } );
 
 // Get label element from text
