@@ -28,13 +28,13 @@ context( 'Block Editor: Display Player', () => {
 
       cy.getLabel( 'Generate audio' ).should( 'not.exist' )
 
-      cy.hasPlayerInstance()
+      cy.hasPlayerInstances( 1 )
 
       // "View post"
       cy.viewPostViaSnackbar()
 
       // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstance()
+      cy.hasPlayerInstances( 1 )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
 
@@ -59,7 +59,7 @@ context( 'Block Editor: Display Player', () => {
 
       // @todo the script should not be enqueued if the player is not displayed
       // cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.hasNoPlayerInstance()
+      cy.hasPlayerInstances( 0 )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
 
@@ -83,7 +83,7 @@ context( 'Block Editor: Display Player', () => {
       cy.viewPostViaSnackbar()
 
       // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstance()
+      cy.hasPlayerInstances( 1 )
     } )
   } )
 } )

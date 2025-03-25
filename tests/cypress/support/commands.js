@@ -257,7 +257,7 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
 	cy.get( 'a.save-post-status' ).click().wait( 500 );
 
 	// Click "Save as Pending" button
-	cy.get( 'input[value="Save as Pending"]' ).click();
+	cy.get( 'input[value="Save as Pending"]' ).click().wait( 500 );
 
 	// Wait for success message
 	cy.get( 'div#message.notice-success' );
@@ -333,7 +333,7 @@ Cypress.Commands.add( 'createPostWithAudio', ( title, postType ) => {
 
 	cy.publishWithConfirmation( true );
 
-	cy.hasPlayerInstance();
+	cy.hasPlayerInstances( 1 );
 } );
 
 Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
@@ -352,7 +352,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
 	cy.publishWithConfirmation( true );
 
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
-	cy.hasNoPlayerInstance();
+	cy.hasPlayerInstances( 0 );
 } );
 
 /**
@@ -460,7 +460,7 @@ Cypress.Commands.add( 'savePost', () => {
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
 	cy.get( '.components-snackbar' ).find( 'a' ).click();
 	// Use a longer wait() time here to allow the page and any players to load
-	cy.wait( 3000 );
+	cy.wait( 2000 );
 } );
 
 // Get label element from text
@@ -469,7 +469,7 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 } );
 
 // Check for a number of player instances.
-Cypress.Commands.add( 'hasPlayerInstance', ( num ) => {
+Cypress.Commands.add( 'hasPlayerInstances', ( num ) => {
 	cy.window().should( ( win ) => {
 		expect( win.BeyondWords ).to.have.property( 'Player' );
 		expect( win.BeyondWords.Player ).to.have.property( 'instances' );
@@ -477,9 +477,9 @@ Cypress.Commands.add( 'hasPlayerInstance', ( num ) => {
 	} );
 } );
 
-// Check for no player instances.
-Cypress.Commands.add( 'hasNoPlayerInstance', () => {
-	return cy.hasPlayerInstance( 0 );
+// Check for no Beyondwords Player object.
+Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
+	cy.window().should( 'not.have.property', 'BeyondWords' );
 } );
 
 // Get frontend audio player element (standard)

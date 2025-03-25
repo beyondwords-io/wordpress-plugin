@@ -33,14 +33,13 @@ context( 'Plugins: AMP', () => {
 
       cy.getLabel( 'Generate audio' ).should( 'not.exist' )
 
-      cy.hasPlayerInstance()
+      cy.hasPlayerInstances( 1 )
 
       // "View post"
       cy.viewPostViaSnackbar()
 
       cy.get( 'amp-iframe' ).should( 'not.exist' )
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstance()
+      cy.hasPlayerInstances( 1 )
 
       cy.url().then(url => {
         // View post as AMP by appending &amp=1
@@ -48,8 +47,7 @@ context( 'Plugins: AMP', () => {
       } )
 
       cy.get( 'amp-iframe' ).should( 'exist' )
-      // cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.hasNoPlayerInstance()
+      cy.hasNoBeyondwordsWindowObject()
     } )
   } )
 } )
