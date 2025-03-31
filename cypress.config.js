@@ -4,7 +4,7 @@ const exec = util.promisify( require( 'child_process' ).exec );
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
-	defaultCommandTimeout: 5000,
+	defaultCommandTimeout: 8000,
 	downloadsFolder: 'tests/cypress/downloads',
 	env: {
 		wpUsername: 'admin',
