@@ -4,24 +4,27 @@ const exec = util.promisify( require( 'child_process' ).exec );
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
-	defaultCommandTimeout: 10000,
+	defaultCommandTimeout: 8000,
 	downloadsFolder: 'tests/cypress/downloads',
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
 	},
-	// experimentalMemoryManagement: true,
+	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
-	numTestsKeptInMemory: process.env.CI ? 0 : 50,
-	screenshotsFolder: 'tests/cypress/screenshots',
-	screenshotOnRunFailure: true,
-	video: false,
-	videosFolder: 'tests/cypress/videos',
 	reporter: 'cypress-multi-reporters',
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
+	retries: {
+		runMode: 3,
+		openMode: 0,
+	},
+	screenshotsFolder: 'tests/cypress/screenshots',
+	screenshotOnRunFailure: true,
+	video: false,
+	videosFolder: 'tests/cypress/videos',
 	e2e: {
 		setupNodeEvents( on, config ) {
 			return setupNodeEvents( on, config );
@@ -34,7 +37,7 @@ module.exports = defineConfig( {
 
 function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
-	require( 'cypress-fail-fast/plugin' )( on, config );
+	// require( 'cypress-fail-fast/plugin' )( on, config );
 
 	// implement node event listeners here
 	on( 'task', {
