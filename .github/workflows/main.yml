@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - wp-playground
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
@@ -403,31 +404,34 @@ jobs:
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
 
-      - name: Start WP Playground
-        run: |
-          npm install -g @wp-playground/cli
-          wp-playground start --background --php=8.4
+      - name: Install @wp-now/wp-now
+        run: npm install -g @wp-now/wp-now
 
-      - name: Install and activate plugin
-        run: |
-          wp-playground wp plugin install . --activate
+      - name: Start WP Playground
+        run: wp-now start --port 8889 --php ${{ matrix.php-version }}
+
+      - name: Wait for Playground
+        run: npx wait-on http://localhost:8889
+
+      - name: Verify Playground
+        run: curl -I http://localhost:8889 || exit 1
 
       - name: List plugins
-        run: wp-playground wp plugin list
+        run: wp-now wp plugin list
 
       - name: Set BEYONDWORDS_API_URL
         run: |
-          wp-playground wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
+          wp-now wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
 
       - name: Disable BEYONDWORDS_AUTO_SYNC_SETTINGS
         run: |
-          wp-playground wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
+          wp-now wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
 
       - name: Set WordPress core config values
         run: |
-          wp-playground wp config set AUTOMATIC_UPDATER_DISABLED true --raw
-          wp-playground wp config set DISABLE_WP_CRON true --raw
-          wp-playground wp config set WP_AUTO_UPDATE_CORE false --raw
+          wp-now wp config set AUTOMATIC_UPDATER_DISABLED true --raw
+          wp-now wp config set DISABLE_WP_CRON true --raw
+          wp-now wp config set WP_AUTO_UPDATE_CORE false --raw
 
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -444,31 +448,31 @@ jobs:
 
       - name: Install plugins
         run: |
-          wp-playground wp plugin uninstall --deactivate --all
-          wp-playground wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp-playground wp plugin install /tmp/Basic-Auth.zip --force --activate
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
-          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
-          wp-playground wp plugin install amp --force
-          wp-playground wp plugin install classic-editor --force
-          wp-playground wp plugin install plugin-check --force
-          wp-playground wp plugin install wp-graphql --force
-          wp-playground wp plugin install wp-reset --force
+          wp-now wp plugin uninstall --deactivate --all
+          wp-now wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
+          wp-now wp plugin install /tmp/Basic-Auth.zip --force --activate
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
+          wp-now wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
+          wp-now wp plugin install amp --force
+          wp-now wp plugin install classic-editor --force
+          wp-now wp plugin install plugin-check --force
+          wp-now wp plugin install wp-graphql --force
+          wp-now wp plugin install wp-reset --force
 
       - name: List plugins
-        run: wp-playground wp plugin list
+        run: wp-now wp plugin list
 
       - name: Set permalinks
         run: |
-          wp-playground wp rewrite structure '/%postname%/' --hard
-          wp-playground wp rewrite flush --hard
+          wp-now wp rewrite structure '/%postname%/' --hard
+          wp-now wp rewrite flush --hard
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
