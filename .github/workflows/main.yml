@@ -408,10 +408,9 @@ jobs:
         run: npm install -g @wp-now/wp-now
 
       - name: Start WP Playground
-        run: wp-now start --port 8889 --php ${{ matrix.php-version }}
-
-      - name: Wait for Playground
-        run: npx wait-on http://localhost:8889
+        run: |
+          wp-now start --port 8889 --php ${{ matrix.php-version }} &
+          npx wait-on http://localhost:8889
 
       - name: Verify Playground
         run: curl -I http://localhost:8889 || exit 1
