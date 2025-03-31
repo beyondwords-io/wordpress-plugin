@@ -80,6 +80,14 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 5.4.0 =
+
+Release date: April 2025
+
+**Enhancements and Features:**
+
+* Revert PHP support and testing back to version 8.3.
+
 = 5.3.2 =
 
 Release date: 4th March 2025
