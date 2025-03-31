@@ -172,7 +172,7 @@ jobs:
   # ######################################
   phpunit-tests:
     name: PHPUnit - PHP ${{ matrix.php-version }}
-    runs-on: ${{ matrix.operating-system }}
+    runs-on: ubuntu-latest
     environment: production
     needs: [grumphp]
 
@@ -181,11 +181,9 @@ jobs:
       matrix:
         php-version: ['8.4']
         phpunit-version: ['10']
-        operating-system: ['ubuntu-latest']
         include:
         - php-version: '8.0'
           phpunit-version: '9'
-          operating-system: ['ubuntu-latest']
 
     env:
       DB_HOST: 127.0.0.1
@@ -405,31 +403,31 @@ jobs:
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
 
-      - name: Download WordPress
-        run: wp core download
+      - name: Start WP Playground
+        run: |
+          npm install -g @wp-playground/cli
+          wp-playground start --background --php=8.4
 
-      - name: Create `wp-config.php` file
-        run: wp config create
+      - name: Install and activate plugin
+        run: |
+          wp-playground wp plugin install . --activate
+
+      - name: List plugins
+        run: wp-playground wp plugin list
 
       - name: Set BEYONDWORDS_API_URL
         run: |
-          wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
+          wp-playground wp config set BEYONDWORDS_API_URL http://localhost:3000/v1
 
       - name: Disable BEYONDWORDS_AUTO_SYNC_SETTINGS
         run: |
-          wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
+          wp-playground wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
 
       - name: Set WordPress core config values
         run: |
-          wp config set AUTOMATIC_UPDATER_DISABLED true --raw
-          wp config set DISABLE_WP_CRON true --raw
-          wp config set WP_AUTO_UPDATE_CORE false --raw
-
-      - name: Install WordPress
-        run: |
-          wp core install
-          wp option update siteurl http://localhost:8889
-          wp option update home http://localhost:8889
+          wp-playground wp config set AUTOMATIC_UPDATER_DISABLED true --raw
+          wp-playground wp config set DISABLE_WP_CRON true --raw
+          wp-playground wp config set WP_AUTO_UPDATE_CORE false --raw
 
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -446,33 +444,31 @@ jobs:
 
       - name: Install plugins
         run: |
-          wp plugin uninstall --deactivate --all
-          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp plugin install /tmp/Basic-Auth.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
-          wp plugin install amp --force
-          wp plugin install classic-editor --force
-          wp plugin install plugin-check --force
-          wp plugin install wp-graphql --force
-          wp plugin install wp-reset --force
+          wp-playground wp plugin uninstall --deactivate --all
+          wp-playground wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
+          wp-playground wp plugin install /tmp/Basic-Auth.zip --force --activate
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
+          wp-playground wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
+          wp-playground wp plugin install amp --force
+          wp-playground wp plugin install classic-editor --force
+          wp-playground wp plugin install plugin-check --force
+          wp-playground wp plugin install wp-graphql --force
+          wp-playground wp plugin install wp-reset --force
 
-      - run: wp plugin list
+      - name: List plugins
+        run: wp-playground wp plugin list
 
       - name: Set permalinks
         run: |
-          wp rewrite structure '/%postname%/' --hard
-          wp rewrite flush --hard
-
-      - name: Start PHP web server
-        run: sudo php -S localhost:8889 -t /usr/share/nginx/html &
+          wp-playground wp rewrite structure '/%postname%/' --hard
+          wp-playground wp rewrite flush --hard
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
