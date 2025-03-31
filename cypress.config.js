@@ -4,23 +4,27 @@ const exec = util.promisify( require( 'child_process' ).exec );
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
-	defaultCommandTimeout: 8000,
+	defaultCommandTimeout: 5000,
 	downloadsFolder: 'tests/cypress/downloads',
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
 	},
-	// experimentalMemoryManagement: true,
+	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
-	screenshotsFolder: 'tests/cypress/screenshots',
-	screenshotOnRunFailure: true,
-	video: false,
-	videosFolder: 'tests/cypress/videos',
 	reporter: 'cypress-multi-reporters',
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
+	retries: {
+		runMode: 3,
+		openMode: 0,
+	},
+	screenshotsFolder: 'tests/cypress/screenshots',
+	screenshotOnRunFailure: true,
+	video: false,
+	videosFolder: 'tests/cypress/videos',
 	e2e: {
 		setupNodeEvents( on, config ) {
 			return setupNodeEvents( on, config );

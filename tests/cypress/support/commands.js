@@ -470,7 +470,7 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 
 // Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstances', ( num ) => {
-	cy.window().should( ( win ) => {
+	cy.window( { timeout: 3000 } ).should( ( win ) => {
 		expect( win.BeyondWords ).to.have.property( 'Player' );
 		expect( win.BeyondWords.Player ).to.have.property( 'instances' );
 		expect( win.BeyondWords.Player.instances() ).to.have.length( num ?? 1 );
@@ -479,7 +479,9 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num ) => {
 
 // Check for no Beyondwords Player object.
 Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
-	cy.window().should( 'not.have.property', 'BeyondWords' );
+	cy.window( { timeout: 3000 } ).should( ( win ) => {
+		expect( win ).to.not.have.property( 'BeyondWords' );
+	} );
 } );
 
 // Get frontend audio player element (standard)
