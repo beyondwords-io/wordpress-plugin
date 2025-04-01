@@ -10,7 +10,7 @@ module.exports = defineConfig( {
 		wpUsername: 'admin',
 		wpPassword: 'password',
 	},
-	// experimentalMemoryManagement: true,
+	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
 	numTestsKeptInMemory: process.env.CI ? 0 : 50,
@@ -21,6 +21,10 @@ module.exports = defineConfig( {
 	reporter: 'cypress-multi-reporters',
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
+	},
+	retries: {
+		runMode: 3,
+		openMode: 0,
 	},
 	e2e: {
 		setupNodeEvents( on, config ) {
