@@ -390,6 +390,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         $this->assertTrue($body['published']);
 
         $this->assertSame('en_US', $body['language']);
+        $this->assertSame(42, $body['summary_voice_id']);
         $this->assertSame(43, $body['title_voice_id']);
         $this->assertSame(44, $body['body_voice_id']);
 
