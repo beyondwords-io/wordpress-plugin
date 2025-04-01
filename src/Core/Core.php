@@ -406,7 +406,7 @@ class Core
     /**
      * Get the language code from a JSON mapping if it is empty.
      *
-     * @since 5.6.0 Introduced.
+     * @since 5.4.0 Introduced.
      *
      * @param mixed  $value     The value of the metadata.
      * @param int    $object_id The ID of the object metadata is for.
