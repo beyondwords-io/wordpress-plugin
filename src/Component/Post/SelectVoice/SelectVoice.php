@@ -91,7 +91,7 @@ class SelectVoice
                 printf(
                     '<option value="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
-                    selected(strval($language['code']), $currentLanguageCode),
+                    selected(strval($language['code']), strval($currentLanguageCode)),
                     esc_html($language['name']),
                     esc_html($language['accent'])
                 );
@@ -118,7 +118,7 @@ class SelectVoice
                 printf(
                     '<option value="%s" %s>%s</option>',
                     esc_attr($voice['id']),
-                    selected(strval($voice['id']), $currentVoiceId),
+                    selected(strval($voice['id']), strval($currentVoiceId)),
                     esc_html($voice['name'])
                 );
             }
