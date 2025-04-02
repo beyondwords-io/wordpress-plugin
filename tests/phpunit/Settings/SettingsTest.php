@@ -287,7 +287,6 @@ class SettingsTest extends WP_UnitTestCase
             'player'         => 'Player',
             'summarization'  => 'Summarization',
             'pronunciations' => 'Pronunciations',
-            'advanced'       => 'Advanced',
         );
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);

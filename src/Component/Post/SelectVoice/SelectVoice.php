@@ -50,6 +50,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 4.5.1 Hide element if no language data exists.
+     * @since 5.4.0 Always display all languages and associated voices.
      *
      * @param WP_Post $post The post object.
      *
@@ -57,15 +58,11 @@ class SelectVoice
      */
     public function element($post)
     {
-        if (! get_option('beyondwords_languages')) {
-            return;
-        }
+        $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
+        $currentVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
-        $languages         = $this->getFilteredLanguages();
-        $currentLanguageId = get_post_meta($post->ID, 'beyondwords_language_id', true);
-
-        $voices         = ApiClient::getVoices($currentLanguageId);
-        $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
+        $languages = ApiClient::getLanguages();
+        $voices    = ApiClient::getVoices($currentLanguageCode);
 
         if (! is_array($voices)) {
             $voices = [];
@@ -74,22 +71,22 @@ class SelectVoice
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
         ?>
         <p
-            id="beyondwords-metabox-select-voice--language-id"
+            id="beyondwords-metabox-select-voice--language-code"
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
-            <label class="post-attributes-label" for="beyondwords_language_id">
+            <label class="post-attributes-label" for="beyondwords_language_code">
                 Language
             </label>
         </p>
-        <select id="beyondwords_language_id" name="beyondwords_language_id" style="width: 100%;">
-            <option value="">Project default</option>
+        <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <?php
             foreach ($languages as $language) {
                 printf(
-                    '<option value="%s" %s>%s</option>',
-                    esc_attr($language['id']),
-                    selected(strval($language['id']), $currentLanguageId),
-                    esc_html($language['name'])
+                    '<option value="%s" %s>%s (%s)</option>',
+                    esc_attr($language['code']),
+                    selected(strval($language['code']), strval($currentLanguageCode)),
+                    esc_html($language['name']),
+                    esc_html($language['accent'])
                 );
             }
             ?>
@@ -106,15 +103,14 @@ class SelectVoice
             id="beyondwords_voice_id"
             name="beyondwords_voice_id"
             style="width: 100%;"
-            <?php echo disabled(!strval($currentLanguageId)) ?>
+            <?php echo disabled(!strval($currentLanguageCode)) ?>
         >
-            <option value=""></option>
             <?php
             foreach ($voices as $voice) {
                 printf(
                     '<option value="%s" %s>%s</option>',
                     esc_attr($voice['id']),
-                    selected(strval($voice['id']), $currentVoiceId),
+                    selected(strval($voice['id']), strval($currentVoiceId)),
                     esc_html($voice['name'])
                 );
             }
@@ -138,7 +134,7 @@ class SelectVoice
 
         // "save_post" can be triggered at other times, so verify this request came from the our component
         if (
-            ! isset($_POST['beyondwords_language_id']) ||
+            ! isset($_POST['beyondwords_language_code']) ||
             ! isset($_POST['beyondwords_voice_id']) ||
             ! isset($_POST['beyondwords_select_voice_nonce'])
         ) {
@@ -155,12 +151,12 @@ class SelectVoice
             return $postId;
         }
 
-        $languageId = sanitize_text_field(wp_unslash($_POST['beyondwords_language_id']));
+        $languageCode = sanitize_text_field(wp_unslash($_POST['beyondwords_language_code']));
 
-        if (! empty($languageId)) {
-            update_post_meta($postId, 'beyondwords_language_id', $languageId);
+        if (! empty($languageCode)) {
+            update_post_meta($postId, 'beyondwords_language_code', $languageCode);
         } else {
-            delete_post_meta($postId, 'beyondwords_language_id');
+            delete_post_meta($postId, 'beyondwords_language_code');
         }
 
         $voiceId = sanitize_text_field(wp_unslash($_POST['beyondwords_voice_id']));
@@ -197,7 +193,7 @@ class SelectVoice
         ));
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageId>[0-9]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', array(
             'methods'  => \WP_REST_Server::READABLE,
             'callback' => array($this, 'voicesRestApiResponse'),
             'permission_callback' => function () {
@@ -207,73 +203,16 @@ class SelectVoice
     }
 
     /**
-     * Get languages from BeyondWords API and filter by "Languages" plugin setting.
-     *
-     * @since 4.0.0
-     * @since 4.5.1 Exit early with an empty array if language API call fails.
-     *
-     * @return array Array of languages
-     */
-    public function getFilteredLanguages()
-    {
-        $languages = ApiClient::getLanguages();
-
-        if (! is_array($languages)) {
-            return [];
-        }
-
-        $languagesSetting = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
-
-        // Filter languages according to "Languages" plugin setting
-        if (is_array($languages) && is_array($languagesSetting)) {
-            $languages = array_values(array_filter($languages, function ($language) {
-                return $this->languageIsInSettings($language);
-            }));
-        }
-
-        return $languages;
-    }
-
-    /**
-     * Get languages from BeyondWords API and filter by "Languages" plugin setting.
-     *
-     * @since 4.0.0
-     *
-     * @return array Array of languages
-     */
-    public function languageIsInSettings($language)
-    {
-        if (! is_array($language)) {
-            return false;
-        }
-
-        if (! array_key_exists('id', $language)) {
-            return false;
-        }
-
-        $languagesSetting = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
-
-        if (! is_array($languagesSetting)) {
-            return false;
-        }
-
-        if (! in_array(strval($language['id']), $languagesSetting)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * "Languages" WP REST API response (required for the Gutenberg editor).
      *
      * @since 4.0.0
+     * @since 5.4.0 No longer filter by "Languages" plugin setting.
      *
      * @return \WP_REST_Response
      */
     public function languagesRestApiResponse()
     {
-        $languages = $this->getFilteredLanguages();
+        $languages = ApiClient::getLanguages();
 
         return new \WP_REST_Response($languages);
     }
@@ -290,11 +229,10 @@ class SelectVoice
     {
         $params = $data->get_url_params();
 
-        $voices = ApiClient::getVoices($params['languageId']);
+        $voices = ApiClient::getVoices($params['languageCode']);
 
         return new \WP_REST_Response($voices);
     }
-
 
     /**
      * Register the component scripts.

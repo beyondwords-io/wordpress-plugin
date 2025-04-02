@@ -36,6 +36,7 @@ class CoreTest extends WP_UnitTestCase
         $this->assertEquals(99, has_action('wp_after_insert_post', array($core, 'onAddOrUpdatePost')));
         $this->assertEquals(10, has_action('before_delete_post', array($core, 'onDeletePost')));
         $this->assertEquals(10, has_action('is_protected_meta', array($core, 'isProtectedMeta')));
+        $this->assertEquals(10, has_action('get_post_metadata', array($core, 'getLangCodeFromJsonIfEmpty')));
     }
 
     /**
@@ -439,7 +440,7 @@ class CoreTest extends WP_UnitTestCase
      * @test
      * @dataProvider processResponseProvider
      */
-    public function processResponse($response, $expectProjectId, $expectContentId) {
+    public function processResponse($response, $projectId, $contentId, $language, $summaryVoiceId, $titleVoiceId, $bodyVoiceId) {
         $core = new Core();
 
         $postId = self::factory()->post->create([
@@ -448,8 +449,12 @@ class CoreTest extends WP_UnitTestCase
 
         $core->processResponse($response, BEYONDWORDS_TESTS_PROJECT_ID, $postId);
 
-        $this->assertSame($expectProjectId, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame($expectContentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
+        $this->assertSame($summaryVoiceId, get_post_meta($postId, 'beyondwords_summary_voice_id', true));
+        $this->assertSame($titleVoiceId, get_post_meta($postId, 'beyondwords_title_voice_id', true));
+        $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         wp_delete_post($postId, true);
     }
@@ -457,14 +462,28 @@ class CoreTest extends WP_UnitTestCase
     public function processResponseProvider() {
         return [
             'Response includes Content ID' => [
-                'response' => ['id' => BEYONDWORDS_TESTS_CONTENT_ID],
-                'expectProjectId' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'expectContentId' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'response' => [
+                    'id'               => BEYONDWORDS_TESTS_CONTENT_ID,
+                    'language'         => 'en_US',
+                    'summary_voice_id' => '3555',
+                    'title_voice_id'   => '2517',
+                    'body_voice_id'    => '3558',
+                ],
+                'projectId'      => BEYONDWORDS_TESTS_PROJECT_ID,
+                'contentId'      => BEYONDWORDS_TESTS_CONTENT_ID,
+                'language'       => 'en_US',
+                'summaryVoiceId' => '3555',
+                'titleVoiceId'   => '2517',
+                'bodyVoiceId'    => '3558',
             ],
             'Response is not an array' => [
-                'response' => new StdClass(),
-                'expectProjectId' => '',
-                'expectContentId' => '',
+                'response'       => new StdClass(),
+                'projectId'      => '',
+                'contentId'      => '',
+                'language'       => '',
+                'summaryVoiceId' => '',
+                'titleVoiceId'   => '',
+                'bodyVoiceId'    => '',
             ],
         ];
     }
@@ -548,5 +567,54 @@ class CoreTest extends WP_UnitTestCase
     function removeDeleteActions($core) {
         // Actions for deleting/trashing/restoring posts
         remove_action('before_delete_post', array($core, 'onDeletePost'));
+    }
+
+    /**
+     * @test
+     * @dataProvider langCodes
+     */
+    public function getLangCodeFromJsonIfEmpty($language_id, $language_code) {
+        $core = new Core();
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::getLangCodeFromJsonIfEmpty',
+            'meta_input' => [
+                'beyondwords_language_id' => $language_id,
+            ],
+        ]);
+
+        $this->assertSame('foo', $core->getLangCodeFromJsonIfEmpty('foo', $postId, 'beyondwords_language_foo', true));
+        $this->assertSame('bar', $core->getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_code', true));
+        $this->assertSame(["$language_code"], $core->getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
+    }
+
+    public function langCodes()
+    {
+        return [
+            'en_GB' => [
+                'language_id' => "50",
+                'language_code' => "en_GB",
+            ],
+            'en_US' => [
+                'language_id' => "58",
+                'language_code' => "en_US",
+            ],
+            'ar_SA' => [
+                'language_id' => "10",
+                'language_code' => "ar_SA",
+            ],
+            'zh_CN_shandong' => [
+                'language_id' => "273",
+                'language_code' => "zh_CN_shandong",
+            ],
+            'zh_CN_liaoning' => [
+                'language_id' => "269",
+                'language_code' => "zh_CN_liaoning",
+            ],
+            'zh_TW' => [
+                'language_id' => "234",
+                'language_code' => "zh_TW",
+            ],
+        ];
     }
 }
