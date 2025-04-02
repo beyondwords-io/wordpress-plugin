@@ -58,14 +58,11 @@ class SelectVoice
      */
     public function element($post)
     {
-        $languages           = ApiClient::getLanguages();
         $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
+        $currentVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
 
-        if ($currentLanguageCode) {
-            $voices = ApiClient::getVoices($currentLanguageCode);
-        }
-
-        $currentVoiceId = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
+        $languages = ApiClient::getLanguages();
+        $voices    = ApiClient::getVoices($currentLanguageCode);
 
         if (! is_array($voices)) {
             $voices = [];
@@ -82,7 +79,6 @@ class SelectVoice
             </label>
         </p>
         <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
-            <option value="">Project default</option>
             <?php
             foreach ($languages as $language) {
                 printf(
@@ -109,7 +105,6 @@ class SelectVoice
             style="width: 100%;"
             <?php echo disabled(!strval($currentLanguageCode)) ?>
         >
-            <option value=""></option>
             <?php
             foreach ($voices as $voice) {
                 printf(

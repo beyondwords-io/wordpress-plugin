@@ -77,11 +77,11 @@ context( 'Settings',  () => {
     cy.get( '#beyondwords_player_theme' ).should( 'have.value', 'light' )
     cy.get( '#beyondwords_player_widget_position' ).should( 'have.value', 'auto' )
     cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', 'standard' )
-    cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '201' )
+    cy.get( '#beyondwords_project_body_voice_id' ).should( 'have.value', '3555' )
     cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should( 'have.value', '95' )
     cy.get( '#beyondwords_project_language_code' ).should( 'have.value', 'en_US' )
     cy.get( '#beyondwords_project_title_enabled' ).should( 'have.value', '1' )
-    cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '201' )
+    cy.get( '#beyondwords_project_title_voice_id' ).should( 'have.value', '3555' )
     cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should( 'have.value', '90' )
 
     // @todo themes cannot be tested using this method because they are serialized data

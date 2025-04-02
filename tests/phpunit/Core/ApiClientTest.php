@@ -176,13 +176,13 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::getLanguages();
 
-        $this->assertSame('en_US', $response[0]['code']);
-        $this->assertSame('en_GB', $response[1]['code']);
-        $this->assertSame('cy_GB', $response[2]['code']);
+        $this->assertSame('en_US', $response[32]['code']);
+        $this->assertSame('en_GB', $response[34]['code']);
+        $this->assertSame('cy_GB', $response[91]['code']);
 
-        $this->assertSame(101, $response[0]['id']);
-        $this->assertSame(102, $response[1]['id']);
-        $this->assertSame(103, $response[2]['id']);
+        $this->assertSame(58, $response[0]['id']);
+        $this->assertSame(50, $response[1]['id']);
+        $this->assertSame(39, $response[2]['id']);
 
         $this->assertSame('English', $response[0]['name']);
         $this->assertSame('English', $response[1]['name']);
@@ -192,9 +192,9 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertSame('British',  $response[1]['accent']);
         $this->assertSame('British',  $response[2]['accent']);
 
-        $this->assertSame(201, $response[0]['default_voices']['title']['id']);
-        $this->assertSame(202, $response[1]['default_voices']['title']['id']);
-        $this->assertSame(203, $response[2]['default_voices']['title']['id']);
+        $this->assertSame(3555, $response[0]['default_voices']['title']['id']);
+        $this->assertSame(2517, $response[1]['default_voices']['title']['id']);
+        $this->assertSame(3558, $response[2]['default_voices']['title']['id']);
 
         $this->assertSame('Ada (Multilingual)',  $response[0]['default_voices']['title']['name']);
         $this->assertSame('Ava (Multilingual)',  $response[1]['default_voices']['title']['name']);
@@ -204,9 +204,9 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertSame(95,  $response[1]['default_voices']['title']['speaking_rate']);
         $this->assertSame(100, $response[2]['default_voices']['title']['speaking_rate']);
 
-        $this->assertSame(201, $response[0]['default_voices']['body']['id']);
-        $this->assertSame(202, $response[1]['default_voices']['body']['id']);
-        $this->assertSame(203, $response[2]['default_voices']['body']['id']);
+        $this->assertSame(3555, $response[0]['default_voices']['body']['id']);
+        $this->assertSame(2517, $response[1]['default_voices']['body']['id']);
+        $this->assertSame(3558, $response[2]['default_voices']['body']['id']);
 
         $this->assertSame('Ada (Multilingual)',  $response[0]['default_voices']['body']['name']);
         $this->assertSame('Ava (Multilingual)',  $response[1]['default_voices']['body']['name']);
@@ -216,9 +216,9 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertSame(100, $response[1]['default_voices']['body']['speaking_rate']);
         $this->assertSame(105, $response[2]['default_voices']['body']['speaking_rate']);
 
-        $this->assertSame(201, $response[0]['default_voices']['summary']['id']);
-        $this->assertSame(202, $response[1]['default_voices']['summary']['id']);
-        $this->assertSame(203, $response[2]['default_voices']['summary']['id']);
+        $this->assertSame(3555, $response[0]['default_voices']['summary']['id']);
+        $this->assertSame(2517, $response[1]['default_voices']['summary']['id']);
+        $this->assertSame(3558, $response[2]['default_voices']['summary']['id']);
 
         $this->assertSame('Ada (Multilingual)',  $response[0]['default_voices']['summary']['name']);
         $this->assertSame('Ava (Multilingual)',  $response[1]['default_voices']['summary']['name']);
@@ -246,9 +246,9 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::getVoices('en_US');
 
-        $this->assertSame(201, $response[0]['id']);
-        $this->assertSame(202, $response[1]['id']);
-        $this->assertSame(203, $response[2]['id']);
+        $this->assertSame(3555, $response[0]['id']);
+        $this->assertSame(2517, $response[1]['id']);
+        $this->assertSame(3558, $response[2]['id']);
 
         $this->assertSame('Ada (Multilingual)', $response[0]['name']);
         $this->assertSame('Ava (Multilingual)', $response[1]['name']);

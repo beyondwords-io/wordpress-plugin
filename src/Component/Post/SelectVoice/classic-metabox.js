@@ -97,7 +97,6 @@
 				.done( function ( voices ) {
 					$voicesSelect
 						.empty()
-						.append( '<option value=""></option>' )
 						.append(
 							voices.map( ( voice ) => {
 								return $( '<option></option>' )

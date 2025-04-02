@@ -89,7 +89,7 @@ context( 'Site Health', () => {
         // Title voice ID
         cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '201' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3555' )
         } )
         // Title voice speaking rate
         cy.get( 'tr' ).eq( 14 ).within( () => {
@@ -99,7 +99,7 @@ context( 'Site Health', () => {
         // Body voice ID
         cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '201' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3555' )
         } )
         // Body voice speaking rate
         cy.get( 'tr' ).eq( 16 ).within( () => {

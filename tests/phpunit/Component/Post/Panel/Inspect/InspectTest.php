@@ -64,7 +64,7 @@ class InspectTest extends \WP_UnitTestCase
             'beyondwords_preview_token'    => 'my-preview-token',
             'beyondwords_language_code'    => 'en_US',
             'beyondwords_title_voice_id'   => '101',
-            'beyondwords_body_voice_id'    => '202',
+            'beyondwords_body_voice_id'    => '2517',
             'beyondwords_summary_voice_id' => '303',
             'beyondwords_disabled'         => '0',
             'beyondwords_error_message'    => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
