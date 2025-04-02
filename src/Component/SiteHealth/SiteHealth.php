@@ -119,16 +119,7 @@ class SiteHealth
         $this->addContentSettings($info);
         $this->addProjectSettings($info);
         $this->addPlayerSettings($info);
-
-        $languages = get_option('beyondwords_languages');
-
-        $info['beyondwords']['fields']['beyondwords_languages'] = [
-            'label' => __('Multiple languages', 'speechkit'),
-            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '', // phpcs:ignore Generic.Files.LineLength.TooLong
-        ];
-
         $this->addFilters($info);
-
         $this->addNoticeSettings($info);
 
         $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');

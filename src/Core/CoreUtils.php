@@ -185,8 +185,6 @@ class CoreUtils
             'beyondwords_project_title_voice_id',
             'beyondwords_project_title_voice_speaking_rate',
             'beyondwords_video_enabled',
-            // v4.x
-            'beyondwords_languages',
             'beyondwords_player_ui',
             'beyondwords_player_style',
             'beyondwords_player_version',
@@ -201,6 +199,8 @@ class CoreUtils
         ];
 
         $deprecated = [
+            // v4.x
+            'beyondwords_languages',
             // v3.0.0 speechkit_*
             'speechkit_api_key',
             'speechkit_prepend_excerpt',

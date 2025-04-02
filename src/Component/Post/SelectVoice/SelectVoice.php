@@ -50,6 +50,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 4.5.1 Hide element if no language data exists.
+     * @since 5.4.0 Always display all languages and associated voices.
      *
      * @param WP_Post $post The post object.
      *
@@ -57,11 +58,7 @@ class SelectVoice
      */
     public function element($post)
     {
-        if (! get_option('beyondwords_languages')) {
-            return;
-        }
-
-        $languages           = $this->getFilteredLanguages();
+        $languages           = ApiClient::getLanguages();
         $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
 
         if ($currentLanguageCode) {
@@ -211,73 +208,16 @@ class SelectVoice
     }
 
     /**
-     * Get languages from BeyondWords API and filter by "Languages" plugin setting.
-     *
-     * @since 4.0.0
-     * @since 4.5.1 Exit early with an empty array if language API call fails.
-     *
-     * @return array Array of languages
-     */
-    public function getFilteredLanguages()
-    {
-        $languages = ApiClient::getLanguages();
-
-        if (! is_array($languages)) {
-            return [];
-        }
-
-        $languagesSetting = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
-
-        // Filter languages according to "Languages" plugin setting
-        if (is_array($languages) && is_array($languagesSetting)) {
-            $languages = array_values(array_filter($languages, function ($language) {
-                return $this->languageIsInSettings($language);
-            }));
-        }
-
-        return $languages;
-    }
-
-    /**
-     * Get languages from BeyondWords API and filter by "Languages" plugin setting.
-     *
-     * @since 4.0.0
-     *
-     * @return array Array of languages
-     */
-    public function languageIsInSettings($language)
-    {
-        if (! is_array($language)) {
-            return false;
-        }
-
-        if (! array_key_exists('code', $language)) {
-            return false;
-        }
-
-        $languagesSetting = get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES);
-
-        if (! is_array($languagesSetting)) {
-            return false;
-        }
-
-        if (! in_array(strval($language['code']), $languagesSetting)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * "Languages" WP REST API response (required for the Gutenberg editor).
      *
      * @since 4.0.0
+     * @since 5.4.0 No longer filter by "Languages" plugin setting.
      *
      * @return \WP_REST_Response
      */
     public function languagesRestApiResponse()
     {
-        $languages = $this->getFilteredLanguages();
+        $languages = ApiClient::getLanguages();
 
         return new \WP_REST_Response($languages);
     }

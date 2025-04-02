@@ -21,9 +21,6 @@ context( 'Settings',  () => {
 
     cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=pronunciations' )
     cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Pronunciations' )
-
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
-    cy.get( '#beyondwords-plugin-settings > h2' ).eq( 0 ).should( 'have.text', 'Advanced' )
   } )
 
   it( 'has synced the voice settings on install', () => {

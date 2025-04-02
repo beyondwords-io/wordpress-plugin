@@ -8,11 +8,6 @@ import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
-/**
- * Internal dependencies
- */
-import SelectVoiceCheck from './check';
-
 export function SelectVoice( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
@@ -84,20 +79,14 @@ export function SelectVoice( { wrapper } ) {
 	}
 
 	return (
-		<SelectVoiceCheck>
+		<>
 			<Wrapper>
 				<Flex>
 					<FlexBlock>
 						<SelectControl
 							className="beyondwords--select-language"
 							label={ __( 'Language', 'speechkit' ) }
-							options={ [
-								{
-									label: __( 'Project default', 'speechkit' ),
-									value: '',
-								},
-								...languageOptions,
-							] }
+							options={ languageOptions }
 							onChange={ ( val ) => setLanguageCode( val ) }
 							value={ languageCode }
 							__nextHasNoMarginBottom
@@ -126,7 +115,7 @@ export function SelectVoice( { wrapper } ) {
 					</FlexBlock>
 				</Flex>
 			</Wrapper>
-		</SelectVoiceCheck>
+		</>
 	);
 }
 

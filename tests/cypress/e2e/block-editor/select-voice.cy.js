@@ -26,8 +26,6 @@ context( 'Block Editor: Select Voice', () => {
     })
 
     it( `can set a Voice for a ${postType.name} if languages are selected`, () => {
-      cy.setLanguagesInPluginSettings();
-
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       cy.closeWelcomeToBlockEditorTips()
@@ -37,7 +35,7 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Language' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Project default", "English (American)", "English (British)"] )
+        expect(values).to.deep.eq( ["English (American)", "English (British)"] )
       })
 
       // Select a Language
@@ -46,7 +44,7 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
+        expect(values).to.deep.eq( ["Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
       })
 
       // Select a Voice

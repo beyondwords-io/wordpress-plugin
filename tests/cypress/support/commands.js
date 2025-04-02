@@ -65,7 +65,6 @@ Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
   cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
-  cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' )
 } )
 
 Cypress.Commands.add( 'showsAllSettingsTabs', () => {
@@ -75,7 +74,6 @@ Cypress.Commands.add( 'showsAllSettingsTabs', () => {
   cy.get( '.nav-tab' ).contains( 'Player' )
   cy.get( '.nav-tab' ).contains( 'Summarization' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' )
-  cy.get( '.nav-tab' ).contains( 'Advanced' )
 } )
 
 Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
@@ -131,17 +129,6 @@ Cypress.Commands.add( 'saveAllPluginSettings', () => {
   cy.get( '.notice-success' )
 
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-  cy.get( 'input[type=submit]' ).click().wait( 2000 )
-  cy.get( '.notice-success' )
-} )
-
-Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
-  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
-
-  cy.get('#beyondwords_languages-ts-control').click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'English (American)' ).click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'English (British)' ).click().wait( 1000 )
-
   cy.get( 'input[type=submit]' ).click().wait( 2000 )
   cy.get( '.notice-success' )
 } )
