@@ -26,8 +26,16 @@ export function SelectVoice( { wrapper } ) {
 
 	const languageCode =
 		meta.beyondwords_language_code || settings.projectLanguageCode;
-	const bodyVoiceId =
-		meta.beyondwords_body_voice_id || settings.projectBodyVoiceId;
+
+	const { languages } = useSelect( ( select ) => {
+		return {
+			languages: select( 'beyondwords/settings' ).getLanguages(),
+		};
+	}, [] );
+
+	const defaultLanguage = languages?.find(
+		( item ) => item.code === languageCode
+	);
 
 	const setLanguageCode = ( newLanguageCode ) => {
 		setMeta( {
@@ -45,12 +53,6 @@ export function SelectVoice( { wrapper } ) {
 		} );
 	};
 
-	const { languages } = useSelect( ( select ) => {
-		return {
-			languages: select( 'beyondwords/settings' ).getLanguages(),
-		};
-	}, [] );
-
 	const { voices } = useSelect(
 		( select ) => {
 			return {
@@ -61,6 +63,26 @@ export function SelectVoice( { wrapper } ) {
 		},
 		[ languageCode ]
 	);
+
+	const defaultVoice = useMemo( () => {
+		const postVoiceId = meta.beyondwords_body_voice_id;
+		const projectVoiceId = settings.projectBodyVoiceId;
+		const defaultVoiceId = `${ defaultLanguage?.default_voices?.body?.id }`;
+
+		for ( const item of voices ?? [] ) {
+			if ( postVoiceId === `${ item.id }` ) {
+				return `${ item.id }`;
+			}
+			if ( projectVoiceId === `${ item.id }` ) {
+				return `${ item.id }`;
+			}
+			if ( defaultVoiceId === `${ item.id }` ) {
+				return `${ item.id }`;
+			}
+		}
+
+		return '';
+	}, [ defaultLanguage, meta, settings, voices ] );
 
 	const languageOptions = useMemo( () => {
 		return ( languages ?? [] ).map( ( language ) => {
@@ -77,7 +99,7 @@ export function SelectVoice( { wrapper } ) {
 		return ( voices ?? [] ).map( ( voice ) => {
 			return {
 				label: decodeEntities( voice.name ),
-				value: decodeEntities( voice.id ),
+				value: decodeEntities( `${ voice.id }` ),
 			};
 		} );
 	}, [ voices ] );
@@ -118,7 +140,7 @@ export function SelectVoice( { wrapper } ) {
 								options={ voiceOptions }
 								onChange={ ( val ) => setAllVoiceIds( val ) }
 								disabled={ ! voiceOptions?.length }
-								value={ bodyVoiceId }
+								value={ defaultVoice }
 								__nextHasNoMarginBottom
 							/>
 						) }
