@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Flex, FlexBlock } from '@wordpress/components';
+import { SelectControl, Flex, FlexBlock, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -16,10 +16,18 @@ export function SelectVoice( { wrapper } ) {
 		[]
 	);
 
+	const { settings } = useSelect( ( select ) => {
+		return {
+			settings: select( 'beyondwords/settings' ).getSettings(),
+		};
+	}, [] );
+
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const languageCode = meta.beyondwords_language_code;
-	const bodyVoiceId = meta.beyondwords_body_voice_id;
+	const languageCode =
+		meta.beyondwords_language_code || settings.projectLanguageCode;
+	const bodyVoiceId =
+		meta.beyondwords_body_voice_id || settings.projectBodyVoiceId;
 
 	const setLanguageCode = ( newLanguageCode ) => {
 		setMeta( {
@@ -97,21 +105,23 @@ export function SelectVoice( { wrapper } ) {
 			<Wrapper>
 				<Flex>
 					<FlexBlock>
-						<SelectControl
-							className="beyondwords--select-voice"
-							label={ __( 'Voice', 'speechkit' ) }
-							options={ [
-								{
-									label: '',
-									value: '',
-								},
-								...voiceOptions,
-							] }
-							onChange={ ( val ) => setAllVoiceIds( val ) }
-							disabled={ ! voiceOptions?.length }
-							value={ bodyVoiceId }
-							__nextHasNoMarginBottom
-						/>
+						{ ! voiceOptions?.length && (
+							<Spinner
+								className="beyondwords--spinner-voices"
+								style={ { marginTop: '1rem' } }
+							/>
+						) }
+						{ !! voiceOptions?.length && (
+							<SelectControl
+								className="beyondwords--select-voice"
+								label={ __( 'Voice', 'speechkit' ) }
+								options={ voiceOptions }
+								onChange={ ( val ) => setAllVoiceIds( val ) }
+								disabled={ ! voiceOptions?.length }
+								value={ bodyVoiceId }
+								__nextHasNoMarginBottom
+							/>
+						) }
 					</FlexBlock>
 				</Flex>
 			</Wrapper>
