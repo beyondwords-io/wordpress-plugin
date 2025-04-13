@@ -87,8 +87,9 @@ class SelectVoice
                     continue;
                 }
                 printf(
-                    '<option value="%s" %s>%s (%s)</option>',
+                    '<option value="%s" data-default-voice-id="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
+                    esc_attr($language['default_voices']['body']['id'] ?? ''),
                     selected(strval($language['code']), strval($languageCode)),
                     esc_html($language['name']),
                     esc_html($language['accent'])

@@ -30,7 +30,11 @@
 				'change',
 				'select#beyondwords_language_code',
 				function () {
-					selectVoice.getVoices( this.value );
+					const defaultVoiceId = $( this )
+						.find( ':selected' )
+						.attr( 'data-default-voice-id' );
+
+					selectVoice.getVoices( this.value, `${ defaultVoiceId }` );
 				}
 			);
 		},
@@ -71,9 +75,11 @@
 		 * Get voices for a language.
 		 *
 		 * @since 5.4.0
+		 *
 		 * @param {string} languageCode
+		 * @param {string} defaultVoiceId
 		 */
-		getVoices( languageCode ) {
+		getVoices( languageCode, defaultVoiceId ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
 
 			if ( ! languageCode ) {
@@ -101,7 +107,11 @@
 							voices.map( ( voice ) => {
 								return $( '<option></option>' )
 									.val( voice.id )
-									.text( voice.name );
+									.text( voice.name )
+									.attr(
+										'selected',
+										defaultVoiceId === `${ voice.id }`
+									);
 							} )
 						)
 						.attr( 'disabled', false );
