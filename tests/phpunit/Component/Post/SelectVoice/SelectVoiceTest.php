@@ -100,7 +100,7 @@ class SelectVoiceTest extends WP_UnitTestCase
         $this->assertSame('Ava (Multilingual)', $voiceSelect->filter('option:nth-child(2)')->text());
 
         $this->assertSame('3558', $voiceSelect->filter('option:nth-child(3)')->attr('value'));
-        $this->assertSame('Ryan (Multilingual)', $voiceSelect->filter('option:nth-child(3)')->text());
+        $this->assertSame('Ollie (Multilingual)', $voiceSelect->filter('option:nth-child(3)')->text());
 
         wp_delete_post($post->ID, true);
     }

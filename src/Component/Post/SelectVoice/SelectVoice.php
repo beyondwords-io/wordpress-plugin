@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\SelectVoice;
 
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
 
@@ -58,11 +57,14 @@ class SelectVoice
      */
     public function element($post)
     {
-        $currentLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
-        $currentVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
+        $postLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
+        $postVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
+
+        $languageCode = $postLanguageCode ?: get_option('beyondwords_project_language_code');
+        $voiceId      = $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
 
         $languages = ApiClient::getLanguages();
-        $voices    = ApiClient::getVoices($currentLanguageCode);
+        $voices    = ApiClient::getVoices($languageCode);
 
         if (! is_array($voices)) {
             $voices = [];
@@ -81,10 +83,13 @@ class SelectVoice
         <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <?php
             foreach ($languages as $language) {
+                if (empty($language['code']) || empty($language['name'])  || empty($language['accent'])) {
+                    continue;
+                }
                 printf(
                     '<option value="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
-                    selected(strval($language['code']), strval($currentLanguageCode)),
+                    selected(strval($language['code']), strval($languageCode)),
                     esc_html($language['name']),
                     esc_html($language['accent'])
                 );
@@ -103,14 +108,14 @@ class SelectVoice
             id="beyondwords_voice_id"
             name="beyondwords_voice_id"
             style="width: 100%;"
-            <?php echo disabled(!strval($currentLanguageCode)) ?>
+            <?php echo disabled(!strval($languageCode)) ?>
         >
             <?php
             foreach ($voices as $voice) {
                 printf(
                     '<option value="%s" %s>%s</option>',
                     esc_attr($voice['id']),
-                    selected(strval($voice['id']), strval($currentVoiceId)),
+                    selected(strval($voice['id']), strval($voiceId)),
                     esc_html($voice['name'])
                 );
             }

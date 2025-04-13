@@ -41,11 +41,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
+        expect(values).to.deep.eq( ["Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Ryan (Multilingual)' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Ollie (Multilingual)' )
 
       // Select another Language
       cy.get( 'select#beyondwords_language_code' ).select( 'English (British)' ).wait( 1000 )
@@ -53,7 +53,7 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ryan (Multilingual)"] )
+        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
       })
 
       // Select a Voice
