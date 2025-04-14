@@ -51,7 +51,7 @@ context( 'Block Editor: Select Voice', () => {
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Ada (Multilingual)' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Ava (Multilingual)' )
 
       cy.setPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -67,7 +67,7 @@ context( 'Block Editor: Select Voice', () => {
       cy.reload()
       cy.openBeyondwordsEditorPanel()
       cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
-      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Ada (Multilingual)' )
+      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Ava (Multilingual)' )
     } )
   } )
 } )

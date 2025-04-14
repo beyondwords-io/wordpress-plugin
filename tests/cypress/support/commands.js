@@ -202,10 +202,13 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
   cy.get( '#post_status' ).select( 'Pending Review' )
 
   // Click "OK"
-  cy.get( 'a.save-post-status' ).click().wait( 500 )
+  cy.get( 'a.save-post-status' ).click().wait( 1000 )
+
+  // Wait for Permalink to be generated
+  cy.get( 'a#sample-permalink' )
 
   // Click "Save as Pending" button
-  cy.get( 'input[value="Save as Pending"]' ).click()
+  cy.get( 'input[value="Save as Pending"]' ).click().wait( 1000 )
 
   // Wait for success message
   cy.get( 'div#message.notice-success' )

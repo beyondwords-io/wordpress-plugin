@@ -52,7 +52,7 @@ context( 'Classic Editor: Select Voice', () => {
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Ada (Multilingual)' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Ava (Multilingual)' )
 
       cy.classicSetPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -67,7 +67,7 @@ context( 'Classic Editor: Select Voice', () => {
 
       // Check Language/Voice has been saved by refreshing the page
       cy.get( 'select#beyondwords_language_code' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
-      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Ada (Multilingual)' )
+      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Ava (Multilingual)' )
     } )
   } )
 } )

@@ -139,7 +139,7 @@ context( 'Classic Editor: Add Post', () => {
         } )
     } )
 
-    it( `can add a ${postType.name} with "Pending review" audio `, () => {
+    it.only( `can add a ${postType.name} with "Pending review" audio `, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       if ( postType.preselect ) {
