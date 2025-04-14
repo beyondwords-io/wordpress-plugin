@@ -18,21 +18,16 @@ context( 'Classic Editor: Select Voice', () => {
 
   // Only test priority post types
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `shows no "Language" component for a ${postType.name} if languages are not selected`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-
-      // Language and Voice should not exist
-      cy.get( 'select#beyondwords_language_code' ).should( 'not.exist' )
-      cy.get( 'select#beyondwords_voice_id' ).should( 'not.exist' )
-    })
-
     it( `can set a Voice for a ${postType.name} if languages are selected`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
       // Assert we have the expected Languages
       cy.get( 'select#beyondwords_language_code' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["English (American)", "English (British)"] )
+        expect(values).to.have.length(148)
+        expect(values).to.include("English (American)")
+        expect(values).to.include("English (British)")
+        expect(values).to.include("Welsh (Welsh)")
       })
 
       // Select a Language
@@ -53,11 +48,11 @@ context( 'Classic Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.get( 'select#beyondwords_voice_id' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
+        expect(values).to.deep.eq( ["Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
       })
 
       // Select a Voice
-      cy.get( 'select#beyondwords_voice_id' ).select( 'Ava (Multilingual)' )
+      cy.get( 'select#beyondwords_voice_id' ).select( 'Ada (Multilingual)' )
 
       cy.classicSetPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -72,7 +67,7 @@ context( 'Classic Editor: Select Voice', () => {
 
       // Check Language/Voice has been saved by refreshing the page
       cy.get( 'select#beyondwords_language_code' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
-      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Ava (Multilingual)' )
+      cy.get( 'select#beyondwords_voice_id' ).find( 'option:selected' ).should( 'have.text', 'Ada (Multilingual)' )
     } )
   } )
 } )

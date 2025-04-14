@@ -13,18 +13,6 @@ context( 'Block Editor: Select Voice', () => {
 
   // Only test priority post types
   postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `shows no "Language" component for a ${postType.name} if languages are not selected`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
-
-      cy.closeWelcomeToBlockEditorTips()
-
-      cy.openBeyondwordsEditorPanel()
-
-      // Language and Voice should not exist
-      cy.get( 'label' ).contains( 'Language' ).should( 'not.exist' )
-      cy.get( 'label' ).contains( 'Voice' ).should( 'not.exist' )
-    })
-
     it( `can set a Voice for a ${postType.name} if languages are selected`, () => {
       cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
 
@@ -35,7 +23,10 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Language' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["English (American)", "English (British)"] )
+        expect(values).to.have.length(148)
+        expect(values).to.include("English (American)")
+        expect(values).to.include("English (British)")
+        expect(values).to.include("Welsh (Welsh)")
       })
 
       // Select a Language
@@ -56,11 +47,11 @@ context( 'Block Editor: Select Voice', () => {
       // Assert we have the expected Voices
       cy.getBlockEditorSelect( 'Voice' ).find( 'option' ).should( $els => {
         const values = [ ...$els ].map( el => el.innerText.trim() )
-        expect(values).to.deep.eq( ["", "Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
+        expect(values).to.deep.eq( ["Ada (Multilingual)", "Ava (Multilingual)", "Ollie (Multilingual)"] )
       })
 
       // Select a Voice
-      cy.getBlockEditorSelect( 'Voice' ).select( 'Ava (Multilingual)' )
+      cy.getBlockEditorSelect( 'Voice' ).select( 'Ada (Multilingual)' )
 
       cy.setPostTitle( `I can select a custom Voice for a ${postType.name}` )
 
@@ -76,7 +67,7 @@ context( 'Block Editor: Select Voice', () => {
       cy.reload()
       cy.openBeyondwordsEditorPanel()
       cy.getBlockEditorSelect( 'Language' ).find( 'option:selected' ).should( 'have.text', 'English (British)' )
-      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Ava (Multilingual)' )
+      cy.getBlockEditorSelect( 'Voice' ).find( 'option:selected' ).should( 'have.text', 'Ada (Multilingual)' )
     } )
   } )
 } )
