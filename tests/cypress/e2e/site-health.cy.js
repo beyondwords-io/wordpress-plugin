@@ -166,43 +166,38 @@ context( 'Site Health', () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Skip button style' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'auto' )
         } )
-        // Multiple languages
-        cy.get( 'tr' ).eq( 29 ).within( () => {
-          cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Multiple languages' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
-        } )
         // Registered filters
-        cy.get( 'tr' ).eq( 30 ).within( () => {
+        cy.get( 'tr' ).eq( 29 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // Registered deprecated filters
-        cy.get( 'tr' ).eq( 31 ).within( () => {
+        cy.get( 'tr' ).eq( 30 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered deprecated filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // Review Notice Dismissed
-        cy.get( 'tr' ).eq( 32 ).within( () => {
+        cy.get( 'tr' ).eq( 31 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Date Activated' )
           cy.get( 'td' ).eq( 1 ).should( 'satisfy', val => NaN !== Date.parse(val) )
         } )
         // Review Notice Dismissed
-        cy.get( 'tr' ).eq( 33 ).within( () => {
+        cy.get( 'tr' ).eq( 32 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Review Notice Dismissed' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
         } )
         // BEYONDWORDS_AUTO_SYNC_SETTINGS
-        cy.get( 'tr' ).eq( 34 ).within( () => {
+        cy.get( 'tr' ).eq( 33 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'False' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
-        cy.get( 'tr' ).eq( 35 ).within( () => {
+        cy.get( 'tr' ).eq( 34 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTOREGENERATE' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
-        cy.get( 'tr' ).eq( 36 ).within( () => {
+        cy.get( 'tr' ).eq( 35 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )
