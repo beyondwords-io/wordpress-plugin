@@ -122,6 +122,11 @@ class SelectVoice
             }
             ?>
         </select>
+        <img
+            src="/wp-admin/images/spinner.gif"
+            class="beyondwords-settings__loader"
+            style="display:none; padding: 3px 0;"
+        />
         <?php
     }
 

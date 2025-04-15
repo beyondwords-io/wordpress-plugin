@@ -82,8 +82,10 @@
 		getVoices( languageCode, defaultVoiceId ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
 
+			$voicesSelect.empty().attr( 'disabled', true ).hide();
+			$( '.beyondwords-settings__loader' ).show();
+
 			if ( ! languageCode ) {
-				$voicesSelect.empty().attr( 'disabled', true );
 				return;
 			}
 
@@ -103,6 +105,7 @@
 				.done( function ( voices ) {
 					$voicesSelect
 						.empty()
+						.show()
 						.append(
 							voices.map( ( voice ) => {
 								return $( '<option></option>' )
@@ -120,6 +123,9 @@
 					// eslint-disable-next-line no-console
 					console.log( '🔊 Unable to load voices', xhr );
 					$voicesSelect.empty().attr( 'disabled', true );
+				} )
+				.always( function () {
+					$( '.beyondwords-settings__loader' ).hide();
 				} );
 		},
 	};
