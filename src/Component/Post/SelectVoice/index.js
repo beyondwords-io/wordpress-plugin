@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { SelectControl, Flex, FlexBlock, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { Fragment, useMemo } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
 export function SelectVoice( { wrapper } ) {
@@ -27,11 +27,10 @@ export function SelectVoice( { wrapper } ) {
 	const languageCode =
 		meta.beyondwords_language_code || settings.projectLanguageCode;
 
-	const { languages } = useSelect( ( select ) => {
-		return {
-			languages: select( 'beyondwords/settings' ).getLanguages(),
-		};
-	}, [] );
+	const languages = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getLanguages(),
+		[]
+	);
 
 	const defaultLanguage = languages?.find(
 		( item ) => item.code === languageCode
@@ -53,56 +52,42 @@ export function SelectVoice( { wrapper } ) {
 		} );
 	};
 
-	const { voices } = useSelect(
-		( select ) => {
-			return {
-				voices: languageCode
-					? select( 'beyondwords/settings' ).getVoices( languageCode )
-					: [],
-			};
-		},
+	const voices = useSelect(
+		( select ) =>
+			languageCode
+				? select( 'beyondwords/settings' ).getVoices( languageCode )
+				: [],
 		[ languageCode ]
 	);
 
-	const defaultVoice = useMemo( () => {
-		const postVoiceId = meta.beyondwords_body_voice_id;
-		const projectVoiceId = settings.projectBodyVoiceId;
-		const defaultVoiceId = `${ defaultLanguage?.default_voices?.body?.id }`;
+	const candidates = [
+		meta.beyondwords_body_voice_id,
+		settings.projectBodyVoiceId,
+		defaultLanguage?.default_voices?.body?.id,
+	].map( String );
 
-		for ( const item of voices ?? [] ) {
-			if ( postVoiceId === `${ item.id }` ) {
-				return `${ item.id }`;
-			}
-			if ( projectVoiceId === `${ item.id }` ) {
-				return `${ item.id }`;
-			}
-			if ( defaultVoiceId === `${ item.id }` ) {
-				return `${ item.id }`;
-			}
-		}
+	const defaultVoice =
+		candidates.find( ( candidate ) =>
+			( voices ?? [] ).some( ( { id } ) => String( id ) === candidate )
+		) ?? '';
 
-		return '';
-	}, [ defaultLanguage, meta, settings, voices ] );
+	const languageOptions = ( languages ?? [] ).map( ( language ) => {
+		const { accent, code, name } = language;
+		return {
+			// eslint-disable-next-line prettier/prettier
+			label: `${ decodeEntities( name ) } (${ decodeEntities( accent ) })`,
+			value: decodeEntities( code ),
+		};
+	} );
 
-	const languageOptions = useMemo( () => {
-		return ( languages ?? [] ).map( ( language ) => {
-			const { accent, code, name } = language;
-			return {
-				// eslint-disable-next-line prettier/prettier
-				label: `${ decodeEntities( name ) } (${ decodeEntities( accent ) })`,
-				value: decodeEntities( code ),
-			};
-		} );
-	}, [ languages ] );
-
-	const voiceOptions = useMemo( () => {
-		return ( voices ?? [] ).map( ( voice ) => {
-			return {
-				label: decodeEntities( voice.name ),
-				value: decodeEntities( `${ voice.id }` ),
-			};
-		} );
-	}, [ voices ] );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
+	const voiceOptions = ( voices ?? [] ).map( ( voice ) => {
+		const { id, name } = voice;
+		return {
+			label: decodeEntities( name ),
+			value: `${ decodeEntities( id ) }`,
+		};
+	} );
 
 	if ( ! languageOptions.length ) {
 		return false;
