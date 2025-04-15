@@ -407,7 +407,7 @@ jobs:
         run: cp -r .github/.wp-cli ~/
 
       - name: Download WordPress
-        run: wp core download
+        run: wp core download --version=6.7
 
       - name: Create `wp-config.php` file
         run: wp config create
