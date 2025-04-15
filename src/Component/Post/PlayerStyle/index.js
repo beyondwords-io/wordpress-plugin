@@ -10,30 +10,41 @@ import { Fragment } from '@wordpress/element';
 export function PlayerStyle( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
-	const { postType, playerStyles, defaultPlayerStyle } = useSelect( ( select ) => {
-		let playerStyles = [];
+	const postType = useSelect(
+		( select ) => select( 'core/editor' ).getCurrentPostType(),
+		[]
+	);
 
-		const postType = select( 'core/editor' ).getCurrentPostType();
-		const { beyondwords_project_id: postProjectId } = select('core/editor').getEditedPostAttribute('meta');
+	const postProjectId = useSelect(
+		( select ) =>
+			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
+				?.beyondwords_project_id,
+		[]
+	);
 
-		if ( postProjectId ) {
-			playerStyles = select( 'beyondwords/settings' ).getPlayerStyles( postProjectId ) || [];
-		} else {
-			const { getSettings } = select( 'beyondwords/settings' );
-			const { projectId: settingsProjectId } = getSettings();
-			playerStyles = select( 'beyondwords/settings' ).getPlayerStyles( settingsProjectId ) || [];
-		}
+	const settingsProjectId = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getSettings()?.projectId,
+		[]
+	);
 
-		return {
-			postType,
-			playerStyles,
-			defaultPlayerStyle: playerStyles.find(x => x.default)
-		}
-	}, [] );
+	const playerStyles = useSelect(
+		( select ) => {
+			const projectId = postProjectId || settingsProjectId;
+			return projectId
+				? select( 'beyondwords/settings' ).getPlayerStyles(
+						projectId
+				  ) || []
+				: [];
+		},
+		[ postProjectId, settingsProjectId ]
+	);
+
+	const defaultPlayerStyle = playerStyles.find( ( style ) => style.default );
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const playerStyle = meta.beyondwords_player_style || defaultPlayerStyle?.value;
+	const playerStyle =
+		meta.beyondwords_player_style || defaultPlayerStyle?.value;
 
 	const setPlayerStyle = ( newPlayerStyle ) => {
 		setMeta( {
@@ -42,7 +53,7 @@ export function PlayerStyle( { wrapper } ) {
 		} );
 	};
 
-	if (! playerStyles.length) {
+	if ( ! playerStyles.length ) {
 		return false;
 	}
 
@@ -63,6 +74,7 @@ export function PlayerStyle( { wrapper } ) {
 						onChange={ ( val ) => setPlayerStyle( val ) }
 						value={ playerStyle }
 						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 					/>
 				</FlexBlock>
 			</Flex>

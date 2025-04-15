@@ -16,11 +16,10 @@ export function SelectVoice( { wrapper } ) {
 		[]
 	);
 
-	const { settings } = useSelect( ( select ) => {
-		return {
-			settings: select( 'beyondwords/settings' ).getSettings(),
-		};
-	}, [] );
+	const settings = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getSettings(),
+		[]
+	);
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
@@ -105,6 +104,7 @@ export function SelectVoice( { wrapper } ) {
 							onChange={ ( val ) => setLanguageCode( val ) }
 							value={ languageCode }
 							__nextHasNoMarginBottom
+							__next40pxDefaultSize
 						/>
 					</FlexBlock>
 				</Flex>
@@ -127,6 +127,7 @@ export function SelectVoice( { wrapper } ) {
 								disabled={ ! voiceOptions?.length }
 								value={ defaultVoice }
 								__nextHasNoMarginBottom
+								__next40pxDefaultSize
 							/>
 						) }
 					</FlexBlock>
