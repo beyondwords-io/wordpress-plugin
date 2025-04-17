@@ -4,7 +4,6 @@
 	'use strict';
 
 	const selectVoice = {
-
 		/**
 		 * Init.
 		 *
@@ -12,6 +11,7 @@
 		 */
 		init() {
 			if ( ! beyondwordsData ) {
+				// eslint-disable-next-line no-console
 				console.log( '🔊 Unable to retrive WP REST API settings' );
 				return;
 			}
@@ -23,14 +23,18 @@
 		/**
 		 * Setup click events.
 		 *
-		 * @since 4.0.0
+		 * @since 5.4.0
 		 */
 		setupClickEvents() {
 			$( document ).on(
 				'change',
-				'select#beyondwords_language_id',
+				'select#beyondwords_language_code',
 				function () {
-					selectVoice.getVoices( this.value );
+					const defaultVoiceId = $( this )
+						.find( ':selected' )
+						.attr( 'data-default-voice-id' );
+
+					selectVoice.getVoices( this.value, `${ defaultVoiceId }` );
 				}
 			);
 		},
@@ -42,14 +46,18 @@
 		 */
 		setupAutosaveVariables() {
 			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageId = $( '#beyondwords_language_id' ).find( ':selected' ).val();
-				const voiceId    = $( '#beyondwords_voice_id' ).find( ':selected' ).val();
+				const languageCode = $( '#beyondwords_language_code' )
+					.find( ':selected' )
+					.val();
+				const voiceId = $( '#beyondwords_voice_id' )
+					.find( ':selected' )
+					.val();
 
-				if ( languageId ) {
+				if ( languageCode ) {
 					settings.data +=
 						'&' +
 						$.param( {
-							beyondwords_language_id: languageId,
+							beyondwords_language_code: languageCode,
 						} );
 				}
 
@@ -66,38 +74,59 @@
 		/**
 		 * Get voices for a language.
 		 *
-		 * @since 4.0.0
+		 * @since 5.4.0
+		 *
+		 * @param {string} languageCode
+		 * @param {string} defaultVoiceId
 		 */
-		getVoices( languageId ) {
+		getVoices( languageCode, defaultVoiceId ) {
 			const $voicesSelect = $( '#beyondwords_voice_id' );
 
-			languageId = parseInt(languageId);
+			$voicesSelect.empty().attr( 'disabled', true ).hide();
+			$( '.beyondwords-settings__loader' ).show();
 
-			if ( ! languageId ) {
-				$voicesSelect.empty().attr( 'disabled', true );
+			if ( ! languageCode ) {
 				return;
 			}
 
-			const endpoint = `${beyondwordsData.root}beyondwords/v1/languages/${languageId}/voices`;
+			const { root, nonce } = beyondwordsData;
 
-			jQuery.ajax( {
-				url: endpoint,
-				method: 'GET',
-				beforeSend: function ( xhr ) {
-					xhr.setRequestHeader( 'X-WP-Nonce', beyondwordsData.nonce );
-				}
-			} ).done( function( voices ) {
-				$voicesSelect
-					.empty()
-					.append( '<option value=""></option>' )
-					.append( voices.map( ( voice ) => {
-						return $( '<option></option>' ).val( voice.id ).text( voice.name );
-					} ) )
-					.attr( 'disabled', false );
-			} ).fail(function ( xhr ) {
-				console.log( '🔊 Unable to load voices', xhr );
-				$voicesSelect.empty().attr( 'disabled', true )
-			} );
+			// eslint-disable-next-line max-len
+			const endpoint = `${ root }beyondwords/v1/languages/${ languageCode }/voices`;
+
+			jQuery
+				.ajax( {
+					url: endpoint,
+					method: 'GET',
+					beforeSend( xhr ) {
+						xhr.setRequestHeader( 'X-WP-Nonce', nonce );
+					},
+				} )
+				.done( function ( voices ) {
+					$voicesSelect
+						.empty()
+						.show()
+						.append(
+							voices.map( ( voice ) => {
+								return $( '<option></option>' )
+									.val( voice.id )
+									.text( voice.name )
+									.attr(
+										'selected',
+										defaultVoiceId === `${ voice.id }`
+									);
+							} )
+						)
+						.attr( 'disabled', false );
+				} )
+				.fail( function ( xhr ) {
+					// eslint-disable-next-line no-console
+					console.log( '🔊 Unable to load voices', xhr );
+					$voicesSelect.empty().attr( 'disabled', true );
+				} )
+				.always( function () {
+					$( '.beyondwords-settings__loader' ).hide();
+				} );
 		},
 	};
 

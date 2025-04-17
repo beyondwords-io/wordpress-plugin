@@ -223,19 +223,12 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getVoices($language)
+    public static function getVoices($languageCode)
     {
-        $field = 'language.code';
-
-        if (is_numeric($language)) {
-            $field = 'language.id';
-        }
-
         $url = sprintf(
-            '%s/organization/voices?filter[%s]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
+            '%s/organization/voices?filter[language.code]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
             Environment::getApiUrl(),
-            $field,
-            urlencode(strval($language))
+            urlencode(strval($languageCode))
         );
 
         $request  = new Request('GET', $url);
@@ -248,21 +241,20 @@ class ApiClient
      * Loops though GET /organization/voices, because
      * GET /organization/voice is not available.
      *
-     * @since 5.0.0
-     * @since 5.2.0 Make static.
+     * @since 5.4.0
      *
      * @param int       $voiceId  Voice ID.
-     * @param int|false $language Language ID, optional.
+     * @param int|false $languageCode Language code, optional.
      *
      * @return object|false Voice, or false if not found.
      **/
-    public static function getVoice($voiceId, $languageId = false)
+    public static function getVoice($voiceId, $languageCode = false)
     {
-        if (! $languageId) {
-            $languageId = get_option('beyondwords_project_language_id');
+        if (! $languageCode) {
+            $languageCode = get_option('beyondwords_project_language_code');
         }
 
-        $voices = self::getVoices($languageId);
+        $voices = self::getVoices($languageCode);
 
         if (empty($voices)) {
             return false;

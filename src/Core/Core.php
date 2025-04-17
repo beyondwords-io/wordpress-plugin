@@ -33,6 +33,9 @@ class Core
         add_action('before_delete_post', array($this, 'onDeletePost'));
 
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
+
+        // Older posts may be missing beyondwords_language_code, so we'll try to set it.
+        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 3);
     }
 
     /**
@@ -199,16 +202,28 @@ class Core
             return $response;
         }
 
-        if (array_key_exists('id', $response)) {
-            // Save Project ID
+        if ($projectId && ! empty($response['id'])) {
             update_post_meta($postId, 'beyondwords_project_id', $projectId);
-
-            // Save Content ID
             update_post_meta($postId, 'beyondwords_content_id', $response['id']);
 
-            if (array_key_exists('preview_token', $response)) {
-                // Save Preview Key
+            if (! empty($response['preview_token'])) {
                 update_post_meta($postId, 'beyondwords_preview_token', $response['preview_token']);
+            }
+
+            if (! empty($response['language'])) {
+                update_post_meta($postId, 'beyondwords_language_code', $response['language']);
+            }
+
+            if (! empty($response['title_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_title_voice_id', $response['title_voice_id']);
+            }
+
+            if (! empty($response['summary_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_summary_voice_id', $response['summary_voice_id']);
+            }
+
+            if (! empty($response['body_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_body_voice_id', $response['body_voice_id']);
             }
         }
 
@@ -386,5 +401,34 @@ class Core
         $this->generateAudioForPost($postId);
 
         return true;
+    }
+
+    /**
+     * Get the language code from a JSON mapping if it is empty.
+     *
+     * @since 5.4.0 Introduced.
+     *
+     * @param mixed  $value     The value of the metadata.
+     * @param int    $object_id The ID of the object metadata is for.
+     * @param string $meta_key  The key of the metadata.
+     * @param bool   $single    Whether to return a single value.
+     *
+     * @return mixed
+     */
+    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
+    {
+        if ('beyondwords_language_code' === $meta_key && empty($value)) {
+            $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);
+
+            if ($languageId) {
+                $langCodes = json_decode(file_get_contents(BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json'), true);
+
+                if (is_array($langCodes) && array_key_exists($languageId, $langCodes)) {
+                    return [$langCodes[$languageId]];
+                }
+            }
+        }
+
+        return $value;
     }
 }

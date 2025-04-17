@@ -14,7 +14,6 @@ namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
-use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
@@ -53,7 +52,6 @@ class Settings
             (new Player())->init();
             (new Summarization())->init();
             (new Pronunciations())->init();
-            (new Advanced())->init();
         }
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
@@ -201,7 +199,6 @@ class Settings
             'player'         => __('Player', 'speechkit'),
             'summarization'  => __('Summarization', 'speechkit'),
             'pronunciations' => __('Pronunciations', 'speechkit'),
-            'advanced'       => __('Advanced', 'speechkit'),
         );
 
         if (! SettingsUtils::hasValidApiConnection()) {
@@ -437,12 +434,13 @@ class Settings
         global $wp_version;
 
         return new \WP_REST_Response([
-            'apiKey'        => get_option('beyondwords_api_key', ''),
-            'pluginVersion' => BEYONDWORDS__PLUGIN_VERSION,
-            'projectId'     => get_option('beyondwords_project_id', ''),
-            'preselect'     => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
-            'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
-            'wpVersion'     => $wp_version,
+            'apiKey'              => get_option('beyondwords_api_key', ''),
+            'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
+            'projectId'           => get_option('beyondwords_project_id', ''),
+            'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
+            'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
+            'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
+            'wpVersion'           => $wp_version,
         ]);
     }
 

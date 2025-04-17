@@ -10,9 +10,10 @@ import { Fragment } from '@wordpress/element';
 export function PlayerContent( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
-	const postType = useSelect( ( select ) => {
-		return select( 'core/editor' ).getCurrentPostType()
-	}, [] );
+	const postType = useSelect(
+		( select ) => select( 'core/editor' ).getCurrentPostType(),
+		[]
+	);
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
@@ -45,6 +46,7 @@ export function PlayerContent( { wrapper } ) {
 						onChange={ ( val ) => setPlayerContent( val ) }
 						value={ playerContent }
 						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 					/>
 				</FlexBlock>
 			</Flex>
