@@ -86,21 +86,21 @@ Release date: 22nd April 2025
 
 **Fixes:**
 
-* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Fixes for article language in WordPress.
-    * Each POST/PUT request to the BeyondWords REST API now includes the language for each post.
-    * This brings the WordPress plugin up-to-date with recent REST API changes and improves support for multilingual websites.
+* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Article language support in WordPress.
+    * Each `POST` and `PUT` request to the BeyondWords REST API now includes the article language.
+    * This update ensures compatibility with recent REST API changes and improves support for multilingual websites.
 * [#432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
-    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
-    * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and all associated BeyondWords post meta data (e.g. the content ID) is also deleted.
+    * This resolves REST API error messages caused by `DELETE` requests for content that no longer exists.
     * After this update you will need to regenerate audio again if you restore posts from the trash.
 
 **Enhancements and Features:**
 
 * Tested up to WordPress 6.8.
 * [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
-    * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
-    * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
-    * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
+    * A new notice prompts you to review our plugin on the WordPress Plugin Directory.
+    * The notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) .
+    * The message is permanently dismissed once you close it or follow the link to leave a review.
 * [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
 
 = 5.3.1 =
