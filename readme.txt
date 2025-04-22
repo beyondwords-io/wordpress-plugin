@@ -101,7 +101,6 @@ Release date: 22nd April 2025
     * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
     * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
     * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
-* [#433](https://github.com/beyondwords-io/wordpress-plugin/pull/433) Test against and support PHP 8.4.
 * [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
 
 = 5.3.1 =
