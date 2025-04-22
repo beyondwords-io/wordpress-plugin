@@ -86,10 +86,10 @@ Release date: 22nd April 2025
 
 **Fixes:**
 
-* [436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Fixes for article language in WordPress.
+* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Fixes for article language in WordPress.
     * Each POST/PUT request to the BeyondWords REST API now includes the language for each post.
     * This brings the WordPress plugin up-to-date with recent REST API changes and improves support for multilingual websites.
-* [432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+* [#432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
     * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
     * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
     * After this update you will need to regenerate audio again if you restore posts from the trash.
