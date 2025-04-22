@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.2-beta.2
+Stable tag: 5.4.0
 Requires PHP: 8.0
 Tested up to: 6.8
 License: GPLv2 or later
@@ -80,18 +80,15 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.3.2 =
+= 5.4.0 =
 
-Release date: TBC
-
-* Tested up to WordPress 6.8.
-
-= 5.3.2 =
-
-Release date: 4th March 2025
+Release date: 22nd April 2025
 
 **Fixes:**
 
+* [436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Fixes for article language in WordPress.
+    * Each POST/PUT request to the BeyondWords REST API now includes the language for each post.
+    * This brings the WordPress plugin up-to-date with recent REST API changes and improves support for multilingual websites.
 * [432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
     * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
     * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
@@ -99,6 +96,7 @@ Release date: 4th March 2025
 
 **Enhancements and Features:**
 
+* Tested up to WordPress 6.8.
 * [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
     * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
     * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.

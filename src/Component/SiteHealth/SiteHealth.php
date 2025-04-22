@@ -389,7 +389,7 @@ class SiteHealth
     /**
      * Add notice settings to the info debugging array.
      *
-     * @since 5.3.2
+     * @since 5.4.0
      *
      * @param array $info Debugging info array
      *
