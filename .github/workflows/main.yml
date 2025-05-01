@@ -439,13 +439,17 @@ jobs:
           path: /tmp
 
       - name: Download WP-API/Basic-Auth plugin
-        run: curl -L -o /tmp/basic-auth.php https://raw.githubusercontent.com/WP-API/Basic-Auth/master/basic-auth.php
+        run: |
+          mkdir -p /tmp/Basic-Auth
+          curl -L -o /tmp/Basic-Auth/basic-auth.php https://raw.githubusercontent.com/WP-API/Basic-Auth/master/basic-auth.php
+          cd /tmp
+          zip -r  Basic-Auth.zip Basic-Auth
 
       - name: Install plugins
         run: |
           wp plugin uninstall --deactivate --all
           wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp plugin install /tmp/basic-auth.php --force --activate
+          wp plugin install /tmp/Basic-Auth.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.php --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.php --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.php --force
