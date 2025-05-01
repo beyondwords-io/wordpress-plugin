@@ -445,25 +445,49 @@ jobs:
           cd /tmp
           zip -r  Basic-Auth.zip Basic-Auth
 
-      - name: Install plugins
+      - name: Uninstall plugins
+        run: wp plugin uninstall --deactivate --all
+
+      - name: Install BeyondWords plugin
+        run: wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
+
+      - name: Install third-party plugins
         run: |
-          wp plugin uninstall --deactivate --all
-          wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
           wp plugin install /tmp/Basic-Auth.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.php --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.php --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.php --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.php --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.php --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.php --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.php --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.php --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.php --force
           wp plugin install amp --force
           wp plugin install classic-editor --force
           wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
           wp plugin install wp-reset --force
+
+      - name: Package and install standalone plugin PHP files
+        run: |
+          set -e
+
+          # Directory with plugin files
+          PLUGIN_SRC_DIR="${{ github.workspace }}/tests/fixtures/wp-content/plugins"
+
+          # Create temporary directory for zips
+          TEMP_ZIP_DIR="/tmp/plugin-zips"
+          mkdir -p "$TEMP_ZIP_DIR"
+
+          for plugin_php in "$PLUGIN_SRC_DIR"/*.php; do
+            # Extract base name without extension
+            plugin_basename=$(basename "$plugin_php" .php)
+
+            # Create a directory structure expected by WordPress
+            plugin_dir="$TEMP_ZIP_DIR/$plugin_basename"
+            mkdir -p "$plugin_dir"
+
+            # Copy the PHP file into that directory and rename to match directory
+            cp "$plugin_php" "$plugin_dir/$plugin_basename.php"
+
+            # Zip the directory
+            (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
+
+            # Install plugin
+            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force ${plugin_basename#cpt-:+--activate}
+          done
 
       - run: wp plugin list
 
