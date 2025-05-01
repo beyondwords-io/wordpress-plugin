@@ -407,7 +407,7 @@ jobs:
         run: cp -r .github/.wp-cli ~/
 
       - name: Download WordPress
-        run: wp core download --version=6.7
+        run: wp core download --version=6.8
 
       - name: Create `wp-config.php` file
         run: wp config create
@@ -439,26 +439,22 @@ jobs:
           path: /tmp
 
       - name: Download WP-API/Basic-Auth plugin
-        run: |
-          mkdir -p /tmp/Basic-Auth
-          curl -L -o /tmp/Basic-Auth/basic-auth.php https://raw.githubusercontent.com/WP-API/Basic-Auth/master/basic-auth.php
-          cd /tmp
-          zip -r  Basic-Auth.zip Basic-Auth
+        run: curl -L -o /tmp/basic-auth.php https://raw.githubusercontent.com/WP-API/Basic-Auth/master/basic-auth.php
 
       - name: Install plugins
         run: |
           wp plugin uninstall --deactivate --all
           wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp plugin install /tmp/Basic-Auth.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.zip --force --activate
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.zip --force
-          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.zip --force
+          wp plugin install /tmp/basic-auth.php --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.php --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.php --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.php --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params.php --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-active.php --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-inactive.php --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/cpt-unsupported.php --force --activate
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-insert.php --force
+          wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/rest-api-publish.php --force
           wp plugin install amp --force
           wp plugin install classic-editor --force
           wp plugin install plugin-check --force

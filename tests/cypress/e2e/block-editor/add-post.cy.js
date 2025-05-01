@@ -1,129 +1,164 @@
+/* global Cypress, cy, before, beforeEach, context, it */
+
 context( 'Block Editor: Add Post', () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveStandardPluginSettings()
-  } )
+	before( () => {
+		cy.task( 'reset' );
+		cy.login();
+		cy.saveStandardPluginSettings();
+	} );
 
-  beforeEach( () => {
-    cy.login()
-  } )
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  const postTypes = require( '../../../../tests/fixtures/post-types.json' )
+	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-  postTypes.filter( x => x.supported ).forEach( postType => {
-    it( `can add a ${postType.name} without audio`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+	postTypes
+		.filter( ( x ) => x.supported )
+		.forEach( ( postType ) => {
+			it( `can add a ${ postType.name } without audio`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can add a ${ postType.name } without audio`,
+				} );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.openBeyondwordsEditorPanel();
 
-      cy.openBeyondwordsEditorPanel()
+				cy.uncheckGenerateAudio( postType );
 
-      cy.uncheckGenerateAudio( postType )
+				cy.publishWithConfirmation();
 
-      cy.setPostTitle( `I can add a ${postType.name} without audio` )
+				cy.getLabel( 'Generate audio' ).should( 'exist' );
 
-      cy.publishWithConfirmation( false )
+				cy.getAdminPlayer().should( 'not.exist' );
 
-      cy.getLabel( 'Generate audio' ).should( 'exist' )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.getAdminPlayer().should( 'not.exist' )
+				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
+				cy.getFrontendPlayer().should( 'not.exist' );
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
 
-      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.getFrontendPlayer().should( 'not.exist' )
+				// See a [-] in the BeyondWords column
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.contains( 'td.beyondwords.column-beyondwords', '—' );
+					} );
+			} );
 
-      cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
+			it( `can add a ${ postType.name } with audio`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can add a ${ postType.name } with audio`,
+				} );
 
-      // See a [-] in the BeyondWords column
-      cy.get( 'tbody tr' ).eq( 0 )
-        .within( () => {
-          cy.contains( 'td.beyondwords.column-beyondwords', '—' )
-        } )
-    } )
+				cy.openBeyondwordsEditorPanel();
 
-    it( `can add a ${postType.name} with audio`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+				cy.checkGenerateAudio( postType );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.publishWithConfirmation();
 
-      cy.openBeyondwordsEditorPanel()
+				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
-      cy.checkGenerateAudio( postType )
+				cy.getAdminPlayer().should( 'exist' );
 
-      cy.setPostTitle( `I can add a ${postType.name} with audio` )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.publishWithConfirmation( true )
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getFrontendPlayer().should( 'exist' );
 
-      cy.getLabel( 'Generate audio' ).should( 'not.exist' )
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
 
-      cy.getAdminPlayer().should( 'exist' )
+				// See a [tick] in the BeyondWords column
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.get(
+							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
+						);
+					} );
+			} );
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+			it( `can add a ${ postType.name } with "Pending review" audio`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can add a ${ postType.name } with "Pending Review" audio`,
+				} );
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+				cy.openBeyondwordsEditorPanel();
 
-      cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
+				cy.checkGenerateAudio( postType );
 
-      // See a [tick] in the BeyondWords column
-      cy.get( 'tbody tr' ).eq( 0 )
-        .within( () => {
-          cy.get( 'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes' )
-        } )
-    } )
+				cy.setPostStatus( 'pending' );
 
-    it( `can add a ${postType.name} with "Pending review" audio`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+				cy.get( '.editor-post-publish-button__button' )
+					.click()
+					.wait( 100 );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
-      cy.openBeyondwordsEditorPanel()
+				// "Generate Audio" is replaced by "Pending" message'
+				cy.get( 'input#beyondwords_generate_audio' ).should(
+					'not.exist'
+				);
+				cy.contains(
+					'.beyondwords-sidebar',
+					'Listen to content saved as “Pending” in the BeyondWords dashboard.'
+				);
 
-      cy.checkGenerateAudio( postType )
+				// "Pending review" message contains link to project
+				cy.get( '.beyondwords-sidebar a' )
+					.eq( 0 )
+					.invoke( 'attr', 'href' )
+					.should(
+						'eq',
+						`https://dash.beyondwords.io/dashboard/project/${ Cypress.env(
+							'projectId'
+						) }/content`
+					);
 
-      cy.setPostStatus( 'pending' )
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
 
-      cy.setPostTitle( `I can add a ${postType.name} with "Pending Review" audio` )
+				// See a [tick] and "Pending" in the BeyondWords column
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.contains( 'span.post-state', 'Pending' );
+						cy.get(
+							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
+						);
+						cy.get( 'a.row-title' ).click().wait( 100 );
+					} );
+			} );
+		} );
 
-      cy.get('.editor-post-publish-button__button').click().wait( 1000 )
+	postTypes
+		.filter( ( x ) => ! x.supported )
+		.forEach( ( postType ) => {
+			it( `${ postType.name } has no BeyondWords support`, () => {
+				// BeyondWords column should not exist
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
+				cy.get( 'th#beyondwords.column-beyondwords' ).should(
+					'not.exist'
+				);
 
-      cy.getLabel( 'Generate audio' ).should( 'not.exist' )
+				// BeyondWords metabox should not exist
+				cy.createPost( {
+					postType,
+				} );
 
-      // "Generate Audio" is replaced by "Pending" message'
-      cy.get( 'input#beyondwords_generate_audio' ).should( 'not.exist' )
-      cy.contains( '.beyondwords-sidebar', 'Listen to content saved as “Pending” in the BeyondWords dashboard.' )
-
-      // "Pending review" message contains link to project
-      cy.get( '.beyondwords-sidebar a' )
-        .eq( 0 )
-        .invoke( 'attr', 'href' )
-        .should( 'eq', `https://dash.beyondwords.io/dashboard/project/${ Cypress.env( 'projectId' ) }/content` )
-
-      cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
-
-      // See a [tick] and "Pending" in the BeyondWords column
-      cy.get( 'tbody tr' ).eq( 0 )
-        .within( () => {
-          cy.contains( 'span.post-state', 'Pending' )
-          cy.get( 'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes' )
-          cy.get( 'a.row-title' ).click().wait( 500 )
-        } )
-    } )
-  } )
-
-  postTypes.filter( x => ! x.supported ).forEach( postType => {
-    it(`${postType.name} has no BeyondWords support`, () => {
-      // BeyondWords column should not exist
-      cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
-      cy.get( 'th#beyondwords.column-beyondwords' ).should( 'not.exist' )
-
-      // BeyondWords metabox should not exist
-      cy.visit(`/wp-admin/post-new.php?post_type=${postType.slug}`).wait( 500 )
-      cy.get( 'div#beyondwords' ).should( 'not.exist' )
-    } )
-  } )
-} )
+				cy.get( 'div#beyondwords' ).should( 'not.exist' );
+			} );
+		} );
+} );

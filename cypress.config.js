@@ -128,5 +128,23 @@ function setupNodeEvents( on, config ) {
 				`yarn wp-env run tests-cli wp plugin uninstall --deactivate ${ plugin }`
 			);
 		},
+
+		async disableWelcomeGuide( { userId } ) {
+			const metaKey = `wp_preferences_user_${ userId }`;
+			const metaValue = JSON.stringify( {
+				'core/edit-post': {
+					welcomeGuideHidden: true,
+				},
+			} );
+
+			// eslint-disable-next-line max-len
+			const cmd = `wp user meta update ${ userId } ${ metaKey } '${ metaValue }'`;
+
+			if ( process.env.CI ) {
+				return await exec( cmd );
+			}
+
+			return await exec( `yarn wp-env run tests-cli ${ cmd }` );
+		},
 	} );
 }

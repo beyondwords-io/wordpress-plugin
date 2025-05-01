@@ -1,52 +1,64 @@
-context( 'Settings > Player > Widget style',  () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveMinimalPluginSettings()
-  } )
+/* global cy, before, beforeEach, context, it */
 
-  beforeEach( () => {
-    cy.login()
-  } )
+context( 'Settings > Player > Widget style', () => {
+	before( () => {
+		cy.task( 'reset' );
+		cy.login();
+		cy.saveMinimalPluginSettings();
+	} );
 
-  const options = [
-    {
-      value: 'standard',
-      label: 'Standard',
-    },
-    {
-      value: 'none',
-      label: 'None',
-    },
-    {
-      value: 'small',
-      label: 'Small',
-    },
-    {
-      value: 'large',
-      label: 'Large',
-    },
-    {
-      value: 'video',
-      label: 'Video',
-    },
-  ];
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  options.forEach( option => {
-    it( `sets "${option.label}"`, () => {
-      cy.saveMinimalPluginSettings()
+	const options = [
+		{
+			value: 'standard',
+			label: 'Standard',
+		},
+		{
+			value: 'none',
+			label: 'None',
+		},
+		{
+			value: 'small',
+			label: 'Small',
+		},
+		{
+			value: 'large',
+			label: 'Large',
+		},
+		{
+			value: 'video',
+			label: 'Video',
+		},
+	];
 
-      cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-      cy.get( 'select[name="beyondwords_player_widget_style"]' ).select( option.label )
-      cy.get( 'input[type="submit"]' ).click().wait( 1000 )
+	options.forEach( ( option ) => {
+		it( `sets "${ option.label }"`, () => {
+			cy.saveMinimalPluginSettings();
 
-      // Check for value in WordPress options
-      cy.visit( '/wp-admin/options.php' )
-      cy.get( '#beyondwords_player_widget_style' ).should( 'have.value', option.value );
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=player'
+			);
+			cy.get( 'select[name="beyondwords_player_widget_style"]' ).select(
+				option.label
+			);
+			cy.get( 'input[type="submit"]' ).click().wait( 100 );
 
-      // Check for value in Site Health
-      cy.visitPluginSiteHealth()
-      cy.getSiteHealthValue( 'Widget style' ).should( 'have.text', option.value )
-    } )
-  } )
-} )
+			// Check for value in WordPress options
+			cy.visit( '/wp-admin/options.php' );
+			cy.get( '#beyondwords_player_widget_style' ).should(
+				'have.value',
+				option.value
+			);
+
+			// Check for value in Site Health
+			cy.visitPluginSiteHealth();
+			cy.getSiteHealthValue( 'Widget style' ).should(
+				'have.text',
+				option.value
+			);
+		} );
+	} );
+} );

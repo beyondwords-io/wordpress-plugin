@@ -1,5 +1,5 @@
 {
-    "core": "WordPress/WordPress#6.7",
+    "core": "WordPress/WordPress#6.8",
     "config": {
         "BEYONDWORDS_TESTS_API_KEY": "write_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "BEYONDWORDS_TESTS_CONTENT_ID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",

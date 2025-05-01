@@ -1,106 +1,127 @@
+/* global cy, before, beforeEach, context, it */
+
 context( 'Block Editor: Insert BeyondWords Player', () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveStandardPluginSettings()
-  } )
+	before( () => {
+		cy.task( 'reset' );
+		cy.login();
+		cy.saveStandardPluginSettings();
+	} );
 
-  beforeEach( () => {
-    cy.login()
-  } )
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  const postTypes = require( '../../../../tests/fixtures/post-types.json' )
+	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-  // Only test priority post types
-  postTypes.filter( x => x.priority ).forEach( postType => {
-    /**
-     * *****************************************************
-     * Skipping because we see this error in GitHub Actions:
-     * *****************************************************
-     *
-     * We detected that the Chrome Renderer process just crashed.
-     *
-     * We have failed the current spec but will continue running the next spec.
-     *
-     * This can happen for a number of different reasons.
-     *
-     * If you're running lots of tests on a memory intense application.
-     * - Try increasing the CPU/memory on the machine you're running on.
-     * - Try enabling experimentalMemoryManagement in your config file.
-     * - Try lowering numTestsKeptInMemory in your config file during 'cypress open'.
-     *
-     * You can learn more here:
-     *
-     * https://on.cypress.io/renderer-process-crashed
-     */
-    // @todo test fails because '.block-editor-default-block-appender button' is no longer available
-    it.skip( `can add a player block into a ${postType.name}`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` )
+	// Only test priority post types
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			/**
+			 * *****************************************************
+			 * Skipping because we see this error in GitHub Actions:
+			 * *****************************************************
+			 *
+			 * We detected that the Chrome Renderer process just crashed.
+			 *
+			 * We have failed the current spec but will continue running the next spec.
+			 *
+			 * This can happen for a number of different reasons.
+			 *
+			 * If you're running lots of tests on a memory intense application.
+			 * - Try increasing the CPU/memory on the machine you're running on.
+			 * - Try enabling experimentalMemoryManagement in your config file.
+			 * - Try lowering numTestsKeptInMemory in your config file during 'cypress open'.
+			 *
+			 * You can learn more here:
+			 *
+			 * https://on.cypress.io/renderer-process-crashed
+			 */
+			// @todo test fails, no '.block-editor-default-block-appender button'
+			it( `can add a player block into a ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can add a player block into a ${ postType.name }`,
+				} );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.openBeyondwordsEditorPanel();
 
-      cy.openBeyondwordsEditorPanel()
+				cy.checkGenerateAudio( postType );
 
-      cy.checkGenerateAudio( postType )
+				cy.addParagraphBlock( 'Before.' );
 
-      cy.setPostTitle( `I can add a player block into a ${postType.name}` )
+				// Click title to lose focus
+				cy.clickTitleBlock();
 
-      cy.addParagraphBlock( 'Before.' )
+				// Add player block
+				cy.get( '.block-editor-default-block-appender button' )
+					.click()
+					.wait( 100 );
+				cy.get( '.block-editor-inserter__quick-inserter input' )
+					.type( 'bey' )
+					.wait( 100 );
+				cy.get( '.block-editor-block-types-list__item-title' )
+					.contains( 'BeyondWords' )
+					.click()
+					.wait( 100 );
 
-      // Click title to lose focus
-      cy.clickTitleBlock();
+				cy.addParagraphBlock( 'After.' );
 
-      // Add player block
-      cy.get( '.block-editor-default-block-appender button' ).click().wait( 1000 )
-      cy.get( '.block-editor-inserter__quick-inserter input' ).type( 'bey' ).wait( 1000 )
-      cy.get( '.block-editor-block-types-list__item-title' ).contains( 'BeyondWords' ).click().wait( 1000 )
+				// Count 1x player in editor iframe
+				cy.get(
+					'div[data-beyondwords-player="true"][contenteditable="false"]'
+				).should( 'have.length', 1 );
 
-      cy.addParagraphBlock( 'After.' )
+				cy.publishWithConfirmation();
 
-      // Count 1x player in editor iframe
-      cy.get( 'div[data-beyondwords-player="true"][contenteditable="false"]' ).should( 'have.length', 1 )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.publishWithConfirmation( true )
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getFrontendPlayer().should( 'have.length', 1 );
+			} );
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+			// @todo test fails, no '.block-editor-default-block-appender button'
+			it( `can add a shortcode into a ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+				} );
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
-    } )
+				cy.openBeyondwordsEditorPanel();
 
-    // @todo test fails because '.block-editor-default-block-appender button' is no longer available
-    it.skip( `can add a shortcode into a ${postType.name}`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` )
+				cy.checkGenerateAudio( postType );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.setPostTitle(
+					`I can add a shortcode into a ${ postType.name }`
+				);
 
-      cy.openBeyondwordsEditorPanel()
+				cy.addParagraphBlock( 'Before.' );
 
-      cy.checkGenerateAudio( postType )
+				// Click title to lose focus
+				cy.clickTitleBlock();
 
-      cy.setPostTitle( `I can add a shortcode into a ${postType.name}` )
+				// Add shortcode
+				cy.get( '.block-editor-default-block-appender button' )
+					.click()
+					.wait( 100 );
+				cy.get( '.block-editor-inserter__quick-inserter input' )
+					.type( 'sho' )
+					.wait( 100 );
+				cy.get( '.block-editor-block-types-list__item-title' )
+					.contains( 'Shortcode' )
+					.click()
+					.wait( 100 );
+				cy.get( 'body' ).type( '[beyondwords_player]' );
 
-      cy.addParagraphBlock( 'Before.' )
+				cy.addParagraphBlock( 'After.' );
 
-      // Click title to lose focus
-      cy.clickTitleBlock();
+				cy.publishWithConfirmation();
 
-      // Add shortcode
-      cy.get( '.block-editor-default-block-appender button' ).click().wait( 1000 )
-      cy.get( '.block-editor-inserter__quick-inserter input' ).type( 'sho' ).wait( 1000 )
-      cy.get( '.block-editor-block-types-list__item-title' ).contains( 'Shortcode' ).click().wait( 1000 )
-      cy.get( 'body' ).type( '[beyondwords_player]' )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.addParagraphBlock( 'After.' )
-
-      cy.publishWithConfirmation( true )
-
-      // "View post"
-      cy.viewPostViaSnackbar()
-
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'have.length', 1 )
-    } )
-  } )
-} )
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getFrontendPlayer().should( 'have.length', 1 );
+			} );
+		} );
+} );
