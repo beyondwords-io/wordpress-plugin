@@ -453,12 +453,12 @@ jobs:
 
       - name: Install third-party plugins
         run: |
-          wp plugin install /tmp/Basic-Auth.zip --force --activate
           wp plugin install amp --force
           wp plugin install classic-editor --force
           wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
-          wp plugin install wp-reset --force
+          wp plugin install wp-reset --force --activate
+          wp plugin install /tmp/Basic-Auth.zip --force --activate
 
       - name: Package and install standalone plugin PHP files
         run: |
@@ -480,14 +480,25 @@ jobs:
             mkdir -p "$plugin_dir"
 
             # Copy the PHP file into that directory and rename to match directory
-            cp "$plugin_php" "$plugin_dir/$plugin_basename.php"
+            cp "$plugin_php" "${plugin_dir}/{$plugin_basename}.php"
 
             # Zip the directory
             (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
 
+            # Debugging
+            pwd
+            ls -la "$plugin_dir"
+            ls -la "$TEMP_ZIP_DIR"
+
             # Install plugin
-            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force ${plugin_basename#cpt-:+--activate}
+            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
           done
+
+      - name: Activate selected standalone plugins
+        run: |
+          wp plugin activate cpt-active
+          wp plugin activate cpt-inactive
+          wp plugin activate cpt-unsupported
 
       - run: wp plugin list
 
