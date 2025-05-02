@@ -47,7 +47,7 @@ context( 'Classic Editor: Player Content', () => {
       cy.get( '#sample-permalink' ).click().wait( 500 )
 
       // Check Player appears frontend
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       // window.BeyondWords should contain 1 player instance
@@ -84,7 +84,7 @@ context( 'Classic Editor: Player Content', () => {
       cy.get( '#sample-permalink' ).click().wait( 500 )
 
       // Check Player appears frontend
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       // window.BeyondWords should contain 1 player instance

@@ -41,7 +41,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.hasNoBeyondwordsWindowObject()
 
       cy.contains( 'p' , 'One.' ).should( 'not.have.attr', 'data-beyondwords-marker' )
@@ -101,7 +101,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       testCases.forEach( testCase => {
@@ -161,7 +161,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -206,7 +206,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -247,7 +247,7 @@ context( 'Block Editor: Segment markers', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       cy.get( '.entry-content p:not(:empty)' )
@@ -305,7 +305,7 @@ context( 'Block Editor: Segment markers', () => {
     // "View post"
     cy.viewPostViaSnackbar()
 
-    // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+    cy.getEnqueuedPlayerScriptTag().should( 'exist' )
     cy.hasPlayerInstances( 1 )
 
     cy.get( '.entry-content p:not(:empty)' )

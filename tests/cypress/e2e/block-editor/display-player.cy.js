@@ -33,7 +33,7 @@ context( 'Block Editor: Display Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
@@ -58,7 +58,7 @@ context( 'Block Editor: Display Player', () => {
       cy.viewPostViaSnackbar()
 
       // @todo the script should not be enqueued if the player is not displayed
-      // cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.hasPlayerInstances( 0 )
 
       cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
@@ -82,7 +82,7 @@ context( 'Block Editor: Display Player', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
-      // cy.getEnqueuedPlayerScriptTag().should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
     } )
   } )
