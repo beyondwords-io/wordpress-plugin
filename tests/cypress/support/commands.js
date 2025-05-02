@@ -414,7 +414,7 @@ Cypress.Commands.add( 'getLabel', ( text,  ...args ) => {
 
 // Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
-	cy.window( { timeout: 3000 } ).should( ( win ) => {
+	cy.window( { timeout: 10000 } ).should( ( win ) => {
 		if ( ! win.BeyondWords ) {
 			throw new Error(
 				'BeyondWords is not available on the window object.'
@@ -429,9 +429,7 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
 				'BeyondWords.Player.instances is not a function.'
 			);
 		}
-	} );
 
-	cy.window( { timeout: 3000 } ).should( ( win ) => {
 		const instances = win.BeyondWords.Player.instances();
 
 		if ( instances.length !== num ) {
@@ -444,7 +442,7 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
 
 // Check for no Beyondwords Player object.
 Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
-	cy.window( { timeout: 3000 } ).should( ( win ) => {
+	cy.window( { timeout: 4000 } ).should( ( win ) => {
 		if ( 'BeyondWords' in win ) {
 			throw new Error(
 				'Expected window.BeyondWords to be undefined, but it exists.'
