@@ -38,7 +38,9 @@ context( 'Plugins: AMP', () => {
       // "View post"
       cy.viewPostViaSnackbar()
 
+      // Non-AMP requests have a JS player.
       cy.get( 'amp-iframe' ).should( 'not.exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
       cy.hasPlayerInstances( 1 )
 
       cy.url().then(url => {
@@ -46,7 +48,9 @@ context( 'Plugins: AMP', () => {
         cy.visit( `${url}&amp=1` ).wait( 500 )
       } )
 
+      // AMP requests have an <amp-iframe> player.
       cy.get( 'amp-iframe' ).should( 'exist' )
+      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
       cy.hasNoBeyondwordsWindowObject()
     } )
   } )
