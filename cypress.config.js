@@ -4,7 +4,7 @@ const exec = util.promisify( require( 'child_process' ).exec );
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
-	defaultCommandTimeout: 10000,
+	defaultCommandTimeout: 8000,
 	downloadsFolder: 'tests/cypress/downloads',
 	env: {
 		wpUsername: 'admin',
@@ -13,17 +13,14 @@ module.exports = defineConfig( {
 	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
-	numTestsKeptInMemory: process.env.CI ? 0 : 50,
 	screenshotsFolder: 'tests/cypress/screenshots',
 	screenshotOnRunFailure: true,
-	video: false,
-	videosFolder: 'tests/cypress/videos',
 	reporter: 'cypress-multi-reporters',
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
 	retries: {
-		runMode: 3,
+		runMode: 1,
 		openMode: 0,
 	},
 	e2e: {

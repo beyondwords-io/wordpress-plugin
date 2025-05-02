@@ -27,13 +27,13 @@ context( 'Block Editor: Add Post', () => {
 
       cy.getLabel( 'Generate audio' ).should( 'exist' )
 
-      cy.getAdminPlayer().should( 'not.exist' )
+      cy.hasPlayerInstances( 0 )
 
       // "View post"
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.getFrontendPlayer().should( 'not.exist' )
+      cy.hasNoBeyondwordsWindowObject()
 
       cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
 
@@ -59,13 +59,13 @@ context( 'Block Editor: Add Post', () => {
 
       cy.getLabel( 'Generate audio' ).should( 'not.exist' )
 
-      cy.getAdminPlayer().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
 
       // "View post"
       cy.viewPostViaSnackbar()
 
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
 
       cy.visit( `/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc` )
 
