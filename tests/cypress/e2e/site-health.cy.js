@@ -79,17 +79,17 @@ context( 'Site Health', () => {
         // Default language code
         cy.get( 'tr' ).eq( 11 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language code' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'bb_BB' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', 'en_US' )
         } )
         // Default language ID
         cy.get( 'tr' ).eq( 12 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Default language ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
         } )
         // Title voice ID
         cy.get( 'tr' ).eq( 13 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Title voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2517' )
         } )
         // Title voice speaking rate
         cy.get( 'tr' ).eq( 14 ).within( () => {
@@ -99,12 +99,12 @@ context( 'Site Health', () => {
         // Body voice ID
         cy.get( 'tr' ).eq( 15 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice ID' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '3' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '2517' )
         } )
         // Body voice speaking rate
         cy.get( 'tr' ).eq( 16 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Body voice speaking rate' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '110' )
+          cy.get( 'td' ).eq( 1 ).should( 'have.text', '95' )
         } )
         // Player UI
         cy.get( 'tr' ).eq( 17 ).within( () => {
@@ -166,43 +166,38 @@ context( 'Site Health', () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Skip button style' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'auto' )
         } )
-        // Multiple languages
-        cy.get( 'tr' ).eq( 29 ).within( () => {
-          cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Multiple languages' )
-          cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
-        } )
         // Registered filters
-        cy.get( 'tr' ).eq( 30 ).within( () => {
+        cy.get( 'tr' ).eq( 29 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // Registered deprecated filters
-        cy.get( 'tr' ).eq( 31 ).within( () => {
+        cy.get( 'tr' ).eq( 30 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Registered deprecated filters' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'None' )
         } )
         // Review Notice Dismissed
-        cy.get( 'tr' ).eq( 32 ).within( () => {
+        cy.get( 'tr' ).eq( 31 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Date Activated' )
           cy.get( 'td' ).eq( 1 ).should( 'satisfy', val => NaN !== Date.parse(val) )
         } )
         // Review Notice Dismissed
-        cy.get( 'tr' ).eq( 33 ).within( () => {
+        cy.get( 'tr' ).eq( 32 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'Review Notice Dismissed' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', '' )
         } )
         // BEYONDWORDS_AUTO_SYNC_SETTINGS
-        cy.get( 'tr' ).eq( 34 ).within( () => {
+        cy.get( 'tr' ).eq( 33 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTO_SYNC_SETTINGS' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'False' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
-        cy.get( 'tr' ).eq( 35 ).within( () => {
+        cy.get( 'tr' ).eq( 34 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_AUTOREGENERATE' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )
         // BEYONDWORDS_AUTOREGENERATE
-        cy.get( 'tr' ).eq( 36 ).within( () => {
+        cy.get( 'tr' ).eq( 35 ).within( () => {
           cy.get( 'td' ).eq( 0 ).should( 'have.text', 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG' )
           cy.get( 'td' ).eq( 1 ).should( 'have.text', 'Undefined' )
         } )

@@ -66,24 +66,22 @@ Cypress.Commands.add( 'login', () => {
 } );
 
 Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
-	cy.get( '.nav-tab' ).contains( 'Credentials' );
-	cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' );
-} );
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
+} )
 
 Cypress.Commands.add( 'showsAllSettingsTabs', () => {
-	cy.get( '.nav-tab' ).contains( 'Credentials' );
-	cy.get( '.nav-tab' ).contains( 'Content' );
-	cy.get( '.nav-tab' ).contains( 'Voices' );
-	cy.get( '.nav-tab' ).contains( 'Player' );
-	cy.get( '.nav-tab' ).contains( 'Summarization' );
-	cy.get( '.nav-tab' ).contains( 'Pronunciations' );
-	cy.get( '.nav-tab' ).contains( 'Advanced' );
-} );
+  cy.get( '.nav-tab' ).contains( 'Credentials' )
+  cy.get( '.nav-tab' ).contains( 'Content' )
+  cy.get( '.nav-tab' ).contains( 'Voices' )
+  cy.get( '.nav-tab' ).contains( 'Player' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' )
+  cy.get( '.nav-tab' ).contains( 'Pronunciations' )
+} )
 
 Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
 	cy.get( '.notice.notice-info' )
@@ -155,31 +153,16 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 } );
 
 Cypress.Commands.add( 'saveAllPluginSettings', () => {
-	cy.saveStandardPluginSettings();
+  cy.saveStandardPluginSettings()
 
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
-	cy.get( 'input[type=submit]' ).click().wait( 1000 );
-	cy.get( '.notice-success' );
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
 
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
-	cy.get( 'input[type=submit]' ).click().wait( 1000 );
-	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' );
-
-	cy.get( '#beyondwords_languages-ts-control' ).click().wait( 1000 );
-	cy.contains( '#beyondwords_languages-ts-dropdown .option', 'Language 1' )
-		.click()
-		.wait( 1000 );
-	cy.contains( '#beyondwords_languages-ts-dropdown .option', 'Language 2' )
-		.click()
-		.wait( 1000 );
-
-	cy.get( 'input[type=submit]' ).click().wait( 1000 );
-	cy.get( '.notice-success' );
-} );
+  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
+  cy.get( 'input[type=submit]' ).click().wait( 2000 )
+  cy.get( '.notice-success' )
+} )
 
 Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
@@ -253,11 +236,14 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
 	// Select "Pending Review"
 	cy.get( '#post_status' ).select( 'Pending Review' );
 
-	// Click "OK"
-	cy.get( 'a.save-post-status' ).click().wait( 500 );
+  // Click "OK"
+  cy.get( 'a.save-post-status' ).click().wait( 1000 )
 
-	// Click "Save as Pending" button
-	cy.get( 'input[value="Save as Pending"]' ).click().wait( 500 );
+  // Wait for Permalink to be generated
+  cy.get( 'a#sample-permalink' )
+
+  // Click "Save as Pending" button
+  cy.get( 'input[value="Save as Pending"]' ).click().wait( 1000 )
 
 	// Wait for success message
 	cy.get( 'div#message.notice-success' );

@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.2-beta.2
+Stable tag: 5.4.0
 Requires PHP: 8.0
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -80,24 +80,27 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
-= 5.3.2 =
+= 5.4.0 =
 
-Release date: 4th March 2025
+Release date: 22nd April 2025
 
 **Fixes:**
 
-* [432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
-    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and any BeyondWords post meta (e.g. the content ID) is also removed.
-    * This fixes reported REST API error messages that were caused by DELETE requests for BeyondWords content that no longer existed.
+* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Article language support in WordPress.
+    * Each `POST` and `PUT` request to the BeyondWords REST API now includes the article language.
+    * This update ensures compatibility with recent REST API changes and improves support for multilingual websites.
+* [#432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and all associated BeyondWords post meta data (e.g. the content ID) is also deleted.
+    * This resolves REST API error messages caused by `DELETE` requests for content that no longer exists.
     * After this update you will need to regenerate audio again if you restore posts from the trash.
 
 **Enhancements and Features:**
 
+* Tested up to WordPress 6.8.
 * [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
-    * Our plugin setting pages in WordPress now prompt you to review our plugin on the WordPress Plugin repo.
-    * A notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) if you already have the plugin installed.
-    * The notice will be dismissed permanently if you choose to close it, or if you follow the link to the plugin review page.
-* [#433](https://github.com/beyondwords-io/wordpress-plugin/pull/433) Test against and support PHP 8.4.
+    * A new notice prompts you to review our plugin on the WordPress Plugin Directory.
+    * The notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) .
+    * The message is permanently dismissed once you close it or follow the link to leave a review.
 * [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
 
 = 5.3.1 =
