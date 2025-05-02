@@ -281,7 +281,7 @@ Cypress.Commands.add( 'createPostWithAudio', ( title, postType ) => {
 
   cy.publishWithConfirmation( true )
 
-  cy.getAdminPlayer().should( 'exist' )
+  cy.hasPlayerInstances( 1 )
 } )
 
 Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
@@ -302,7 +302,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
   cy.publishWithConfirmation( true )
 
   cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' )
-  cy.getAdminPlayer().should( 'not.exist' )
+  cy.hasNoBeyondwordsWindowObject()
 } )
 
 /**

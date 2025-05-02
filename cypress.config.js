@@ -20,7 +20,7 @@ module.exports = defineConfig( {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
 	retries: {
-		runMode: 3,
+		runMode: 1,
 		openMode: 0,
 	},
 	e2e: {
