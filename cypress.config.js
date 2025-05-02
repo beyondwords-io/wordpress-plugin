@@ -33,7 +33,7 @@ module.exports = defineConfig( {
 
 function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
-	// require( 'cypress-fail-fast/plugin' )( on, config );
+	require( 'cypress-fail-fast/plugin' )( on, config );
 
 	// implement node event listeners here
 	on( 'task', {
