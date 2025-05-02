@@ -302,7 +302,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
   cy.publishWithConfirmation( true )
 
   cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' )
-  cy.hasNoBeyondwordsWindowObject()
+  cy.hasPlayerInstances( 0 )
 } )
 
 /**
