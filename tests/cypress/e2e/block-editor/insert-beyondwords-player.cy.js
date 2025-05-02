@@ -78,7 +78,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 				cy.viewPostViaSnackbar();
 
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'have.length', 1 );
+				cy.hasPlayerInstances( 1 );
 			} );
 
 			// @todo test fails, no '.block-editor-default-block-appender button'
@@ -121,7 +121,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 				cy.viewPostViaSnackbar();
 
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'have.length', 1 );
+				cy.hasPlayerInstances( 1 );
 			} );
 		} );
 } );

@@ -37,7 +37,7 @@ context( 'Block Editor: Display Player', () => {
 				cy.viewPostViaSnackbar();
 
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -56,6 +56,9 @@ context( 'Block Editor: Display Player', () => {
 						cy.get( 'a.row-title' ).click().wait( 1500 );
 					} );
 
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
+
 				cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 100 );
 
 				cy.getBlockEditorCheckbox( 'Display player' ).should(
@@ -73,7 +76,7 @@ context( 'Block Editor: Display Player', () => {
 
 				// @todo the script should not be enqueued if the player is not displayed
 				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-				cy.getFrontendPlayer().should( 'not.exist' );
+				cy.hasPlayerInstances( 0 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -93,6 +96,10 @@ context( 'Block Editor: Display Player', () => {
 						cy.get( 'a.row-title' ).click().wait( 1500 );
 					} );
 
+				// @todo the script should not be enqueued if the player is not displayed
+				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
+				cy.hasPlayerInstances( 0 );
+
 				cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 100 );
 
 				cy.getBlockEditorCheckbox( 'Display player' ).should(
@@ -109,7 +116,7 @@ context( 'Block Editor: Display Player', () => {
 				cy.viewPostViaSnackbar();
 
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 			} );
 		} );
 } );

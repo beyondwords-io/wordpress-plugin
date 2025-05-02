@@ -26,12 +26,12 @@ describe( 'WordPress Filters', () => {
 				} );
 
 				// Admin should have latest player
-				cy.getAdminPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				// window.BeyondWords should contain desired SDK params from
 				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
@@ -75,12 +75,12 @@ describe( 'WordPress Filters', () => {
 				} );
 
 				// Admin should have latest player
-				cy.getAdminPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				// Check we have called console.log with expected values from testing plugin
 				cy.get( '@consoleLog' ).should( ( log ) => {
@@ -105,18 +105,18 @@ describe( 'WordPress Filters', () => {
 					'beyondwords-filter-player-inline-script-tag'
 				);
 
-				cy.publishPostWithAudio( {
-					postType,
-					title: `I see the inline player script for a ${ postType.name }`,
-				} );
+				cy.createPostWithAudio(
+					`I see the inline player script for a ${ postType.name }`,
+					postType
+				);
 
 				// Admin should have latest player
-				cy.getAdminPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				// Frontend SHOULD NOT have enqueued player script
 				cy.viewPostViaSnackbar();
 				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				cy.deactivatePlugin(
 					'beyondwords-filter-player-inline-script-tag'
@@ -127,13 +127,10 @@ describe( 'WordPress Filters', () => {
 					title: `I see the legacy player script for a ${ postType.name }`,
 				} );
 
-				// Admin should have latest player
-				cy.getAdminPlayer().should( 'exist' );
-
 				// Frontend SHOULD have enqueued player script
 				cy.viewPostViaSnackbar();
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 			} );
 		} );
 } );

@@ -389,7 +389,7 @@ Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.getAdminPlayer().should( 'exist' );
+	cy.hasPlayerInstances( 1 );
 } );
 
 Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
@@ -402,7 +402,8 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 	cy.publishWithConfirmation();
 
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
-	cy.getAdminPlayer().should( 'not.exist' );
+
+	cy.hasPlayerInstances( 0 );
 } );
 
 /**
@@ -517,16 +518,43 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 	return cy.get( 'label', ...args ).contains( text );
 } );
 
-// Get admin audio player element
-Cypress.Commands.add( 'getAdminPlayer', ( ...args ) => {
-	cy.openBeyondwordsEditorPanel();
+// Check for a number of player instances.
+Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
+	cy.window( { timeout: 10000 } ).should( ( win ) => {
+		if ( ! win.BeyondWords ) {
+			throw new Error(
+				'BeyondWords is not available on the window object.'
+			);
+		}
 
-	return cy.get( '.beyondwords-player .user-interface', ...args );
+		if (
+			! win.BeyondWords.Player ||
+			typeof win.BeyondWords.Player.instances !== 'function'
+		) {
+			throw new Error(
+				'BeyondWords.Player.instances is not a function.'
+			);
+		}
+
+		const instances = win.BeyondWords.Player.instances();
+
+		if ( instances.length !== num ) {
+			throw new Error(
+				`Expected ${ num } player instance(s), but found ${ instances.length }.`
+			);
+		}
+	} );
 } );
 
-// Get frontend audio player element (standard)
-Cypress.Commands.add( 'getFrontendPlayer', ( ...args ) => {
-	return cy.get( '.beyondwords-player .user-interface', ...args );
+// Check for no Beyondwords Player object.
+Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
+	cy.window( { timeout: 4000 } ).should( ( win ) => {
+		if ( 'BeyondWords' in win ) {
+			throw new Error(
+				'Expected window.BeyondWords to be undefined, but it exists.'
+			);
+		}
+	} );
 } );
 
 // Get frontend audio player element (standard)

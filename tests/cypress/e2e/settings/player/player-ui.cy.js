@@ -21,12 +21,12 @@ context( 'Settings > Player UI', () => {
 		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
 		// Admin should have latest player
-		cy.getAdminPlayer().should( 'exist' );
+		cy.hasPlayerInstances( 1 );
 
 		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
 		cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-		cy.getFrontendPlayer().should( 'exist' );
+		cy.hasPlayerInstances( 1 );
 
 		// window.BeyondWords should contain 1 player instance
 		cy.window().then( ( win ) => {
@@ -50,7 +50,7 @@ context( 'Settings > Player UI', () => {
 		cy.publishPostWithAudio( { title: '"Headless" Player UI' } );
 
 		// Admin should have latest player
-		cy.getAdminPlayer().should( 'exist' );
+		cy.hasPlayerInstances( 1 );
 
 		// Frontend should have a player div without a UI
 		cy.viewPostViaSnackbar();
@@ -79,7 +79,7 @@ context( 'Settings > Player UI', () => {
 		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
 
 		// Admin should have latest player
-		cy.getAdminPlayer().should( 'exist' );
+		cy.hasPlayerInstances( 1 );
 
 		// Frontend should not have a player div
 		cy.viewPostViaSnackbar();

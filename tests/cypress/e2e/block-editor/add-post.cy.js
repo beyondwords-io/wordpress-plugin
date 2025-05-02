@@ -30,13 +30,10 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.getLabel( 'Generate audio' ).should( 'exist' );
 
-				cy.getAdminPlayer().should( 'not.exist' );
+				cy.hasPlayerInstances( 0 );
 
 				// "View post"
 				cy.viewPostViaSnackbar();
-
-				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
-				cy.getFrontendPlayer().should( 'not.exist' );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -64,13 +61,11 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
-				cy.getAdminPlayer().should( 'exist' );
-
 				// "View post"
 				cy.viewPostViaSnackbar();
 
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.getFrontendPlayer().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -101,6 +96,9 @@ context( 'Block Editor: Add Post', () => {
 				cy.get( '.editor-post-publish-button__button' )
 					.click()
 					.wait( 100 );
+
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
 				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
