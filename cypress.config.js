@@ -13,6 +13,8 @@ module.exports = defineConfig( {
 	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
+	screenshotsFolder: 'tests/cypress/screenshots',
+	screenshotOnRunFailure: true,
 	reporter: 'cypress-multi-reporters',
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
