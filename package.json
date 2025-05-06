@@ -17,7 +17,7 @@
     "@wordpress/eslint-plugin": "^22.2.0",
     "@wordpress/scripts": "^30.9.0",
     "badge-maker": "^4.1.0",
-    "cypress": "14.2.0",
+    "cypress": "14.3.2",
     "cypress-fail-fast": "^7.1.1",
     "cypress-map": "^1.45.0",
     "cypress-multi-reporters": "^2.0.5",
