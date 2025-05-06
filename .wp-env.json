@@ -4,8 +4,7 @@
     "plugins": [
         "./",
         "WP-API/Basic-Auth",
-        "https://downloads.wordpress.org/plugin/wordpress-importer.zip",
-        "https://downloads.wordpress.org/plugin/wp-reset.zip"
+        "https://downloads.wordpress.org/plugin/wordpress-importer.zip"
     ],
     "config": {
         "AUTOMATIC_UPDATER_DISABLED": true,
@@ -23,6 +22,7 @@
         "wp-content/plugins/classic-editor": "https://downloads.wordpress.org/plugin/classic-editor.zip",
         "wp-content/plugins/query-monitor": "https://downloads.wordpress.org/plugin/query-monitor.zip",
         "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.zip",
+        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip",
         "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip"
     },
     "env": {
