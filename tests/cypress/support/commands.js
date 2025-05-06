@@ -71,77 +71,8 @@ Cypress.Commands.add( 'login', () => {
 
 Cypress.Commands.add( 'createPost', ( options = {} ) => {
 	const { postType = postTypes[ 0 ], title = '' } = options;
-	const userId = '1';
 
-	// cy.window().then( ( win ) => {
-	// 	// Get the current value.
-	// 	console.log( win.localStorage );
-	// 	const raw = win.localStorage.getItem( `WP_DATA_USER_${ userId }` );
-	// 	const state = JSON.parse( raw );
-
-	// 	// Modify the desired properties.
-	// 	_.set( state, 'core[core/edit-post]preferences.features.welcomeGuide', false );
-	// 	_.set( state, 'core[core/edit-post]preferences.features.welcomeGuideTemplate', false );
-
-	// 	// Write it back.
-	// 	win.localStorage.setItem(
-	// 		`WP_DATA_USER_${ userId }`,
-	// 		JSON.stringify( state )
-	// 	);
-	// } );
-
-	// cy.getAllLocalStorage().then( ( storage ) => {
-	// 	console.log( 'storage', storage );
-	// 	if ( storage[ `WP_DATA_USER_${ userId }` ] ) {
-	// 		localStorage.setItem(
-	// 			`WP_DATA_USER_${ userId }`,
-	// 			storage[ `WP_DATA_USER_${ userId }` ]
-	// 		);
-	// 	}
-	// } );
-
-	window.localStorage.setItem(
-		`WP_DATA_USER_${ userId }`,
-		JSON.stringify( {
-			'core/edit-post': {
-				preferences: {
-					panels: {
-						'post-status': {
-							opened: true,
-						},
-						'beyondwords-document-sidebar/beyondwords-document-settings-panel':
-							{
-								opened: true,
-							},
-					},
-					features: {
-						fixedToolbar: false,
-						welcomeGuide: false,
-						fullscreenMode: true,
-						showIconLabels: false,
-						themeStyles: true,
-						showBlockBreadcrumbs: true,
-						welcomeGuideTemplate: false,
-					},
-					editorMode: 'visual',
-					hiddenBlockTypes: [],
-					preferredStyleVariations: {},
-					localAutosaveInterval: 15,
-				},
-			},
-			'core/editor': {
-				preferences: {
-					isPublishSidebarEnabled: true,
-				},
-			},
-		} )
-	);
-
-	cy.get( '#wp-admin-bar-new-content-default' )
-		.contains( postType.name, { matchCase: false } )
-		.click( { force: true } );
-
-	cy.wait( 100 );
+	cy.visitPostEditor( postType.slug );
 
 	if ( title !== '' ) {
 		cy.get( '.editor-post-title__input' ).type(
@@ -150,6 +81,39 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 			).toLocaleDateString() }`
 		);
 	}
+} );
+
+Cypress.Commands.add( 'visitPostEditor', ( postType ) => {
+	const key = `WP_PREFERENCES_USER_1`;
+
+	cy.visit( `/wp-admin/post-new.php?post_type=${ postType }`, {
+		onBeforeLoad( win ) {
+			let state = {};
+
+			// Attempt to load existing preferences.
+			const raw = win.localStorage.getItem( key );
+			if ( raw ) {
+				try {
+					state = JSON.parse( raw );
+				} catch ( err ) {}
+			}
+
+			// Close Welcome Guides.
+			state[ 'core/edit-post' ] = {
+				...( state[ 'core/edit-post' ] || {} ),
+				welcomeGuide: false,
+				welcomeGuideTemplate: false,
+			};
+
+			// Write it back.
+			win.localStorage.setItem( key, JSON.stringify( state ) );
+		},
+	} );
+
+	cy.get( 'body' ).should(
+		'not.contain.text',
+		'Welcome to the block editor'
+	);
 } );
 
 Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
