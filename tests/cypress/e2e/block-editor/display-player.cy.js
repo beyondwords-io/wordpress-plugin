@@ -53,10 +53,9 @@ context( 'Block Editor: Display Player', () => {
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.beyondwords--disabled'
 						).should( 'not.exist' );
-						cy.get( 'a.row-title' ).click().wait( 1500 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 100 );

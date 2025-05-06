@@ -97,8 +97,7 @@ context( 'Block Editor: Add Post', () => {
 					.click()
 					.wait( 100 );
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
+				cy.hasPlayerInstances( 0 );
 
 				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 

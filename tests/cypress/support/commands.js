@@ -114,6 +114,17 @@ Cypress.Commands.add( 'visitPostEditor', ( postType ) => {
 		'not.contain.text',
 		'Welcome to the block editor'
 	);
+
+	// Close "Choose a pattern" dialog.
+	cy.get( 'body' ).then( ( $body ) => {
+		if ( $body.find( 'button:contains("Start blank")' ).length ) {
+			cy.contains( 'button', 'Start blank' ).click( { force: true } );
+		} else if ( $body.find( 'button[aria-label="Close dialog"]' ).length ) {
+			cy.get( 'button[aria-label="Close dialog"]' ).click( {
+				force: true,
+			} );
+		}
+	} );
 } );
 
 Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {

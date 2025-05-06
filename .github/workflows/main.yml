@@ -499,6 +499,7 @@ jobs:
           wp plugin activate cpt-active
           wp plugin activate cpt-inactive
           wp plugin activate cpt-unsupported
+          wp plugin activate disable-block-templates
 
       - run: wp plugin list
 
