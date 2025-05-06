@@ -353,6 +353,8 @@ Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 		postType = postTypes[ 0 ];
 	}
 
+	cy.openBeyondwordsEditorPanel();
+
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
@@ -368,6 +370,8 @@ Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
 	if ( ! postType ) {
 		postType = postTypes[ 0 ];
 	}
+
+	cy.openBeyondwordsEditorPanel();
 
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
