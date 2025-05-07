@@ -105,10 +105,10 @@ describe( 'WordPress Filters', () => {
 					'beyondwords-filter-player-inline-script-tag'
 				);
 
-				cy.publishPostWithAudio(
-					`I see the inline player script for a ${ postType.name }`,
-					postType
-				);
+				cy.publishPostWithAudio( {
+					postType,
+					title: `I see the inline player script for a ${ postType.name }`,
+				} );
 
 				// Admin should have latest player
 				cy.hasPlayerInstances( 1 );
