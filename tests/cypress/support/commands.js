@@ -246,7 +246,6 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.contains( label )
 		.parent( 'tr' )
 		.find( 'td' )
-		.eq( 1 )
 		.then( ( $el ) => cy.wrap( $el, args ) );
 } );
 
