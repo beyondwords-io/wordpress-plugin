@@ -105,7 +105,7 @@ describe( 'WordPress Filters', () => {
 					'beyondwords-filter-player-inline-script-tag'
 				);
 
-				cy.createPostWithAudio(
+				cy.publishPostWithAudio(
 					`I see the inline player script for a ${ postType.name }`,
 					postType
 				);
