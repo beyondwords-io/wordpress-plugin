@@ -109,10 +109,10 @@ class PlayerColors
             self::OPTION_NAME_LIGHT_THEME,
             [
                 'default' => [
-                    'background_color' => '#F5F5F5',
+                    'background_color' => '#f5f5f5',
                     'icon_color'       => '#000',
                     'text_color'       => '#111',
-                    'highlight_color'  => '#EEE',
+                    'highlight_color'  => '#eee',
                 ],
                 'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
@@ -123,10 +123,10 @@ class PlayerColors
             self::OPTION_NAME_DARK_THEME,
             [
                 'default' => [
-                    'background_color' => '#F5F5F5',
+                    'background_color' => '#f5f5f5',
                     'icon_color'       => '#000',
                     'text_color'       => '#111',
-                    'highlight_color'  => '#EEE',
+                    'highlight_color'  => '#eee',
                 ],
                 'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
@@ -138,8 +138,8 @@ class PlayerColors
             [
                 'default' => [
                     'background_color' => '#000',
-                    'icon_color'       => '#FFF',
-                    'text_color'       => '#FFF',
+                    'icon_color'       => '#fff',
+                    'text_color'       => '#fff',
                 ],
                 'sanitize_callback' => array($this, 'sanitizeColorsArray'),
             ]
