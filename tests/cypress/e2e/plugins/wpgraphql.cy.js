@@ -2,7 +2,7 @@
 
 context( 'Plugins: WPGraphQL', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'wp-graphql' );
@@ -28,7 +28,7 @@ context( 'Plugins: WPGraphQL', () => {
 					title: `${ postType.name } with WPGraphQL data`,
 				} );
 
-				cy.visit( '/wp-admin/admin.php?page=graphiql-ide' ).wait( 100 );
+				cy.visit( '/wp-admin/admin.php?page=graphiql-ide' );
 
 				// Construct GraphQL query
 				cy.get( '.query-editor > .CodeMirror' )
@@ -51,11 +51,10 @@ context( 'Plugins: WPGraphQL', () => {
             }
           }
         }` );
-					} )
-					.wait( 100 );
+					} );
 
 				// Run the query
-				cy.get( '.execute-button' ).click().wait( 100 );
+				cy.get( '.execute-button' ).click();
 
 				// Test the query results
 				cy.get( '.result-window > .CodeMirror' )

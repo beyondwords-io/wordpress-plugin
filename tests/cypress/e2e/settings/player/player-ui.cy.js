@@ -2,7 +2,7 @@
 
 context( 'Settings > Player UI', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -16,7 +16,7 @@ context( 'Settings > Player UI', () => {
 
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
@@ -30,7 +30,6 @@ context( 'Settings > Player UI', () => {
 
 		// window.BeyondWords should contain 1 player instance
 		cy.window().then( ( win ) => {
-			cy.wait( 500 );
 			// eslint-disable-next-line no-unused-expressions
 			expect( win.BeyondWords ).to.exist;
 			expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
@@ -45,7 +44,7 @@ context( 'Settings > Player UI', () => {
 
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		cy.publishPostWithAudio( { title: '"Headless" Player UI' } );
 
@@ -59,7 +58,6 @@ context( 'Settings > Player UI', () => {
 
 		// window.BeyondWords should contain 1 player instance
 		cy.window().then( ( win ) => {
-			cy.wait( 500 );
 			// eslint-disable-next-line no-unused-expressions
 			expect( win.BeyondWords ).to.exist;
 			expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
@@ -74,7 +72,7 @@ context( 'Settings > Player UI', () => {
 
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
 
@@ -87,7 +85,6 @@ context( 'Settings > Player UI', () => {
 
 		// window.BeyondWords should be undefined
 		cy.window().then( ( win ) => {
-			cy.wait( 500 );
 			// eslint-disable-next-line no-unused-expressions
 			expect( win.BeyondWords ).to.not.exist;
 		} );

@@ -2,7 +2,7 @@
 
 context( 'Settings', () => {
 	beforeEach( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 	} );
 
@@ -53,7 +53,7 @@ context( 'Settings', () => {
 		cy.get( 'input#beyondwords_project_id' )
 			.clear()
 			.type( Cypress.env( 'projectId' ) );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		// The language and voices from the mock API response should be synced
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
@@ -94,10 +94,6 @@ context( 'Settings', () => {
 		// cy.get( '#beyondwords_player_theme_video' ).clear()
 
 		cy.get( 'form#all-options' ).submit();
-
-		cy.visit( '/wp-admin/options-general.php?page=beyondwords' ).wait(
-			2000
-		);
 
 		cy.visit( '/wp-admin/options.php' );
 

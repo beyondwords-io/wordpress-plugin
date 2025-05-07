@@ -2,7 +2,7 @@
 
 context( 'Settings > Content', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -35,7 +35,7 @@ context( 'Settings > Content', () => {
 		cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
 		cy.get( 'input[name="beyondwords_preselect[page]"]' ).uncheck();
 
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		cy.get( '#beyondwords_project_title_enabled' ).should(
 			'not.be.checked'

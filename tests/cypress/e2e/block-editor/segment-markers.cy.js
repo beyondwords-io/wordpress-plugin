@@ -2,7 +2,7 @@
 
 context( 'Block Editor: Segment markers', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -98,14 +98,14 @@ context( 'Block Editor: Segment markers', () => {
 					.invoke( 'val' )
 					.then( ( originalMarker ) => {
 						// Type another letter
-						cy.get( 'body' ).type( `K` ).wait( 100 );
+						cy.get( 'body' ).type( `K` ).wait( 200 );
 						// Get marker value again and check it hasn't changed
 						cy.contains( 'label', 'Segment marker' )
 							.siblings( 'input' )
 							.first()
 							.invoke( 'val' )
 							.should( 'equal', originalMarker );
-						cy.get( 'body' ).type( `{enter}` ).wait( 100 );
+						cy.get( 'body' ).type( `{enter}` ).wait( 200 );
 					} );
 
 				/**
@@ -180,17 +180,14 @@ context( 'Block Editor: Segment markers', () => {
 
 				// Add first paragraph
 				cy.get( '.editor-post-title' ).click();
-				cy.contains( 'p.wp-block-paragraph', 'Test.' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'p.wp-block-paragraph', 'Test.' ).click();
 
 				// Duplicate paragraph
-				cy.get( '.block-editor-block-settings-menu' )
-					.click()
-					.wait( 100 );
-				cy.contains( '.components-menu-item__item', 'Duplicate' )
-					.click()
-					.wait( 100 );
+				cy.get( '.block-editor-block-settings-menu' ).click();
+				cy.contains(
+					'.components-menu-item__item',
+					'Duplicate'
+				).click();
 
 				cy.get( 'p:contains(Test.)' ).should( 'have.length', 2 );
 

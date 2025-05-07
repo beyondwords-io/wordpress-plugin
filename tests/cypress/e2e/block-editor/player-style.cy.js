@@ -4,7 +4,7 @@ context( 'Block Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -119,7 +119,6 @@ context( 'Block Editor: Player Style', () => {
 
 				// window.BeyondWords should contain 1 player instance
 				cy.window().then( ( win ) => {
-					cy.wait( 500 );
 					// eslint-disable-next-line no-unused-expressions
 					expect( win.BeyondWords ).to.exist;
 					expect( win.BeyondWords.Player.instances() ).to.have.length(
@@ -131,7 +130,7 @@ context( 'Block Editor: Player Style', () => {
 				} );
 
 				// Check Player style has also been saved in admin
-				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 100 );
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsEditorPanel();
 				cy.getBlockEditorSelect( 'Player style' )
 					.find( 'option:selected' )
@@ -167,7 +166,6 @@ context( 'Block Editor: Player Style', () => {
 
 				// window.BeyondWords should contain 1 player instance
 				cy.window().then( ( win ) => {
-					cy.wait( 500 );
 					// eslint-disable-next-line no-unused-expressions
 					expect( win.BeyondWords ).to.exist;
 					expect( win.BeyondWords.Player.instances() ).to.have.length(
@@ -179,7 +177,7 @@ context( 'Block Editor: Player Style', () => {
 				} );
 
 				// Check Player style has also been saved in admin
-				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 100 );
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsEditorPanel();
 				cy.getBlockEditorSelect( 'Player style' )
 					.find( 'option:selected' )

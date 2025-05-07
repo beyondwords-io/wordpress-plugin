@@ -45,7 +45,7 @@ context( 'Classic Editor: Display Player', () => {
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'not.exist'
@@ -66,7 +66,7 @@ context( 'Classic Editor: Display Player', () => {
 							'td.beyondwords.column-beyondwords > span.beyondwords--disabled',
 							'Disabled'
 						);
-						cy.get( 'a.row-title' ).click().wait( 100 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
 				cy.get( 'input#beyondwords_display_player' ).should(
@@ -79,7 +79,7 @@ context( 'Classic Editor: Display Player', () => {
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'exist'

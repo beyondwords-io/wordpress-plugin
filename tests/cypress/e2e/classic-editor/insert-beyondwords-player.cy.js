@@ -2,7 +2,7 @@
 
 context( 'Classic Editor: Insert BeyondWords Player', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'classic-editor' );
@@ -47,14 +47,12 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 					)
 					.should( 'have.length', 3 );
 
-				cy.contains( 'input[type="submit"]', 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
 				cy.get(
@@ -70,7 +68,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 				cy.get( 'input#beyondwords_generate_audio' ).check();
 
 				// Focus TinyMCE
-				cy.getTinyMceIframeBody().click().wait( 100 );
+				cy.getTinyMceIframeBody().click();
 
 				// Add 3x shortcodes
 				cy.getTinyMceIframeBody().type(
@@ -78,14 +76,12 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 					'Shortcode 1:{enter}[beyondwords_player]{enter}Shortcode 2:{enter}[beyondwords_player]{enter}Shortcode 3:{enter}[beyondwords_player]{enter}'
 				);
 
-				cy.contains( 'input[type="submit"]', 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
 				cy.get(

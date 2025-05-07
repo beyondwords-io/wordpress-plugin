@@ -4,7 +4,7 @@ context( 'Classic Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'classic-editor' );
@@ -41,9 +41,9 @@ context( 'Classic Editor: Select Voice', () => {
 					} );
 
 				// Select a Language
-				cy.get( 'select#beyondwords_language_code' )
-					.select( 'English (American)' )
-					.wait( 100 );
+				cy.get( 'select#beyondwords_language_code' ).select(
+					'English (American)'
+				);
 
 				// Assert we have the expected Voices
 				cy.get( 'select#beyondwords_voice_id' )
@@ -65,9 +65,9 @@ context( 'Classic Editor: Select Voice', () => {
 				);
 
 				// Select another Language
-				cy.get( 'select#beyondwords_language_code' )
-					.select( 'English (British)' )
-					.wait( 100 );
+				cy.get( 'select#beyondwords_language_code' ).select(
+					'English (British)'
+				);
 
 				// Assert we have the expected Voices
 				cy.get( 'select#beyondwords_voice_id' )
@@ -103,9 +103,7 @@ context( 'Classic Editor: Select Voice', () => {
 					cy.get( 'input#beyondwords_generate_audio' ).check();
 				}
 
-				cy.contains( 'input[type="submit"]', 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
 				// Check Language/Voice has been saved by refreshing the page
 				cy.get( 'select#beyondwords_language_code' )

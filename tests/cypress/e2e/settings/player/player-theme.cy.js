@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Player theme', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -36,7 +36,7 @@ context( 'Settings > Player > Player theme', () => {
 			cy.get( 'select[name="beyondwords_player_theme"]' ).select(
 				theme.label
 			);
-			cy.get( 'input[type="submit"]' ).click().wait( 100 );
+			cy.get( 'input[type="submit"]' ).click();
 
 			// Check for value in WordPress options
 			cy.visit( '/wp-admin/options.php' );

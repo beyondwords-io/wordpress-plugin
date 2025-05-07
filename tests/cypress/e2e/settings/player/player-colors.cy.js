@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Player colors', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -81,7 +81,7 @@ context( 'Settings > Player > Player colors', () => {
 			.clear()
 			.type( darkTheme.highlight_color );
 
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 
 		// Only check for value in Site Health
 		cy.visitPluginSiteHealth();

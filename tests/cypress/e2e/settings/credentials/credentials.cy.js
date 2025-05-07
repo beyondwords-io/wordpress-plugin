@@ -2,7 +2,7 @@
 
 context( 'Settings > Credentials', () => {
 	beforeEach( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 	} );
 
@@ -40,7 +40,7 @@ context( 'Settings > Credentials', () => {
 			.clear()
 			.type( Cypress.env( 'apiKey' ) );
 		cy.get( 'input[name="beyondwords_project_id"]' ).clear();
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 		cy.showsPluginSettingsNotice();
 		cy.showsOnlyCredentialsSettingsTab();
 
@@ -51,7 +51,7 @@ context( 'Settings > Credentials', () => {
 
 		// Project 401 triggers a 403 response in Mockoon
 		cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 		cy.showsInvalidApiCredsNotice();
 		cy.showsOnlyCredentialsSettingsTab();
 
@@ -62,7 +62,7 @@ context( 'Settings > Credentials', () => {
 		cy.get( 'input[name="beyondwords_project_id"]' )
 			.clear()
 			.type( Cypress.env( 'projectId' ) );
-		cy.get( 'input[type="submit"]' ).click().wait( 100 );
+		cy.get( 'input[type="submit"]' ).click();
 		cy.get( '.notice.notice-info' ).should( 'not.exist' );
 		cy.showsAllSettingsTabs();
 

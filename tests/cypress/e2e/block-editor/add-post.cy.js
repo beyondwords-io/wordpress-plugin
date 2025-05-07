@@ -93,9 +93,7 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.setPostStatus( 'pending' );
 
-				cy.get( '.editor-post-publish-button__button' )
-					.click()
-					.wait( 100 );
+				cy.get( '.editor-post-publish-button__button' ).click();
 
 				cy.hasPlayerInstances( 0 );
 
@@ -133,7 +131,6 @@ context( 'Block Editor: Add Post', () => {
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						cy.get( 'a.row-title' ).click().wait( 100 );
 					} );
 			} );
 		} );

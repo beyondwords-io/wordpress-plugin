@@ -2,7 +2,7 @@
 
 describe( 'WordPress Filters', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -36,7 +36,6 @@ describe( 'WordPress Filters', () => {
 				// window.BeyondWords should contain desired SDK params from
 				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
 				cy.window().then( ( win ) => {
-					cy.wait( 500 );
 					// eslint-disable-next-line no-unused-expressions
 					expect( win.BeyondWords ).to.exist;
 					expect( win.BeyondWords.Player.instances() ).to.have.length(

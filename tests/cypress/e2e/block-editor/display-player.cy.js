@@ -58,7 +58,7 @@ context( 'Block Editor: Display Player', () => {
 
 				cy.hasPlayerInstances( 1 );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 100 );
+				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 
 				cy.getBlockEditorCheckbox( 'Display player' ).should(
 					'be.checked'
@@ -92,14 +92,14 @@ context( 'Block Editor: Display Player', () => {
 							'td.beyondwords.column-beyondwords > span.beyondwords--disabled',
 							'Disabled'
 						);
-						cy.get( 'a.row-title' ).click().wait( 1500 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
 				// @todo the script should not be enqueued if the player is not displayed
 				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
 				cy.hasPlayerInstances( 0 );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 100 );
+				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 
 				cy.getBlockEditorCheckbox( 'Display player' ).should(
 					'not.be.checked'

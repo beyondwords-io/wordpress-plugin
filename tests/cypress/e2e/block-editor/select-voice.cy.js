@@ -4,7 +4,7 @@ context( 'Block Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -40,9 +40,9 @@ context( 'Block Editor: Select Voice', () => {
 					} );
 
 				// Select a Language
-				cy.getBlockEditorSelect( 'Language' )
-					.select( 'English (American)' )
-					.wait( 200 );
+				cy.getBlockEditorSelect( 'Language' ).select(
+					'English (American)'
+				);
 
 				// Assert we have the expected Voices
 				cy.getBlockEditorSelect( 'Voice' )
@@ -64,9 +64,9 @@ context( 'Block Editor: Select Voice', () => {
 				);
 
 				// Select another Language
-				cy.getBlockEditorSelect( 'Language' )
-					.select( 'English (British)' )
-					.wait( 200 );
+				cy.getBlockEditorSelect( 'Language' ).select(
+					'English (British)'
+				);
 
 				// Assert we have the expected Voices
 				cy.getBlockEditorSelect( 'Voice' )

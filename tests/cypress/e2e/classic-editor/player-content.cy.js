@@ -4,7 +4,7 @@ context( 'Classic Editor: Player Content', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'classic-editor' );
@@ -59,13 +59,10 @@ context( 'Classic Editor: Player Content', () => {
 					cy.get( 'input#beyondwords_generate_audio' ).check();
 				}
 
-				cy.get( 'input[type="submit"]' )
-					.contains( 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.get( 'input[type="submit"]' ).contains( 'Publish' ).click();
 
 				// "View post"
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				// Check Player appears frontend
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
@@ -73,7 +70,6 @@ context( 'Classic Editor: Player Content', () => {
 
 				// window.BeyondWords should contain 1 player instance
 				cy.window().then( ( win ) => {
-					cy.wait( 500 );
 					// eslint-disable-next-line no-unused-expressions
 					expect( win.BeyondWords ).to.exist;
 					expect( win.BeyondWords.Player.instances() ).to.have.length(
@@ -85,7 +81,7 @@ context( 'Classic Editor: Player Content', () => {
 				} );
 
 				// Check Player content has also been saved in admin
-				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 100 );
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.get( 'select#beyondwords_player_content' )
 					.find( 'option:selected' )
 					.contains( 'Article' );
@@ -116,13 +112,10 @@ context( 'Classic Editor: Player Content', () => {
 					cy.get( 'input#beyondwords_generate_audio' ).check();
 				}
 
-				cy.get( 'input[type="submit"]' )
-					.contains( 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.get( 'input[type="submit"]' ).contains( 'Publish' ).click();
 
 				// "View post"
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				// Check Player appears frontend
 				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
@@ -130,7 +123,6 @@ context( 'Classic Editor: Player Content', () => {
 
 				// window.BeyondWords should contain 1 player instance
 				cy.window().then( ( win ) => {
-					cy.wait( 500 );
 					// eslint-disable-next-line no-unused-expressions
 					expect( win.BeyondWords ).to.exist;
 					expect( win.BeyondWords.Player.instances() ).to.have.length(
@@ -142,7 +134,7 @@ context( 'Classic Editor: Player Content', () => {
 				} );
 
 				// Check Player content has also been saved in admin
-				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 100 );
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.get( 'select#beyondwords_player_content' )
 					.find( 'option:selected' )
 					.contains( 'Summary' );

@@ -32,7 +32,7 @@ context( 'Bulk Actions', () => {
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
-				).wait( 100 );
+				);
 
 				cy.get( 'tbody tr' )
 					.eq( 0 )
@@ -75,7 +75,7 @@ context( 'Bulk Actions', () => {
 
 				// "Bulk actions" > "Generate audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-error' ).contains(
 					'None of the selected posts had valid BeyondWords audio data.'
@@ -124,7 +124,7 @@ context( 'Bulk Actions', () => {
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-info' ).contains(
 					'Audio was requested for 3 posts.'
@@ -196,7 +196,7 @@ context( 'Bulk Actions', () => {
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-info' ).contains(
 					'Audio was requested for 1 post.'
@@ -246,7 +246,7 @@ context( 'Bulk Actions', () => {
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-info' ).contains(
 					'Audio was requested for 3 posts.'
@@ -268,7 +268,7 @@ context( 'Bulk Actions', () => {
 
 				// "Bulk actions" > "Delete audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-info' ).contains(
 					'Audio was deleted for 1 post.'
@@ -316,7 +316,7 @@ context( 'Bulk Actions', () => {
 
 				// "Bulk actions" > "Delete audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
-				cy.get( '#doaction' ).click().wait( 100 );
+				cy.get( '#doaction' ).click();
 
 				cy.get( 'div.notice.notice-info' ).contains(
 					'Audio was deleted for 2 posts.'

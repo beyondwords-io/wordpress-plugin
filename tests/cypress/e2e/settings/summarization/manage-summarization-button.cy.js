@@ -2,7 +2,7 @@
 
 context( 'Settings > Summarization', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );

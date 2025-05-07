@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Call-to-action', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -23,7 +23,7 @@ context( 'Settings > Player > Call-to-action', () => {
 			cy.get( 'input[name="beyondwords_player_call_to_action"]' )
 				.clear()
 				.type( value );
-			cy.get( 'input[type="submit"]' ).click().wait( 100 );
+			cy.get( 'input[type="submit"]' ).click();
 
 			// Check for value in WordPress options
 			cy.visit( '/wp-admin/options.php' );

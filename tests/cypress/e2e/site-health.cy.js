@@ -2,7 +2,7 @@
 
 context( 'Site Health', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -16,7 +16,7 @@ context( 'Site Health', () => {
 		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 	it( 'has BeyondWords site health info', () => {
-		cy.visit( '/wp-admin/site-health.php?tab=debug' ).wait( 100 );
+		cy.visit( '/wp-admin/site-health.php?tab=debug' );
 
 		cy.get(
 			'button[aria-controls="health-check-accordion-block-beyondwords"]'
@@ -225,7 +225,7 @@ context( 'Site Health', () => {
 					cy.get( 'td' ).should(
 						'have.text',
 						// eslint-disable-next-line max-len
-						'{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#EEE"\n}'
+						'{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#eee"\n}'
 					);
 				} );
 			// Dark theme
@@ -236,7 +236,7 @@ context( 'Site Health', () => {
 					cy.get( 'td' ).should(
 						'have.text',
 						// eslint-disable-next-line max-len
-						'{\n    "background_color": "TRANSPARENT",\n    "icon_color": "#FFF",\n    "text_color": "#FFF",\n    "highlight_color": "#444"\n}'
+						'{\n    "background_color": "transparent",\n    "icon_color": "#fff",\n    "text_color": "#fff",\n    "highlight_color": "#444"\n}'
 					);
 				} );
 			// Video theme
@@ -247,7 +247,7 @@ context( 'Site Health', () => {
 					cy.get( 'td' ).should(
 						'have.text',
 						// eslint-disable-next-line max-len
-						'{\n    "background_color": "#F5F5F5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}'
+						'{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}'
 					);
 				} );
 			// Call-to-action

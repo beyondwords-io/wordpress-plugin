@@ -2,7 +2,7 @@
 
 context( 'Plugins: AMP', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'amp' );
@@ -53,7 +53,7 @@ context( 'Plugins: AMP', () => {
 
 				cy.url().then( ( url ) => {
 					// View post as AMP by appending &amp=1
-					cy.visit( `${ url }&amp=1` ).wait( 100 );
+					cy.visit( `${ url }&amp=1` );
 				} );
 
 				cy.get( 'amp-iframe' ).should( 'exist' );

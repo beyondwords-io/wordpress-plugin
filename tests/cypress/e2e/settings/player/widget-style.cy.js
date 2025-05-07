@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Widget style', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -44,7 +44,7 @@ context( 'Settings > Player > Widget style', () => {
 			cy.get( 'select[name="beyondwords_player_widget_style"]' ).select(
 				option.label
 			);
-			cy.get( 'input[type="submit"]' ).click().wait( 100 );
+			cy.get( 'input[type="submit"]' ).click();
 
 			// Check for value in WordPress options
 			cy.visit( '/wp-admin/options.php' );

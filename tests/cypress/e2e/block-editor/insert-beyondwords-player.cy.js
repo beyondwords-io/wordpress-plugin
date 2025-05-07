@@ -2,7 +2,7 @@
 
 context( 'Block Editor: Insert BeyondWords Player', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
@@ -56,14 +56,14 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 				// Add player block
 				cy.get( '.block-editor-default-block-appender button' )
 					.click()
-					.wait( 100 );
+					.wait( 200 );
 				cy.get( '.block-editor-inserter__quick-inserter input' )
 					.type( 'bey' )
-					.wait( 100 );
+					.wait( 200 );
 				cy.get( '.block-editor-block-types-list__item-title' )
 					.contains( 'BeyondWords' )
 					.click()
-					.wait( 100 );
+					.wait( 200 );
 
 				cy.addParagraphBlock( 'After.' );
 
@@ -103,14 +103,14 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 				// Add shortcode
 				cy.get( '.block-editor-default-block-appender button' )
 					.click()
-					.wait( 100 );
+					.wait( 200 );
 				cy.get( '.block-editor-inserter__quick-inserter input' )
 					.type( 'sho' )
-					.wait( 100 );
+					.wait( 200 );
 				cy.get( '.block-editor-block-types-list__item-title' )
 					.contains( 'Shortcode' )
 					.click()
-					.wait( 100 );
+					.wait( 200 );
 				cy.get( 'body' ).type( '[beyondwords_player]' );
 
 				cy.addParagraphBlock( 'After.' );

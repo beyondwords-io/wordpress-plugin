@@ -45,9 +45,7 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.classicSetPostTitle( `Test ${ postType.name }` );
 
-				cy.contains( 'input[type="submit"]', 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
 				// "Generate Audio" is still on page
 				cy.get( 'input#beyondwords_generate_audio' );
@@ -55,7 +53,7 @@ context( 'Classic Editor: Add Post', () => {
 					'not.exist'
 				);
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'not.exist'
@@ -83,7 +81,7 @@ context( 'Classic Editor: Add Post', () => {
 					.eq( 0 )
 					.within( () => {
 						cy.contains( 'td.beyondwords.column-beyondwords', '—' );
-						cy.get( 'a.row-title' ).click().wait( 100 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
@@ -99,7 +97,7 @@ context( 'Classic Editor: Add Post', () => {
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'not.exist'
@@ -127,7 +125,7 @@ context( 'Classic Editor: Add Post', () => {
 					.eq( 0 )
 					.within( () => {
 						cy.contains( 'td.beyondwords.column-beyondwords', '—' );
-						cy.get( 'a.row-title' ).click().wait( 100 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
@@ -141,7 +139,7 @@ context( 'Classic Editor: Add Post', () => {
 				// Wait for success message
 				cy.get( '#message.notice-success' );
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'exist'
@@ -168,9 +166,7 @@ context( 'Classic Editor: Add Post', () => {
 					`I can add a ${ postType.name } with audio`
 				);
 
-				cy.contains( 'input[type="submit"]', 'Publish' )
-					.click()
-					.wait( 100 );
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
 				// "Generate Audio" is replaced by JS Player
 				cy.get( 'input#beyondwords_generate_audio' ).should(
@@ -180,7 +176,7 @@ context( 'Classic Editor: Add Post', () => {
 					'be.checked'
 				);
 
-				cy.get( '#sample-permalink' ).click().wait( 100 );
+				cy.get( '#sample-permalink' ).click();
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(
 					'exist'
@@ -254,7 +250,7 @@ context( 'Classic Editor: Add Post', () => {
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						cy.get( 'a.row-title' ).click().wait( 100 );
+						cy.get( 'a.row-title' ).click();
 					} );
 
 				cy.get( 'div[data-beyondwords-player="true"]' ).should(

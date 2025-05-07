@@ -34,7 +34,7 @@ const postTypes = require( '../../fixtures/post-types.json' );
 Cypress.Commands.overwrite(
 	'type',
 	( originalFn, subject, text, options = {} ) => {
-		options.delay = 10;
+		options.delay = 15;
 		return originalFn( subject, text, options );
 	}
 );
@@ -61,7 +61,7 @@ Cypress.Commands.add( 'login', () => {
 	const password = Cypress.env( 'wpPassword' );
 	const baseUrl = Cypress.config().baseUrl;
 
-	cy.visit( '/wp-login.php' ).wait( 400 );
+	cy.visit( '/wp-login.php' ).wait( 200 );
 
 	cy.get( '#user_login' ).clear().type( username );
 	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` ).wait( 200 );
@@ -190,7 +190,7 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 		.clear()
 		.type( Cypress.env( 'projectId' ) );
 
-	cy.get( 'input[type=submit]' ).click().wait( 200 );
+	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
 } );
 
@@ -210,7 +210,7 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 		'not.exist'
 	);
 
-	cy.get( 'input[type=submit]' ).click().wait( 200 );
+	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
 } );
 
@@ -218,11 +218,11 @@ Cypress.Commands.add( 'saveAllPluginSettings', () => {
 	cy.saveStandardPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
-	cy.get( 'input[type=submit]' ).click().wait( 200 );
+	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
-	cy.get( 'input[type=submit]' ).click().wait( 200 );
+	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
 } );
 
@@ -235,7 +235,7 @@ Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
 } );
 
 Cypress.Commands.add( 'visitPluginSiteHealth', () => {
-	cy.visit( '/wp-admin/site-health.php?tab=debug' ).wait( 100 );
+	cy.visit( '/wp-admin/site-health.php?tab=debug' );
 	cy.get(
 		'button[aria-controls="health-check-accordion-block-beyondwords"]'
 	).click();
@@ -319,7 +319,7 @@ Cypress.Commands.add( 'createBlockProgramatically', ( name, params = {} ) => {
       wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );
     ` );
 	} );
-	cy.wait( 100 );
+	cy.wait( 200 );
 } );
 
 Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
@@ -403,7 +403,7 @@ Cypress.Commands.add( 'classicSetPostTitle', ( title ) => {
  */
 Cypress.Commands.add( 'addParagraphBlock', ( text ) => {
 	cy.get( '.wp-block-post-content p:last-of-type' ).click();
-	cy.get( 'body' ).type( `${ text }{enter}` ).wait( 100 );
+	cy.get( 'body' ).type( `${ text }{enter}` ).wait( 200 );
 } );
 
 /**
@@ -420,7 +420,7 @@ Cypress.Commands.add( 'openBeyondwordsEditorPanel', () => {
 			cy.log( 'The BeyondWords editor panel is already open' );
 		} else {
 			cy.log( 'Opening the BeyondWords editor panel' );
-			cy.wrap( $el ).click().wait( 100 );
+			cy.wrap( $el ).click();
 		}
 	} );
 } );
@@ -459,7 +459,7 @@ Cypress.Commands.add( 'setPostStatus', ( status ) => {
 
 Cypress.Commands.add( 'publishWithConfirmation', () => {
 	// "Publish" in top bar
-	cy.get( '.editor-post-publish-button__button' ).click().wait( 100 );
+	cy.get( '.editor-post-publish-button__button' ).click();
 
 	// Confirm "Publish" in the Prepublish panel
 	cy.get(
@@ -483,12 +483,11 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 
 // "Save" existing post
 Cypress.Commands.add( 'savePost', () => {
-	cy.get( '.editor-post-publish-button' ).click().wait( 100 );
+	cy.get( '.editor-post-publish-button' ).click();
 } );
 
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
 	cy.get( '.components-snackbar' ).find( 'a' ).click();
-	cy.wait( 200 );
 } );
 
 // Get label element from text
