@@ -218,19 +218,21 @@ context( 'Classic Editor: Add Post', () => {
 				);
 
 				// Show Status select box
-				cy.get( '.misc-pub-post-status a.edit-post-status' ).click();
+				cy.get( '.misc-pub-post-status a.edit-post-status' )
+					.click()
+					.wait( 2000 );
 
 				// Select "Pending Review"
 				cy.get( '#post_status' ).select( 'Pending Review' );
 
 				// Click "OK"
-				cy.get( 'a.save-post-status' ).click();
+				cy.get( 'a.save-post-status' ).click().wait( 2000 );
 
 				// Wait for Permalink to be generated
 				cy.get( 'a#sample-permalink', { timeout: 20000 } );
 
 				// Click "Save as Pending" button
-				cy.get( 'input[value="Save as Pending"]' ).click();
+				cy.get( 'input[value="Save as Pending"]' ).click().wait( 2000 );
 
 				// Wait for success message
 				cy.get( 'div#message.notice-success', { timeout: 20000 } );
