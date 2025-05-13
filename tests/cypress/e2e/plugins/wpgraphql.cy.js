@@ -54,7 +54,7 @@ context( 'Plugins: WPGraphQL', () => {
 					} );
 
 				// Run the query
-				cy.get( '.execute-button' ).click();
+				cy.get( '.execute-button' ).click().wait( 1000 );
 
 				// Test the query results
 				cy.get( '.result-window > .CodeMirror' )

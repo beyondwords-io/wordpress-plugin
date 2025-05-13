@@ -93,6 +93,7 @@ context( 'Block Editor: Player Style', () => {
 			it( `can set "Large" Player style for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can set "Large" Player style for a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -101,10 +102,6 @@ context( 'Block Editor: Player Style', () => {
 
 				// Select a Player style
 				cy.getBlockEditorSelect( 'Player style' ).select( 'Large' );
-
-				cy.setPostTitle(
-					`I can set "Large" Player style for a ${ postType.name }`
-				);
 
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 
@@ -140,6 +137,7 @@ context( 'Block Editor: Player Style', () => {
 			it( `can set "Video" Player style for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can set "Video" Player style for a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -148,10 +146,6 @@ context( 'Block Editor: Player Style', () => {
 
 				// Select a Player style
 				cy.getBlockEditorSelect( 'Player style' ).select( 'Video' );
-
-				cy.setPostTitle(
-					`I can set "Video" Player style for a ${ postType.name }`
-				);
 
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 

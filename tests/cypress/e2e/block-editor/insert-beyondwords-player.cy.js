@@ -85,15 +85,12 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 			it( `can add a shortcode into a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can add a shortcode into a ${ postType.name }`,
 				} );
 
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle(
-					`I can add a shortcode into a ${ postType.name }`
-				);
 
 				cy.addParagraphBlock( 'Before.' );
 

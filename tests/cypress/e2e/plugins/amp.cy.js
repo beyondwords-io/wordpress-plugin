@@ -25,6 +25,7 @@ context( 'Plugins: AMP', () => {
 			it( `${ postType.name } shows an <amp-iframe> player for AMP requests`, () => {
 				cy.createPost( {
 					postType,
+					title: `A ${ postType.slug } has an AMP iframe player`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -32,10 +33,6 @@ context( 'Plugins: AMP', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle(
-					`A ${ postType.slug } has an AMP iframe player`
-				);
 
 				cy.publishWithConfirmation();
 

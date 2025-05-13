@@ -20,6 +20,7 @@ context( 'Block Editor: Select Voice', () => {
 			it( `can set a Voice for a ${ postType.name } if languages are selected`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can set a Voice for a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -85,10 +86,6 @@ context( 'Block Editor: Select Voice', () => {
 				// Select a Voice
 				cy.getBlockEditorSelect( 'Voice' ).select(
 					'Ava (Multilingual)'
-				);
-
-				cy.setPostTitle(
-					`I can select a custom Voice for a ${ postType.name }`
 				);
 
 				cy.checkGenerateAudio( postType );

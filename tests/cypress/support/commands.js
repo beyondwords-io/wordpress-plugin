@@ -74,11 +74,11 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 
 	cy.visitPostEditor( postType.slug );
 
-	if ( title !== '' ) {
+	if ( title ) {
+		cy.get( '.editor-post-title__input' ).type( title );
+	} else {
 		cy.get( '.editor-post-title__input' ).type(
-			`Cypress - ${ title } - ${ new Date(
-				Date.now()
-			).toLocaleDateString() }`
+			`Cypress - ${ new Date( Date.now() ).toLocaleDateString() }`
 		);
 	}
 } );
@@ -97,6 +97,12 @@ Cypress.Commands.add( 'visitPostEditor', ( postType ) => {
 					state = JSON.parse( raw );
 				} catch ( err ) {}
 			}
+
+			// Disable "Show starter patterns".
+			state.core = {
+				...( state.core || {} ),
+				enableChoosePatternModal: false,
+			};
 
 			// Close Welcome Guides.
 			state[ 'core/edit-post' ] = {
@@ -382,13 +388,6 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
 
 	cy.hasPlayerInstances( 0 );
-} );
-
-/**
- * Set post title for block editor.
- */
-Cypress.Commands.add( 'setPostTitle', ( title ) => {
-	cy.get( 'h1[contenteditable="true"]' ).clear().type( title );
 } );
 
 /**

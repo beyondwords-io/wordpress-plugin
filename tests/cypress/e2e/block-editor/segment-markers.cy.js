@@ -38,16 +38,13 @@ context( 'Block Editor: Segment markers', () => {
 			it( `A ${ postType.name } without audio should not have segment markers`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can add a ${ postType.name } without segment markers`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
 				cy.openBeyondwordsEditorPanel();
 
 				cy.uncheckGenerateAudio( postType );
-
-				cy.setPostTitle(
-					`I can add a ${ postType.name } without segment markers`
-				);
 
 				// Add paragraphs
 				cy.addParagraphBlock( 'One.' );
@@ -74,16 +71,13 @@ context( 'Block Editor: Segment markers', () => {
 			it( `can add a ${ postType.name } with segment markers`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can add a ${ postType.name } with segment markers`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle(
-					`I can add a ${ postType.name } with segment markers`
-				);
 
 				/**
 				 * Ensure the marker is persistent (it DOES NOT change while typing)
@@ -157,16 +151,13 @@ context( 'Block Editor: Segment markers', () => {
 			it( `assigns unique markers for duplicated blocks in a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I see unique markers for duplicated blocks in a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle(
-					`I see unique markers for duplicated blocks in a ${ postType.name }`
-				);
 
 				// Add paragraph
 				cy.addParagraphBlock( 'Test.' );
@@ -217,16 +208,14 @@ context( 'Block Editor: Segment markers', () => {
 			} );
 
 			it( 'assigns markers when blocks are added programatically', () => {
-				cy.createPost();
+				cy.createPost( {
+					title: `I see markers when blocks are added programatically`,
+				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle(
-					'I see markers when blocks are added programatically'
-				);
 
 				// Add paragraph
 				cy.createBlockProgramatically( 'core/paragraph', {
@@ -268,14 +257,14 @@ context( 'Block Editor: Segment markers', () => {
 
 			// So far unable to write tests for pasted content, all attempts have failed :(
 			it( 'assigns markers when content is pasted', () => {
-				cy.createPost();
+				cy.createPost( {
+					title: `I see markers for pasted content`,
+				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
 				cy.openBeyondwordsEditorPanel();
 
 				cy.checkGenerateAudio( postType );
-
-				cy.setPostTitle( 'I see markers for pasted content' );
 
 				// Click "+ block" button
 				cy.get(
@@ -314,16 +303,14 @@ context( 'Block Editor: Segment markers', () => {
 		} );
 
 	it( `makes existing duplicate segment markers unique`, () => {
-		cy.createPost();
+		cy.createPost( {
+			title: `I see existing duplicate markers are replaced with unique markers`,
+		} );
 
 		// cy.closeWelcomeToBlockEditorTips()
 		cy.openBeyondwordsEditorPanel();
 
 		cy.getBlockEditorCheckbox( 'Generate audio' ).check();
-
-		cy.setPostTitle(
-			`I see existing duplicate markers are replaced with unique markers`
-		);
 
 		// Add paragraph
 		cy.createBlockProgramatically( 'core/paragraph', {

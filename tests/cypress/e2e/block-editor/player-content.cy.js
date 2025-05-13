@@ -46,6 +46,7 @@ context( 'Block Editor: Player Content', () => {
 			it( `can set "Article" Player content for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can set "Article" Player content for a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -54,10 +55,6 @@ context( 'Block Editor: Player Content', () => {
 
 				// Select a Player content
 				cy.getBlockEditorSelect( 'Player content' ).select( 'Article' );
-
-				cy.setPostTitle(
-					`I can set "Article" Player content for a ${ postType.name }`
-				);
 
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 
@@ -93,6 +90,7 @@ context( 'Block Editor: Player Content', () => {
 			it( `can set "Summary" Player content for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
+					title: `I can set "Summary" Player content for a ${ postType.name }`,
 				} );
 
 				// cy.closeWelcomeToBlockEditorTips()
@@ -101,10 +99,6 @@ context( 'Block Editor: Player Content', () => {
 
 				// Select a Player content
 				cy.getBlockEditorSelect( 'Player content' ).select( 'Summary' );
-
-				cy.setPostTitle(
-					`I can set "Summary" Player content for a ${ postType.name }`
-				);
 
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 
