@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Player theme', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

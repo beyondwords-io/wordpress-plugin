@@ -2,7 +2,7 @@
 
 context( 'Settings > Content', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );

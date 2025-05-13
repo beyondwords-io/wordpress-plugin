@@ -34,7 +34,7 @@ const postTypes = require( '../../fixtures/post-types.json' );
 Cypress.Commands.overwrite(
 	'type',
 	( originalFn, subject, text, options = {} ) => {
-		options.delay = 15;
+		options.delay = 20;
 		return originalFn( subject, text, options );
 	}
 );
@@ -61,10 +61,10 @@ Cypress.Commands.add( 'login', () => {
 	const password = Cypress.env( 'wpPassword' );
 	const baseUrl = Cypress.config().baseUrl;
 
-	cy.visit( '/wp-login.php' ).wait( 200 );
+	cy.visit( '/wp-login.php' ).wait( 250 );
 
-	cy.get( '#user_login' ).clear().type( username );
-	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` ).wait( 200 );
+	cy.get( '#user_login' ).clear().type( username ).wait( 250 );
+	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` );
 
 	cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
 } );

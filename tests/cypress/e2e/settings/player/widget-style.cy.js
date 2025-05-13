@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Widget style', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

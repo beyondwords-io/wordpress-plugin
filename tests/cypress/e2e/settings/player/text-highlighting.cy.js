@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Text highlighting', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

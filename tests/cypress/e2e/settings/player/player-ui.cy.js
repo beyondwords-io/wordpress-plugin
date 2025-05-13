@@ -2,7 +2,7 @@
 
 context( 'Settings > Player UI', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

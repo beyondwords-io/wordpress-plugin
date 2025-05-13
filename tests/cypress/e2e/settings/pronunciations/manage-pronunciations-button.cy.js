@@ -2,7 +2,7 @@
 
 context( 'Settings > Pronunciations', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );

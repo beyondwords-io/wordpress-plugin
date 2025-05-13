@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Player colors', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

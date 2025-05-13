@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Call-to-action', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

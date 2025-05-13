@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Skip button style', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );

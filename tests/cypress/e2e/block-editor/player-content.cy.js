@@ -4,7 +4,7 @@ context( 'Block Editor: Player Content', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );

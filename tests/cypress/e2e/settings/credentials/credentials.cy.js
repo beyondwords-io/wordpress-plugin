@@ -2,7 +2,7 @@
 
 context( 'Settings > Credentials', () => {
 	beforeEach( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 	} );
 

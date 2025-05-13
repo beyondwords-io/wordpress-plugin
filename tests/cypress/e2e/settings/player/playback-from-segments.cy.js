@@ -2,7 +2,7 @@
 
 context( 'Settings > Player > Playback from segments', () => {
 	before( () => {
-		// cy.task( 'reset' );
+		cy.task( 'reset' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
