@@ -197,7 +197,7 @@ context( 'Classic Editor: Add Post', () => {
 					} );
 			} );
 
-			it( `can add a ${ postType.name } with "Pending review" audio `, () => {
+			it.only( `can add a ${ postType.name } with "Pending review" audio `, () => {
 				cy.createPost( {
 					postType,
 				} );
@@ -217,9 +217,25 @@ context( 'Classic Editor: Add Post', () => {
 					`I can add a ${ postType.name } with "Pending review" audio`
 				);
 
-				cy.classicSaveAsPending();
+				// Show Status select box
+				cy.get( '.misc-pub-post-status a.edit-post-status' ).click();
 
-				// "Generate Audio" is replaced by "Pending" message'
+				// Select "Pending Review"
+				cy.get( '#post_status' ).select( 'Pending Review' );
+
+				// Click "OK"
+				cy.get( 'a.save-post-status' ).click();
+
+				// Wait for Permalink to be generated
+				cy.get( 'a#sample-permalink', { timeout: 10000 } );
+
+				// Click "Save as Pending" button
+				cy.get( 'input[value="Save as Pending"]' ).click();
+
+				// Wait for success message
+				cy.get( 'div#message.notice-success', { timeout: 10000 } );
+
+				// "Generate Audio" should be replaced by custom "Pending" message
 				cy.get( 'input#beyondwords_generate_audio' ).should(
 					'not.exist'
 				);

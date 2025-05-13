@@ -289,29 +289,6 @@ Cypress.Commands.add( 'saveAsPending', () => {
 	cy.contains( 'button', 'Save as pending' ).click().wait( 100 );
 } );
 
-/**
- * "Save as pending" for classic editor.
- */
-Cypress.Commands.add( 'classicSaveAsPending', () => {
-	// Show Status select box
-	cy.get( '.misc-pub-post-status a.edit-post-status' ).click();
-
-	// Select "Pending Review"
-	cy.get( '#post_status' ).select( 'Pending Review' );
-
-	// Click "OK"
-	cy.get( 'a.save-post-status' ).click().wait( 2000 );
-
-	// Wait for Permalink to be generated
-	cy.get( 'a#sample-permalink' );
-
-	// Click "Save as Pending" button
-	cy.get( 'input[value="Save as Pending"]' ).click().wait( 2000 );
-
-	// Wait for success message
-	cy.get( 'div#message.notice-success' );
-} );
-
 Cypress.Commands.add( 'createBlockProgramatically', ( name, params = {} ) => {
 	cy.window().then( ( win ) => {
 		win.eval( `
