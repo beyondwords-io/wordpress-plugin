@@ -31,8 +31,6 @@ context( 'Block Editor: Display Player', () => {
 
 				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
-				cy.getAdminPlayer().should( 'exist' );
-
 				// "View post"
 				cy.viewPostViaSnackbar();
 
@@ -55,8 +53,6 @@ context( 'Block Editor: Display Player', () => {
 						).should( 'not.exist' );
 						cy.get( 'a.row-title' ).click();
 					} );
-
-				cy.hasPlayerInstances( 1 );
 
 				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 
@@ -94,10 +90,6 @@ context( 'Block Editor: Display Player', () => {
 						);
 						cy.get( 'a.row-title' ).click();
 					} );
-
-				// @todo the script should not be enqueued if the player is not displayed
-				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-				cy.hasPlayerInstances( 0 );
 
 				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 

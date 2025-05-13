@@ -76,10 +76,6 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 
 	if ( title ) {
 		cy.get( '.editor-post-title__input' ).type( title );
-	} else {
-		cy.get( '.editor-post-title__input' ).type(
-			`Cypress - ${ new Date( Date.now() ).toLocaleDateString() }`
-		);
 	}
 } );
 
