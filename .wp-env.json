@@ -1,12 +1,10 @@
 {
-    "core": "WordPress/WordPress#6.7",
+    "core": "WordPress/WordPress#6.8",
     "phpVersion": "8.4",
     "plugins": [
+        "./",
         "WP-API/Basic-Auth",
-        "./tests/fixtures/wp-content/plugins/cpt-active",
-        "./tests/fixtures/wp-content/plugins/cpt-inactive",
-        "./tests/fixtures/wp-content/plugins/cpt-unsupported",
-        "./"
+        "https://downloads.wordpress.org/plugin/wordpress-importer.zip"
     ],
     "config": {
         "AUTOMATIC_UPDATER_DISABLED": true,
@@ -19,18 +17,13 @@
     },
     "mappings": {
         "wp-content/debug.log": "./log/debug.log",
+        "wp-content/plugins": "./tests/fixtures/wp-content/plugins",
         "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
         "wp-content/plugins/classic-editor": "https://downloads.wordpress.org/plugin/classic-editor.zip",
-        "wp-content/plugins/beyondwords-filter-content-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-content-params",
-        "wp-content/plugins/beyondwords-filter-player-script-onload": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload",
-        "wp-content/plugins/beyondwords-filter-player-inline-script-tag": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag",
-        "wp-content/plugins/beyondwords-filter-player-sdk-params": "./tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params",
         "wp-content/plugins/query-monitor": "https://downloads.wordpress.org/plugin/query-monitor.zip",
         "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.zip",
-        "wp-content/plugins/rest-api-insert": "./tests/fixtures/wp-content/plugins/rest-api-insert",
-        "wp-content/plugins/rest-api-publish": "./tests/fixtures/wp-content/plugins/rest-api-publish",
-        "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip",
-        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip"
+        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip",
+        "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip"
     },
     "env": {
         "tests": {
