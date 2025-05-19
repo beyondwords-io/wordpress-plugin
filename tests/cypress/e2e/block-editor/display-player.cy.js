@@ -1,89 +1,113 @@
+/* global cy, before, beforeEach, context, it */
+
 context( 'Block Editor: Display Player', () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveStandardPluginSettings()
-  } )
+	before( () => {
+		cy.task( 'reset' );
+		cy.login();
+		cy.saveStandardPluginSettings();
+	} );
 
-  beforeEach( () => {
-    cy.login()
-  } )
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  const postTypes = require( '../../../../tests/fixtures/post-types.json' )
+	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-  // Only test priority post types
-  postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `hides and reshows the player for post type: ${postType.name}`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+	// Only test priority post types
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			it( `hides and reshows the player for post type: ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can toggle player visibility for a ${ postType.name }`,
+				} );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.openBeyondwordsEditorPanel();
 
-      cy.openBeyondwordsEditorPanel()
+				cy.checkGenerateAudio( postType );
 
-      cy.checkGenerateAudio( postType )
+				cy.publishWithConfirmation();
 
-      cy.setPostTitle( `I can toggle player visibility for a ${postType.name}` )
+				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
-      cy.publishWithConfirmation( true )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.getLabel( 'Generate audio' ).should( 'not.exist' )
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
-      cy.hasPlayerInstances( 1 )
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+				// See a [tick] in the BeyondWords column
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.get(
+							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
+						);
+						cy.get(
+							'td.beyondwords.column-beyondwords > span.beyondwords--disabled'
+						).should( 'not.exist' );
+						cy.get( 'a.row-title' ).click();
+					} );
 
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstances( 1 )
+				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 
-      cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
+				cy.getBlockEditorCheckbox( 'Display player' ).should(
+					'be.checked'
+				);
+				cy.getLabel( 'Display player' ).click();
+				cy.getBlockEditorCheckbox( 'Display player' ).should(
+					'not.be.checked'
+				);
 
-      // See a [tick] in the BeyondWords column
-      cy.get( 'tbody tr' ).eq( 0 )
-        .within( () => {
-          cy.get( 'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes' )
-          cy.get( 'td.beyondwords.column-beyondwords > span.beyondwords--disabled' ).should( 'not.exist' )
-          cy.get( 'a.row-title' ).click().wait( 500 )
-        } )
+				cy.savePost();
 
-      cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 500 )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.getBlockEditorCheckbox( 'Display player' ).should( 'be.checked' )
-      cy.getLabel( 'Display player' ).click()
-      cy.getBlockEditorCheckbox( 'Display player' ).should( 'not.be.checked' )
+				// @todo the script should not be enqueued if the player is not displayed
+				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
+				cy.hasPlayerInstances( 0 );
 
-      cy.savePost()
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
+				);
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+				// See a [tick] and "Disabled" in the BeyondWords column
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.get(
+							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
+						);
+						cy.contains(
+							'td.beyondwords.column-beyondwords > span.beyondwords--disabled',
+							'Disabled'
+						);
+						cy.get( 'a.row-title' ).click();
+					} );
 
-      // @todo the script should not be enqueued if the player is not displayed
-      // cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.hasPlayerInstances( 0 )
+				cy.contains( 'a', 'BeyondWords sidebar' ).click();
 
-      cy.visit(`/wp-admin/edit.php?post_type=${postType.slug}&orderby=date&order=desc`)
+				cy.getBlockEditorCheckbox( 'Display player' ).should(
+					'not.be.checked'
+				);
+				cy.getLabel( 'Display player' ).click();
+				cy.getBlockEditorCheckbox( 'Display player' ).should(
+					'be.checked'
+				);
 
-      // See a [tick] and "Disabled" in the BeyondWords column
-      cy.get( 'tbody tr' ).eq( 0 )
-        .within( () => {
-          cy.get( 'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes' )
-          cy.contains( 'td.beyondwords.column-beyondwords > span.beyondwords--disabled', 'Disabled' )
-          cy.get( 'a.row-title' ).click().wait( 1000 )
-        } )
+				cy.savePost();
 
-      cy.contains( 'a', 'BeyondWords sidebar' ).click().wait( 500 )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.getBlockEditorCheckbox( 'Display player' ).should( 'not.be.checked' )
-      cy.getLabel( 'Display player' ).click()
-      cy.getBlockEditorCheckbox( 'Display player' ).should( 'be.checked' )
-
-      cy.savePost()
-
-      // "View post"
-      cy.viewPostViaSnackbar()
-
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstances( 1 )
-    } )
-  } )
-} )
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
+			} );
+		} );
+} );
