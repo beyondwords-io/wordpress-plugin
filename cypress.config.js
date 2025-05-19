@@ -62,7 +62,7 @@ function setupNodeEvents( on, config ) {
 				await exec( 'wp plugin deactivate --all' );
 				await exec(
 					// eslint-disable-next-line max-len
-					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported disable-block-templates'
+					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
 				);
 			} else {
 				await exec(
@@ -74,7 +74,7 @@ function setupNodeEvents( on, config ) {
 				);
 				await exec(
 					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported disable-block-templates`
+					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
 				);
 			}
 			return null;
