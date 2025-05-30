@@ -76,8 +76,8 @@ context( 'Classic Editor: Player Content', () => {
 						1
 					);
 					expect(
-						win.BeyondWords.Player.instances()[ 0 ].loadContentAs
-					).to.deep.eq( [ 'article' ] );
+						win.BeyondWords.Player.instances()[ 0 ].summary
+					).to.eq( false );
 				} );
 
 				// Check Player content has also been saved in admin
@@ -129,8 +129,8 @@ context( 'Classic Editor: Player Content', () => {
 						1
 					);
 					expect(
-						win.BeyondWords.Player.instances()[ 0 ].loadContentAs
-					).to.deep.eq( [ 'summary' ] );
+						win.BeyondWords.Player.instances()[ 0 ].summary
+					).to.eq( true );
 				} );
 
 				// Check Player content has also been saved in admin
