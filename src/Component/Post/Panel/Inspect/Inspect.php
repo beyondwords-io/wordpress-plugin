@@ -28,7 +28,8 @@ class Inspect
     public function init()
     {
         add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
-        add_action("add_meta_boxes", array($this, 'addMetaBox'));
+        add_action('add_meta_boxes', array($this, 'addMetaBox'));
+        add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('default_hidden_meta_boxes', array($this, 'hideMetaBox'));
 
@@ -310,5 +311,50 @@ class Inspect
         }
 
         return $postId;
+    }
+
+    /**
+     * REST API init.
+     *
+     * Register REST API routes.
+     **/
+    public function restApiInit()
+    {
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[a-zA-Z0-9-_]+)/content/(?P<contentId>[a-zA-Z0-9-_]+)', array(
+            'methods'  => 'GET',
+            'callback' => array($this, 'restApiResponse'),
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ));
+    }
+
+    /**
+     * REST API response.
+     *
+     * Fetches a content object from the BeyondWords REST API.
+     *
+     * @param \WP_REST_Request $request The REST request object.
+     *
+     * @return \WP_REST_Response|\WP_Error
+     **/
+    public function restApiResponse(\WP_REST_Request $request)
+    {
+        $projectId = $request['projectId'];
+        $contentId = $request['contentId'];
+
+        // Simulated lookup – replace with authenticated API call.
+        if (! $projectId) {
+            return new \WP_Error('invalid_id', 'Invalid Project ID', ['status' => 400]);
+        }
+
+        if (! $contentId) {
+            return new \WP_Error('invalid_id', 'Invalid Content ID', ['status' => 400]);
+        }
+
+        return rest_ensure_response([
+            'projectId' => $projectId,
+            'contentId' => $contentId,
+        ]);
     }
 }

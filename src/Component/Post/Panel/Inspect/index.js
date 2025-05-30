@@ -13,6 +13,11 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
+/**
+ * Internal dependencies
+ */
+import FetchButton from './fetch';
+
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
@@ -323,7 +328,7 @@ export function PostInspectPanel( {
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
 
-			<Button
+			{/* <Button
 				variant="secondary"
 				style={ { margin: 'auto' } }
 				id="beyondwords-inspect-fetch"
@@ -333,7 +338,9 @@ export function PostInspectPanel( {
 				{ fetched
 					? __( 'Undo', 'speechkit' )
 					: __( 'Fetch', 'speechkit' ) }
-			</Button>
+			</Button> */}
+
+			<FetchButton />
 
 			<Button
 				isDestructive
