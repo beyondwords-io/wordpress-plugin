@@ -29,6 +29,7 @@ export function PostInspectPanel( {
 	beyondwordsSummaryVoiceId,
 	beyondwordsProjectId,
 	beyondwordsErrorMessage,
+	beyondwordsFetchContent,
 	// Deprecated custom fields
 	beyondwordsPodcastId,
 	publishPostToSpeechkit,
@@ -123,27 +124,6 @@ export function PostInspectPanel( {
 		( x ) => !! x?.length
 	);
 
-	function ClipboardToolbarButton( { text, disabled } ) {
-		const { createNotice } = useDispatch( noticesStore );
-		const ref = useCopyToClipboard( text, () => {
-			createNotice( 'info', __( 'Copied data to clipboard.', 'speechkit' ), {
-				isDismissible: true,
-				type: 'snackbar',
-			} );
-		} );
-
-		return (
-			<Button
-				isSecondary
-				id="beyondwords-inspect-copy"
-				ref={ ref }
-				disabled={ disabled }
-				>
-				{ __( 'Copy', 'speechkit' ) }
-			</Button>
-		);
-	}
-
 	const handleRemoveButtonClick = ( e ) => {
 		e.stopPropagation();
 
@@ -172,7 +152,7 @@ export function PostInspectPanel( {
 		}
 	};
 
-	const textToCopy =
+	const getTextToCopy = () =>
 		[
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
 			`beyondwords_project_id\r\n${ beyondwordsProjectId }`,
@@ -218,24 +198,6 @@ export function PostInspectPanel( {
 			type: 'snackbar',
 		} );
 	} );
-
-	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
-		( x ) => !! x?.length
-	);
-
-	const handleRemoveButtonClick = ( e ) => {
-		e.stopPropagation();
-
-		if ( removed ) {
-			setRemoved( false );
-			setDeleteContent( false );
-			removeWarningNotice();
-		} else {
-			setRemoved( true );
-			setDeleteContent( true );
-			createWarningNotice();
-		}
-	};
 
 	return (
 		<PanelBody
@@ -347,12 +309,7 @@ export function PostInspectPanel( {
 				label="beyondwords_fetch_content"
 				readOnly
 				value={ beyondwordsFetchContent }
-			/>
-
-			<TextControl
-				label="beyondwords_fetch_content"
-				readOnly
-				value={ beyondwordsFetchContent }
+				__nextHasNoMarginBottom
 			/>
 
 			<hr />
@@ -367,7 +324,7 @@ export function PostInspectPanel( {
 			</Button>
 
 			<Button
-				variant='secondary'
+				variant="secondary"
 				style={ { margin: 'auto' } }
 				id="beyondwords-inspect-fetch"
 				onClick={ handleFetchButtonClick }
