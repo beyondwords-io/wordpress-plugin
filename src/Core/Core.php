@@ -28,12 +28,14 @@ class Core
         // Actions for adding/updating posts
         add_action('wp_after_insert_post', array($this, 'onAddOrUpdatePost'), 99);
 
-        // Actions for deleting/trashing/restoring posts
-        add_action('before_delete_post', array($this, 'onTrashOrDeletePost'));
-        add_action('trashed_post', array($this, 'onTrashOrDeletePost'));
-        add_action('untrashed_post', array($this, 'onUntrashPost'), 10);
+        // Actions for trashing/deleting posts
+        add_action('wp_trash_post', array($this, 'onTrashPost'));
+        add_action('before_delete_post', array($this, 'onDeletePost'));
 
         add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
+
+        // Older posts may be missing beyondwords_language_code, so we'll try to set it.
+        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 3);
     }
 
     /**
@@ -200,16 +202,28 @@ class Core
             return $response;
         }
 
-        if (array_key_exists('id', $response)) {
-            // Save Project ID
+        if ($projectId && ! empty($response['id'])) {
             update_post_meta($postId, 'beyondwords_project_id', $projectId);
-
-            // Save Content ID
             update_post_meta($postId, 'beyondwords_content_id', $response['id']);
 
-            if (array_key_exists('preview_token', $response)) {
-                // Save Preview Key
+            if (! empty($response['preview_token'])) {
                 update_post_meta($postId, 'beyondwords_preview_token', $response['preview_token']);
+            }
+
+            if (! empty($response['language'])) {
+                update_post_meta($postId, 'beyondwords_language_code', $response['language']);
+            }
+
+            if (! empty($response['title_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_title_voice_id', $response['title_voice_id']);
+            }
+
+            if (! empty($response['summary_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_summary_voice_id', $response['summary_voice_id']);
+            }
+
+            if (! empty($response['body_voice_id'])) {
+                update_post_meta($postId, 'beyondwords_body_voice_id', $response['body_voice_id']);
             }
         }
 
@@ -317,88 +331,40 @@ class Core
     }
 
     /**
-     * WP Trash/Delete Post action.
+     * On trash post.
      *
-     * Fires before a post has been trashed or deleted.
+     * We attempt to send a DELETE REST API request when a post is trashed so the audio
+     * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * We want to send a DELETE HTTP request when a post is either trashed or deleted, so the
-     * audio no longer appears in playlists, or in the publishers BeyondWords dashboard.
-     *
-     * @since 3.9.0
+     * @since 3.9.0 Introduced.
+     * @since 5.4.0 Renamed from onTrashOrDeletePost, and we now remove all
+     *              BeyondWords data when a post is trashed.
      *
      * @param int $postId Post ID.
      *
      * @return bool
      **/
-    public function onTrashOrDeletePost($postId)
+    public function onTrashPost($postId)
     {
-        // Exit if this post has no Project ID / Content ID
-        if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
-            return false;
-        }
-
-        $response = ApiClient::deleteAudio($postId);
-
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === true
-        ) {
-            $errorMessage = __('Unable to delete audio from BeyondWords dashboard', 'speechkit');
-
-            if (is_array($response) && array_key_exists('message', $response)) {
-                $errorMessage .= ': ' . $response['message'];
-            }
-
-            update_post_meta($postId, 'beyondwords_error_message', $errorMessage);
-
-            return false;
-        }
-
-        return $response;
+        ApiClient::deleteAudio($postId);
+        PostMetaUtils::removeAllBeyondwordsMetadata($postId);
     }
 
     /**
-     * WP Untrash ("Restore") Post action.
+     * On delete post.
      *
-     * Fires before a post is restored from the Trash.
+     * We attempt to send a DELETE REST API request when a post is deleted so the audio
+     * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
-     * We want to send a PUT HTTP request when a post is Untrashed, to "undelete" it from the BeyondWords dashboard.
+     * @since 5.4.0 Introduced, replacing onTrashOrDeletePost.
      *
-     * @since 3.9.0
+     * @param int $postId Post ID.
      *
-     * @param int    $postId         Post ID.
-     * @param string $previousStatus The status of the post at the point where it was trashed.
-     *
-     * @return bool|Response
+     * @return bool
      **/
-    public function onUntrashPost($postId)
+    public function onDeletePost($postId)
     {
-        // Exit if this post has no Project ID / Content ID
-        if (! PostMetaUtils::getProjectId($postId) || ! PostMetaUtils::getContentId($postId)) {
-            return false;
-        }
-
-        $response = ApiClient::updateAudio($postId);
-
-        if (
-            ! is_array($response) ||
-            ! array_key_exists('id', $response) ||
-            ! array_key_exists('deleted', $response) ||
-            ! $response['deleted'] === false
-        ) {
-            $errorMessage = __('Unable to restore audio to BeyondWords dashboard', 'speechkit');
-
-            if (is_array($response) && array_key_exists('message', $response)) {
-                $errorMessage .= ': ' . $response['message'];
-            }
-
-            update_post_meta($postId, 'beyondwords_error_message', $errorMessage);
-
-            return false;
-        }
-
-        return $response;
+        ApiClient::deleteAudio($postId);
     }
 
     /**
@@ -435,5 +401,34 @@ class Core
         $this->generateAudioForPost($postId);
 
         return true;
+    }
+
+    /**
+     * Get the language code from a JSON mapping if it is empty.
+     *
+     * @since 5.4.0 Introduced.
+     *
+     * @param mixed  $value     The value of the metadata.
+     * @param int    $object_id The ID of the object metadata is for.
+     * @param string $meta_key  The key of the metadata.
+     * @param bool   $single    Whether to return a single value.
+     *
+     * @return mixed
+     */
+    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
+    {
+        if ('beyondwords_language_code' === $meta_key && empty($value)) {
+            $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);
+
+            if ($languageId) {
+                $langCodes = json_decode(file_get_contents(BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json'), true);
+
+                if (is_array($langCodes) && array_key_exists($languageId, $langCodes)) {
+                    return [$langCodes[$languageId]];
+                }
+            }
+        }
+
+        return $value;
     }
 }

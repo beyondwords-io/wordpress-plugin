@@ -335,6 +335,12 @@ class PostContentUtils
             $body['published'] = true;
         }
 
+        $languageCode = get_post_meta($postId, 'beyondwords_language_code', true);
+
+        if ($languageCode) {
+            $body['language'] = $languageCode;
+        }
+
         $bodyVoiceId = intval(get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         if ($bodyVoiceId > 0) {
@@ -345,6 +351,12 @@ class PostContentUtils
 
         if ($titleVoiceId > 0) {
             $body['title_voice_id'] = $titleVoiceId;
+        }
+
+        $summaryVoiceId = intval(get_post_meta($postId, 'beyondwords_summary_voice_id', true));
+
+        if ($summaryVoiceId > 0) {
+            $body['summary_voice_id'] = $summaryVoiceId;
         }
 
         /**

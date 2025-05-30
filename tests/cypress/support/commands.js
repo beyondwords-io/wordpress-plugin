@@ -63,8 +63,8 @@ Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
   cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' )
-  cy.get( '.nav-tab' ).contains( 'Advanced' ).should( 'not.exist' )
 } )
 
 Cypress.Commands.add( 'showsAllSettingsTabs', () => {
@@ -72,8 +72,8 @@ Cypress.Commands.add( 'showsAllSettingsTabs', () => {
   cy.get( '.nav-tab' ).contains( 'Content' )
   cy.get( '.nav-tab' ).contains( 'Voices' )
   cy.get( '.nav-tab' ).contains( 'Player' )
+  cy.get( '.nav-tab' ).contains( 'Summarization' )
   cy.get( '.nav-tab' ).contains( 'Pronunciations' )
-  cy.get( '.nav-tab' ).contains( 'Advanced' )
 } )
 
 Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
@@ -129,17 +129,6 @@ Cypress.Commands.add( 'saveAllPluginSettings', () => {
   cy.get( '.notice-success' )
 
   cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-  cy.get( 'input[type=submit]' ).click().wait( 2000 )
-  cy.get( '.notice-success' )
-} )
-
-Cypress.Commands.add( 'setLanguagesInPluginSettings', () => {
-  cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=advanced' )
-
-  cy.get('#beyondwords_languages-ts-control').click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 1' ).click().wait( 1000 )
-  cy.contains('#beyondwords_languages-ts-dropdown .option', 'Language 2' ).click().wait( 1000 )
-
   cy.get( 'input[type=submit]' ).click().wait( 2000 )
   cy.get( '.notice-success' )
 } )
@@ -213,10 +202,13 @@ Cypress.Commands.add( 'classicSaveAsPending', () => {
   cy.get( '#post_status' ).select( 'Pending Review' )
 
   // Click "OK"
-  cy.get( 'a.save-post-status' ).click().wait( 500 )
+  cy.get( 'a.save-post-status' ).click().wait( 1000 )
+
+  // Wait for Permalink to be generated
+  cy.get( 'a#sample-permalink' )
 
   // Click "Save as Pending" button
-  cy.get( 'input[value="Save as Pending"]' ).click()
+  cy.get( 'input[value="Save as Pending"]' ).click().wait( 1000 )
 
   // Wait for success message
   cy.get( 'div#message.notice-success' )
@@ -289,7 +281,7 @@ Cypress.Commands.add( 'createPostWithAudio', ( title, postType ) => {
 
   cy.publishWithConfirmation( true )
 
-  cy.getAdminPlayer().should( 'exist' )
+  cy.hasPlayerInstances( 1 )
 } )
 
 Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
@@ -310,7 +302,7 @@ Cypress.Commands.add( 'createPostWithoutAudio', ( title, postType ) => {
   cy.publishWithConfirmation( true )
 
   cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' )
-  cy.getAdminPlayer().should( 'not.exist' )
+  cy.hasPlayerInstances( 0 )
 } )
 
 /**
@@ -420,32 +412,44 @@ Cypress.Commands.add( 'getLabel', ( text,  ...args ) => {
   return cy.get( 'label',  ...args ).contains( text )
 } )
 
-// Get admin audio player element
-Cypress.Commands.add( 'getAdminPlayer', ( ...args ) => {
-  cy.openBeyondwordsEditorPanel();
+// Check for a number of player instances.
+Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
+	cy.window( { timeout: 10000 } ).should( ( win ) => {
+		if ( ! win.BeyondWords ) {
+			throw new Error(
+				'BeyondWords is not available on the window object.'
+			);
+		}
 
-  return cy.get( '.beyondwords-player .user-interface',  ...args )
-} )
+		if (
+			! win.BeyondWords.Player ||
+			typeof win.BeyondWords.Player.instances !== 'function'
+		) {
+			throw new Error(
+				'BeyondWords.Player.instances is not a function.'
+			);
+		}
 
-// Get frontend audio player element (standard)
-Cypress.Commands.add( 'getFrontendPlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface',  ...args )
-} )
+		const instances = win.BeyondWords.Player.instances();
 
-// Get frontend small player element
-Cypress.Commands.add( 'getFrontendSmallPlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.small',  ...args )
-} )
+		if ( instances.length !== num ) {
+			throw new Error(
+				`Expected ${ num } player instance(s), but found ${ instances.length }.`
+			);
+		}
+	} );
+} );
 
-// Get frontend large player element
-Cypress.Commands.add( 'getFrontendLargePlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.large',  ...args )
-} )
-
-// Get frontend video player element
-Cypress.Commands.add( 'getFrontendVideoPlayer', ( ...args ) => {
-  return cy.get( '.beyondwords-player .user-interface.video',  ...args )
-} )
+// Check for no Beyondwords Player object.
+Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
+	cy.window( { timeout: 4000 } ).should( ( win ) => {
+		if ( 'BeyondWords' in win ) {
+			throw new Error(
+				'Expected window.BeyondWords to be undefined, but it exists.'
+			);
+		}
+	} );
+} );
 
 // Get frontend audio player element (standard)
 Cypress.Commands.add( 'getEnqueuedPlayerScriptTag', ( ...args ) => {

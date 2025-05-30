@@ -119,15 +119,8 @@ class SiteHealth
         $this->addContentSettings($info);
         $this->addProjectSettings($info);
         $this->addPlayerSettings($info);
-
-        $languages = get_option('beyondwords_languages');
-
-        $info['beyondwords']['fields']['beyondwords_languages'] = [
-            'label' => __('Multiple languages', 'speechkit'),
-            'value' => ! empty($languages) ? wp_json_encode($languages, JSON_PRETTY_PRINT) : '', // phpcs:ignore Generic.Files.LineLength.TooLong
-        ];
-
         $this->addFilters($info);
+        $this->addNoticeSettings($info);
 
         $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
@@ -323,6 +316,7 @@ class SiteHealth
      * Adds debugging data for the BeyondWords REST API connection.
      *
      * @since 3.7.0
+     * @since 5.2.2 Remove sslverify param for REST API calls.
      *
      * @param array  $info Debugging info array
      *
@@ -342,7 +336,6 @@ class SiteHealth
             'blocking'    => true,
             'body'        => '',
             'method'      => 'GET',
-            'sslverify'   => true,
         ]);
 
         if (! is_wp_error($response)) {
@@ -394,6 +387,28 @@ class SiteHealth
     }
 
     /**
+     * Add notice settings to the info debugging array.
+     *
+     * @since 5.4.0
+     *
+     * @param array $info Debugging info array
+     *
+     * @return array
+     */
+    public function addNoticeSettings(&$info)
+    {
+        $info['beyondwords']['fields']['beyondwords_date_activated'] = [
+            'label' => __('Date Activated', 'speechkit'),
+            'value' => get_option('beyondwords_date_activated', ''),
+        ];
+
+        $info['beyondwords']['fields']['beyondwords_notice_review_dismissed'] = [
+            'label' => __('Review Notice Dismissed', 'speechkit'),
+            'value' => get_option('beyondwords_notice_review_dismissed', ''),
+        ];
+    }
+
+    /**
      * Add a single constant to the debugging info array.
      *
      * @since 3.7.0
@@ -419,7 +434,7 @@ class SiteHealth
 
         $info['beyondwords']['fields'][$name] = [
             'label' => $name,
-            'value' => $value, 
+            'value' => $value,
             'debug' => $value,
         ];
     }

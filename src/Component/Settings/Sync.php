@@ -47,7 +47,6 @@ class Sync
         // Project
         'beyondwords_project_auto_publish_enabled'      => '[project][auto_publish_enabled]',
         'beyondwords_project_language_code'             => '[project][language]',
-        'beyondwords_project_language_id'               => '[project][language_id]',
         'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
         'beyondwords_project_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
         'beyondwords_project_title_enabled'             => '[project][title][enabled]',
@@ -103,32 +102,38 @@ class Sync
      */
     public function scheduleSyncs()
     {
-        $tab = Settings::getActiveTab();
+        $tab       = Settings::getActiveTab();
+        $endpoints = [];
 
         switch ($tab) {
             case 'content':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
+                $endpoints = ['project'];
                 break;
             case 'voices':
-                set_transient('beyondwords_sync_to_wordpress', ['project'], 60);
+                $endpoints = ['project'];
                 break;
             case 'player':
-                set_transient('beyondwords_sync_to_wordpress', ['player_settings', 'video_settings'], 60);
+                $endpoints = ['player_settings', 'video_settings'];
                 break;
+        }
+
+        if (count($endpoints)) {
+            wp_cache_set('beyondwords_sync_to_wordpress', $endpoints, 'beyondwords', 60);
         }
     }
 
     /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
-     * @since 5.0.0
+     * @since 5.0.0 Introduced.
+     * @since 5.4.0 Stop saving language ID – we only need the ISO code now.
      *
      * @return void
      **/
     public function syncToWordPress()
     {
-        $sync_to_wordpress = get_transient('beyondwords_sync_to_wordpress');
-        delete_transient('beyondwords_sync_to_wordpress');
+        $sync_to_wordpress = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
+        wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
 
         if (empty($sync_to_wordpress) || ! is_array($sync_to_wordpress)) {
             return;
@@ -141,9 +146,6 @@ class Sync
             if (! empty($project)) {
                 $responses['project'] = $project;
             }
-
-            // Add the language ID to the project settings response.
-            $this->setLanguageId($responses);
         }
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'player_settings']))) {
@@ -206,8 +208,8 @@ class Sync
      **/
     public function syncToDashboard()
     {
-        $options = get_transient('beyondwords_sync_to_dashboard');
-        delete_transient('beyondwords_sync_to_dashboard');
+        $options = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        wp_cache_delete('beyondwords_sync_to_dashboard', 'beyondwords');
 
         if (empty($options) || ! is_array($options)) {
             return;
@@ -309,7 +311,7 @@ class Sync
      **/
     public function shouldSyncOptionToDashboard($option_name)
     {
-        if (empty(self::MAP_SETTINGS[$option_name])) {
+        if (! array_key_exists($option_name, self::MAP_SETTINGS)) {
             return false;
         }
 
@@ -332,7 +334,7 @@ class Sync
      **/
     public static function syncOptionToDashboard($optionName)
     {
-        $options = get_transient('beyondwords_sync_to_dashboard');
+        $options = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
 
         if (! is_array($options)) {
             $options = [];
@@ -341,42 +343,6 @@ class Sync
         $options[] = $optionName;
         $options   = array_unique($options);
 
-        set_transient('beyondwords_sync_to_dashboard', $options, 30); // 30 seconds.
-    }
-
-    /**
-     * Set the language ID in the project settings.
-     *
-     * In the REST API query we receive the language code but we need a numeric
-     * ID so we make a API call to get the ID and add it to the settings.
-     *
-     * @since 5.0.0
-     *
-     * @param array $settings Project settings.
-     *
-     * @return void
-     **/
-    public function setLanguageId(&$settings)
-    {
-        $language_code = $this->propertyAccessor->getValue($settings, '[project][language]');
-
-        if (null === $language_code) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', '');
-        }
-
-        $language  = false;
-        $languages = ApiClient::getLanguages();
-
-        if (is_array($languages)) {
-            $language = array_column(
-                $languages,
-                null,
-                'code'
-            )[$language_code] ?? false;
-        }
-
-        if (is_array($language) && array_key_exists('id', $language)) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', $language['id']);
-        }
+        wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 60);
     }
 }

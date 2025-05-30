@@ -71,14 +71,6 @@ class Pronunciations
             );
             ?>
         </p>
-        <!-- <p class="description">
-            <?php
-            esc_html_e(
-                'Go to the Settings section in your project, select the Rules tab, here you can see a list of rules, create new ones, update or delete existing ones.', // phpcs:ignore Generic.Files.LineLength.TooLong
-                'speechkit'
-            );
-            ?>
-        </p> -->
         <p class="description">
             <a href="<?php echo esc_url($rulesUrl); ?>" target="_blank" class="button button-primary">
                 <?php esc_html_e('Manage pronunciations', 'speechkit'); ?>

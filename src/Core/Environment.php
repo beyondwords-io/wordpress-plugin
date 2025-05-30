@@ -64,10 +64,11 @@ class Environment
      *
      * Override with BEYONDWORDS_AMP_IMG_URL in wp-config.php.
      *
-     * @since  3.0.0
+     * @since  3.0.0 Introduced
+     * @since  5.3.0 Update asset URL to Azure Storage
      * @var    string
      */
-    public const BEYONDWORDS_AMP_IMG_URL = 'https://s3-eu-west-1.amazonaws.com/beyondwords-assets/logo.svg';
+    public const BEYONDWORDS_AMP_IMG_URL = 'https://beyondwords-cdn-b7fyckdeejejb6dj.a03.azurefd.net/assets/logo.svg';
 
     /**
      * The BeyondWords dashboard URL.

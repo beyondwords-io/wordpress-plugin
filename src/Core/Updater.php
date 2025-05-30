@@ -23,13 +23,14 @@ class Updater
      * Run
      *
      * @since 4.0.0
+     * @since 5.4.0 Add beyondwords_date_activated option.
      */
     public function run()
     {
         $version = get_option('beyondwords_version', '1.0.0');
 
         if (version_compare($version, '5.0.0', '<') && get_option('beyondwords_api_key')) {
-            set_transient('beyondwords_sync_to_wordpress', ['all'], 60);
+            wp_cache_set('beyondwords_sync_to_wordpress', ['all'], 'beyondwords', 60);
         }
 
         if (version_compare($version, '3.0.0', '<')) {
@@ -39,6 +40,9 @@ class Updater
         if (version_compare($version, '3.7.0', '<')) {
             $this->renamePluginSettings();
         }
+
+        // Record the date activated so we can track how long users have been using the plugin.
+        add_option('beyondwords_date_activated', gmdate(\DateTime::ATOM), '', false);
 
         // Always update the plugin version, to handle e.g. FTP plugin updates
         update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);

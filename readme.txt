@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.2.0
+Stable tag: 5.4.0
 Requires PHP: 8.0
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -79,6 +79,97 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.4.0 =
+
+Release date: 22nd April 2025
+
+**Fixes:**
+
+* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Article language support in WordPress.
+    * Each `POST` and `PUT` request to the BeyondWords REST API now includes the article language.
+    * This update ensures compatibility with recent REST API changes and improves support for multilingual websites.
+* [#432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and all associated BeyondWords post meta data (e.g. the content ID) is also deleted.
+    * This resolves REST API error messages caused by `DELETE` requests for content that no longer exists.
+    * After this update you will need to regenerate audio again if you restore posts from the trash.
+
+**Enhancements and Features:**
+
+* Tested up to WordPress 6.8.
+* [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
+    * A new notice prompts you to review our plugin on the WordPress Plugin Directory.
+    * The notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) .
+    * The message is permanently dismissed once you close it or follow the link to leave a review.
+* [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
+
+= 5.3.1 =
+
+Release date: 11th February 2025
+
+**Fixes:**
+
+* Replace `esc_js` with `esc_attr` for the player `onload` attribute.
+    * Fixes a reported issue where UTF-8 characters in the *Call to Action* setting were not being output correctly.
+
+= 5.3.0 =
+
+Release date: 3rd February 2025
+
+**Enhancements and Features:**
+
+* [426](https://github.com/beyondwords-io/wordpress-plugin/pull/426) Add support for article summarisation.
+    * A new "Player Content" field has been added to the post edit screens for both the Block Editor and Classic Editor.
+        * Selecting "Summary" in the BeyondWords side panel loads the summarised audio into the player.
+        * The default value, "Article," continues to load the full article content.
+    * To use this feature, ensure that summarisation is included in your plan and enabled in your BeyondWords dashboard.
+* [429](https://github.com/beyondwords-io/wordpress-plugin/pull/429) Add Summarization tab in plugin settings.
+    * Adds a link to manage summarization settings for your project, including the summarization voice.
+
+**Fixes**
+
+* Prioritise post-specific player settings.
+    * It was previously possible for the plugin settings in the "Player" tab to overwrite any post-specific settings such as the player style.
+    * The priority has now been corrected so any post-specific settings will overwrite the plugin settings.
+* Fix Clipboard.js error.
+    * Replace Clipboard.js script with the WordPress core version to address a console error in the block editor.
+* [425](https://github.com/beyondwords-io/wordpress-plugin/pull/425) Update asset URL to Azure Storage.
+    * The AMP logo image has been moved from AWS S3 to Azure Storage.
+
+**Codebase Enhancements**
+
+* Refactor React code for the player.
+    * Updated the block editor player embed script to align with React players we use in other BeyondWords projects.
+    * This included removing the `react-script-tag` dependency.
+* Added the `__nextHasNoMarginBottom` property to various components.
+    * `__nextHasNoMarginBottom` has been set in various places to address a console warning from WordPress core.
+* Updated dependencies.
+    * Updated several dependencies including `@mockoon/cli`, `@wordpress/env`, `@wordpress/eslint-plugin`, `@wordpress/scripts`, and `uuid`.
+    * Removed unused dependencies.
+
+= 5.2.2 =
+
+Release date: 10th December 2024
+
+**Fixes**
+
+* [423](https://github.com/beyondwords-io/wordpress-plugin/pull/423) Optimise WordPress HTTP calls to BeyondWords REST API.
+    * Increase the WordPress default `timeout` param from `5` to `30`. This is to address a reported issue where REST API calls are sometimes timing out in WordPress/PHP before the REST API is able to respond.
+    * Also removed the `sslverify` param for API calls. This is no longer recommended.
+
+= 5.2.1 =
+
+Release date: 28th November 2024
+
+**Fixes**
+
+* [#421](https://github.com/beyondwords-io/wordpress-plugin/pull/421) Update WordPress GET voice queries to use scopes.
+    * Fixes the issue where multilingual voices were not being shown in voices dropdown menus.
+* [#417](https://github.com/beyondwords-io/wordpress-plugin/pull/417) Improve handling of failed REST API requests when syncing settings.
+    * Add HTTP status code into failed API credentials validation message to improve debugging for empty response body.
+    * Fix the undefined index errors that are logged when REST API responses do not contain the expected structure.
+    * Replace transients with object cache to reduce db writes.
+    * Add Query Monitor plugin to wp-env local dev config to help with debugging.
 
 = 5.2.0 =
 

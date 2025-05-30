@@ -76,7 +76,15 @@ context( 'Classic Editor: Player Style', () => {
 
       // Check Player has large player in frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendLargePlayer().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
+
+      // window.BeyondWords should contain 1 player instance
+      cy.window().then( win => {
+        cy.wait( 2000 )
+        expect( win.BeyondWords ).to.not.be.undefined;
+        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
+        expect( win.BeyondWords.Player.instances()[0].playerStyle ).to.eq( 'large' );
+      } );
 
       // Check Player style has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
@@ -105,7 +113,15 @@ context( 'Classic Editor: Player Style', () => {
 
       // Check Player has video player in frontend
       cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendVideoPlayer().should( 'exist' )
+      cy.hasPlayerInstances( 1 )
+
+      // window.BeyondWords should contain 1 player instance
+      cy.window().then( win => {
+        cy.wait( 2000 )
+        expect( win.BeyondWords ).to.not.be.undefined;
+        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
+        expect( win.BeyondWords.Player.instances()[0].playerStyle ).to.eq( 'video' );
+      } );
 
       // Check Player style has also been saved in admin
       cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )

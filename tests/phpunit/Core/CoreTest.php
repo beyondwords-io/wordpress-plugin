@@ -30,20 +30,13 @@ class CoreTest extends WP_UnitTestCase
         $core = new Core();
         $core->init();
 
-        // Actions
         $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array($core, 'enqueueBlockEditorAssets')));
         $this->assertEquals(10, has_action('init', array($core, 'loadPluginTextdomain')));
         $this->assertEquals(99, has_action('init', array($core, 'registerMeta')));
-
-        // Actions for adding/updating posts
         $this->assertEquals(99, has_action('wp_after_insert_post', array($core, 'onAddOrUpdatePost')));
-
-        // Actions for deleting/trashing/restoring posts
-        $this->assertEquals(10, has_action('before_delete_post', array($core, 'onTrashOrDeletePost')));
-        $this->assertEquals(10, has_action('trashed_post', array($core, 'onTrashOrDeletePost')));
-        $this->assertEquals(10, has_action('untrashed_post', array($core, 'onUntrashPost')));
-
+        $this->assertEquals(10, has_action('before_delete_post', array($core, 'onDeletePost')));
         $this->assertEquals(10, has_action('is_protected_meta', array($core, 'isProtectedMeta')));
+        $this->assertEquals(10, has_action('get_post_metadata', array($core, 'getLangCodeFromJsonIfEmpty')));
     }
 
     /**
@@ -190,37 +183,6 @@ class CoreTest extends WP_UnitTestCase
         ];
     }
 
-    public function deleteResponse()
-    {
-        return [
-            'delete response' => [
-                [
-                    'id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                    'external_id' => 42,
-                    'state' => 'unprocessed',
-                    'media' => [],
-                    'image_url' => '',
-                    'deleted' => true,
-                    'access_key' => 'abcd9969abcd9969abcd9969abcd9969',
-                    'metadata' => [],
-                ]
-            ],
-        ];
-    }
-
-    public function notFoundResponse()
-    {
-        return [
-            'Not found response' => [
-                [
-                    'type' => 'application_error',
-                    'message' => 'Record not found',
-                    'context' => new StdClass(),
-                ]
-            ],
-        ];
-    }
-
     /**
      * @test
      */
@@ -323,18 +285,14 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
-     * @dataProvider deleteResponse
      */
-    public function onTrashOrDeletePost($expectedResponse)
+    public function onDeletePost()
     {
-        $this->markTestIncomplete();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePost',
+            'post_title' => 'CoreTest::onDeletePost',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -342,16 +300,13 @@ class CoreTest extends WP_UnitTestCase
         ]);
 
         $core = new Core();
+        $core->onDeletePost($postId);
 
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
+        wp_delete_post($postId);
 
         $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -359,18 +314,11 @@ class CoreTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
-     * @dataProvider successResponse
      */
-    public function onTrashOrDeletePostHandlesInvalidResponse($expectedResponse)
+    public function onTrashPost()
     {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
         $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePostHandlesInvalidResponse',
+            'post_title' => 'CoreTest::onTrashPost',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -378,136 +326,16 @@ class CoreTest extends WP_UnitTestCase
         ]);
 
         $core = new Core();
+        $core->onTrashPost($postId);
 
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
+        wp_trash_post($postId);
 
-        $this->assertSame('Unable to delete audio from BeyondWords dashboard', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider notFoundResponse
-     */
-    public function onTrashOrDeletePostWithoutBeyondwordsData($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onTrashOrDeletePostWithoutBeyondwordsData',
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onTrashOrDeletePost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider successResponse
-     */
-    public function onUntrashPost($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::untrashingPostWillUpdateAudio',
-            'post_status' => 'trash',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider deleteResponse
-     */
-    public function onUntrashPostHandlesInvalidResponse($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::untrashingPostHandlesInvalidResponse',
-            'post_status' => 'trash',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('Unable to restore audio to BeyondWords dashboard', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     * @group trash
-     * @dataProvider notFoundResponse
-     */
-    public function onUntrashPostWithoutBeyondwordsData($expectedResponse)
-    {
-        $this->markTestIncomplete();
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'CoreTest::onUntrashPostWithoutBeyondwordsData',
-            'post_status' => 'trash',
-        ]);
-
-        $core = new Core();
-
-        $response = $core->onUntrashPost($postId, 'publish');
-
-        $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
-
-        // Cleanup test data without affecting the expects($this->once())
-        $this->removeDeleteActions($core);
-        wp_delete_post($postId, true);
     }
 
     /**
@@ -612,7 +440,7 @@ class CoreTest extends WP_UnitTestCase
      * @test
      * @dataProvider processResponseProvider
      */
-    public function processResponse($response, $expectProjectId, $expectContentId) {
+    public function processResponse($response, $projectId, $contentId, $language, $summaryVoiceId, $titleVoiceId, $bodyVoiceId) {
         $core = new Core();
 
         $postId = self::factory()->post->create([
@@ -621,8 +449,12 @@ class CoreTest extends WP_UnitTestCase
 
         $core->processResponse($response, BEYONDWORDS_TESTS_PROJECT_ID, $postId);
 
-        $this->assertSame($expectProjectId, get_post_meta($postId, 'beyondwords_project_id', true));
-        $this->assertSame($expectContentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
+        $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
+        $this->assertSame($summaryVoiceId, get_post_meta($postId, 'beyondwords_summary_voice_id', true));
+        $this->assertSame($titleVoiceId, get_post_meta($postId, 'beyondwords_title_voice_id', true));
+        $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         wp_delete_post($postId, true);
     }
@@ -630,14 +462,28 @@ class CoreTest extends WP_UnitTestCase
     public function processResponseProvider() {
         return [
             'Response includes Content ID' => [
-                'response' => ['id' => BEYONDWORDS_TESTS_CONTENT_ID],
-                'expectProjectId' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'expectContentId' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'response' => [
+                    'id'               => BEYONDWORDS_TESTS_CONTENT_ID,
+                    'language'         => 'en_US',
+                    'summary_voice_id' => '3555',
+                    'title_voice_id'   => '2517',
+                    'body_voice_id'    => '3558',
+                ],
+                'projectId'      => BEYONDWORDS_TESTS_PROJECT_ID,
+                'contentId'      => BEYONDWORDS_TESTS_CONTENT_ID,
+                'language'       => 'en_US',
+                'summaryVoiceId' => '3555',
+                'titleVoiceId'   => '2517',
+                'bodyVoiceId'    => '3558',
             ],
             'Response is not an array' => [
-                'response' => new StdClass(),
-                'expectProjectId' => '',
-                'expectContentId' => '',
+                'response'       => new StdClass(),
+                'projectId'      => '',
+                'contentId'      => '',
+                'language'       => '',
+                'summaryVoiceId' => '',
+                'titleVoiceId'   => '',
+                'bodyVoiceId'    => '',
             ],
         ];
     }
@@ -720,8 +566,55 @@ class CoreTest extends WP_UnitTestCase
 
     function removeDeleteActions($core) {
         // Actions for deleting/trashing/restoring posts
-        remove_action('before_delete_post', array($core, 'onTrashOrDeletePost'));
-        remove_action('trashed_post', array($core, 'onTrashOrDeletePost'));
-        remove_action('untrashed_post', array($core, 'onUntrashPost'), 10, 2);
+        remove_action('before_delete_post', array($core, 'onDeletePost'));
+    }
+
+    /**
+     * @test
+     * @dataProvider langCodes
+     */
+    public function getLangCodeFromJsonIfEmpty($language_id, $language_code) {
+        $core = new Core();
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::getLangCodeFromJsonIfEmpty',
+            'meta_input' => [
+                'beyondwords_language_id' => $language_id,
+            ],
+        ]);
+
+        $this->assertSame('foo', $core->getLangCodeFromJsonIfEmpty('foo', $postId, 'beyondwords_language_foo', true));
+        $this->assertSame('bar', $core->getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_code', true));
+        $this->assertSame(["$language_code"], $core->getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
+    }
+
+    public function langCodes()
+    {
+        return [
+            'en_GB' => [
+                'language_id' => "50",
+                'language_code' => "en_GB",
+            ],
+            'en_US' => [
+                'language_id' => "58",
+                'language_code' => "en_US",
+            ],
+            'ar_SA' => [
+                'language_id' => "10",
+                'language_code' => "ar_SA",
+            ],
+            'zh_CN_shandong' => [
+                'language_id' => "273",
+                'language_code' => "zh_CN_shandong",
+            ],
+            'zh_CN_liaoning' => [
+                'language_id' => "269",
+                'language_code' => "zh_CN_liaoning",
+            ],
+            'zh_TW' => [
+                'language_id' => "234",
+                'language_code' => "zh_TW",
+            ],
+        ];
     }
 }

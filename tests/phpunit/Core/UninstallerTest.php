@@ -42,6 +42,8 @@ class UninstallerTest extends WP_UnitTestCase
     public function optionNamesProvider()
     {
         return [
+            // v5.3 player content (loadContentAs)
+            'beyondwords_player_content' => ['beyondwords_player_content'],
             // v5.0 player settings
             'beyondwords_player_call_to_action'     => ['beyondwords_player_call_to_action'],
             'beyondwords_player_clickable_sections' => ['beyondwords_player_clickable_sections'],

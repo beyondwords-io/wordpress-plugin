@@ -14,11 +14,11 @@ namespace Beyondwords\Wordpress\Component\Settings;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
-use Beyondwords\Wordpress\Component\Settings\Tabs\Advanced\Advanced;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
+use Beyondwords\Wordpress\Component\Settings\Tabs\Summarization\Summarization;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Component\Settings\Sync;
@@ -33,8 +33,13 @@ use Beyondwords\Wordpress\Core\Environment;
  */
 class Settings
 {
+    public const REVIEW_NOTICE_TIME_FORMAT = '-14 days';
+
     /**
      * Init
+     *
+     * @since 3.0.0 Introduced.
+     * @since 5.4.0 Add plugin review notice.
      */
     public function init()
     {
@@ -45,15 +50,16 @@ class Settings
             (new Voices())->init();
             (new Content())->init();
             (new Player())->init();
+            (new Summarization())->init();
             (new Pronunciations())->init();
-            (new Advanced())->init();
         }
 
         add_action('admin_menu', array($this, 'addOptionsPage'), 1);
         add_action('admin_notices', array($this, 'printMissingApiCredsWarning'), 100);
         add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
+        add_action('admin_notices', array($this, 'maybePrintPluginReviewNotice'));
         add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
-        add_action('load-settings_page_beyondwords', array($this, 'validateApiCreds'));
+        add_action('load-settings_page_beyondwords', array($this, 'maybeValidateApiCreds'));
 
         add_action('rest_api_init', array($this, 'restApiInit'));
 
@@ -80,11 +86,13 @@ class Settings
     }
 
     /**
-     * Validate API creds on admin init.
+     * Validate API creds if we are on the credentials tab.
      *
-     * @since 5.2.0
+     * @since 5.4.0
+     *
+     * @return void
      */
-    public function validateApiCreds()
+    public function maybeValidateApiCreds()
     {
         $activeTab = self::getActiveTab();
 
@@ -94,8 +102,12 @@ class Settings
     }
 
     /**
+     * Prints the admin interface for plugin settings.
+     *
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
+     *
+     * @return void
      */
     public function createAdminInterface()
     {
@@ -143,8 +155,8 @@ class Settings
                 settings_fields("beyondwords_{$activeTab}_settings");
                 do_settings_sections("beyondwords_{$activeTab}");
 
-                // Pronunciations currently has no fields to submit
-                if ($activeTab !== 'pronunciations') {
+                // Some tabs have no fields to submit
+                if (! in_array($activeTab, ['summarization', 'pronunciations'])) {
                     submit_button('Save changes');
                 }
                 ?>
@@ -185,8 +197,8 @@ class Settings
             'content'        => __('Content', 'speechkit'),
             'voices'         => __('Voices', 'speechkit'),
             'player'         => __('Player', 'speechkit'),
+            'summarization'  => __('Summarization', 'speechkit'),
             'pronunciations' => __('Pronunciations', 'speechkit'),
-            'advanced'       => __('Advanced', 'speechkit'),
         );
 
         if (! SettingsUtils::hasValidApiConnection()) {
@@ -276,6 +288,56 @@ class Settings
     }
 
     /**
+     * Maybe print plugin review notice.
+     *
+     * @since 5.4.0
+     *
+     * @return void
+     */
+    public function maybePrintPluginReviewNotice()
+    {
+        $screen = get_current_screen();
+        if ($screen && 'settings_page_beyondwords' !== $screen->id) {
+            return;
+        }
+
+        $dateActivated       = get_option('beyondwords_date_activated', '2025-03-01');
+        $dateNoticeDismissed = get_option('beyondwords_notice_review_dismissed', '');
+
+        $showNotice = false;
+
+        if (empty($dateNoticeDismissed)) {
+            $dateActivated = strtotime($dateActivated);
+
+            if ($dateActivated < strtotime(self::REVIEW_NOTICE_TIME_FORMAT)) {
+                $showNotice = true;
+            }
+        }
+
+        if ($showNotice) :
+            ?>
+            <div id="beyondwords_notice_review" class="notice notice-info is-dismissible">
+                <p>
+                    <strong>
+                        <?php
+                        printf(
+                            /* translators: %s is replaced with a "WordPress Plugin Repo" link */
+                            esc_html__('Happy with our work? Help us spread the word with a rating on the %s.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                            sprintf(
+                                '<a href="%s">%s</a>',
+                                'https://wordpress.org/support/plugin/speechkit/reviews/',
+                                esc_html__('WordPress Plugin Repo', 'speechkit')
+                            )
+                        );
+                        ?>
+                    </strong>
+                </p>
+            </div>
+            <?php
+        endif;
+    }
+
+    /**
      * Print settings errors.
      *
      * @since 3.0.0
@@ -284,9 +346,8 @@ class Settings
      */
     public function printSettingsErrors()
     {
-        $settingsErrors = get_transient('beyondwords_settings_errors');
-
-        delete_transient('beyondwords_settings_errors');
+        $settingsErrors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
         if (is_array($settingsErrors) && count($settingsErrors)) :
             ?>
@@ -324,6 +385,8 @@ class Settings
     /**
      * Register WP REST API routes
      *
+     * @since 5.4.0 Add REST API route to dismiss review notice.
+     *
      * @return void
      */
     public function restApiInit()
@@ -345,6 +408,15 @@ class Settings
                 return current_user_can('edit_posts');
             },
         ));
+
+        // dismiss review notice endpoint
+        register_rest_route('beyondwords/v1', '/settings/notices/review/dismiss', array(
+            'methods'  => \WP_REST_Server::CREATABLE,
+            'callback' => array($this, 'dismissReviewNotice'),
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
+        ));
     }
 
     /**
@@ -362,13 +434,33 @@ class Settings
         global $wp_version;
 
         return new \WP_REST_Response([
-            'apiKey'        => get_option('beyondwords_api_key', ''),
-            'pluginVersion' => BEYONDWORDS__PLUGIN_VERSION,
-            'projectId'     => get_option('beyondwords_project_id', ''),
-            'preselect'     => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
-            'languages'     => get_option('beyondwords_languages', Languages::DEFAULT_LANGUAGES),
-            'wpVersion'     => $wp_version,
+            'apiKey'              => get_option('beyondwords_api_key', ''),
+            'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
+            'projectId'           => get_option('beyondwords_project_id', ''),
+            'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
+            'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
+            'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
+            'wpVersion'           => $wp_version,
         ]);
+    }
+
+    /**
+     * Dismiss review notice.
+     *
+     * @since 5.4.0
+     *
+     * @return \WP_REST_Response
+     */
+    public function dismissReviewNotice()
+    {
+        $success = update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM));
+
+        return new \WP_REST_Response(
+            [
+                'success' => $success
+            ],
+            $success ? 200 : 500
+        );
     }
 
     /**
