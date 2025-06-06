@@ -11,34 +11,76 @@ import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 
 const FetchModal = ( { onClose } ) => {
+	const postProjectId = useSelect(
+		( select ) =>
+			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
+				?.beyondwords_project_id,
+		[]
+	);
+
+	const settingsProjectId = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getSettings()?.projectId,
+		[]
+	);
+
+	const restUrl = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getSettings()?.restUrl,
+		[]
+	);
+
 	const [ contentId, setContentId ] = useState( '' );
-	const [ projectId, setProjectId ] = useState( '' );
+	const [ projectId, setProjectId ] = useState(
+		postProjectId || settingsProjectId || ''
+	);
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ error, setError ] = useState( null );
 
 	const { editPost } = useDispatch( editorStore );
-
-	const postId = useSelect(
-		( select ) => select( 'core/editor' ).getCurrentPostId(),
-		[]
-	);
 
 	const handleSubmit = () => {
 		setIsLoading( true );
 		setError( null );
 
 		fetch(
-			`/wp-json/beyondwords/v1/projects/${ projectId }/content/${ contentId }`
+			`${ restUrl }beyondwords/v1/projects/${ projectId }/content/${ contentId }`,
+			{
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': window.wpApiSettings?.nonce,
+				},
+			}
 		)
 			.then( ( response ) => {
-				console.log( 'Response:', response );
 				if ( ! response.ok ) {
 					throw new Error( 'Failed to fetch content' );
 				}
 				return response.json();
 			} )
 			.then( ( data ) => {
-				editPost( { meta: { beyondwords_content_id: data.id } } );
+				/* eslint-disable camelcase */
+				const {
+					body_voice_id,
+					id,
+					language,
+					preview_token,
+					title_voice_id,
+					summary_voice_id,
+				} = data;
+
+				editPost( {
+					meta: {
+						beyondwords_body_voice_id: body_voice_id || '',
+						beyondwords_content_id: id || '',
+						beyondwords_generate_audio: '1',
+						beyondwords_language_code: language || '',
+						beyondwords_preview_token: preview_token || '',
+						beyondwords_project_id: data.project_id || '',
+						beyondwords_title_voice_id: title_voice_id || '',
+						beyondwords_summary_voice_id: summary_voice_id || '',
+					},
+				} );
+				/* eslint-enable camelcase */
+
 				onClose();
 			} )
 			.catch( ( err ) => {
@@ -54,12 +96,17 @@ const FetchModal = ( { onClose } ) => {
 				value={ projectId }
 				disabled={ isLoading }
 				onChange={ setProjectId }
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 			<TextControl
 				label={ __( 'Content ID' ) }
+				placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 				value={ contentId }
 				disabled={ isLoading }
 				onChange={ setContentId }
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 			{ error && (
 				<Notice status="error" isDismissible={ false }>
@@ -82,7 +129,10 @@ const FetchButton = () => {
 
 	return (
 		<>
-			<Button onClick={ () => setIsModalOpen( true ) } variant="primary">
+			<Button
+				onClick={ () => setIsModalOpen( true ) }
+				variant="secondary"
+			>
 				{ __( 'Fetch' ) }
 			</Button>
 			{ isModalOpen && (

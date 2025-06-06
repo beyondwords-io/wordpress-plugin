@@ -214,77 +214,88 @@ export function PostInspectPanel( {
 				label="beyondwords_generate_audio"
 				readOnly
 				value={ beyondwordsGenerateAudio }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_project_id"
 				readOnly
 				value={ beyondwordsProjectId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_preview_token"
 				readOnly
 				value={ beyondwordsPreviewToken }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_content_id"
 				readOnly
 				value={ beyondwordsContentId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_player_content"
 				readOnly
 				value={ beyondwordsPlayerContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_player_style"
 				readOnly
 				value={ beyondwordsPlayerStyle }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_language_code"
 				readOnly
 				value={ beyondwordsLanguageCode }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_language_id"
 				readOnly
 				value={ beyondwordsLanguageId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_body_voice_id"
 				readOnly
 				value={ beyondwordsBodyVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_title_voice_id"
 				readOnly
 				value={ beyondwordsTitleVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_summary_voice_id"
 				readOnly
 				value={ beyondwordsSummaryVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			{ /* eslint-disable-next-line prettier/prettier */ }
@@ -293,52 +304,44 @@ export function PostInspectPanel( {
 				readOnly
 				rows="3"
 				value={ beyondwordsErrorMessage }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_disabled"
 				readOnly
 				value={ beyondwordsDisabled }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_delete_content"
 				readOnly
 				value={ beyondwordsDeleteContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
 				label="beyondwords_fetch_content"
 				readOnly
 				value={ beyondwordsFetchContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+				// __nextHasNoMarginBottom
 			/>
 
 			<hr />
 
 			<Button
 				id="beyondwords-inspect-copy"
-				variant="secondary"
+				variant="primary"
 				ref={ copyToClipboardRef }
 				disabled={ removed }
 			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
-
-			{/* <Button
-				variant="secondary"
-				style={ { margin: 'auto' } }
-				id="beyondwords-inspect-fetch"
-				onClick={ handleFetchButtonClick }
-				disabled={ ! hasBeyondwordsData }
-			>
-				{ fetched
-					? __( 'Undo', 'speechkit' )
-					: __( 'Fetch', 'speechkit' ) }
-			</Button> */}
 
 			<FetchButton />
 

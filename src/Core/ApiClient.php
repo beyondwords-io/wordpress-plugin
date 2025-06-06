@@ -24,6 +24,32 @@ class ApiClient
     public const ERROR_FORMAT = '#%s: %s';
 
     /**
+     * GET /projects/:id/content/:id.
+     *
+     * @param string     $contentId BeyomndWords Content ID
+     * @param int|string $projectId BeyondWords Project ID, optional.
+     *
+     * @return mixed JSON-decoded response body
+     **/
+    public static function getContent($contentId, $projectId = null)
+    {
+        if (! $projectId) {
+            $projectId = PostMetaUtils::getProjectId($contentId);
+        }
+
+        if (! $projectId || ! $contentId) {
+            return false;
+        }
+
+        $url = sprintf('%s/projects/%d/content/%s', Environment::getApiUrl(), $projectId, $contentId);
+
+        $request  = new Request('GET', $url);
+        $response = self::callApi($request);
+
+        return json_decode(wp_remote_retrieve_body($response), true);
+    }
+
+    /**
      * POST /projects/:id/content.
      *
      * @since 3.0.0

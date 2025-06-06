@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Post\Panel\Inspect;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * Inspect
@@ -320,8 +321,8 @@ class Inspect
      **/
     public function restApiInit()
     {
-        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[a-zA-Z0-9-_]+)/content/(?P<contentId>[a-zA-Z0-9-_]+)', array(
-            'methods'  => 'GET',
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<contentId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
+            'methods'  => \WP_REST_Server::READABLE,
             'callback' => array($this, 'restApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
@@ -340,21 +341,24 @@ class Inspect
      **/
     public function restApiResponse(\WP_REST_Request $request)
     {
-        $projectId = $request['projectId'];
-        $contentId = $request['contentId'];
+        $projectId = $request['projectId'] ?? '';
+        $contentId = $request['contentId'] ?? '';
 
-        // Simulated lookup – replace with authenticated API call.
-        if (! $projectId) {
-            return new \WP_Error('invalid_id', 'Invalid Project ID', ['status' => 400]);
+        if (! is_numeric($projectId)) {
+            return new \WP_Error('bad_request', 'Invalid Project ID', ['status' => 400]);
         }
 
-        if (! $contentId) {
-            return new \WP_Error('invalid_id', 'Invalid Content ID', ['status' => 400]);
+        if (empty($contentId)) {
+            return new \WP_Error('bad_request', 'Invalid Content ID', ['status' => 400]);
         }
 
-        return rest_ensure_response([
-            'projectId' => $projectId,
-            'contentId' => $contentId,
-        ]);
+        $response = ApiClient::getContent($contentId, $projectId);
+
+        if (! empty($response['id'])) {
+            // Return the project ID in the response.
+            $response['project_id'] = $projectId;
+        }
+
+        return rest_ensure_response($response);
     }
 }
