@@ -85,7 +85,7 @@ const FetchModal = ( { onClose } ) => {
 			} = data;
 
 			const meta = {
-				beyondwords_generate_audio: '0',
+				beyondwords_generate_audio: '0', // Disable audio generation
 				beyondwords_project_id: project_id || '',
 				beyondwords_content_id: id || '',
 				beyondwords_preview_token: preview_token || '',
@@ -99,16 +99,15 @@ const FetchModal = ( { onClose } ) => {
 			// Update the post meta in the database.
 			await updatePostMeta( postId, meta );
 
-			// @todo editPost triggers the "Save" button in the editor, which we do not want.
 			// Update the post meta in the editor state.
-			// dispatch( 'core/editor' ).editPost( { meta } );
+			dispatch( 'core/editor' ).editPost( { meta } );
 
 			// Show success notice.
 			dispatch( 'core/notices' ).createNotice(
 				'success',
 				__(
 					// eslint-disable-next-line max-len
-					'🔊 Content fetched and saved successfully. Audio players and the Inspect Panel data will refresh after this page is reloaded.',
+					'🔊 Content fetched and saved successfully. Audio generation has been disabled for this post to prevent accidental overwrites. Re-enable it to send content from WordPress to BeyondWords when this post is updated.',
 					'speechkit'
 				),
 				{
