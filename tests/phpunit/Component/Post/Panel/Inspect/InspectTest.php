@@ -154,36 +154,4 @@ class InspectTest extends \WP_UnitTestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
-
-    /**
-     * @test
-     */
-    public function saveWithFetch()
-    {
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
-        $postId = $this->factory->post->create([
-            'post_title' => 'InspectTest::saveWithFetch',
-            'meta_input' => [
-                'beyondwords_project_id'       => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_error_message'    => 'An error message',
-            ],
-        ]);
-
-        $_POST['beyondwords_fetch_content_nonce'] = wp_create_nonce('beyondwords_fetch_content');
-        $_POST['beyondwords_fetch_content'] = '1';
-
-        $this->_instance->save($postId);
-
-        unset($_POST['beyondwords_fetch_content']);
-
-        $this->assertSame('1', get_post_meta($postId, 'beyondwords_fetch_content', true));
-
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
-        delete_option('beyondwords_project_id');
-    }
 }

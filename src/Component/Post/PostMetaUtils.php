@@ -115,7 +115,6 @@ class PostMetaUtils
             'beyondwords_error_message',
             'beyondwords_disabled',
             'beyondwords_delete_content',
-            'beyondwords_fetch_content',
             'publish_post_to_speechkit',
             'speechkit_generate_audio',
             'speechkit_project_id',

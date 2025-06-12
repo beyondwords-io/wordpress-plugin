@@ -34,7 +34,6 @@ export function PostInspectPanel( {
 	beyondwordsSummaryVoiceId,
 	beyondwordsProjectId,
 	beyondwordsErrorMessage,
-	beyondwordsFetchContent,
 	// Deprecated custom fields
 	beyondwordsPodcastId,
 	publishPostToSpeechkit,
@@ -104,7 +103,6 @@ export function PostInspectPanel( {
 			beyondwords_error_message: beyondwordsErrorMessage,
 			beyondwords_disabled: beyondwordsDisabled,
 			beyondwords_delete_content: beyondwordsDeleteContent,
-			beyondwords_fetch_content: beyondwordsFetchContent,
 			// Deprecated
 			beyondwords_podcast_id: beyondwordsPodcastId,
 			publish_post_to_speechkit: publishPostToSpeechkit,
@@ -143,20 +141,6 @@ export function PostInspectPanel( {
 		}
 	};
 
-	const handleFetchButtonClick = ( e ) => {
-		e.stopPropagation();
-
-		if ( removed ) {
-			setRemoved( false );
-			setFetchContent( false );
-			removeWarningNotice();
-		} else {
-			setRemoved( true );
-			setFetchContent( true );
-			createWarningNotice();
-		}
-	};
-
 	const getTextToCopy = () =>
 		[
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
@@ -173,7 +157,6 @@ export function PostInspectPanel( {
 			`beyondwords_error_message\r\n${ beyondwordsErrorMessage }`,
 			`beyondwords_disabled\r\n${ beyondwordsDisabled }`,
 			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
-			`beyondwords_fetch_content\r\n${ beyondwordsFetchContent }`,
 			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
 			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
 			`publish_post_to_speechkit\r\n${ publishPostToSpeechkit }`,
@@ -324,14 +307,6 @@ export function PostInspectPanel( {
 				// __nextHasNoMarginBottom
 			/>
 
-			<TextControl
-				label="beyondwords_fetch_content"
-				readOnly
-				value={ beyondwordsFetchContent }
-				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
-			/>
-
 			<hr />
 
 			<Button
@@ -381,8 +356,6 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_delete_content,
 			beyondwordsDisabled:
 				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
-			beyondwordsFetchContent:
-				getEditedPostAttribute( 'meta' ).beyondwords_fetch_content,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
 			beyondwordsContentId:
@@ -471,15 +444,6 @@ export default compose( [
 					meta: {
 						/* eslint-disable-next-line camelcase */
 						beyondwords_delete_content: deleteContent ? '1' : '',
-					},
-				} );
-			},
-			setFetchContent: ( fetchContent ) => {
-				// Update the Post Meta (AKA the Custom Field)
-				editPost( {
-					meta: {
-						/* eslint-disable-next-line camelcase */
-						beyondwords_fetch_content: fetchContent ? '1' : '',
 					},
 				} );
 			},
