@@ -29,7 +29,7 @@ class ApiClient
      * @param string     $contentId BeyomndWords Content ID
      * @param int|string $projectId BeyondWords Project ID, optional.
      *
-     * @return mixed JSON-decoded response body
+     * @return WP_Response|false
      **/
     public static function getContent($contentId, $projectId = null)
     {
@@ -44,9 +44,8 @@ class ApiClient
         $url = sprintf('%s/projects/%d/content/%s', Environment::getApiUrl(), $projectId, $contentId);
 
         $request  = new Request('GET', $url);
-        $response = self::callApi($request);
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return self::callApi($request);
     }
 
     /**

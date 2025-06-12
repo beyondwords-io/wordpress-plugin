@@ -337,7 +337,7 @@ class Inspect
      *
      * @param \WP_REST_Request $request The REST request object.
      *
-     * @return \WP_REST_Response|\WP_Error
+     * @return \WP_REST_Response
      **/
     public function restApiResponse(\WP_REST_Request $request)
     {
@@ -345,20 +345,69 @@ class Inspect
         $contentId = $request['contentId'] ?? '';
 
         if (! is_numeric($projectId)) {
-            return new \WP_Error('bad_request', 'Invalid Project ID', ['status' => 400]);
+            return rest_ensure_response(
+                new \WP_Error(
+                    400,
+                    __('Invalid Project ID', 'speechkit'),
+                    ['projectId' => $projectId]
+                )
+            );
         }
 
         if (empty($contentId)) {
-            return new \WP_Error('bad_request', 'Invalid Content ID', ['status' => 400]);
+            return rest_ensure_response(
+                new \WP_Error(
+                    400,
+                    __('Invalid Content ID', 'speechkit'),
+                    ['contentId' => $contentId]
+                )
+            );
         }
 
         $response = ApiClient::getContent($contentId, $projectId);
 
-        if (! empty($response['id'])) {
-            // Return the project ID in the response.
-            $response['project_id'] = $projectId;
+        // Check for REST API connection errors.
+        if (is_wp_error($response)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    500,
+                    __('Could not connect to BeyondWords API', 'speechkit'),
+                    $response->get_error_data()
+                )
+            );
         }
 
-        return rest_ensure_response($response);
+        $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        // Check for REST API response errors.
+        if ($code < 200 || $code >= 300) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    $code,
+                    sprintf(__('BeyondWords REST API returned error code %d', 'speechkit'), $code),
+                    [
+                        'body' => $body,
+                    ]
+                )
+            );
+        }
+
+        $data = json_decode($body, true);
+
+        // Check for REST API JSON response.
+        if (! is_array($data)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    500,
+                    __('Invalid response from BeyondWords API', 'speechkit')
+                )
+            );
+        }
+
+        // Return the project ID in the response.
+        $data['project_id'] = $projectId;
+
+        return rest_ensure_response($data);
     }
 }

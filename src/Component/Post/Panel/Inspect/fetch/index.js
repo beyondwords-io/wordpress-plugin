@@ -1,4 +1,7 @@
-import { useState } from '@wordpress/element';
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	Modal,
@@ -6,11 +9,20 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { useSelect, dispatch } from '@wordpress/data';
+import { useState } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { updatePostMeta } from './utils';
 
 const FetchModal = ( { onClose } ) => {
+	const postId = useSelect(
+		( select ) => select( 'core/editor' ).getCurrentPostId(),
+		[]
+	);
+
 	const postProjectId = useSelect(
 		( select ) =>
 			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
@@ -35,62 +47,90 @@ const FetchModal = ( { onClose } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ error, setError ] = useState( null );
 
-	const { editPost } = useDispatch( editorStore );
-
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		setIsLoading( true );
 		setError( null );
 
-		fetch(
-			`${ restUrl }beyondwords/v1/projects/${ projectId }/content/${ contentId }`,
-			{
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': window.wpApiSettings?.nonce,
-				},
-			}
-		)
-			.then( ( response ) => {
-				if ( ! response.ok ) {
-					throw new Error( 'Failed to fetch content' );
-				}
-				return response.json();
-			} )
-			.then( ( data ) => {
-				/* eslint-disable camelcase */
-				const {
-					body_voice_id,
-					id,
-					language,
-					preview_token,
-					title_voice_id,
-					summary_voice_id,
-				} = data;
-
-				editPost( {
-					meta: {
-						beyondwords_body_voice_id: body_voice_id || '',
-						beyondwords_content_id: id || '',
-						beyondwords_generate_audio: '1',
-						beyondwords_language_code: language || '',
-						beyondwords_preview_token: preview_token || '',
-						beyondwords_project_id: data.project_id || '',
-						beyondwords_title_voice_id: title_voice_id || '',
-						beyondwords_summary_voice_id: summary_voice_id || '',
+		try {
+			const response = await fetch(
+				`${ restUrl }beyondwords/v1/projects/${ projectId }/content/${ contentId }`,
+				{
+					credentials: 'same-origin',
+					headers: {
+						'X-WP-Nonce': window.wpApiSettings?.nonce,
 					},
-				} );
-				/* eslint-enable camelcase */
+				}
+			);
 
-				onClose();
-			} )
-			.catch( ( err ) => {
-				setError( err.message );
-				setIsLoading( false );
-			} );
+			if ( ! response.ok ) {
+				throw new Error(
+					__(
+						'Failed to fetch content. Please check the Project and Content IDs.',
+						'speechkit'
+					)
+				);
+			}
+
+			const data = await response.json();
+
+			/* eslint-disable camelcase */
+			const {
+				body_voice_id,
+				id,
+				language,
+				preview_token,
+				title_voice_id,
+				summary_voice_id,
+				project_id,
+			} = data;
+
+			const meta = {
+				beyondwords_body_voice_id: body_voice_id || '',
+				beyondwords_content_id: id || '',
+				beyondwords_fetched_audio: '1',
+				beyondwords_generate_audio: '1',
+				beyondwords_language_code: language || '',
+				beyondwords_preview_token: preview_token || '',
+				beyondwords_project_id: project_id || '',
+				beyondwords_title_voice_id: title_voice_id || '',
+				beyondwords_summary_voice_id: summary_voice_id || '',
+			};
+			/* eslint-enable camelcase */
+
+			// Update the post meta in the database.
+			await updatePostMeta( postId, meta );
+
+			// @todo editPost triggers the "Save" button in the editor, which we do not want.
+			// Update the post meta in the editor state.
+			// dispatch( 'core/editor' ).editPost( { meta } );
+
+			// Show success notice.
+			dispatch( 'core/notices' ).createNotice(
+				'success',
+				__(
+					// eslint-disable-next-line max-len
+					'🔊 Content fetched and saved successfully. Audio players and the Inspect Panel data will refresh after this page is reloaded.',
+					'speechkit'
+				),
+				{
+					isDismissible: true,
+				}
+			);
+
+			setIsLoading( false );
+			onClose();
+		} catch ( err ) {
+			setError( err.message );
+			setIsLoading( false );
+		}
 	};
 
 	return (
-		<Modal title={ __( 'Fetch Content' ) } onRequestClose={ onClose }>
+		<Modal
+			title={ __( 'Fetch Content' ) }
+			onRequestClose={ onClose }
+			size="medium"
+		>
 			<TextControl
 				label={ __( 'Project ID' ) }
 				value={ projectId }
@@ -108,18 +148,40 @@ const FetchModal = ( { onClose } ) => {
 				__next40pxDefaultSize
 				// __nextHasNoMarginBottom
 			/>
-			{ error && (
-				<Notice status="error" isDismissible={ false }>
-					{ error }
-				</Notice>
-			) }
 			<Button
 				variant="primary"
 				onClick={ handleSubmit }
 				disabled={ isLoading || ! contentId }
+				style={ { marginBottom: '8px' } }
 			>
-				{ isLoading ? <Spinner /> : __( 'OK' ) }
+				{ isLoading ? (
+					<>
+						<Spinner style={ { marginRight: '6px' } } />
+						{ __( 'Fetching…', 'speechkit' ) }
+					</>
+				) : (
+					__( 'Submit', 'speechkit' )
+				) }
 			</Button>
+			<Button
+				isDestructive
+				style={ { float: 'right' } }
+				id="beyondwords-fetch-cancel"
+				onClick={ onClose }
+			>
+				{ __( 'Cancel', 'speechkit' ) }
+			</Button>
+			{ error && (
+				<div aria-live="assertive">
+					<Notice
+						status="error"
+						isDismissible={ false }
+						style={ { marginTop: '8px', marginBottom: '8px' } }
+					>
+						{ error }
+					</Notice>
+				</div>
+			) }
 		</Modal>
 	);
 };
@@ -133,7 +195,7 @@ const FetchButton = () => {
 				onClick={ () => setIsModalOpen( true ) }
 				variant="secondary"
 			>
-				{ __( 'Fetch' ) }
+				{ __( 'Fetch', 'speechkit' ) }
 			</Button>
 			{ isModalOpen && (
 				<FetchModal onClose={ () => setIsModalOpen( false ) } />
