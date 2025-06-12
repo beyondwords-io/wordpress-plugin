@@ -26,10 +26,10 @@ export default class DocumentSettingPanel extends Component {
 				title={ __( 'BeyondWords', 'speechkit' ) }
 				className="beyondwords-sidebar"
 			>
-				<GenerateAudio wrapper={ PanelRow } />
 				<ErrorNotice wrapper={ PanelRow } />
 				<PendingNotice wrapper={ PanelRow } />
 				<PlayAudio wrapper={ PanelRow } />
+				<GenerateAudio wrapper={ PanelRow } />
 				<PlayerStyle wrapper={ PanelRow } />
 				<PlayerContent wrapper={ PanelRow } />
 				<SelectVoice wrapper={ PanelRow } />

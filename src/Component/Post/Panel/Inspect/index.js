@@ -58,13 +58,11 @@ export function PostInspectPanel( {
 	createWarningNotice,
 	removeWarningNotice,
 	setDeleteContent,
-	setFetchContent,
 	didPostSaveRequestSucceed,
 	isSavingPost,
 	isAutosavingPost,
 } ) {
 	const [ removed, setRemoved ] = useState( false );
-	const [ fetched, setFetched ] = useState( false );
 	const { createNotice } = useDispatch( noticesStore );
 
 	useEffect( () => {
@@ -78,12 +76,6 @@ export function PostInspectPanel( {
 			setRemoved( false );
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
-
-	useEffect( () => {
-		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed && fetched ) {
-			setFetched( false );
-		}
-	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, fetched ] );
 
 	const memoizedMeta = useMemo(
 		() => ( {
