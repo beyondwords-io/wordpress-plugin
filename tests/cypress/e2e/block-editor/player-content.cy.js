@@ -1,112 +1,134 @@
+/* global cy, before, beforeEach, context, expect, it */
+
 context( 'Block Editor: Player Content', () => {
-  const postTypes = require( '../../../fixtures/post-types.json' )
+	const postTypes = require( '../../../fixtures/post-types.json' );
 
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveStandardPluginSettings()
-  } )
+	before( () => {
+		cy.task( 'reset' );
+		cy.login();
+		cy.saveStandardPluginSettings();
+	} );
 
-  beforeEach( () => {
-    cy.login()
-  } )
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  // Only test priority post types
-  postTypes.filter( x => x.priority ).forEach( postType => {
-    it( `uses the plugin setting as the default selected option for a ${postType.name}`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+	// Only test priority post types
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			it( `uses the plugin setting as the default for a ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+				} );
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.openBeyondwordsEditorPanel();
 
-      cy.openBeyondwordsEditorPanel()
+				// Assert we have the expected Voices
+				cy.getBlockEditorSelect( 'Player content' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						const labels = [ ...$els ].map( ( el ) =>
+							el.innerText.trim()
+						);
+						expect( labels ).to.deep.eq( [ 'Article', 'Summary' ] );
 
-      // Assert we have the expected Voices
-      cy.getBlockEditorSelect( 'Player content' ).find( 'option' ).should( $els => {
-        const labels = [ ...$els ].map( el => el.innerText.trim() )
-        expect(labels).to.deep.eq( ["Article", "Summary"] )
+						const values = [ ...$els ].map( ( el ) => el.value );
+						expect( values ).to.deep.eq( [ '', 'summary' ] );
+					} );
 
-        const values = [ ...$els ].map( el => el.value )
-        expect(values).to.deep.eq( ["", "summary"] )
-      })
+				// Check "Article" is preselected
+				cy.getBlockEditorSelect( 'Player content' )
+					.find( 'option:selected' )
+					.contains( 'Article' );
+			} );
 
-      // Check "Article" is preselected
-      cy.getBlockEditorSelect( 'Player content' ).find('option:selected').contains( 'Article' )
-    })
+			it( `can set "Article" Player content for a ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can set "Article" Player content for a ${ postType.name }`,
+				} );
 
-    it( `can set "Article" Player content for a ${postType.name}`, () => {
+				// cy.closeWelcomeToBlockEditorTips()
 
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+				cy.openBeyondwordsEditorPanel();
 
-      cy.closeWelcomeToBlockEditorTips()
+				// Select a Player content
+				cy.getBlockEditorSelect( 'Player content' ).select( 'Article' );
 
-      cy.openBeyondwordsEditorPanel()
+				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 
-      // Select a Player content
-      cy.getBlockEditorSelect( 'Player content' ).select( 'Article' )
+				cy.publishWithConfirmation();
 
-      cy.setPostTitle( `I can set "Article" Player content for a ${postType.name}` )
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.getBlockEditorCheckbox( 'Generate audio' ).check()
+				// Check Player appears frontend
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
-      cy.publishWithConfirmation( true )
+				// window.BeyondWords should contain 1 player instance
+				cy.window().then( ( win ) => {
+					// eslint-disable-next-line no-unused-expressions
+					expect( win.BeyondWords ).to.exist;
+					expect( win.BeyondWords.Player.instances() ).to.have.length(
+						1
+					);
+					expect(
+						win.BeyondWords.Player.instances()[ 0 ].summary
+					).to.eq( false );
+				} );
 
-      // "View post"
-      cy.viewPostViaSnackbar()
+				// Check Player content has also been saved in admin
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
+				cy.openBeyondwordsEditorPanel();
+				cy.getBlockEditorSelect( 'Player content' )
+					.find( 'option:selected' )
+					.contains( 'Article' );
+			} );
 
-      // Check Player appears frontend
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstances( 1 )
+			it( `can set "Summary" Player content for a ${ postType.name }`, () => {
+				cy.createPost( {
+					postType,
+					title: `I can set "Summary" Player content for a ${ postType.name }`,
+				} );
 
-      // window.BeyondWords should contain 1 player instance
-      cy.window().then( win => {
-        cy.wait( 2000 )
-        expect( win.BeyondWords ).to.not.be.undefined;
-        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.deep.eq( [ 'article' ] );
-      } );
+				// cy.closeWelcomeToBlockEditorTips()
 
-      // Check Player content has also been saved in admin
-      cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
-      cy.openBeyondwordsEditorPanel()
-      cy.getBlockEditorSelect( 'Player content' ).find('option:selected').contains( 'Article' )
-    } )
+				cy.openBeyondwordsEditorPanel();
 
-    it( `can set "Summary" Player content for a ${postType.name}`, () => {
+				// Select a Player content
+				cy.getBlockEditorSelect( 'Player content' ).select( 'Summary' );
 
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
 
-      cy.closeWelcomeToBlockEditorTips()
+				cy.publishWithConfirmation();
 
-      cy.openBeyondwordsEditorPanel()
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      // Select a Player content
-      cy.getBlockEditorSelect( 'Player content' ).select( 'Summary' )
+				// Check Player appears frontend
+				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
-      cy.setPostTitle( `I can set "Summary" Player content for a ${postType.name}` )
+				// window.BeyondWords should contain 1 player instance
+				cy.window().then( ( win ) => {
+					// eslint-disable-next-line no-unused-expressions
+					expect( win.BeyondWords ).to.exist;
+					expect( win.BeyondWords.Player.instances() ).to.have.length(
+						1
+					);
+					expect(
+						win.BeyondWords.Player.instances()[ 0 ].summary
+					).to.eq( true );
+				} );
 
-      cy.getBlockEditorCheckbox( 'Generate audio' ).check()
-
-      cy.publishWithConfirmation( true )
-
-      // "View post"
-      cy.viewPostViaSnackbar()
-
-      // Check Player appears frontend
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.hasPlayerInstances( 1 )
-
-      // window.BeyondWords should contain 1 player instance
-      cy.window().then( win => {
-        cy.wait( 2000 )
-        expect( win.BeyondWords ).to.not.be.undefined;
-        expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-        expect( win.BeyondWords.Player.instances()[0].loadContentAs ).to.deep.eq( [ 'summary' ] );
-      } );
-
-      // Check Player content has also been saved in admin
-      cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click().wait( 500 )
-      cy.openBeyondwordsEditorPanel()
-      cy.getBlockEditorSelect( 'Player content' ).find('option:selected').contains( 'Summary' )
-    } )
-  } )
-} )
+				// Check Player content has also been saved in admin
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
+				cy.openBeyondwordsEditorPanel();
+				cy.getBlockEditorSelect( 'Player content' )
+					.find( 'option:selected' )
+					.contains( 'Summary' );
+			} );
+		} );
+} );
