@@ -440,6 +440,7 @@ class Settings
             'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
             'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
             'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
+            'restUrl'             => get_rest_url(),
             'wpVersion'           => $wp_version,
         ]);
     }

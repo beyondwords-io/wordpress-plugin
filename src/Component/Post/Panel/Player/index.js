@@ -23,9 +23,9 @@ export function PlayerPanel() {
 			opened={ true }
 			className={ `beyondwords beyondwords-sidebar__status` }
 		>
-			<GenerateAudio wrapper={ PanelRow } />
 			<PendingNotice wrapper={ PanelRow } />
 			<PlayAudio wrapper={ PanelRow } />
+			<GenerateAudio wrapper={ PanelRow } />
 			<DisplayPlayer wrapper={ PanelRow } />
 			<PlayerStyle wrapper={ PanelRow } />
 			<PlayerContent wrapper={ PanelRow } />

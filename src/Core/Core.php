@@ -398,9 +398,14 @@ class Core
             return false;
         }
 
-        $this->generateAudioForPost($postId);
+        // Check for explicit "Generate Audio"
+        if (get_post_meta($postId, 'beyondwords_generate_audio', true) === '1') {
+            $result = $this->generateAudioForPost($postId);
 
-        return true;
+            return boolval($result);
+        }
+
+        return false;
     }
 
     /**

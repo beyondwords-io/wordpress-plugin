@@ -7,11 +7,6 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
 
-/**
- * Internal dependencies
- */
-import GenerateAudioCheck from './check';
-
 export function GenerateAudio( {
 	generateAudio,
 	generateAudioEdited,
@@ -28,19 +23,17 @@ export function GenerateAudio( {
 	}, [ generateAudioEdited, generateAudio ] );
 
 	return (
-		<GenerateAudioCheck>
-			<Wrapper>
-				<CheckboxControl
-					className="beyondwords--generate-audio"
-					label={ __( 'Generate audio', 'speechkit' ) }
-					checked={ generateAudio }
-					onChange={ () => {
-						setGenerateAudio( ! generateAudio );
-					} }
-					__nextHasNoMarginBottom
-				/>
-			</Wrapper>
-		</GenerateAudioCheck>
+		<Wrapper>
+			<CheckboxControl
+				className="beyondwords--generate-audio"
+				label={ __( 'Generate audio', 'speechkit' ) }
+				checked={ generateAudio }
+				onChange={ () => {
+					setGenerateAudio( ! generateAudio );
+				} }
+				__nextHasNoMarginBottom
+			/>
+		</Wrapper>
 	);
 }
 
