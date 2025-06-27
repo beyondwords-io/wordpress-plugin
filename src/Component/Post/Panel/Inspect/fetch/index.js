@@ -85,7 +85,9 @@ const FetchModal = ( { onClose } ) => {
 			} = data;
 
 			const meta = {
-				beyondwords_generate_audio: '0', // Disable audio generation
+				// Disable audio generation
+				beyondwords_generate_audio: '0',
+				// REST API response values
 				beyondwords_project_id: project_id || '',
 				beyondwords_content_id: id || '',
 				beyondwords_preview_token: preview_token || '',
@@ -93,6 +95,10 @@ const FetchModal = ( { onClose } ) => {
 				beyondwords_title_voice_id: title_voice_id || '',
 				beyondwords_summary_voice_id: summary_voice_id || '',
 				beyondwords_body_voice_id: body_voice_id || '',
+				// Reset other values
+				beyondwords_delete_content: '',
+				beyondwords_disabled: '',
+				beyondwords_error_message: '',
 			};
 			/* eslint-enable camelcase */
 
@@ -107,7 +113,7 @@ const FetchModal = ( { onClose } ) => {
 				'success',
 				__(
 					// eslint-disable-next-line max-len
-					'🔊 Content fetched and saved successfully. Audio generation has been disabled for this post to prevent accidental overwrites. Re-enable it to send content from WordPress to BeyondWords when this post is updated.',
+					'🔊 Content fetched and saved successfully. Audio generation has been disabled for this post – manually check "Generate audio" before saving this post to regenerate the audio from the post content.',
 					'speechkit'
 				),
 				{
@@ -135,7 +141,6 @@ const FetchModal = ( { onClose } ) => {
 				disabled={ isLoading }
 				onChange={ setProjectId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 			<TextControl
 				label={ __( 'Content ID' ) }
@@ -144,7 +149,6 @@ const FetchModal = ( { onClose } ) => {
 				disabled={ isLoading }
 				onChange={ setContentId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 			<Button
 				variant="primary"
