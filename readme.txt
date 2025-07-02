@@ -87,6 +87,9 @@ Release date: 2nd July 2025
 **Enhancements and Features:**
 
 * [#446](https://github.com/beyondwords-io/wordpress-plugin/pull/446) Fetch button for Block Editor Inspect panel.
+* Always show the **Generate audio** checkbox in the Block Editor.
+    * As part of the Fetch button update the **Generate audio** checkbox is now always shown in the Block Editor.
+    * If **Generate audio** is unchecked before a post is saved then audio **will not** be regenerated from the updated post content.
 
 = 5.4.0 =
 

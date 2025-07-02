@@ -190,7 +190,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsGenerateAudio }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -198,7 +197,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsProjectId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -206,7 +204,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsPreviewToken }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -214,7 +211,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsContentId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -222,7 +218,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsPlayerContent }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -230,7 +225,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsPlayerStyle }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -238,7 +232,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsLanguageCode }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -246,7 +239,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsLanguageId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -254,7 +246,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsBodyVoiceId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -262,7 +253,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsTitleVoiceId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -270,7 +260,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsSummaryVoiceId }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			{ /* eslint-disable-next-line prettier/prettier */ }
@@ -280,7 +269,6 @@ export function PostInspectPanel( {
 				rows="3"
 				value={ beyondwordsErrorMessage }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -288,7 +276,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsDisabled }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<TextControl
@@ -296,7 +283,6 @@ export function PostInspectPanel( {
 				readOnly
 				value={ beyondwordsDeleteContent }
 				__next40pxDefaultSize
-				// __nextHasNoMarginBottom
 			/>
 
 			<hr />
