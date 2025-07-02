@@ -385,6 +385,7 @@ class Inspect
             return rest_ensure_response(
                 new \WP_Error(
                     $code,
+                    /* translators: %d is replaced with the error code. */
                     sprintf(__('BeyondWords REST API returned error code %d', 'speechkit'), $code),
                     [
                         'body' => $body,
