@@ -36,8 +36,6 @@ context( 'Plugins: AMP', () => {
 
 				cy.publishWithConfirmation();
 
-				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
-
 				cy.hasPlayerInstances( 1 );
 
 				// "View post"

@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.4.0
+Stable tag: 5.5.0
 Requires PHP: 8.0
 Tested up to: 6.8
 License: GPLv2 or later
@@ -79,6 +79,21 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 5.5.0 =
+
+Release date: 2nd July 2025
+
+**Enhancements and Features:**
+
+* [#446](https://github.com/beyondwords-io/wordpress-plugin/pull/446) Fetch button for Block Editor Inspect panel.
+    * We've added a Fetch option to the Inspect panel in the BeyondWords Block Editor sidebar.
+    * This allows users to retrieve audio that has already been generated in BeyondWords, helping to quickly restore a missing or broken link between the audio and WordPress post, without needing to regenerate the audio.
+* Always show the **Generate audio** checkbox in the Block Editor.
+    * As part of the Fetch button update the **Generate audio** checkbox is now always shown in the Block Editor.
+    * If **Generate audio** is unchecked before a post is saved then audio **will not** be regenerated from the updated post content.
+* [#444](https://github.com/beyondwords-io/wordpress-plugin/pull/444) PHP 8.4 support.
+    * Run unit and e2e tests against PHP 8.0 and PHP 8.4 in GitHub Actions.
 
 = 5.4.0 =
 

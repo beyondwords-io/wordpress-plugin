@@ -13,6 +13,11 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
+/**
+ * Internal dependencies
+ */
+import FetchButton from './fetch';
+
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
@@ -110,6 +115,24 @@ export function PostInspectPanel( {
 		[]
 	);
 
+	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
+		( x ) => !! x?.length
+	);
+
+	const handleRemoveButtonClick = ( e ) => {
+		e.stopPropagation();
+
+		if ( removed ) {
+			setRemoved( false );
+			setDeleteContent( false );
+			removeWarningNotice();
+		} else {
+			setRemoved( true );
+			setDeleteContent( true );
+			createWarningNotice();
+		}
+	};
+
 	const getTextToCopy = () =>
 		[
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
@@ -156,24 +179,6 @@ export function PostInspectPanel( {
 		} );
 	} );
 
-	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
-		( x ) => !! x?.length
-	);
-
-	const handleRemoveButtonClick = ( e ) => {
-		e.stopPropagation();
-
-		if ( removed ) {
-			setRemoved( false );
-			setDeleteContent( false );
-			removeWarningNotice();
-		} else {
-			setRemoved( true );
-			setDeleteContent( true );
-			createWarningNotice();
-		}
-	};
-
 	return (
 		<PanelBody
 			title={ __( 'Inspect', 'speechkit' ) }
@@ -184,77 +189,77 @@ export function PostInspectPanel( {
 				label="beyondwords_generate_audio"
 				readOnly
 				value={ beyondwordsGenerateAudio }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_project_id"
 				readOnly
 				value={ beyondwordsProjectId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_preview_token"
 				readOnly
 				value={ beyondwordsPreviewToken }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_content_id"
 				readOnly
 				value={ beyondwordsContentId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_player_content"
 				readOnly
 				value={ beyondwordsPlayerContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_player_style"
 				readOnly
 				value={ beyondwordsPlayerStyle }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_language_code"
 				readOnly
 				value={ beyondwordsLanguageCode }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_language_id"
 				readOnly
 				value={ beyondwordsLanguageId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_body_voice_id"
 				readOnly
 				value={ beyondwordsBodyVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_title_voice_id"
 				readOnly
 				value={ beyondwordsTitleVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_summary_voice_id"
 				readOnly
 				value={ beyondwordsSummaryVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			{ /* eslint-disable-next-line prettier/prettier */ }
@@ -263,33 +268,35 @@ export function PostInspectPanel( {
 				readOnly
 				rows="3"
 				value={ beyondwordsErrorMessage }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_disabled"
 				readOnly
 				value={ beyondwordsDisabled }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_delete_content"
 				readOnly
 				value={ beyondwordsDeleteContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<hr />
 
 			<Button
 				id="beyondwords-inspect-copy"
-				variant="secondary"
+				variant="primary"
 				ref={ copyToClipboardRef }
 				disabled={ removed }
 			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
+
+			<FetchButton />
 
 			<Button
 				isDestructive

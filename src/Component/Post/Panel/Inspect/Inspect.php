@@ -14,6 +14,7 @@ namespace Beyondwords\Wordpress\Component\Post\Panel\Inspect;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
  * Inspect
@@ -28,7 +29,8 @@ class Inspect
     public function init()
     {
         add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
-        add_action("add_meta_boxes", array($this, 'addMetaBox'));
+        add_action('add_meta_boxes', array($this, 'addMetaBox'));
+        add_action('rest_api_init', array($this, 'restApiInit'));
 
         add_filter('default_hidden_meta_boxes', array($this, 'hideMetaBox'));
 
@@ -310,5 +312,103 @@ class Inspect
         }
 
         return $postId;
+    }
+
+    /**
+     * REST API init.
+     *
+     * Register REST API routes.
+     **/
+    public function restApiInit()
+    {
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<contentId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
+            'methods'  => \WP_REST_Server::READABLE,
+            'callback' => array($this, 'restApiResponse'),
+            'permission_callback' => function () {
+                return current_user_can('edit_posts');
+            },
+        ));
+    }
+
+    /**
+     * REST API response.
+     *
+     * Fetches a content object from the BeyondWords REST API.
+     *
+     * @param \WP_REST_Request $request The REST request object.
+     *
+     * @return \WP_REST_Response
+     **/
+    public function restApiResponse(\WP_REST_Request $request)
+    {
+        $projectId = $request['projectId'] ?? '';
+        $contentId = $request['contentId'] ?? '';
+
+        if (! is_numeric($projectId)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    400,
+                    __('Invalid Project ID', 'speechkit'),
+                    ['projectId' => $projectId]
+                )
+            );
+        }
+
+        if (empty($contentId)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    400,
+                    __('Invalid Content ID', 'speechkit'),
+                    ['contentId' => $contentId]
+                )
+            );
+        }
+
+        $response = ApiClient::getContent($contentId, $projectId);
+
+        // Check for REST API connection errors.
+        if (is_wp_error($response)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    500,
+                    __('Could not connect to BeyondWords API', 'speechkit'),
+                    $response->get_error_data()
+                )
+            );
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        // Check for REST API response errors.
+        if ($code < 200 || $code >= 300) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    $code,
+                    /* translators: %d is replaced with the error code. */
+                    sprintf(__('BeyondWords REST API returned error code %d', 'speechkit'), $code),
+                    [
+                        'body' => $body,
+                    ]
+                )
+            );
+        }
+
+        $data = json_decode($body, true);
+
+        // Check for REST API JSON response.
+        if (! is_array($data)) {
+            return rest_ensure_response(
+                new \WP_Error(
+                    500,
+                    __('Invalid response from BeyondWords API', 'speechkit')
+                )
+            );
+        }
+
+        // Return the project ID in the response.
+        $data['project_id'] = $projectId;
+
+        return rest_ensure_response($data);
     }
 }
