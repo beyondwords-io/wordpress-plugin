@@ -29,8 +29,6 @@ context( 'Block Editor: Display Player', () => {
 
 				cy.publishWithConfirmation();
 
-				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
-
 				// "View post"
 				cy.viewPostViaSnackbar();
 

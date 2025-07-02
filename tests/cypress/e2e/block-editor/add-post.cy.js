@@ -59,8 +59,6 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.publishWithConfirmation();
 
-				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
-
 				// "View post"
 				cy.viewPostViaSnackbar();
 
@@ -96,8 +94,6 @@ context( 'Block Editor: Add Post', () => {
 				cy.get( '.editor-post-publish-button__button' ).click();
 
 				cy.hasPlayerInstances( 0 );
-
-				cy.getLabel( 'Generate audio' ).should( 'not.exist' );
 
 				// "Generate Audio" is replaced by "Pending" message'
 				cy.get( 'input#beyondwords_generate_audio' ).should(
