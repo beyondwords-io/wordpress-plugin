@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.5.0
+Stable tag: 6.0.0
 Requires PHP: 8.0
 Tested up to: 6.8
 License: GPLv2 or later
@@ -79,6 +79,14 @@ You can even leverage your listenership through audio advertising. Use our self-
 Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
+
+= 6.0.0 =
+
+Release date: TBC
+
+**Enhancements and Features:**
+
+* Make PHP methods static.
 
 = 5.5.0 =
 

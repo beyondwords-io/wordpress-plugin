@@ -40,15 +40,14 @@ class SelectVoiceTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $selectVoice = new SelectVoice();
-        $selectVoice->init();
+        SelectVoice::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('rest_api_init', array($selectVoice, 'restApiInit')));
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($selectVoice, 'adminEnqueueScripts')));
-        $this->assertEquals(10, has_action('save_post_page', array($selectVoice, 'save')));
-        $this->assertEquals(10, has_action('save_post_post', array($selectVoice, 'save')));
+        $this->assertEquals(10, has_action('rest_api_init', array(SelectVoice::class, 'restApiInit')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(SelectVoice::class, 'adminEnqueueScripts')));
+        $this->assertEquals(10, has_action('save_post_page', array(SelectVoice::class, 'save')));
+        $this->assertEquals(10, has_action('save_post_post', array(SelectVoice::class, 'save')));
     }
 
     /**
@@ -64,9 +63,7 @@ class SelectVoiceTest extends WP_UnitTestCase
             ],
         ]);
 
-        $selectVoice = new SelectVoice();
-
-        $selectVoice->element($post);
+        SelectVoice::element($post);
 
         $html = $this->getActualOutput();
 
@@ -112,32 +109,30 @@ class SelectVoiceTest extends WP_UnitTestCase
     {
         $_POST['beyondwords_select_voice_nonce'] = wp_create_nonce('beyondwords_select_voice');
 
-        $selectVoice = new SelectVoice();
-
         $postId = self::factory()->post->create([
             'post_title' => 'SelectVoiceTest::save',
         ]);
 
-        $selectVoice->save($postId);
+        SelectVoice::save($postId);
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         $_POST['beyondwords_voice_id'] = '1';
 
-        $selectVoice->save($postId);
+        SelectVoice::save($postId);
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         $_POST['beyondwords_language_code'] = 'en_US';
         $_POST['beyondwords_voice_id'] = '1';
 
-        $selectVoice->save($postId);
+        SelectVoice::save($postId);
 
         $this->assertEquals('1', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
         unset($_POST['beyondwords_voice_id']);
 
-        $selectVoice->save($postId);
+        SelectVoice::save($postId);
 
         $this->assertEquals('1', get_post_meta($postId, 'beyondwords_body_voice_id', true));
 

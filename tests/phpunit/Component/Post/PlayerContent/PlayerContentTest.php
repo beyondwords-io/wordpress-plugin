@@ -40,13 +40,12 @@ class PostPlayerContentTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $playerContent = new PlayerContent();
-        $playerContent->init();
+        PlayerContent::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('save_post_page', array($playerContent, 'save')));
-        $this->assertEquals(10, has_action('save_post_post', array($playerContent, 'save')));
+        $this->assertEquals(10, has_action('save_post_page', array(PlayerContent::class, 'save')));
+        $this->assertEquals(10, has_action('save_post_post', array(PlayerContent::class, 'save')));
     }
 
     /**
@@ -54,13 +53,11 @@ class PostPlayerContentTest extends WP_UnitTestCase
      */
     public function element()
     {
-        $playerContent = new PlayerContent();
-
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PostPlayerContentTest::element',
         ]);
 
-        $playerContent->element($post);
+        PlayerContent::element($post);
 
         $html = $this->getActualOutput();
 
@@ -91,31 +88,29 @@ class PostPlayerContentTest extends WP_UnitTestCase
     {
         $_POST['beyondwords_player_content_nonce'] = wp_create_nonce('beyondwords_player_content');
 
-        $playerContent = new PlayerContent();
-
         $postId = self::factory()->post->create([
             'post_title' => 'PlayerContentTest::save',
         ]);
 
-        $playerContent->save($postId);
+        PlayerContent::save($postId);
 
         $this->assertFalse(metadata_exists('post', $postId, 'beyondwords_player_content'));
 
         $_POST['beyondwords_player_content'] = '';
 
-        $playerContent->save($postId);
+        PlayerContent::save($postId);
 
         $this->assertFalse(metadata_exists('post', $postId, 'beyondwords_player_content'));
 
         $_POST['beyondwords_player_content'] = 'summary';
 
-        $playerContent->save($postId);
+        PlayerContent::save($postId);
 
         $this->assertEquals('summary', get_post_meta($postId, 'beyondwords_player_content', true));
 
         $_POST['beyondwords_player_content'] = '';
 
-        $playerContent->save($postId);
+        PlayerContent::save($postId);
 
         $this->assertFalse(metadata_exists('post', $postId, 'beyondwords_player_content'));
 

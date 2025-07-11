@@ -26,24 +26,29 @@ class GenerateAudio
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
         add_action('wp_loaded', function () {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 10);
+                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
                 }
             }
         });
     }
 
     /**
-     * todo move this function to somewhere reusable for the Block editor.
+     * Check whether the post type should preselect the "Generate audio" checkbox.
+     *
+     * @todo move this function to somewhere reusable for the Block editor.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function shouldPreselectGenerateAudio($post)
+    public static function shouldPreselectGenerateAudio($post)
     {
         $postType = get_post_type($post);
 
@@ -65,7 +70,12 @@ class GenerateAudio
         return false;
     }
 
-    public function element($post)
+    /**
+     * Render the element.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function element($post)
     {
         wp_nonce_field('beyondwords_generate_audio', 'beyondwords_generate_audio_nonce');
 
@@ -75,7 +85,7 @@ class GenerateAudio
             // Check whether "0" has explicitly been saved
             $generateAudioMeta = PostMetaUtils::getRenamedPostMeta($post->ID, 'generate_audio', true);
 
-            if ($generateAudioMeta !== '0' && $this->shouldPreselectGenerateAudio($post)) {
+            if ($generateAudioMeta !== '0' && self::shouldPreselectGenerateAudio($post)) {
                 $generateAudio = true;
             }
         }
@@ -97,9 +107,11 @@ class GenerateAudio
     /**
      * Save the meta when the post is saved.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;

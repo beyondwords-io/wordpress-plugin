@@ -32,17 +32,20 @@ class Metabox
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
-        add_action("add_meta_boxes", array($this, 'addMetaBox'));
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
+        add_action("add_meta_boxes", array(__CLASS__, 'addMetaBox'));
     }
 
     /**
      * Enque JS for Bulk Edit feature.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function adminEnqueueScripts($hook)
+    public static function adminEnqueueScripts($hook)
     {
         // Only enqueue for Post screens
         if ($hook === 'post.php' || $hook === 'post-new.php') {
@@ -59,9 +62,11 @@ class Metabox
     /**
      * Adds the meta box container.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param string $postType
      */
-    public function addMetaBox($postType)
+    public static function addMetaBox($postType)
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -72,7 +77,7 @@ class Metabox
         add_meta_box(
             'beyondwords',
             __('BeyondWords', 'speechkit'),
-            array($this, 'renderMetaBoxContent'),
+            array(__CLASS__, 'renderMetaBoxContent'),
             $postType,
             'side',
             'default',
@@ -91,8 +96,9 @@ class Metabox
      * @since 3.7.0 Show "Pending review" notice for posts with status of "pending"
      * @since 4.0.0 Content ID is no longer an int
      * @since 4.1.0 Add "Player style" and update component display conditions
+     * @since 6.0.0 Make static.
      */
-    public function renderMetaBoxContent($post)
+    public static function renderMetaBoxContent($post)
     {
         $post = get_post($post);
 
@@ -101,32 +107,32 @@ class Metabox
         }
 
         // Show errors for posts with/without audio
-        $this->errors($post);
+        self::errors($post);
 
         $contentId = PostMetaUtils::getContentId($post->ID);
 
         if ($contentId) {
             // Enable these components for posts with audio
             if (get_post_status($post) === 'pending') {
-                $this->pendingReviewNotice($post);
+                self::pendingReviewNotice($post);
             } else {
-                $this->playerEmbed($post);
+                self::playerEmbed($post);
             }
             echo '<hr />';
-            (new DisplayPlayer())->element($post);
+            (new DisplayPlayer())::element($post);
         } else {
-            $this->errors($post);
+            self::errors($post);
             // Enable these components for posts without audio
-            (new GenerateAudio())->element($post);
+            (new GenerateAudio())::element($post);
         }
 
         // Enable these components for posts with/without audio
-        (new SelectVoice())->element($post);
-        (new PlayerStyle())->element($post);
-        (new PlayerContent())->element($post);
+        (new SelectVoice())::element($post);
+        (new PlayerStyle())::element($post);
+        (new PlayerContent())::element($post);
 
         echo '<hr />';
-        $this->help();
+        self::help();
     }
 
 
@@ -139,10 +145,11 @@ class Metabox
      * with { published: false }.
      *
      * @since 3.7.0
+     * @since 6.0.0 Make static.
      *
      * @var \WP_Post $post Post.
      */
-    public function pendingReviewNotice($post)
+    public static function pendingReviewNotice($post)
     {
         $projectUrl = sprintf(
             '%s/dashboard/project/%d/content',
@@ -174,8 +181,9 @@ class Metabox
      *
      * @since 3.x   Introduced
      * @since 4.0.1 Admin player init is now all in this one function.
+     * @since 6.0.0 Make static.
      */
-    public function playerEmbed($post = null)
+    public static function playerEmbed($post = null)
     {
         $post = get_post($post);
 
@@ -210,7 +218,12 @@ class Metabox
         <?php
     }
 
-    public function errors($post)
+    /**
+     * Display errors for the post.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function errors($post)
     {
         $error = PostMetaUtils::getErrorMessage($post->ID);
 
@@ -222,13 +235,18 @@ class Metabox
                         <?php echo esc_html($error); ?>
                     </p>
                 </div>
-                <?php $this->regenerateInstructions(); ?>
+                <?php self::regenerateInstructions(); ?>
             </div>
             <?php
         endif;
     }
 
-    public function help()
+    /**
+     * Display help text for the metabox.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function help()
     {
         ?>
         <p id="beyondwords-metabox-help">
@@ -243,7 +261,12 @@ class Metabox
         <?php
     }
 
-    public function regenerateInstructions()
+    /**
+     * Display instructions for regenerating audio.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function regenerateInstructions()
     {
         ?>
         <!-- Update/regenerate -->

@@ -16,13 +16,11 @@ class BlockAttributesTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new BlockAttributes();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();
@@ -33,14 +31,13 @@ class BlockAttributesTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $blockAttributes = new BlockAttributes();
-        $blockAttributes->init();
+        BlockAttributes::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('register_block_type_args', array($blockAttributes, 'registerAudioAttribute')));
-        $this->assertEquals(10, has_action('register_block_type_args', array($blockAttributes, 'registerMarkerAttribute')));
-        $this->assertEquals(10, has_action('render_block', array($blockAttributes, 'renderBlock')));
+        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerAudioAttribute')));
+        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerMarkerAttribute')));
+        $this->assertEquals(10, has_action('render_block', array(BlockAttributes::class, 'renderBlock')));
     }
 
     /**
@@ -49,9 +46,7 @@ class BlockAttributesTest extends WP_UnitTestCase
      */
     public function registerAudioAttribute($args, $expect)
     {
-        $blockAttributes = new BlockAttributes();
-
-        $this->assertSame($expect, $blockAttributes->registerAudioAttribute($args));
+        $this->assertSame($expect, BlockAttributes::registerAudioAttribute($args));
     }
 
     public function registerAudioAttributeProvider($args) {
@@ -124,7 +119,7 @@ class BlockAttributesTest extends WP_UnitTestCase
      */
     public function registerMarkerAttribute($args, $expect)
     {
-        $this->assertSame($expect, $this->_instance->registerMarkerAttribute($args));
+        $this->assertSame($expect, BlockAttributes::registerMarkerAttribute($args));
     }
 
     public function registerMarkerAttributeProvider($args) {
@@ -200,7 +195,7 @@ class BlockAttributesTest extends WP_UnitTestCase
 
         $this->assertSame(
             '<p>Test</p>',
-            $this->_instance->renderBlock('<p>Test</p>', [
+            BlockAttributes::renderBlock('<p>Test</p>', [
                 'attrs' => [
                     'beyondwordsMarker' => 'foo',
                 ]
@@ -226,7 +221,7 @@ class BlockAttributesTest extends WP_UnitTestCase
 
         $this->assertSame(
             '<p>Test</p>',
-            $this->_instance->renderBlock('<p>Test</p>', [
+            BlockAttributes::renderBlock('<p>Test</p>', [
                 'attrs' => [
                     'beyondwordsMarker' => 'foo',
                 ]
@@ -257,7 +252,7 @@ class BlockAttributesTest extends WP_UnitTestCase
 
         $this->assertSame(
             '<p>Test</p>',
-            $this->_instance->renderBlock('<p>Test</p>', [
+            BlockAttributes::renderBlock('<p>Test</p>', [
                 'attrs' => [
                     'foo' => 'bar',
                 ]
@@ -288,7 +283,7 @@ class BlockAttributesTest extends WP_UnitTestCase
 
         $this->assertSame(
             '<p data-beyondwords-marker="baz">Test</p>',
-            $this->_instance->renderBlock('<p>Test</p>', [
+            BlockAttributes::renderBlock('<p>Test</p>', [
                 'attrs' => [
                     'beyondwordsMarker' => 'baz',
                 ]

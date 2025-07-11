@@ -21,8 +21,6 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new PreselectGenerateAudio();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -30,8 +28,6 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -44,13 +40,12 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $preselectGenerateAudio = new PreselectGenerateAudio();
-        $preselectGenerateAudio->init();
+        PreselectGenerateAudio::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($preselectGenerateAudio, 'addSetting')));
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($preselectGenerateAudio, 'enqueueScripts')));
+        $this->assertEquals(10, has_action('admin_init', array(PreselectGenerateAudio::class, 'addSetting')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(PreselectGenerateAudio::class, 'enqueueScripts')));
     }
 
     /**
@@ -60,7 +55,7 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        PreselectGenerateAudio::addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-preselect', $wp_settings_fields['beyondwords_content']['content']);
@@ -69,7 +64,7 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-preselect', $field['id']);
         $this->assertSame('Preselect ‘Generate audio’', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array(PreselectGenerateAudio::class, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -83,7 +78,7 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         update_option('beyondwords_preselect', ['post' => ['category' => [$childCategory]]]);
 
-        $this->_instance->render();
+        PreselectGenerateAudio::render();
 
         $html = $this->getActualOutput();
 
@@ -107,18 +102,18 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         $this->assertNull($wp_scripts);
 
-        $this->_instance->enqueueScripts( null );
+        PreselectGenerateAudio::enqueueScripts( null );
         $this->assertNull($wp_scripts);
 
-        $this->_instance->enqueueScripts( 'edit.php' );
+        PreselectGenerateAudio::enqueueScripts( 'edit.php' );
         $this->assertNull($wp_scripts);
 
-        $this->_instance->enqueueScripts( 'post.php' );
+        PreselectGenerateAudio::enqueueScripts( 'post.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
 
         $wp_scripts = null;
 
-        $this->_instance->enqueueScripts( 'post-new.php' );
+        PreselectGenerateAudio::enqueueScripts( 'post-new.php' );
         $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
 
         $wp_scripts = null;

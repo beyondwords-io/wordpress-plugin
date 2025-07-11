@@ -70,7 +70,7 @@ class Uninstaller
      * Clean up (delete) all BeyondWords custom fields.
      *
      * @since 3.7.0
-     * @since 4.6.1 Use $wpdb->postmeta variable for table name.
+     * @since 4.6.1 Use $wpdb::postmeta variable for table name.
      *
      * @return int The number of custom fields deleted.
      */

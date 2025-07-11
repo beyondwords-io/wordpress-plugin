@@ -25,11 +25,10 @@ class ErrorNoticeTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $errorNotice = new ErrorNotice();
-        $errorNotice->init();
+        ErrorNotice::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('enqueue_block_assets', array($errorNotice, 'enqueueBlockAssets')));
+        $this->assertEquals(10, has_action('enqueue_block_assets', array(ErrorNotice::class, 'enqueueBlockAssets')));
     }
 }
