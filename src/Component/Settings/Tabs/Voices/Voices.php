@@ -35,11 +35,11 @@ class Voices
      */
     public static function init()
     {
-        (new Language())::init();
-        (new TitleVoice())::init();
-        (new TitleVoiceSpeakingRate())::init();
-        (new BodyVoice())::init();
-        (new BodyVoiceSpeakingRate())::init();
+        Language::init();
+        TitleVoice::init();
+        TitleVoiceSpeakingRate::init();
+        BodyVoice::init();
+        BodyVoiceSpeakingRate::init();
 
         add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
     }
