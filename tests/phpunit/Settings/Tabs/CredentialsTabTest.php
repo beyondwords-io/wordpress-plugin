@@ -25,8 +25,6 @@ class CredentialsTabTest extends WP_UnitTestCase
         // Your set up methods here.
         wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
-        $this->_instance = new Credentials();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -34,8 +32,6 @@ class CredentialsTabTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -48,10 +44,10 @@ class CredentialsTabTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $this->_instance->init();
+        Credentials::init();
 
         // Actions
-        $this->assertEquals(5, has_action('admin_init', array($this->_instance, 'addSettingsSection')));
+        $this->assertEquals(5, has_action('admin_init', array(Credentials::class, 'addSettingsSection')));
     }
 
     /**
@@ -62,12 +58,12 @@ class CredentialsTabTest extends WP_UnitTestCase
         global $wp_settings_sections;
         $wp_settings_sections = null;
 
-        $this->_instance->addSettingsSection();
+        Credentials::addSettingsSection();
 
         $this->assertArrayHasKey('beyondwords_credentials', $wp_settings_sections);
         $this->assertArrayHasKey('credentials', $wp_settings_sections['beyondwords_credentials']);
         $this->assertSame('credentials', $wp_settings_sections['beyondwords_credentials']['credentials']['id']);
         $this->assertSame('Credentials', $wp_settings_sections['beyondwords_credentials']['credentials']['title']);
-        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_credentials']['credentials']['callback']);
+        $this->assertSame([Credentials::class, 'sectionCallback'], $wp_settings_sections['beyondwords_credentials']['credentials']['callback']);
     }
 }

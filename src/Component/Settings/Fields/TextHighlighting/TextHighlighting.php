@@ -40,10 +40,11 @@ class TextHighlighting
      * Init.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -54,17 +55,18 @@ class TextHighlighting
      * Init setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_player_settings',
             self::OPTION_NAME,
             [
                 'type'              => 'string',
-                'sanitize_callback' => array($this, 'sanitize'),
+                'sanitize_callback' => array(__CLASS__, 'sanitize'),
                 'default'           => self::DEFAULT_VALUE,
             ]
         );
@@ -72,7 +74,7 @@ class TextHighlighting
         add_settings_field(
             'beyondwords-text-highlighting',
             __('Text highlighting', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_player',
             'styling'
         );
@@ -82,10 +84,11 @@ class TextHighlighting
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $value      = get_option(self::OPTION_NAME);
         $lightTheme = get_option('beyondwords_player_theme_light');
@@ -131,11 +134,13 @@ class TextHighlighting
      * Sanitise the setting value.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
+     *
      * @param string $value The submitted value.
      *
      * @return void
      **/
-    public function sanitize($value)
+    public static function sanitize($value)
     {
         if ($value) {
             return 'body';

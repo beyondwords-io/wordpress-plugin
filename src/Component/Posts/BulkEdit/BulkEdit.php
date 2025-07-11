@@ -30,20 +30,21 @@ class BulkEdit
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('bulk_edit_custom_box', array($this, 'bulkEditCustomBox'), 10, 2);
-        add_action('wp_ajax_save_bulk_edit_beyondwords', array($this, 'saveBulkEdit'));
+        add_action('bulk_edit_custom_box', array(__CLASS__, 'bulkEditCustomBox'), 10, 2);
+        add_action('wp_ajax_save_bulk_edit_beyondwords', array(__CLASS__, 'saveBulkEdit'));
 
         add_action('wp_loaded', function () {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_filter("bulk_actions-edit-{$postType}", array($this, 'bulkActionsEdit'), 10, 1);
-                    add_filter("handle_bulk_actions-edit-{$postType}", array($this, 'handleBulkDeleteAction'), 10, 3);
-                    add_filter("handle_bulk_actions-edit-{$postType}", array($this, 'handleBulkGenerateAction'), 10, 3);
+                    add_filter("bulk_actions-edit-{$postType}", array(__CLASS__, 'bulkActionsEdit'), 10, 1);
+                    add_filter("handle_bulk_actions-edit-{$postType}", array(__CLASS__, 'handleBulkDeleteAction'), 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    add_filter("handle_bulk_actions-edit-{$postType}", array(__CLASS__, 'handleBulkGenerateAction'), 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
                 }
             }
         });
@@ -51,8 +52,10 @@ class BulkEdit
 
     /**
      * Adds the meta box container.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function bulkEditCustomBox($columnName, $postType)
+    public static function bulkEditCustomBox($columnName, $postType)
     {
         if ($columnName !== 'beyondwords') {
             return;
@@ -88,8 +91,10 @@ class BulkEdit
      * Save Bulk Edit updates.
      *
      * @link https://rudrastyh.com/wordpress/bulk-edit.html
+     *
+     * @since 6.0.0 Make static.
      */
-    public function saveBulkEdit()
+    public static function saveBulkEdit()
     {
         /*
          * We need to verify this came from the our screen and with proper authorization,
@@ -112,10 +117,10 @@ class BulkEdit
 
             switch ($_POST['beyondwords_bulk_edit']) {
                 case 'generate':
-                    return $this->generateAudioForPosts($postIds);
+                    return self::generateAudioForPosts($postIds);
                     break;
                 case 'delete':
-                    return $this->deleteAudioForPosts($postIds);
+                    return self::deleteAudioForPosts($postIds);
                     break;
             }
         }
@@ -123,7 +128,12 @@ class BulkEdit
         return [];
     }
 
-    public function generateAudioForPosts($postIds)
+    /**
+     * Generate audio for posts.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function generateAudioForPosts($postIds)
     {
         if (! is_array($postIds)) {
             return false;
@@ -142,19 +152,19 @@ class BulkEdit
     }
 
     /**
-     * @SuppressWarnings(PHPMD.LongVariable)
+     * Delete audio for posts.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function deleteAudioForPosts($postIds)
+    public static function deleteAudioForPosts($postIds)
     {
-        global $beyondwords_wordpress_plugin;
-
         if (! is_array($postIds)) {
             return false;
         }
 
         $updatedPostIds = [];
 
-        $response = $beyondwords_wordpress_plugin->core->batchDeleteAudioForPosts($postIds);
+        $response = Core::batchDeleteAudioForPosts($postIds);
 
         if (! $response) {
             throw new \Exception(esc_html__('Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.', 'speechkit')); // phpcs:ignore Generic.Files.LineLength.TooLong
@@ -174,9 +184,11 @@ class BulkEdit
     }
 
     /**
+     * Add custom bulk actions to the posts list table.
      *
+     * @since 6.0.0 Make static.
      */
-    public function bulkActionsEdit($bulk_array)
+    public static function bulkActionsEdit($bulk_array)
     {
         $bulk_array['beyondwords_generate_audio'] = __('Generate audio', 'speechkit');
         $bulk_array['beyondwords_delete_audio']   = __('Delete audio', 'speechkit');
@@ -185,15 +197,15 @@ class BulkEdit
     }
 
     /**
-     * @SuppressWarnings(PHPMD.LongVariable)
+     * Handle the "Generate audio" bulk action.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function handleBulkGenerateAction($redirect, $doaction, $objectIds)
+    public static function handleBulkGenerateAction($redirect, $doaction, $objectIds)
     {
         if ($doaction !== 'beyondwords_generate_audio') {
             return $redirect;
         }
-
-        global $beyondwords_wordpress_plugin;
 
         // Remove query args
         $args = [
@@ -219,19 +231,12 @@ class BulkEdit
 
             // Now process all posts
             foreach ($objectIds as $postId) {
-                if (
-                    $beyondwords_wordpress_plugin instanceof Plugin
-                    && $beyondwords_wordpress_plugin->core instanceof Core
-                ) {
-                    $response = $beyondwords_wordpress_plugin->core->generateAudioForPost($postId);
+                $response = Core::generateAudioForPost($postId);
 
-                    if ($response) {
-                        $generated++;
-                    } else {
-                        $failed++;
-                    }
+                if ($response) {
+                    $generated++;
                 } else {
-                    throw new \Exception(esc_html__('Error while bulk generating audio. Please contact support with reference BULK-NO-PLUGIN.', 'speechkit')); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $failed++;
                 }
             }
         } catch (\Exception $e) {
@@ -250,9 +255,11 @@ class BulkEdit
     }
 
     /**
+     * Handle the "Delete audio" bulk action.
      *
+     * @since 6.0.0 Make static.
      */
-    public function handleBulkDeleteAction($redirect, $doaction, $objectIds)
+    public static function handleBulkDeleteAction($redirect, $doaction, $objectIds)
     {
         if ($doaction !== 'beyondwords_delete_audio') {
             return $redirect;
@@ -275,7 +282,7 @@ class BulkEdit
 
         // Handle "Delete audio" bulk action
         try {
-            $result = $this->deleteAudioForPosts($objectIds);
+            $result = self::deleteAudioForPosts($objectIds);
 
             $deleted = count($result);
 

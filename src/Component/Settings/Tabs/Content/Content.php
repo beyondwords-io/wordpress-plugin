@@ -30,28 +30,30 @@ class Content
      * Init
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        (new IncludeTitle())->init();
-        (new AutoPublish())->init();
-        (new IncludeExcerpt())->init();
-        (new PreselectGenerateAudio())->init();
+        (new IncludeTitle())::init();
+        (new AutoPublish())::init();
+        (new IncludeExcerpt())::init();
+        (new PreselectGenerateAudio())::init();
 
-        add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
     }
 
     /**
      * Add Settings sections.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsSection()
+    public static function addSettingsSection()
     {
         add_settings_section(
             'content',
             __('Content', 'speechkit'),
-            array($this, 'sectionCallback'),
+            array(__CLASS__, 'sectionCallback'),
             'beyondwords_content',
         );
     }
@@ -60,10 +62,11 @@ class Content
      * Section callback
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function sectionCallback()
+    public static function sectionCallback()
     {
         ?>
         <p class="description">

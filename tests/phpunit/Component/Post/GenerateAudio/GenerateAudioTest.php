@@ -16,15 +16,12 @@ class GenerateAudioTest extends WP_UnitTestCase
         unset($_POST, $_REQUEST);
 
         // Your set up methods here.
-        $this->_instance = new GenerateAudio();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
         unset($_POST, $_REQUEST);
-
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();
@@ -35,13 +32,12 @@ class GenerateAudioTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $generateAudio = new GenerateAudio();
-        $generateAudio->init();
+        GenerateAudio::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('save_post_post', array($generateAudio, 'save')));
-        $this->assertEquals(10, has_action('save_post_page', array($generateAudio, 'save')));
+        $this->assertEquals(10, has_action('save_post_post', array(GenerateAudio::class, 'save')));
+        $this->assertEquals(10, has_action('save_post_page', array(GenerateAudio::class, 'save')));
     }
 
     /**
@@ -55,7 +51,7 @@ class GenerateAudioTest extends WP_UnitTestCase
             'post_content' => '<p>The body.</p>',
         ]);
 
-        $resultId = $this->_instance->save($post->ID);
+        $resultId = GenerateAudio::save($post->ID);
 
         // Check the post object has not changed
         $this->assertSame(json_encode($post), wp_json_encode(get_post($resultId)));
@@ -76,7 +72,7 @@ class GenerateAudioTest extends WP_UnitTestCase
             'post_content' => '<p>The body.</p>',
         ]);
 
-        $resultId = $this->_instance->save($post->ID);
+        $resultId = GenerateAudio::save($post->ID);
 
         // Check the post object has not changed
         $this->assertSame(json_encode($post), wp_json_encode(get_post($resultId)));
@@ -102,7 +98,7 @@ class GenerateAudioTest extends WP_UnitTestCase
             'post_content' => '<p>The body.</p>',
         ]);
 
-        $this->_instance->save($postId);
+        GenerateAudio::save($postId);
 
         $this->assertSame($expect, get_post_meta($postId, 'beyondwords_generate_audio', true));
 
@@ -155,23 +151,23 @@ class GenerateAudioTest extends WP_UnitTestCase
             'post_type' => 'page'
         ]);
 
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio(null));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio(null));
 
         update_option('beyondwords_preselect', ['post' => '1']);
-        $this->assertTrue($this->_instance->shouldPreselectGenerateAudio($post));
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($page));
+        $this->assertTrue(GenerateAudio::shouldPreselectGenerateAudio($post));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
 
         update_option('beyondwords_preselect', ['post' => ['category' => ['1']]]);
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($post));
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
 
         update_option('beyondwords_preselect', ['page' => '1']);
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($post));
-        $this->assertTrue($this->_instance->shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
+        $this->assertTrue(GenerateAudio::shouldPreselectGenerateAudio($page));
 
         update_option('beyondwords_preselect', ['page' => ['category' => ['1']]]);
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($post));
-        $this->assertFalse($this->_instance->shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
+        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
 
         delete_option('beyondwords_preselect');
 

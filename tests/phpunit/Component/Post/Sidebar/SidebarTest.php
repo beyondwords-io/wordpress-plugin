@@ -25,11 +25,10 @@ class SidebarTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $sidebar = new Sidebar();
-        $sidebar->init();
+        Sidebar::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('enqueue_block_assets', array($sidebar, 'enqueueBlockAssets')));
+        $this->assertEquals(10, has_action('enqueue_block_assets', array(Sidebar::class, 'enqueueBlockAssets')));
     }
 }

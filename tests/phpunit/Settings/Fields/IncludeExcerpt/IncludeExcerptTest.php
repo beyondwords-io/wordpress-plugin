@@ -21,8 +21,6 @@ class IncludeExcerptTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new IncludeExcerpt();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -30,8 +28,6 @@ class IncludeExcerptTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -44,12 +40,11 @@ class IncludeExcerptTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $includeExcerpt = new IncludeExcerpt();
-        $includeExcerpt->init();
+        IncludeExcerpt::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($includeExcerpt, 'addSetting')));
+        $this->assertEquals(10, has_action('admin_init', array(IncludeExcerpt::class, 'addSetting')));
         $this->assertEquals(10, has_action('option_beyondwords_prepend_excerpt', 'rest_sanitize_boolean'));
     }
 
@@ -60,7 +55,7 @@ class IncludeExcerptTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        IncludeExcerpt::addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-include-excerpt', $wp_settings_fields['beyondwords_content']['content']);
@@ -69,7 +64,7 @@ class IncludeExcerptTest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-include-excerpt', $field['id']);
         $this->assertSame('Excerpt', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array(IncludeExcerpt::class, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -78,7 +73,7 @@ class IncludeExcerptTest extends WP_UnitTestCase
      */
     public function render()
     {
-        $this->_instance->render();
+        IncludeExcerpt::render();
 
         $html = $this->getActualOutput();
 
@@ -89,7 +84,7 @@ class IncludeExcerptTest extends WP_UnitTestCase
 
         update_option('beyondwords_prepend_excerpt', '1');
 
-        $this->_instance->render();
+        IncludeExcerpt::render();
 
         $html = $this->getActualOutput();
 
