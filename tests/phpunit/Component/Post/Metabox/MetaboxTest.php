@@ -19,14 +19,11 @@ class MetaboxTest extends WP_UnitTestCase
 
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
-
-        $this->_instance = new Metabox();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();
@@ -37,12 +34,12 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $this->_instance->init();
+        Metabox::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($this->_instance, 'adminEnqueueScripts')));
-        $this->assertEquals(10, has_action('add_meta_boxes', array($this->_instance, 'addMetaBox')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(Metabox::class, 'adminEnqueueScripts')));
+        $this->assertEquals(10, has_action('add_meta_boxes', array(Metabox::class, 'addMetaBox')));
     }
 
     /**
@@ -54,13 +51,13 @@ class MetaboxTest extends WP_UnitTestCase
 
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts(null);
+        Metabox::adminEnqueueScripts(null);
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts('edit.php');
+        Metabox::adminEnqueueScripts('edit.php');
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts('post.php');
+        Metabox::adminEnqueueScripts('post.php');
         $this->assertTrue(wp_style_is($style, 'enqueued'));
 
         wp_dequeue_style($style);
@@ -73,7 +70,7 @@ class MetaboxTest extends WP_UnitTestCase
     {
         global $wp_meta_boxes;
 
-        $this->_instance->addMetaBox('post');
+        Metabox::addMetaBox('post');
 
         $this->assertArrayHasKey('beyondwords', $wp_meta_boxes['post']['side']['default']);
 
@@ -90,7 +87,7 @@ class MetaboxTest extends WP_UnitTestCase
 
         $postId = self::factory()->post->create($postArgs);
 
-        $this->_instance->renderMetaBoxContent($postId);
+        Metabox::renderMetaBoxContent($postId);
 
         $html = $this->getActualOutput();
 
@@ -155,7 +152,7 @@ class MetaboxTest extends WP_UnitTestCase
     {
         $this->markTestSkipped('Needs updated after recent language changes.');
 
-        $this->_instance->renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
+        Metabox::renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
 
         $html = $this->getActualOutput();
 
@@ -170,7 +167,7 @@ class MetaboxTest extends WP_UnitTestCase
     {
         $post = self::factory()->post->create_and_get($postArgs);
 
-        $this->_instance->errors($post);
+        Metabox::errors($post);
 
         $html = $this->getActualOutput();
 
@@ -214,7 +211,7 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function regenerateInstructions()
     {
-        $this->_instance->regenerateInstructions();
+        Metabox::regenerateInstructions();
 
         $html = $this->getActualOutput();
 

@@ -46,11 +46,12 @@ class PlayerColors
      * Init.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addPlayerThemeSetting'));
-        add_action('admin_init', array($this, 'addPlayerColorsSetting'));
+        add_action('admin_init', array(__CLASS__, 'addPlayerThemeSetting'));
+        add_action('admin_init', array(__CLASS__, 'addPlayerColorsSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME_THEME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME_THEME);
             return $value;
@@ -73,10 +74,11 @@ class PlayerColors
      * Init "Player color" setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addPlayerThemeSetting()
+    public static function addPlayerThemeSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -89,7 +91,7 @@ class PlayerColors
         add_settings_field(
             'beyondwords-player-theme',
             __('Player theme', 'speechkit'),
-            array($this, 'renderPlayerThemeSetting'),
+            array(__CLASS__, 'renderPlayerThemeSetting'),
             'beyondwords_player',
             'styling'
         );
@@ -99,10 +101,11 @@ class PlayerColors
      * Init "Player colors" setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addPlayerColorsSetting()
+    public static function addPlayerColorsSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -114,7 +117,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#eee',
                 ],
-                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
+                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
             ]
         );
 
@@ -128,7 +131,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#eee',
                 ],
-                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
+                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
             ]
         );
 
@@ -141,14 +144,14 @@ class PlayerColors
                     'icon_color'       => '#fff',
                     'text_color'       => '#fff',
                 ],
-                'sanitize_callback' => array($this, 'sanitizeColorsArray'),
+                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
             ]
         );
 
         add_settings_field(
             'beyondwords-player-colors',
             __('Player colors', 'speechkit'),
-            array($this, 'renderPlayerColorsSetting'),
+            array(__CLASS__, 'renderPlayerColorsSetting'),
             'beyondwords_player',
             'styling'
         );
@@ -158,13 +161,14 @@ class PlayerColors
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string
      **/
-    public function renderPlayerThemeSetting()
+    public static function renderPlayerThemeSetting()
     {
         $current = get_option(self::OPTION_NAME_THEME);
-        $themeOptions = $this->getPlayerThemeOptions();
+        $themeOptions = self::getPlayerThemeOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__player--player-colors">
             <select name="<?php echo esc_attr(self::OPTION_NAME_THEME) ?>">
@@ -187,24 +191,25 @@ class PlayerColors
      * Sanitise the colors array setting value.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $value The submitted value.
      *
      * @return array The sanitized value.
      **/
-    public function sanitizeColorsArray($value)
+    public static function sanitizeColorsArray($value)
     {
         if (!is_array($value)) {
             return [];
         }
 
-        $value['background_color'] = $this->sanitizeColor($value['background_color'] ?: '');
-        $value['text_color']       = $this->sanitizeColor($value['text_color']       ?: '');
-        $value['icon_color']       = $this->sanitizeColor($value['icon_color']       ?: '');
+        $value['background_color'] = self::sanitizeColor($value['background_color'] ?: '');
+        $value['text_color']       = self::sanitizeColor($value['text_color']       ?: '');
+        $value['icon_color']       = self::sanitizeColor($value['icon_color']       ?: '');
 
         // Highlight doesn't exist for video player
         if (!empty($value['highlight_color'])) {
-            $value['highlight_color'] = $this->sanitizeColor($value['highlight_color']);
+            $value['highlight_color'] = self::sanitizeColor($value['highlight_color']);
         }
 
         return $value;
@@ -214,12 +219,13 @@ class PlayerColors
      * Sanitize an individual color value.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $value The submitted individual color value.
      *
      * @return array The sanitized value.
      **/
-    public function sanitizeColor($value)
+    public static function sanitizeColor($value)
     {
         $value = strtolower(trim((string)$value));
 
@@ -235,10 +241,11 @@ class PlayerColors
      * Get all options for the current component.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string[] Associative array of player theme options.
      **/
-    public function getPlayerThemeOptions()
+    public static function getPlayerThemeOptions()
     {
         $themeOptions = [
             [
@@ -262,28 +269,29 @@ class PlayerColors
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string
      **/
-    public function renderPlayerColorsSetting()
+    public static function renderPlayerColorsSetting()
     {
         $lightTheme = get_option(self::OPTION_NAME_LIGHT_THEME);
         $darkTheme  = get_option(self::OPTION_NAME_DARK_THEME);
         $videoTheme = get_option(self::OPTION_NAME_VIDEO_THEME);
 
-        $this->playerColorsTable(
+        self::playerColorsTable(
             __('Light theme settings', 'speechkit'),
             self::OPTION_NAME_LIGHT_THEME,
             $lightTheme,
         );
 
-        $this->playerColorsTable(
+        self::playerColorsTable(
             __('Dark theme settings', 'speechkit'),
             self::OPTION_NAME_DARK_THEME,
             $darkTheme,
         );
 
-        $this->playerColorsTable(
+        self::playerColorsTable(
             __('Video theme settings', 'speechkit'),
             self::OPTION_NAME_VIDEO_THEME,
             $videoTheme,
@@ -294,10 +302,11 @@ class PlayerColors
      * A player colors table.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string
      **/
-    public function playerColorsTable($title, $name, $value)
+    public static function playerColorsTable($title, $name, $value)
     {
         ?>
         <h3 class="subheading">

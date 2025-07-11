@@ -205,7 +205,7 @@ class PostContentUtils
 
         // Remove any segments with empty text
         $segments = array_values(array_filter($segments, function ($segment) {
-            return (! empty($segment->text));
+            return (! empty($segment::text));
         }));
 
         return $segments;

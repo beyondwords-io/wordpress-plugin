@@ -35,12 +35,11 @@ class SiteHealthTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $siteHealth = new SiteHealth();
-        $siteHealth->init();
+        SiteHealth::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_filter('debug_information', array($siteHealth, 'debugInformation')));
+        $this->assertEquals(10, has_filter('debug_information', array(SiteHealth::class, 'debugInformation')));
     }
 
     /**

@@ -19,13 +19,11 @@ class PlayerTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new Player();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();
@@ -36,18 +34,17 @@ class PlayerTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $player = new Player();
-        $player->init();
+        Player::init();
 
         do_action('wp_loaded');
 
         // Actions
-        $this->assertEquals(10, has_action('init', array($player, 'registerShortcodes')));
-        $this->assertEquals(10, has_action('wp_enqueue_scripts', array($player, 'enqueueScripts')));
+        $this->assertEquals(10, has_action('init', array(Player::class, 'registerShortcodes')));
+        $this->assertEquals(10, has_action('wp_enqueue_scripts', array(Player::class, 'enqueueScripts')));
 
         // Filters
-        $this->assertEquals(1000000, has_filter('the_content', array($player, 'autoPrependPlayer')));
-        $this->assertEquals(10, has_filter('newsstand_the_content', array($player, 'autoPrependPlayer')));
+        $this->assertEquals(1000000, has_filter('the_content', array(Player::class, 'autoPrependPlayer')));
+        $this->assertEquals(10, has_filter('newsstand_the_content', array(Player::class, 'autoPrependPlayer')));
     }
 
     /**
@@ -98,14 +95,14 @@ class PlayerTest extends WP_UnitTestCase
 
         $content = '<p>Test content.</p>';
 
-        $output = $this->_instance->autoPrependPlayer($content);
+        $output = Player::autoPrependPlayer($content);
 
         // autoPrependPlayer() should not affect $content unless is_singular()
         $this->assertSame($content, $output);
 
         $this->go_to("/?p={$post->ID}");
 
-        $output = $this->_instance->autoPrependPlayer($content);
+        $output = Player::autoPrependPlayer($content);
 
         // We are now is_singular() so player should be prepended
         $this->assertSame('<div data-beyondwords-player="true" contenteditable="false"></div>' . $content, $output);
@@ -128,7 +125,7 @@ class PlayerTest extends WP_UnitTestCase
             ],
         ]);
 
-        $html = $this->_instance->jsPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
+        $html = Player::jsPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
 
         $this->assertNotEmpty($html);
 
@@ -168,7 +165,7 @@ class PlayerTest extends WP_UnitTestCase
 
         add_filter('beyondwords_player_html', $filter, 10, 4);
 
-        $html = $this->_instance->playerHtml($post);
+        $html = Player::playerHtml($post);
 
         remove_filter('beyondwords_player_html', $filter, 10, 4);
 
@@ -201,7 +198,7 @@ class PlayerTest extends WP_UnitTestCase
 
         $src = "https://audio.beyondwords.io/amp/" . BEYONDWORDS_TESTS_PROJECT_ID . "?podcast_id=" . BEYONDWORDS_TESTS_CONTENT_ID;
 
-        $html = $this->_instance->ampPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
+        $html = Player::ampPlayerHtml($postId, BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
 
         $crawler = new Crawler($html);
 
@@ -241,16 +238,16 @@ class PlayerTest extends WP_UnitTestCase
             ],
         ]);
 
-        $this->assertFalse($this->_instance->isPlayerEnabled());
-        $this->assertFalse($this->_instance->isPlayerEnabled(0));
-        $this->assertFalse($this->_instance->isPlayerEnabled(false));
+        $this->assertFalse(Player::isPlayerEnabled());
+        $this->assertFalse(Player::isPlayerEnabled(0));
+        $this->assertFalse(Player::isPlayerEnabled(false));
 
-        $this->assertTrue($this->_instance->isPlayerEnabled($post));
-        $this->assertTrue($this->_instance->isPlayerEnabled($post->ID));
+        $this->assertTrue(Player::isPlayerEnabled($post));
+        $this->assertTrue(Player::isPlayerEnabled($post->ID));
 
         update_post_meta($post->ID, 'beyondwords_disabled', 1);
 
-        $this->assertFalse($this->_instance->isPlayerEnabled($post->ID));
+        $this->assertFalse(Player::isPlayerEnabled($post->ID));
 
         wp_delete_post($post->ID, true);
     }
@@ -268,7 +265,7 @@ class PlayerTest extends WP_UnitTestCase
             ],
         ]);
 
-        $params = $this->_instance->jsPlayerParams($post);
+        $params = Player::jsPlayerParams($post);
 
         $this->assertEquals($params->projectId, BEYONDWORDS_TESTS_PROJECT_ID);
         $this->assertEquals($params->contentId, BEYONDWORDS_TESTS_CONTENT_ID);
@@ -307,7 +304,7 @@ class PlayerTest extends WP_UnitTestCase
 
         add_filter('beyondwords_player_sdk_params', $filter, 10);
 
-        $params = $this->_instance->jsPlayerParams($post);
+        $params = Player::jsPlayerParams($post);
 
         remove_filter('beyondwords_player_sdk_params', $filter, 10);
 
@@ -338,23 +335,23 @@ class PlayerTest extends WP_UnitTestCase
         $this->assertNull($wp_scripts);
 
         $this->go_to("/");
-        $this->_instance->enqueueScripts( 'front.php' );
+        Player::enqueueScripts( 'front.php' );
         $this->assertNull($wp_scripts);
 
         $this->go_to("/wp-admin/options.php");
-        $this->_instance->enqueueScripts( 'options.php' );
+        Player::enqueueScripts( 'options.php' );
         $this->assertNull($wp_scripts);
 
         $this->go_to("/wp-admin/post.php");
-        $this->_instance->enqueueScripts( 'post.php' );
+        Player::enqueueScripts( 'post.php' );
         $this->assertNull($wp_scripts);
 
         $this->go_to("/wp-admin/post-new.php");
-        $this->_instance->enqueueScripts( 'post-new.php' );
+        Player::enqueueScripts( 'post-new.php' );
         $this->assertNull($wp_scripts);
 
         $this->go_to("/?p={$postId}");
-        $this->_instance->enqueueScripts( 'single.php' );
+        Player::enqueueScripts( 'single.php' );
         $this->assertContains('beyondwords-sdk', $wp_scripts->queue);
 
         $wp_scripts = null;
@@ -375,7 +372,7 @@ class PlayerTest extends WP_UnitTestCase
 
         setup_postdata($post);
 
-        $output = $this->_instance->scriptLoaderTag($tag, $handle, $src);
+        $output = Player::scriptLoaderTag($tag, $handle, $src);
         $output = trim($output);
 
         // Trim new lines and whitespace

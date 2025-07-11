@@ -32,10 +32,11 @@ class WidgetStyle
      * Constructor
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -46,10 +47,11 @@ class WidgetStyle
      * Add setting.
      *
      * @since 4.5.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -62,7 +64,7 @@ class WidgetStyle
         add_settings_field(
             'beyondwords-widget-style',
             __('Widget style', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_player',
             'widget'
         );
@@ -72,13 +74,14 @@ class WidgetStyle
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $current = get_option(self::OPTION_NAME);
-        $options = $this->getOptions();
+        $options = self::getOptions();
         ?>
         <div class="beyondwords-setting__player beyondwords-setting__widget-style">
             <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
@@ -113,10 +116,11 @@ class WidgetStyle
      * Get all options for the current component.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string[] Associative array of options.
      **/
-    public function getOptions()
+    public static function getOptions()
     {
         $options = [
             [

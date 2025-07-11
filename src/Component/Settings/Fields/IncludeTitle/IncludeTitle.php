@@ -39,10 +39,11 @@ class IncludeTitle
      * Init.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array( $this, 'addSetting' ));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -54,10 +55,11 @@ class IncludeTitle
      * Init setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_content_settings',
@@ -72,7 +74,7 @@ class IncludeTitle
         add_settings_field(
             'beyondwords-include-title',
             __('Title', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_content',
             'content'
         );
@@ -82,10 +84,11 @@ class IncludeTitle
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $value = get_option(self::OPTION_NAME);
         ?>

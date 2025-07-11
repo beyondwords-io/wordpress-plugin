@@ -18,14 +18,11 @@ class SyncTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-
-        $this->_instance = new Sync();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
         wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
         wp_cache_delete('beyondwords_sync_to_dashboard', 'beyondwords');
 
@@ -38,13 +35,12 @@ class SyncTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $sync = new Sync();
-        $sync->init();
+        Sync::init();
 
         do_action('wp_loaded');
 
         // Actions
-        $this->assertSame(30, has_action('load-settings_page_beyondwords', array($sync, 'syncToWordPress')));
+        $this->assertSame(30, has_action('load-settings_page_beyondwords', array(Sync::class, 'syncToWordPress')));
 
         // @todo Test the rest of the actions
         // $this->assertSame(20, has_action('load-settings_page_beyondwords', array($sync, 'scheduleSyncs')));
@@ -58,8 +54,7 @@ class SyncTest extends WP_UnitTestCase
      */
     public function scheduleSyncsWithInvalidTab()
     {
-        $sync = new Sync();
-        $sync->scheduleSyncs();
+        Sync::scheduleSyncs();
 
         $this->assertEmpty(wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords'));
     }
@@ -72,8 +67,7 @@ class SyncTest extends WP_UnitTestCase
     {
         wp_cache_set('beyondwords_sync_to_dashboard', [$path], 'beyondwords');
 
-        $sync = new Sync();
-        $this->assertTrue($sync->shouldSyncOptionToDashboard($option));
+        $this->assertTrue(Sync::shouldSyncOptionToDashboard($option));
     }
 
     public function optionsToPathsProvider()

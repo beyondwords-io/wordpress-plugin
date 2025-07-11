@@ -20,11 +20,12 @@ class WPGraphQL
      * Init.
      *
      * @since 3.6.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
         // Actions for WPGraphQL
-        add_action('graphql_register_types', array($this, 'graphqlRegisterTypes'));
+        add_action('graphql_register_types', array(__CLASS__, 'graphqlRegisterTypes'));
     }
 
     /**
@@ -33,8 +34,9 @@ class WPGraphQL
      * @since 3.6.0
      * @since 4.0.0 Register contentId field, and contentId/podcastId are now String, not Int
      * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
+     * @since 6.0.0 Make static.
      */
-    public function graphqlRegisterTypes()
+    public static function graphqlRegisterTypes()
     {
         register_graphql_object_type('Beyondwords', [
             'description' => __('BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong

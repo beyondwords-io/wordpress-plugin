@@ -17,25 +17,26 @@ class Core
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
         // Actions
-        add_action('enqueue_block_editor_assets', array($this, 'enqueueBlockEditorAssets'), 1, 0);
-        add_action('init', array($this, 'loadPluginTextdomain'));
-        add_action('init', array($this, 'registerMeta'), 99, 3);
+        add_action('enqueue_block_editor_assets', array(__CLASS__, 'enqueueBlockEditorAssets'), 1, 0);
+        add_action('init', array(__CLASS__, 'loadPluginTextdomain'));
+        add_action('init', array(__CLASS__, 'registerMeta'), 99, 3);
 
         // Actions for adding/updating posts
-        add_action('wp_after_insert_post', array($this, 'onAddOrUpdatePost'), 99);
+        add_action('wp_after_insert_post', array(__CLASS__, 'onAddOrUpdatePost'), 99);
 
         // Actions for trashing/deleting posts
-        add_action('wp_trash_post', array($this, 'onTrashPost'));
-        add_action('before_delete_post', array($this, 'onDeletePost'));
+        add_action('wp_trash_post', array(__CLASS__, 'onTrashPost'));
+        add_action('before_delete_post', array(__CLASS__, 'onDeletePost'));
 
-        add_filter('is_protected_meta', array($this, 'isProtectedMeta'), 10, 2);
+        add_filter('is_protected_meta', array(__CLASS__, 'isProtectedMeta'), 10, 2);
 
         // Older posts may be missing beyondwords_language_code, so we'll try to set it.
-        add_filter('get_post_metadata', array($this, 'getLangCodeFromJsonIfEmpty'), 10, 3);
+        add_filter('get_post_metadata', array(__CLASS__, 'getLangCodeFromJsonIfEmpty'), 10, 3);
     }
 
     /**
@@ -44,12 +45,13 @@ class Core
      * @since 3.5.0
      * @since 3.7.0 Process audio for posts with 'pending' status
      * @since 5.0.0 Remove beyondwords_post_statuses filter.
+     * @since 6.0.0 Make static.
      *
      * @param string $status WordPress post status (e.g. 'pending', 'publish', 'private', 'future', etc).
      *
      * @return boolean
      */
-    public function shouldProcessPostStatus($status)
+    public static function shouldProcessPostStatus($status)
     {
         $statuses = ['pending', 'publish', 'private', 'future'];
 
@@ -83,12 +85,13 @@ class Core
      * @since 3.5.0
      * @since 3.10.0 Remove wp_is_post_revision check
      * @since 5.1.0  Regenerate audio for all post statuses
+     * @since 6.0.0 Make static.
      *
      * @param int $postId WordPress Post ID.
      *
      * @return boolean
      */
-    public function shouldGenerateAudioForPost($postId)
+    public static function shouldGenerateAudioForPost($postId)
     {
         // Autosaves don't generate audio
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
@@ -111,7 +114,7 @@ class Core
         $status        = get_post_status($postId);
 
         // Generate if audio has been requested for a valid post status
-        if ($generateAudio && $this->shouldProcessPostStatus($status)) {
+        if ($generateAudio && self::shouldProcessPostStatus($status)) {
             return true;
         }
 
@@ -124,17 +127,18 @@ class Core
      *
      * @since 3.0.0
      * @since 3.2.0 Added speechkit_post_statuses filter
-     * @since 3.5.0 Refactored, adding $this->shouldGenerateAudioForPost()
-     * @since 5.1.0 Move project ID check into $this->shouldGenerateAudioForPost()
+     * @since 3.5.0 Refactored, adding self::shouldGenerateAudioForPost()
+     * @since 5.1.0 Move project ID check into self::shouldGenerateAudioForPost()
+     * @since 6.0.0 Make static.
      *
      * @param int $postId WordPress Post ID.
      *
      * @return array|false Response from API, or false if audio was not generated.
      */
-    public function generateAudioForPost($postId)
+    public static function generateAudioForPost($postId)
     {
         // Perform checks to see if this post should be processed
-        if (! $this->shouldGenerateAudioForPost($postId)) {
+        if (! self::shouldGenerateAudioForPost($postId)) {
             return false;
         }
 
@@ -154,7 +158,7 @@ class Core
 
         $projectId = PostMetaUtils::getProjectId($postId);
 
-        $this->processResponse($response, $projectId, $postId);
+        self::processResponse($response, $projectId, $postId);
 
         return $response;
     }
@@ -163,12 +167,13 @@ class Core
      * Delete audio for post.
      *
      * @since 4.0.5
+     * @since 6.0.0 Make static.
      *
      * @param int $postId WordPress Post ID.
      *
      * @return array|false Response from API, or false if audio was not generated.
      */
-    public function deleteAudioForPost($postId)
+    public static function deleteAudioForPost($postId)
     {
         return ApiClient::deleteAudio($postId);
     }
@@ -177,12 +182,13 @@ class Core
      * Batch delete audio for posts.
      *
      * @since 4.1.0
+     * @since 6.0.0 Make static.
      *
      * @param int[] $postIds Array of WordPress Post IDs.
      *
      * @return array|false Response from API, or false if audio was not generated.
      */
-    public function batchDeleteAudioForPosts($postIds)
+    public static function batchDeleteAudioForPosts($postIds)
     {
         return ApiClient::batchDeleteAudio($postIds);
     }
@@ -195,8 +201,9 @@ class Core
      * @since 4.0.0 Replace Podcast IDs with Content IDs
      * @since 4.5.0 Save response.preview_token to support post scheduling.
      * @since 5.0.0 Stop saving `beyondwords_podcast_id`.
+     * @since 6.0.0 Make static.
      */
-    public function processResponse($response, $projectId, $postId)
+    public static function processResponse($response, $projectId, $postId)
     {
         if (! is_array($response)) {
             return $response;
@@ -235,8 +242,9 @@ class Core
      *
      * @since 3.0.0
      * @since 4.5.1 Disable plugin features if we don't have valid API settings.
+     * @since 6.0.0 Make static.
      */
-    public function enqueueBlockEditorAssets()
+    public static function enqueueBlockEditorAssets()
     {
         if (! SettingsUtils::hasValidApiConnection()) {
             return;
@@ -264,10 +272,11 @@ class Core
      * Load plugin textdomain.
      *
      * @since 3.5.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function loadPluginTextdomain()
+    public static function loadPluginTextdomain()
     {
         load_plugin_textdomain('speechkit');
     }
@@ -280,10 +289,11 @@ class Core
      *
      * @since 2.5.0
      * @since 3.9.0 Don't register speechkit_status - downgrades to plugin v2.x are no longer expected.
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function registerMeta()
+    public static function registerMeta()
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -318,8 +328,9 @@ class Core
      * https://github.com/WordPress/gutenberg/issues/23078
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function isProtectedMeta($protected, $metaKey)
+    public static function isProtectedMeta($protected, $metaKey)
     {
         $keysToProtect = CoreUtils::getPostMetaKeys('all');
 
@@ -339,12 +350,13 @@ class Core
      * @since 3.9.0 Introduced.
      * @since 5.4.0 Renamed from onTrashOrDeletePost, and we now remove all
      *              BeyondWords data when a post is trashed.
+     * @since 6.0.0 Make static.
      *
      * @param int $postId Post ID.
      *
      * @return bool
      **/
-    public function onTrashPost($postId)
+    public static function onTrashPost($postId)
     {
         ApiClient::deleteAudio($postId);
         PostMetaUtils::removeAllBeyondwordsMetadata($postId);
@@ -357,12 +369,13 @@ class Core
      * no longer appears in playlists, or in the publishers BeyondWords dashboard.
      *
      * @since 5.4.0 Introduced, replacing onTrashOrDeletePost.
+     * @since 6.0.0 Make static.
      *
      * @param int $postId Post ID.
      *
      * @return bool
      **/
-    public function onDeletePost($postId)
+    public static function onDeletePost($postId)
     {
         ApiClient::deleteAudio($postId);
     }
@@ -380,17 +393,18 @@ class Core
      * @since 4.4.0 Delete audio if beyondwords_delete_content custom field is set.
      * @since 4.5.0 Remove unwanted debugging custom fields.
      * @since 5.1.0 Move post status check out of here
+     * @since 6.0.0 Make static.
      *
      * @param int $postId Post ID.
      *
      * @return bool|Response
      **/
-    public function onAddOrUpdatePost($postId)
+    public static function onAddOrUpdatePost($postId)
     {
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {
             // Make DELETE API request
-            $this->deleteAudioForPost($postId);
+            self::deleteAudioForPost($postId);
 
             // Remove custom fields
             PostMetaUtils::removeAllBeyondwordsMetadata($postId);
@@ -400,7 +414,7 @@ class Core
 
         // Check for explicit "Generate Audio"
         if (get_post_meta($postId, 'beyondwords_generate_audio', true) === '1') {
-            $result = $this->generateAudioForPost($postId);
+            $result = self::generateAudioForPost($postId);
 
             return boolval($result);
         }
@@ -412,6 +426,7 @@ class Core
      * Get the language code from a JSON mapping if it is empty.
      *
      * @since 5.4.0 Introduced.
+     * @since 6.0.0 Make static.
      *
      * @param mixed  $value     The value of the metadata.
      * @param int    $object_id The ID of the object metadata is for.
@@ -420,7 +435,7 @@ class Core
      *
      * @return mixed
      */
-    public function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
+    public static function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);

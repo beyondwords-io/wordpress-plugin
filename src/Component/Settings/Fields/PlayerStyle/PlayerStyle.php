@@ -36,10 +36,12 @@ class PlayerStyle
 
     /**
      * Constructor
+     *
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -50,10 +52,11 @@ class PlayerStyle
      * Add setting.
      *
      * @since 4.5.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -66,7 +69,7 @@ class PlayerStyle
         add_settings_field(
             'beyondwords-player-style',
             __('Player style', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_player',
             'styling'
         );
@@ -76,10 +79,11 @@ class PlayerStyle
      * Render setting field.
      *
      * @since 4.1.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $value    = get_option(self::OPTION_NAME);
         $selected = PlayerStyle::STANDARD;

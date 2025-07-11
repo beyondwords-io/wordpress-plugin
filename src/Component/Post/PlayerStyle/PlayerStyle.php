@@ -38,17 +38,19 @@ class PlayerStyle
 
     /**
      * Constructor
+     *
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('rest_api_init', array($this, 'restApiInit'));
+        add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
 
         add_action('wp_loaded', function () {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 10);
+                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
                 }
             }
         });
@@ -59,12 +61,13 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 4.5.1 Hide element if no language data exists.
+     * @since 6.0.0 Make static.
      *
      * @param WP_Post $post The post object.
      *
      * @return string|null
      */
-    public function element($post)
+    public static function element($post)
     {
         $playerStyle     = PostMetaUtils::getPlayerStyle($post->ID);
         $allPlayerStyles = PlayerStyleSetting::getOptions();
@@ -100,10 +103,11 @@ class PlayerStyle
      * Save the meta when the post is saved.
      *
      * @since 4.1.0
+     * @since 6.0.0 Make static.
      *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;
@@ -139,15 +143,16 @@ class PlayerStyle
      * Register WP REST API route
      *
      * @since 4.1.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function restApiInit()
+    public static function restApiInit()
     {
         // Player styles endpoint
         register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/player-styles', array(
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'playerStylesRestApiResponse'),
+            'callback' => array(__CLASS__, 'playerStylesRestApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -159,8 +164,9 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
+     * @since 6.0.0 Make static.
      */
-    public function playerStylesRestApiResponse()
+    public static function playerStylesRestApiResponse()
     {
         $response = PlayerStyleSetting::getOptions();
 

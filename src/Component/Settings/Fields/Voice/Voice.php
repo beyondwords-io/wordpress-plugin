@@ -26,10 +26,11 @@ abstract class Voice
      *
      * @since 5.0.0
      * @since 5.4.0
+     * @since 6.0.0 Make static.
      *
      * @return string[] Associative array of options.
      **/
-    public function getOptions()
+    public static function getOptions()
     {
         $languageCode = get_option('beyondwords_project_language_code');
         if ($languageCode) {

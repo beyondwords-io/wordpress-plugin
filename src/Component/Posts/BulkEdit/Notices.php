@@ -23,19 +23,24 @@ class Notices
 {
     /**
      * Constructor
+     *
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_notices', array($this, 'generatedNotice'));
-        add_action('admin_notices', array($this, 'deletedNotice'));
-        add_action('admin_notices', array($this, 'failedNotice'));
-        add_action('admin_notices', array($this, 'errorNotice'));
+        add_action('admin_notices', array(__CLASS__, 'generatedNotice'));
+        add_action('admin_notices', array(__CLASS__, 'deletedNotice'));
+        add_action('admin_notices', array(__CLASS__, 'failedNotice'));
+        add_action('admin_notices', array(__CLASS__, 'errorNotice'));
     }
 
     /**
+     * Generated audio notice.
+     *
      * @since 4.1.0
+     * @since 6.0.0 Make static.
      */
-    public function generatedNotice()
+    public static function generatedNotice()
     {
         if (
             ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
@@ -72,9 +77,11 @@ class Notices
     }
 
     /**
+     * Deleted audio notice.
      *
+     * @since 6.0.0 Make static.
      */
-    public function deletedNotice()
+    public static function deletedNotice()
     {
         if (
             ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
@@ -111,9 +118,11 @@ class Notices
     }
 
     /**
+     * Failed audio notice.
      *
+     * @since 6.0.0 Make static.
      */
-    public function failedNotice()
+    public static function failedNotice()
     {
         if (
             ! isset($_GET['beyondwords_bulk_edit_result_nonce'])
@@ -150,9 +159,11 @@ class Notices
     }
 
     /**
+     * Error notice.
      *
+     * @since 6.0.0 Make static.
      */
-    public function errorNotice()
+    public static function errorNotice()
     {
         if (
             ! isset($_GET['beyondwords_bulk_edit_result_nonce'])

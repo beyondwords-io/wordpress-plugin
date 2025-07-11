@@ -38,10 +38,11 @@ class IncludeExcerpt
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_filter('option_' . self::OPTION_NAME, 'rest_sanitize_boolean');
     }
 
@@ -50,10 +51,11 @@ class IncludeExcerpt
      *
      * @since 3.0.0
      * @since 5.0.0 Rename field.
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_content_settings',
@@ -68,7 +70,7 @@ class IncludeExcerpt
         add_settings_field(
             'beyondwords-include-excerpt',
             __('Excerpt', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_content',
             'content'
         );
@@ -80,10 +82,11 @@ class IncludeExcerpt
      * @since 3.0.0
      * @since 4.0.0 Updated label and description
      * @since 5.0.0 Updated label and description
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $value = get_option(self::OPTION_NAME);
         ?>

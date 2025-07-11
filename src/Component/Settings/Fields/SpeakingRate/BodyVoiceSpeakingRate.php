@@ -32,10 +32,11 @@ class BodyVoiceSpeakingRate
      * Constructor
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', array(__CLASS__, 'addSetting'));
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -46,10 +47,11 @@ class BodyVoiceSpeakingRate
      * Add setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_voices_settings',
@@ -63,7 +65,7 @@ class BodyVoiceSpeakingRate
         add_settings_field(
             'beyondwords-body-speaking-rate',
             __('Body voice speaking rate', 'speechkit'),
-            array($this, 'render'),
+            array(__CLASS__, 'render'),
             'beyondwords_voices',
             'voices'
         );
@@ -73,10 +75,11 @@ class BodyVoiceSpeakingRate
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $current = get_option(self::OPTION_NAME);
         ?>

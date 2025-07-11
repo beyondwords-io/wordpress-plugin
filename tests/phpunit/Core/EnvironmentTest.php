@@ -17,13 +17,11 @@ class EnvironmentTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new Environment();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();

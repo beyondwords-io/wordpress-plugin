@@ -22,39 +22,43 @@ class PlayerInline
 {
     /**
      * Init.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
         // Actions
-        add_action('init', array($this, 'registerShortcodes'));
+        add_action('init', array(__CLASS__, 'registerShortcodes'));
 
         // Filters
-        add_filter('the_content', array($this, 'autoPrependPlayer'), 1000000);
-        add_filter('newsstand_the_content', array($this, 'autoPrependPlayer'));
+        add_filter('the_content', array(__CLASS__, 'autoPrependPlayer'), 1000000);
+        add_filter('newsstand_the_content', array(__CLASS__, 'autoPrependPlayer'));
     }
 
     /**
      * Register shortcodes.
      *
      * @since 4.2.0
+     * @since 6.0.0 Make static.
      */
-    public function registerShortcodes()
+    public static function registerShortcodes()
     {
-        add_shortcode('beyondwords_player', array($this, 'playerShortcode'));
+        add_shortcode('beyondwords_player', array(__CLASS__, 'playerShortcode'));
     }
 
     /**
      * HTML output for the BeyondWords player shortcode.
      *
      * @since 4.2.0
+     * @since 6.0.0 Make static.
      *
      * @param array $atts Shortcode attributes.
      *
      * @return string
      */
-    public function playerShortcode()
+    public static function playerShortcode()
     {
-        return $this->playerHtml();
+        return self::playerHtml();
     }
 
     /**
@@ -64,22 +68,23 @@ class PlayerInline
      * @since 4.2.0 Renamed from addPlayerToContent to autoPrependPlayer.
      * @since 4.2.0 Perform hasCustomPlayer() check here.
      * @since 4.6.1 Only auto-prepend player for frontend is_singular screens.
+     * @since 6.0.0 Make static.
      *
      * @param string $content WordPress content.
      *
      * @return string
      */
-    public function autoPrependPlayer($content)
+    public static function autoPrependPlayer($content)
     {
         if (! is_singular()) {
             return $content;
         }
 
-        if ($this->hasCustomPlayer($content)) {
+        if (self::hasCustomPlayer($content)) {
             return $content;
         }
 
-        return $this->playerHtml() . $content;
+        return self::playerHtml() . $content;
     }
 
     /**
@@ -92,10 +97,11 @@ class PlayerInline
      *
      * @since 3.0.0
      * @since 3.1.0 Added _doing_it_wrong deprecation warnings
+     * @since 6.0.0 Make static.
      *
      * @return string
      */
-    public function playerHtml($post = false)
+    public static function playerHtml($post = false)
     {
         if (! ($post instanceof \WP_Post)) {
             $post = get_post($post);
@@ -105,7 +111,7 @@ class PlayerInline
             return '';
         }
 
-        if (! $this->isPlayerEnabled($post)) {
+        if (! self::isPlayerEnabled($post)) {
             return '';
         }
 
@@ -122,10 +128,10 @@ class PlayerInline
         }
 
         // AMP or JS Player?
-        if ($this->useAmpPlayer()) {
-            $html = $this->ampPlayerHtml($post->ID, $projectId, $contentId);
+        if (self::useAmpPlayer()) {
+            $html = self::ampPlayerHtml($post->ID, $projectId, $contentId);
         } else {
-            $html = $this->jsPlayerHtml($post->ID, $projectId, $contentId);
+            $html = self::jsPlayerHtml($post->ID, $projectId, $contentId);
         }
 
         /**
@@ -154,12 +160,13 @@ class PlayerInline
      * @since 3.2.0
      * @since 4.2.0 Pass $content as a parameter, check for [beyondwords_player] shortcode
      * @since 4.2.4 Check $content is a string
+     * @since 6.0.0 Make static.
      *
      * @param string $content WordPress content.
      *
      * @return boolean
      */
-    public function hasCustomPlayer($content)
+    public static function hasCustomPlayer($content)
     {
         if (! is_string($content)) {
             return false;
@@ -190,17 +197,18 @@ class PlayerInline
      * @since 4.2.0 Remove hasCustomPlayer() check from here.
      * @since 5.2.0 Replace div[data-beyondwords-player] with script[onload]
      * @since 5.3.0 Use new jsPlayerParams() object return.
+     * @since 6.0.0 Make static.
      *
      * @return string
      */
-    public function jsPlayerHtml($postId, $projectId, $contentId)
+    public static function jsPlayerHtml($postId, $projectId, $contentId)
     {
-        if (! $this->usePlayerJsSdk()) {
+        if (! self::usePlayerJsSdk()) {
             return '';
         }
 
         $post   = get_post($postId);
-        $params = $this->jsPlayerParams($post);
+        $params = self::jsPlayerParams($post);
 
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
 
@@ -256,10 +264,11 @@ class PlayerInline
      *
      * @since 3.0.0
      * @since 3.1.0 Added speechkit_amp_player_html filter
+     * @since 6.0.0 Make static.
      *
      * @return string
      */
-    public function ampPlayerHtml($postId, $projectId, $contentId)
+    public static function ampPlayerHtml($postId, $projectId, $contentId)
     {
         $src = sprintf(Environment::getAmpPlayerUrl(), $projectId, $contentId);
 
@@ -325,10 +334,11 @@ class PlayerInline
      * @since 3.3.4 Accept int|WP_Post as method parameter.
      * @since 4.0.0 Check beyondwords_player_ui custom field.
      * @since 5.0.0 Remove beyondwords_post_player_enabled filter.
+     * @since 6.0.0 Make static.
      *
      * @return bool
      **/
-    public function isPlayerEnabled($post = null)
+    public static function isPlayerEnabled($post = null)
     {
         $post = get_post($post);
 
@@ -358,10 +368,12 @@ class PlayerInline
      * There are multiple AMP plugins for WordPress, so multiple checks are performed.
      *
      * @since 3.0.7
+     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static.
      *
      * @return bool
      */
-    public function useAmpPlayer()
+    public static function useAmpPlayer()
     {
         // https://amp-wp.org/reference/function/amp_is_request/
         if (function_exists('amp_is_request')) {
@@ -385,13 +397,14 @@ class PlayerInline
      * Use Player JS SDK?
      *
      * @since 3.0.7
+     * @since 6.0.0 Make static.
      *
      * @return string
      */
-    public function usePlayerJsSdk()
+    public static function usePlayerJsSdk()
     {
         // AMP requests don't use the Player JS SDK
-        if ($this->useAmpPlayer()) {
+        if (self::useAmpPlayer()) {
             return false;
         }
 
@@ -429,12 +442,13 @@ class PlayerInline
      * @since 5.3.0 Prioritise post-specific player settings, falling-back to the
      *              values of the "Player" tab in the plugin settings.
      * @since 5.3.0 Support loadContentAs param and return an object.
+     * @since 6.0.0 Make static.
      *
      * @param WP_Post $post WordPress Post.
      *
      * @return object
      */
-    public function jsPlayerParams($post)
+    public static function jsPlayerParams($post)
     {
         if (!($post instanceof \WP_Post)) {
             return [];
@@ -449,7 +463,7 @@ class PlayerInline
         ];
 
         // Set initial SDK params from plugin settings
-        $params = $this->addPluginSettingsToSdkParams($params);
+        $params = self::addPluginSettingsToSdkParams($params);
 
         // Player UI
         $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
@@ -488,12 +502,13 @@ class PlayerInline
      * Add plugin settings to SDK params.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $params BeyondWords Player SDK params.
      *
      * @return array Modified SDK params.
      */
-    public function addPluginSettingsToSdkParams($params)
+    public static function addPluginSettingsToSdkParams($params)
     {
         $mapping = [
             'beyondwords_player_style'              => 'playerStyle',

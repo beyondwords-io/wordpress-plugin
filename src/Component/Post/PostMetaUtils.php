@@ -198,7 +198,7 @@ class PostMetaUtils
         }
 
         // It may also be found by parsing post_meta.speechkit_response
-        $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+        $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
         preg_match('/"podcast_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
         // $matches[2] is the Podcast ID (response.podcast_id)
         if ($matches && $matches[2]) {
@@ -312,7 +312,7 @@ class PostMetaUtils
 
         if (! $projectId) {
             // It may also be found by parsing post_meta.speechkit_response
-            $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+            $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
             preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
             // $matches[2] is the Project ID (response.project_id)
             if ($matches && $matches[2]) {
@@ -475,7 +475,7 @@ class PostMetaUtils
         }
 
         if (is_wp_error($postMeta)) {
-            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $postMeta->get_error_code(), $postMeta->get_error_message());
+            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $postMeta::get_error_code(), $postMeta::get_error_message());
         }
 
         return (string)$postMeta;

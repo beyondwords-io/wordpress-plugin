@@ -27,18 +27,19 @@ class SelectVoice
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('rest_api_init', array($this, 'restApiInit'));
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
+        add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
 
         add_action('wp_loaded', function () {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 10);
+                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
                 }
             }
         });
@@ -50,12 +51,13 @@ class SelectVoice
      * @since 4.0.0
      * @since 4.5.1 Hide element if no language data exists.
      * @since 5.4.0 Always display all languages and associated voices.
+     * @since 6.0.0 Make static.
      *
      * @param WP_Post $post The post object.
      *
      * @return string|null
      */
-    public function element($post)
+    public static function element($post)
     {
         $postLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
         $postVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
@@ -134,10 +136,11 @@ class SelectVoice
      * Save the meta when the post is saved.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;
@@ -189,15 +192,16 @@ class SelectVoice
      * Register WP REST API route
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function restApiInit()
+    public static function restApiInit()
     {
         // Languages endpoint
         register_rest_route('beyondwords/v1', '/languages', array(
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'languagesRestApiResponse'),
+            'callback' => array(__CLASS__, 'languagesRestApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -206,7 +210,7 @@ class SelectVoice
         // Voices endpoint
         register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', array(
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'voicesRestApiResponse'),
+            'callback' => array(__CLASS__, 'voicesRestApiResponse'),
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -218,10 +222,11 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 5.4.0 No longer filter by "Languages" plugin setting.
+     * @since 6.0.0 Make static.
      *
      * @return \WP_REST_Response
      */
-    public function languagesRestApiResponse()
+    public static function languagesRestApiResponse()
     {
         $languages = ApiClient::getLanguages();
 
@@ -233,10 +238,11 @@ class SelectVoice
      * and Block Editor).
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return \WP_REST_Response
      */
-    public function voicesRestApiResponse(\WP_REST_Request $data)
+    public static function voicesRestApiResponse(\WP_REST_Request $data)
     {
         $params = $data->get_url_params();
 
@@ -248,13 +254,14 @@ class SelectVoice
     /**
      * Register the component scripts.
      *
-     * @since  4.0.0
+     * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $hook Page hook
      *
      * @return void
      */
-    public function adminEnqueueScripts($hook)
+    public static function adminEnqueueScripts($hook)
     {
         if (! CoreUtils::isGutenbergPage() && ( $hook === 'post.php' || $hook === 'post-new.php')) {
             wp_register_script(

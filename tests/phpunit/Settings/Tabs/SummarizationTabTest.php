@@ -25,8 +25,6 @@ class SummarizationTabTest extends WP_UnitTestCase
         // Your set up methods here.
         wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
-        $this->_instance = new Summarization();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
@@ -35,8 +33,6 @@ class SummarizationTabTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
         delete_option('beyondwords_valid_api_connection');
@@ -50,10 +46,10 @@ class SummarizationTabTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $this->_instance->init();
+        Summarization::init();
 
         // Actions
-        $this->assertEquals(5, has_action('admin_init', array($this->_instance, 'addSettingsSection')));
+        $this->assertEquals(5, has_action('admin_init', array(Summarization::class, 'addSettingsSection')));
     }
 
     /**
@@ -64,7 +60,7 @@ class SummarizationTabTest extends WP_UnitTestCase
         global $wp_settings_sections;
         $wp_settings_sections = null;
 
-        $this->_instance->addSettingsSection();
+        Summarization::addSettingsSection();
 
         $this->assertArrayHasKey('beyondwords_summarization', $wp_settings_sections);
         $this->assertArrayHasKey('summarization', $wp_settings_sections['beyondwords_summarization']);
@@ -74,6 +70,6 @@ class SummarizationTabTest extends WP_UnitTestCase
         $this->assertArrayHasKey('summarization', $wp_settings_sections['beyondwords_summarization']);
         $this->assertSame('summarization', $wp_settings_sections['beyondwords_summarization']['summarization']['id']);
         $this->assertSame('Summarization', $wp_settings_sections['beyondwords_summarization']['summarization']['title']);
-        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_summarization']['summarization']['callback']);
+        $this->assertSame([Summarization::class, 'sectionCallback'], $wp_settings_sections['beyondwords_summarization']['summarization']['callback']);
     }
 }
