@@ -91,6 +91,16 @@ class Environment
     public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;
 
     /**
+     * Use the Magic Embed script.
+     *
+     * Override with BEYONDWORDS_MAGIC_EMBED in wp-config.php.
+     *
+     * @since  6.0.0
+     * @var    bool
+     */
+    public const BEYONDWORDS_MAGIC_EMBED = true;
+
+    /**
      * Auto-sync settings.
      *
      * @since  5.2.0
@@ -185,6 +195,25 @@ class Environment
          * Filters whether the inline player script tag should be loaded.
          */
         $value = apply_filters('beyondwords_player_inline_script_tag', $value);
+
+        return $value;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function hasMagicEmbed()
+    {
+        $value = static::BEYONDWORDS_MAGIC_EMBED;
+
+        if (defined('BEYONDWORDS_MAGIC_EMBED')) {
+            $value = (bool) BEYONDWORDS_MAGIC_EMBED;
+        }
+
+        /**
+         * Filters whether Magic Embed should be used.
+         */
+        $value = apply_filters('beyondwords_magic_embed', $value);
 
         return $value;
     }
