@@ -528,6 +528,10 @@ class Player
             $params['loadContentAs'] = [ $playerContent ];
         }
 
+        if (Environment::hasMagicEmbed()) {
+            $params['clientSideEnabled'] = true;
+        }
+
         /**
          * Filters the BeyondWords JavaScript SDK parameters.
          *
