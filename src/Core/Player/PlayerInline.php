@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\CoreUtils;
@@ -484,7 +485,7 @@ class PlayerInline
             $params['loadContentAs'] = [ $playerContent ];
         }
 
-        if (Environment::hasMagicEmbed()) {
+        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
             $params['clientSideEnabled'] = true;
         }
 

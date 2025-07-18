@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -85,7 +86,7 @@ class Core
      * @since 3.5.0
      * @since 3.10.0 Remove wp_is_post_revision check
      * @since 5.1.0  Regenerate audio for all post statuses
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and support Magic Embed.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -104,21 +105,29 @@ class Core
             return false;
         }
 
-        // Regenerate if post has audio (regardless of post status)
+        // Regenerate if post has a content ID (regardless of post status)
         $contentId = PostMetaUtils::getContentId($postId);
         if ($contentId) {
             return true;
         }
 
-        $generateAudio = PostMetaUtils::hasGenerateAudio($postId);
-        $status        = get_post_status($postId);
+        $status = get_post_status($postId);
 
-        // Generate if audio has been requested for a valid post status
-        if ($generateAudio && self::shouldProcessPostStatus($status)) {
+        // Only generate audio for certain post statuses.
+        if (! self::shouldProcessPostStatus($status)) {
+            return false;
+        }
+
+        // Generate if Magic Embed is enabled.
+        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
             return true;
         }
 
-        // Default is no audio
+        // Generate if "Generate audio" has been set.
+        if (PostMetaUtils::hasGenerateAudio($postId)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -392,12 +401,12 @@ class Core
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Delete audio if beyondwords_delete_content custom field is set.
      * @since 4.5.0 Remove unwanted debugging custom fields.
-     * @since 5.1.0 Move post status check out of here
-     * @since 6.0.0 Make static.
+     * @since 5.1.0 Move post status check out of here.
+     * @since 6.0.0 Make static and support Magic Embed.
      *
      * @param int $postId Post ID.
      *
-     * @return bool|Response
+     * @return bool
      **/
     public static function onAddOrUpdatePost($postId)
     {
@@ -412,7 +421,14 @@ class Core
             return false;
         }
 
-        // Check for explicit "Generate Audio"
+        // For Magic Embed we call the /regenerate endpoint to ensure (re)generation.
+        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME) && self::shouldGenerateAudioForPost($postId)) { // phpcs:ignore Generic.Files.LineLength.TooLong
+            $result = ApiClient::regenerateContent($postId);
+
+            return boolval($result);
+        }
+
+        // For non-Magic Embed we check for explicit "Generate Audio".
         if (get_post_meta($postId, 'beyondwords_generate_audio', true) === '1') {
             $result = self::generateAudioForPost($postId);
 

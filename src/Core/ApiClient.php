@@ -216,6 +216,31 @@ class ApiClient
     }
 
     /**
+     * PUT /projects/:id/content/:id/regenerate.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId WordPress Post ID
+     *
+     * @return mixed JSON-decoded response body, or false on failure.
+     **/
+    public static function regenerateContent($postId)
+    {
+        $projectId = PostMetaUtils::getProjectId($postId);
+
+        if (! $projectId) {
+            return false;
+        }
+
+        $url = sprintf('%s/projects/%d/content/%s/regenerate', Environment::getApiUrl(), $projectId, $postId);
+
+        $request  = new Request('PUT', $url);
+        $response = self::callApi($request, $postId);
+
+        return json_decode(wp_remote_retrieve_body($response), true);
+    }
+
+    /**
      * GET /organization/languages
      *
      * @since 4.0.0 Introduced
