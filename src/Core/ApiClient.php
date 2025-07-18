@@ -234,7 +234,7 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/content/%s/regenerate', Environment::getApiUrl(), $projectId, $postId);
 
-        $request  = new Request('PUT', $url);
+        $request  = new Request('POST', $url);
         $response = self::callApi($request, $postId);
 
         return json_decode(wp_remote_retrieve_body($response), true);
