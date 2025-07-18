@@ -68,7 +68,8 @@ class IntegrationMethod
             'beyondwords_content_settings',
             self::OPTION_NAME,
             [
-                'default' => IntegrationMethod::REST_API,
+                'default' => self::REST_API,
+                'type'    => 'string',
             ]
         );
 
@@ -91,10 +92,10 @@ class IntegrationMethod
     public static function render()
     {
         $options = self::getOptions();
-        $current = get_option(self::OPTION_NAME);
+        $current = get_option(self::OPTION_NAME, self::REST_API);
         ?>
         <div class="beyondwords-setting__content beyondwords-setting__content--integration-method">
-            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
+            <select name="<?php echo esc_attr(self::OPTION_NAME) ?>" id="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php foreach ($options as $option) : ?>
                     <option value="<?php esc_attr($option['value']); ?>" <?php selected($option['value'], $current); ?>>
                         <?php echo esc_html($option['label']); ?>
@@ -105,11 +106,11 @@ class IntegrationMethod
         <p class="description">
             <?php
             printf(
-                /* translators: %s is replaced with the "Magic Embed" link */
-                esc_html__('REST API is the default method. Use Client-side if REST API does not work as expected on your site, or if you are using a page builder plugin/theme such as Elementor.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
+                /* translators: %s is replaced with the "Client-Side integration" link */
+                esc_html__('REST API is currently the default method. %s should be selected if REST API does not work as expected on your site. It should, for instance, improve compatibility on sites using a page builder plugin/theme such as Elementor.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
                 sprintf(
-                    '<a href="https://github.com/beyondwords-io/player/blob/main/doc/magic-embed.md" target="_blank" rel="nofollow">%s</a>', // phpcs:ignore Generic.Files.LineLength.TooLong
-                    esc_html__('Magic Embed', 'speechkit')
+                    '<a href="https://github.com/beyondwords-io/player/blob/main/doc/client-side-integration.md" target="_blank" rel="nofollow">%s</a>', // phpcs:ignore Generic.Files.LineLength.TooLong
+                    esc_html__('Client-Side integration', 'speechkit')
                 )
             );
             ?>
@@ -127,13 +128,13 @@ class IntegrationMethod
     public static function getOptions()
     {
         $options = [
-            IntegrationMethod::CLIENT_SIDE => [
-                'value' => IntegrationMethod::CLIENT_SIDE,
-                'label' => __('Client-side', 'speechkit'),
-            ],
             IntegrationMethod::REST_API => [
                 'value' => IntegrationMethod::REST_API,
                 'label' => __('REST API', 'speechkit'),
+            ],
+            IntegrationMethod::CLIENT_SIDE => [
+                'value' => IntegrationMethod::CLIENT_SIDE,
+                'label' => __('Client-side', 'speechkit'),
             ],
         ];
 
