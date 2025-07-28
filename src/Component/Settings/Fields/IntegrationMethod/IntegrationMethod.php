@@ -46,6 +46,15 @@ class IntegrationMethod
     public const REST_API = 'rest_api';
 
     /**
+     * Default value.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @var string
+     */
+    public const DEFAULT_VALUE = self::REST_API;
+
+    /**
      * Constructor
      *
      * @since 6.0.0 Introduced.
@@ -68,8 +77,8 @@ class IntegrationMethod
             'beyondwords_content_settings',
             self::OPTION_NAME,
             [
-                'default' => self::REST_API,
                 'type'    => 'string',
+                'default' => self::DEFAULT_VALUE,
             ]
         );
 
@@ -92,12 +101,12 @@ class IntegrationMethod
     public static function render()
     {
         $options = self::getOptions();
-        $current = get_option(self::OPTION_NAME, self::REST_API);
+        $current = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
         ?>
         <div class="beyondwords-setting__content beyondwords-setting__content--integration-method">
             <select name="<?php echo esc_attr(self::OPTION_NAME) ?>" id="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php foreach ($options as $option) : ?>
-                    <option value="<?php esc_attr($option['value']); ?>" <?php selected($option['value'], $current); ?>>
+                    <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($option['value'], $current); ?>>
                         <?php echo esc_html($option['label']); ?>
                     </option>
                 <?php endforeach; ?>
@@ -127,17 +136,15 @@ class IntegrationMethod
      **/
     public static function getOptions()
     {
-        $options = [
-            IntegrationMethod::REST_API => [
-                'value' => IntegrationMethod::REST_API,
+        return [
+            self::REST_API => [
+                'value' => self::REST_API,
                 'label' => __('REST API', 'speechkit'),
             ],
-            IntegrationMethod::CLIENT_SIDE => [
-                'value' => IntegrationMethod::CLIENT_SIDE,
+            self::CLIENT_SIDE => [
+                'value' => self::CLIENT_SIDE,
                 'label' => __('Client-side', 'speechkit'),
             ],
         ];
-
-        return $options;
     }
 }

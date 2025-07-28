@@ -92,6 +92,7 @@ class CoreUtils
     {
         $current = [
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',
@@ -141,7 +142,7 @@ class CoreUtils
                 $keys = array_merge($current, $deprecated);
                 break;
             default:
-                throw \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()');
+                throw new \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()');
                 break;
         }
 
@@ -162,6 +163,8 @@ class CoreUtils
     public static function getOptions($type = 'current')
     {
         $current = [
+            // v6.x
+            'beyondwords_integration_method',
             // v5.x
             'beyondwords_date_activated',
             'beyondwords_notice_review_dismissed',
@@ -234,7 +237,7 @@ class CoreUtils
                 $keys = array_merge($current, $deprecated);
                 break;
             default:
-                throw \Exception('Unexpected $type param for CoreUtils::getOptions()');
+                throw new \Exception('Unexpected $type param for CoreUtils::getOptions()');
                 break;
         }
 

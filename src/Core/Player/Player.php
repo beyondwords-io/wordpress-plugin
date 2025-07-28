@@ -122,7 +122,13 @@ class Player
 
         $contentId = PostMetaUtils::getContentId($post->ID);
 
-        if (! $contentId) {
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+
+        if (! $contentId || ! $integrationMethod) {
             return '';
         }
 
@@ -529,8 +535,17 @@ class Player
             $params['loadContentAs'] = [ $playerContent ];
         }
 
-        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+
+        // Client-side (Magic Embed) integration method.
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
             $params['clientSideEnabled'] = true;
+            $params['sourceId'] = "$post->ID";
+            unset($params['contentId']); // Remove contentId for client-side integration
         }
 
         /**
@@ -621,7 +636,15 @@ class Player
         }
 
         $contentId = PostMetaUtils::getContentId($post->ID);
-        if (! $contentId) {
+
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+        $isRestApi = IntegrationMethod::REST_API === $integrationMethod;
+
+        if (! $contentId && $isRestApi) {
             return false;
         }
 

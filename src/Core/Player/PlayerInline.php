@@ -124,7 +124,14 @@ class PlayerInline
 
         $contentId = PostMetaUtils::getContentId($post->ID);
 
-        if (! $contentId) {
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+        $isRestApi = IntegrationMethod::REST_API === $integrationMethod;
+
+        if (! $contentId && $isRestApi) {
             return '';
         }
 
@@ -428,7 +435,19 @@ class PlayerInline
         $projectId = PostMetaUtils::getProjectId($post->ID);
         $contentId = PostMetaUtils::getContentId($post->ID);
 
-        if ($projectId && $contentId) {
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+
+        if ($integrationMethod === IntegrationMethod::CLIENT_SIDE) {
+            return true;
+        }
+
+        $isRestApi = IntegrationMethod::REST_API === $integrationMethod;
+
+        if ($isRestApi && $projectId && $contentId) {
             return true;
         }
 
@@ -485,8 +504,17 @@ class PlayerInline
             $params['loadContentAs'] = [ $playerContent ];
         }
 
-        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
+        // @todo refactor to use IntegrationMethod class method.
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        }
+
+        // Client-side (Magic Embed) integration method.
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
             $params['clientSideEnabled'] = true;
+            $params['sourceId'] = "$post->ID";
+            unset($params['contentId']); // Remove contentId for client-side integration
         }
 
         /**

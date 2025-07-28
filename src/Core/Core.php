@@ -421,8 +421,15 @@ class Core
             return false;
         }
 
+        // Save the current integration method.
+        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
+        update_post_meta($postId, 'beyondwords_integration_method', $integrationMethod);
+
         // For Magic Embed we call the /regenerate endpoint to ensure (re)generation.
         if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME) && self::shouldGenerateAudioForPost($postId)) { // phpcs:ignore Generic.Files.LineLength.TooLong
+            // @todo regenerate content.
+            return true;
+
             $result = ApiClient::regenerateContent($postId);
 
             return boolval($result);

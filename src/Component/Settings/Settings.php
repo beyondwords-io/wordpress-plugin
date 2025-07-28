@@ -446,10 +446,10 @@ class Settings
 
         return new \WP_REST_Response([
             'apiKey'              => get_option('beyondwords_api_key', ''),
-            'integrationMethod'   => get_option(IntegrationMethod::OPTION_NAME),
+            'integrationMethod'   => get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE),
             'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
             'projectId'           => get_option('beyondwords_project_id', ''),
-            'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
+            'preselect'           => get_option(PreselectGenerateAudio::OPTION_NAME, PreselectGenerateAudio::DEFAULT_PRESELECT),
             'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
             'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
             'restUrl'             => get_rest_url(),
