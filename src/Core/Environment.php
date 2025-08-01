@@ -81,16 +81,6 @@ class Environment
     public const BEYONDWORDS_DASHBOARD_URL = 'https://dash.beyondwords.io';
 
     /**
-     * Use the inline player script.
-     *
-     * Override with BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG in wp-config.php.
-     *
-     * @since  5.2.0
-     * @var    bool
-     */
-    public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;
-
-    /**
      * Auto-sync settings.
      *
      * @since  5.2.0
@@ -168,25 +158,6 @@ class Environment
         }
 
         return static::BEYONDWORDS_DASHBOARD_URL;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function hasPlayerInlineScriptTag()
-    {
-        $value = static::BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
-
-        if (defined('BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG')) {
-            $value = (bool) BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
-        }
-
-        /**
-         * Filters whether the inline player script tag should be loaded.
-         */
-        $value = apply_filters('beyondwords_player_inline_script_tag', $value);
-
-        return $value;
     }
 
     /**

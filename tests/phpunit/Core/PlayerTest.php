@@ -40,7 +40,6 @@ class PlayerTest extends WP_UnitTestCase
 
         // Actions
         $this->assertEquals(10, has_action('init', array(Player::class, 'registerShortcodes')));
-        $this->assertEquals(10, has_action('wp_enqueue_scripts', array(Player::class, 'enqueueScripts')));
 
         // Filters
         $this->assertEquals(1000000, has_filter('the_content', array(Player::class, 'autoPrependPlayer')));

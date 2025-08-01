@@ -78,6 +78,20 @@ class CoreUtils
     }
 
     /**
+     * Check if the current request is an AMP request.
+     *
+     * @return bool True if AMP.
+     */
+    public static function isAmp(): bool
+    {
+        return (
+            (function_exists('amp_is_request') && \amp_is_request()) ||
+            (function_exists('ampforwp_is_amp_endpoint') && \ampforwp_is_amp_endpoint()) ||
+            (function_exists('is_amp_endpoint') && \is_amp_endpoint())
+        );
+    }
+
+    /**
      * Get the BeyondWords post meta keys.
      *
      * @since 4.1.0

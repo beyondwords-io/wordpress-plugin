@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod;
 
+use WP_Post;
+
 /**
  * IntegrationMethod class.
  *
@@ -106,7 +108,10 @@ class IntegrationMethod
         <div class="beyondwords-setting__content beyondwords-setting__content--integration-method">
             <select name="<?php echo esc_attr(self::OPTION_NAME) ?>" id="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php foreach ($options as $option) : ?>
-                    <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($option['value'], $current); ?>>
+                    <option
+                        value="<?php echo esc_attr($option['value']); ?>"
+                        <?php selected($option['value'], $current); ?>
+                    >
                         <?php echo esc_html($option['label']); ?>
                     </option>
                 <?php endforeach; ?>
@@ -146,5 +151,37 @@ class IntegrationMethod
                 'label' => __('Client-side', 'speechkit'),
             ],
         ];
+    }
+
+    /**
+     * Get integration method options. First tries the post meta, then the option.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param \WP_Post|int|null $post WordPress Post object or ID. If null, uses the current post.
+     *
+     * @return string The integration method value.
+     **/
+    public static function getIntegrationMethod($post = null)
+    {
+        if (! is_a($post, 'WP_Post')) {
+            $post = get_post($post);
+
+            if (! $post) {
+                return self::DEFAULT_VALUE;
+            }
+        }
+
+        $integrationMethod = get_post_meta($post->ID, self::OPTION_NAME, true);
+
+        if (empty($integrationMethod)) {
+            $integrationMethod = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
+        }
+
+        if (! in_array($integrationMethod, [self::REST_API, self::CLIENT_SIDE], true)) {
+            $integrationMethod = self::DEFAULT_VALUE;
+        }
+
+        return $integrationMethod;
     }
 }

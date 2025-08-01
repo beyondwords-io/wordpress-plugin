@@ -355,16 +355,6 @@ context( 'Site Health', () => {
 					);
 					cy.get( 'td' ).should( 'have.text', 'Undefined' );
 				} );
-			// BEYONDWORDS_AUTOREGENERATE
-			cy.get( 'tr' )
-				.eq( 35 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG'
-					);
-					cy.get( 'td' ).should( 'have.text', 'Undefined' );
-				} );
 		} );
 	} );
 } );

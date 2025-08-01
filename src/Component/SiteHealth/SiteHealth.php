@@ -132,7 +132,6 @@ class SiteHealth
 
         self::addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         self::addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
-        self::addConstant($info, 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG');
 
         return $info;
     }

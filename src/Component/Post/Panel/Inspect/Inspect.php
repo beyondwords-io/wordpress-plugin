@@ -114,7 +114,7 @@ class Inspect
      *
      * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      */
     public static function renderMetaBoxContent($post)
     {
