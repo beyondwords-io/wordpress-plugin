@@ -18,13 +18,12 @@ class Core
      * Init.
      *
      * @since 4.0.0
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and stop loading plugin text domain on init.
      */
     public static function init()
     {
         // Actions
         add_action('enqueue_block_editor_assets', array(__CLASS__, 'enqueueBlockEditorAssets'), 1, 0);
-        add_action('init', array(__CLASS__, 'loadPluginTextdomain'));
         add_action('init', array(__CLASS__, 'registerMeta'), 99, 3);
 
         // Actions for adding/updating posts
@@ -275,19 +274,6 @@ class Core
                 true
             );
         }
-    }
-
-    /**
-     * Load plugin textdomain.
-     *
-     * @since 3.5.0
-     * @since 6.0.0 Make static.
-     *
-     * @return void
-     */
-    public static function loadPluginTextdomain()
-    {
-        load_plugin_textdomain('speechkit');
     }
 
     /**

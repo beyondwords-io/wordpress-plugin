@@ -30,7 +30,6 @@ class CoreTest extends WP_UnitTestCase
         Core::init();
 
         $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array(Core::class, 'enqueueBlockEditorAssets')));
-        $this->assertEquals(10, has_action('init', array(Core::class, 'loadPluginTextdomain')));
         $this->assertEquals(99, has_action('init', array(Core::class, 'registerMeta')));
         $this->assertEquals(99, has_action('wp_after_insert_post', array(Core::class, 'onAddOrUpdatePost')));
         $this->assertEquals(10, has_action('before_delete_post', array(Core::class, 'onDeletePost')));
