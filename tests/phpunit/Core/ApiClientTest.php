@@ -155,7 +155,7 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertEquals($deleted, array_values($postIds));
 
         foreach ($deleted as $postId) {
-            wp_delete_post($postId);
+            wp_delete_post($postId, true);
         }
 
         delete_option('beyondwords_api_key');

@@ -199,6 +199,7 @@ class Metabox
             return;
         }
 
+        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
         <script async defer
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
@@ -216,6 +217,7 @@ class Metabox
         >
         </script>
         <?php
+        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
     }
 
     /**

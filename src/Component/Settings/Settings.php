@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
@@ -435,7 +436,7 @@ class Settings
      *
      * @since 3.0.0
      * @since 3.4.0 Add pluginVersion and wpVersion.
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and add integrationMethod.
      *
      * @return \WP_REST_Response
      */
@@ -445,9 +446,10 @@ class Settings
 
         return new \WP_REST_Response([
             'apiKey'              => get_option('beyondwords_api_key', ''),
+            'integrationMethod'   => get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE),
             'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
             'projectId'           => get_option('beyondwords_project_id', ''),
-            'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
+            'preselect'           => get_option(PreselectGenerateAudio::OPTION_NAME, PreselectGenerateAudio::DEFAULT_PRESELECT), // phpcs:ignore Generic.Files.LineLength.TooLong
             'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
             'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
             'restUrl'             => get_rest_url(),

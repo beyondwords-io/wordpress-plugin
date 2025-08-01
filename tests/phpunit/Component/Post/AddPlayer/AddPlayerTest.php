@@ -1,15 +1,5 @@
 <?php
 
-/**
- * BeyondWords Add Player element.
- *
- * Text Domain: speechkit
- *
- * @package Beyondwords\Wordpress
- * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   3.0.0
- */
-
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 
 class AddPlayerTest extends WP_UnitTestCase

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\SiteHealth;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -108,6 +109,11 @@ class SiteHealth
             'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
         ];
 
+        $info['beyondwords']['fields']['integration-method'] = [
+            'label' => __('Integration method', 'speechkit'),
+            'value' => get_option(IntegrationMethod::OPTION_NAME),
+        ];
+
         $info['beyondwords']['fields']['beyondwords_api_key'] = [
             'label' => __('API Key', 'speechkit'),
             'value' => SiteHealth::maskString(get_option('beyondwords_api_key')),
@@ -126,7 +132,6 @@ class SiteHealth
 
         self::addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
         self::addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
-        self::addConstant($info, 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG');
 
         return $info;
     }

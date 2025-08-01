@@ -102,7 +102,7 @@ class MetaboxTest extends WP_UnitTestCase
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-help'));
         $this->assertCount(0, $crawler->filter('div#beyondwords-metabox-errors'));
 
-        wp_delete_post($postId);
+        wp_delete_post($postId, true);
     }
 
     public function renderMetaBoxContentProvider()
