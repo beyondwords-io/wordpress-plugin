@@ -168,7 +168,7 @@ class UninstallerTest extends WP_UnitTestCase
             $this->assertEquals('foo', get_post_meta($postId, 'beyondwords_prefixed_field', true));
             $this->assertEquals('bar', get_post_meta($postId, 'another_custom_field', true));
 
-            wp_delete_post($postId);
+            wp_delete_post($postId, true);
         }
     }
 }

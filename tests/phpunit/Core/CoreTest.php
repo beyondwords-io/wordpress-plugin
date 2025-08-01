@@ -284,7 +284,7 @@ class CoreTest extends WP_UnitTestCase
 
         Core::onDeletePost($postId);
 
-        wp_delete_post($postId);
+        wp_delete_post($postId, true);
 
         $this->assertSame('', get_post_meta($postId, 'beyondwords_error_message', true));
         $this->assertSame('', get_post_meta($postId, 'beyondwords_project_id', true));
