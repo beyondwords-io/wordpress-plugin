@@ -67,6 +67,7 @@ class Javascript
         $onload = apply_filters('beyondwords_player_script_onload', $onload, $params);
 
         return sprintf(
+            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
             '<script async defer src="%s" onload=\'%s\'></script>',
             Environment::getJsSdkUrl(),
             $onload
