@@ -36,6 +36,7 @@ class Player
         add_action('init', array(__CLASS__, 'registerShortcodes'));
 
         // Filters.
+        add_filter('the_content', array(__CLASS__, 'replaceLegacyCustomPlayer'), 5);
         add_filter('the_content', array(__CLASS__, 'autoPrependPlayer'), 1000000);
         add_filter('newsstand_the_content', array(__CLASS__, 'autoPrependPlayer'));
     }
@@ -64,6 +65,30 @@ class Player
         }
 
         return self::renderPlayer() . $content;
+    }
+
+    /**
+     * Replace the legacy custom player div with the shortcode.
+     *
+     * @param string $content
+     *
+     * @return string
+     */
+    public static function replaceLegacyCustomPlayer(string $content): string
+    {
+        if (! is_singular()) {
+            return $content;
+        }
+
+        return str_replace(
+            [
+                '<div data-beyondwords-player="true"></div>',
+                '<div data-beyondwords-player="true" contenteditable="false"></div>',
+                '<div data-beyondwords-player="true" />',
+            ],
+            '[beyondwords_player]',
+            $content
+        );
     }
 
     /**
@@ -120,7 +145,7 @@ class Player
             return true;
         }
 
-        // Check for div.
+        // Check for legacy player div.
         return (new Crawler($content))
             ->filterXPath('//div[@data-beyondwords-player="true"]')
             ->count() > 0;

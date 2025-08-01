@@ -94,6 +94,43 @@ class PlayerTest extends WP_UnitTestCase
     }
 
     /**
+     * @test
+     */
+    public function replaceLegacyCustomPlayer()
+    {
+        global $post;
+
+        $content = "<p>Before</p>\n<div data-beyondwords-player=\"true\" contenteditable=\"false\"></div>\n<p>After</p>";
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PlayerTest::autoPrependPlayer',
+            'post_content' => $content,
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        setup_postdata($post);
+
+        $output = Player::replaceLegacyCustomPlayer($content);
+
+        // Replacement only happens when is_singular()
+        $this->assertSame($content, $output);
+
+        $this->go_to("/?p={$post->ID}");
+
+        $output = Player::replaceLegacyCustomPlayer($content);
+
+        // We are now is_singular() so player div should be replaced with player shortcode
+        $this->assertSame("<p>Before</p>\n[beyondwords_player]\n<p>After</p>", $output);
+
+        wp_reset_postdata();
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
      * Render a player (AMP/JS depending on context).
      *
      * @return string
