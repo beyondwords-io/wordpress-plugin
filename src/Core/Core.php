@@ -105,7 +105,7 @@ class Core
         }
 
         // Regenerate if post has a content ID (regardless of post status)
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getBeyondwordsId($postId);
         if ($contentId) {
             return true;
         }
@@ -151,7 +151,7 @@ class Core
         }
 
         // Does this post already have audio?
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getBeyondwordsId($postId);
 
         // Has autoregeneration for Post updates been disabled?
         if ($contentId) {

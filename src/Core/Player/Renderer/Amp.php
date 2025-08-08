@@ -35,7 +35,7 @@ class Amp
         }
 
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getContentId($post->ID);
+        $contentId = PostMetaUtils::getBeyondwordsId($post->ID);
 
         return ($projectId && $contentId);
     }
@@ -50,7 +50,7 @@ class Amp
     public static function render(\WP_Post $post): string
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getContentId($post->ID);
+        $contentId = PostMetaUtils::getBeyondwordsId($post->ID);
 
         // @todo use Source Id for AMP?
         $src = sprintf(Environment::getAmpPlayerUrl(), $projectId, $contentId);

@@ -16,6 +16,8 @@ class ConfigBuilder
     /**
      * Build JavaScript SDK parameters for the player.
      *
+     * @since 6.0.0 Introduced.
+     *
      * @param \WP_Post $post WordPress post object.
      *
      * @return object Parameters for JS SDK.
@@ -23,13 +25,19 @@ class ConfigBuilder
     public static function build(\WP_Post $post): object
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getContentId($post->ID);
 
         $params = [
             'projectId' => is_numeric($projectId) ? (int)$projectId : $projectId,
-            // @todo always use sourceId for JS Player?
-            'contentId' => is_numeric($contentId) ? (int)$contentId : $contentId,
+            'sourceId' => (string)$post->ID,
         ];
+
+        $contentId = PostMetaUtils::getContentId($post->ID);
+
+        // Prefer contentId over sourceId if available.
+        if ($contentId) {
+            unset($params['sourceId']);
+            $params['contentId'] = is_numeric($contentId) ? (int)$contentId : $contentId;
+        }
 
         $params = self::mergePluginSettings($params);
         $params = self::mergePostSettings($post, $params);
@@ -101,10 +109,12 @@ class ConfigBuilder
         $method = IntegrationMethod::getIntegrationMethod($post);
 
         if ($method === IntegrationMethod::CLIENT_SIDE) {
-            $params['clientSideEnabled'] = true;
-            // @todo always use sourceId for JS Player?
-            $params['sourceId'] = (string) $post->ID;
-            unset($params['contentId']);
+            $params['clientSideEnabled'] = PostMetaUtils::hasGenerateAudio($post->ID);
+
+            if (empty($params['contentId'])) {
+                unset($params['contentId']);
+                $params['sourceId'] = (string)$post->ID;
+            }
         }
 
         return $params;

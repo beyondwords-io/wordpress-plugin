@@ -90,7 +90,7 @@ class BlockAttributes
      *
      * @since 4.0.0
      * @since 4.2.2 Rename method to renderBlock.
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and update for Magic Embed.
      *
      * @param string $blockContent The block content (HTML).
      * @param string $block        The full block, including name and attributes.
@@ -104,8 +104,8 @@ class BlockAttributes
             return $blockContent;
         }
 
-        // Skip adding marker if no content ID exists
-        if (! PostMetaUtils::getContentId(get_the_ID())) {
+        // Skip adding marker if no content exists
+        if (! PostMetaUtils::hasContent(get_the_ID())) {
             return $blockContent;
         }
 

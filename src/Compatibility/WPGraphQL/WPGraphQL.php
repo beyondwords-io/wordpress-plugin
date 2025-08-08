@@ -34,13 +34,17 @@ class WPGraphQL
      * @since 3.6.0
      * @since 4.0.0 Register contentId field, and contentId/podcastId are now String, not Int
      * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static, add sourceId field.
      */
     public static function graphqlRegisterTypes()
     {
         register_graphql_object_type('Beyondwords', [
             'description' => __('BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'fields' => [
+                'sourceId' => [
+                    'description' => __('BeyondWords source ID', 'speechkit'),
+                    'type' => 'String'
+                ],
                 'projectId' => [
                     'description' => __('BeyondWords project ID', 'speechkit'),
                     'type' => 'Int'
@@ -70,7 +74,9 @@ class WPGraphQL
                     'type'        => 'Beyondwords',
                     'description' => __('BeyondWords audio details', 'speechkit'),
                     'resolve'     => function (WPGraphQLPlugin\Model\Post $post) {
-                        $beyondwords = [];
+                        $beyondwords = [
+                            'sourceId' => (string)$post->ID,
+                        ];
 
                         $contentId = PostMetaUtils::getContentId($post->ID);
 

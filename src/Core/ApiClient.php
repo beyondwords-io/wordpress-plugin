@@ -89,7 +89,7 @@ class ApiClient
     public static function updateAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getBeyondwordsId($postId);
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -118,7 +118,7 @@ class ApiClient
     public static function deleteAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getBeyondwordsId($postId);
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -162,7 +162,7 @@ class ApiClient
                 continue;
             }
 
-            $contentId = PostMetaUtils::getContentId($postId);
+            $contentId = PostMetaUtils::getBeyondwordsId($postId);
 
             if (! $contentId) {
                 continue;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -139,6 +140,60 @@ class PostMetaUtils
     }
 
     /**
+     * Check if a Post has BeyondWords content.
+     *
+     * A post should have content if it has a Content ID, or if it has the
+     * `beyondwords_integration_method` custom field set to `client_side`.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId Post ID.
+     *
+     * @return bool True if the post should have BeyondWords content, false otherwise.
+     */
+    public static function hasContent($postId)
+    {
+        $contentId = PostMetaUtils::getContentId($postId);
+
+        if ($contentId) {
+            return true;
+        }
+
+        $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
+
+        if ($integrationMethod === IntegrationMethod::CLIENT_SIDE) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the BeyondWords ID for a WordPress Post.
+     *
+     * In places such as REST API calls we can pass either the Content ID or the
+     * Source ID (Post ID) to identify the content. This method prefers the
+     * Content ID, but falls back to the Source ID if the Content ID is not available.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId Post ID.
+     *
+     * @return string BeyondWords Content/Source ID.
+     */
+    public static function getBeyondwordsId($postId)
+    {
+        // Check for "Content ID" custom field (string, uuid)
+        $contentId = self::getContentId($postId);
+
+        if ($contentId) {
+            return (string)$contentId;
+        }
+
+        return (string)$postId; // Fallback to Post ID as Source ID
+    }
+
+    /**
      * Get the Content ID for a WordPress Post.
      *
      * Over time there have been various approaches to storing the Content ID.
@@ -263,6 +318,7 @@ class PostMetaUtils
      *
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
+     * @since 6.0.0 Add Magic Embed support.
      *
      * @param int $postId Post ID.
      *
@@ -278,10 +334,18 @@ class PostMetaUtils
             return true;
         }
 
-        $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
+        if (PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio') === '0') {
+            return false;
+        }
 
-        if ($projectId && $contentId) {
+        if (get_post_meta($postId, 'publish_post_to_speechkit', true) === '0') {
+            return false;
+        }
+
+        $projectId  = PostMetaUtils::getProjectId($postId);
+        $hasContent = PostMetaUtils::hasContent($postId);
+
+        if ($projectId && $hasContent) {
             return true;
         }
 

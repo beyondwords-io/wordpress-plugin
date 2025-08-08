@@ -98,7 +98,7 @@ class Column
         }
 
         $errorMessage = PostMetaUtils::getErrorMessage($postId);
-        $contentId    = PostMetaUtils::getContentId($postId);
+        $hasContent   = PostMetaUtils::hasContent($postId);
         $disabled     = PostMetaUtils::getDisabled($postId);
 
         $allowedTags = array(
@@ -109,10 +109,10 @@ class Column
 
         if (! empty($errorMessage)) {
             echo wp_kses(self::OUTPUT_ERROR_PREFIX . $errorMessage, $allowedTags);
-        } elseif (empty($contentId)) {
-            echo wp_kses(self::OUTPUT_NO, $allowedTags);
-        } else {
+        } elseif ($hasContent) {
             echo wp_kses(self::OUTPUT_YES, $allowedTags);
+        } else {
+            echo wp_kses(self::OUTPUT_NO, $allowedTags);
         }
 
         if (! empty($disabled)) {

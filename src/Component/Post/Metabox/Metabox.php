@@ -96,7 +96,7 @@ class Metabox
      * @since 3.7.0 Show "Pending review" notice for posts with status of "pending"
      * @since 4.0.0 Content ID is no longer an int
      * @since 4.1.0 Add "Player style" and update component display conditions
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and add Magic Embed support.
      */
     public static function renderMetaBoxContent($post)
     {
@@ -109,9 +109,9 @@ class Metabox
         // Show errors for posts with/without audio
         self::errors($post);
 
-        $contentId = PostMetaUtils::getContentId($post->ID);
+        $hasContent = PostMetaUtils::hasContent($post->ID);
 
-        if ($contentId) {
+        if ($hasContent) {
             // Enable these components for posts with audio
             if (get_post_status($post) === 'pending') {
                 self::pendingReviewNotice($post);
@@ -181,7 +181,7 @@ class Metabox
      *
      * @since 3.x   Introduced
      * @since 4.0.1 Admin player init is now all in this one function.
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and add Magic Embed support.
      */
     public static function playerEmbed($post = null)
     {
@@ -191,13 +191,16 @@ class Metabox
             return;
         }
 
-        $projectId    = PostMetaUtils::getProjectId($post->ID);
-        $contentId    = PostMetaUtils::getContentId($post->ID);
-        $previewToken = PostMetaUtils::getPreviewToken($post->ID);
+        $projectId  = PostMetaUtils::getProjectId($post->ID);
+        $hasContent = PostMetaUtils::hasContent($post->ID);
 
-        if (! $projectId || ! $contentId) {
+        if (! $projectId || ! $hasContent) {
             return;
         }
+
+        // @todo is it OK supplying both contentId and sourceId?
+        $contentId    = PostMetaUtils::getContentId($post->ID);
+        $previewToken = PostMetaUtils::getPreviewToken($post->ID);
 
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
@@ -206,6 +209,7 @@ class Metabox
             onload='const player = new BeyondWords.Player({
                 target: this,
                 projectId: <?php echo esc_attr($projectId); ?>,
+                sourceId: "<?php echo esc_attr($post->ID); ?>",
                 contentId: "<?php echo esc_attr($contentId); ?>",
                 previewToken: "<?php echo esc_attr($previewToken); ?>",
                 adverts: [],
