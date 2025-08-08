@@ -98,10 +98,9 @@ class Core
             return false;
         }
 
-        // A project ID is required
-        $projectId = PostMetaUtils::getProjectId($postId);
-        if (! $projectId) {
-            return false;
+        // For Magic Embed rely solely on the "Generate audio" checkbox.
+        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
+            return PostMetaUtils::hasGenerateAudio($postId);
         }
 
         // Regenerate if post has a content ID (regardless of post status)
@@ -115,11 +114,6 @@ class Core
         // Only generate audio for certain post statuses.
         if (! self::shouldProcessPostStatus($status)) {
             return false;
-        }
-
-        // Generate if Magic Embed is enabled.
-        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
-            return true;
         }
 
         // Generate if "Generate audio" has been set.
@@ -151,10 +145,10 @@ class Core
         }
 
         // Does this post already have audio?
-        $contentId = PostMetaUtils::getBeyondwordsId($postId);
+        $beyondwordsId = PostMetaUtils::getBeyondwordsId($postId);
 
         // Has autoregeneration for Post updates been disabled?
-        if ($contentId) {
+        if ($beyondwordsId) {
             if (defined('BEYONDWORDS_AUTOREGENERATE') && ! BEYONDWORDS_AUTOREGENERATE) {
                 return false;
             }

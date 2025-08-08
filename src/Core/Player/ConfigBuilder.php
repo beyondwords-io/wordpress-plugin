@@ -5,6 +5,7 @@ namespace Beyondwords\Wordpress\Core\Player;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Core\Core;
 
 /**
  * Class ConfigBuilder
@@ -109,7 +110,7 @@ class ConfigBuilder
         $method = IntegrationMethod::getIntegrationMethod($post);
 
         if ($method === IntegrationMethod::CLIENT_SIDE) {
-            $params['clientSideEnabled'] = PostMetaUtils::hasGenerateAudio($post->ID);
+            $params['clientSideEnabled'] = Core::shouldGenerateAudioForPost($post->ID);
 
             if (empty($params['contentId'])) {
                 unset($params['contentId']);

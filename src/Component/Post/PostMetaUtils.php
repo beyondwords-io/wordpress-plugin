@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
+use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -142,8 +142,8 @@ class PostMetaUtils
     /**
      * Check if a Post has BeyondWords content.
      *
-     * A post should have content if it has a Content ID, or if it has the
-     * `beyondwords_integration_method` custom field set to `client_side`.
+     * A post should have existing content if it has a Content ID or a
+     * `beyondwords_integration_method` custom field.
      *
      * @since 6.0.0 Introduced.
      *
@@ -161,7 +161,7 @@ class PostMetaUtils
 
         $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
 
-        if ($integrationMethod === IntegrationMethod::CLIENT_SIDE) {
+        if ($integrationMethod) {
             return true;
         }
 
@@ -326,30 +326,19 @@ class PostMetaUtils
      */
     public static function hasGenerateAudio($postId)
     {
-        if (PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio') === '1') {
+        $generateAudio = PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio');
+
+        // Checkbox was checked.
+        if ($generateAudio === '1') {
             return true;
         }
 
-        if (get_post_meta($postId, 'publish_post_to_speechkit', true) === '1') {
-            return true;
-        }
-
-        if (PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio') === '0') {
+        // Checkbox was unchecked.
+        if ($generateAudio === '0') {
             return false;
         }
 
-        if (get_post_meta($postId, 'publish_post_to_speechkit', true) === '0') {
-            return false;
-        }
-
-        $projectId  = PostMetaUtils::getProjectId($postId);
-        $hasContent = PostMetaUtils::hasContent($postId);
-
-        if ($projectId && $hasContent) {
-            return true;
-        }
-
-        return false;
+        return GenerateAudio::shouldPreselectGenerateAudio($postId);
     }
 
     /**

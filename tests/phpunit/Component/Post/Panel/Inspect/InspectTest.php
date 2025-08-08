@@ -65,7 +65,6 @@ class InspectTest extends \WP_UnitTestCase
             'beyondwords_summary_voice_id' => '303',
             'beyondwords_disabled'         => '0',
             'beyondwords_error_message'    => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            'publish_post_to_speechkit'    => 'Value 1',
             'speechkit_info'               => ["foo" => ["bar" => "baz"]],
             'speechkit_response'           => 'Value 7',
             'speechkit_retries'            => '1',

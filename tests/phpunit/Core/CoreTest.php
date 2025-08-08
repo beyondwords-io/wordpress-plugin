@@ -479,7 +479,6 @@ class CoreTest extends WP_UnitTestCase
                 'beyondwords_podcast_id'            => 'beyondwords_podcast_id',
                 'beyondwords_preview_token'         => 'beyondwords_preview_token',
                 'beyondwords_project_id'            => 'beyondwords_project_id',
-                'publish_post_to_speechkit'         => 'publish_post_to_speechkit',
                 'speechkit_info'                    => 'speechkit_info',
                 'speechkit_response'                => 'speechkit_response',
                 'speechkit_retries'                 => 'speechkit_retries',
@@ -511,9 +510,6 @@ class CoreTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey('beyondwords_project_id', $meta);
         $this->assertSame('beyondwords_project_id', get_post_meta($postId, 'beyondwords_project_id', true));
-
-        $this->assertArrayHasKey('publish_post_to_speechkit', $meta);
-        $this->assertSame('publish_post_to_speechkit', get_post_meta($postId, 'publish_post_to_speechkit', true));
 
         $this->assertArrayHasKey('speechkit_info', $meta);
         $this->assertSame('speechkit_info', get_post_meta($postId, 'speechkit_info', true));
