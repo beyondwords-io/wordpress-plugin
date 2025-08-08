@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post;
 
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -140,10 +141,7 @@ class PostMetaUtils
     }
 
     /**
-     * Check if a Post has BeyondWords content.
-     *
-     * A post should have existing content if it has a Content ID or a
-     * `beyondwords_integration_method` custom field.
+     * Check if a Post should have BeyondWords content (a Content entity in BeyondWords).
      *
      * @since 6.0.0 Introduced.
      *
@@ -153,15 +151,19 @@ class PostMetaUtils
      */
     public static function hasContent($postId)
     {
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId         = PostMetaUtils::getContentId($postId);
+        $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
 
-        if ($contentId) {
+        // If the integration method is not set, we assume REST API
+        if (empty($integrationMethod)) {
+            $integrationMethod = IntegrationMethod::REST_API;
+        }
+
+        if (IntegrationMethod::REST_API === $integrationMethod && $contentId) {
             return true;
         }
 
-        $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
-
-        if ($integrationMethod) {
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
             return true;
         }
 
