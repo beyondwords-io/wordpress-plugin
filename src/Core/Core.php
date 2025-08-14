@@ -388,7 +388,7 @@ class Core
      *
      * @return bool
      **/
-    public static function onAddOrUpdatePost($postId)
+    public static function onAddOrUpdatePost(int $postId): bool
     {
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {
@@ -401,28 +401,25 @@ class Core
             return false;
         }
 
-        // Save the current integration method.
-        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE);
-        update_post_meta($postId, 'beyondwords_integration_method', $integrationMethod);
+        if (! self::shouldGenerateAudioForPost($postId)) {
+            return false;
+        }
+
+        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME);
 
         // For Magic Embed we call the /regenerate endpoint to ensure (re)generation.
-        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME) && self::shouldGenerateAudioForPost($postId)) { // phpcs:ignore Generic.Files.LineLength.TooLong
-            // @todo regenerate content.
-            return true;
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
+            // Save the integration method & Project ID.
+            update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
+            update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
 
-            $result = ApiClient::regenerateContent($postId);
-
-            return boolval($result);
+            return (bool) ApiClient::getPlayerBySourceURL($postId);
         }
 
-        // For non-Magic Embed we check for explicit "Generate Audio".
-        if (get_post_meta($postId, 'beyondwords_generate_audio', true) === '1') {
-            $result = self::generateAudioForPost($postId);
+        // For non-Magic Embed we use the REST API to generate audio.
+        update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
 
-            return boolval($result);
-        }
-
-        return false;
+        return (bool) self::generateAudioForPost($postId);
     }
 
     /**

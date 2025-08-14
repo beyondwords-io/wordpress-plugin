@@ -154,16 +154,19 @@ class PostMetaUtils
         $contentId         = PostMetaUtils::getContentId($postId);
         $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
 
-        // If the integration method is not set, we assume REST API
+        // If the integration method is not set, we assume REST API for legacy compatibility.
         if (empty($integrationMethod)) {
             $integrationMethod = IntegrationMethod::REST_API;
         }
 
-        if (IntegrationMethod::REST_API === $integrationMethod && $contentId) {
+        if (IntegrationMethod::REST_API === $integrationMethod && ! empty($contentId)) {
             return true;
         }
 
-        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
+        // Get the project ID for the post (do not use the plugin setting).
+        $projectId = PostMetaUtils::getProjectId($postId, true);
+
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && !empty($projectId)) {
             return true;
         }
 
@@ -355,39 +358,47 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Apply beyondwords_project_id filter
      * @since 5.0.0 Remove beyondwords_project_id filter.
+     * @since 6.0.0 Support Magic Embed and add strict mode.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $strict Strict mode, which only checks the custom field. Defaults to false.
      *
      * @return int|false Project ID, or false
      */
-    public static function getProjectId($postId)
+    public static function getProjectId($postId, $strict = false)
     {
-        // Check custom fields
-        $projectId = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
-
-        if (! $projectId) {
-            // It may also be found by parsing post_meta.speechkit_response
-            $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
-            preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
-            // $matches[2] is the Project ID (response.project_id)
-            if ($matches && $matches[2]) {
-                $projectId = intval($matches[2]);
-            }
+        // If strict is true, we only check the custom field and do not fall back to the plugin setting.
+        if ($strict) {
+            return PostMetaUtils::getRenamedPostMeta($postId, 'project_id');
         }
 
-        // If we still don't have an ID then use the default from the plugin settings
-        if (! $projectId) {
-            $projectId = intval(get_option('beyondwords_project_id'));
+        // Check the post custom field.
+        $postMeta = PostMetaUtils::getRenamedPostMeta($postId, 'project_id');
+
+        if ($postMeta) {
+            return intval($postMeta);
         }
 
-        if (! $projectId) {
-            // Return boolean false instead of numeric 0
-            $projectId = false;
+        // Parse post_meta.speechkit_response, if available.
+        $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+
+        preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
+
+        // $matches[2] is the Project ID (response.project_id)
+        if ($matches && $matches[2]) {
+            return intval($matches[2]);
+        }
+
+        // Check the plugin setting.
+        $setting = get_option('beyondwords_project_id');
+
+        if ($setting) {
+            return intval($setting);
         }
 
         // todo throw ProjectIdNotFoundException?
 
-        return $projectId;
+        return false;
     }
 
     /**

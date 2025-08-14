@@ -23,6 +23,7 @@ export function PostInspectPanel( {
 	beyondwordsDeleteContent,
 	beyondwordsDisabled,
 	beyondwordsGenerateAudio,
+	beyondwordsIntegrationMethod,
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
 	beyondwordsPlayerContent,
@@ -193,6 +194,13 @@ export function PostInspectPanel( {
 			/>
 
 			<TextControl
+				label="beyondwords_integration_method"
+				readOnly
+				value={ beyondwordsIntegrationMethod }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
 				label="beyondwords_project_id"
 				readOnly
 				value={ beyondwordsProjectId }
@@ -336,6 +344,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
+			beyondwordsIntegrationMethod:
+				getEditedPostAttribute( 'meta' ).beyondwords_integration_method,
 			beyondwordsContentId:
 				getEditedPostAttribute( 'meta' ).beyondwords_content_id,
 			beyondwordsPreviewToken:

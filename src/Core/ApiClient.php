@@ -8,6 +8,7 @@ use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Request;
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -235,6 +236,37 @@ class ApiClient
         $url = sprintf('%s/projects/%d/content/%s/regenerate', Environment::getApiUrl(), $projectId, $postId);
 
         $request  = new Request('POST', $url);
+        $response = self::callApi($request, $postId);
+
+        return json_decode(wp_remote_retrieve_body($response), true);
+    }
+
+    /**
+     * GET /projects/:id/player/by_source_url/:id.
+     *
+     * This will return the player data for a post by its source URL. It is used
+     * for Client-Side integration, where the content is generated based on the
+     * source URL of the post instead of a BeyondWords REST API call.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId WordPress Post ID
+     *
+     * @return mixed JSON-decoded response body, or false on failure.
+     **/
+    public static function getPlayerBySourceURL($postId)
+    {
+        $projectId = PostMetaUtils::getProjectId($postId);
+
+        if (! $projectId) {
+            return false;
+        }
+
+        $permalink = get_permalink($postId);
+
+        $url = sprintf('%s/projects/%d/player/by_source_url/%s', Environment::getApiUrl(), $projectId, $permalink);
+
+        $request  = new Request('GET', $url);
         $response = self::callApi($request, $postId);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -651,9 +683,13 @@ class ApiClient
     /**
      * Add an error message for a post.
      *
+     * This was updated in v6.0 to support Magic Embed. 404 errors are not saved for Magic Embed,
+     * because content will (re)generate when pages are visited.
+     *
      * @since 4.1.0 Introduced.
      * @since 4.4.0 Rename from error() to saveErrorMessage().
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add Magic Embed support.
      *
      * @param int    $postId  WordPress post ID.
      * @param string $message Error message.
@@ -664,6 +700,11 @@ class ApiClient
     public static function saveErrorMessage($postId, $message = '', $code = 500)
     {
         if (! $postId) {
+            return;
+        }
+
+        // Don't save an error message for Client-side 404s - they will (re)generate when pages are visited.
+        if (404 === $code && IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
             return;
         }
 
