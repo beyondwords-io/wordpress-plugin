@@ -242,11 +242,11 @@ class ApiClient
     }
 
     /**
-     * GET /projects/:id/player/by_source_url/:id.
+     * GET /projects/:id/player/by_source_id/:id.
      *
-     * This will return the player data for a post by its source URL. It is used
+     * This will return the player data for a post by its source ID. It is used
      * for Client-Side integration, where the content is generated based on the
-     * source URL of the post instead of a BeyondWords REST API call.
+     * source ID & URL of the post instead of a BeyondWords REST API call.
      *
      * @since 6.0.0 Introduced.
      *
@@ -254,7 +254,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body, or false on failure.
      **/
-    public static function getPlayerBySourceURL($postId)
+    public static function getPlayerBySourceId($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
 
@@ -262,11 +262,13 @@ class ApiClient
             return false;
         }
 
-        $permalink = get_permalink($postId);
+        $url = sprintf('%s/projects/%d/player/by_source_id/%d', Environment::getApiUrl(), $projectId, $postId);
+        $headers = [
+            'X-Referer' => get_permalink($postId),
+            'X-Import' => true
+        ];
 
-        $url = sprintf('%s/projects/%d/player/by_source_url/%s', Environment::getApiUrl(), $projectId, $permalink);
-
-        $request  = new Request('GET', $url);
+        $request  = new Request('GET', $url, null, $headers);
         $response = self::callApi($request, $postId);
 
         return json_decode(wp_remote_retrieve_body($response), true);

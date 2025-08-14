@@ -413,7 +413,7 @@ class Core
             update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
             update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
 
-            return (bool) ApiClient::getPlayerBySourceURL($postId);
+            return (bool) ApiClient::getPlayerBySourceId($postId);
         }
 
         // For non-Magic Embed we use the REST API to generate audio.
