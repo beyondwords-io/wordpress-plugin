@@ -174,31 +174,6 @@ class PostMetaUtils
     }
 
     /**
-     * Get the BeyondWords ID for a WordPress Post.
-     *
-     * In places such as REST API calls we can pass either the Content ID or the
-     * Source ID (Post ID) to identify the content. This method prefers the
-     * Content ID, but falls back to the Source ID if the Content ID is not available.
-     *
-     * @since 6.0.0 Introduced.
-     *
-     * @param int $postId Post ID.
-     *
-     * @return string BeyondWords Content/Source ID.
-     */
-    public static function getBeyondwordsId($postId)
-    {
-        // Check for "Content ID" custom field (string, uuid)
-        $contentId = self::getContentId($postId);
-
-        if ($contentId) {
-            return (string)$contentId;
-        }
-
-        return (string)$postId; // Fallback to Post ID as Source ID
-    }
-
-    /**
      * Get the Content ID for a WordPress Post.
      *
      * Over time there have been various approaches to storing the Content ID.
@@ -208,22 +183,30 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Renamed to getContentId() & prioritise beyondwords_content_id
      * @since 5.0.0 Remove beyondwords_content_id filter.
+     * @since 6.0.0 Add fallback parameter to allow falling back to Post ID.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $fallback If true, will fall back to the Post ID if no Content ID is found.
      *
-     * @return int|false Content ID, or false
+     * @return string|false Content ID, or false
      */
-    public static function getContentId($postId)
+    public static function getContentId($postId, $fallback = false)
     {
-        // Check for "Content ID" custom field (string, uuid)
         $contentId = get_post_meta($postId, 'beyondwords_content_id', true);
-
-        if (! $contentId) {
-            // Also try "Podcast ID" custom field (number, or string for > 4.x)
-            $contentId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($contentId)) {
+            return $contentId;
         }
 
-        return $contentId;
+        $podcastId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($podcastId)) {
+            return $podcastId;
+        }
+
+        if ($fallback) {
+            return (string) $postId;
+        }
+
+        return false;
     }
 
     /**

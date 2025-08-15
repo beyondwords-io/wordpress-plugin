@@ -198,7 +198,6 @@ class Metabox
             return;
         }
 
-        // @todo is it OK supplying both contentId and sourceId?
         $contentId    = PostMetaUtils::getContentId($post->ID);
         $previewToken = PostMetaUtils::getPreviewToken($post->ID);
 
@@ -209,8 +208,11 @@ class Metabox
             onload='const player = new BeyondWords.Player({
                 target: this,
                 projectId: <?php echo esc_attr($projectId); ?>,
-                sourceId: "<?php echo esc_attr($post->ID); ?>",
+                <?php if (! empty($contentId)) : ?>
                 contentId: "<?php echo esc_attr($contentId); ?>",
+                <?php else : ?>
+                sourceId: "<?php echo esc_attr($post->ID); ?>",
+                <?php endif; ?>
                 previewToken: "<?php echo esc_attr($previewToken); ?>",
                 adverts: [],
                 analyticsConsent: "none",

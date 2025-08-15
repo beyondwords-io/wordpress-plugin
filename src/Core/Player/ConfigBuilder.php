@@ -28,16 +28,17 @@ class ConfigBuilder
         $projectId = PostMetaUtils::getProjectId($post->ID);
 
         $params = [
-            'projectId' => is_numeric($projectId) ? (int)$projectId : $projectId,
-            'sourceId' => (string)$post->ID,
+            'projectId' => is_numeric($projectId) ? (int) $projectId : $projectId,
+            'sourceId' => (string) $post->ID,
         ];
 
         $contentId = PostMetaUtils::getContentId($post->ID);
+        $integrationMethod = IntegrationMethod::getIntegrationMethod($post);
 
-        // Prefer contentId over sourceId if available.
-        if ($contentId) {
+        // For non-client-side method, we prefer Content ID if it's available.
+        if ($integrationMethod !== IntegrationMethod::CLIENT_SIDE && $contentId) {
             unset($params['sourceId']);
-            $params['contentId'] = is_numeric($contentId) ? (int)$contentId : $contentId;
+            $params['contentId'] = is_numeric($contentId) ? (int) $contentId : $contentId;
         }
 
         $params = self::mergePluginSettings($params);

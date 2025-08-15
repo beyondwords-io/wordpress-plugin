@@ -35,7 +35,7 @@ class Amp
         }
 
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getBeyondwordsId($post->ID);
+        $contentId = PostMetaUtils::getContentId($post->ID, true); // Fallback to Post ID if Content ID is not set
 
         return ($projectId && $contentId);
     }
@@ -50,7 +50,7 @@ class Amp
     public static function render(\WP_Post $post): string
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getBeyondwordsId($post->ID);
+        $contentId = PostMetaUtils::getContentId($post->ID, true); // Fallback to Post ID if Content ID is not set
 
         // @todo use Source Id for AMP?
         $src = sprintf(Environment::getAmpPlayerUrl(), $projectId, $contentId);

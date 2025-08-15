@@ -149,7 +149,7 @@ class Core
         update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
 
         // Does this post already have audio?
-        $beyondwordsId = PostMetaUtils::getBeyondwordsId($postId);
+        $beyondwordsId = PostMetaUtils::getContentId($postId);
 
         // Has autoregeneration for Post updates been disabled?
         if ($beyondwordsId) {

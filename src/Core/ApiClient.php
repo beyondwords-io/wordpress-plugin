@@ -90,7 +90,7 @@ class ApiClient
     public static function updateAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getBeyondwordsId($postId);
+        $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -119,7 +119,7 @@ class ApiClient
     public static function deleteAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getBeyondwordsId($postId);
+        $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -163,7 +163,7 @@ class ApiClient
                 continue;
             }
 
-            $contentId = PostMetaUtils::getBeyondwordsId($postId);
+            $contentId = PostMetaUtils::getContentId($postId);
 
             if (! $contentId) {
                 continue;
