@@ -42,7 +42,7 @@ context( 'Plugins: AMP', () => {
 				cy.viewPostViaSnackbar();
 
 				// Non-AMP requests have a JS player.
-		  		cy.get( 'amp-iframe' ).should( 'not.exist' );
+				cy.get( 'amp-iframe' ).should( 'not.exist' );
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 

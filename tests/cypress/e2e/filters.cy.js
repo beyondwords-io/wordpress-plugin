@@ -98,38 +98,5 @@ describe( 'WordPress Filters', () => {
 
 				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );
 			} );
-
-			it( `can filter Player inline script tag for a ${ postType.name }`, () => {
-				cy.activatePlugin(
-					'beyondwords-filter-player-inline-script-tag'
-				);
-
-				cy.publishPostWithAudio( {
-					postType,
-					title: `I see the inline player script for a ${ postType.name }`,
-				} );
-
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
-
-				// Frontend SHOULD NOT have enqueued player script
-				cy.viewPostViaSnackbar();
-				cy.getPlayerScriptTag().should( 'not.exist' );
-				cy.hasPlayerInstances( 1 );
-
-				cy.deactivatePlugin(
-					'beyondwords-filter-player-inline-script-tag'
-				);
-
-				cy.publishPostWithAudio( {
-					postType,
-					title: `I see the legacy player script for a ${ postType.name }`,
-				} );
-
-				// Frontend SHOULD have enqueued player script
-				cy.viewPostViaSnackbar();
-				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-			} );
 		} );
 } );

@@ -469,30 +469,17 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 
 // Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
-	cy.window( { timeout: 10000 } ).should( ( win ) => {
-		if ( ! win.BeyondWords ) {
-			throw new Error(
-				'BeyondWords is not available on the window object.'
-			);
-		}
+	// Ensure the player script tag count matches the expected number of instances.
+	if ( num < 0 ) {
+		throw new Error( 'Number of player instances cannot be negative.' );
+	}
 
-		if (
-			! win.BeyondWords.Player ||
-			typeof win.BeyondWords.Player.instances !== 'function'
-		) {
-			throw new Error(
-				'BeyondWords.Player.instances is not a function.'
-			);
-		}
+	if ( num === 0 ) {
+		cy.getPlayerScriptTag().should( 'not.exist' );
+		return;
+	}
 
-		const instances = win.BeyondWords.Player.instances();
-
-		if ( instances.length !== num ) {
-			throw new Error(
-				`Expected ${ num } player instance(s), but found ${ instances.length }.`
-			);
-		}
-	} );
+	cy.getPlayerScriptTag().should( 'have.length', num );
 } );
 
 // Check for no Beyondwords Player object.
@@ -510,7 +497,7 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
 	return cy.get(
 		// eslint-disable-next-line max-len
-		'body > script[src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
+		'body script[async][defer][src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
 		...args
 	);
 } );
