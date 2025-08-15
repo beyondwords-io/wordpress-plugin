@@ -84,8 +84,6 @@ export function useBeyondWordsPlayer( {
 				delete params.sourceId;
 			}
 
-			console.log('params', params);
-
 			newPlayer = new BeyondWords.Player( params );
 		} catch ( error ) {
 			setPlayer( null );
