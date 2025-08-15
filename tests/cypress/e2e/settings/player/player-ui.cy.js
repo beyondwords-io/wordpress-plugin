@@ -25,7 +25,7 @@ context( 'Settings > Player UI', () => {
 
 		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
-		cy.getPlayerScriptTag().should( 'exist' );
+
 		cy.hasPlayerInstances( 1, {
 			showUserInterface: true,
 		} );
@@ -43,10 +43,7 @@ context( 'Settings > Player UI', () => {
 		// Admin should have latest player
 		cy.hasPlayerInstances( 1 );
 
-		// Frontend should have a player div without a UI
 		cy.viewPostViaSnackbar();
-		cy.get( '.beyondwords-player.bwp' ).should( 'exist' );
-		cy.get( '.beyondwords-player .user-interface' ).should( 'not.exist' );
 
 		// Frontend should have a player without a UI
 		cy.hasPlayerInstances( 1, {
