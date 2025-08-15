@@ -131,7 +131,7 @@ class Core
      * @since 3.2.0 Added speechkit_post_statuses filter
      * @since 3.5.0 Refactored, adding self::shouldGenerateAudioForPost()
      * @since 5.1.0 Move project ID check into self::shouldGenerateAudioForPost()
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and support Magic Embed.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -143,6 +143,20 @@ class Core
         if (! self::shouldGenerateAudioForPost($postId)) {
             return false;
         }
+
+        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME);
+
+        // For Magic Embed we call the "get_player_by_source_id" endpoint to import content.
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
+            // Save the integration method & Project ID.
+            update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
+            update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
+
+            return ApiClient::getPlayerBySourceId($postId);
+        }
+
+        // For non-Magic Embed we use the REST API to generate audio.
+        update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
 
         // Does this post already have audio?
         $beyondwordsId = PostMetaUtils::getBeyondwordsId($postId);
@@ -382,7 +396,7 @@ class Core
      * @since 4.4.0 Delete audio if beyondwords_delete_content custom field is set.
      * @since 4.5.0 Remove unwanted debugging custom fields.
      * @since 5.1.0 Move post status check out of here.
-     * @since 6.0.0 Make static and support Magic Embed.
+     * @since 6.0.0 Make static and refactor for Magic Embed updates.
      *
      * @param int $postId Post ID.
      *
@@ -400,24 +414,6 @@ class Core
 
             return false;
         }
-
-        if (! self::shouldGenerateAudioForPost($postId)) {
-            return false;
-        }
-
-        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME);
-
-        // For Magic Embed we call the /regenerate endpoint to ensure (re)generation.
-        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
-            // Save the integration method & Project ID.
-            update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
-            update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
-
-            return (bool) ApiClient::getPlayerBySourceId($postId);
-        }
-
-        // For non-Magic Embed we use the REST API to generate audio.
-        update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
 
         return (bool) self::generateAudioForPost($postId);
     }
