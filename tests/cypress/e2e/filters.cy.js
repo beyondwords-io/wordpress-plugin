@@ -28,38 +28,16 @@ describe( 'WordPress Filters', () => {
 				// Admin should have latest player
 				cy.hasPlayerInstances( 1 );
 
-				// Frontend should have a player div
+				// Frontend should have a player div with expected SDK params from
+				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
 				cy.viewPostViaSnackbar();
 				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain desired SDK params from
-				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].iconColor
-					).to.eq( 'rgb(234, 75, 151)' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.highlightSections
-					).to.eq( 'all-none' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.clickableSections
-					).to.eq( 'none' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.segmentWidgetSections
-					).to.eq( 'body' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.segmentWidgetPosition
-					).to.eq( '10-oclock' );
+				cy.hasPlayerInstances( 1, {
+					iconColor: 'rgb(234, 75, 151)',
+					highlightSections: 'all-none',
+					clickableSections: 'none',
+					segmentWidgetSections: 'body',
+					segmentWidgetPosition: '10-oclock',
 				} );
 
 				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );

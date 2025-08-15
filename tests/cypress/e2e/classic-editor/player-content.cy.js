@@ -66,18 +66,8 @@ context( 'Classic Editor: Player Content', () => {
 
 				// Check Player appears frontend
 				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( false );
+				cy.hasPlayerInstances( 1, {
+					summary: false,
 				} );
 
 				// Check Player content has also been saved in admin
@@ -119,18 +109,8 @@ context( 'Classic Editor: Player Content', () => {
 
 				// Check Player appears frontend
 				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( true );
+				cy.hasPlayerInstances( 1, {
+					summary: true,
 				} );
 
 				// Check Player content has also been saved in admin

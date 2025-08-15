@@ -468,7 +468,7 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 } );
 
 // Check for a number of player instances.
-Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
+Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 	// Ensure the player script tag count matches the expected number of instances.
 	if ( num < 0 ) {
 		throw new Error( 'Number of player instances cannot be negative.' );
@@ -480,6 +480,13 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
 	}
 
 	cy.getPlayerScriptTag().should( 'have.length', num );
+
+	if ( _.isEmpty( params ) ) {
+		// eslint-disable-next-line no-useless-return
+		return;
+	}
+
+	// @todo Check params exist in the params of the player script tag's onload init object.
 } );
 
 // Check for no Beyondwords Player object.
