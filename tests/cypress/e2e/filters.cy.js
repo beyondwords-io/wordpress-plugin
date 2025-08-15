@@ -30,7 +30,7 @@ describe( 'WordPress Filters', () => {
 
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				// window.BeyondWords should contain desired SDK params from
@@ -78,7 +78,7 @@ describe( 'WordPress Filters', () => {
 
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				// Check we have called console.log with expected values from testing plugin
@@ -114,7 +114,7 @@ describe( 'WordPress Filters', () => {
 
 				// Frontend SHOULD NOT have enqueued player script
 				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
+				cy.getPlayerScriptTag().should( 'not.exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.deactivatePlugin(
@@ -128,7 +128,7 @@ describe( 'WordPress Filters', () => {
 
 				// Frontend SHOULD have enqueued player script
 				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 			} );
 		} );

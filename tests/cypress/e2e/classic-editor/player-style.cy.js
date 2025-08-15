@@ -115,7 +115,7 @@ context( 'Classic Editor: Player Style', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player has large player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				// window.BeyondWords should contain 1 player instance
@@ -166,7 +166,7 @@ context( 'Classic Editor: Player Style', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player has video player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				// window.BeyondWords should contain 1 player instance

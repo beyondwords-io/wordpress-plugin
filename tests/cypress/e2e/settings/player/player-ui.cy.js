@@ -25,7 +25,7 @@ context( 'Settings > Player UI', () => {
 
 		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
-		cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+		cy.getPlayerScriptTag().should( 'exist' );
 		cy.hasPlayerInstances( 1 );
 
 		// window.BeyondWords should contain 1 player instance

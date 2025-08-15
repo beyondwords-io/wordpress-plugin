@@ -507,8 +507,12 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 } );
 
 // Get frontend audio player element (standard)
-Cypress.Commands.add( 'getEnqueuedPlayerScriptTag', ( ...args ) => {
-	return cy.get( 'script[data-beyondwords-sdk]', ...args );
+Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
+	return cy.get(
+		// eslint-disable-next-line max-len
+		'body > script[async][defer][src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
+		...args
+	);
 } );
 
 /**

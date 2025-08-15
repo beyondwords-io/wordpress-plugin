@@ -62,7 +62,7 @@ context( 'Block Editor: Add Post', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.visit(

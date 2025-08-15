@@ -43,7 +43,7 @@ context( 'Plugins: AMP', () => {
 
 				// Non-AMP requests have a JS player.
 		  		cy.get( 'amp-iframe' ).should( 'not.exist' );
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.url().then( ( url ) => {
@@ -52,7 +52,7 @@ context( 'Plugins: AMP', () => {
 				} );
 
 				cy.get( 'amp-iframe' ).should( 'exist' );
-				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
+				cy.getPlayerScriptTag().should( 'not.exist' );
 				cy.hasNoBeyondwordsWindowObject();
 			} );
 		} );
