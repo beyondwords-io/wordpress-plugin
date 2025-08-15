@@ -13,9 +13,9 @@
   "main": "index.js",
   "devDependencies": {
     "@mockoon/cli": "^9.2.0",
-    "@wordpress/env": "^10.16.0",
-    "@wordpress/eslint-plugin": "^22.2.0",
-    "@wordpress/scripts": "^30.9.0",
+    "@wordpress/env": "^10.19.1",
+    "@wordpress/eslint-plugin": "^22.5.1",
+    "@wordpress/scripts": "^30.12.1",
     "badge-maker": "^4.1.0",
     "cypress": "14.3.3",
     "cypress-fail-fast": "^7.1.1",
