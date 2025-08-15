@@ -510,7 +510,7 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
 	return cy.get(
 		// eslint-disable-next-line max-len
-		'body > script[async][defer][src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
+		'body > script[src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
 		...args
 	);
 } );
