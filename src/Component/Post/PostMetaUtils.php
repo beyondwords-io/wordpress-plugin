@@ -373,10 +373,10 @@ class PostMetaUtils
         }
 
         // Check the post custom field.
-        $postMeta = PostMetaUtils::getRenamedPostMeta($postId, 'project_id');
+        $postMeta = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
 
-        if ($postMeta) {
-            return intval($postMeta);
+        if (! empty($postMeta)) {
+            return $postMeta;
         }
 
         // Parse post_meta.speechkit_response, if available.

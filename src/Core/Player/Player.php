@@ -141,7 +141,7 @@ class Player
     public static function hasCustomPlayer(string $content): bool
     {
         // Check for shortcode.
-        if (strpos($content, '[beyondwords_player]') !== false) {
+        if (has_shortcode($content, 'beyondwords_player')) {
             return true;
         }
 

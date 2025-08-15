@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\Player;
-use \Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends WP_UnitTestCase
 {
@@ -13,6 +11,7 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
      */
     public function init()
     {
@@ -30,6 +29,7 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
      */
     public function addShortcode()
     {
@@ -59,6 +59,7 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
      */
     public function autoPrependPlayer()
     {
@@ -95,6 +96,7 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
      */
     public function replaceLegacyCustomPlayer()
     {
@@ -131,17 +133,48 @@ class PlayerTest extends WP_UnitTestCase
     }
 
     /**
-     * Render a player (AMP/JS depending on context).
-     *
-     * @return string
+     * @test
+     * @group player
      */
-    public static function renderPlayer()
+    public function renderPlayer()
     {
-        $this->markTestIncomplete('This test needs to be implemented.');
+        global $post;
+
+        // Case 1: No post set, should return empty string
+        $this->assertSame('', Player::renderPlayer());
+
+        // Case 2: Post is not a WP_Post instance, should return empty string
+        $post = null;
+        $this->assertSame('', Player::renderPlayer());
+
+        // Case 3: Post exists but player is disabled via option
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PlayerTest::renderPlayer',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+        update_option('beyondwords_player_ui', PlayerUI::DISABLED);
+        setup_postdata($post);
+        $this->assertSame('', Player::renderPlayer());
+
+        // Case 4: Post exists but player is disabled via post meta
+        update_option('beyondwords_player_ui', PlayerUI::ENABLED);
+        update_post_meta($post->ID, 'beyondwords_disabled', '1');
+        $this->assertSame('', Player::renderPlayer());
+
+        // Case 5: Post exists, player enabled, should render player HTML
+        delete_post_meta($post->ID, 'beyondwords_disabled');
+        $this->assertSame(self::PLAYER_HTML, Player::renderPlayer());
+
+        wp_reset_postdata();
+        wp_delete_post($post->ID, true);
     }
 
     /**
      * @test
+     * @group player
      */
     public function isEnabled()
     {
@@ -165,9 +198,23 @@ class PlayerTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group player
+     *
+     * @dataProvider contentProvider
      */
-    public function hasCustomPlayer()
+    public function hasCustomPlayer($expect, $content)
     {
-        $this->markTestIncomplete('This test needs to be implemented.');
+        $this->assertEquals($expect, Player::hasCustomPlayer($content));
+    }
+
+    public function contentProvider()
+    {
+        return [
+            'No player' => [false, '<p>No player.</p>'],
+            'Legacy player' => [true, '<p>Before.</p><div data-beyondwords-player="true"></div><p>After.</p>'],
+            'Legacy player with contenteditable attribute' => [true, '<p>Before.</p><div data-beyondwords-player="true" contenteditable="false"></div><p>After.</p>'],
+            'New player shortcode' => [true, '<p>Before.</p>[beyondwords_player]<p>After.</p>'],
+            'New player shortcode with project_id attribute' => [true, '<p>Before.</p>[beyondwords_player project_id="1234"]<p>After.</p>'],
+        ];
     }
 }

@@ -75,6 +75,7 @@ class CoreTest extends WP_UnitTestCase
         $postId = $this->factory->post->create([
             'post_title' => 'CoreTest::metaContentIdAndMetaProjectIdWillUpdateAudio',
             'meta_input' => [
+                'beyondwords_generate_audio' => '1',
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
@@ -100,6 +101,7 @@ class CoreTest extends WP_UnitTestCase
         $postId = $this->factory->post->create([
             'post_title' => 'CoreTest::metaContentIdAndSettingsProjectIdWillUpdateAudio',
             'meta_input' => [
+                'beyondwords_generate_audio' => '1',
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
@@ -237,6 +239,69 @@ class CoreTest extends WP_UnitTestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group post-statuses
+     *
+     * @dataProvider shouldProcessPostStatusProvider
+     */
+    public function shouldProcessPostStatus($expect, $status)
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Add 'my_custom_status' to the list of statuses we process
+        $filter = function($statuses) {
+            array_push($statuses, 'my_custom_status');
+            return array_unique($statuses);
+        };
+
+        add_filter('beyondwords_settings_post_statuses', $filter);
+
+        $this->assertEquals($expect, Core::shouldProcessPostStatus($status));
+
+        remove_filter('beyondwords_settings_post_statuses', $filter);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     *
+     */
+    public function shouldProcessPostStatusProvider() {
+        return [
+            'draft' => [
+                'expect' => false,
+                'status' => 'draft'
+            ],
+            'pending' => [
+                'expect' => true,
+                'status' => 'pending'
+            ],
+            'publish' => [
+                'expect' => true,
+                'status' => 'publish'
+            ],
+            'private' => [
+                'expect' => true,
+                'status' => 'private'
+            ],
+            'future'  => [
+                'expect' => true,
+                'status' => 'future'
+            ],
+            'trash' => [
+                'expect' => false,
+                'status' => 'trash'
+            ],
+            'my_custom_status' => [
+                'expect' => true,
+                'status' => 'my_custom_status'
+            ],
+        ];
     }
 
     /**
@@ -580,6 +645,75 @@ class CoreTest extends WP_UnitTestCase
             'zh_TW' => [
                 'language_id' => "234",
                 'language_code' => "zh_TW",
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @group generateAudio
+     * @dataProvider shouldGenerateAudioForPostProvider
+     */
+    public function shouldGenerateAudioForPost($expect, $post_status, $meta_input) {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::shouldGenerateAudioForPost',
+            'post_status' => $post_status,
+            'meta_input' => $meta_input,
+        ]);
+
+        $this->assertSame($expect, Core::shouldGenerateAudioForPost($postId));
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        wp_delete_post($postId, true);
+    }
+
+    public function shouldGenerateAudioForPostProvider()
+    {
+        return [
+            'no post meta' => [
+                'expect' => false,
+                'post_status' => 'publish',
+                'meta_input' => [],
+            ],
+            'beyondwords_generate_audio = ""' => [
+                'expect' => false,
+                'post_status' => 'publish',
+                'meta_input' => [
+                    'beyondwords_generate_audio' => '',
+                ],
+            ],
+            'beyondwords_generate_audio = 0' => [
+                'expect' => false,
+                'post_status' => 'publish',
+                'meta_input' => [
+                    'beyondwords_generate_audio' => '0',
+                ],
+            ],
+            'beyondwords_generate_audio = 1' => [
+                'expect' => true,
+                'post_status' => 'publish',
+                'meta_input' => [
+                    'beyondwords_generate_audio' => '1',
+                ],
+            ],
+            'draft' => [
+                'expect' => false,
+                'post_status' => 'draft',
+                'meta_input' => [
+                    'beyondwords_generate_audio' => '1',
+                ],
+            ],
+            'trash' => [
+                'expect' => false,
+                'post_status' => 'trash',
+                'meta_input' => [
+                    'beyondwords_generate_audio' => '1',
+                ],
             ],
         ];
     }

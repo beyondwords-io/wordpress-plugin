@@ -85,7 +85,8 @@ class Core
      * @since 3.5.0
      * @since 3.10.0 Remove wp_is_post_revision check
      * @since 5.1.0  Regenerate audio for all post statuses
-     * @since 6.0.0 Make static and support Magic Embed.
+     * @since 6.0.0  Make static, ignore revisions, refactor status
+     *               checks, and add support Magic Embed support.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -93,32 +94,21 @@ class Core
      */
     public static function shouldGenerateAudioForPost($postId)
     {
-        // Autosaves don't generate audio
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        // Ignore autosaves and revisions
+        if (wp_is_post_autosave($postId) || wp_is_post_revision($postId)) {
             return false;
-        }
-
-        // For Magic Embed rely solely on the "Generate audio" checkbox.
-        if (IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
-            return PostMetaUtils::hasGenerateAudio($postId);
-        }
-
-        // Regenerate if post has a content ID (regardless of post status)
-        $contentId = PostMetaUtils::getBeyondwordsId($postId);
-        if ($contentId) {
-            return true;
         }
 
         $status = get_post_status($postId);
 
-        // Only generate audio for certain post statuses.
+        // Only (re)generate audio for certain post statuses.
         if (! self::shouldProcessPostStatus($status)) {
             return false;
         }
 
-        // Generate if "Generate audio" has been set.
+        // Generate if the "Generate audio" custom field is set.
         if (PostMetaUtils::hasGenerateAudio($postId)) {
-            return true;
+            return (bool) get_post_meta($postId, 'beyondwords_generate_audio', true);
         }
 
         return false;
