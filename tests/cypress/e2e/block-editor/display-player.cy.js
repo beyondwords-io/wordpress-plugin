@@ -67,8 +67,6 @@ context( 'Block Editor: Display Player', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				// @todo the script should not be enqueued if the player is not displayed
-				// cy.getPlayerScriptTag().should( 'not.exist' )
 				cy.hasPlayerInstances( 0 );
 
 				cy.visit(

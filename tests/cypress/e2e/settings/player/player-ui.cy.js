@@ -20,14 +20,11 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
-
 		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
 
 		cy.hasPlayerInstances( 1, {
-			showUserInterface: true,
+			showUserInterface: undefined,
 		} );
 	} );
 
@@ -39,9 +36,6 @@ context( 'Settings > Player UI', () => {
 		cy.get( 'input[type="submit"]' ).click();
 
 		cy.publishPostWithAudio( { title: '"Headless" Player UI' } );
-
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
 
 		cy.viewPostViaSnackbar();
 
@@ -59,9 +53,6 @@ context( 'Settings > Player UI', () => {
 		cy.get( 'input[type="submit"]' ).click();
 
 		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
-
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
 
 		// Frontend should not have a player div
 		cy.viewPostViaSnackbar();

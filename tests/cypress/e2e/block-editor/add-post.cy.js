@@ -17,20 +17,10 @@ context( 'Block Editor: Add Post', () => {
 		.filter( ( x ) => x.supported )
 		.forEach( ( postType ) => {
 			it( `can add a ${ postType.name } without audio`, () => {
-				cy.createPost( {
+				cy.publishPostWithoutAudio( {
 					postType,
 					title: `I can add a ${ postType.name } without audio`,
 				} );
-
-				cy.openBeyondwordsEditorPanel();
-
-				cy.uncheckGenerateAudio( postType );
-
-				cy.publishWithConfirmation();
-
-				cy.getLabel( 'Generate audio' ).should( 'exist' );
-
-				cy.hasPlayerInstances( 0 );
 
 				// "View post"
 				cy.viewPostViaSnackbar();
@@ -93,7 +83,7 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.get( '.editor-post-publish-button__button' ).click();
 
-				cy.hasPlayerInstances( 0 );
+				cy.hasAdminPlayerInstances( 0 );
 
 				// "Generate Audio" is replaced by "Pending" message'
 				cy.get( 'input#beyondwords_generate_audio' ).should(

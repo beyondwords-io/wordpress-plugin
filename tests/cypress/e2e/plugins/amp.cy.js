@@ -23,20 +23,10 @@ context( 'Plugins: AMP', () => {
 		.filter( ( x ) => [ 'post', 'page' ].includes( x.slug ) )
 		.forEach( ( postType ) => {
 			it( `${ postType.name } shows an <amp-iframe> player for AMP requests`, () => {
-				cy.createPost( {
+				cy.publishPostWithAudio( {
 					postType,
 					title: `A ${ postType.slug } has an AMP iframe player`,
 				} );
-
-				// cy.closeWelcomeToBlockEditorTips()
-
-				cy.openBeyondwordsEditorPanel();
-
-				cy.checkGenerateAudio( postType );
-
-				cy.publishWithConfirmation();
-
-				cy.hasPlayerInstances( 1 );
 
 				// "View post"
 				cy.viewPostViaSnackbar();

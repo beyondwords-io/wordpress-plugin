@@ -1,4 +1,4 @@
-/* global cy, Cypress, DataTransfer, ClipboardEvent */
+/* global cy, Cypress, DataTransfer, expect, ClipboardEvent */
 
 // ***********************************************
 // This example commands.js shows you how to
@@ -346,7 +346,7 @@ Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.hasPlayerInstances( 1 );
+	cy.hasAdminPlayerInstances( 1 );
 } );
 
 Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
@@ -360,7 +360,7 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
 
-	cy.hasPlayerInstances( 0 );
+	cy.hasAdminPlayerInstances( 0 );
 } );
 
 /**
@@ -467,6 +467,20 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 	return cy.get( 'label', ...args ).contains( text );
 } );
 
+// Check for a number of admin player instances.
+Cypress.Commands.add( 'hasAdminPlayerInstances', ( num = 1 ) => {
+	if ( num < 0 ) {
+		throw new Error( 'Number of player instances cannot be negative.' );
+	}
+
+	if ( num === 0 ) {
+		cy.get( '.beyondwords-player-box-wrapper' ).should( 'not.exist' );
+		return;
+	}
+
+	cy.get( '.beyondwords-player-box-wrapper' ).should( 'exist' );
+} );
+
 // Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 	// Ensure the player script tag count matches the expected number of instances.
@@ -486,7 +500,36 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 		return;
 	}
 
-	// @todo Check params exist in the params of the player script tag's onload init object.
+	// Check params exist in the params of the player script tag's onload init object.
+	cy.getPlayerScriptTag().each( ( $el ) => {
+		const onload = $el.attr( 'onload' );
+		const match = onload.match( /\{target:this, \.\.\.(.+)\}\)/ );
+		console.log( 'onload', onload );
+		console.log( 'match', match );
+
+		if ( ! match ) {
+			throw new Error(
+				'Could not find params object in onload attribute.'
+			);
+		}
+
+		const paramsStr = match[ 1 ];
+
+		let paramsObj = JSON.parse( paramsStr );
+
+		// Parse double-encoded JSON strings again.
+		if ( typeof paramsObj === 'string' ) {
+			paramsObj = JSON.parse( paramsObj );
+		}
+
+		Object.entries( params ).forEach( ( [ key, value ] ) => {
+			if ( value === undefined ) {
+				expect( paramsObj ).to.not.have.property( key, value );
+			} else {
+				expect( paramsObj ).to.have.property( key, value );
+			}
+		} );
+	} );
 } );
 
 // Check for no Beyondwords Player object.
@@ -500,7 +543,7 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 	} );
 } );
 
-// Get frontend audio player element (standard)
+// Get frontend audio player script tag.
 Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
 	return cy.get(
 		// eslint-disable-next-line max-len

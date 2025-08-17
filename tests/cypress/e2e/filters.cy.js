@@ -25,9 +25,6 @@ describe( 'WordPress Filters', () => {
 					title: `I can filter Player SDK params for a ${ postType.name }`,
 				} );
 
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
-
 				// Frontend should have a player div with expected SDK params from
 				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
 				cy.viewPostViaSnackbar();
@@ -50,9 +47,6 @@ describe( 'WordPress Filters', () => {
 					postType,
 					title: `I can filter Player script onload for a ${ postType.name }`,
 				} );
-
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
 
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();

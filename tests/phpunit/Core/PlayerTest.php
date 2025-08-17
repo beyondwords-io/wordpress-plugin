@@ -7,7 +7,7 @@ use Beyondwords\Wordpress\Core\Player\Player;
 
 class PlayerTest extends WP_UnitTestCase
 {
-    public const PLAYER_HTML = '<script async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}, target:this});\'></script>';
+    public const PLAYER_HTML = '<script async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
 
     /**
      * @test
