@@ -54,14 +54,14 @@ class Javascript
      */
     public static function render($post): string
     {
-        $params = ConfigBuilder::build($post);
-        $jsonParams = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
-
-        $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
-
-        if ($playerUI !== PlayerUI::HEADLESS) {
-            $jsonParams = sprintf('{...%s, target:this}', $jsonParams);
+        if (PlayerUI::DISABLED === get_option(PlayerUI::OPTION_NAME)) {
+            return '';
         }
+
+        $params = ConfigBuilder::build($post);
+
+        $jsonParams = wp_json_encode($params, JSON_UNESCAPED_SLASHES);
+        $jsonParams = sprintf('{target:this, ...%s}', $jsonParams);
 
         $onload = sprintf('new BeyondWords.Player(%s);', $jsonParams);
         $onload = apply_filters('beyondwords_player_script_onload', $onload, $params);
