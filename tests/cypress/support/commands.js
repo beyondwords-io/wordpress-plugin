@@ -526,7 +526,7 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 			if ( value === undefined ) {
 				expect( paramsObj ).to.not.have.property( key, value );
 			} else {
-				expect( paramsObj ).to.have.property( key, value );
+				expect( paramsObj ).to.have.property( key ).that.eql( value );
 			}
 		} );
 	} );

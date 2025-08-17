@@ -67,7 +67,7 @@ context( 'Classic Editor: Player Content', () => {
 				// Check Player appears frontend
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1, {
-					summary: false,
+					loadContentAs: undefined,
 				} );
 
 				// Check Player content has also been saved in admin
@@ -110,7 +110,7 @@ context( 'Classic Editor: Player Content', () => {
 				// Check Player appears frontend
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1, {
-					summary: true,
+					loadContentAs: [ 'summary' ],
 				} );
 
 				// Check Player content has also been saved in admin
