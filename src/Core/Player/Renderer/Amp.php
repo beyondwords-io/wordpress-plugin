@@ -3,6 +3,7 @@
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -34,10 +35,21 @@ class Amp
             return false;
         }
 
-        $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getContentId($post->ID, true); // Fallback to Post ID if Content ID is not set
+        $hasProjectId = (bool) PostMetaUtils::getProjectId($post->ID);
 
-        return ($projectId && $contentId);
+        if (! $hasProjectId) {
+            return false;
+        }
+
+        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+
+        if ($integrationMethod === IntegrationMethod::CLIENT_SIDE) {
+            return true;
+        }
+
+        $hasContentId = (bool) PostMetaUtils::getContentId($post->ID, true);
+
+        return $hasContentId;
     }
 
     /**
