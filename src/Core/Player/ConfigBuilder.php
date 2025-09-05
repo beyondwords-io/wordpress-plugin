@@ -90,7 +90,7 @@ class ConfigBuilder
      */
     public static function mergePostSettings(\WP_Post $post, array $params): array
     {
-        $playerUI = get_option('beyondwords_player_ui', PlayerUI::ENABLED);
+        $playerUI = get_option(PlayerUI::OPTION_NAME);
 
         if ($playerUI === PlayerUI::HEADLESS) {
             $params['showUserInterface'] = false;

@@ -155,12 +155,12 @@ class PlayerTest extends WP_UnitTestCase
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
-        update_option('beyondwords_player_ui', PlayerUI::DISABLED);
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
         setup_postdata($post);
         $this->assertSame('', Player::renderPlayer());
 
         // Case 4: Post exists but player is disabled via post meta
-        update_option('beyondwords_player_ui', PlayerUI::ENABLED);
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::ENABLED);
         update_post_meta($post->ID, 'beyondwords_disabled', '1');
         $this->assertSame('', Player::renderPlayer());
 
@@ -178,13 +178,13 @@ class PlayerTest extends WP_UnitTestCase
      */
     public function isEnabled()
     {
-        update_option('beyondwords_player_ui', PlayerUI::DISABLED);
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
 
         $post = self::factory()->post->create_and_get();
 
         $this->assertFalse(Player::isEnabled($post));
 
-        delete_option('beyondwords_player_ui');
+        delete_option(PlayerUI::OPTION_NAME);
 
         $this->assertTrue(Player::isEnabled($post));
 

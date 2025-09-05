@@ -191,7 +191,7 @@ class BlockAttributesTest extends WP_UnitTestCase
      */
     public function renderBlockWithUiDisabled()
     {
-        update_option('beyondwords_player_ui', PlayerUI::DISABLED);
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
 
         $this->assertSame(
             '<p>Test</p>',
@@ -202,7 +202,7 @@ class BlockAttributesTest extends WP_UnitTestCase
             ])
         );
 
-        delete_option('beyondwords_player_ui');
+        delete_option(PlayerUI::OPTION_NAME);
     }
 
     /**
