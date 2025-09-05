@@ -263,9 +263,10 @@ class ApiClient
         }
 
         $url = sprintf('%s/projects/%d/player/by_source_id/%d', Environment::getApiUrl(), $projectId, $postId);
+
         $headers = [
-            'X-Referer' => get_permalink($postId),
-            'X-Import' => true
+            'X-Import' => 'true',
+            'X-Referer' => esc_url(get_permalink($postId, true)),
         ];
 
         $request  = new Request('GET', $url, null, $headers);
@@ -564,6 +565,7 @@ class ApiClient
      * @since 4.1.0 Introduced.
      * @since 5.2.0 Make static.
      * @since 5.2.2 Remove sslverify param & increase timeout to 30s for REST API calls.
+     * @since 6.0.0 Add user-agent.
      *
      * @param Request $request BeyondWords Request.
      *
@@ -572,11 +574,11 @@ class ApiClient
     public static function buildRequestArgs($request)
     {
         return [
-            'blocking' => true,
-            'body'     => $request->getBody(),
-            'headers'  => $request->getHeaders(),
-            'method'   => $request->getMethod(),
-            'timeout'  => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+            'blocking'   => true,
+            'body'       => $request->getBody(),
+            'headers'    => $request->getHeaders(),
+            'method'     => $request->getMethod(),
+            'timeout'    => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
         ];
     }
 

@@ -362,6 +362,7 @@ class ApiClientTest extends WP_UnitTestCase
         unset($headers['X-Api-Key']);
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
@@ -391,6 +392,7 @@ class ApiClientTest extends WP_UnitTestCase
         $headers['X-Api-Key'] = 'AN INVALID API KEY';
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
