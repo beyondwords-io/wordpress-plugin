@@ -47,9 +47,7 @@ context( 'Classic Editor: Display Player', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -81,9 +79,7 @@ context( 'Classic Editor: Display Player', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'exist'
-				);
+				cy.hasPlayerInstances( 1 );
 			} );
 		} );
 } );

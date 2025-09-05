@@ -55,9 +55,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
-				cy.get(
-					'div[data-beyondwords-player="true"][contenteditable="false"]'
-				).should( 'have.length', 3 );
+				cy.hasPlayerInstances( 3 );
 			} );
 
 			it( `can add shortcodes into a ${ postType.name }`, () => {
@@ -84,9 +82,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
-				cy.get(
-					'div[data-beyondwords-player="true"][contenteditable="false"]'
-				).should( 'have.length', 3 );
+				cy.hasPlayerInstances( 3 );
 			} );
 		} );
 } );
