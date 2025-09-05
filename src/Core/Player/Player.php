@@ -81,10 +81,12 @@ class Player
             return $content;
         }
 
+        // @todo improve this check - use xcode or WordPress functions?
         return str_replace(
             [
                 '<div data-beyondwords-player="true"></div>',
                 '<div data-beyondwords-player="true" contenteditable="false"></div>',
+                '<div contenteditable="false" data-beyondwords-player="true"></div>',
                 '<div data-beyondwords-player="true" />',
             ],
             '[beyondwords_player]',
