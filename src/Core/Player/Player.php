@@ -116,7 +116,8 @@ class Player
     }
 
     /**
-     * Check if the player is enabled for a post.
+     * Check if the player is enabled for a post. This considers "Headless" mode
+     * as enabled since we still want to output the player script tag for Headless.
      *
      * @param \WP_Post $post Post object.
      *
@@ -128,7 +129,12 @@ class Player
             return false;
         }
 
-        return get_option('beyondwords_player_ui', PlayerUI::ENABLED) === PlayerUI::ENABLED;
+        // Default to "Enabled".
+        $playerUI = get_option(PlayerUI::OPTION_NAME, PlayerUI::ENABLED);
+
+        $enabled = [PlayerUI::ENABLED, PlayerUI::HEADLESS];
+
+        return in_array($playerUI, $enabled, true);
     }
 
     /**

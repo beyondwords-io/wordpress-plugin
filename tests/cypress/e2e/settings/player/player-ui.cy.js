@@ -39,7 +39,7 @@ context( 'Settings > Player UI', () => {
 
 		cy.viewPostViaSnackbar();
 
-		// Frontend should have a player without a UI
+		// Frontend should have a player with showUserInterface set to false
 		cy.hasPlayerInstances( 1, {
 			showUserInterface: false,
 		} );
