@@ -6,6 +6,7 @@ namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Core\Environment;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -146,14 +147,24 @@ class Player
      */
     public static function hasCustomPlayer(string $content): bool
     {
-        // Check for shortcode.
+        // Detect shortcode.
         if (has_shortcode($content, 'beyondwords_player')) {
             return true;
         }
 
-        // Check for legacy player div.
-        return (new Crawler($content))
-            ->filterXPath('//div[@data-beyondwords-player="true"]')
-            ->count() > 0;
+        $crawler = new Crawler($content);
+
+        // Detect player script tag.
+        $scriptXpath = sprintf('//script[@async][@defer][contains(@src, "%s")]', Environment::getJsSdkUrl());
+        if ($crawler->filterXPath($scriptXpath)->count() > 0) {
+            return true;
+        }
+
+        // Detect legacy player div.
+        if ($crawler->filterXPath('//div[@data-beyondwords-player="true"]')->count() > 0) {
+            return true;
+        }
+
+        return false;
     }
 }
