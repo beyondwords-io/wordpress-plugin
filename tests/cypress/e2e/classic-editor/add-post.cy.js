@@ -214,7 +214,7 @@ context( 'Classic Editor: Add Post', () => {
 				);
 
 				// Click "OK"
-				cy.get( 'a.save-post-status' ).click();
+				cy.get( 'a.save-post-status', { timeout: 20000 } ).click();
 
 				// Wait for Permalink to be generated
 				cy.get( 'a#sample-permalink', { timeout: 20000 } );
@@ -223,7 +223,7 @@ context( 'Classic Editor: Add Post', () => {
 				cy.get( 'input[value="Save as Pending"]' ).click();
 
 				// Wait for success message
-				cy.get( 'div#message.notice-success', { timeout: 20000 } );
+				cy.get( 'div#message.notice-success' );
 
 				// "Generate Audio" should be replaced by custom "Pending" message
 				cy.get( 'input#beyondwords_generate_audio' ).should(
