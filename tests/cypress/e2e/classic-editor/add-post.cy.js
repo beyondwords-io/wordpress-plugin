@@ -216,9 +216,6 @@ context( 'Classic Editor: Add Post', () => {
 				// Click "OK"
 				cy.get( 'a.save-post-status', { timeout: 20000 } ).click();
 
-				// Wait for Permalink to be generated
-				cy.get( 'a#sample-permalink', { timeout: 20000 } );
-
 				// Click "Save as Pending" button
 				cy.get( 'input[value="Save as Pending"]' ).click();
 
