@@ -245,7 +245,12 @@ class ApiClient
             'X-Referer' => esc_url(get_permalink($postId)),
         ]);
 
+        update_post_meta($postId, 'getPlayerBySourceId_URL', $request->getUrl());
+        update_post_meta($postId, 'getPlayerBySourceId_HEADERS', wp_json_encode($request->getHeaders()));
+
         $response = self::callApi($request, $postId);
+
+        update_post_meta($postId, 'getPlayerBySourceId_RESPONSE', wp_json_encode($response));
 
         return json_decode(wp_remote_retrieve_body($response), true);
     }

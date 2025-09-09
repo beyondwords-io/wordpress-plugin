@@ -121,13 +121,6 @@
           "rules": [
             {
               "target": "header",
-              "modifier": "Content-Type",
-              "value": "application/json",
-              "operator": "equals",
-              "invert": false
-            },
-            {
-              "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
               "operator": "regex",
@@ -722,13 +715,6 @@
           "rules": [
             {
               "target": "header",
-              "modifier": "Content-Type",
-              "value": "application/json",
-              "operator": "equals",
-              "invert": false
-            },
-            {
-              "target": "header",
               "modifier": "X-Api-Key",
               "value": "write_([a-zA-Z0-9_]+)",
               "operator": "regex",
@@ -962,13 +948,6 @@
           "filePath": "",
           "sendFileAsBody": false,
           "rules": [
-            {
-              "target": "header",
-              "modifier": "Content-Type",
-              "value": "application/json",
-              "operator": "equals",
-              "invert": false
-            },
             {
               "target": "header",
               "modifier": "X-Api-Key",
