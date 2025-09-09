@@ -40,13 +40,20 @@ class Request
         $this->setUrl($url);
         $this->setBody($body);
 
-        // Default headers.
+        // Add API key header to all requests.
         $this->addHeaders([
             self::AUTH_HEADER_NAME => get_option('beyondwords_api_key'),
-            self::CONTENT_TYPE_HEADER_NAME => self::CONTENT_TYPE_HEADER_VALUE,
         ]);
 
-        // Custom headers.
+        // Add Content-Type header for non-GET requests.
+        if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+            // Default headers.
+            $this->addHeaders([
+                self::CONTENT_TYPE_HEADER_NAME => self::CONTENT_TYPE_HEADER_VALUE,
+            ]);
+        }
+
+        // Add custom headers.
         $this->addHeaders($headers);
     }
 

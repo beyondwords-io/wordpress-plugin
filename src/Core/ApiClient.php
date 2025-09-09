@@ -239,12 +239,12 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/player/by_source_id/%d', Environment::getApiUrl(), $projectId, $postId);
 
-        $headers = [
+        $request = new Request('GET', $url);
+        $request->addHeaders([
             'X-Import' => 'true',
-            'X-Referer' => esc_url(get_permalink($postId, true)),
-        ];
+            'X-Referer' => esc_url(get_permalink($postId)),
+        ]);
 
-        $request  = new Request('GET', $url, '', $headers);
         $response = self::callApi($request, $postId);
 
         return json_decode(wp_remote_retrieve_body($response), true);
