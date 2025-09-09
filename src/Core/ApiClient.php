@@ -185,7 +185,7 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/content/batch_delete', Environment::getApiUrl(), $projectId);
 
-        $body = wp_json_encode(['ids' => $contentIds[$projectId]]);
+        $body = (string) wp_json_encode(['ids' => $contentIds[$projectId]]);
 
         $request = new Request('POST', $url, $body);
 
@@ -269,7 +269,7 @@ class ApiClient
             'X-Referer' => esc_url(get_permalink($postId, true)),
         ];
 
-        $request  = new Request('GET', $url, null, $headers);
+        $request  = new Request('GET', $url, '', $headers);
         $response = self::callApi($request, $postId);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -353,6 +353,7 @@ class ApiClient
      *
      * @since 5.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of voice settings.
      *
@@ -366,7 +367,9 @@ class ApiClient
 
         $url = sprintf('%s/organization/voices/%d', Environment::getApiUrl(), $voiceId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -402,6 +405,7 @@ class ApiClient
      *
      * @since 5.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of project settings.
      *
@@ -417,7 +421,9 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -452,6 +458,7 @@ class ApiClient
      *
      * @since 4.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of player settings.
      *
@@ -467,7 +474,9 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);

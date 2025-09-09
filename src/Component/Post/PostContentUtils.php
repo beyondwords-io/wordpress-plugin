@@ -298,6 +298,7 @@ class PostContentUtils
      * @since 4.3.0  Rename from getBodyJson to getContentParams.
      * @since 4.6.0  Remove summary param & prepend body with summary.
      * @since 5.0.0  Remove beyondwords_body_params filter.
+     * @since 6.0.0  Cast return value to string.
      *
      * @static
      * @param int $postId WordPress Post ID.
@@ -370,7 +371,7 @@ class PostContentUtils
          */
         $body = apply_filters('beyondwords_content_params', $body, $postId);
 
-        return wp_json_encode($body);
+        return (string) wp_json_encode($body);
     }
 
     /**

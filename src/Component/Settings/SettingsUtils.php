@@ -190,9 +190,10 @@ class SettingsUtils
             return false;
         }
 
-        // Use ApiClient::callApi directly to access HTTP response code
+        $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
+
         $response = ApiClient::callApi(
-            new Request('GET', sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId))
+            new Request('GET', $url)
         );
 
         $statusCode = wp_remote_retrieve_response_code($response);
