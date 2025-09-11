@@ -166,7 +166,7 @@ class PostMetaUtils
         // Get the project ID for the post (do not use the plugin setting).
         $projectId = PostMetaUtils::getProjectId($postId, true);
 
-        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && !empty($projectId)) {
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && ! empty($projectId)) {
             return true;
         }
 

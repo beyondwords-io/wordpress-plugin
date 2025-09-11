@@ -83,7 +83,7 @@ context( 'Site Health', () => {
 				.eq( 5 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Integration method' );
-					cy.get( 'td' ).should( 'have.text', 'rest_api' );
+					cy.get( 'td' ).should( 'have.text', 'rest-api' );
 				} );
 			// API Key
 			cy.get( 'tr' )

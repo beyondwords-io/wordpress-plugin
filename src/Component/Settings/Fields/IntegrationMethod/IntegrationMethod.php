@@ -36,7 +36,7 @@ class IntegrationMethod
      *
      * @var string
      */
-    public const CLIENT_SIDE = 'client_side';
+    public const CLIENT_SIDE = 'client-side';
 
     /**
      * REST API integration method.
@@ -45,7 +45,7 @@ class IntegrationMethod
      *
      * @var string
      */
-    public const REST_API = 'rest_api';
+    public const REST_API = 'rest-api';
 
     /**
      * Default value.
@@ -148,7 +148,7 @@ class IntegrationMethod
             ],
             self::CLIENT_SIDE => [
                 'value' => self::CLIENT_SIDE,
-                'label' => __('Client-side', 'speechkit'),
+                'label' => __('Magic Embed', 'speechkit'),
             ],
         ];
     }

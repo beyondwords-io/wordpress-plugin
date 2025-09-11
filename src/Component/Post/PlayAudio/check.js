@@ -33,7 +33,7 @@ export default compose( [
 		const contentId =
 			beyondwordsContentId || beyondwordsPodcastId || speechkitPodcastId;
 
-		const isClientSide = integrationMethod === 'client_side';
+		const isClientSide = integrationMethod === 'client-side';
 
 		const hasClientSideContent = isClientSide && projectId;
 
