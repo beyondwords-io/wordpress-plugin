@@ -85,11 +85,13 @@ class PlayerUITest extends WP_UnitTestCase
 
         $this->assertCount(3, $field->filter('option'));
 
-        $this->assertSame('enabled', $field->filter('option:nth-child(1)')->attr('value'));
+        $this->assertSame(PlayerUI::ENABLED, $field->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('Enabled', $field->filter('option:nth-child(1)')->text());
-        $this->assertSame('headless', $field->filter('option:nth-child(2)')->attr('value'));
+
+        $this->assertSame(PlayerUI::HEADLESS, $field->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('Headless', $field->filter('option:nth-child(2)')->text());
-        $this->assertSame('disabled', $field->filter('option:nth-child(3)')->attr('value'));
+
+        $this->assertSame(PlayerUI::DISABLED, $field->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Disabled', $field->filter('option:nth-child(3)')->text());
     }
 }

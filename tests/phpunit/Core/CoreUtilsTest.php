@@ -60,6 +60,7 @@ class CoreUtilsTest extends WP_UnitTestCase
         $keys = [
             // Current
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',
@@ -125,6 +126,7 @@ class CoreUtilsTest extends WP_UnitTestCase
         $keys = [
             // Current
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',

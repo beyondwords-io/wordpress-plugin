@@ -20,22 +20,11 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
-
 		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
-		cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-		cy.hasPlayerInstances( 1 );
 
-		// window.BeyondWords should contain 1 player instance
-		cy.window().then( ( win ) => {
-			// eslint-disable-next-line no-unused-expressions
-			expect( win.BeyondWords ).to.exist;
-			expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-			expect(
-				win.BeyondWords.Player.instances()[ 0 ].showUserInterface
-			).to.eq( true );
+		cy.hasPlayerInstances( 1, {
+			showUserInterface: undefined,
 		} );
 	} );
 
@@ -48,22 +37,11 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Headless" Player UI' } );
 
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
-
-		// Frontend should have a player div without a UI
 		cy.viewPostViaSnackbar();
-		cy.get( '.beyondwords-player.bwp' ).should( 'exist' );
-		cy.get( '.beyondwords-player .user-interface' ).should( 'not.exist' );
 
-		// window.BeyondWords should contain 1 player instance
-		cy.window().then( ( win ) => {
-			// eslint-disable-next-line no-unused-expressions
-			expect( win.BeyondWords ).to.exist;
-			expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-			expect(
-				win.BeyondWords.Player.instances()[ 0 ].showUserInterface
-			).to.eq( false );
+		// Frontend should have a player with showUserInterface set to false
+		cy.hasPlayerInstances( 1, {
+			showUserInterface: false,
 		} );
 	} );
 
@@ -76,17 +54,8 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
 
-		// Admin should have latest player
-		cy.hasPlayerInstances( 1 );
-
 		// Frontend should not have a player div
 		cy.viewPostViaSnackbar();
-		cy.get( '.beyondwords-player' ).should( 'not.exist' );
-
-		// window.BeyondWords should be undefined
-		cy.window().then( ( win ) => {
-			// eslint-disable-next-line no-unused-expressions
-			expect( win.BeyondWords ).to.not.exist;
-		} );
+		cy.hasPlayerInstances( 0 );
 	} );
 } );

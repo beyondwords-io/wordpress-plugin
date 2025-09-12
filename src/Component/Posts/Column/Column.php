@@ -23,6 +23,12 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  */
 class Column
 {
+    public const ALLOWED_HTML = array(
+        'span' => array(
+            'class'   => array(),
+        ),
+    );
+
     public const OUTPUT_YES = '<span class="dashicons dashicons-yes"></span> ';
 
     public const OUTPUT_NO = '—';
@@ -78,7 +84,7 @@ class Column
      * Render ✗|✓ in Posts list, under the BeyondWords column.
      *
      * @since 3.0.0
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and refactor using self::ALLOWED_HTML and PostMetaUtils.
      *
      * @param string $columnName Column name
      * @param int    $postId     Post ID
@@ -98,25 +104,19 @@ class Column
         }
 
         $errorMessage = PostMetaUtils::getErrorMessage($postId);
-        $contentId    = PostMetaUtils::getContentId($postId);
+        $hasContent   = PostMetaUtils::hasContent($postId);
         $disabled     = PostMetaUtils::getDisabled($postId);
 
-        $allowedTags = array(
-            'span' => array(
-                'class'   => array(),
-            ),
-        );
-
         if (! empty($errorMessage)) {
-            echo wp_kses(self::OUTPUT_ERROR_PREFIX . $errorMessage, $allowedTags);
-        } elseif (empty($contentId)) {
-            echo wp_kses(self::OUTPUT_NO, $allowedTags);
+            echo wp_kses(self::OUTPUT_ERROR_PREFIX . $errorMessage, self::ALLOWED_HTML);
+        } elseif ($hasContent) {
+            echo wp_kses(self::OUTPUT_YES, self::ALLOWED_HTML);
         } else {
-            echo wp_kses(self::OUTPUT_YES, $allowedTags);
+            echo wp_kses(self::OUTPUT_NO, self::ALLOWED_HTML);
         }
 
         if (! empty($disabled)) {
-            echo wp_kses(self::OUTPUT_DISABLED, $allowedTags);
+            echo wp_kses(self::OUTPUT_DISABLED, self::ALLOWED_HTML);
         }
     }
 

@@ -86,7 +86,11 @@ Release date: TBC
 
 **Enhancements and Features:**
 
-* Make PHP methods static.
+* [#449](https://github.com/beyondwords-io/wordpress-plugin/pull/449) Magic Embed for WordPress.
+    * An **Integration method** plugin setting has been added in the *Content* tab.
+    * The default is **REST API**. This method will continue to send post content and metadata to BeyondWords using REST API calls.
+    * If **Magic Embed** is selected then [Client-Side Integration](https://github.com/beyondwords-io/player/blob/main/doc/client-side-integration.md) will be enabed for new posts. With this method BeyondWords handles the extraction and delivery of audio content using the rendered HTML for the post.
+* [#447](https://github.com/beyondwords-io/wordpress-plugin/pull/447) Make PHP methods static.
 
 = 5.5.0 =
 

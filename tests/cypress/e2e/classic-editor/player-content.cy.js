@@ -65,19 +65,9 @@ context( 'Classic Editor: Player Content', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player appears frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( false );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					loadContentAs: undefined,
 				} );
 
 				// Check Player content has also been saved in admin
@@ -118,19 +108,9 @@ context( 'Classic Editor: Player Content', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player appears frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( true );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					loadContentAs: [ 'summary' ],
 				} );
 
 				// Check Player content has also been saved in admin

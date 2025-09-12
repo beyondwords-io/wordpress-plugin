@@ -8,6 +8,7 @@ use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Request;
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -81,6 +82,7 @@ class ApiClient
      *
      * @since 3.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add support for Magic Embed.
      *
      * @param int $postId WordPress Post ID
      *
@@ -89,7 +91,7 @@ class ApiClient
     public static function updateAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -110,6 +112,7 @@ class ApiClient
      *
      * @since 3.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add support for Magic Embed.
      *
      * @param int $postId WordPress Post ID
      *
@@ -118,7 +121,7 @@ class ApiClient
     public static function deleteAudio($postId)
     {
         $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
+        $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
 
         if (! $projectId || ! $contentId) {
             return false;
@@ -184,7 +187,7 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/content/batch_delete', Environment::getApiUrl(), $projectId);
 
-        $body = wp_json_encode(['ids' => $contentIds[$projectId]]);
+        $body = (string) wp_json_encode(['ids' => $contentIds[$projectId]]);
 
         $request = new Request('POST', $url, $body);
 
@@ -213,6 +216,40 @@ class ApiClient
             // so return an empty array
             return [];
         }
+    }
+
+    /**
+     * GET /projects/:id/player/by_source_id/:id.
+     *
+     * This will return the player data for a post by its source ID. It is used
+     * for Client-Side integration, where the content is generated based on the
+     * source ID & URL of the post instead of a BeyondWords REST API call.
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId WordPress Post ID
+     *
+     * @return mixed JSON-decoded response body, or false on failure.
+     **/
+    public static function getPlayerBySourceId($postId)
+    {
+        $projectId = PostMetaUtils::getProjectId($postId);
+
+        if (! $projectId) {
+            return false;
+        }
+
+        $url = sprintf('%s/projects/%d/player/by_source_id/%d', Environment::getApiUrl(), $projectId, $postId);
+
+        $request = new Request('GET', $url);
+        $request->addHeaders([
+            'X-Import' => 'true',
+            'X-Referer' => esc_url(get_permalink($postId)),
+        ]);
+
+        $response = self::callApi($request, $postId);
+
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -293,6 +330,7 @@ class ApiClient
      *
      * @since 5.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of voice settings.
      *
@@ -306,7 +344,9 @@ class ApiClient
 
         $url = sprintf('%s/organization/voices/%d', Environment::getApiUrl(), $voiceId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -342,6 +382,7 @@ class ApiClient
      *
      * @since 5.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of project settings.
      *
@@ -357,7 +398,9 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d', Environment::getApiUrl(), $projectId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -392,6 +435,7 @@ class ApiClient
      *
      * @since 4.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Cast body to string.
      *
      * @param array $settings Associative array of player settings.
      *
@@ -407,7 +451,9 @@ class ApiClient
 
         $url = sprintf('%s/projects/%d/player_settings', Environment::getApiUrl(), $projectId);
 
-        $request  = new Request('PUT', $url, wp_json_encode($settings));
+        $body = (string) wp_json_encode($settings);
+
+        $request  = new Request('PUT', $url, $body);
         $response = self::callApi($request);
 
         return json_decode(wp_remote_retrieve_body($response), true);
@@ -505,6 +551,7 @@ class ApiClient
      * @since 4.1.0 Introduced.
      * @since 5.2.0 Make static.
      * @since 5.2.2 Remove sslverify param & increase timeout to 30s for REST API calls.
+     * @since 6.0.0 Add user-agent.
      *
      * @param Request $request BeyondWords Request.
      *
@@ -513,11 +560,11 @@ class ApiClient
     public static function buildRequestArgs($request)
     {
         return [
-            'blocking' => true,
-            'body'     => $request->getBody(),
-            'headers'  => $request->getHeaders(),
-            'method'   => $request->getMethod(),
-            'timeout'  => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+            'blocking'   => true,
+            'body'       => $request->getBody(),
+            'headers'    => $request->getHeaders(),
+            'method'     => $request->getMethod(),
+            'timeout'    => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
         ];
     }
 
@@ -626,9 +673,13 @@ class ApiClient
     /**
      * Add an error message for a post.
      *
+     * This was updated in v6.0 to support Magic Embed. 404 errors are not saved for Magic Embed,
+     * because content will (re)generate when pages are visited.
+     *
      * @since 4.1.0 Introduced.
      * @since 4.4.0 Rename from error() to saveErrorMessage().
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add Magic Embed support.
      *
      * @param int    $postId  WordPress post ID.
      * @param string $message Error message.
@@ -639,6 +690,11 @@ class ApiClient
     public static function saveErrorMessage($postId, $message = '', $code = 500)
     {
         if (! $postId) {
+            return;
+        }
+
+        // Don't save an error message for Client-side 404s - they will (re)generate when pages are visited.
+        if (404 === $code && IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
             return;
         }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -17,13 +18,12 @@ class Core
      * Init.
      *
      * @since 4.0.0
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and stop loading plugin text domain on init.
      */
     public static function init()
     {
         // Actions
         add_action('enqueue_block_editor_assets', array(__CLASS__, 'enqueueBlockEditorAssets'), 1, 0);
-        add_action('init', array(__CLASS__, 'loadPluginTextdomain'));
         add_action('init', array(__CLASS__, 'registerMeta'), 99, 3);
 
         // Actions for adding/updating posts
@@ -85,7 +85,8 @@ class Core
      * @since 3.5.0
      * @since 3.10.0 Remove wp_is_post_revision check
      * @since 5.1.0  Regenerate audio for all post statuses
-     * @since 6.0.0 Make static.
+     * @since 6.0.0  Make static, ignore revisions, refactor status
+     *               checks, and add support Magic Embed support.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -93,32 +94,23 @@ class Core
      */
     public static function shouldGenerateAudioForPost($postId)
     {
-        // Autosaves don't generate audio
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        // Ignore autosaves and revisions
+        if (wp_is_post_autosave($postId) || wp_is_post_revision($postId)) {
             return false;
         }
 
-        // A project ID is required
-        $projectId = PostMetaUtils::getProjectId($postId);
-        if (! $projectId) {
+        $status = get_post_status($postId);
+
+        // Only (re)generate audio for certain post statuses.
+        if (! self::shouldProcessPostStatus($status)) {
             return false;
         }
 
-        // Regenerate if post has audio (regardless of post status)
-        $contentId = PostMetaUtils::getContentId($postId);
-        if ($contentId) {
-            return true;
+        // Generate if the "Generate audio" custom field is set.
+        if (PostMetaUtils::hasGenerateAudio($postId)) {
+            return (bool) get_post_meta($postId, 'beyondwords_generate_audio', true);
         }
 
-        $generateAudio = PostMetaUtils::hasGenerateAudio($postId);
-        $status        = get_post_status($postId);
-
-        // Generate if audio has been requested for a valid post status
-        if ($generateAudio && self::shouldProcessPostStatus($status)) {
-            return true;
-        }
-
-        // Default is no audio
         return false;
     }
 
@@ -129,7 +121,7 @@ class Core
      * @since 3.2.0 Added speechkit_post_statuses filter
      * @since 3.5.0 Refactored, adding self::shouldGenerateAudioForPost()
      * @since 5.1.0 Move project ID check into self::shouldGenerateAudioForPost()
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and support Magic Embed.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -141,6 +133,20 @@ class Core
         if (! self::shouldGenerateAudioForPost($postId)) {
             return false;
         }
+
+        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME);
+
+        // For Magic Embed we call the "get_player_by_source_id" endpoint to import content.
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
+            // Save the integration method & Project ID.
+            update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
+            update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
+
+            return ApiClient::getPlayerBySourceId($postId);
+        }
+
+        // For non-Magic Embed we use the REST API to generate audio.
+        update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
 
         // Does this post already have audio?
         $contentId = PostMetaUtils::getContentId($postId);
@@ -269,19 +275,6 @@ class Core
     }
 
     /**
-     * Load plugin textdomain.
-     *
-     * @since 3.5.0
-     * @since 6.0.0 Make static.
-     *
-     * @return void
-     */
-    public static function loadPluginTextdomain()
-    {
-        load_plugin_textdomain('speechkit');
-    }
-
-    /**
      * Register meta fields for REST API output.
      *
      * It is recommended to register meta keys for a specific combination
@@ -392,14 +385,14 @@ class Core
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Delete audio if beyondwords_delete_content custom field is set.
      * @since 4.5.0 Remove unwanted debugging custom fields.
-     * @since 5.1.0 Move post status check out of here
-     * @since 6.0.0 Make static.
+     * @since 5.1.0 Move post status check out of here.
+     * @since 6.0.0 Make static and refactor for Magic Embed updates.
      *
      * @param int $postId Post ID.
      *
-     * @return bool|Response
+     * @return bool
      **/
-    public static function onAddOrUpdatePost($postId)
+    public static function onAddOrUpdatePost(int $postId): bool
     {
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {
@@ -412,14 +405,7 @@ class Core
             return false;
         }
 
-        // Check for explicit "Generate Audio"
-        if (get_post_meta($postId, 'beyondwords_generate_audio', true) === '1') {
-            $result = self::generateAudioForPost($postId);
-
-            return boolval($result);
-        }
-
-        return false;
+        return (bool) self::generateAudioForPost($postId);
     }
 
     /**

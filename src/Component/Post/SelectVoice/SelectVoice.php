@@ -53,7 +53,7 @@ class SelectVoice
      * @since 5.4.0 Always display all languages and associated voices.
      * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      *
      * @return string|null
      */

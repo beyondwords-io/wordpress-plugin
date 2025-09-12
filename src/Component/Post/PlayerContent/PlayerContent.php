@@ -64,7 +64,7 @@ class PlayerContent
      * @since 5.3.0 Introduced.
      * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      *
      * @return string|null
      */

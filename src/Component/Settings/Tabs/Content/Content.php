@@ -15,6 +15,7 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
 use Beyondwords\Wordpress\Component\Settings\Fields\AutoPublish\AutoPublish;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 
 /**
@@ -29,11 +30,12 @@ class Content
     /**
      * Init
      *
-     * @since 5.0.0
-     * @since 6.0.0 Make static.
+     * @since 5.0.0 Introduced.
+     * @since 6.0.0 Make static and add IntegrationMethod.
      */
     public static function init()
     {
+        (new IntegrationMethod())::init();
         (new IncludeTitle())::init();
         (new AutoPublish())::init();
         (new IncludeExcerpt())::init();

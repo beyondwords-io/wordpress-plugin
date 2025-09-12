@@ -25,41 +25,16 @@ describe( 'WordPress Filters', () => {
 					title: `I can filter Player SDK params for a ${ postType.name }`,
 				} );
 
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
-
-				// Frontend should have a player div
-				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain desired SDK params from
+				// Frontend should have a player div with expected SDK params from
 				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].iconColor
-					).to.eq( 'rgb(234, 75, 151)' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.highlightSections
-					).to.eq( 'all-none' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.clickableSections
-					).to.eq( 'none' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.segmentWidgetSections
-					).to.eq( 'body' );
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ]
-							.segmentWidgetPosition
-					).to.eq( '10-oclock' );
+				cy.viewPostViaSnackbar();
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					iconColor: 'rgb(234, 75, 151)',
+					highlightSections: 'all-none',
+					clickableSections: 'none',
+					segmentWidgetSections: 'body',
+					segmentWidgetPosition: '10-oclock',
 				} );
 
 				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );
@@ -73,12 +48,9 @@ describe( 'WordPress Filters', () => {
 					title: `I can filter Player script onload for a ${ postType.name }`,
 				} );
 
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
-
 				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				// Check we have called console.log with expected values from testing plugin
@@ -97,39 +69,6 @@ describe( 'WordPress Filters', () => {
 				} );
 
 				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );
-			} );
-
-			it( `can filter Player inline script tag for a ${ postType.name }`, () => {
-				cy.activatePlugin(
-					'beyondwords-filter-player-inline-script-tag'
-				);
-
-				cy.publishPostWithAudio( {
-					postType,
-					title: `I see the inline player script for a ${ postType.name }`,
-				} );
-
-				// Admin should have latest player
-				cy.hasPlayerInstances( 1 );
-
-				// Frontend SHOULD NOT have enqueued player script
-				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
-				cy.hasPlayerInstances( 1 );
-
-				cy.deactivatePlugin(
-					'beyondwords-filter-player-inline-script-tag'
-				);
-
-				cy.publishPostWithAudio( {
-					postType,
-					title: `I see the legacy player script for a ${ postType.name }`,
-				} );
-
-				// Frontend SHOULD have enqueued player script
-				cy.viewPostViaSnackbar();
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
 			} );
 		} );
 } );

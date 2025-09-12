@@ -55,9 +55,7 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -84,9 +82,7 @@ context( 'Classic Editor: Add Post', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 
 				cy.get( 'input#beyondwords_generate_audio' ).should(
 					'not.be.checked'
@@ -99,9 +95,7 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
@@ -128,9 +122,7 @@ context( 'Classic Editor: Add Post', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 
 				cy.get( 'input#beyondwords_generate_audio' ).check();
 
@@ -141,9 +133,7 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'exist'
-				);
+				cy.hasPlayerInstances( 1 );
 			} );
 
 			it( `can add a new ${ postType.name } with audio`, () => {
@@ -178,9 +168,7 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'exist'
-				);
+				cy.hasPlayerInstances( 1 );
 
 				// See a [tick] in the BeyondWords column' )
 				cy.visit(
@@ -197,8 +185,7 @@ context( 'Classic Editor: Add Post', () => {
 					} );
 			} );
 
-			// @todo this skipped pending review test passes locally but fails in CI.
-			it.skip( `can add a ${ postType.name } with "Pending review" audio `, () => {
+			it( `can add a ${ postType.name } with "Pending review" audio `, () => {
 				cy.createPost( {
 					postType,
 				} );
@@ -227,16 +214,13 @@ context( 'Classic Editor: Add Post', () => {
 				);
 
 				// Click "OK"
-				cy.get( 'a.save-post-status' ).click();
-
-				// Wait for Permalink to be generated
-				cy.get( 'a#sample-permalink', { timeout: 20000 } );
+				cy.get( 'a.save-post-status', { timeout: 20000 } ).click();
 
 				// Click "Save as Pending" button
 				cy.get( 'input[value="Save as Pending"]' ).click();
 
 				// Wait for success message
-				cy.get( 'div#message.notice-success', { timeout: 20000 } );
+				cy.get( 'div#message.notice-success' );
 
 				// "Generate Audio" should be replaced by custom "Pending" message
 				cy.get( 'input#beyondwords_generate_audio' ).should(
@@ -272,9 +256,7 @@ context( 'Classic Editor: Add Post', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.get( 'div[data-beyondwords-player="true"]' ).should(
-					'not.exist'
-				);
+				cy.hasPlayerInstances( 0 );
 			} );
 		} );
 

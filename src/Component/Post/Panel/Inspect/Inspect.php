@@ -114,7 +114,7 @@ class Inspect
      *
      * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      */
     public static function renderMetaBoxContent($post)
     {
@@ -337,7 +337,7 @@ class Inspect
      **/
     public static function restApiInit()
     {
-        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<contentId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<beyondwordsId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
             'methods'  => \WP_REST_Server::READABLE,
             'callback' => array(__CLASS__, 'restApiResponse'),
             'permission_callback' => function () {
@@ -359,8 +359,8 @@ class Inspect
      **/
     public static function restApiResponse(\WP_REST_Request $request)
     {
-        $projectId = $request['projectId'] ?? '';
-        $contentId = $request['contentId'] ?? '';
+        $projectId     = $request['projectId'] ?? '';
+        $beyondwordsId = $request['beyondwordsId'] ?? ''; // Can be either contentId or sourceId
 
         if (! is_numeric($projectId)) {
             return rest_ensure_response(
@@ -372,17 +372,17 @@ class Inspect
             );
         }
 
-        if (empty($contentId)) {
+        if (empty($beyondwordsId)) {
             return rest_ensure_response(
                 new \WP_Error(
                     400,
                     __('Invalid Content ID', 'speechkit'),
-                    ['contentId' => $contentId]
+                    ['beyondwordsId' => $beyondwordsId]
                 )
             );
         }
 
-        $response = ApiClient::getContent($contentId, $projectId);
+        $response = ApiClient::getContent($beyondwordsId, $projectId);
 
         // Check for REST API connection errors.
         if (is_wp_error($response)) {

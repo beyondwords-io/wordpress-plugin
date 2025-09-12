@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
+use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -139,6 +141,39 @@ class PostMetaUtils
     }
 
     /**
+     * Check if a Post should have BeyondWords content (a Content entity in BeyondWords).
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId Post ID.
+     *
+     * @return bool True if the post should have BeyondWords content, false otherwise.
+     */
+    public static function hasContent($postId)
+    {
+        $contentId         = PostMetaUtils::getContentId($postId);
+        $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
+
+        // If the integration method is not set, we assume REST API for legacy compatibility.
+        if (empty($integrationMethod)) {
+            $integrationMethod = IntegrationMethod::REST_API;
+        }
+
+        if (IntegrationMethod::REST_API === $integrationMethod && ! empty($contentId)) {
+            return true;
+        }
+
+        // Get the project ID for the post (do not use the plugin setting).
+        $projectId = PostMetaUtils::getProjectId($postId, true);
+
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && ! empty($projectId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the Content ID for a WordPress Post.
      *
      * Over time there have been various approaches to storing the Content ID.
@@ -148,22 +183,30 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Renamed to getContentId() & prioritise beyondwords_content_id
      * @since 5.0.0 Remove beyondwords_content_id filter.
+     * @since 6.0.0 Add fallback parameter to allow falling back to Post ID.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $fallback If true, will fall back to the Post ID if no Content ID is found.
      *
-     * @return int|false Content ID, or false
+     * @return string|false Content ID, or false
      */
-    public static function getContentId($postId)
+    public static function getContentId($postId, $fallback = false)
     {
-        // Check for "Content ID" custom field (string, uuid)
         $contentId = get_post_meta($postId, 'beyondwords_content_id', true);
-
-        if (! $contentId) {
-            // Also try "Podcast ID" custom field (number, or string for > 4.x)
-            $contentId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($contentId)) {
+            return $contentId;
         }
 
-        return $contentId;
+        $podcastId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($podcastId)) {
+            return $podcastId;
+        }
+
+        if ($fallback) {
+            return (string) $postId;
+        }
+
+        return false;
     }
 
     /**
@@ -263,6 +306,7 @@ class PostMetaUtils
      *
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
+     * @since 6.0.0 Add Magic Embed support.
      *
      * @param int $postId Post ID.
      *
@@ -270,22 +314,19 @@ class PostMetaUtils
      */
     public static function hasGenerateAudio($postId)
     {
-        if (PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio') === '1') {
+        $generateAudio = PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio');
+
+        // Checkbox was checked.
+        if ($generateAudio === '1') {
             return true;
         }
 
-        if (get_post_meta($postId, 'publish_post_to_speechkit', true) === '1') {
-            return true;
+        // Checkbox was unchecked.
+        if ($generateAudio === '0') {
+            return false;
         }
 
-        $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
-
-        if ($projectId && $contentId) {
-            return true;
-        }
-
-        return false;
+        return GenerateAudio::shouldPreselectGenerateAudio($postId);
     }
 
     /**
@@ -300,39 +341,47 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Apply beyondwords_project_id filter
      * @since 5.0.0 Remove beyondwords_project_id filter.
+     * @since 6.0.0 Support Magic Embed and add strict mode.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $strict Strict mode, which only checks the custom field. Defaults to false.
      *
      * @return int|false Project ID, or false
      */
-    public static function getProjectId($postId)
+    public static function getProjectId($postId, $strict = false)
     {
-        // Check custom fields
-        $projectId = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
-
-        if (! $projectId) {
-            // It may also be found by parsing post_meta.speechkit_response
-            $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
-            preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
-            // $matches[2] is the Project ID (response.project_id)
-            if ($matches && $matches[2]) {
-                $projectId = intval($matches[2]);
-            }
+        // If strict is true, we only check the custom field and do not fall back to the plugin setting.
+        if ($strict) {
+            return PostMetaUtils::getRenamedPostMeta($postId, 'project_id');
         }
 
-        // If we still don't have an ID then use the default from the plugin settings
-        if (! $projectId) {
-            $projectId = intval(get_option('beyondwords_project_id'));
+        // Check the post custom field.
+        $postMeta = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
+
+        if (! empty($postMeta)) {
+            return $postMeta;
         }
 
-        if (! $projectId) {
-            // Return boolean false instead of numeric 0
-            $projectId = false;
+        // Parse post_meta.speechkit_response, if available.
+        $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+
+        preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
+
+        // $matches[2] is the Project ID (response.project_id)
+        if ($matches && $matches[2]) {
+            return intval($matches[2]);
+        }
+
+        // Check the plugin setting.
+        $setting = get_option('beyondwords_project_id');
+
+        if ($setting) {
+            return intval($setting);
         }
 
         // todo throw ProjectIdNotFoundException?
 
-        return $projectId;
+        return false;
     }
 
     /**

@@ -78,9 +78,16 @@ context( 'Site Health', () => {
 					);
 					cy.get( 'td' ).should( 'have.text', 'cpt_unsupported' );
 				} );
-			// API Key
+			// Integration method
 			cy.get( 'tr' )
 				.eq( 5 )
+				.within( () => {
+					cy.get( 'th' ).should( 'have.text', 'Integration method' );
+					cy.get( 'td' ).should( 'have.text', 'rest-api' );
+				} );
+			// API Key
+			cy.get( 'tr' )
+				.eq( 6 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'API Key' );
 					cy.get( 'td' )
@@ -97,7 +104,7 @@ context( 'Site Health', () => {
 				} );
 			// Project ID
 			cy.get( 'tr' )
-				.eq( 6 )
+				.eq( 7 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Project ID' );
 					cy.get( 'td' ).should(
@@ -107,7 +114,7 @@ context( 'Site Health', () => {
 				} );
 			// Include title in audio
 			cy.get( 'tr' )
-				.eq( 7 )
+				.eq( 8 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -117,14 +124,14 @@ context( 'Site Health', () => {
 				} );
 			// Include excerpts in audio
 			cy.get( 'tr' )
-				.eq( 8 )
+				.eq( 9 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Auto-publish audio' );
 					cy.get( 'td' ).should( 'have.text', 'Yes' );
 				} );
 			// Include excerpts in audio
 			cy.get( 'tr' )
-				.eq( 9 )
+				.eq( 10 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -134,7 +141,7 @@ context( 'Site Health', () => {
 				} );
 			// Preselect ‘Generate audio’
 			cy.get( 'tr' )
-				.eq( 10 )
+				.eq( 11 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -147,7 +154,7 @@ context( 'Site Health', () => {
 				} );
 			// Default language code
 			cy.get( 'tr' )
-				.eq( 11 )
+				.eq( 12 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -157,21 +164,21 @@ context( 'Site Health', () => {
 				} );
 			// Default language ID
 			cy.get( 'tr' )
-				.eq( 12 )
+				.eq( 13 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Default language ID' );
 					cy.get( 'td' ).should( 'have.text', '' );
 				} );
 			// Title voice ID
 			cy.get( 'tr' )
-				.eq( 13 )
+				.eq( 14 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Title voice ID' );
 					cy.get( 'td' ).should( 'have.text', '2517' );
 				} );
 			// Title voice speaking rate
 			cy.get( 'tr' )
-				.eq( 14 )
+				.eq( 15 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -181,14 +188,14 @@ context( 'Site Health', () => {
 				} );
 			// Body voice ID
 			cy.get( 'tr' )
-				.eq( 15 )
+				.eq( 16 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Body voice ID' );
 					cy.get( 'td' ).should( 'have.text', '2517' );
 				} );
 			// Body voice speaking rate
 			cy.get( 'tr' )
-				.eq( 16 )
+				.eq( 17 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -198,28 +205,28 @@ context( 'Site Health', () => {
 				} );
 			// Player UI
 			cy.get( 'tr' )
-				.eq( 17 )
+				.eq( 18 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Player UI' );
 					cy.get( 'td' ).should( 'have.text', 'enabled' );
 				} );
 			// Player style
 			cy.get( 'tr' )
-				.eq( 18 )
+				.eq( 19 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Player style' );
 					cy.get( 'td' ).should( 'have.text', 'standard' );
 				} );
 			// Player theme
 			cy.get( 'tr' )
-				.eq( 19 )
+				.eq( 20 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Player theme' );
 					cy.get( 'td' ).should( 'have.text', 'light' );
 				} );
 			// Light theme
 			cy.get( 'tr' )
-				.eq( 20 )
+				.eq( 21 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Light theme' );
 					cy.get( 'td' ).should(
@@ -230,7 +237,7 @@ context( 'Site Health', () => {
 				} );
 			// Dark theme
 			cy.get( 'tr' )
-				.eq( 21 )
+				.eq( 22 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Dark theme' );
 					cy.get( 'td' ).should(
@@ -241,7 +248,7 @@ context( 'Site Health', () => {
 				} );
 			// Video theme
 			cy.get( 'tr' )
-				.eq( 22 )
+				.eq( 23 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Video theme' );
 					cy.get( 'td' ).should(
@@ -252,7 +259,7 @@ context( 'Site Health', () => {
 				} );
 			// Call-to-action
 			cy.get( 'tr' )
-				.eq( 23 )
+				.eq( 24 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Call-to-action' );
 					cy.get( 'td' ).should(
@@ -262,14 +269,14 @@ context( 'Site Health', () => {
 				} );
 			// Text highlighting
 			cy.get( 'tr' )
-				.eq( 24 )
+				.eq( 25 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Text highlighting' );
 					cy.get( 'td' ).should( 'have.text', 'No' );
 				} );
 			// Playback from segments
 			cy.get( 'tr' )
-				.eq( 25 )
+				.eq( 26 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -279,35 +286,35 @@ context( 'Site Health', () => {
 				} );
 			// Widget style
 			cy.get( 'tr' )
-				.eq( 26 )
+				.eq( 27 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Widget style' );
 					cy.get( 'td' ).should( 'have.text', 'standard' );
 				} );
 			// Widget position
 			cy.get( 'tr' )
-				.eq( 27 )
+				.eq( 28 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Widget position' );
 					cy.get( 'td' ).should( 'have.text', 'auto' );
 				} );
 			// Skip button style
 			cy.get( 'tr' )
-				.eq( 28 )
+				.eq( 29 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Skip button style' );
 					cy.get( 'td' ).should( 'have.text', 'auto' );
 				} );
 			// Registered filters
 			cy.get( 'tr' )
-				.eq( 29 )
+				.eq( 30 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Registered filters' );
 					cy.get( 'td' ).should( 'have.text', 'None' );
 				} );
 			// Registered deprecated filters
 			cy.get( 'tr' )
-				.eq( 30 )
+				.eq( 31 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -317,7 +324,7 @@ context( 'Site Health', () => {
 				} );
 			// Review Notice Dismissed
 			cy.get( 'tr' )
-				.eq( 31 )
+				.eq( 32 )
 				.within( () => {
 					cy.get( 'th' ).should( 'have.text', 'Date Activated' );
 					cy.get( 'td' ).should(
@@ -327,7 +334,7 @@ context( 'Site Health', () => {
 				} );
 			// Review Notice Dismissed
 			cy.get( 'tr' )
-				.eq( 32 )
+				.eq( 33 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -337,7 +344,7 @@ context( 'Site Health', () => {
 				} );
 			// BEYONDWORDS_AUTO_SYNC_SETTINGS
 			cy.get( 'tr' )
-				.eq( 33 )
+				.eq( 34 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
@@ -347,21 +354,11 @@ context( 'Site Health', () => {
 				} );
 			// BEYONDWORDS_AUTOREGENERATE
 			cy.get( 'tr' )
-				.eq( 34 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'BEYONDWORDS_AUTOREGENERATE'
-					);
-					cy.get( 'td' ).should( 'have.text', 'Undefined' );
-				} );
-			// BEYONDWORDS_AUTOREGENERATE
-			cy.get( 'tr' )
 				.eq( 35 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
-						'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG'
+						'BEYONDWORDS_AUTOREGENERATE'
 					);
 					cy.get( 'td' ).should( 'have.text', 'Undefined' );
 				} );

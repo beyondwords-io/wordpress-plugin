@@ -44,6 +44,8 @@ class GenerateAudio
     /**
      * Check whether the post type should preselect the "Generate audio" checkbox.
      *
+     * @param \WP_Post|int $post The post object or ID.
+     *
      * @todo move this function to somewhere reusable for the Block editor.
      *
      * @since 6.0.0 Make static.
@@ -73,22 +75,13 @@ class GenerateAudio
     /**
      * Render the element.
      *
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and refactor generate audio check.
      */
     public static function element($post)
     {
         wp_nonce_field('beyondwords_generate_audio', 'beyondwords_generate_audio_nonce');
 
         $generateAudio = PostMetaUtils::hasGenerateAudio($post->ID);
-
-        if (! $generateAudio) {
-            // Check whether "0" has explicitly been saved
-            $generateAudioMeta = PostMetaUtils::getRenamedPostMeta($post->ID, 'generate_audio', true);
-
-            if ($generateAudioMeta !== '0' && self::shouldPreselectGenerateAudio($post)) {
-                $generateAudio = true;
-            }
-        }
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-generate-audio">

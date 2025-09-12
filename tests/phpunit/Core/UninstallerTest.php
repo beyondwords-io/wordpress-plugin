@@ -42,6 +42,8 @@ class UninstallerTest extends WP_UnitTestCase
     public function optionNamesProvider()
     {
         return [
+            // v6.0 Client-side integration
+            'beyondwords_integration_method' => ['beyondwords_integration_method'],
             // v5.3 player content (loadContentAs)
             'beyondwords_player_content' => ['beyondwords_player_content'],
             // v5.0 player settings
@@ -106,6 +108,8 @@ class UninstallerTest extends WP_UnitTestCase
         $numPosts = 10;
 
         $customFields = [
+            // v6.0 Client-side integration
+            'beyondwords_integration_method' => 'beyondwords_integration_method',
             // v4.x New API
             'beyondwords_content_id'       => 'beyondwords_content_id',
             'beyondwords_language_id'      => 'beyondwords_language_id',
@@ -164,7 +168,7 @@ class UninstallerTest extends WP_UnitTestCase
             $this->assertEquals('foo', get_post_meta($postId, 'beyondwords_prefixed_field', true));
             $this->assertEquals('bar', get_post_meta($postId, 'another_custom_field', true));
 
-            wp_delete_post($postId);
+            wp_delete_post($postId, true);
         }
     }
 }

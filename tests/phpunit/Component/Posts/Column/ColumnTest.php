@@ -64,11 +64,11 @@ class ColumnTest extends WP_UnitTestCase
     {
         $this->expectOutputString($expect);
 
-        $post = self::factory()->post->create_and_get($postArgs);
+        $postId = self::factory()->post->create($postArgs);
 
-        Column::renderColumnsContent('beyondwords', $post->ID);
+        Column::renderColumnsContent('beyondwords', $postId);
 
-        wp_delete_post($post->ID, true);
+        wp_delete_post($postId, true);
     }
 
     public function renderColumnsContentProvider()
