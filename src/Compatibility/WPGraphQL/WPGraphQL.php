@@ -74,24 +74,24 @@ class WPGraphQL
                     'type'        => 'Beyondwords',
                     'description' => __('BeyondWords audio details', 'speechkit'),
                     'resolve'     => function (WPGraphQLPlugin\Model\Post $post) {
-                        $beyondwords = [
-                            'sourceId' => (string)$post->ID,
+                        $fields = [
+                            'sourceId' => (string) $post->ID,
                         ];
-
-                        $contentId = PostMetaUtils::getContentId($post->ID);
-
-                        if (! empty($contentId)) {
-                            $beyondwords['contentId'] = $contentId;
-                            $beyondwords['podcastId'] = $contentId; // legacy
-                        }
 
                         $projectId = PostMetaUtils::getProjectId($post->ID);
 
                         if (! empty($projectId)) {
-                            $beyondwords['projectId'] = $projectId;
+                            $fields['projectId'] = $projectId;
                         }
 
-                        return ! empty($beyondwords) ? $beyondwords : null;
+                        $contentId = PostMetaUtils::getContentId($post->ID);
+
+                        if (! empty($contentId)) {
+                            $fields['contentId'] = $contentId;
+                            $fields['podcastId'] = $contentId; // legacy
+                        }
+
+                        return $fields;
                     }
                 ]);
             }
