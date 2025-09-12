@@ -64,7 +64,6 @@ class Amp
         $projectId = PostMetaUtils::getProjectId($post->ID);
         $contentId = PostMetaUtils::getContentId($post->ID, true); // Fallback to Post ID if Content ID is not set
 
-        // @todo use Source Id for AMP?
         $src = sprintf(Environment::getAmpPlayerUrl(), $projectId, $contentId);
 
         ob_start();

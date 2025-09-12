@@ -82,6 +82,7 @@ class ApiClient
      *
      * @since 3.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add support for Magic Embed.
      *
      * @param int $postId WordPress Post ID
      *
@@ -111,6 +112,7 @@ class ApiClient
      *
      * @since 3.0.0
      * @since 5.2.0 Make static.
+     * @since 6.0.0 Add support for Magic Embed.
      *
      * @param int $postId WordPress Post ID
      *

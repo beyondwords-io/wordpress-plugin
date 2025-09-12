@@ -100,7 +100,6 @@ class BlockAttributes
     public static function renderBlock($blockContent, $block)
     {
         // Skip adding marker if player UI is disabled
-        // @todo should we be doing this?
         if (get_option(PlayerUI::OPTION_NAME) === PlayerUI::DISABLED) {
             return $blockContent;
         }
