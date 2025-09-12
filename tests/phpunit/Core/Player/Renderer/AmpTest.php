@@ -1,6 +1,7 @@
 <?php
 
 use Beyondwords\Wordpress\Core\Environment;
+use Beyondwords\Wordpress\Core\Player\Renderer\Amp;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -8,7 +9,7 @@ use \Symfony\Component\DomCrawler\Crawler;
  *
  * Renders the AMP-compatible BeyondWords player.
  */
-class Amp
+class AmpTest
 {
     /**
      * @test
@@ -19,7 +20,7 @@ class Amp
             'post_title' => 'Amp::check::1',
         ]);
 
-        $this->assertFalse(Amp::render($post));
+        $this->assertFalse(Amp::check($post));
 
         $post = self::factory()->post->create_and_get([
             'post_title' => 'Amp::check::2',
@@ -29,9 +30,9 @@ class Amp
             ],
         ]);
 
-        $this->markTestIncomplete('This test needs to be updated for AMP rendering.');
+        $this->markTestIncomplete('Needs updates for Amp renderer.');
 
-        $this->assertTrue(Amp::render($post));
+        $this->assertTrue(Amp::check($post));
     }
 
     /**

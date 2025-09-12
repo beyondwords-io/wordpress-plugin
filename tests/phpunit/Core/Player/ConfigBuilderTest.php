@@ -5,11 +5,11 @@ use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\Integratio
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
 /**
- * Class ConfigBuilder
+ * Class ConfigBuilderTest
  *
  * Constructs the parameters object for the BeyondWords JS SDK.
  */
-class ConfigBuilder
+class ConfigBuilderTest
 {
     /**
      * @test
