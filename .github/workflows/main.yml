@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
       - main
-      - s-7155-plugin-v600
 
 jobs:
   # ######################################
