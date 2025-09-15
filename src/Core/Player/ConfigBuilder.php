@@ -26,20 +26,12 @@ class ConfigBuilder
     public static function build(\WP_Post $post): object
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
+        $contentId = PostMetaUtils::getContentId($post->ID);
 
         $params = [
             'projectId' => is_numeric($projectId) ? (int) $projectId : $projectId,
-            'sourceId' => (string) $post->ID,
+            'contentId' => (string) $contentId,
         ];
-
-        $contentId = PostMetaUtils::getContentId($post->ID);
-        $integrationMethod = IntegrationMethod::getIntegrationMethod($post);
-
-        // For non-client-side method, we prefer Content ID if it's available.
-        if ($integrationMethod !== IntegrationMethod::CLIENT_SIDE && $contentId) {
-            unset($params['sourceId']);
-            $params['contentId'] = is_numeric($contentId) ? (int) $contentId : $contentId;
-        }
 
         $params = self::mergePluginSettings($params);
         $params = self::mergePostSettings($post, $params);
@@ -111,7 +103,7 @@ class ConfigBuilder
         $method = IntegrationMethod::getIntegrationMethod($post);
 
         if ($method === IntegrationMethod::CLIENT_SIDE) {
-            $params['clientSideEnabled'] = Core::shouldGenerateAudioForPost($post->ID);
+            $params['clientSideEnabled'] = true;
 
             if (empty($params['contentId'])) {
                 unset($params['contentId']);

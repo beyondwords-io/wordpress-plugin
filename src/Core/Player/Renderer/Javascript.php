@@ -2,10 +2,7 @@
 
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
-use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
 
@@ -14,38 +11,8 @@ use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
  *
  * Responsible for rendering the JavaScript BeyondWords player.
  */
-class Javascript
+class Javascript extends Base
 {
-    /**
-     * Check whether we should use the JavaScript player for the current post.
-     *
-     * @param \WP_Post $post WordPress post object.
-     *
-     * @return bool True if JavaScript player should be used.
-     */
-    public static function check(\WP_Post $post): bool
-    {
-        if (function_exists('is_preview') && is_preview()) {
-            return false;
-        }
-
-        if (CoreUtils::isGutenbergPage() || CoreUtils::isEditScreen()) {
-            return false;
-        }
-
-        $projectId = PostMetaUtils::getProjectId($post->ID);
-
-        if (! $projectId) {
-            return false;
-        }
-
-        $contentId = PostMetaUtils::getContentId($post->ID);
-        $method = IntegrationMethod::getIntegrationMethod($post);
-
-        return $method === IntegrationMethod::CLIENT_SIDE ||
-               ($method === IntegrationMethod::REST_API && $contentId);
-    }
-
     /**
      * Render the JavaScript player HTML.
      *

@@ -158,30 +158,22 @@ class IntegrationMethod
      *
      * @since 6.0.0 Introduced.
      *
-     * @param \WP_Post|int|null $post WordPress Post object or ID. If null, uses the current post.
+     * @param \WP_Post $post WordPress Post object.
      *
      * @return string The integration method value.
      **/
-    public static function getIntegrationMethod($post = null)
+    public static function getIntegrationMethod(\WP_Post $post)
     {
-        if (! is_a($post, 'WP_Post')) {
-            $post = get_post($post);
+        $method = get_post_meta($post->ID, 'beyondwords_integration_method', true);
 
-            if (! $post) {
-                return self::DEFAULT_VALUE;
-            }
+        if (empty($method)) {
+            $method = get_option(self::OPTION_NAME);
         }
 
-        $integrationMethod = get_post_meta($post->ID, self::OPTION_NAME, true);
-
-        if (empty($integrationMethod)) {
-            $integrationMethod = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
+        if (! in_array($method, [self::REST_API, self::CLIENT_SIDE], true)) {
+            $method = self::DEFAULT_VALUE;
         }
 
-        if (! in_array($integrationMethod, [self::REST_API, self::CLIENT_SIDE], true)) {
-            $integrationMethod = self::DEFAULT_VALUE;
-        }
-
-        return $integrationMethod;
+        return $method;
     }
 }

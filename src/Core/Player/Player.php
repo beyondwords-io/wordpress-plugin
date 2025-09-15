@@ -107,15 +107,34 @@ class Player
             return '';
         }
 
+        $html = '';
+
         foreach (self::$renderers as $rendererClass) {
             if (is_callable([$rendererClass, 'check']) && $rendererClass::check($post)) {
                 if (is_callable([$rendererClass, 'render'])) {
-                    return $rendererClass::render($post);
+                    $html = $rendererClass::render($post);
+                    break;
                 }
             }
         }
 
-        return '';
+        $projectId = PostMetaUtils::getProjectId($post->ID);
+        $contentId = PostMetaUtils::getContentId($post->ID, true);
+
+        /**
+         * Filters the HTML of the BeyondWords Player.
+         *
+         * @since 4.0.0
+         * @since 4.3.0 Applied to all player renderers (AMP and JavaScript).
+         *
+         * @param string $html      The HTML for the audio player.
+         * @param int    $postId    WordPress post ID.
+         * @param int    $projectId BeyondWords project ID.
+         * @param int    $contentId BeyondWords content ID.
+         */
+        $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId);
+
+        return $html;
     }
 
     /**

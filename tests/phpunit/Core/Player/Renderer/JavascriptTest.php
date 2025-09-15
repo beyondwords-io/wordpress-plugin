@@ -1,5 +1,6 @@
 <?php
 
+use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\Renderer\Javascript;
 use \Symfony\Component\DomCrawler\Crawler;
 
@@ -8,30 +9,22 @@ use \Symfony\Component\DomCrawler\Crawler;
  *
  * Responsible for rendering the JavaScript BeyondWords player.
  */
-class JavascriptTest
+class JavascriptTest extends WP_UnitTestCase
 {
-    /**
-     * @test
-     */
-    public function check()
+    public function setUp(): void
     {
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'Javascript::check::1',
-        ]);
+        // Before...
+        parent::setUp();
 
-        $this->assertFalse(Javascript::check($post));
+        // Your set up methods here.
+    }
 
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'Javascript::check::2',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
+    public function tearDown(): void
+    {
+        // Your tear down methods here.
 
-        $this->markTestIncomplete('Needs updates for JavaScript renderer.');
-
-        $this->assertTrue(Javascript::check($post));
+        // Then...
+        parent::tearDown();
     }
 
     /**
@@ -47,60 +40,18 @@ class JavascriptTest
             ],
         ]);
 
-        $html = Javascript::render($post);
-
-        $this->assertNotEmpty($html);
-
-        setup_postdata($post);
-
-        $crawler = new Crawler($html);
-
-        $this->assertCount(1, $crawler->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
-
-        wp_reset_postdata();
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
-    public function renderWithFilter()
-    {
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'JavascriptTest::renderWithFilter',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $filter = function($html, $postId, $projectId, $contentId) {
-            return sprintf(
-                '<div id="wrapper" data-post-id="%d" data-project-id="%d" data-podcast-id="%s">%s</div>',
-                $postId,
-                $projectId,
-                $contentId,
-                $html
-            );
-        };
-
-        add_filter('beyondwords_player_html', $filter, 10, 4);
+        // setup_postdata($post);
 
         $html = Javascript::render($post);
 
-        remove_filter('beyondwords_player_html', $filter, 10, 4);
-
         $crawler = new Crawler($html);
 
-        // <div id="wrapper">
-        $wrapper = $crawler->filter('#wrapper');
-        $this->assertCount(1, $wrapper);
-        $this->assertSame("$post->ID", $wrapper->attr('data-post-id'));
-        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
-        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
+        $script = $crawler->filter('script[async][defer]');
+        $this->assertCount(1, $script);
+        $this->assertSame(Environment::getJsSdkUrl(), $script->attr('src'));
+        $this->assertNotEmpty($script->attr('onload'));
 
-        $this->assertCount(1, $wrapper->filter('div[data-beyondwords-player="true"][contenteditable="false"]'));
+        // wp_reset_postdata();
 
         wp_delete_post($post->ID, true);
     }

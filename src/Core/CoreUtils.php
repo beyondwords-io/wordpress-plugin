@@ -85,9 +85,9 @@ class CoreUtils
     public static function isAmp(): bool
     {
         return (
-            (function_exists('amp_is_request') && \amp_is_request()) ||
-            (function_exists('ampforwp_is_amp_endpoint') && \ampforwp_is_amp_endpoint()) ||
-            (function_exists('is_amp_endpoint') && \is_amp_endpoint())
+            (function_exists('\amp_is_request') && \amp_is_request()) ||
+            (function_exists('\ampforwp_is_amp_endpoint') && \ampforwp_is_amp_endpoint()) ||
+            (function_exists('\is_amp_endpoint') && \is_amp_endpoint())
         );
     }
 
