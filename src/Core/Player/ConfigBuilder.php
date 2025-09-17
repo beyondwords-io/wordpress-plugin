@@ -26,11 +26,9 @@ class ConfigBuilder
     public static function build(\WP_Post $post): object
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
-        $contentId = PostMetaUtils::getContentId($post->ID);
 
         $params = [
             'projectId' => is_numeric($projectId) ? (int) $projectId : $projectId,
-            'contentId' => (string) $contentId,
         ];
 
         $params = self::mergePluginSettings($params);
@@ -82,6 +80,12 @@ class ConfigBuilder
      */
     public static function mergePostSettings(\WP_Post $post, array $params): array
     {
+        $contentId = PostMetaUtils::getContentId($post->ID);
+
+        if (! empty($contentId)) {
+            $params['contentId'] = (string) $contentId;
+        }
+
         $playerUI = get_option(PlayerUI::OPTION_NAME);
 
         if ($playerUI === PlayerUI::HEADLESS) {
@@ -102,13 +106,10 @@ class ConfigBuilder
 
         $method = IntegrationMethod::getIntegrationMethod($post);
 
-        if ($method === IntegrationMethod::CLIENT_SIDE) {
+        if ($method === IntegrationMethod::CLIENT_SIDE && empty($params['contentId'])) {
             $params['clientSideEnabled'] = true;
-
-            if (empty($params['contentId'])) {
-                unset($params['contentId']);
-                $params['sourceId'] = (string)$post->ID;
-            }
+            $params['sourceId'] = (string) $post->ID;
+            unset($params['contentId']);
         }
 
         return $params;

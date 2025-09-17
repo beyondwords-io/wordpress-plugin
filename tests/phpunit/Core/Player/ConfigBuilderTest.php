@@ -36,7 +36,6 @@ class ConfigBuilderTest extends WP_UnitTestCase
     public function build()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'ConfigBuilderTest::build',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -55,7 +54,6 @@ class ConfigBuilderTest extends WP_UnitTestCase
     public function buildWithPlayerSdkParamsFilter()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'ConfigBuilderTest::buildWithPlayerSdkParamsFilter',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -123,62 +121,94 @@ class ConfigBuilderTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function mergePostSettingsRestApiHeadless()
+    public function mergePostSettingsIncludesHeadlessSetting()
     {
         update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'ConfigBuilderTest::mergePostSettingsRestApi',
             'meta_input' => [
-                'beyondwords_generate_audio' => '1',
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_player_style' => PlayerStyle::VIDEO,
-                'beyondwords_player_content' => 'summary',
-            ],
-        ]);
-
-        $params = ConfigBuilder::mergePostSettings($post, ['foo' => 'bar']);
-
-        $this->assertArrayNotHasKey('clientSideEnabled', $params);
-        $this->assertArrayNotHasKey('sourceId', $params);
-
-        $this->assertEquals($params['foo'], 'bar');
-        $this->assertEquals($params['showUserInterface'], false);
-        $this->assertEquals($params['playerStyle'], PlayerStyle::VIDEO);
-        $this->assertEquals($params['loadContentAs'], array('summary'));
-
-        delete_option(PlayerUI::OPTION_NAME);
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
-    public function mergePostSettingsClientSidePluginSetting()
-    {
-        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::CLIENT_SIDE);
-
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'ConfigBuilderTest::mergePostSettingsClientSidePluginSetting',
-            'meta_input' => [
-                'beyondwords_generate_audio' => '1',
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, ['foo' => 'bar']);
+        $params = ConfigBuilder::mergePostSettings($post, []);
 
-        $this->assertArrayNotHasKey('showUserInterface', $params);
-        $this->assertArrayNotHasKey('loadContentAs', $params);
-        $this->assertArrayNotHasKey('contentId', $params);
+        $this->assertEquals($params['showUserInterface'], false);
 
-        $this->assertEquals($params['foo'], 'bar');
-        $this->assertEquals($params['playerStyle'], PlayerStyle::STANDARD);
-        $this->assertEquals($params['clientSideEnabled'], true);
-        $this->assertEquals($params['sourceId'], (string)$post->ID);
+        wp_delete_post($post->ID, true);
+
+        delete_option(PlayerUI::OPTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function mergePostSettingsIncludesPlayerStyleCustomField()
+    {
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
+
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'beyondwords_player_style' => PlayerStyle::VIDEO,
+            ],
+        ]);
+
+        $params = ConfigBuilder::mergePostSettings($post, []);
+
+        $this->assertEquals($params['playerStyle'], PlayerStyle::VIDEO);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(PlayerUI::OPTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function mergePostSettingsIncludesPlayerContentCustomField()
+    {
+        update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
+
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'beyondwords_player_content' => 'summary',
+            ],
+        ]);
+
+        $params = ConfigBuilder::mergePostSettings($post, []);
+
+        $this->assertEquals($params['loadContentAs'], ['summary']);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(PlayerUI::OPTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function mergePostSettingsRestApiSetting()
+    {
+        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::REST_API);
+
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $params = ConfigBuilder::mergePostSettings($post, []);
+
+        $this->assertArrayNotHasKey('clientSideEnabled', $params);
+        $this->assertArrayNotHasKey('sourceId', $params);
+
+        $this->assertEquals($params['contentId'], BEYONDWORDS_TESTS_CONTENT_ID);
 
         wp_delete_post($post->ID, true);
 
@@ -188,31 +218,78 @@ class ConfigBuilderTest extends WP_UnitTestCase
     /**
      * @test
      */
-    public function mergePostSettingsClientSideCustomField()
+    public function mergePostSettingsRestApiCustomFieldOverridesSetting()
     {
-        $this->markTestIncomplete('Fails with: Undefined array key "clientSideEnabled".');
+        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::CLIENT_SIDE);
 
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'beyondwords_integration_method' => IntegrationMethod::REST_API,
+            ],
+        ]);
+
+        $params = ConfigBuilder::mergePostSettings($post, []);
+
+        $this->assertArrayNotHasKey('clientSideEnabled', $params);
+        $this->assertArrayNotHasKey('sourceId', $params);
+
+        $this->assertEquals($params['contentId'], BEYONDWORDS_TESTS_CONTENT_ID);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(IntegrationMethod::OPTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function mergePostSettingsClientSideSettingUsesRestApiForLegacyPosts()
+    {
+        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::CLIENT_SIDE);
+
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $params = ConfigBuilder::mergePostSettings($post, []);
+
+        $this->assertArrayNotHasKey('clientSideEnabled', $params);
+        $this->assertArrayNotHasKey('sourceId', $params);
+
+        $this->assertEquals($params['contentId'], BEYONDWORDS_TESTS_CONTENT_ID);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(IntegrationMethod::OPTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function mergePostSettingsClientSideCustomFieldOverridesSetting()
+    {
         update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::REST_API);
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'ConfigBuilderTest::mergePostSettingsClientSideCustomField',
             'meta_input' => [
-                'beyondwords_generate_audio' => '1',
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_integration_method' => IntegrationMethod::CLIENT_SIDE,
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, ['foo' => 'bar']);
+        $params = ConfigBuilder::mergePostSettings($post, []);
 
         $this->assertArrayNotHasKey('showUserInterface', $params);
-        $this->assertArrayNotHasKey('loadContentAs', $params);
         $this->assertArrayNotHasKey('contentId', $params);
 
-        $this->assertEquals($params['foo'], 'bar');
         $this->assertEquals($params['playerStyle'], PlayerStyle::STANDARD);
         $this->assertEquals($params['clientSideEnabled'], true);
-        $this->assertEquals($params['sourceId'], (string)$post->ID);
+        $this->assertEquals($params['sourceId'], (string) $post->ID);
 
         wp_delete_post($post->ID, true);
 

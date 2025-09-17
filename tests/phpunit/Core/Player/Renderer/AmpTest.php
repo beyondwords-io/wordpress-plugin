@@ -34,7 +34,7 @@ class AmpTest extends WP_UnitTestCase
      */
     public function check()
     {
-        $this->markTestIncomplete('Unable to mock amp_is_request() function using @runInSeparateProcess and preserveGlobalState disabled.');
+        $this->markTestIncomplete('Unable to mock amp_is_request() function using stubs with @runInSeparateProcess and preserveGlobalState disabled.');
 
         require __DIR__ . '/../../../Stubs/amp_is_request_true.php';
 
