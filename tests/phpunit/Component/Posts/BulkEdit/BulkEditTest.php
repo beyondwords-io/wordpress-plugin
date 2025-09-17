@@ -277,7 +277,7 @@ final class BulkEditTest extends WP_UnitTestCase
      */
     public function handleBulkGenerateAction()
     {
-        $this->markTestSkipped('Failing after static method update.');
+        $this->markTestIncomplete('Failing after static method update.');
 
         global $beyondwords_wordpress_plugin;
 
@@ -385,7 +385,7 @@ final class BulkEditTest extends WP_UnitTestCase
      */
     public function handleBulkGenerateActionWithNoPluginError()
     {
-        $this->markTestSkipped('Failing after static method update.');
+        $this->markTestIncomplete('Failing after static method update.');
 
         global $beyondwords_wordpress_plugin;
 
@@ -450,7 +450,7 @@ final class BulkEditTest extends WP_UnitTestCase
      */
     public function handleBulkGenerateActionWithNoResponseError()
     {
-        $this->markTestSkipped('Failing after static method update.');
+        $this->markTestIncomplete('Failing after static method update.');
 
         global $beyondwords_wordpress_plugin;
 

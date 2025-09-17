@@ -83,7 +83,7 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function renderMetaBoxContent($expectPlayer, $postArgs)
     {
-        $this->markTestSkipped('Needs updated after recent language changes.');
+        $this->markTestIncomplete('Mock API needs language endpoint updates.');
 
         $postId = self::factory()->post->create($postArgs);
 
@@ -150,7 +150,7 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function renderMetaBoxContentWithInvalidPost()
     {
-        $this->markTestSkipped('Needs updated after recent language changes.');
+        $this->markTestIncomplete('Needs updated after recent language changes.');
 
         Metabox::renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
 

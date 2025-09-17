@@ -3,7 +3,6 @@
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Core\CoreUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -12,7 +11,7 @@ use Beyondwords\Wordpress\Core\Environment;
  *
  * Renders the AMP-compatible BeyondWords player.
  */
-class Amp
+class Amp extends Base
 {
     /**
      * Check whether we should use the AMP player for the current post.
@@ -27,29 +26,7 @@ class Amp
             return false;
         }
 
-        if (function_exists('is_preview') && is_preview()) {
-            return false;
-        }
-
-        if (CoreUtils::isGutenbergPage() || CoreUtils::isEditScreen()) {
-            return false;
-        }
-
-        $hasProjectId = (bool) PostMetaUtils::getProjectId($post->ID);
-
-        if (! $hasProjectId) {
-            return false;
-        }
-
-        $integrationMethod = get_post_meta($post->ID, 'beyondwords_integration_method', true);
-
-        if ($integrationMethod === IntegrationMethod::CLIENT_SIDE) {
-            return true;
-        }
-
-        $hasContentId = (bool) PostMetaUtils::getContentId($post->ID, true);
-
-        return $hasContentId;
+        return parent::check($post);
     }
 
     /**
@@ -86,8 +63,6 @@ class Amp
             ></amp-img>
         </amp-iframe>
         <?php
-        $html = ob_get_clean();
-
-        return apply_filters('beyondwords_amp_player_html', $html, $post->ID, $projectId, $contentId);
+        return ob_get_clean();
     }
 }

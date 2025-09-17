@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\Player;
+use Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends WP_UnitTestCase
 {
@@ -167,6 +169,57 @@ class PlayerTest extends WP_UnitTestCase
         // Case 5: Post exists, player enabled, should render player HTML
         delete_post_meta($post->ID, 'beyondwords_disabled');
         $this->assertSame(self::PLAYER_HTML, Player::renderPlayer());
+
+        wp_reset_postdata();
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function renderPlayerWithFilter()
+    {
+        global $post;
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PlayerTest::renderPlayerWithFilter',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        setup_postdata($post);
+
+        $filter = function($html, $postId, $projectId, $contentId) {
+            return sprintf(
+                '<div id="wrapper" data-post-id="%d" data-project-id="%d" data-podcast-id="%s">%s</div>',
+                $postId,
+                $projectId,
+                $contentId,
+                $html
+            );
+        };
+
+        add_filter('beyondwords_player_html', $filter, 10, 4);
+
+        $html = Player::renderPlayer($post);
+
+        remove_filter('beyondwords_player_html', $filter, 10, 4);
+
+        $crawler = new Crawler($html);
+
+        // <div id="wrapper">
+        $wrapper = $crawler->filter('#wrapper');
+        $this->assertCount(1, $wrapper);
+        $this->assertSame("$post->ID", $wrapper->attr('data-post-id'));
+        $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
+
+        $script = $wrapper->filter('script[async][defer]');
+        $this->assertCount(1, $script);
+        $this->assertSame(Environment::getJsSdkUrl(), $script->attr('src'));
+        $this->assertNotEmpty($script->attr('onload'));
 
         wp_reset_postdata();
         wp_delete_post($post->ID, true);

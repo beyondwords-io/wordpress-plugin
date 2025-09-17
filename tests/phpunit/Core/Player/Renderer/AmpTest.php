@@ -9,13 +9,37 @@ use \Symfony\Component\DomCrawler\Crawler;
  *
  * Renders the AMP-compatible BeyondWords player.
  */
-class AmpTest
+class AmpTest extends WP_UnitTestCase
 {
+    public function setUp(): void
+    {
+        // Before...
+        parent::setUp();
+
+        // Your set up methods here.
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+    }
+
+    public function tearDown(): void
+    {
+        // Your tear down methods here.
+        delete_option('beyondwords_project_id');
+
+        // Then...
+        parent::tearDown();
+    }
+
     /**
      * @test
      */
     public function check()
     {
+        $this->markTestIncomplete('Unable to mock amp_is_request() function using stubs with @runInSeparateProcess and preserveGlobalState disabled.');
+
+        require __DIR__ . '/../../../Stubs/amp_is_request_true.php';
+
+        $this->assertTrue(\amp_is_request());
+
         $post = self::factory()->post->create_and_get([
             'post_title' => 'Amp::check::1',
         ]);
@@ -30,21 +54,19 @@ class AmpTest
             ],
         ]);
 
-        $this->markTestIncomplete('Needs updates for Amp renderer.');
-
         $this->assertTrue(Amp::check($post));
     }
 
     /**
      * @test
      */
-    public function render() {
-
+    public function render()
+    {
         $post = self::factory()->post->create_and_get([
             'post_title' => 'AmpTest::render',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 

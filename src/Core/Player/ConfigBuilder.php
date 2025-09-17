@@ -29,17 +29,7 @@ class ConfigBuilder
 
         $params = [
             'projectId' => is_numeric($projectId) ? (int) $projectId : $projectId,
-            'sourceId' => (string) $post->ID,
         ];
-
-        $contentId = PostMetaUtils::getContentId($post->ID);
-        $integrationMethod = IntegrationMethod::getIntegrationMethod($post);
-
-        // For non-client-side method, we prefer Content ID if it's available.
-        if ($integrationMethod !== IntegrationMethod::CLIENT_SIDE && $contentId) {
-            unset($params['sourceId']);
-            $params['contentId'] = is_numeric($contentId) ? (int) $contentId : $contentId;
-        }
 
         $params = self::mergePluginSettings($params);
         $params = self::mergePostSettings($post, $params);
@@ -90,6 +80,12 @@ class ConfigBuilder
      */
     public static function mergePostSettings(\WP_Post $post, array $params): array
     {
+        $contentId = PostMetaUtils::getContentId($post->ID);
+
+        if (! empty($contentId)) {
+            $params['contentId'] = (string) $contentId;
+        }
+
         $playerUI = get_option(PlayerUI::OPTION_NAME);
 
         if ($playerUI === PlayerUI::HEADLESS) {
@@ -110,13 +106,10 @@ class ConfigBuilder
 
         $method = IntegrationMethod::getIntegrationMethod($post);
 
-        if ($method === IntegrationMethod::CLIENT_SIDE) {
-            $params['clientSideEnabled'] = Core::shouldGenerateAudioForPost($post->ID);
-
-            if (empty($params['contentId'])) {
-                unset($params['contentId']);
-                $params['sourceId'] = (string)$post->ID;
-            }
+        if ($method === IntegrationMethod::CLIENT_SIDE && empty($params['contentId'])) {
+            $params['clientSideEnabled'] = true;
+            $params['sourceId'] = (string) $post->ID;
+            unset($params['contentId']);
         }
 
         return $params;
