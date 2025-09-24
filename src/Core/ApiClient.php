@@ -527,8 +527,14 @@ class ApiClient
             delete_option('beyondwords_valid_api_connection');
         }
 
+        $post = get_post($postId);
+
         // Save error messages from WordPress HTTP errors and BeyondWords REST API error responses
-        if (is_wp_error($response) || $responseCode > 299) {
+        if (
+            $post instanceof \WP_Post &&
+            IntegrationMethod::REST_API === IntegrationMethod::getIntegrationMethod($post) &&
+            (is_wp_error($response) || $responseCode > 299)
+        ) {
             $deleteRequestLogs = false;
 
             $message = self::errorMessageFromResponse($response);
