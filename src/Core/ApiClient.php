@@ -498,6 +498,7 @@ class ApiClient
      * @since 4.0.0 Removed hash comparison.
      * @since 4.4.0 Handle 204 responses with no body.
      * @since 5.2.0 Make static, return result from wp_remote_request.
+     * @since 6.0.0 Add Magic Embed support and stop saving temporary request logs.
      *
      * @param Request $request Request.
      * @param int     $postId  WordPress Post ID
@@ -507,16 +508,12 @@ class ApiClient
      **/
     public static function callApi($request, $postId = false)
     {
-        // By default we delete the request logs we temporarily store
-        $deleteRequestLogs = true;
+        $post = get_post($postId);
 
         // Delete existing errors before making this API call
         self::deleteErrors($postId);
 
         $args = self::buildRequestArgs($request);
-
-        // Log the request details
-        self::addRequestLogs($postId, $request, $args);
 
         // Get response
         $response     = wp_remote_request($request->getUrl(), $args);
@@ -527,23 +524,15 @@ class ApiClient
             delete_option('beyondwords_valid_api_connection');
         }
 
-        $post = get_post($postId);
-
         // Save error messages from WordPress HTTP errors and BeyondWords REST API error responses
         if (
             $post instanceof \WP_Post &&
             IntegrationMethod::REST_API === IntegrationMethod::getIntegrationMethod($post) &&
             (is_wp_error($response) || $responseCode > 299)
         ) {
-            $deleteRequestLogs = false;
-
             $message = self::errorMessageFromResponse($response);
 
             self::saveErrorMessage($postId, $message, $responseCode);
-        }
-
-        if ($deleteRequestLogs) {
-            self::deleteLogs($postId);
         }
 
         return $response;
@@ -627,53 +616,6 @@ class ApiClient
         // Reset any existing errors before making this API call
         delete_post_meta($postId, 'speechkit_error_message');
         delete_post_meta($postId, 'beyondwords_error_message');
-    }
-
-    /**
-     * Log the request details for a post.
-     *
-     * Logs are removed later if the request was successful and retained if not.
-     *
-     * @since 4.1.0 Introduced.
-     * @since 5.2.0 Make static, use wp_json_encode(), don't save headers.
-     *
-     * @param int     $postId  WordPress post ID.
-     * @param Request $request BeyondWords Request.
-     * @param array   $args    BeyondWords Request args.
-     *
-     * @return void
-     */
-    public static function addRequestLogs($postId, $request, $args)
-    {
-        if (! $postId) {
-            return;
-        }
-
-        // Don't store headers in the logs
-        unset($args['headers']);
-
-        update_post_meta($postId, 'beyondwords_request_url', $request->getUrl());
-        update_post_meta($postId, 'beyondwords_request_args', wp_json_encode($args));
-    }
-
-    /**
-     * Deletes request/response logs for a post.
-     *
-     * @since 4.1.0 Introduced.
-     * @since 5.2.0 Make static.
-     *
-     * @param int $postId WordPress post ID.
-     *
-     * @return void
-     */
-    public static function deleteLogs($postId)
-    {
-        if (! $postId) {
-            return;
-        }
-
-        delete_post_meta($postId, 'beyondwords_request_url');
-        delete_post_meta($postId, 'beyondwords_request_args');
     }
 
     /**
