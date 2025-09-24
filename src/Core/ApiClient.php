@@ -694,7 +694,7 @@ class ApiClient
         }
 
         // Don't save an error message for Client-side 404s - they will (re)generate when pages are visited.
-        if (404 === $code && IntegrationMethod::CLIENT_SIDE === get_option(IntegrationMethod::OPTION_NAME)) {
+        if (404 === $code && IntegrationMethod::CLIENT_SIDE === IntegrationMethod::getIntegrationMethod()) {
             return;
         }
 

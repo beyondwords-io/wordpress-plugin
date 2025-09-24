@@ -446,7 +446,7 @@ class Settings
 
         return new \WP_REST_Response([
             'apiKey'              => get_option('beyondwords_api_key', ''),
-            'integrationMethod'   => get_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::DEFAULT_VALUE),
+            'integrationMethod'   => IntegrationMethod::getIntegrationMethod(),
             'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
             'projectId'           => get_option('beyondwords_project_id', ''),
             'preselect'           => get_option(PreselectGenerateAudio::OPTION_NAME, PreselectGenerateAudio::DEFAULT_PRESELECT), // phpcs:ignore Generic.Files.LineLength.TooLong

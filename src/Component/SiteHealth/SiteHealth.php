@@ -111,7 +111,7 @@ class SiteHealth
 
         $info['beyondwords']['fields']['integration-method'] = [
             'label' => __('Integration method', 'speechkit'),
-            'value' => get_option(IntegrationMethod::OPTION_NAME),
+            'value' => IntegrationMethod::getIntegrationMethod(),
         ];
 
         $info['beyondwords']['fields']['beyondwords_api_key'] = [

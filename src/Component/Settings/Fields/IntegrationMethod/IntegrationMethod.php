@@ -162,9 +162,13 @@ class IntegrationMethod
      *
      * @return string Integration method - either self::REST_API or self::CLIENT_SIDE.
      **/
-    public static function getIntegrationMethod(\WP_Post $post): string
+    public static function getIntegrationMethod(\WP_Post|false $post = false): string
     {
-        $method = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        $method = '';
+
+        if ($post) {
+            $method = get_post_meta($post->ID, 'beyondwords_integration_method', true);
+        }
 
         if (empty($method)) {
             $method = get_option(self::OPTION_NAME, self::DEFAULT_VALUE);
