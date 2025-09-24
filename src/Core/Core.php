@@ -134,7 +134,12 @@ class Core
             return false;
         }
 
-        $integrationMethod = get_option(IntegrationMethod::OPTION_NAME);
+        $post = get_post($postId);
+        if (! $post) {
+            return false;
+        }
+
+        $integrationMethod = IntegrationMethod::getIntegrationMethod($post);
 
         // For Magic Embed we call the "get_player_by_source_id" endpoint to import content.
         if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {

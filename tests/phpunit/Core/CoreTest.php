@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Core\Core;
 
 class CoreTest extends WP_UnitTestCase
@@ -474,6 +475,70 @@ class CoreTest extends WP_UnitTestCase
             'draft' => ['draft'],
             'trash' => ['trash'],
             'my_custom_status' => ['my_custom_status'],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider generateAudioForPostPreservesIntegrationMethodCustomFieldProvider
+     */
+    public function generateAudioForPostPreservesIntegrationMethodCustomField($expect, $optionValue, $metaInput)
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_integration_method', $optionValue);
+
+        $postId = self::factory()->post->create([
+            'meta_input' => $metaInput,
+        ]);
+
+        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertEquals($expect, get_post_meta($postId, 'beyondwords_integration_method', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+        delete_option('beyondwords_integration_method');
+    }
+
+    public function generateAudioForPostPreservesIntegrationMethodCustomFieldProvider() {
+        return [
+            'Sets rest-api custom field' => [
+                'expect'       => 'rest-api',
+                'option_value' => 'rest-api',
+                'meta_input'   => [
+                    'beyondwords_generate_audio' => '1',
+                ],
+            ],
+            'Preserves rest-api custom field' => [
+                'expect'       => 'rest-api',
+                'option_value' => 'client-side',
+                'meta_input'   => [
+                    'beyondwords_generate_audio' => '1',
+                    'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                    'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    'beyondwords_integration_method' => 'rest-api',
+                ],
+            ],
+            'Sets client-side custom field' => [
+                'expect'       => 'client-side',
+                'option_value' => 'client-side',
+                'meta_input'   => [
+                    'beyondwords_generate_audio' => '1',
+                ],
+            ],
+            'Preserves client-side custom field' => [
+                'expect'       => 'client-side',
+                'option_value' => 'rest-api',
+                'meta_input'   => [
+                    'beyondwords_generate_audio' => '1',
+                    'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                    'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+                    'beyondwords_integration_method' => 'client-side',
+                ],
+            ],
         ];
     }
 
