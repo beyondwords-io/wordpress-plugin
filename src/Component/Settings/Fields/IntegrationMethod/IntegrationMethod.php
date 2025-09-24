@@ -154,11 +154,12 @@ class IntegrationMethod
     }
 
     /**
-     * Get integration method. First tries the post meta, then the plugin option.
+     * Get integration method. Tries the post meta if a post is passed, and falls back
+     * to the option.
      *
      * @since 6.0.0 Introduced.
      *
-     * @param \WP_Post $post WordPress Post object.
+     * @param \WP_Post|false $post WordPress Post object (optional).
      *
      * @return string Integration method - either self::REST_API or self::CLIENT_SIDE.
      **/
