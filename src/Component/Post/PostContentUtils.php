@@ -392,7 +392,7 @@ class PostContentUtils
      *
      * @param int $postId Post ID.
      *
-     * @return array
+     * @return object The metadata object (empty if no metadata).
      */
     public static function getMetadata($postId)
     {
@@ -424,7 +424,7 @@ class PostContentUtils
      *
      * @param int $postId Post ID.
      *
-     * @return array
+     * @return object The taxonomies object (empty if no taxonomies).
      */
     public static function getAllTaxonomiesAndTerms($postId)
     {
