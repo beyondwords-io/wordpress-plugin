@@ -11,7 +11,7 @@ The GrumPHP config file is at [`grumphp.yml`](../grumphp.yml).
 The checks are:
 
 - `git_commit_message`: Require a brief commit message (under 120 chars)
-- `phpversion`: Check for PHP version >= 8.0
+- `phpversion`: Check for PHP version >= 8.1
 - `composer`: Validate `composer.json`
 - `composer_normalize`: Keep `composer.json` nice and tidy
 - `phpcs`: Run [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)

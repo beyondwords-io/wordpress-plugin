@@ -14,7 +14,7 @@ grumphp:
       metadata:
         priority: 10
     phpversion:
-      project: '8.0'
+      project: '8.1'
       metadata:
         priority: 10
     composer:

@@ -105,7 +105,7 @@ Release date: 2nd July 2025
     * As part of the Fetch button update the **Generate audio** checkbox is now always shown in the Block Editor.
     * If **Generate audio** is unchecked before a post is saved then audio **will not** be regenerated from the updated post content.
 * [#444](https://github.com/beyondwords-io/wordpress-plugin/pull/444) PHP 8.4 support.
-    * Run unit and e2e tests against PHP 8.0 and PHP 8.4 in GitHub Actions.
+    * Run unit and e2e tests against PHP 8.1 and PHP 8.4 in GitHub Actions.
 
 = 5.4.0 =
 
