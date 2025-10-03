@@ -146,7 +146,7 @@ class Column
      *
      * @param WP_Query $query WordPress query.
      *
-     * @return $query WP_Query
+     * @return WP_Query The adjusted query.
      */
     public static function setSortQuery($query)
     {
