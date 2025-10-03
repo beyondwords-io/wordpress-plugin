@@ -184,7 +184,7 @@ jobs:
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
+        - php-version: '8.1'
           phpunit-version: '9'
           operating-system: ['ubuntu-latest']
 
@@ -340,7 +340,7 @@ jobs:
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
+        - php-version: '8.1'
           phpunit-version: '9'
           operating-system: ['ubuntu-latest']
 
