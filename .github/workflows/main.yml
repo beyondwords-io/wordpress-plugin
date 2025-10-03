@@ -24,12 +24,12 @@ jobs:
       # ######################################
       # PHP
       # ######################################
-      - name: Setup PHP 8.0
+      - name: Setup PHP 8.1
         uses: shivammathur/setup-php@v2
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          php-version: '8.0'
+          php-version: '8.1'
           extensions: mbstring intl
           tools: composer, wp-cli
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-no-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
@@ -220,14 +220,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
@@ -375,14 +375,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
