@@ -44,6 +44,12 @@ class Post
             return;
         }
 
+        $projectId = PostMetaUtils::getProjectId($postId, true);
+
+        if (! $projectId) {
+            return;
+        }
+
         $title = get_the_title($postId);
 
         printf(
