@@ -34,6 +34,7 @@ class SelectVoice
         add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
         add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
 
+        add_action('wp_head', array(__CLASS__, 'addVoiceMetaTags'));
         add_action('wp_loaded', function () {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -285,6 +286,57 @@ class SelectVoice
             );
 
             wp_enqueue_script('beyondwords-metabox--select-voice');
+        }
+    }
+
+    /**
+     * Sets meta[beyondwords-*-voice-id] meta tags in the head of singular pages.
+     * We set both the [content] attribute and a custom data attribute for compatibility.
+     *
+     * @since 6.0.0
+     *
+     * @return void
+     */
+    public static function addVoiceMetaTags()
+    {
+        if (! is_singular()) {
+            return;
+        }
+
+        $postId = get_queried_object_id();
+
+        if (! $postId) {
+            return;
+        }
+
+        $titleVoiceId = get_post_meta($postId, 'beyondwords_title_voice_id', true);
+
+        if ($titleVoiceId) {
+            printf(
+                '<meta name="beyondwords-title-voice-id" content="%d" data-beyondwords-title-voice-id="%d" />' . "\n",
+                esc_attr($titleVoiceId),
+                esc_attr($titleVoiceId)
+            );
+        }
+
+        $bodyVoiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
+
+        if ($bodyVoiceId) {
+            printf(
+                '<meta name="beyondwords-body-voice-id" content="%d" data-beyondwords-body-voice-id="%d" />' . "\n",
+                esc_attr($bodyVoiceId),
+                esc_attr($bodyVoiceId)
+            );
+        }
+
+        $summaryVoiceId = get_post_meta($postId, 'beyondwords_summary_voice_id', true);
+
+        if ($summaryVoiceId) {
+            printf(
+                '<meta name="beyondwords-summary-voice-id" content="%d" data-beyondwords-summary-voice-id="%d" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
+                esc_attr($summaryVoiceId),
+                esc_attr($summaryVoiceId)
+            );
         }
     }
 }
