@@ -1,9 +1,9 @@
 # PHPUnit Test Coverage Improvement Plan
 
 **Date Started:** 2025-10-17
-**Current Coverage:** 64.42% (was 60.57%)
+**Current Coverage:** 71.74% (was 60.57%)
 **Target Coverage:** 85%
-**Status:** 🔄 In Progress
+**Status:** 🔄 In Progress - Phase 1 Nearly Complete!
 
 ---
 
@@ -15,18 +15,18 @@ To resume improving test coverage, use this prompt:
 Continue with doc/TEST_COVERAGE_IMPROVEMENT.md
 ```
 
-**Next Recommended Task:** Expand tests for Sync.php (2nd highest impact)
+**Next Recommended Task:** Continue with zero-coverage files or expand Sync.php tests
 
 ---
 
 ## 📊 Current Status
 
 ### Coverage Summary
-- **Current:** 64.42% (as of 2025-10-17)
-- **Previous:** 60.57%
-- **Improvement:** +3.85 percentage points
+- **Current:** 71.74% (as of 2025-10-17)
+- **Initial:** 60.57%
+- **Improvement:** +11.17 percentage points
 - **Target:** 85%
-- **Gap:** 20.58 percentage points
+- **Gap:** 13.26 percentage points
 - **Threshold:** 55% (currently passing ✅)
 
 ### Coverage Commands
@@ -54,29 +54,29 @@ Higher score = higher priority for maximum coverage improvement.
 
 | Priority | File | Coverage | Uncovered Lines | File Size | Impact Score | Test File Status |
 |----------|------|----------|-----------------|-----------|--------------|------------------|
-| 1 | `PlayerColors.php` | ~~6.1%~~ **90%+** | ~~155/165~~ ~10/165 | 344 lines | ~~**53,330**~~ **3,440** | ✅ Complete |
+| 1 | `PlayerColors.php` | ✅ **90%+** | ~10/165 | 344 lines | - | ✅ Complete (36 tests) |
 | 2 | `Settings/Sync.php` | 8.9% | 113/124 | 339 lines | **38,307** | ⏭️ **Next** |
-| 3 | `WidgetStyle.php` | 4.6% | 62/65 | 148 lines | **9,176** | ❌ Missing |
-| 4 | `TextHighlighting.php` | 5.4% | 53/56 | - | **2,968** | ❌ Missing |
-| 5 | `WidgetPosition.php` | 5.9% | 48/51 | - | **2,448** | ❌ Missing |
+| 3 | `WidgetStyle.php` | ✅ **90%+** | ~5/65 | 148 lines | - | ✅ Complete (16 tests) |
+| 4 | `TextHighlighting.php` | ✅ **90%+** | ~5/56 | - | - | ✅ Complete (27 tests) |
+| 5 | `WidgetPosition.php` | ✅ **90%+** | ~5/51 | - | - | ✅ Complete (15 tests) |
 
 ### 🟡 MEDIUM PRIORITY - Small Files, Zero Coverage
 
 | Priority | File | Coverage | Uncovered Lines | Test File Status |
 |----------|------|----------|-----------------|------------------|
-| 6 | `AutoPublish.php` | 0.0% | 38/38 | ❌ Missing |
-| 7 | `IncludeTitle.php` | 0.0% | 34/34 | ❌ Missing |
-| 8 | `Content/Content.php` | 0.0% | 20/20 | ❌ Missing |
-| 9 | `Voice/Voice.php` | 0.0% | 9/9 | ❌ Missing |
+| 6 | `AutoPublish.php` | ✅ **90%+** | ~4/38 | ✅ Complete (23 tests) |
+| 7 | `IncludeTitle.php` | ✅ **90%+** | ~3/34 | ✅ Complete (18 tests) |
+| 8 | `Content/Content.php` | 0.0% | 20/20 | ❌ Not started |
+| 9 | `Voice/Voice.php` | 0.0% | 9/9 | ❌ Not started |
 
 ### 🟢 LOW PRIORITY - Partial Coverage
 
 | File | Coverage | Status |
 |------|----------|--------|
-| `Language.php` | 6.0% | Could improve |
-| `PlaybackControls.php` | 7.1% | Could improve |
-| `CallToAction.php` | 11.5% | Could improve |
-| `BodyVoice.php` | 6.8% | Could improve |
+| `Language.php` | 6.0% | ⏭️ Could improve |
+| `CallToAction.php` | ✅ **90%+** | ✅ Complete (15 tests) |
+| `PlaybackControls.php` | ✅ **90%+** | ✅ Complete (21 tests) |
+| `BodyVoice.php` | 6.8% | ⏭️ Could improve |
 | `TitleVoice.php` | 6.8% | Could improve |
 
 ---
@@ -111,24 +111,25 @@ Higher score = higher priority for maximum coverage improvement.
 **Effort:** 2-3 days
 **Expected Gain:** +7-8 percentage points
 
-- [x] **PlayerColors.php** - ✅ Complete (36 tests, 102 assertions, +3.85% coverage)
+- [x] **PlayerColors.php** - ✅ Complete (36 tests, 102 assertions)
+- [x] **WidgetStyle.php** - ✅ Complete (16 tests, 37 assertions)
+- [x] **TextHighlighting.php** - ✅ Complete (27 tests, 66 assertions)
+- [x] **WidgetPosition.php** - ✅ Complete (15 tests, 30 assertions)
 - [ ] Sync.php - Expand existing tests (integration tests needed)
-- [ ] WidgetStyle.php - Create test file
-- [ ] TextHighlighting.php - Create test file
-- [ ] WidgetPosition.php - Create test file
 
 ### Phase 2: Zero Coverage Files (Target: 75%)
 **Effort:** 2-3 days
 **Expected Gain:** +7-8 percentage points
 
-- [ ] AutoPublish.php
-- [ ] IncludeTitle.php
-- [ ] Content/Content.php
-- [ ] Voice/Voice.php
-- [ ] BodyVoice.php
-- [ ] TitleVoice.php
-- [ ] PlaybackControls.php
-- [ ] Language.php
+- [x] **AutoPublish.php** - ✅ Complete (23 tests, 50 assertions)
+- [x] **IncludeTitle.php** - ✅ Complete (18 tests, 35 assertions)
+- [x] **CallToAction.php** - ✅ Complete (15 tests, 30 assertions)
+- [x] **PlaybackControls.php** - ✅ Complete (21 tests, 48 assertions)
+- [ ] Content/Content.php - Not started
+- [ ] Voice/Voice.php - Not started
+- [ ] BodyVoice.php - Not started
+- [ ] TitleVoice.php - Not started
+- [ ] Language.php - Not started
 
 ### Phase 3: Partial Coverage Improvements (Target: 85%)
 **Effort:** 2-3 days
@@ -425,20 +426,29 @@ class SomeFieldTest extends TestCase
 
 ### Completed ✅
 
-**Phase 1 Completed: 1/5**
+**Phase 1 Completed: 4/5** (80% complete!)
 - [x] PlayerColors.php - 36 tests, 102 assertions
+- [x] WidgetStyle.php - 16 tests, 37 assertions
+- [x] TextHighlighting.php - 27 tests, 66 assertions
+- [x] WidgetPosition.php - 15 tests, 30 assertions
+
+**Phase 2 Completed: 4/9** (44% complete)
+- [x] AutoPublish.php - 23 tests, 50 assertions
+- [x] IncludeTitle.php - 18 tests, 35 assertions
+- [x] CallToAction.php - 15 tests, 30 assertions
+- [x] PlaybackControls.php - 21 tests, 48 assertions
 
 ### In Progress 🔄
 
-**Current Task:** None - Ready for next priority file
+**Current Task:** None - Ready for Phase 1/2 completion or Phase 3 improvements
 
 ### Statistics
 
-- **Tests Added:** 36 tests with 102 assertions
-- **Statements Covered:** ~155 statements (PlayerColors.php)
-- **Coverage Improvement:** +3.85 percentage points
-- **Current Coverage:** 64.42%
-- **Progress to Target:** 18.7% complete (4.85 of 25.43 points gained)
+- **Tests Added:** 171 tests with 398 assertions
+- **Files Completed:** 8 Settings field classes
+- **Coverage Improvement:** +11.17 percentage points
+- **Current Coverage:** 71.74%
+- **Progress to Target:** 45.7% complete (11.17 of 24.43 points gained)
 
 ---
 
@@ -448,11 +458,11 @@ class SomeFieldTest extends TestCase
 
 - [x] **55%** - Current threshold (passing)
 - [x] **60.57%** - Initial coverage
-- [x] **64.42%** - Current coverage (+3.85 from PlayerColors.php)
-- [ ] **65%** - Phase 1 milestone (0.58 points away!)
-- [ ] **70%** - Phase 1 complete
-- [ ] **75%** - Phase 2 complete
-- [ ] **80%** - Near target
+- [x] **65%** - Phase 1 milestone ✅
+- [x] **70%** - Phase 1 nearly complete ✅
+- [x] **71.74%** - Current coverage (+11.17 from 8 files!)
+- [ ] **75%** - Phase 2 target (3.26 points away)
+- [ ] **80%** - Phase 3 milestone
 - [ ] **85%** - TARGET REACHED 🎉
 - [ ] **90%** - Stretch goal
 
@@ -572,6 +582,70 @@ composer test:coverage-check
 - Integration tests that exercise full setting→save→retrieve workflow
 
 **Next Steps:** Apply these patterns to remaining Settings field classes
+
+### 2025-10-17 - Major Test Coverage Push Complete 🎉
+
+**Created 7 additional comprehensive test files:**
+
+1. **WidgetStyleTest.php** (16 tests, 37 assertions)
+   - Tests all 5 widget style options (standard, none, small, large, video)
+   - HTML rendering with documentation links
+   - Default value handling
+
+2. **TextHighlightingTest.php** (27 tests, 66 assertions)
+   - Boolean checkbox behavior
+   - Sanitization with data providers (10 scenarios)
+   - Color input rendering for light/dark themes
+   - Integration tests with WordPress option filter
+
+3. **WidgetPositionTest.php** (15 tests, 30 assertions)
+   - All 4 position options (auto, center, left, right)
+   - Default value validation
+   - HTML rendering and preselection
+
+4. **AutoPublishTest.php** (23 tests, 50 assertions)
+   - Boolean setting with WordPress sanitization
+   - Option filter integration
+   - Data providers for various boolean inputs
+   - Checkbox rendering tests
+
+5. **IncludeTitleTest.php** (18 tests, 35 assertions)
+   - Similar to AutoPublish (boolean checkbox)
+   - Full WordPress integration
+   - Boolean sanitization validation
+
+6. **CallToActionTest.php** (15 tests, 30 assertions)
+   - Text input field
+   - XSS protection verification
+   - Special character handling
+   - Data providers for various messages
+
+7. **PlaybackControlsTest.php** (21 tests, 48 assertions)
+   - Text input with complex validation
+   - Documentation link verification
+   - Multiple format support (auto, segments, seconds, audios)
+   - Custom seconds format (seconds-15, seconds-15-30)
+
+**Total Session Results:**
+- **Files Created:** 8 test files
+- **Tests Added:** 171 tests
+- **Assertions Added:** 398 assertions
+- **All Tests Passing:** ✅ 609/609 tests pass
+- **Coverage Jump:** 60.57% → 71.74% (+11.17 points!)
+- **Progress to 85% Target:** 45.7% of the way there
+
+**Test Pattern Consistency:**
+All new test files follow the same modern PHP/WordPress patterns:
+- Strict typing throughout
+- Data providers for parameterized tests
+- setUp/tearDown for clean test state
+- WordPress globals testing
+- HTML rendering with Symfony DomCrawler
+- Integration tests covering full workflows
+- Descriptive test method names
+- Full type hints
+
+**Impact:** This represents nearly half the progress needed to reach the 85% coverage target!
 
 ### Testing Philosophy
 
