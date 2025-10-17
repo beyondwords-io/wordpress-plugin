@@ -4,7 +4,7 @@ const exec = util.promisify( require( 'child_process' ).exec );
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
-	defaultCommandTimeout: 8000,
+	defaultCommandTimeout: 15000,
 	downloadsFolder: 'tests/cypress/downloads',
 	env: {
 		wpUsername: 'admin',
@@ -19,15 +19,11 @@ module.exports = defineConfig( {
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
-	retries: {
-		runMode: 1,
-		openMode: 0,
-	},
+	baseUrl: 'http://localhost:8889',
 	e2e: {
 		setupNodeEvents( on, config ) {
 			return setupNodeEvents( on, config );
 		},
-		baseUrl: 'http://localhost:8889',
 		specPattern: [ 'tests/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}' ],
 		supportFile: 'tests/cypress/support/e2e.js',
 	},

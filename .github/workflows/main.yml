@@ -514,6 +514,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          headed: true # Temporarily set to headed to help with debugging
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
