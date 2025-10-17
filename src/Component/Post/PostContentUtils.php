@@ -165,13 +165,11 @@ class PostContentUtils
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
-     *
-     * @return array|null The segments.
      */
     public static function getSegments(int|\WP_Post $post): array
     {
         if (! has_blocks($post)) {
-            return null;
+            return [];
         }
 
         $titleSegment = (object) [

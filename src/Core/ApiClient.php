@@ -35,7 +35,7 @@ class ApiClient
     public static function getContent(int|string $contentId, int|string|null $projectId = null): array|false
     {
         if (! $projectId) {
-            $projectId = PostMetaUtils::getProjectId($contentId);
+            $projectId = get_option('beyondwords_project_id');
         }
 
         if (! $projectId || ! $contentId) {
