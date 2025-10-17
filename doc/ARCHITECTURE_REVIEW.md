@@ -1,8 +1,40 @@
 # Comprehensive Architectural Review: BeyondWords WordPress Plugin
 
 **Date:** 2025-10-17
-**Status:** In Progress
+**Status:** ⏸️ Paused - Ready to Continue
 **Overall Grade:** B+
+**Progress:** Phase 1 - 1/5 tasks completed (20%)
+
+---
+
+## 🚀 How to Continue
+
+To resume this architectural refactoring, use this prompt:
+
+```
+Continue with doc/ARCHITECTURE_REVIEW.md
+```
+
+**Next Recommended Task:** Phase 1, Task 3 - Rename Utils Classes (Quick Win, 1-2 hours)
+
+### Quick Reference
+
+| Phase | Task | Status | Effort | Priority |
+|-------|------|--------|--------|----------|
+| 1 | Rename Post/Posts | ✅ Skipped | N/A | Low |
+| 1 | Delete Response.php | ✅ Done | 5 min | Done |
+| 1 | **Rename Utils Classes** | ⏭️ **Next** | 1-2 hrs | 🟢 Quick Win |
+| 1 | Add README files | ❌ Pending | 2-3 hrs | 🟢 Quick Win |
+| 1 | Split CoreUtils | ❌ Pending | 3-4 hrs | 🟢 Quick Win |
+| 2 | Refactor SettingsUtils | ❌ Pending | 1-2 days | 🟡 Medium |
+| 2 | Refactor PostMetaUtils | ❌ Pending | 1 day | 🟡 Medium |
+| 2 | Rename Core.php | ❌ Pending | 2-3 days | 🟡 Medium |
+| 2 | Add Interfaces | ❌ Pending | 1 day | 🟡 Medium |
+| 3 | **Split ApiClient** | ❌ Pending | 2-3 days | 🔴 High Impact |
+| 3 | Reorganize Core/ | ❌ Pending | 2-3 days | 🔴 Large |
+| 3 | Create Value Objects | ❌ Pending | 1 week | 🔵 Optional |
+
+See [Progress Tracking](#progress-tracking) section below for full details.
 
 ---
 
@@ -23,7 +55,7 @@ This WordPress plugin demonstrates a **transition state** between traditional Wo
 - ⚠️ Utils classes mixing concerns instead of focused services
 - ⚠️ Limited use of interfaces/contracts
 - ~~⚠️ Response.php class appears unused~~ ✅ **FIXED 2025-10-17**
-- ⚠️ Inconsistent naming (Post vs Posts components)
+- ~~⚠️ Inconsistent naming (Post vs Posts components)~~ ✅ **ACCEPTED AS-IS 2025-10-17** (WordPress convention)
 
 ---
 
@@ -510,11 +542,16 @@ $ grep -r "use.*Response" src/
 
 **Estimated Total Effort:** 1-2 days
 
-1. ✅ **Rename Post/Posts Components**
-   - `Component/Post/` → `Component/Post/Editor/`
-   - `Component/Posts/` → `Component/Post/List/`
-   - **Effort:** 2-3 hours (namespace changes + find/replace)
-   - **Status:** ❌ Not Started
+1. ⚠️ **Rename Post/Posts Components** - **SKIPPED**
+   - **Original Plan:** `Component/Post/` → `Component/Post/Editor/`, `Component/Posts/` → `Component/Post/List/`
+   - **Issue Identified (2025-10-17):** The name "Editor" is misleading
+     - Most `Component/Post/*` components are admin-focused (metaboxes, Block Editor, Classic Editor)
+     - BUT they're not just for "editing" - they handle save hooks, metadata, business logic
+     - Frontend rendering is in `Core/Player/`, not `Component/Post/`
+     - The singular/plural distinction (`Post` vs `Posts`) actually makes sense in WordPress context
+   - **Decision:** **Current structure is acceptable** - Not worth the refactoring cost
+   - **Better Alternative:** Add a `Component/Post/README.md` explaining the structure
+   - **Status:** ✅ **DECISION MADE** - Skip this task, focus on higher-value refactorings
 
 2. ✅ **Delete Response.php**
    - Remove unused code
@@ -677,20 +714,48 @@ Based on WordPress ecosystem considerations:
 ## Progress Tracking
 
 ### Completed ✅
-- Architectural review completed (2025-10-17)
-- Documentation created (2025-10-17)
-- **Phase 1, Task 2:** Deleted unused Response.php class (2025-10-17)
-  - Removed `src/Core/Response.php` and its test file
-  - Reduced test count from 434 to 429 tests
-  - All tests passing ✅
 
-### In Progress 🔄
-- Phase 1: Quick Wins (1/5 tasks completed)
+**Phase 1 Completed Tasks: 1/5 (20%)**
 
-### Not Started ❌
-- Phase 1: Tasks 1, 3, 4, 5 remaining
-- Phase 2: All tasks
-- Phase 3: All tasks
+1. ✅ **Task 1: Post/Posts Component Naming** (2025-10-17)
+   - **Decision:** SKIPPED - Current structure is acceptable
+   - **Rationale:** "Post" vs "Posts" follows WordPress conventions, renaming would be misleading
+
+2. ✅ **Task 2: Delete Response.php** (2025-10-17)
+   - **Completed:** Removed `src/Core/Response.php` and test file
+   - **Impact:** Test count reduced from 434 to 429
+   - **Verification:** All tests passing ✅
+
+### Next Up 🎯
+
+**Recommended Next Task: Phase 1, Task 3**
+
+**Task 3: Rename Utils Classes** (Estimated: 1-2 hours)
+- Rename `PostMetaUtils` → `PostMetadataRepository`
+- Rename `PostContentUtils` → `ContentTransformer`
+- Update all references
+- Quick win with high clarity improvement
+
+**To start:** Simply say "Continue with doc/ARCHITECTURE_REVIEW.md" and I'll begin Task 3.
+
+### Remaining Tasks ❌
+
+**Phase 1 Remaining (3 tasks):**
+- Task 4: Add Component README files
+- Task 5: Split CoreUtils into focused classes
+
+**Phase 2: Medium Effort (4 tasks)**
+- All tasks pending (see Phase 2 section above)
+
+**Phase 3: Large Refactors (3 tasks)**
+- All tasks pending (see Phase 3 section above)
+
+### Overall Status
+
+- **Completed:** 2 tasks (1 skipped, 1 completed)
+- **In Progress:** 0 tasks
+- **Remaining:** 11 tasks across 3 phases
+- **Estimated Total Remaining:** 3-5 weeks
 
 ---
 
