@@ -2,7 +2,7 @@
 
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 
-class GenerateAudioTest extends WP_UnitTestCase
+class GenerateAudioTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio

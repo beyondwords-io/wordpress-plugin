@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class PlayerUITest extends WP_UnitTestCase
+class PlayerUITest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI
@@ -74,9 +74,9 @@ class PlayerUITest extends WP_UnitTestCase
      */
     public function render()
     {
-        PlayerUI::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            PlayerUI::render();
+        });
 
         $crawler = new Crawler($html);
 

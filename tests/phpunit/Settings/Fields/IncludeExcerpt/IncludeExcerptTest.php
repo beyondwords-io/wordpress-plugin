@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class IncludeExcerptTest extends WP_UnitTestCase
+class IncludeExcerptTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt
@@ -73,9 +73,9 @@ class IncludeExcerptTest extends WP_UnitTestCase
      */
     public function render()
     {
-        IncludeExcerpt::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            IncludeExcerpt::render();
+        });
 
         $crawler = new Crawler($html);
 
@@ -84,9 +84,9 @@ class IncludeExcerptTest extends WP_UnitTestCase
 
         update_option('beyondwords_prepend_excerpt', '1');
 
-        IncludeExcerpt::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            IncludeExcerpt::render();
+        });
 
         $crawler = new Crawler($html);
 

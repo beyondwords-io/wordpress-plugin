@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class SelectVoiceTest extends WP_UnitTestCase
+class SelectVoiceTest extends TestCase
 {
     public function setUp(): void
     {
@@ -63,9 +63,9 @@ class SelectVoiceTest extends WP_UnitTestCase
             ],
         ]);
 
-        SelectVoice::element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            SelectVoice::element($post);
+        });
 
         $crawler = new Crawler($html);
 

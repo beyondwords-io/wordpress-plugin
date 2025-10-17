@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\PlayerContent\PlayerContent;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PostPlayerContentTest extends WP_UnitTestCase
+class PostPlayerContentTest extends TestCase
 {
     public function setUp(): void
     {
@@ -57,9 +57,9 @@ class PostPlayerContentTest extends WP_UnitTestCase
             'post_title' => 'PostPlayerContentTest::element',
         ]);
 
-        PlayerContent::element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            PlayerContent::element($post);
+        });
 
         $crawler = new Crawler($html);
 

@@ -260,7 +260,7 @@ jobs:
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/phpunit -c ./phpunit.ci.xml
+        run: ./vendor/bin/phpunit
         env:
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
           BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"

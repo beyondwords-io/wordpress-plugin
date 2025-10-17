@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials;
  * @group settings-tabs
  * @group settings-tabs-credentials
  */
-class CredentialsTabTest extends WP_UnitTestCase
+class CredentialsTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Credentials\Credentials

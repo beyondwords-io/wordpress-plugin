@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\Updater;
 
-class UpdaterTest extends WP_UnitTestCase
+class UpdaterTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Core\Updater

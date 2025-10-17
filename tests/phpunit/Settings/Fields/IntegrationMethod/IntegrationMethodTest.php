@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class IntegrationMethodTest extends WP_UnitTestCase
+class IntegrationMethodTest extends TestCase
 {
     public function setUp(): void
     {
@@ -67,9 +67,9 @@ class IntegrationMethodTest extends WP_UnitTestCase
      */
     public function render()
     {
-        IntegrationMethod::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            IntegrationMethod::render();
+        });
 
         $crawler = new Crawler($html);
 

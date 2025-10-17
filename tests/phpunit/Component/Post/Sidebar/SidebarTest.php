@@ -2,7 +2,7 @@
 
 use Beyondwords\Wordpress\Component\Post\Sidebar\Sidebar;
 
-class SidebarTest extends WP_UnitTestCase
+class SidebarTest extends TestCase
 {
     public function setUp(): void
     {

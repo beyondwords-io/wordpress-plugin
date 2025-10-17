@@ -3,7 +3,7 @@
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
-class BlockAttributesTest extends WP_UnitTestCase
+class BlockAttributesTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes

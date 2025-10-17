@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 
-class PostContentUtilsTest extends WP_UnitTestCase
+class PostContentUtilsTest extends TestCase
 {
     public function setUp(): void
     {

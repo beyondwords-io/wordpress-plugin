@@ -59,20 +59,74 @@ class SelectVoice
      */
     public static function element($post)
     {
-        $postLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
-        $postVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
-
-        $languageCode = $postLanguageCode ?: get_option('beyondwords_project_language_code');
-        $voiceId      = $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
-
+        $languageCode = self::getLanguageCode($post->ID);
+        $voiceId = self::getVoiceId($post->ID);
         $languages = ApiClient::getLanguages();
-        $voices    = ApiClient::getVoices($languageCode);
-
-        if (! is_array($voices)) {
-            $voices = [];
-        }
+        $voices = self::getVoicesForLanguage($languageCode);
 
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
+
+        self::renderLanguageSelect($languages, $languageCode);
+        self::renderVoiceSelect($voices, $voiceId, $languageCode);
+        self::renderLoadingSpinner();
+    }
+
+    /**
+     * Get the language code for a post.
+     *
+     * @since 6.0.0
+     *
+     * @param int $postId The post ID.
+     * @return string|false The language code or false if not set.
+     */
+    private static function getLanguageCode(int $postId)
+    {
+        $postLanguageCode = get_post_meta($postId, 'beyondwords_language_code', true);
+        return $postLanguageCode ?: get_option('beyondwords_project_language_code');
+    }
+
+    /**
+     * Get the voice ID for a post.
+     *
+     * @since 6.0.0
+     *
+     * @param int $postId The post ID.
+     * @return string|false The voice ID or false if not set.
+     */
+    private static function getVoiceId(int $postId)
+    {
+        $postVoiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
+        return $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
+    }
+
+    /**
+     * Get voices for a language code.
+     *
+     * @since 6.0.0
+     *
+     * @param string|false $languageCode The language code.
+     * @return array The voices array.
+     */
+    private static function getVoicesForLanguage($languageCode): array
+    {
+        if ($languageCode === false || $languageCode === '') {
+            return [];
+        }
+
+        $voices = ApiClient::getVoices($languageCode);
+        return is_array($voices) ? $voices : [];
+    }
+
+    /**
+     * Render the language select dropdown.
+     *
+     * @since 6.0.0
+     *
+     * @param array $languages The languages array.
+     * @param string|false $selectedLanguageCode The selected language code.
+     */
+    private static function renderLanguageSelect(array $languages, $selectedLanguageCode): void
+    {
         ?>
         <p
             id="beyondwords-metabox-select-voice--language-code"
@@ -85,20 +139,35 @@ class SelectVoice
         <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <?php
             foreach ($languages as $language) {
-                if (empty($language['code']) || empty($language['name'])  || empty($language['accent'])) {
+                if (empty($language['code']) || empty($language['name']) || empty($language['accent'])) {
                     continue;
                 }
                 printf(
                     '<option value="%s" data-default-voice-id="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
                     esc_attr($language['default_voices']['body']['id'] ?? ''),
-                    selected(strval($language['code']), strval($languageCode)),
+                    selected(strval($language['code']), strval($selectedLanguageCode)),
                     esc_html($language['name']),
                     esc_html($language['accent'])
                 );
             }
             ?>
         </select>
+        <?php
+    }
+
+    /**
+     * Render the voice select dropdown.
+     *
+     * @since 6.0.0
+     *
+     * @param array $voices The voices array.
+     * @param string|false $selectedVoiceId The selected voice ID.
+     * @param string|false $languageCode The language code.
+     */
+    private static function renderVoiceSelect(array $voices, $selectedVoiceId, $languageCode): void
+    {
+        ?>
         <p
             id="beyondwords-metabox-select-voice--voice-id"
             class="post-attributes-label-wrapper page-template-label-wrapper"
@@ -118,12 +187,23 @@ class SelectVoice
                 printf(
                     '<option value="%s" %s>%s</option>',
                     esc_attr($voice['id']),
-                    selected(strval($voice['id']), strval($voiceId)),
+                    selected(strval($voice['id']), strval($selectedVoiceId)),
                     esc_html($voice['name'])
                 );
             }
             ?>
         </select>
+        <?php
+    }
+
+    /**
+     * Render the loading spinner.
+     *
+     * @since 6.0.0
+     */
+    private static function renderLoadingSpinner(): void
+    {
+        ?>
         <img
             src="/wp-admin/images/spinner.gif"
             class="beyondwords-settings__loader"

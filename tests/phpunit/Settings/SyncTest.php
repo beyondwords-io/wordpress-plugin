@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\Sync;
 
-class SyncTest extends WP_UnitTestCase
+class SyncTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Sync

@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PostPlayerStyleTest extends WP_UnitTestCase
+class PostPlayerStyleTest extends TestCase
 {
     public function setUp(): void
     {
@@ -58,9 +58,9 @@ class PostPlayerStyleTest extends WP_UnitTestCase
             'post_title' => 'PostPlayerStyleTest::element',
         ]);
 
-        PlayerStyle::element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            PlayerStyle::element($post);
+        });
 
         $crawler = new Crawler($html);
 

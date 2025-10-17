@@ -10,7 +10,7 @@ use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
  *
  * Constructs the parameters object for the BeyondWords JS SDK.
  */
-class ConfigBuilderTest extends WP_UnitTestCase
+class ConfigBuilderTest extends TestCase
 {
     public function setUp(): void
     {

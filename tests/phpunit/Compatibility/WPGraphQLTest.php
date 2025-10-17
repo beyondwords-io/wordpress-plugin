@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 
-class WPGraphQLTest extends WP_UnitTestCase
+class WPGraphQLTest extends TestCase
 {
     public function setUp(): void
     {

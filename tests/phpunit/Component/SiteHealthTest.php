@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
 use Beyondwords\Wordpress\Core\Environment;
 
-class SiteHealthTest extends WP_UnitTestCase
+class SiteHealthTest extends TestCase
 {
     /**
      * @var array

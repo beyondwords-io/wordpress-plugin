@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class ApiKeyTest extends WP_UnitTestCase
+class ApiKeyTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\ApiKey\ApiKey
@@ -72,9 +72,9 @@ class ApiKeyTest extends WP_UnitTestCase
      */
     public function render()
     {
-        ApiKey::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            ApiKey::render();
+        });
 
         $crawler = new Crawler($html);
 

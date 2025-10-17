@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\Environment;
 
-class EnvironmentTest extends WP_UnitTestCase
+class EnvironmentTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Core\Environment

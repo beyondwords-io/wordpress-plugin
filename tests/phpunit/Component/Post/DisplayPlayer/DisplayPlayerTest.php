@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class DisplayPlayerTest extends WP_UnitTestCase
+class DisplayPlayerTest extends TestCase
 {
     public function setUp(): void
     {
@@ -79,9 +79,9 @@ class DisplayPlayerTest extends WP_UnitTestCase
      */
     public function element()
     {
-        DisplayPlayer::element(null);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            DisplayPlayer::element(null);
+        });
 
         $this->assertSame('', $html);
 
@@ -89,9 +89,9 @@ class DisplayPlayerTest extends WP_UnitTestCase
             'post_title' => 'DisplayPlayerTest::element',
         ]);
 
-        DisplayPlayer::element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            DisplayPlayer::element($post);
+        });
 
         $crawler = new Crawler($html);
 

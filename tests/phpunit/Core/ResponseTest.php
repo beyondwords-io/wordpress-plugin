@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\Response;
 
-class ResponseTest extends WP_UnitTestCase
+class ResponseTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Core\Response;

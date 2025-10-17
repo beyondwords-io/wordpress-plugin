@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
  * @group settings-tabs
  * @group settings-tabs-voices
  */
-class VoicesTabTest extends WP_UnitTestCase
+class VoicesTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices

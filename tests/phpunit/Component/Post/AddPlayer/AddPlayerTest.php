@@ -2,7 +2,7 @@
 
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 
-class AddPlayerTest extends WP_UnitTestCase
+class AddPlayerTest extends TestCase
 {
     public function setUp(): void
     {
@@ -109,9 +109,9 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function addEditorStyles()
     {
-        AddPlayer::addEditorStyles();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            AddPlayer::addEditorStyles();
+        });
 
         $this->assertSame('<style>' . AddPlayer::playerPreviewI18nStyles() . '</style>', $html);
     }

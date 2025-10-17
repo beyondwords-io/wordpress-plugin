@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player;
  * @group settings-tabs
  * @group settings-tabs-player
  */
-class PlayerTabTest extends WP_UnitTestCase
+class PlayerTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Player\Player

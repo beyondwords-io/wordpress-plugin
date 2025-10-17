@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations;
  * @group settings-tabs
  * @group settings-tabs-pronunciations
  */
-class PronunciationsTabTest extends WP_UnitTestCase
+class PronunciationsTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Pronunciations\Pronunciations

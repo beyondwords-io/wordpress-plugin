@@ -6,7 +6,7 @@ use Beyondwords\Wordpress\Component\Settings\Settings;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class SettingsTest extends WP_UnitTestCase
+class SettingsTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Settings
@@ -77,9 +77,9 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function createAdminInterface()
     {
-        Settings::createAdminInterface();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::createAdminInterface();
+        });
 
         $crawler = new Crawler($html);
 
@@ -138,9 +138,10 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function printSettingsErrorsWithoutErrors()
     {
-        Settings::printSettingsErrors();
+        $html = $this->captureOutput(function () {
+            Settings::printSettingsErrors();
+        });
 
-        $html = $this->getActualOutput();
         $this->assertSame('', $html);
     }
 
@@ -156,9 +157,9 @@ class SettingsTest extends WP_UnitTestCase
 
         wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
-        Settings::printSettingsErrors();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::printSettingsErrors();
+        });
 
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
         $this->assertStringContainsString('<li>Errors test 2</li>', $html);
@@ -173,9 +174,10 @@ class SettingsTest extends WP_UnitTestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
-        Settings::printMissingApiCredsWarning();
+        $html = $this->captureOutput(function () {
+            Settings::printMissingApiCredsWarning();
+        });
 
-        $html = $this->getActualOutput();
         $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
@@ -194,9 +196,10 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        Settings::printMissingApiCredsWarning();
+        $html = $this->captureOutput(function () {
+            Settings::printMissingApiCredsWarning();
+        });
 
-        $html = $this->getActualOutput();
         $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
@@ -217,9 +220,10 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
-        Settings::printMissingApiCredsWarning();
+        $html = $this->captureOutput(function () {
+            Settings::printMissingApiCredsWarning();
+        });
 
-        $html = $this->getActualOutput();
         $this->assertNotEmpty($html);
 
         $crawler = new Crawler($html);
@@ -241,9 +245,10 @@ class SettingsTest extends WP_UnitTestCase
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        Settings::printMissingApiCredsWarning();
+        $html = $this->captureOutput(function () {
+            Settings::printMissingApiCredsWarning();
+        });
 
-        $html = $this->getActualOutput();
         $this->assertSame('', $html);
 
         delete_option('beyondwords_api_key');
@@ -262,9 +267,9 @@ class SettingsTest extends WP_UnitTestCase
 
         wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
-        Settings::printSettingsErrors();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::printSettingsErrors();
+        });
 
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
         $this->assertStringContainsString('<li>Errors test 2</li>', $html);
@@ -373,8 +378,9 @@ class SettingsTest extends WP_UnitTestCase
      */
     public function maybePrintPluginReviewNoticeWithNoOptions()
     {
-        Settings::maybePrintPluginReviewNotice();
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::maybePrintPluginReviewNotice();
+        });
 
         $this->assertSame('', $html);
     }
@@ -386,8 +392,9 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-13 days')));
 
-        Settings::maybePrintPluginReviewNotice();
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::maybePrintPluginReviewNotice();
+        });
 
         $this->assertSame('', $html);
 
@@ -402,8 +409,9 @@ class SettingsTest extends WP_UnitTestCase
         update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
         update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM, strtotime('-1 second')));
 
-        Settings::maybePrintPluginReviewNotice();
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::maybePrintPluginReviewNotice();
+        });
 
         $this->assertSame('', $html);
 
@@ -418,8 +426,9 @@ class SettingsTest extends WP_UnitTestCase
     {
         update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
 
-        Settings::maybePrintPluginReviewNotice();
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Settings::maybePrintPluginReviewNotice();
+        });
 
         $crawler = new Crawler($html);
 

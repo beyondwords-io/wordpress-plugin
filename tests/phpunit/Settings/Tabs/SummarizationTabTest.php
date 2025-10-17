@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Summarization\Summarization;
  * @group settings-tabs
  * @group settings-tabs-summarization
  */
-class SummarizationTabTest extends WP_UnitTestCase
+class SummarizationTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Summarization\Summarization

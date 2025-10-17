@@ -2,7 +2,7 @@
 
 use Beyondwords\Wordpress\Component\Posts\Column\Column;
 
-class ColumnTest extends WP_UnitTestCase
+class ColumnTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Posts\Column\Column

@@ -7,7 +7,7 @@ use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\Player;
 use Symfony\Component\DomCrawler\Crawler;
 
-class PlayerTest extends WP_UnitTestCase
+class PlayerTest extends TestCase
 {
     public const PLAYER_HTML = '<script async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
 

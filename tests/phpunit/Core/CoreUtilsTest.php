@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\CoreUtils;
 
-class CoreUtilsTest extends WP_UnitTestCase
+class CoreUtilsTest extends TestCase
 {
     public function setUp(): void
     {

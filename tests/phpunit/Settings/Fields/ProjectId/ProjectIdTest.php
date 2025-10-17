@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class ProjectIdTest extends WP_UnitTestCase
+class ProjectIdTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId
@@ -72,9 +72,9 @@ class ProjectIdTest extends WP_UnitTestCase
      */
     public function render()
     {
-        ProjectId::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            ProjectId::render();
+        });
 
         $crawler = new Crawler($html);
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\Uninstaller;
 
-class UninstallerTest extends WP_UnitTestCase
+class UninstallerTest extends TestCase
 {
     public function setUp(): void
     {

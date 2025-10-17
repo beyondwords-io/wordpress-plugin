@@ -9,7 +9,7 @@ use \Symfony\Component\DomCrawler\Crawler;
  *
  * Responsible for rendering the JavaScript BeyondWords player.
  */
-class JavascriptTest extends WP_UnitTestCase
+class JavascriptTest extends TestCase
 {
     public function setUp(): void
     {

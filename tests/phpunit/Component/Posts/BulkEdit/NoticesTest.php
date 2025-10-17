@@ -3,7 +3,7 @@
 use Beyondwords\Wordpress\Component\Posts\BulkEdit\Notices;
 use \Symfony\Component\DomCrawler\Crawler;
 
-final class BulkEditNoticesTest extends WP_UnitTestCase
+final class BulkEditNoticesTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Posts\BulkEdit\Notices
@@ -52,9 +52,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
 
         $_GET['beyondwords_bulk_generated'] = '1';
 
-        Notices::generatedNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::generatedNotice();
+        });
 
         $this->assertEmpty($html);
     }
@@ -68,9 +68,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
 
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
 
-        Notices::generatedNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::generatedNotice();
+        });
 
         $this->assertEmpty($html);
     }
@@ -147,9 +147,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
         $_GET['beyondwords_bulk_generated'] = $numGenerated;
 
-        Notices::generatedNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::generatedNotice();
+        });
 
         $crawler = new Crawler($html);
 
@@ -189,9 +189,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
         $_GET['beyondwords_bulk_deleted'] = $numDeleted;
 
-        Notices::deletedNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::deletedNotice();
+        });
 
         $crawler = new Crawler($html);
 
@@ -231,9 +231,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
         $_GET['beyondwords_bulk_failed'] = $numFailed;
 
-        Notices::failedNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::failedNotice();
+        });
 
         $crawler = new Crawler($html);
 
@@ -273,9 +273,9 @@ final class BulkEditNoticesTest extends WP_UnitTestCase
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
         $_GET['beyondwords_bulk_error'] = $errorMessage;
 
-        Notices::errorNotice();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Notices::errorNotice();
+        });
 
         $crawler = new Crawler($html);
 

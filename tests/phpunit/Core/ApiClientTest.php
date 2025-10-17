@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Request;
 
-class ApiClientTest extends WP_UnitTestCase
+class ApiClientTest extends TestCase
 {
     public function setUp(): void
     {

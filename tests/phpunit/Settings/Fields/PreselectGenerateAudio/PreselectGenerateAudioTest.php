@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class PreselectGenerateAudioTest extends WP_UnitTestCase
+class PreselectGenerateAudioTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio
@@ -78,9 +78,9 @@ class PreselectGenerateAudioTest extends WP_UnitTestCase
 
         update_option('beyondwords_preselect', ['post' => ['category' => [$childCategory]]]);
 
-        PreselectGenerateAudio::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            PreselectGenerateAudio::render();
+        });
 
         $crawler = new Crawler($html);
 

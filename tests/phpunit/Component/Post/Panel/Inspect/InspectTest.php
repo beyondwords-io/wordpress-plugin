@@ -3,7 +3,7 @@
 use Beyondwords\Wordpress\Component\Post\Panel\Inspect\Inspect;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class InspectTest extends \WP_UnitTestCase
+class InspectTest extends TestCase
 {
     /**
      * @var \WpunitTester
@@ -78,9 +78,9 @@ class InspectTest extends \WP_UnitTestCase
             'meta_input' => $postMeta,
         ]);
 
-        Inspect::renderMetaBoxContent($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            Inspect::renderMetaBoxContent($post);
+        });
 
         $crawler = new Crawler($html);
 

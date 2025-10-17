@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Core\Core;
 
-class CoreTest extends WP_UnitTestCase
+class CoreTest extends TestCase
 {
     public function setUp(): void
     {

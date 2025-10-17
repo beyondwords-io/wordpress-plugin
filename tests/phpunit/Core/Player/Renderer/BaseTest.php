@@ -10,7 +10,7 @@ use \Symfony\Component\DomCrawler\Crawler;
  *
  * Renders the AMP-compatible BeyondWords player.
  */
-class BaseTest extends WP_UnitTestCase
+class BaseTest extends TestCase
 {
     public function setUp(): void
     {

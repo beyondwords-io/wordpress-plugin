@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class SettingsPlayerStyleTest extends WP_UnitTestCase
+class SettingsPlayerStyleTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle
@@ -74,9 +74,9 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
      */
     public function render()
     {
-        PlayerStyle::render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            PlayerStyle::render();
+        });
 
         $crawler = new Crawler($html);
 

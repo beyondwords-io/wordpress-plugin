@@ -2,7 +2,7 @@
 
 use Beyondwords\Wordpress\Component\Post\ErrorNotice\ErrorNotice;
 
-class ErrorNoticeTest extends WP_UnitTestCase
+class ErrorNoticeTest extends TestCase
 {
     public function setUp(): void
     {
