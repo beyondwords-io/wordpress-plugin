@@ -18,8 +18,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 /**
  * "Credentials" settings tab
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Credentials

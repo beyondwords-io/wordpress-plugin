@@ -20,9 +20,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
 
 /**
  * "Voices" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Voices

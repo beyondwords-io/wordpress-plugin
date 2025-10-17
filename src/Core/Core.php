@@ -9,9 +9,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\Integratio
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
-/**
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- **/
 class Core
 {
     /**

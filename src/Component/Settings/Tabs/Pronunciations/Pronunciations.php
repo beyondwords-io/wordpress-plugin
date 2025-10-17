@@ -16,9 +16,6 @@ use Beyondwords\Wordpress\Core\Environment;
 
 /**
  * "Pronunciations" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Pronunciations

@@ -16,9 +16,6 @@ use Beyondwords\Wordpress\Core\Environment;
 
 /**
  * "Summarization" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.3.0
  */
 class Summarization
