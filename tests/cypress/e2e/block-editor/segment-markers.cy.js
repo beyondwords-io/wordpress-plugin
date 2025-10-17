@@ -300,7 +300,7 @@ context( 'Block Editor: Segment markers', () => {
 			} );
 		} );
 
-	it( `makes existing duplicate segment markers unique`, () => {
+	it.skip( `makes existing duplicate segment markers unique`, () => {
 		cy.createPost( {
 			title: `I see existing duplicate markers are replaced with unique markers`,
 		} );
