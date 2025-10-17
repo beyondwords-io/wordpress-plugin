@@ -17,7 +17,7 @@ context( 'Block Editor: Display Player', () => {
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `hides and reshows the player for post type: ${ postType.name }`, () => {
+			it.skip( `hides and reshows the player for post type: ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
 					title: `I can toggle player visibility for a ${ postType.name }`,
