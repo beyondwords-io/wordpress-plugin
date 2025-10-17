@@ -337,11 +337,9 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ['8.4']
-        phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.1'
-          phpunit-version: '9'
+        - php-version: '8.0'
           operating-system: ['ubuntu-latest']
 
     env:
@@ -369,7 +367,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: phpunit:${{ matrix.phpunit-version }}, composer, wp-cli
+          tools: composer, wp-cli
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
