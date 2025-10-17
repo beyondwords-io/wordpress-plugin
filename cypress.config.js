@@ -19,8 +19,8 @@ module.exports = defineConfig( {
 	reporterOptions: {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
-	baseUrl: 'http://localhost:8889',
 	e2e: {
+		baseUrl: 'http://localhost:8889',
 		setupNodeEvents( on, config ) {
 			return setupNodeEvents( on, config );
 		},
