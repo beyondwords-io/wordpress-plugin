@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
-use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -26,6 +23,6 @@ return RectorConfig::configure()
         codeQuality: false, // Don't auto-refactor code quality (too aggressive for WordPress)
     )
     ->withPhpSets(
-        php80: true // Use PHP 8.0 features
+        php81: true // Use PHP 8.1 features
     )
     ->withTypeCoverageLevel(0); // Don't enforce type coverage (just clean up)
