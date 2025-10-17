@@ -41,7 +41,7 @@ class Content
         (new IncludeExcerpt())::init();
         (new PreselectGenerateAudio())::init();
 
-        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
@@ -55,7 +55,7 @@ class Content
         add_settings_section(
             'content',
             __('Content', 'speechkit'),
-            array(__CLASS__, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_content',
         );
     }

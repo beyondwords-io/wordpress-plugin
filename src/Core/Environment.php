@@ -88,9 +88,6 @@ class Environment
      */
     public const BEYONDWORDS_AUTO_SYNC_SETTINGS = true;
 
-    /**
-     * @return string
-     */
     public static function getApiUrl(): string
     {
         if (defined('BEYONDWORDS_API_URL') && strlen(BEYONDWORDS_API_URL)) {
@@ -100,9 +97,6 @@ class Environment
         return static::BEYONDWORDS_API_URL;
     }
 
-    /**
-     * @return string
-     */
     public static function getBackendUrl(): string
     {
         if (defined('BEYONDWORDS_BACKEND_URL') && strlen(BEYONDWORDS_BACKEND_URL)) {
@@ -112,9 +106,6 @@ class Environment
         return static::BEYONDWORDS_BACKEND_URL;
     }
 
-    /**
-     * @return string
-     */
     public static function getJsSdkUrl(): string
     {
         if (defined('BEYONDWORDS_JS_SDK_URL') && strlen(BEYONDWORDS_JS_SDK_URL)) {
@@ -124,9 +115,6 @@ class Environment
         return static::BEYONDWORDS_JS_SDK_URL;
     }
 
-    /**
-     * @return string
-     */
     public static function getAmpPlayerUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_PLAYER_URL') && strlen(BEYONDWORDS_AMP_PLAYER_URL)) {
@@ -136,9 +124,6 @@ class Environment
         return static::BEYONDWORDS_AMP_PLAYER_URL;
     }
 
-    /**
-     * @return string
-     */
     public static function getAmpImgUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_IMG_URL') && strlen(BEYONDWORDS_AMP_IMG_URL)) {
@@ -148,9 +133,6 @@ class Environment
         return static::BEYONDWORDS_AMP_IMG_URL;
     }
 
-    /**
-     * @return string
-     */
     public static function getDashboardUrl(): string
     {
         if (defined('BEYONDWORDS_DASHBOARD_URL') && strlen(BEYONDWORDS_DASHBOARD_URL)) {
@@ -160,9 +142,6 @@ class Environment
         return static::BEYONDWORDS_DASHBOARD_URL;
     }
 
-    /**
-     * @return bool
-     */
     public static function hasAutoSyncSettings(): bool
     {
         $value = static::BEYONDWORDS_AUTO_SYNC_SETTINGS;

@@ -23,10 +23,7 @@ class Request
     /**
      * Request constructor.
      *
-     * @param string $method
-     * @param string $url
      * @param mixed $body
-     * @param array $headers
      *
      * @return void
      */
@@ -59,8 +56,6 @@ class Request
 
     /**
      * Get the HTTP method for the request.
-     *
-     * @return string
      */
     public function getMethod(): string
     {
@@ -70,9 +65,7 @@ class Request
     /**
      * Set the HTTP method for the request.
      *
-     * @param string $method
      *
-     * @return void
      */
     public function setMethod(string $method): void
     {
@@ -81,8 +74,6 @@ class Request
 
     /**
      * Get the URL for the request.
-     *
-     * @return string
      */
     public function getUrl(): string
     {
@@ -92,9 +83,7 @@ class Request
     /**
      * Set the URL for the request.
      *
-     * @param string $url
      *
-     * @return void
      */
     public function setUrl(string $url): void
     {
@@ -103,8 +92,6 @@ class Request
 
     /**
      * Get the body for the request.
-     *
-     * @return string
      */
     public function getBody(): string
     {
@@ -114,9 +101,7 @@ class Request
     /**
      * Set the body for the request.
      *
-     * @param string $body
      *
-     * @return void
      */
     public function setBody(string $body): void
     {
@@ -125,8 +110,6 @@ class Request
 
     /**
      * Get the headers for the request.
-     *
-     * @return array
      */
     public function getHeaders(): array
     {
@@ -136,9 +119,7 @@ class Request
     /**
      * Set the headers to the request.
      *
-     * @param array $headers
      *
-     * @return void
      */
     public function setHeaders(array $headers): void
     {
@@ -150,14 +131,12 @@ class Request
      *
      * @since 6.0.0 Introduced.
      *
-     * @param array $headers
      *
-     * @return void
      */
     public function addHeaders(array $headers): void
     {
         $this->setHeaders(array_merge(
-            (array) $this->getHeaders(),
+            $this->getHeaders(),
             $headers
         ));
     }

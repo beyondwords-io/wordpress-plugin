@@ -63,7 +63,7 @@ class IntegrationMethod
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
     }
 
     /**
@@ -87,7 +87,7 @@ class IntegrationMethod
         add_settings_field(
             'beyondwords-integration-method',
             __('Integration method', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_content',
             'content'
         );

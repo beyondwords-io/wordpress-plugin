@@ -42,7 +42,7 @@ class IncludeExcerpt
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_filter('option_' . self::OPTION_NAME, 'rest_sanitize_boolean');
     }
 
@@ -70,7 +70,7 @@ class IncludeExcerpt
         add_settings_field(
             'beyondwords-include-excerpt',
             __('Excerpt', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_content',
             'content'
         );

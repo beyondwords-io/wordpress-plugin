@@ -191,13 +191,13 @@ class ApiClient
 
         $request = new Request('POST', $url, $body);
 
-        $args = array(
+        $args = [
             'blocking' => true,
             'body'     => $request->getBody(),
             'headers'  => $request->getHeaders(),
             'method'   => $request->getMethod(),
             'timeout'  => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-        );
+        ];
 
         $response = wp_remote_request($request->getUrl(), $args);
 
@@ -604,8 +604,6 @@ class ApiClient
      * @since 5.2.0 Make static.
      *
      * @param int $postId WordPress post ID.
-     *
-     * @return void
      */
     public static function deleteErrors(int|false $postId): void
     {
@@ -632,8 +630,6 @@ class ApiClient
      * @param int    $postId  WordPress post ID.
      * @param string $message Error message.
      * @param int    $code    Error code.
-     *
-     * @return void
      */
     public static function saveErrorMessage(int|false $postId, string $message = '', int|string $code = 500): void
     {

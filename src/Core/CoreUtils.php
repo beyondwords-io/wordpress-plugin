@@ -143,24 +143,12 @@ class CoreUtils
             '_speechkit_text',
         ];
 
-        $keys = [];
-
-        switch ($type) {
-            case 'current':
-                $keys = $current;
-                break;
-            case 'deprecated':
-                $keys = $deprecated;
-                break;
-            case 'all':
-                $keys = array_merge($current, $deprecated);
-                break;
-            default:
-                throw new \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()');
-                break;
-        }
-
-        return $keys;
+        return match ($type) {
+            'current' => $current,
+            'deprecated' => $deprecated,
+            'all' => array_merge($current, $deprecated),
+            default => throw new \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()'),
+        };
     }
 
     /**
@@ -238,23 +226,11 @@ class CoreUtils
             'speechkit_wordpress_cron',
         ];
 
-        $keys = [];
-
-        switch ($type) {
-            case 'current':
-                $keys = $current;
-                break;
-            case 'deprecated':
-                $keys = $deprecated;
-                break;
-            case 'all':
-                $keys = array_merge($current, $deprecated);
-                break;
-            default:
-                throw new \Exception('Unexpected $type param for CoreUtils::getOptions()');
-                break;
-        }
-
-        return $keys;
+        return match ($type) {
+            'current' => $current,
+            'deprecated' => $deprecated,
+            'all' => array_merge($current, $deprecated),
+            default => throw new \Exception('Unexpected $type param for CoreUtils::getOptions()'),
+        };
     }
 }

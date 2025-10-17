@@ -36,7 +36,7 @@ class WidgetStyle
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -64,7 +64,7 @@ class WidgetStyle
         add_settings_field(
             'beyondwords-widget-style',
             __('Widget style', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_player',
             'widget'
         );
@@ -122,7 +122,7 @@ class WidgetStyle
      **/
     public static function getOptions()
     {
-        $options = [
+        return [
             [
                 'value' => 'standard',
                 'label' => __('Standard', 'speechkit'),
@@ -144,7 +144,5 @@ class WidgetStyle
                 'label' => __('Video', 'speechkit'),
             ],
         ];
-
-        return $options;
     }
 }

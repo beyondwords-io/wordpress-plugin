@@ -36,7 +36,7 @@ class ProjectId
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
     }
 
     /**
@@ -54,14 +54,14 @@ class ProjectId
             self::OPTION_NAME,
             [
                 'default'           => '',
-                'sanitize_callback' => array(__CLASS__, 'sanitize'),
+                'sanitize_callback' => [self::class, 'sanitize'],
             ]
         );
 
         add_settings_field(
             'beyondwords-project-id',
             __('Project ID', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_credentials',
             'credentials'
         );

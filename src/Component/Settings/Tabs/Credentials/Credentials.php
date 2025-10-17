@@ -35,7 +35,7 @@ class Credentials
         (new ApiKey())::init();
         (new ProjectId())::init();
 
-        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
@@ -49,7 +49,7 @@ class Credentials
         add_settings_section(
             'credentials',
             __('Credentials', 'speechkit'),
-            array(__CLASS__, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_credentials',
         );
     }

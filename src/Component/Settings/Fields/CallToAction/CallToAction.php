@@ -36,7 +36,7 @@ class CallToAction
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -64,7 +64,7 @@ class CallToAction
         add_settings_field(
             'beyondwords-player-call-to-action',
             __('Call-to-action', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_player',
             'styling'
         );

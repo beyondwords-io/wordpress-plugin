@@ -32,15 +32,15 @@ class AddPlayer
      */
     public static function init()
     {
-        add_action('init', array(__CLASS__, 'registerBlock'));
-        add_action('enqueue_block_editor_assets', array(__CLASS__, 'addBlockEditorStylesheet'));
+        add_action('init', [self::class, 'registerBlock']);
+        add_action('enqueue_block_editor_assets', [self::class, 'addBlockEditorStylesheet']);
 
-        add_action('admin_head', array(__CLASS__, 'addEditorStyles'));
-        add_filter('tiny_mce_before_init', array(__CLASS__, 'filterTinyMceSettings'));
+        add_action('admin_head', [self::class, 'addEditorStyles']);
+        add_filter('tiny_mce_before_init', [self::class, 'filterTinyMceSettings']);
 
-        add_filter('mce_external_plugins', array(__CLASS__, 'addPlugin'));
-        add_filter('mce_buttons', array(__CLASS__, 'addButton'));
-        add_filter('mce_css', array(__CLASS__, 'addStylesheet'));
+        add_filter('mce_external_plugins', [self::class, 'addPlugin']);
+        add_filter('mce_buttons', [self::class, 'addButton']);
+        add_filter('mce_css', [self::class, 'addStylesheet']);
     }
 
     /**
@@ -60,8 +60,6 @@ class AddPlayer
      * @since 6.0.0 Make static.
      *
      * @param array TinyMCE plugin array
-     *
-     * @return array
      */
     public static function addPlugin(array $plugin_array): array
     {
@@ -75,8 +73,6 @@ class AddPlayer
      * @since 6.0.0 Make static.
      *
      * @param array TinyMCE buttons array
-     *
-     * @return array
      */
     public static function addButton(array $buttons): array
     {
@@ -156,9 +152,9 @@ class AddPlayer
      */
     public static function addEditorStyles()
     {
-        $allowed_html = array(
-            'style' => array(),
-        );
+        $allowed_html = [
+            'style' => [],
+        ];
 
         echo wp_kses(
             sprintf('<style>%s</style>', self::playerPreviewI18nStyles()),
@@ -179,7 +175,7 @@ class AddPlayer
             wp_enqueue_style(
                 'beyondwords-AddPlayer',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css',
-                array(),
+                [],
                 BEYONDWORDS__PLUGIN_VERSION
             );
         }

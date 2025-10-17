@@ -21,7 +21,7 @@ class Post
      */
     public static function init()
     {
-        add_action('wp_head', array(__CLASS__, 'addMetaTags'));
+        add_action('wp_head', [self::class, 'addMetaTags']);
     }
 
     /**

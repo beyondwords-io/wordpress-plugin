@@ -47,12 +47,12 @@ class PlayerContent
      */
     public static function init()
     {
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 10);
                 }
             }
         });

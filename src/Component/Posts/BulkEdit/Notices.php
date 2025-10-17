@@ -28,10 +28,10 @@ class Notices
      */
     public static function init()
     {
-        add_action('admin_notices', array(__CLASS__, 'generatedNotice'));
-        add_action('admin_notices', array(__CLASS__, 'deletedNotice'));
-        add_action('admin_notices', array(__CLASS__, 'failedNotice'));
-        add_action('admin_notices', array(__CLASS__, 'errorNotice'));
+        add_action('admin_notices', [self::class, 'generatedNotice']);
+        add_action('admin_notices', [self::class, 'deletedNotice']);
+        add_action('admin_notices', [self::class, 'failedNotice']);
+        add_action('admin_notices', [self::class, 'errorNotice']);
     }
 
     /**

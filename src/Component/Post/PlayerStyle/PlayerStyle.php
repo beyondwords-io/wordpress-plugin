@@ -43,14 +43,14 @@ class PlayerStyle
      */
     public static function init()
     {
-        add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
+        add_action('rest_api_init', [self::class, 'restApiInit']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 10);
                 }
             }
         });
@@ -150,13 +150,11 @@ class PlayerStyle
     public static function restApiInit()
     {
         // Player styles endpoint
-        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/player-styles', array(
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/player-styles', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'playerStylesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'playerStylesRestApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
     }
 
     /**

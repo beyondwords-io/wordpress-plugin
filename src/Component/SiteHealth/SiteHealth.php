@@ -79,7 +79,7 @@ class SiteHealth
      */
     public static function init()
     {
-        add_filter('debug_information', array(__CLASS__, 'debugInformation'));
+        add_filter('debug_information', [self::class, 'debugInformation']);
     }
 
     /**
@@ -88,9 +88,7 @@ class SiteHealth
      * @since 3.7.0
      * @since 6.0.0 Make static.
      *
-     * @param array $info
      *
-     * @return array
      */
     public static function debugInformation(array $info): array
     {
@@ -143,8 +141,6 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
     public static function addContentSettings(array &$info): void
     {
@@ -179,8 +175,6 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
     public static function addProjectSettings(array &$info): void
     {
@@ -222,8 +216,6 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
     public static function addPlayerSettings(array &$info): void
     {
@@ -351,13 +343,13 @@ class SiteHealth
         ]);
 
         if (! is_wp_error($response)) {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => __('BeyondWords API is reachable', 'speechkit'),
                 'debug' => 'true',
-            );
+            ];
         } else {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => sprintf(
                     /* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
@@ -366,7 +358,7 @@ class SiteHealth
                     $response->get_error_message()
                 ),
                 'debug' => $response->get_error_message(),
-            );
+            ];
         }
     }
 
@@ -377,8 +369,6 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
     public static function addFilters(array &$info): void
     {
@@ -406,8 +396,6 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
     public static function addNoticeSettings(array &$info): void
     {
@@ -431,8 +419,6 @@ class SiteHealth
      *
      * @param array  $info Debugging info array
      * @param string $name Constant name
-     *
-     * @return array
      */
     public static function addConstant(array &$info, string $name): void
     {
@@ -461,10 +447,7 @@ class SiteHealth
      * @static
      *
      * @param string $string
-     * @param int $count
-     * @param string $char
      *
-     * @return string
      */
     public static function maskString(string|false $string, int $count = 4, string $char = 'X'): string
     {
@@ -475,7 +458,7 @@ class SiteHealth
         if (strlen($string) < 8) {
             return str_repeat($char, strlen($string));
         } else {
-            return str_repeat($char, strlen($string) - $count) . substr($string, (0 - $count));
+            return str_repeat($char, strlen($string) - $count) . substr($string, (-$count));
         }
     }
 }

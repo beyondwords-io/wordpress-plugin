@@ -138,8 +138,6 @@ class SettingsUtils
      *
      * @since  5.2.0
      * @static
-     *
-     * @return boolean
      */
     public static function hasApiCreds(): bool
     {
@@ -158,8 +156,6 @@ class SettingsUtils
      *
      * @since  5.2.0
      * @static
-     *
-     * @return boolean
      */
     public static function hasValidApiConnection(): bool
     {
@@ -172,8 +168,6 @@ class SettingsUtils
      * @since 5.0.0
      * @since 5.2.0 Moved from Sync class into SettingsUtils class.
      * @static
-     *
-     * @return boolean
      **/
     public static function validateApiConnection(): bool
     {
@@ -237,8 +231,6 @@ class SettingsUtils
      * @param string $label Content for the `<label>`
      * @param string $name  `name` attribute for the `<input />`
      * @param string $value `value` attribute for the `<input />`
-     *
-     * @return string
      */
     public static function colorInput(string $label, string $name, string $value): void
     {
@@ -270,8 +262,6 @@ class SettingsUtils
      *
      * @param string $message The error message.
      * @param string $errorId The error ID.
-     *
-     * @return void
      **/
     public static function addSettingsErrorMessage(string $message, string $errorId = ''): void
     {

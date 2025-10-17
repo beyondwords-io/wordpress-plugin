@@ -29,7 +29,7 @@ class ErrorNotice
      */
     public static function init()
     {
-        add_action('enqueue_block_assets', array(__CLASS__, 'enqueueBlockAssets'));
+        add_action('enqueue_block_assets', [self::class, 'enqueueBlockAssets']);
     }
 
     /**
@@ -45,7 +45,7 @@ class ErrorNotice
             wp_enqueue_style(
                 'beyondwords-ErrorNotice',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/ErrorNotice/error-notice.css',
-                array(),
+                [],
                 BEYONDWORDS__PLUGIN_VERSION
             );
         }

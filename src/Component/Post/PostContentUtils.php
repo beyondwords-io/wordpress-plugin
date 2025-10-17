@@ -204,9 +204,7 @@ class PostContentUtils
         $segments = array_values(array_merge([$titleSegment], [$summarySegment], $bodySegments));
 
         // Remove any segments with empty text
-        $segments = array_values(array_filter($segments, function ($segment) {
-            return (! empty($segment::text));
-        }));
+        $segments = array_values(array_filter($segments, fn($segment) => ! empty($segment::text)));
 
         return $segments;
     }
@@ -273,7 +271,7 @@ class PostContentUtils
 
         $allBlocks = parse_blocks($post->post_content);
 
-        $blocks = array_filter($allBlocks, function ($block) {
+        return array_filter($allBlocks, function ($block) {
             $enabled = true;
 
             if (is_array($block['attrs']) && isset($block['attrs']['beyondwordsAudio'])) {
@@ -282,8 +280,6 @@ class PostContentUtils
 
             return $enabled;
         });
-
-        return $blocks;
     }
 
     /**
@@ -451,8 +447,6 @@ class PostContentUtils
      * @since 3.10.4
      *
      * @param int $postId Post ID.
-     *
-     * @return string
      */
     public static function getAuthorName(int $postId): string
     {

@@ -67,9 +67,7 @@ class PostMetaUtils
 
         $metadata = has_meta($postId);
 
-        $metadata = array_filter($metadata, function ($item) use ($keysToCheck) {
-            return in_array($item['meta_key'], $keysToCheck);
-        });
+        $metadata = array_filter($metadata, fn($item) => in_array($item['meta_key'], $keysToCheck));
 
         // Prepend the WordPress Post ID to the meta data
         // phpcs:disable WordPress.DB.SlowDBQuery
@@ -307,8 +305,6 @@ class PostMetaUtils
      * @since 6.0.0 Add Magic Embed support.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      */
     public static function hasGenerateAudio(int $postId): bool
     {
@@ -487,8 +483,6 @@ class PostMetaUtils
      * @since 3.7.0
      *
      * @param int $postId Post ID.
-     *
-     * @return string
      */
     public static function getDisabled(int $postId): bool
     {

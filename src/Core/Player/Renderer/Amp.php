@@ -32,7 +32,6 @@ class Amp extends Base
     /**
      * Render AMP player HTML.
      *
-     * @param \WP_Post $post
      *
      * @return string HTML markup for AMP player.
      */

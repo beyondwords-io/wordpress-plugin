@@ -41,7 +41,7 @@ class PlayerStyle
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -69,7 +69,7 @@ class PlayerStyle
         add_settings_field(
             'beyondwords-player-style',
             __('Player style', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_player',
             'styling'
         );
@@ -99,7 +99,7 @@ class PlayerStyle
             <select name="<?php echo esc_attr(self::OPTION_NAME) ?>">
                 <?php
                 foreach ($options as $option) {
-                    $disabled = isset($option['disabled']) ? $option['disabled'] : false;
+                    $disabled = $option['disabled'] ?? false;
 
                     printf(
                         '<option value="%s" %s %s>%s</option>',
