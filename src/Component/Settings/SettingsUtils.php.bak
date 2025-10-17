@@ -34,7 +34,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getConsideredPostTypes(): array
+    public static function getConsideredPostTypes()
     {
         $postTypes = get_post_types();
 
@@ -80,7 +80,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getCompatiblePostTypes(): array
+    public static function getCompatiblePostTypes()
     {
         $postTypes = SettingsUtils::getConsideredPostTypes();
 
@@ -117,7 +117,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getIncompatiblePostTypes(): array
+    public static function getIncompatiblePostTypes()
     {
         $postTypes = SettingsUtils::getConsideredPostTypes();
 
@@ -141,7 +141,7 @@ class SettingsUtils
      *
      * @return boolean
      */
-    public static function hasApiCreds(): bool
+    public static function hasApiCreds()
     {
         $projectId = trim(strval(get_option('beyondwords_project_id')));
         $apiKey    = trim(strval(get_option('beyondwords_api_key')));
@@ -161,7 +161,7 @@ class SettingsUtils
      *
      * @return boolean
      */
-    public static function hasValidApiConnection(): bool
+    public static function hasValidApiConnection()
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
     }
@@ -175,7 +175,7 @@ class SettingsUtils
      *
      * @return boolean
      **/
-    public static function validateApiConnection(): bool
+    public static function validateApiConnection()
     {
         // This may have been left over from previous versions
         delete_transient('beyondwords_validate_api_connection');
@@ -240,7 +240,7 @@ class SettingsUtils
      *
      * @return string
      */
-    public static function colorInput(string $label, string $name, string $value): void
+    public static function colorInput($label, $name, $value)
     {
         ?>
         <div class="color-input">
@@ -273,7 +273,7 @@ class SettingsUtils
      *
      * @return void
      **/
-    public static function addSettingsErrorMessage(string $message, string $errorId = ''): void
+    public static function addSettingsErrorMessage($message, $errorId = '')
     {
         $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
 

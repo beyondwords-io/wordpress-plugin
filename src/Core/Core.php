@@ -20,7 +20,7 @@ class Core
      * @since 4.0.0
      * @since 6.0.0 Make static and stop loading plugin text domain on init.
      */
-    public static function init()
+    public static function init(): void
     {
         // Actions
         add_action('enqueue_block_editor_assets', array(__CLASS__, 'enqueueBlockEditorAssets'), 1, 0);
@@ -51,7 +51,7 @@ class Core
      *
      * @return boolean
      */
-    public static function shouldProcessPostStatus($status)
+    public static function shouldProcessPostStatus(string $status): bool
     {
         $statuses = ['pending', 'publish', 'private', 'future'];
 
@@ -92,7 +92,7 @@ class Core
      *
      * @return boolean
      */
-    public static function shouldGenerateAudioForPost($postId)
+    public static function shouldGenerateAudioForPost(int $postId): bool
     {
         // Ignore autosaves and revisions
         if (wp_is_post_autosave($postId) || wp_is_post_revision($postId)) {
@@ -125,9 +125,9 @@ class Core
      *
      * @param int $postId WordPress Post ID.
      *
-     * @return array|false Response from API, or false if audio was not generated.
+     * @return array|false|null Response from API, or false if audio was not generated.
      */
-    public static function generateAudioForPost($postId)
+    public static function generateAudioForPost(int $postId): array|false|null
     {
         // Perform checks to see if this post should be processed
         if (! self::shouldGenerateAudioForPost($postId)) {
@@ -182,9 +182,9 @@ class Core
      *
      * @param int $postId WordPress Post ID.
      *
-     * @return array|false Response from API, or false if audio was not generated.
+     * @return array|false|null Response from API, or false if audio was not generated.
      */
-    public static function deleteAudioForPost($postId)
+    public static function deleteAudioForPost(int $postId): array|false|null
     {
         return ApiClient::deleteAudio($postId);
     }
@@ -199,7 +199,7 @@ class Core
      *
      * @return array|false Response from API, or false if audio was not generated.
      */
-    public static function batchDeleteAudioForPosts($postIds)
+    public static function batchDeleteAudioForPosts(array $postIds): array|false|null
     {
         return ApiClient::batchDeleteAudio($postIds);
     }
@@ -214,7 +214,7 @@ class Core
      * @since 5.0.0 Stop saving `beyondwords_podcast_id`.
      * @since 6.0.0 Make static.
      */
-    public static function processResponse($response, $projectId, $postId)
+    public static function processResponse(mixed $response, int|string|false $projectId, int $postId): mixed
     {
         if (! is_array($response)) {
             return $response;
@@ -255,7 +255,7 @@ class Core
      * @since 4.5.1 Disable plugin features if we don't have valid API settings.
      * @since 6.0.0 Make static.
      */
-    public static function enqueueBlockEditorAssets()
+    public static function enqueueBlockEditorAssets(): void
     {
         if (! SettingsUtils::hasValidApiConnection()) {
             return;
@@ -291,7 +291,7 @@ class Core
      *
      * @return void
      **/
-    public static function registerMeta()
+    public static function registerMeta(): void
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -307,7 +307,7 @@ class Core
                     'object_subtype' => $postType,
                     'prepare_callback' => 'sanitize_text_field',
                     'sanitize_callback' => 'sanitize_text_field',
-                    'auth_callback' => function () {
+                    'auth_callback' => function (): bool {
                         return current_user_can('edit_posts');
                     },
                 );
@@ -328,7 +328,7 @@ class Core
      * @since 4.0.0
      * @since 6.0.0 Make static.
      */
-    public static function isProtectedMeta($protected, $metaKey)
+    public static function isProtectedMeta(bool $protected, string $metaKey): bool
     {
         $keysToProtect = CoreUtils::getPostMetaKeys('all');
 
@@ -354,7 +354,7 @@ class Core
      *
      * @return bool
      **/
-    public static function onTrashPost($postId)
+    public static function onTrashPost(int $postId): void
     {
         ApiClient::deleteAudio($postId);
         PostMetaUtils::removeAllBeyondwordsMetadata($postId);
@@ -373,7 +373,7 @@ class Core
      *
      * @return bool
      **/
-    public static function onDeletePost($postId)
+    public static function onDeletePost(int $postId): void
     {
         ApiClient::deleteAudio($postId);
     }
@@ -426,7 +426,7 @@ class Core
      *
      * @return mixed
      */
-    public static function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
+    public static function getLangCodeFromJsonIfEmpty(mixed $value, int $object_id, string $meta_key): mixed
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);

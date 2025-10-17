@@ -15,7 +15,7 @@ class Response
     /**
      * @param array $response
      */
-    public function __construct($response = array())
+    public function __construct(array $response = [])
     {
         if (array_key_exists('headers', $response)) {
             $this->headers = $response['headers'];
@@ -41,7 +41,7 @@ class Response
     /**
      * @return mixed
      */
-    public function getHeaders()
+    public function getHeaders(): mixed
     {
         return $this->headers;
     }
@@ -49,7 +49,7 @@ class Response
     /**
      * @param mixed $headers
      */
-    public function setHeaders($headers)
+    public function setHeaders(mixed $headers): void
     {
         $this->headers = $headers;
     }
@@ -57,7 +57,7 @@ class Response
     /**
      * @return mixed
      */
-    public function getBody()
+    public function getBody(): mixed
     {
         return $this->body;
     }
@@ -65,7 +65,7 @@ class Response
     /**
      * @param mixed $body
      */
-    public function setBody($body)
+    public function setBody(mixed $body): void
     {
         $this->body = $body;
     }
@@ -73,7 +73,7 @@ class Response
     /**
      * @return mixed
      */
-    public function getResponse()
+    public function getResponse(): mixed
     {
         return $this->response;
     }
@@ -81,7 +81,7 @@ class Response
     /**
      * @param mixed $response
      */
-    public function setResponse($response)
+    public function setResponse(mixed $response): void
     {
         $this->response = $response;
     }
@@ -89,7 +89,7 @@ class Response
     /**
      * @return mixed
      */
-    public function getCookies()
+    public function getCookies(): mixed
     {
         return $this->cookies;
     }
@@ -97,7 +97,7 @@ class Response
     /**
      * @param mixed $cookies
      */
-    public function setCookies($cookies)
+    public function setCookies(mixed $cookies): void
     {
         $this->cookies = $cookies;
     }
@@ -105,7 +105,7 @@ class Response
     /**
      * @return mixed
      */
-    public function getFilename()
+    public function getFilename(): mixed
     {
         return $this->filename;
     }
@@ -113,7 +113,7 @@ class Response
     /**
      * @param mixed $filename
      */
-    public function setFilename($filename)
+    public function setFilename(mixed $filename): void
     {
         $this->filename = $filename;
     }

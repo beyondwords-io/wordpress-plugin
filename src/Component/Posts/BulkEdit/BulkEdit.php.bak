@@ -55,7 +55,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function bulkEditCustomBox(string $columnName, string $postType): void
+    public static function bulkEditCustomBox($columnName, $postType)
     {
         if ($columnName !== 'beyondwords') {
             return;
@@ -133,10 +133,10 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function generateAudioForPosts(array|null $postIds): array
+    public static function generateAudioForPosts($postIds)
     {
         if (! is_array($postIds)) {
-            return [];
+            return false;
         }
 
         $updatedPostIds = [];
@@ -156,10 +156,10 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function deleteAudioForPosts(array|null $postIds): array
+    public static function deleteAudioForPosts($postIds)
     {
         if (! is_array($postIds)) {
-            return [];
+            return false;
         }
 
         $updatedPostIds = [];
@@ -188,7 +188,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function bulkActionsEdit(array $bulk_array): array
+    public static function bulkActionsEdit($bulk_array)
     {
         $bulk_array['beyondwords_generate_audio'] = __('Generate audio', 'speechkit');
         $bulk_array['beyondwords_delete_audio']   = __('Delete audio', 'speechkit');
@@ -201,7 +201,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function handleBulkGenerateAction(string $redirect, string $doaction, array $objectIds): string
+    public static function handleBulkGenerateAction($redirect, $doaction, $objectIds)
     {
         if ($doaction !== 'beyondwords_generate_audio') {
             return $redirect;
@@ -259,7 +259,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function handleBulkDeleteAction(string $redirect, string $doaction, array $objectIds): string
+    public static function handleBulkDeleteAction($redirect, $doaction, $objectIds)
     {
         if ($doaction !== 'beyondwords_delete_audio') {
             return $redirect;

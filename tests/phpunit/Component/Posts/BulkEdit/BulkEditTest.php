@@ -233,7 +233,7 @@ final class BulkEditTest extends WP_UnitTestCase
     {
         $updatedPostIds = BulkEdit::generateAudioForPosts(null);
 
-        $this->assertFalse($updatedPostIds);
+        $this->assertSame([], $updatedPostIds);
 
         $postIds = [
             self::factory()->post->create([

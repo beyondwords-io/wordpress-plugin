@@ -76,7 +76,7 @@ class Settings
      *
      * @return void
      */
-    public static function addOptionsPage(): void
+    public static function addOptionsPage()
     {
         // Settings > BeyondWords
         add_options_page(
@@ -96,7 +96,7 @@ class Settings
      *
      * @return void
      */
-    public static function maybeValidateApiCreds(): void
+    public static function maybeValidateApiCreds()
     {
         $activeTab = self::getActiveTab();
 
@@ -114,7 +114,7 @@ class Settings
      *
      * @return void
      */
-    public static function createAdminInterface(): void
+    public static function createAdminInterface()
     {
         $tabs      = self::getTabs();
         $activeTab = self::getActiveTab();
@@ -177,7 +177,7 @@ class Settings
      * @since 4.7.0 Prepend custom links instead of appending them.
      * @since 6.0.0 Make static.
      */
-    public static function addSettingsLinkToPluginPage(array $links): array
+    public static function addSettingsLinkToPluginPage($links)
     {
         $settingsLink = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
@@ -196,7 +196,7 @@ class Settings
      *
      * @return array Tabs
      */
-    public static function getTabs(): array
+    public static function getTabs()
     {
         $tabs = array(
             'credentials'    => __('Credentials', 'speechkit'),
@@ -222,7 +222,7 @@ class Settings
      *
      * @return string Active tab
      */
-    public static function getActiveTab(): string
+    public static function getActiveTab()
     {
         $tabs = self::getTabs();
 
@@ -257,7 +257,7 @@ class Settings
      *
      * @return void
      */
-    public static function printMissingApiCredsWarning(): void
+    public static function printMissingApiCredsWarning()
     {
         if (! SettingsUtils::hasApiCreds()) :
             ?>
@@ -302,7 +302,7 @@ class Settings
      *
      * @return void
      */
-    public static function maybePrintPluginReviewNotice(): void
+    public static function maybePrintPluginReviewNotice()
     {
         $screen = get_current_screen();
         if ($screen && 'settings_page_beyondwords' !== $screen->id) {
@@ -353,7 +353,7 @@ class Settings
      *
      * @return void
      */
-    public static function printSettingsErrors(): void
+    public static function printSettingsErrors()
     {
         $settingsErrors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
         wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
@@ -399,7 +399,7 @@ class Settings
      *
      * @return void
      */
-    public static function restApiInit(): void
+    public static function restApiInit()
     {
         // settings endpoint
         register_rest_route('beyondwords/v1', '/settings', array(
@@ -487,7 +487,7 @@ class Settings
      *
      * @return void
      */
-    public static function enqueueScripts(string $hook): void
+    public static function enqueueScripts($hook)
     {
         if ($hook === 'settings_page_beyondwords') {
             // jQuery UI JS

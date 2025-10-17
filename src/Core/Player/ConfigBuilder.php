@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;

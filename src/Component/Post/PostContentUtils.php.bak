@@ -23,13 +23,13 @@ class PostContentUtils
      * From API version 1.1 the "summary" param is going to be used differently,
      * so for WordPress we now prepend the WordPress excerpt to the "body" param.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.6.0
      *
      * @return string The content body param.
      */
-    public static function getContentBody(int|\WP_Post $post): string|null
+    public static function getContentBody($post)
     {
         $post = get_post($post);
 
@@ -61,11 +61,11 @@ class PostContentUtils
      * @since 5.0.0 Remove SpeechKit-Start shortcode.
      * @since 5.0.0 Remove beyondwords_content filter.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @return string The body (the processed $post->post_content).
      */
-    public static function getPostBody(int|\WP_Post $post): string|null
+    public static function getPostBody($post)
     {
         $post = get_post($post);
 
@@ -96,13 +96,13 @@ class PostContentUtils
      * This is a <div> with optional attributes depending on the BeyondWords
      * data of the post.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.6.0
      *
      * @return string The summary wrapper <div>.
      */
-    public static function getPostSummaryWrapperFormat(int|\WP_Post $post): string
+    public static function getPostSummaryWrapperFormat($post)
     {
         $post = get_post($post);
 
@@ -122,14 +122,14 @@ class PostContentUtils
     /**
      * Get the post summary for the audio content.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
      * @since 4.6.0 Renamed from PostContentUtils::getSummary() to PostContentUtils::getPostSummary()
      *
      * @return string The summary.
      */
-    public static function getPostSummary(int|\WP_Post $post): string|null
+    public static function getPostSummary($post)
     {
         $post = get_post($post);
 
@@ -162,13 +162,13 @@ class PostContentUtils
      * formatting tags such as <strong> and <em> so we do not pass segments, we pass
      * a HTML string as the body param instead.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
      *
      * @return array|null The segments.
      */
-    public static function getSegments(int|\WP_Post $post): array
+    public static function getSegments($post)
     {
         if (! has_blocks($post)) {
             return null;
@@ -219,14 +219,14 @@ class PostContentUtils
      *
      * This method filters all blocks, removing any which have been excluded.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 3.8.0
      * @since 4.0.0 Replace for loop with array_reduce
      *
      * @return string The post body without excluded blocks.
      */
-    public static function getContentWithoutExcludedBlocks(int|\WP_Post $post): string
+    public static function getContentWithoutExcludedBlocks($post)
     {
         if (! has_blocks($post)) {
             return trim($post->post_content);
@@ -252,14 +252,14 @@ class PostContentUtils
     /**
      * Get audio-enabled blocks.
      *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
+     * @param int|WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
      * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
      *
      * @return array The blocks.
      */
-    public static function getAudioEnabledBlocks(int|\WP_Post $post): array
+    public static function getAudioEnabledBlocks($post)
     {
         $post = get_post($post);
 
@@ -305,7 +305,7 @@ class PostContentUtils
      *
      * @return string JSON endoded params.
      **/
-    public static function getContentParams(int $postId): array|string
+    public static function getContentParams($postId)
     {
         $body = [
             'type'         => 'auto_segment',
@@ -394,7 +394,7 @@ class PostContentUtils
      *
      * @return object The metadata object (empty if no metadata).
      */
-    public static function getMetadata(int $postId): array|object
+    public static function getMetadata($postId)
     {
         $metadata = new \stdClass();
 
@@ -426,7 +426,7 @@ class PostContentUtils
      *
      * @return object The taxonomies object (empty if no taxonomies).
      */
-    public static function getAllTaxonomiesAndTerms(int $postId): array|object
+    public static function getAllTaxonomiesAndTerms($postId)
     {
         $postType = get_post_type($postId);
 
@@ -454,7 +454,7 @@ class PostContentUtils
      *
      * @return string
      */
-    public static function getAuthorName(int $postId): string
+    public static function getAuthorName($postId)
     {
         $authorId = get_post_field('post_author', $postId);
 
@@ -475,7 +475,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttribute(string $html, string $marker): string
+    public static function addMarkerAttribute($html, $marker)
     {
         if (! $marker) {
             return $html;
@@ -503,7 +503,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithHTMLTagProcessor(string $html, string $marker): string
+    public static function addMarkerAttributeWithHTMLTagProcessor($html, $marker)
     {
         if (! $marker) {
             return $html;
@@ -545,7 +545,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithDOMDocument(string $html, string $marker): string
+    public static function addMarkerAttributeWithDOMDocument($html, $marker)
     {
         if (! $marker) {
             return $html;

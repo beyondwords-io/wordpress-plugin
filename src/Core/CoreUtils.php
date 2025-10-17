@@ -22,7 +22,7 @@ class CoreUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Core\CoreUtils
      */
-    public static function isGutenbergPage()
+    public static function isGutenbergPage(): bool
     {
         if (function_exists('is_gutenberg_page') && is_gutenberg_page()) {
             // The Gutenberg plugin is on.
@@ -54,7 +54,7 @@ class CoreUtils
      * @since 4.0.0
      * @since 4.0.5 Ensure is_admin() and $screen
      */
-    public static function isEditScreen()
+    public static function isEditScreen(): bool
     {
         if (! is_admin()) {
             return false;
@@ -102,7 +102,7 @@ class CoreUtils
      *
      * @return string[] Post meta keys.
      **/
-    public static function getPostMetaKeys($type = 'current')
+    public static function getPostMetaKeys(string $type = 'current'): array
     {
         $current = [
             'beyondwords_generate_audio',
@@ -174,7 +174,7 @@ class CoreUtils
      *
      * @return string[] Post meta keys.
      **/
-    public static function getOptions($type = 'current')
+    public static function getOptions(string $type = 'current'): array
     {
         $current = [
             // v6.x

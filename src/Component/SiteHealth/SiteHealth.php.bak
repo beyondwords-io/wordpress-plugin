@@ -92,7 +92,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function debugInformation(array $info): array
+    public static function debugInformation($info)
     {
         $info['beyondwords']['label'] = __('BeyondWords - Text-to-Speech', 'speechkit');
 
@@ -146,7 +146,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addContentSettings(array &$info): void
+    public static function addContentSettings(&$info)
     {
         $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
@@ -182,7 +182,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addProjectSettings(array &$info): void
+    public static function addProjectSettings(&$info)
     {
         $info['beyondwords']['fields']['beyondwords_project_language_code'] = [
             'label' => __('Default language code', 'speechkit'),
@@ -225,7 +225,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addPlayerSettings(array &$info): void
+    public static function addPlayerSettings(&$info)
     {
         $info['beyondwords']['fields']['beyondwords_player_ui'] = [
             'label' => __('Player UI', 'speechkit'),
@@ -380,7 +380,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addFilters(array &$info): void
+    public static function addFilters(&$info)
     {
         $registered = array_values(array_filter(SiteHealth::FILTERS, 'has_filter'));
 
@@ -409,7 +409,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addNoticeSettings(array &$info): void
+    public static function addNoticeSettings(&$info)
     {
         $info['beyondwords']['fields']['beyondwords_date_activated'] = [
             'label' => __('Date Activated', 'speechkit'),
@@ -434,7 +434,7 @@ class SiteHealth
      *
      * @return array
      */
-    public static function addConstant(array &$info, string $name): void
+    public static function addConstant(&$info, $name)
     {
         $value = __('Undefined', 'speechkit');
 
@@ -466,7 +466,7 @@ class SiteHealth
      *
      * @return string
      */
-    public static function maskString(string|false $string, int $count = 4, string $char = 'X'): string
+    public static function maskString($string, $count = 4, $char = 'X')
     {
         if (! is_string($string)) {
             return '';

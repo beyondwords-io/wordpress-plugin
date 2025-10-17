@@ -91,7 +91,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getApiUrl()
+    public static function getApiUrl(): string
     {
         if (defined('BEYONDWORDS_API_URL') && strlen(BEYONDWORDS_API_URL)) {
             return BEYONDWORDS_API_URL;
@@ -103,7 +103,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getBackendUrl()
+    public static function getBackendUrl(): string
     {
         if (defined('BEYONDWORDS_BACKEND_URL') && strlen(BEYONDWORDS_BACKEND_URL)) {
             return BEYONDWORDS_BACKEND_URL;
@@ -115,7 +115,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getJsSdkUrl()
+    public static function getJsSdkUrl(): string
     {
         if (defined('BEYONDWORDS_JS_SDK_URL') && strlen(BEYONDWORDS_JS_SDK_URL)) {
             return BEYONDWORDS_JS_SDK_URL;
@@ -127,7 +127,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getAmpPlayerUrl()
+    public static function getAmpPlayerUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_PLAYER_URL') && strlen(BEYONDWORDS_AMP_PLAYER_URL)) {
             return BEYONDWORDS_AMP_PLAYER_URL;
@@ -139,7 +139,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getAmpImgUrl()
+    public static function getAmpImgUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_IMG_URL') && strlen(BEYONDWORDS_AMP_IMG_URL)) {
             return BEYONDWORDS_AMP_IMG_URL;
@@ -151,7 +151,7 @@ class Environment
     /**
      * @return string
      */
-    public static function getDashboardUrl()
+    public static function getDashboardUrl(): string
     {
         if (defined('BEYONDWORDS_DASHBOARD_URL') && strlen(BEYONDWORDS_DASHBOARD_URL)) {
             return BEYONDWORDS_DASHBOARD_URL;
@@ -163,7 +163,7 @@ class Environment
     /**
      * @return bool
      */
-    public static function hasAutoSyncSettings()
+    public static function hasAutoSyncSettings(): bool
     {
         $value = static::BEYONDWORDS_AUTO_SYNC_SETTINGS;
 

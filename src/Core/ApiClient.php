@@ -32,7 +32,7 @@ class ApiClient
      *
      * @return WP_Response|false
      **/
-    public static function getContent($contentId, $projectId = null)
+    public static function getContent(int|string $contentId, int|string|null $projectId = null): array|false
     {
         if (! $projectId) {
             $projectId = PostMetaUtils::getProjectId($contentId);
@@ -59,7 +59,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function createAudio($postId)
+    public static function createAudio(int $postId): array|null|false
     {
         $projectId = PostMetaUtils::getProjectId($postId);
 
@@ -88,7 +88,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function updateAudio($postId)
+    public static function updateAudio(int $postId): array|null|false
     {
         $projectId = PostMetaUtils::getProjectId($postId);
         $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
@@ -118,7 +118,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function deleteAudio($postId)
+    public static function deleteAudio(int $postId): array|null|false
     {
         $projectId = PostMetaUtils::getProjectId($postId);
         $contentId = PostMetaUtils::getContentId($postId, true); // fallback to Post ID
@@ -153,7 +153,7 @@ class ApiClient
      * @throws \Exception
      * @return mixed JSON-decoded response body
      **/
-    public static function batchDeleteAudio($postIds)
+    public static function batchDeleteAudio(array $postIds): array|false
     {
         $contentIds = [];
         $updatedPostIds = [];
@@ -231,7 +231,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body, or false on failure.
      **/
-    public static function getPlayerBySourceId($postId)
+    public static function getPlayerBySourceId(int $postId): array|null|false
     {
         $projectId = PostMetaUtils::getProjectId($postId);
 
@@ -262,7 +262,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getLanguages()
+    public static function getLanguages(): array|null|false
     {
         $url = sprintf('%s/organization/languages', Environment::getApiUrl());
 
@@ -285,7 +285,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getVoices($languageCode)
+    public static function getVoices(int|string $languageCode): array|null|false
     {
         $url = sprintf(
             '%s/organization/voices?filter[language.code]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
@@ -310,7 +310,7 @@ class ApiClient
      *
      * @return object|false Voice, or false if not found.
      **/
-    public static function getVoice($voiceId, $languageCode = false)
+    public static function getVoice(int $voiceId, int|string|false $languageCode = false): object|array|false
     {
         if (! $languageCode) {
             $languageCode = get_option('beyondwords_project_language_code');
@@ -336,7 +336,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function updateVoice($voiceId, $settings)
+    public static function updateVoice(int $voiceId, array $settings): array|null|false
     {
         if (empty($voiceId)) {
             return false;
@@ -361,7 +361,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getProject()
+    public static function getProject(): array|null|false
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -388,7 +388,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function updateProject($settings)
+    public static function updateProject(array $settings): array|null|false
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -414,7 +414,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getPlayerSettings()
+    public static function getPlayerSettings(): array|null|false
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -441,7 +441,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function updatePlayerSettings($settings)
+    public static function updatePlayerSettings(array $settings): array|null|false
     {
         $projectId = get_option('beyondwords_project_id');
 
@@ -470,7 +470,7 @@ class ApiClient
      *
      * @return mixed JSON-decoded response body
      **/
-    public static function getVideoSettings($projectId = null)
+    public static function getVideoSettings(int|null $projectId = null): array|null|false
     {
         if (! $projectId) {
             $projectId = get_option('beyondwords_project_id');
@@ -506,7 +506,7 @@ class ApiClient
      * @return array|WP_Error The response array or a WP_Error on failure. See WP_Http::request() for
      *                        information on return value.
      **/
-    public static function callApi($request, $postId = false)
+    public static function callApi(Request $request, int|false $postId = false): array|\WP_Error
     {
         $post = get_post($postId);
 
@@ -552,7 +552,7 @@ class ApiClient
      *
      * @return array WordPress HTTP Request arguments.
      */
-    public static function buildRequestArgs($request)
+    public static function buildRequestArgs(Request $request): array
     {
         return [
             'blocking'   => true,
@@ -573,7 +573,7 @@ class ApiClient
      *
      * @return string Error message.
      */
-    public static function errorMessageFromResponse($response)
+    public static function errorMessageFromResponse(array|\WP_Error $response): string
     {
         $body = wp_remote_retrieve_body($response);
         $body = json_decode($body, true);
@@ -607,7 +607,7 @@ class ApiClient
      *
      * @return void
      */
-    public static function deleteErrors($postId)
+    public static function deleteErrors(int|false $postId): void
     {
         if (! $postId) {
             return;
@@ -635,7 +635,7 @@ class ApiClient
      *
      * @return void
      */
-    public static function saveErrorMessage($postId, $message = '', $code = 500)
+    public static function saveErrorMessage(int|false $postId, string $message = '', int|string $code = 500): void
     {
         if (! $postId) {
             return;
