@@ -30,18 +30,18 @@ class Inspect
      */
     public static function init()
     {
-        add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
-        add_action('add_meta_boxes', array(__CLASS__, 'addMetaBox'));
-        add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
+        add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
+        add_action('add_meta_boxes', [self::class, 'addMetaBox']);
+        add_action('rest_api_init', [self::class, 'restApiInit']);
 
-        add_filter('default_hidden_meta_boxes', array(__CLASS__, 'hideMetaBox'));
+        add_filter('default_hidden_meta_boxes', [self::class, 'hideMetaBox']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 5);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 5);
                 }
             }
         });
@@ -59,7 +59,7 @@ class Inspect
             wp_enqueue_script(
                 'beyondwords-inspect',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Panel/Inspect/js/inspect.js',
-                array('jquery'),
+                ['jquery'],
                 BEYONDWORDS__PLUGIN_VERSION,
                 true
             );
@@ -92,14 +92,14 @@ class Inspect
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-        if (is_array($postTypes) && ! in_array($postType, $postTypes)) {
+        if (! in_array($postType, $postTypes)) {
             return;
         }
 
         add_meta_box(
             'beyondwords__inspect',
             __('BeyondWords', 'speechkit') . ': ' . __('Inspect', 'speechkit'),
-            array(__CLASS__, 'renderMetaBoxContent'),
+            [self::class, 'renderMetaBoxContent'],
             $postType,
             'advanced',
             'low',
@@ -189,7 +189,7 @@ class Inspect
                             continue;
                         }
 
-                        $metaId    = $item['meta_id'] ? $item['meta_id'] : $item['meta_key'];
+                        $metaId    = $item['meta_id'] ?: $item['meta_key'];
                         $metaKey   = $item['meta_key'];
                         $metaValue = self::formatPostMetaValue($item['meta_value']);
                         ?>
@@ -337,13 +337,11 @@ class Inspect
      **/
     public static function restApiInit()
     {
-        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<beyondwordsId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<beyondwordsId>[a-zA-Z0-9\-]+)', [ // phpcs:ignore Generic.Files.LineLength.TooLong
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'restApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'restApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
     }
 
     /**

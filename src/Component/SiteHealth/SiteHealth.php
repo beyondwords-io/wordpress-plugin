@@ -79,7 +79,7 @@ class SiteHealth
      */
     public static function init()
     {
-        add_filter('debug_information', array(__CLASS__, 'debugInformation'));
+        add_filter('debug_information', [self::class, 'debugInformation']);
     }
 
     /**
@@ -88,11 +88,9 @@ class SiteHealth
      * @since 3.7.0
      * @since 6.0.0 Make static.
      *
-     * @param array $info
      *
-     * @return array
      */
-    public static function debugInformation($info)
+    public static function debugInformation(array $info): array
     {
         $info['beyondwords']['label'] = __('BeyondWords - Text-to-Speech', 'speechkit');
 
@@ -143,10 +141,8 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public static function addContentSettings(&$info)
+    public static function addContentSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
@@ -179,10 +175,8 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public static function addProjectSettings(&$info)
+    public static function addProjectSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_project_language_code'] = [
             'label' => __('Default language code', 'speechkit'),
@@ -222,10 +216,8 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public static function addPlayerSettings(&$info)
+    public static function addPlayerSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_player_ui'] = [
             'label' => __('Player UI', 'speechkit'),
@@ -351,13 +343,13 @@ class SiteHealth
         ]);
 
         if (! is_wp_error($response)) {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => __('BeyondWords API is reachable', 'speechkit'),
                 'debug' => 'true',
-            );
+            ];
         } else {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => sprintf(
                     /* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
@@ -366,7 +358,7 @@ class SiteHealth
                     $response->get_error_message()
                 ),
                 'debug' => $response->get_error_message(),
-            );
+            ];
         }
     }
 
@@ -377,10 +369,8 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public static function addFilters(&$info)
+    public static function addFilters(array &$info): void
     {
         $registered = array_values(array_filter(SiteHealth::FILTERS, 'has_filter'));
 
@@ -406,10 +396,8 @@ class SiteHealth
      * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public static function addNoticeSettings(&$info)
+    public static function addNoticeSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_date_activated'] = [
             'label' => __('Date Activated', 'speechkit'),
@@ -431,10 +419,8 @@ class SiteHealth
      *
      * @param array  $info Debugging info array
      * @param string $name Constant name
-     *
-     * @return array
      */
-    public static function addConstant(&$info, $name)
+    public static function addConstant(array &$info, string $name): void
     {
         $value = __('Undefined', 'speechkit');
 
@@ -461,12 +447,9 @@ class SiteHealth
      * @static
      *
      * @param string $string
-     * @param int $count
-     * @param string $char
      *
-     * @return string
      */
-    public static function maskString($string, $count = 4, $char = 'X')
+    public static function maskString(string|false $string, int $count = 4, string $char = 'X'): string
     {
         if (! is_string($string)) {
             return '';
@@ -475,7 +458,7 @@ class SiteHealth
         if (strlen($string) < 8) {
             return str_repeat($char, strlen($string));
         } else {
-            return str_repeat($char, strlen($string) - $count) . substr($string, (0 - $count));
+            return str_repeat($char, strlen($string) - $count) . substr($string, (-$count));
         }
     }
 }

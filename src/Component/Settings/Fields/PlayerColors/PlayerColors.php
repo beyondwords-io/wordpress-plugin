@@ -50,8 +50,8 @@ class PlayerColors
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addPlayerThemeSetting'));
-        add_action('admin_init', array(__CLASS__, 'addPlayerColorsSetting'));
+        add_action('admin_init', [self::class, 'addPlayerThemeSetting']);
+        add_action('admin_init', [self::class, 'addPlayerColorsSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME_THEME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME_THEME);
             return $value;
@@ -91,7 +91,7 @@ class PlayerColors
         add_settings_field(
             'beyondwords-player-theme',
             __('Player theme', 'speechkit'),
-            array(__CLASS__, 'renderPlayerThemeSetting'),
+            [self::class, 'renderPlayerThemeSetting'],
             'beyondwords_player',
             'styling'
         );
@@ -117,7 +117,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#eee',
                 ],
-                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
+                'sanitize_callback' => [self::class, 'sanitizeColorsArray'],
             ]
         );
 
@@ -131,7 +131,7 @@ class PlayerColors
                     'text_color'       => '#111',
                     'highlight_color'  => '#eee',
                 ],
-                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
+                'sanitize_callback' => [self::class, 'sanitizeColorsArray'],
             ]
         );
 
@@ -144,14 +144,14 @@ class PlayerColors
                     'icon_color'       => '#fff',
                     'text_color'       => '#fff',
                 ],
-                'sanitize_callback' => array(__CLASS__, 'sanitizeColorsArray'),
+                'sanitize_callback' => [self::class, 'sanitizeColorsArray'],
             ]
         );
 
         add_settings_field(
             'beyondwords-player-colors',
             __('Player colors', 'speechkit'),
-            array(__CLASS__, 'renderPlayerColorsSetting'),
+            [self::class, 'renderPlayerColorsSetting'],
             'beyondwords_player',
             'styling'
         );
@@ -247,7 +247,7 @@ class PlayerColors
      **/
     public static function getPlayerThemeOptions()
     {
-        $themeOptions = [
+        return [
             [
                 'value' => 'light',
                 'label' => 'Light (default)',
@@ -261,8 +261,6 @@ class PlayerColors
                 'label' => 'Auto',
             ],
         ];
-
-        return $themeOptions;
     }
 
     /**

@@ -36,7 +36,7 @@ class ApiKey
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
     }
 
     /**
@@ -54,14 +54,14 @@ class ApiKey
             self::OPTION_NAME,
             [
                 'default'           => '',
-                'sanitize_callback' => array(__CLASS__, 'sanitize'),
+                'sanitize_callback' => [self::class, 'sanitize'],
             ]
         );
 
         add_settings_field(
             'beyondwords-api-key',
             __('API key', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_credentials',
             'credentials'
         );

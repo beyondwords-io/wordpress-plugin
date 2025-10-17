@@ -35,7 +35,7 @@ class Language
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME_CODE, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME_CODE);
             return $value;
@@ -55,7 +55,7 @@ class Language
         add_settings_field(
             'beyondwords-default-language',
             __('Language', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_voices',
             'voices'
         );
@@ -123,7 +123,7 @@ class Language
             $languages = [];
         }
 
-        $options = array_map(function ($language) {
+        return array_map(function ($language) {
             $label = $language['name'];
 
             if (isset($language['accent'])) {
@@ -136,7 +136,5 @@ class Language
                 'voices' => wp_json_encode($language['default_voices']),
             ];
         }, $languages);
-
-        return $options;
     }
 }

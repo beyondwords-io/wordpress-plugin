@@ -31,15 +31,15 @@ class SelectVoice
      */
     public static function init()
     {
-        add_action('rest_api_init', array(__CLASS__, 'restApiInit'));
-        add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
+        add_action('rest_api_init', [self::class, 'restApiInit']);
+        add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array(__CLASS__, 'save'), 10);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 10);
                 }
             }
         });
@@ -199,22 +199,18 @@ class SelectVoice
     public static function restApiInit()
     {
         // Languages endpoint
-        register_rest_route('beyondwords/v1', '/languages', array(
+        register_rest_route('beyondwords/v1', '/languages', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'languagesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'languagesRestApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'voicesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'voicesRestApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
     }
 
     /**
@@ -278,10 +274,10 @@ class SelectVoice
             wp_localize_script(
                 'beyondwords-metabox--select-voice',
                 'beyondwordsData',
-                array(
+                [
                     'nonce' => wp_create_nonce('wp_rest'),
                     'root' => esc_url_raw(rest_url()),
-                )
+                ]
             );
 
             wp_enqueue_script('beyondwords-metabox--select-voice');

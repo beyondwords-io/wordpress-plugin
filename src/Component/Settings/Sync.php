@@ -64,11 +64,11 @@ class Sync
      */
     public static function init()
     {
-        add_action('load-settings_page_beyondwords', array(__CLASS__, 'syncToWordPress'), 30);
+        add_action('load-settings_page_beyondwords', [self::class, 'syncToWordPress'], 30);
 
         if (Environment::hasAutoSyncSettings()) {
-            add_action('load-settings_page_beyondwords', array(__CLASS__, 'scheduleSyncs'), 20);
-            add_action('shutdown', array(__CLASS__, 'syncToDashboard'));
+            add_action('load-settings_page_beyondwords', [self::class, 'scheduleSyncs'], 20);
+            add_action('shutdown', [self::class, 'syncToDashboard']);
         }
     }
 
@@ -88,8 +88,6 @@ class Sync
 
         switch ($tab) {
             case 'content':
-                $endpoints = ['project'];
-                break;
             case 'voices':
                 $endpoints = ['project'];
                 break;

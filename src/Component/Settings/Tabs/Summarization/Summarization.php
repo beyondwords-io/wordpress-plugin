@@ -31,7 +31,7 @@ class Summarization
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
@@ -45,7 +45,7 @@ class Summarization
         add_settings_section(
             'summarization',
             __('Summarization', 'speechkit'),
-            array(__CLASS__, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_summarization',
         );
     }

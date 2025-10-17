@@ -34,7 +34,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getConsideredPostTypes()
+    public static function getConsideredPostTypes(): array
     {
         $postTypes = get_post_types();
 
@@ -80,7 +80,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getCompatiblePostTypes()
+    public static function getCompatiblePostTypes(): array
     {
         $postTypes = SettingsUtils::getConsideredPostTypes();
 
@@ -117,7 +117,7 @@ class SettingsUtils
      *
      * @return string[] Array of post type names.
      **/
-    public static function getIncompatiblePostTypes()
+    public static function getIncompatiblePostTypes(): array
     {
         $postTypes = SettingsUtils::getConsideredPostTypes();
 
@@ -138,10 +138,8 @@ class SettingsUtils
      *
      * @since  5.2.0
      * @static
-     *
-     * @return boolean
      */
-    public static function hasApiCreds()
+    public static function hasApiCreds(): bool
     {
         $projectId = trim(strval(get_option('beyondwords_project_id')));
         $apiKey    = trim(strval(get_option('beyondwords_api_key')));
@@ -158,10 +156,8 @@ class SettingsUtils
      *
      * @since  5.2.0
      * @static
-     *
-     * @return boolean
      */
-    public static function hasValidApiConnection()
+    public static function hasValidApiConnection(): bool
     {
         return boolval(get_option('beyondwords_valid_api_connection'));
     }
@@ -172,10 +168,8 @@ class SettingsUtils
      * @since 5.0.0
      * @since 5.2.0 Moved from Sync class into SettingsUtils class.
      * @static
-     *
-     * @return boolean
      **/
-    public static function validateApiConnection()
+    public static function validateApiConnection(): bool
     {
         // This may have been left over from previous versions
         delete_transient('beyondwords_validate_api_connection');
@@ -237,10 +231,8 @@ class SettingsUtils
      * @param string $label Content for the `<label>`
      * @param string $name  `name` attribute for the `<input />`
      * @param string $value `value` attribute for the `<input />`
-     *
-     * @return string
      */
-    public static function colorInput($label, $name, $value)
+    public static function colorInput(string $label, string $name, string $value): void
     {
         ?>
         <div class="color-input">
@@ -270,10 +262,8 @@ class SettingsUtils
      *
      * @param string $message The error message.
      * @param string $errorId The error ID.
-     *
-     * @return void
      **/
-    public static function addSettingsErrorMessage($message, $errorId = '')
+    public static function addSettingsErrorMessage(string $message, string $errorId = ''): void
     {
         $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
 

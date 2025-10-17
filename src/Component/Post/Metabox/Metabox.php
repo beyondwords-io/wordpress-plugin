@@ -36,8 +36,8 @@ class Metabox
      */
     public static function init()
     {
-        add_action('admin_enqueue_scripts', array(__CLASS__, 'adminEnqueueScripts'));
-        add_action("add_meta_boxes", array(__CLASS__, 'addMetaBox'));
+        add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
+        add_action("add_meta_boxes", [self::class, 'addMetaBox']);
     }
 
     /**
@@ -70,14 +70,14 @@ class Metabox
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-        if (is_array($postTypes) && ! in_array($postType, $postTypes)) {
+        if (! in_array($postType, $postTypes)) {
             return;
         }
 
         add_meta_box(
             'beyondwords',
             __('BeyondWords', 'speechkit'),
-            array(__CLASS__, 'renderMetaBoxContent'),
+            [self::class, 'renderMetaBoxContent'],
             $postType,
             'side',
             'default',

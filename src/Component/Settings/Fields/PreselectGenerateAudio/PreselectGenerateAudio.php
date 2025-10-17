@@ -41,8 +41,8 @@ class PreselectGenerateAudio
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSetting'));
-        add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueueScripts'));
+        add_action('admin_init', [self::class, 'addSetting']);
+        add_action('admin_enqueue_scripts', [self::class, 'enqueueScripts']);
     }
 
     /**
@@ -66,7 +66,7 @@ class PreselectGenerateAudio
         add_settings_field(
             'beyondwords-preselect',
             __('Preselect ‘Generate audio’', 'speechkit'),
-            array(__CLASS__, 'render'),
+            [self::class, 'render'],
             'beyondwords_content',
             'content'
         );
@@ -84,7 +84,7 @@ class PreselectGenerateAudio
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-        if (! is_array($postTypes) || count($postTypes) === 0) :
+        if (count($postTypes) === 0) :
             ?>
             <p class="description">
                 <?php

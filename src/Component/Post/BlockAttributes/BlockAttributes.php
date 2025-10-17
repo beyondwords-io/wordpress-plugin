@@ -33,9 +33,9 @@ class BlockAttributes
      */
     public static function init()
     {
-        add_filter('register_block_type_args', array(__CLASS__, 'registerAudioAttribute'));
-        add_filter('register_block_type_args', array(__CLASS__, 'registerMarkerAttribute'));
-        add_filter('render_block', array(__CLASS__, 'renderBlock'), 10, 2);
+        add_filter('register_block_type_args', [self::class, 'registerAudioAttribute']);
+        add_filter('register_block_type_args', [self::class, 'registerMarkerAttribute']);
+        add_filter('render_block', [self::class, 'renderBlock'], 10, 2);
     }
 
     /**
@@ -47,14 +47,14 @@ class BlockAttributes
     {
         // Setup attributes if needed.
         if (! isset($args['attributes'])) {
-            $args['attributes'] = array();
+            $args['attributes'] = [];
         }
 
         if (! array_key_exists('beyondwordsAudio', $args['attributes'])) {
-            $args['attributes']['beyondwordsAudio'] = array(
+            $args['attributes']['beyondwordsAudio'] = [
                 'type' => 'boolean',
                 'default' => true,
-            );
+            ];
         }
 
         return $args;
@@ -69,14 +69,14 @@ class BlockAttributes
     {
         // Setup attributes if needed.
         if (! isset($args['attributes'])) {
-            $args['attributes'] = array();
+            $args['attributes'] = [];
         }
 
         if (! array_key_exists('beyondwordsMarker', $args['attributes'])) {
-            $args['attributes']['beyondwordsMarker'] = array(
+            $args['attributes']['beyondwordsMarker'] = [
                 'type' => 'string',
                 'default' => '',
-            );
+            ];
         }
 
         return $args;

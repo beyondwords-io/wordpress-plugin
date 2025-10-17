@@ -20,23 +20,23 @@ class Core
      * @since 4.0.0
      * @since 6.0.0 Make static and stop loading plugin text domain on init.
      */
-    public static function init()
+    public static function init(): void
     {
         // Actions
-        add_action('enqueue_block_editor_assets', array(__CLASS__, 'enqueueBlockEditorAssets'), 1, 0);
-        add_action('init', array(__CLASS__, 'registerMeta'), 99, 3);
+        add_action('enqueue_block_editor_assets', [self::class, 'enqueueBlockEditorAssets'], 1, 0);
+        add_action('init', [self::class, 'registerMeta'], 99, 3);
 
         // Actions for adding/updating posts
-        add_action('wp_after_insert_post', array(__CLASS__, 'onAddOrUpdatePost'), 99);
+        add_action('wp_after_insert_post', [self::class, 'onAddOrUpdatePost'], 99);
 
         // Actions for trashing/deleting posts
-        add_action('wp_trash_post', array(__CLASS__, 'onTrashPost'));
-        add_action('before_delete_post', array(__CLASS__, 'onDeletePost'));
+        add_action('wp_trash_post', [self::class, 'onTrashPost']);
+        add_action('before_delete_post', [self::class, 'onDeletePost']);
 
-        add_filter('is_protected_meta', array(__CLASS__, 'isProtectedMeta'), 10, 2);
+        add_filter('is_protected_meta', [self::class, 'isProtectedMeta'], 10, 2);
 
         // Older posts may be missing beyondwords_language_code, so we'll try to set it.
-        add_filter('get_post_metadata', array(__CLASS__, 'getLangCodeFromJsonIfEmpty'), 10, 3);
+        add_filter('get_post_metadata', [self::class, 'getLangCodeFromJsonIfEmpty'], 10, 3);
     }
 
     /**
@@ -48,10 +48,8 @@ class Core
      * @since 6.0.0 Make static.
      *
      * @param string $status WordPress post status (e.g. 'pending', 'publish', 'private', 'future', etc).
-     *
-     * @return boolean
      */
-    public static function shouldProcessPostStatus($status)
+    public static function shouldProcessPostStatus(string $status): bool
     {
         $statuses = ['pending', 'publish', 'private', 'future'];
 
@@ -89,10 +87,8 @@ class Core
      *               checks, and add support Magic Embed support.
      *
      * @param int $postId WordPress Post ID.
-     *
-     * @return boolean
      */
-    public static function shouldGenerateAudioForPost($postId)
+    public static function shouldGenerateAudioForPost(int $postId): bool
     {
         // Ignore autosaves and revisions
         if (wp_is_post_autosave($postId) || wp_is_post_revision($postId)) {
@@ -125,9 +121,9 @@ class Core
      *
      * @param int $postId WordPress Post ID.
      *
-     * @return array|false Response from API, or false if audio was not generated.
+     * @return array|false|null Response from API, or false if audio was not generated.
      */
-    public static function generateAudioForPost($postId)
+    public static function generateAudioForPost(int $postId): array|false|null
     {
         // Perform checks to see if this post should be processed
         if (! self::shouldGenerateAudioForPost($postId)) {
@@ -182,9 +178,9 @@ class Core
      *
      * @param int $postId WordPress Post ID.
      *
-     * @return array|false Response from API, or false if audio was not generated.
+     * @return array|false|null Response from API, or false if audio was not generated.
      */
-    public static function deleteAudioForPost($postId)
+    public static function deleteAudioForPost(int $postId): array|false|null
     {
         return ApiClient::deleteAudio($postId);
     }
@@ -199,7 +195,7 @@ class Core
      *
      * @return array|false Response from API, or false if audio was not generated.
      */
-    public static function batchDeleteAudioForPosts($postIds)
+    public static function batchDeleteAudioForPosts(array $postIds): array|false|null
     {
         return ApiClient::batchDeleteAudio($postIds);
     }
@@ -214,7 +210,7 @@ class Core
      * @since 5.0.0 Stop saving `beyondwords_podcast_id`.
      * @since 6.0.0 Make static.
      */
-    public static function processResponse($response, $projectId, $postId)
+    public static function processResponse(mixed $response, int|string|false $projectId, int $postId): mixed
     {
         if (! is_array($response)) {
             return $response;
@@ -255,7 +251,7 @@ class Core
      * @since 4.5.1 Disable plugin features if we don't have valid API settings.
      * @since 6.0.0 Make static.
      */
-    public static function enqueueBlockEditorAssets()
+    public static function enqueueBlockEditorAssets(): void
     {
         if (! SettingsUtils::hasValidApiConnection()) {
             return;
@@ -288,10 +284,8 @@ class Core
      * @since 2.5.0
      * @since 3.9.0 Don't register speechkit_status - downgrades to plugin v2.x are no longer expected.
      * @since 6.0.0 Make static.
-     *
-     * @return void
      **/
-    public static function registerMeta()
+    public static function registerMeta(): void
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -299,7 +293,7 @@ class Core
             $keys = CoreUtils::getPostMetaKeys('all');
 
             foreach ($postTypes as $postType) {
-                $options = array(
+                $options = [
                     'show_in_rest' => true,
                     'single' => true,
                     'type' => 'string',
@@ -307,10 +301,8 @@ class Core
                     'object_subtype' => $postType,
                     'prepare_callback' => 'sanitize_text_field',
                     'sanitize_callback' => 'sanitize_text_field',
-                    'auth_callback' => function () {
-                        return current_user_can('edit_posts');
-                    },
-                );
+                    'auth_callback' => fn(): bool => current_user_can('edit_posts'),
+                ];
 
                 foreach ($keys as $key) {
                     register_meta('post', $key, $options);
@@ -328,7 +320,7 @@ class Core
      * @since 4.0.0
      * @since 6.0.0 Make static.
      */
-    public static function isProtectedMeta($protected, $metaKey)
+    public static function isProtectedMeta(bool $protected, string $metaKey): bool
     {
         $keysToProtect = CoreUtils::getPostMetaKeys('all');
 
@@ -351,10 +343,8 @@ class Core
      * @since 6.0.0 Make static.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      **/
-    public static function onTrashPost($postId)
+    public static function onTrashPost(int $postId): void
     {
         ApiClient::deleteAudio($postId);
         PostMetaUtils::removeAllBeyondwordsMetadata($postId);
@@ -370,10 +360,8 @@ class Core
      * @since 6.0.0 Make static.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      **/
-    public static function onDeletePost($postId)
+    public static function onDeletePost(int $postId): void
     {
         ApiClient::deleteAudio($postId);
     }
@@ -394,8 +382,6 @@ class Core
      * @since 6.0.0 Make static and refactor for Magic Embed updates.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      **/
     public static function onAddOrUpdatePost(int $postId): bool
     {
@@ -423,10 +409,8 @@ class Core
      * @param int    $object_id The ID of the object metadata is for.
      * @param string $meta_key  The key of the metadata.
      * @param bool   $single    Whether to return a single value.
-     *
-     * @return mixed
      */
-    public static function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
+    public static function getLangCodeFromJsonIfEmpty(mixed $value, int $object_id, string $meta_key): mixed
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);

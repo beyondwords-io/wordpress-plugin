@@ -31,7 +31,7 @@ class Pronunciations
      */
     public static function init()
     {
-        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
@@ -45,7 +45,7 @@ class Pronunciations
         add_settings_section(
             'pronunciations',
             __('Pronunciations', 'speechkit'),
-            array(__CLASS__, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_pronunciations',
         );
     }

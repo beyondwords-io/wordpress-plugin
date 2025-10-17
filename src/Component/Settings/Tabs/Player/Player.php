@@ -49,7 +49,7 @@ class Player
         (new PlaybackFromSegments())::init();
         (new PlaybackControls())::init();
 
-        add_action('admin_init', array(__CLASS__, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
@@ -63,7 +63,7 @@ class Player
         add_settings_section(
             'player',
             __('Player', 'speechkit'),
-            array(__CLASS__, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_player',
         );
 

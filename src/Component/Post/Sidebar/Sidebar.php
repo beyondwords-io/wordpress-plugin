@@ -32,7 +32,7 @@ class Sidebar
      */
     public static function init()
     {
-        add_action('enqueue_block_assets', array(__CLASS__, 'enqueueBlockAssets'));
+        add_action('enqueue_block_assets', [self::class, 'enqueueBlockAssets']);
     }
 
     /**
@@ -52,7 +52,7 @@ class Sidebar
                 wp_enqueue_style(
                     'beyondwords-Sidebar',
                     BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Sidebar/PostSidebar.css',
-                    array(),
+                    [],
                     BEYONDWORDS__PLUGIN_VERSION
                 );
             }

@@ -23,11 +23,11 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  */
 class Column
 {
-    public const ALLOWED_HTML = array(
-        'span' => array(
-            'class'   => array(),
-        ),
-    );
+    public const ALLOWED_HTML = [
+        'span' => [
+            'class'   => [],
+        ],
+    ];
 
     public const OUTPUT_YES = '<span class="dashicons dashicons-yes"></span> ';
 
@@ -46,20 +46,20 @@ class Column
      */
     public static function init()
     {
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_filter("manage_{$postType}_posts_columns", array(__CLASS__, 'renderColumnsHead'));
-                    add_action("manage_{$postType}_posts_custom_column", array(__CLASS__, 'renderColumnsContent'), 10, 2); // phpcs:ignore Generic.Files.LineLength.TooLong
-                    add_filter("manage_edit-{$postType}_sortable_columns", array(__CLASS__, 'makeColumnSortable'));
+                    add_filter("manage_{$postType}_posts_columns", [self::class, 'renderColumnsHead']);
+                    add_action("manage_{$postType}_posts_custom_column", [self::class, 'renderColumnsContent'], 10, 2); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    add_filter("manage_edit-{$postType}_sortable_columns", [self::class, 'makeColumnSortable']);
                 }
             }
         });
 
         if (CoreUtils::isEditScreen()) {
-            add_action('pre_get_posts', array(__CLASS__, 'setSortQuery'));
+            add_action('pre_get_posts', [self::class, 'setSortQuery']);
         }
     }
 
@@ -75,9 +75,9 @@ class Column
      **/
     public static function renderColumnsHead($columns)
     {
-        return array_merge($columns, array(
+        return array_merge($columns, [
             'beyondwords' => __('BeyondWords', 'speechkit'),
-        ));
+        ]);
     }
 
     /**

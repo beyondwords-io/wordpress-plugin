@@ -36,7 +36,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getRenamedPostMeta($postId, $name)
+    public static function getRenamedPostMeta(int $postId, string $name): mixed
     {
         if (metadata_exists('post', $postId, 'beyondwords_' . $name)) {
             return get_post_meta($postId, 'beyondwords_' . $name, true);
@@ -59,7 +59,7 @@ class PostMetaUtils
      *
      * @since 4.1.0 Append 'beyondwords_version' and 'wordpress_version'.
      */
-    public static function getAllBeyondwordsMetadata($postId)
+    public static function getAllBeyondwordsMetadata(int $postId): array
     {
         global $wp_version;
 
@@ -67,9 +67,7 @@ class PostMetaUtils
 
         $metadata = has_meta($postId);
 
-        $metadata = array_filter($metadata, function ($item) use ($keysToCheck) {
-            return in_array($item['meta_key'], $keysToCheck);
-        });
+        $metadata = array_filter($metadata, fn($item) => in_array($item['meta_key'], $keysToCheck));
 
         // Prepend the WordPress Post ID to the meta data
         // phpcs:disable WordPress.DB.SlowDBQuery
@@ -99,7 +97,7 @@ class PostMetaUtils
     /**
      * Remove the BeyondWords metadata for a Post.
      */
-    public static function removeAllBeyondwordsMetadata($postId)
+    public static function removeAllBeyondwordsMetadata(int $postId): void
     {
         $keysToCheck = [
             'beyondwords_generate_audio',
@@ -136,8 +134,6 @@ class PostMetaUtils
         foreach ($keysToCheck as $key) {
             delete_post_meta($postId, $key, null);
         }
-
-        return true;
     }
 
     /**
@@ -149,7 +145,7 @@ class PostMetaUtils
      *
      * @return bool True if the post should have BeyondWords content, false otherwise.
      */
-    public static function hasContent($postId)
+    public static function hasContent(int $postId): bool
     {
         $contentId         = PostMetaUtils::getContentId($postId);
         $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
@@ -190,7 +186,7 @@ class PostMetaUtils
      *
      * @return string|false Content ID, or false
      */
-    public static function getContentId($postId, $fallback = false)
+    public static function getContentId(int $postId, bool $fallback = false): string|int|false
     {
         $contentId = get_post_meta($postId, 'beyondwords_content_id', true);
         if (! empty($contentId)) {
@@ -223,7 +219,7 @@ class PostMetaUtils
      *
      * @return int|false Podcast ID, or false
      */
-    public static function getPodcastId($postId)
+    public static function getPodcastId(int $postId): string|int|false
     {
         // Check for "Podcast ID" custom field (number, or string for > 4.x)
         $podcastId = PostMetaUtils::getRenamedPostMeta($postId, 'podcast_id');
@@ -294,11 +290,11 @@ class PostMetaUtils
      *
      * @return string Preview token
      */
-    public static function getPreviewToken($postId)
+    public static function getPreviewToken(int $postId): string|false
     {
         $previewToken = get_post_meta($postId, 'beyondwords_preview_token', true);
 
-        return $previewToken;
+        return $previewToken ?: false;
     }
 
     /**
@@ -309,10 +305,8 @@ class PostMetaUtils
      * @since 6.0.0 Add Magic Embed support.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      */
-    public static function hasGenerateAudio($postId)
+    public static function hasGenerateAudio(int $postId): bool
     {
         $generateAudio = PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio');
 
@@ -348,7 +342,7 @@ class PostMetaUtils
      *
      * @return int|false Project ID, or false
      */
-    public static function getProjectId($postId, $strict = false)
+    public static function getProjectId(int $postId, bool $strict = false): int|string|false
     {
         // If strict is true, we only check the custom field and do not fall back to the plugin setting.
         if ($strict) {
@@ -396,11 +390,11 @@ class PostMetaUtils
      *
      * @return int|false Body Voice ID, or false
      */
-    public static function getBodyVoiceId($postId)
+    public static function getBodyVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -415,11 +409,11 @@ class PostMetaUtils
      *
      * @return int|false Title Voice ID, or false
      */
-    public static function getTitleVoiceId($postId)
+    public static function getTitleVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_title_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -434,11 +428,11 @@ class PostMetaUtils
      *
      * @return int|false Summary Voice ID, or false
      */
-    public static function getSummaryVoiceId($postId)
+    public static function getSummaryVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_summary_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -452,7 +446,7 @@ class PostMetaUtils
      *
      * @return string Player style.
      */
-    public static function getPlayerStyle($postId)
+    public static function getPlayerStyle(int $postId): string
     {
         $playerStyle = get_post_meta($postId, 'beyondwords_player_style', true);
 
@@ -476,7 +470,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getErrorMessage($postId)
+    public static function getErrorMessage(int $postId): string|false
     {
         return PostMetaUtils::getRenamedPostMeta($postId, 'error_message');
     }
@@ -489,12 +483,10 @@ class PostMetaUtils
      * @since 3.7.0
      *
      * @param int $postId Post ID.
-     *
-     * @return string
      */
-    public static function getDisabled($postId)
+    public static function getDisabled(int $postId): bool
     {
-        return PostMetaUtils::getRenamedPostMeta($postId, 'disabled');
+        return (bool) PostMetaUtils::getRenamedPostMeta($postId, 'disabled');
     }
 
     /**
@@ -515,7 +507,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getHttpResponseBodyFromPostMeta($postId, $metaName)
+    public static function getHttpResponseBodyFromPostMeta(int $postId, string $metaName): array|string|false
     {
         $postMeta = get_post_meta($postId, $metaName, true);
 

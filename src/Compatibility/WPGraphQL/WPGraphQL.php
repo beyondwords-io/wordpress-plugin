@@ -25,7 +25,7 @@ class WPGraphQL
     public static function init()
     {
         // Actions for WPGraphQL
-        add_action('graphql_register_types', array(__CLASS__, 'graphqlRegisterTypes'));
+        add_action('graphql_register_types', [self::class, 'graphqlRegisterTypes']);
     }
 
     /**

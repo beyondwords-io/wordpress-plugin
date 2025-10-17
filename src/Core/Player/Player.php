@@ -28,24 +28,20 @@ class Player
 
     /**
      * Add WordPress hooks.
-     *
-     * @return void
      */
     public static function init(): void
     {
         // Actions.
-        add_action('init', array(__CLASS__, 'registerShortcodes'));
+        add_action('init', [self::class, 'registerShortcodes']);
 
         // Filters.
-        add_filter('the_content', array(__CLASS__, 'replaceLegacyCustomPlayer'), 5);
-        add_filter('the_content', array(__CLASS__, 'autoPrependPlayer'), 1000000);
-        add_filter('newsstand_the_content', array(__CLASS__, 'autoPrependPlayer'));
+        add_filter('the_content', [self::class, 'replaceLegacyCustomPlayer'], 5);
+        add_filter('the_content', [self::class, 'autoPrependPlayer'], 1000000);
+        add_filter('newsstand_the_content', [self::class, 'autoPrependPlayer']);
     }
 
     /**
      * Register the [beyondwords_player] shortcode.
-     *
-     * @return void
      */
     public static function registerShortcodes(): void
     {
@@ -55,9 +51,7 @@ class Player
     /**
      * Conditionally prepend the player to a string (the post content).
      *
-     * @param string $content
      *
-     * @return string
      */
     public static function autoPrependPlayer(string $content): string
     {
@@ -71,9 +65,7 @@ class Player
     /**
      * Replace the legacy custom player div with the shortcode.
      *
-     * @param string $content
      *
-     * @return string
      */
     public static function replaceLegacyCustomPlayer(string $content): string
     {
@@ -96,8 +88,6 @@ class Player
 
     /**
      * Render a player (AMP/JS depending on context).
-     *
-     * @return string
      */
     public static function renderPlayer(): string
     {
@@ -162,9 +152,7 @@ class Player
     /**
      * Detect if a custom player is already in the content.
      *
-     * @param string $content
      *
-     * @return bool
      */
     public static function hasCustomPlayer(string $content): bool
     {

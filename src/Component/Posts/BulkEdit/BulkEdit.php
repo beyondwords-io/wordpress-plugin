@@ -34,17 +34,17 @@ class BulkEdit
      */
     public static function init()
     {
-        add_action('bulk_edit_custom_box', array(__CLASS__, 'bulkEditCustomBox'), 10, 2);
-        add_action('wp_ajax_save_bulk_edit_beyondwords', array(__CLASS__, 'saveBulkEdit'));
+        add_action('bulk_edit_custom_box', [self::class, 'bulkEditCustomBox'], 10, 2);
+        add_action('wp_ajax_save_bulk_edit_beyondwords', [self::class, 'saveBulkEdit']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_filter("bulk_actions-edit-{$postType}", array(__CLASS__, 'bulkActionsEdit'), 10, 1);
-                    add_filter("handle_bulk_actions-edit-{$postType}", array(__CLASS__, 'handleBulkDeleteAction'), 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
-                    add_filter("handle_bulk_actions-edit-{$postType}", array(__CLASS__, 'handleBulkGenerateAction'), 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    add_filter("bulk_actions-edit-{$postType}", [self::class, 'bulkActionsEdit'], 10, 1);
+                    add_filter("handle_bulk_actions-edit-{$postType}", [self::class, 'handleBulkDeleteAction'], 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    add_filter("handle_bulk_actions-edit-{$postType}", [self::class, 'handleBulkGenerateAction'], 10, 3); // phpcs:ignore Generic.Files.LineLength.TooLong
                 }
             }
         });
@@ -55,7 +55,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function bulkEditCustomBox($columnName, $postType)
+    public static function bulkEditCustomBox(string $columnName, string $postType): void
     {
         if ($columnName !== 'beyondwords') {
             return;
@@ -118,10 +118,8 @@ class BulkEdit
             switch ($_POST['beyondwords_bulk_edit']) {
                 case 'generate':
                     return self::generateAudioForPosts($postIds);
-                    break;
                 case 'delete':
                     return self::deleteAudioForPosts($postIds);
-                    break;
             }
         }
 
@@ -133,10 +131,10 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function generateAudioForPosts($postIds)
+    public static function generateAudioForPosts(array|null $postIds): array
     {
         if (! is_array($postIds)) {
-            return false;
+            return [];
         }
 
         $updatedPostIds = [];
@@ -156,10 +154,10 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function deleteAudioForPosts($postIds)
+    public static function deleteAudioForPosts(array|null $postIds): array
     {
         if (! is_array($postIds)) {
-            return false;
+            return [];
         }
 
         $updatedPostIds = [];
@@ -188,7 +186,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function bulkActionsEdit($bulk_array)
+    public static function bulkActionsEdit(array $bulk_array): array
     {
         $bulk_array['beyondwords_generate_audio'] = __('Generate audio', 'speechkit');
         $bulk_array['beyondwords_delete_audio']   = __('Delete audio', 'speechkit');
@@ -201,7 +199,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function handleBulkGenerateAction($redirect, $doaction, $objectIds)
+    public static function handleBulkGenerateAction(string $redirect, string $doaction, array $objectIds): string
     {
         if ($doaction !== 'beyondwords_generate_audio') {
             return $redirect;
@@ -249,9 +247,8 @@ class BulkEdit
 
         // Add nonce to redirect url
         $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
-        $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
-        return $redirect;
+        return add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
     }
 
     /**
@@ -259,7 +256,7 @@ class BulkEdit
      *
      * @since 6.0.0 Make static.
      */
-    public static function handleBulkDeleteAction($redirect, $doaction, $objectIds)
+    public static function handleBulkDeleteAction(string $redirect, string $doaction, array $objectIds): string
     {
         if ($doaction !== 'beyondwords_delete_audio') {
             return $redirect;
@@ -294,8 +291,7 @@ class BulkEdit
 
         // Add $nonce query arg into redirect
         $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
-        $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
-        return $redirect;
+        return add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
     }
 }
