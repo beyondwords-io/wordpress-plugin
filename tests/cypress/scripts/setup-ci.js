@@ -29,7 +29,9 @@ async function setupCI() {
 			console.log( '✅ WordPress setup complete!' );
 		} else {
 			console.log( '⚠️  Not in CI environment, skipping setup' );
-			console.log( '   If running locally, use: yarn wp-env run tests-cli wp reset reset --yes' );
+			console.log(
+				'   If running locally, use: yarn wp-env run tests-cli wp reset reset --yes'
+			);
 		}
 	} catch ( error ) {
 		console.error( '❌ Setup failed:', error.message );

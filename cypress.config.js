@@ -5,6 +5,31 @@ const exec = util.promisify( require( 'child_process' ).exec );
 // Track if we've done the one-time setup for this test run
 let hasSetupDatabase = false;
 
+/**
+ * Helper function to execute WP-CLI commands
+ * Automatically handles CI vs local environment differences
+ *
+ * @param {string|string[]} commands - Single command or array of commands
+ * @param {Object}          options - Optional configuration
+ * @param {boolean}         options.returnResult - Return exec result
+ * @return {Promise<void|Object>} Exec result if returnResult is true
+ */
+async function execWp( commands, options = {} ) {
+	const commandArray = Array.isArray( commands ) ? commands : [ commands ];
+	const isCI = process.env.CI;
+	const { returnResult = false } = options;
+	let lastResult;
+
+	for ( const command of commandArray ) {
+		const fullCommand = isCI
+			? `wp ${ command }`
+			: `yarn wp-env run tests-cli wp ${ command }`;
+		lastResult = await exec( fullCommand );
+	}
+
+	return returnResult ? lastResult : undefined;
+}
+
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
@@ -59,42 +84,20 @@ function setupNodeEvents( on, config ) {
 		},
 
 		async reset() {
-			if ( process.env.CI ) {
-				await exec( 'wp plugin activate wp-reset' );
-				await exec( 'wp reset reset --yes' );
-				await exec( 'wp plugin deactivate --all' );
-				await exec(
-					// eslint-disable-next-line max-len
-					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
-				);
-			} else {
-				await exec(
-					`yarn wp-env run tests-cli wp plugin activate wp-reset`
-				);
-				await exec( `yarn wp-env run tests-cli wp reset reset --yes` );
-				await exec(
-					`yarn wp-env run tests-cli wp plugin deactivate --all`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
-				);
-			}
+			await execWp( [
+				'plugin activate wp-reset',
+				'reset reset --yes',
+				'plugin deactivate --all',
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+			] );
 			return null;
 		},
 
 		async ensureTestPlugins() {
 			// Ensure required test plugins are activated (without full DB reset)
-			const plugins =
-				'speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported';
-
-			if ( process.env.CI ) {
-				await exec( `wp plugin activate ${ plugins }` );
-			} else {
-				await exec(
-					`yarn wp-env run tests-cli wp plugin activate ${ plugins }`
-				);
-			}
+			await execWp(
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
+			);
 			return null;
 		},
 
@@ -113,66 +116,19 @@ function setupNodeEvents( on, config ) {
 			console.log( '  → Running one-time database setup...' );
 
 			// Reset database and activate plugins
-			if ( process.env.CI ) {
-				await exec( 'wp plugin activate wp-reset' );
-				await exec( 'wp reset reset --yes' );
-				await exec( 'wp plugin deactivate --all' );
-				await exec(
-					// eslint-disable-next-line max-len
-					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
-				);
-
+			await execWp( [
+				'plugin activate wp-reset',
+				'reset reset --yes',
+				'plugin deactivate --all',
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
 				// Configure plugin credentials for most tests
-				await exec(
-					`wp option update beyondwords_api_key '${ apiKey }'`
-				);
-				await exec(
-					`wp option update beyondwords_project_id '${ projectId }'`
-				);
-				await exec(
-					`wp option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`
-				);
+				`option update beyondwords_api_key '${ apiKey }'`,
+				`option update beyondwords_project_id '${ projectId }'`,
+				`option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`,
 				// Set defaults for options NOT synced from API
-				await exec( `wp option add beyondwords_player_ui enabled` );
-				await exec(
-					'wp option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json'
-				);
-			} else {
-				await exec(
-					`yarn wp-env run tests-cli wp plugin activate wp-reset`
-				);
-				await exec( `yarn wp-env run tests-cli wp reset reset --yes` );
-				await exec(
-					`yarn wp-env run tests-cli wp plugin deactivate --all`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
-				);
-
-				// Configure plugin credentials for most tests
-				// Note: These are read from cypress.env.json or environment
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp option update beyondwords_api_key '${ apiKey }'`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp option update beyondwords_project_id '${ projectId }'`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`
-				);
-				// Set defaults for options NOT synced from API
-				await exec(
-					`yarn wp-env run tests-cli wp option add beyondwords_player_ui enabled`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					'yarn wp-env run tests-cli wp option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json'
-				);
-			}
+				'option add beyondwords_player_ui enabled',
+				'option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json',
+			] );
 
 			hasSetupDatabase = true;
 			// eslint-disable-next-line no-console
@@ -191,27 +147,12 @@ function setupNodeEvents( on, config ) {
 				'\n  🔄 Resetting to FRESH database (no credentials) for fresh-install test...'
 			);
 
-			if ( process.env.CI ) {
-				await exec( 'wp plugin activate wp-reset' );
-				await exec( 'wp reset reset --yes' );
-				await exec( 'wp plugin deactivate --all' );
-				await exec(
-					// eslint-disable-next-line max-len
-					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
-				);
-			} else {
-				await exec(
-					`yarn wp-env run tests-cli wp plugin activate wp-reset`
-				);
-				await exec( `yarn wp-env run tests-cli wp reset reset --yes` );
-				await exec(
-					`yarn wp-env run tests-cli wp plugin deactivate --all`
-				);
-				await exec(
-					// eslint-disable-next-line max-len
-					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
-				);
-			}
+			await execWp( [
+				'plugin activate wp-reset',
+				'reset reset --yes',
+				'plugin deactivate --all',
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+			] );
 
 			// Reset the flag so next test file will run setupDatabase again
 			// This ensures subsequent tests get credentials configured
@@ -225,52 +166,26 @@ function setupNodeEvents( on, config ) {
 		},
 
 		async 'wp:plugin:activate'( plugin ) {
-			if ( process.env.CI ) {
-				return await exec( `wp plugin activate ${ plugin }` );
-			}
-
-			return await exec(
-				`yarn wp-env run tests-cli wp plugin activate ${ plugin }`
-			);
+			await execWp( `plugin activate ${ plugin }` );
+			return null;
 		},
 
 		async 'wp:plugin:deactivate'( plugin ) {
-			if ( process.env.CI ) {
-				return await exec( `wp plugin deactivate ${ plugin }` );
-			}
-
-			return await exec(
-				`yarn wp-env run tests-cli wp plugin deactivate ${ plugin }`
-			);
+			await execWp( `plugin deactivate ${ plugin }` );
+			return null;
 		},
 
 		async 'wp:plugin:uninstall'( plugin ) {
-			if ( process.env.CI ) {
-				return await exec(
-					`wp plugin uninstall --deactivate ${ plugin }`
-				);
-			}
-
-			return await exec(
-				`yarn wp-env run tests-cli wp plugin uninstall --deactivate ${ plugin }`
-			);
+			await execWp( `plugin uninstall --deactivate ${ plugin }` );
+			return null;
 		},
 
 		async 'wp:post:deleteAll'( searchTerm ) {
 			// eslint-disable-next-line max-len
-			const wpCmd = `wp post delete $(wp post list --post_type=post,page --s='${ searchTerm }' --format=ids) --force`;
-
-			if ( process.env.CI ) {
-				try {
-					await exec( wpCmd );
-				} catch ( error ) {
-					// Ignore errors if no posts found
-				}
-				return null;
-			}
+			const wpCmd = `post delete $(wp post list --post_type=post,page --s='${ searchTerm }' --format=ids) --force`;
 
 			try {
-				await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+				await execWp( wpCmd );
 			} catch ( error ) {
 				// Ignore errors if no posts found
 			}
@@ -290,85 +205,46 @@ function setupNodeEvents( on, config ) {
 			const escapedContent = content.replace( /'/g, "'\\''" );
 
 			// eslint-disable-next-line max-len
-			const wpCmd = `wp post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
+			const wpCmd = `post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
 
-			if ( process.env.CI ) {
-				const result = await exec( wpCmd );
-				return parseInt( result.stdout.trim(), 10 );
-			}
-
-			const result = await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+			const result = await execWp( wpCmd, { returnResult: true } );
 			return parseInt( result.stdout.trim(), 10 );
 		},
 
 		async 'wp:post:setMeta'( options ) {
 			const { postId, metaKey, metaValue } = options;
-
-			const wpCmd = `wp post meta set ${ postId } ${ metaKey } '${ metaValue }'`;
-
-			if ( process.env.CI ) {
-				await exec( wpCmd );
-			} else {
-				await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
-			}
-
+			await execWp(
+				`post meta set ${ postId } ${ metaKey } '${ metaValue }'`
+			);
 			return null;
 		},
 
 		async 'wp:option:delete'( optionName ) {
-			const wpCmd = `wp option delete ${ optionName }`;
-
-			if ( process.env.CI ) {
-				try {
-					await exec( wpCmd );
-				} catch ( error ) {
-					// Ignore errors if option doesn't exist
-				}
-			} else {
-				try {
-					await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
-				} catch ( error ) {
-					// Ignore errors if option doesn't exist
-				}
+			try {
+				await execWp( `option delete ${ optionName }` );
+			} catch ( error ) {
+				// Ignore errors if option doesn't exist
 			}
-
 			return null;
 		},
 
 		async 'wp:options:deleteByPattern'( options ) {
 			const { pattern, exclude = [] } = options;
 
-			// Get all options matching pattern and delete them
-			const listCmd = `wp option list --search='${ pattern }' --field=option_name`;
-
 			try {
-				let result;
-				if ( process.env.CI ) {
-					result = await exec( listCmd );
-				} else {
-					result = await exec(
-						`yarn wp-env run tests-cli ${ listCmd }`
-					);
-				}
+				// Get all options matching pattern
+				const listCmd = `option list --search='${ pattern }' --field=option_name`;
+				const result = await execWp( listCmd, { returnResult: true } );
 
 				const optionNames = result.stdout
 					.trim()
 					.split( '\n' )
 					.filter( Boolean );
 
+				// Delete each option (except excluded ones)
 				for ( const optionName of optionNames ) {
-					// Skip excluded options
-					if ( exclude.includes( optionName ) ) {
-						continue;
-					}
-
-					const deleteCmd = `wp option delete ${ optionName }`;
-					if ( process.env.CI ) {
-						await exec( deleteCmd );
-					} else {
-						await exec(
-							`yarn wp-env run tests-cli ${ deleteCmd }`
-						);
+					if ( ! exclude.includes( optionName ) ) {
+						await execWp( `option delete ${ optionName }` );
 					}
 				}
 			} catch ( error ) {
