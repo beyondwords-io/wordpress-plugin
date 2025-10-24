@@ -129,6 +129,14 @@ function setupNodeEvents( on, config ) {
 				await exec(
 					`wp option update beyondwords_project_id '${ projectId }'`
 				);
+				await exec(
+					`wp option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`
+				);
+				// Set defaults for options NOT synced from API
+				await exec( `wp option add beyondwords_player_ui enabled` );
+				await exec(
+					'wp option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json'
+				);
 			} else {
 				await exec(
 					`yarn wp-env run tests-cli wp plugin activate wp-reset`
@@ -151,6 +159,18 @@ function setupNodeEvents( on, config ) {
 				await exec(
 					// eslint-disable-next-line max-len
 					`yarn wp-env run tests-cli wp option update beyondwords_project_id '${ projectId }'`
+				);
+				await exec(
+					// eslint-disable-next-line max-len
+					`yarn wp-env run tests-cli wp option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`
+				);
+				// Set defaults for options NOT synced from API
+				await exec(
+					`yarn wp-env run tests-cli wp option add beyondwords_player_ui enabled`
+				);
+				await exec(
+					// eslint-disable-next-line max-len
+					'yarn wp-env run tests-cli wp option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json'
 				);
 			}
 
