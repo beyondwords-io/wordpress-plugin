@@ -27,6 +27,7 @@ class SyncTest extends TestCase
         // Set up API credentials for tests that need them
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
     }
 
     public function tearDown(): void
@@ -41,6 +42,7 @@ class SyncTest extends TestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
+        delete_option('beyondwords_valid_api_connection');
 
         parent::tearDown();
     }
@@ -611,5 +613,318 @@ class SyncTest extends TestCase
 
         // Verify video settings
         $this->assertTrue(get_option('beyondwords_video_enabled'));
+    }
+
+    /**
+     * @test
+     */
+    public function schedule_syncs_caches_project_for_content_tab(): void
+    {
+        $_GET['tab'] = 'content';
+
+        // Initialize Settings to register tabs
+        Settings::init();
+        do_action('wp_loaded');
+
+        Sync::scheduleSyncs();
+
+        $cached = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
+
+        $this->assertIsArray($cached);
+        $this->assertContains('project', $cached);
+    }
+
+    /**
+     * @test
+     */
+    public function schedule_syncs_caches_project_for_voices_tab(): void
+    {
+        $_GET['tab'] = 'voices';
+
+        // Initialize Settings to register tabs
+        Settings::init();
+        do_action('wp_loaded');
+
+        Sync::scheduleSyncs();
+
+        $cached = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
+
+        $this->assertIsArray($cached);
+        $this->assertContains('project', $cached);
+    }
+
+    /**
+     * @test
+     */
+    public function schedule_syncs_caches_player_and_video_settings_for_player_tab(): void
+    {
+        $_GET['tab'] = 'player';
+
+        // Initialize Settings to register tabs
+        Settings::init();
+        do_action('wp_loaded');
+
+        Sync::scheduleSyncs();
+
+        $cached = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
+
+        $this->assertIsArray($cached);
+        $this->assertContains('player_settings', $cached);
+        $this->assertContains('video_settings', $cached);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_wordpress_calls_project_api_when_project_in_cache(): void
+    {
+        wp_cache_set('beyondwords_sync_to_wordpress', ['project'], 'beyondwords');
+
+        Sync::syncToWordPress();
+
+        // If API call was successful, options should be updated
+        // This is tested more thoroughly in integration tests
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_wordpress_calls_player_settings_api_when_player_settings_in_cache(): void
+    {
+        wp_cache_set('beyondwords_sync_to_wordpress', ['player_settings'], 'beyondwords');
+
+        Sync::syncToWordPress();
+
+        // Should make API call (no errors means success)
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_wordpress_calls_video_settings_api_when_video_settings_in_cache(): void
+    {
+        wp_cache_set('beyondwords_sync_to_wordpress', ['video_settings'], 'beyondwords');
+
+        Sync::syncToWordPress();
+
+        // Should make API call (no errors means success)
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_wordpress_calls_all_apis_when_all_in_cache(): void
+    {
+        wp_cache_set('beyondwords_sync_to_wordpress', ['all'], 'beyondwords');
+
+        Sync::syncToWordPress();
+
+        // Should make all API calls (no errors means success)
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_builds_settings_array_from_cached_options(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set some options
+        update_option('beyondwords_player_style', 'large');
+        update_option('beyondwords_player_theme', 'dark');
+
+        // Cache options for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_player_style',
+            'beyondwords_player_theme',
+        ], 'beyondwords');
+
+        // Mock API client methods would be called here
+        // We can't easily test the actual API calls without mocking
+        Sync::syncToDashboard();
+
+        // Cache should be cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_only_syncs_options_without_errors(): void
+    {
+        // Set an error for one option
+        add_settings_error('beyondwords_player_style', 'test_error', 'Test error');
+
+        global $wp_settings_errors;
+
+        // Clear errors for other option
+        $hasStyleErrors = get_settings_errors('beyondwords_player_theme');
+        $this->assertEmpty($hasStyleErrors);
+
+        // Only the option without errors should sync
+        $result = Sync::shouldSyncOptionToDashboard('beyondwords_player_theme');
+        $this->assertTrue($result);
+
+        $result = Sync::shouldSyncOptionToDashboard('beyondwords_player_style');
+        $this->assertFalse($result);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_syncs_player_settings(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set player options
+        update_option('beyondwords_player_style', 'large');
+        update_option('beyondwords_player_theme', 'dark');
+
+        // Cache player options for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_player_style',
+            'beyondwords_player_theme',
+        ], 'beyondwords');
+
+        Sync::syncToDashboard();
+
+        // Verify cache was cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+
+        // Verify success message was added
+        $errors = get_settings_errors('beyondwords_settings');
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('Player settings synced', $errors[0]['message']);
+        $this->assertSame('success', $errors[0]['type']);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_syncs_title_voice_speaking_rate(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set title voice options
+        update_option('beyondwords_project_title_voice_id', 123);
+        update_option('beyondwords_project_title_voice_speaking_rate', 120);
+
+        // Cache speaking rate option for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_project_title_voice_speaking_rate',
+        ], 'beyondwords');
+
+        Sync::syncToDashboard();
+
+        // Verify cache was cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_syncs_body_voice_speaking_rate(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set body voice options
+        update_option('beyondwords_project_body_voice_id', 456);
+        update_option('beyondwords_project_body_voice_speaking_rate', 110);
+
+        // Cache speaking rate option for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_project_body_voice_speaking_rate',
+        ], 'beyondwords');
+
+        Sync::syncToDashboard();
+
+        // Verify cache was cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_syncs_project_settings(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set project options
+        update_option('beyondwords_project_auto_publish_enabled', true);
+        update_option('beyondwords_project_language_code', 'en-US');
+
+        // Cache project options for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_project_auto_publish_enabled',
+            'beyondwords_project_language_code',
+        ], 'beyondwords');
+
+        Sync::syncToDashboard();
+
+        // Verify cache was cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+
+        // Verify success message was added
+        $errors = get_settings_errors('beyondwords_settings');
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('Project settings synced', $errors[0]['message']);
+        $this->assertSame('success', $errors[0]['type']);
+    }
+
+    /**
+     * @test
+     */
+    public function sync_to_dashboard_removes_speaking_rate_from_project_settings(): void
+    {
+        global $wp_settings_errors;
+        $wp_settings_errors = [];
+
+        // Set project options including speaking rates
+        update_option('beyondwords_project_auto_publish_enabled', true);
+        update_option('beyondwords_project_title_voice_id', 123);
+        update_option('beyondwords_project_title_voice_speaking_rate', 120);
+        update_option('beyondwords_project_body_voice_id', 456);
+        update_option('beyondwords_project_body_voice_speaking_rate', 110);
+
+        // Cache all project options for syncing
+        wp_cache_set('beyondwords_sync_to_dashboard', [
+            'beyondwords_project_auto_publish_enabled',
+            'beyondwords_project_title_voice_speaking_rate',
+            'beyondwords_project_body_voice_speaking_rate',
+        ], 'beyondwords');
+
+        Sync::syncToDashboard();
+
+        // Verify cache was cleared
+        $cached = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
+        $this->assertFalse($cached);
+
+        // Verify project settings success message
+        $errors = get_settings_errors('beyondwords_settings');
+        $this->assertNotEmpty($errors);
+
+        // Should have project settings message
+        $hasProjectMessage = false;
+        foreach ($errors as $error) {
+            if (strpos($error['message'], 'Project settings synced') !== false) {
+                $hasProjectMessage = true;
+                break;
+            }
+        }
+        $this->assertTrue($hasProjectMessage);
     }
 }

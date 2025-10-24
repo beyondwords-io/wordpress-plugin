@@ -72,4 +72,22 @@ class SummarizationTabTest extends TestCase
         $this->assertSame('Summarization', $wp_settings_sections['beyondwords_summarization']['summarization']['title']);
         $this->assertSame([Summarization::class, 'sectionCallback'], $wp_settings_sections['beyondwords_summarization']['summarization']['callback']);
     }
+
+    /**
+     * @test
+     */
+    public function sectionCallback_outputs_description()
+    {
+        $html = $this->captureOutput(function () {
+            Summarization::sectionCallback();
+        });
+
+        $this->assertStringContainsString(
+            'Generate summarized versions of your audio articles',
+            $html
+        );
+        $this->assertStringContainsString('Manage summarization', $html);
+        $this->assertStringContainsString('tab=summarization', $html);
+        $this->assertStringContainsString((string)BEYONDWORDS_TESTS_PROJECT_ID, $html);
+    }
 }

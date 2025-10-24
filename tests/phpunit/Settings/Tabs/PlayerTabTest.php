@@ -71,5 +71,24 @@ class PlayerTabTest extends TestCase
         $this->assertSame('player', $wp_settings_sections['beyondwords_player']['player']['id']);
         $this->assertSame('Player', $wp_settings_sections['beyondwords_player']['player']['title']);
         $this->assertSame([Player::class, 'sectionCallback'], $wp_settings_sections['beyondwords_player']['player']['callback']);
+
+        // Verify styling section was also added
+        $this->assertArrayHasKey('styling', $wp_settings_sections['beyondwords_player']);
+        $this->assertSame('Styling', $wp_settings_sections['beyondwords_player']['styling']['title']);
+    }
+
+    /**
+     * @test
+     */
+    public function sectionCallback_outputs_description()
+    {
+        $html = $this->captureOutput(function () {
+            Player::sectionCallback();
+        });
+
+        $this->assertStringContainsString(
+            'Configure how the player appears on your site',
+            $html
+        );
     }
 }

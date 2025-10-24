@@ -66,4 +66,26 @@ class CredentialsTabTest extends TestCase
         $this->assertSame('Credentials', $wp_settings_sections['beyondwords_credentials']['credentials']['title']);
         $this->assertSame([Credentials::class, 'sectionCallback'], $wp_settings_sections['beyondwords_credentials']['credentials']['callback']);
     }
+
+    /**
+     * @test
+     */
+    public function sectionCallback_outputs_description()
+    {
+        $html = $this->captureOutput(function () {
+            Credentials::sectionCallback();
+        });
+
+        $this->assertStringContainsString(
+            'Please add your Project ID and API key to authenticate your BeyondWords account',
+            $html,
+            'Should contain description about credentials'
+        );
+
+        $this->assertStringContainsString(
+            '<p class="description">',
+            $html,
+            'Should wrap description in paragraph with description class'
+        );
+    }
 }

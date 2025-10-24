@@ -72,4 +72,22 @@ class PronunciationsTabTest extends TestCase
         $this->assertSame('Pronunciations', $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['title']);
         $this->assertSame([Pronunciations::class, 'sectionCallback'], $wp_settings_sections['beyondwords_pronunciations']['pronunciations']['callback']);
     }
+
+    /**
+     * @test
+     */
+    public function sectionCallback_outputs_description()
+    {
+        $html = $this->captureOutput(function () {
+            Pronunciations::sectionCallback();
+        });
+
+        $this->assertStringContainsString(
+            'Create a custom pronunciation rule for any word or phrase',
+            $html
+        );
+        $this->assertStringContainsString('Manage pronunciations', $html);
+        $this->assertStringContainsString('tab=rules', $html);
+        $this->assertStringContainsString((string)BEYONDWORDS_TESTS_PROJECT_ID, $html);
+    }
 }
