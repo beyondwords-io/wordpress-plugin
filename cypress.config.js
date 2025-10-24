@@ -121,5 +121,62 @@ function setupNodeEvents( on, config ) {
 				`yarn wp-env run tests-cli wp plugin uninstall --deactivate ${ plugin }`
 			);
 		},
+
+		async 'wp:post:deleteAll'( searchTerm ) {
+			const wpCmd = `wp post delete $(wp post list --post_type=post,page --s='${ searchTerm }' --format=ids) --force`;
+
+			if ( process.env.CI ) {
+				try {
+					await exec( wpCmd );
+				} catch ( error ) {
+					// Ignore errors if no posts found
+				}
+				return null;
+			}
+
+			try {
+				await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+			} catch ( error ) {
+				// Ignore errors if no posts found
+			}
+			return null;
+		},
+
+		async 'wp:post:create'( options ) {
+			const {
+				title = 'Test Post',
+				content = '',
+				status = 'publish',
+				postType = 'post',
+			} = options;
+
+			// Escape single quotes in title and content
+			const escapedTitle = title.replace( /'/g, "'\\''" );
+			const escapedContent = content.replace( /'/g, "'\\''" );
+
+			const wpCmd = `wp post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
+
+			if ( process.env.CI ) {
+				const result = await exec( wpCmd );
+				return parseInt( result.stdout.trim(), 10 );
+			}
+
+			const result = await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+			return parseInt( result.stdout.trim(), 10 );
+		},
+
+		async 'wp:post:setMeta'( options ) {
+			const { postId, metaKey, metaValue } = options;
+
+			const wpCmd = `wp post meta set ${ postId } ${ metaKey } '${ metaValue }'`;
+
+			if ( process.env.CI ) {
+				await exec( wpCmd );
+			} else {
+				await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+			}
+
+			return null;
+		},
 	} );
 }

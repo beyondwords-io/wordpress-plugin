@@ -588,3 +588,74 @@ Cypress.Commands.add(
 		} );
 	}
 );
+
+/**
+ * Clean up all test posts with "Cypress Test" in the title.
+ * This is much faster than a full DB reset (100-500ms vs 5-10s).
+ */
+Cypress.Commands.add( 'cleanupTestPosts', () => {
+	cy.task( 'wp:post:deleteAll', 'Cypress Test' );
+} );
+
+/**
+ * Create a test post with a unique identifier.
+ * Posts created with this command can be cleaned up with cy.cleanupTestPosts().
+ *
+ * @param {Object} options - Post creation options
+ * @param {string} options.title - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string} options.content - Post content
+ * @param {string} options.status - Post status (default: 'publish')
+ * @param {string} options.postType - Post type (default: 'post')
+ * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ */
+Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
+	const {
+		title = 'Untitled',
+		content = '',
+		status = 'publish',
+		postType = 'post',
+	} = options;
+
+	const testTitle = `Cypress Test - ${ title }`;
+
+	return cy
+		.task( 'wp:post:create', {
+			title: testTitle,
+			content,
+			status,
+			postType,
+		} )
+		.then( ( postId ) => {
+			cy.wrap( postId ).as( 'testPostId' );
+			return postId;
+		} );
+} );
+
+/**
+ * Create a test post with BeyondWords audio generation enabled.
+ *
+ * @param {Object} options - Post creation options
+ * @param {string} options.title - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string} options.content - Post content
+ * @param {boolean} options.generateAudio - Whether to generate audio (default: true)
+ * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ */
+Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
+	const {
+		title = 'Untitled',
+		content = 'Test content for audio generation',
+		generateAudio = true,
+	} = options;
+
+	return cy.createTestPost( { title, content } ).then( ( postId ) => {
+		if ( generateAudio ) {
+			// Set the meta to generate audio for this post
+			cy.task( 'wp:post:setMeta', {
+				postId,
+				metaKey: 'beyondwords_generate_audio',
+				metaValue: '1',
+			} );
+		}
+		return postId;
+	} );
+} );

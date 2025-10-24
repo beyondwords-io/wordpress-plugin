@@ -2,7 +2,7 @@
 
 context( 'Plugins: WPGraphQL', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'wp-graphql' );
@@ -10,6 +10,8 @@ context( 'Plugins: WPGraphQL', () => {
 
 	beforeEach( () => {
 		cy.login();
+		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
+		cy.cleanupTestPosts();
 	} );
 
 	after( () => {

@@ -2,13 +2,15 @@
 
 context( 'Settings > Summarization', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
 
 	beforeEach( () => {
 		cy.login();
+		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
+		cy.cleanupTestPosts();
 	} );
 
 	it( 'has the "Manage summarization" button', () => {

@@ -2,13 +2,15 @@
 
 describe( 'WordPress Filters', () => {
 	before( () => {
-		cy.task( 'reset' );
+		// Setup plugin settings once for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();
 	} );
 
 	beforeEach( () => {
 		cy.login();
+		// Clean up test posts from previous test (fast - 100-500ms)
+		cy.cleanupTestPosts();
 	} );
 
 	const postTypes = require( '../../../tests/fixtures/post-types.json' );

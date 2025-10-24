@@ -4,7 +4,7 @@ context( 'Classic Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
+		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();
 		cy.activatePlugin( 'classic-editor' );
@@ -12,6 +12,8 @@ context( 'Classic Editor: Player Style', () => {
 
 	beforeEach( () => {
 		cy.login();
+		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
+		cy.cleanupTestPosts();
 	} );
 
 	after( () => {

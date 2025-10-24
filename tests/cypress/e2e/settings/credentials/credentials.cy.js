@@ -2,8 +2,9 @@
 
 context( 'Settings > Credentials', () => {
 	beforeEach( () => {
-		cy.task( 'reset' );
 		cy.login();
+		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
+		cy.cleanupTestPosts();
 	} );
 
 	it( 'prompts for API credentials and hides tabs until they are validated', () => {
