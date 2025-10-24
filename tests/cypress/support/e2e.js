@@ -1,4 +1,4 @@
-/* global Cypress, cy, beforeEach */
+/* global Cypress, cy, before, beforeEach */
 
 // ***********************************************************
 // This example support/e2e.js is processed and
@@ -50,12 +50,13 @@ Cypress.on( 'uncaught:exception', () => {
 
 /**
  * Global setup that runs before EACH spec file
- * The resetOnce task will only run the database reset on the first call
+ * The setupDatabase task will only run the database setup on the first call
  */
 before( () => {
-	// Reset database once at the start of the test suite
+	// Set up database once at the start of the test suite
 	// This uses a module-level flag to ensure it only runs once
-	cy.task( 'resetOnce' );
+	// Sets up a clean database WITH credentials configured for most tests
+	cy.task( 'setupDatabase' );
 } );
 
 beforeEach( () => {

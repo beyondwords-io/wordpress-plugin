@@ -405,6 +405,101 @@ yarn cypress:run
 - [cypress.config.js](cypress.config.js:202-239) - Updated `wp:options:deleteByPattern` to accept exclude list
 - [tests/cypress/support/commands.js](tests/cypress/support/commands.js:622-628) - Updated `cy.resetPluginSettings()` to preserve credentials
 
+### 2025-10-24 - Automatic Database Setup Implementation ✅
+
+**Issue:** Tests required manual database reset before running, causing friction in local dev and CI
+
+**Goal:** Automatic one-time database setup with credentials configured for most tests
+
+**Implementation:**
+
+1. **Renamed `resetOnce` → `setupDatabase`**
+   - Better naming for CI environments
+   - Clearer intent: "setup" vs "reset"
+   - Still uses module-level flag to run only once
+
+2. **Added automatic credential configuration** to `setupDatabase`:
+   - Reads credentials from `config.env.apiKey` and `config.env.projectId`
+   - Configures WordPress options during database setup:
+     - `beyondwords_api_key`
+     - `beyondwords_project_id`
+   - Most tests now start with credentials already configured
+
+3. **Created `setupFreshDatabase` task**:
+   - For tests that need to test fresh install behavior
+   - Sets up clean database WITHOUT credentials
+   - Used by:
+     - [tests/cypress/e2e/settings/credentials/credentials.cy.js](tests/cypress/e2e/settings/credentials/credentials.cy.js) - Tests credential entry flow
+     - [tests/cypress/e2e/settings/settings.cy.js](tests/cypress/e2e/settings/settings.cy.js) - Tests voice settings sync on first install
+     - [tests/cypress/e2e/site-health.cy.js](tests/cypress/e2e/site-health.cy.js) - Tests initial settings sync and default values
+
+4. **Updated global setup** in [tests/cypress/support/e2e.js](tests/cypress/support/e2e.js):
+   - Changed `cy.task('resetOnce')` → `cy.task('setupDatabase')`
+   - Runs before first spec file
+   - Sets up database WITH credentials for all subsequent tests
+
+**Files Modified:**
+- [cypress.config.js](cypress.config.js):
+  - Line 6: Renamed `hasResetDatabase` → `hasSetupDatabase`
+  - Lines 39-41: Extract credentials from config
+  - Lines 93-154: `setupDatabase` task with credential setup
+  - Lines 163-205: New `setupFreshDatabase` task
+  - Line 198: Resets `hasSetupDatabase` flag so next test file restores credentials
+  - Lines 168-172, 201-203: Improved logging for clarity
+  - Removed duplicate `wp:post:create` task (line 197-209)
+  - Added eslint-disable comments for console.log and max-length
+- [tests/cypress/support/e2e.js](tests/cypress/support/e2e.js):
+  - Line 1: Added `before` to globals
+  - Lines 55-59: Updated to call `setupDatabase`
+- [tests/cypress/e2e/settings/credentials/credentials.cy.js](tests/cypress/e2e/settings/credentials/credentials.cy.js):
+  - Lines 4-8: Added `before()` hook calling `setupFreshDatabase`
+- [tests/cypress/e2e/settings/settings.cy.js](tests/cypress/e2e/settings/settings.cy.js):
+  - Lines 47-78: Wrapped "has synced the voice settings on install" test in nested context with `setupFreshDatabase`
+- [tests/cypress/e2e/site-health.cy.js](tests/cypress/e2e/site-health.cy.js):
+  - Lines 4-10: Added `before()` hook calling `setupFreshDatabase`
+  - Line 156: Fixed expected preselect value to only include post and page (not cpt_active)
+
+**Benefits:**
+- ✅ No manual setup required - tests "just work"
+- ✅ Most tests have credentials pre-configured
+- ✅ Fresh-install tests can still test credential entry
+- ✅ Better CI experience - clearer task names
+- ✅ Faster test execution - credentials set once, not per test
+
+**Database Setup Flow:**
+```
+First test file runs:
+└── before() hook calls setupDatabase
+    ├── Checks hasSetupDatabase flag
+    ├── If false: runs one-time setup
+    │   ├── Reset database
+    │   ├── Activate test plugins
+    │   └── Configure API credentials ← NEW!
+    └── Sets hasSetupDatabase = true
+
+Fresh-install tests:
+└── before() hook calls setupFreshDatabase
+    ├── Reset database (always runs)
+    ├── Activate test plugins
+    ├── NO credential configuration ← Key difference
+    └── Sets hasSetupDatabase = false ← Resets flag!
+
+Next test file after fresh-install test:
+└── before() hook calls setupDatabase
+    ├── Checks hasSetupDatabase flag (now false!)
+    ├── Runs setup again to restore credentials
+    │   ├── Reset database
+    │   ├── Activate test plugins
+    │   └── Configure API credentials ← Restored!
+    └── Sets hasSetupDatabase = true
+```
+
+**Result:**
+- 18 failing tests now expected to pass
+- Database automatically configured on first run
+- Fresh-install tests isolated from default setup
+- Clearer separation of concerns
+
 ### [Date] - Final Results
 - [ ] Old reset method removed
 - [ ] Documentation updated

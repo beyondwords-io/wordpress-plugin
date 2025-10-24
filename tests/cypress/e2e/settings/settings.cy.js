@@ -1,4 +1,4 @@
-/* global Cypress, cy, beforeEach, context, it */
+/* global Cypress, cy, before, beforeEach, context, it */
 
 context( 'Settings', () => {
 	beforeEach( () => {
@@ -44,29 +44,39 @@ context( 'Settings', () => {
 			.should( 'have.text', 'Pronunciations' );
 	} );
 
-	it( 'has synced the voice settings on install', () => {
-		cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
+	context( 'Fresh Install', () => {
+		before( () => {
+			// This test requires a fresh database WITHOUT credentials
+			// to test the voice settings sync on first credential entry
+			cy.task( 'setupFreshDatabase' );
+		} );
 
-		// Enter only a valid API Key & Project ID
-		cy.get( 'input#beyondwords_api_key' )
-			.clear()
-			.type( Cypress.env( 'apiKey' ) );
-		cy.get( 'input#beyondwords_project_id' )
-			.clear()
-			.type( Cypress.env( 'projectId' ) );
-		cy.get( 'input[type="submit"]' ).click();
+		it( 'has synced the voice settings on install', () => {
+			cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
 
-		// The language and voices from the mock API response should be synced
-		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
-		cy.get( 'select#beyondwords_project_language_code' )
-			.find( ':selected' )
-			.contains( 'English (American)' );
-		cy.get( 'select#beyondwords_project_title_voice_id' )
-			.find( ':selected' )
-			.contains( 'Ava (Multilingual)' );
-		cy.get( 'select#beyondwords_project_body_voice_id' )
-			.find( ':selected' )
-			.contains( 'Ava (Multilingual)' );
+			// Enter only a valid API Key & Project ID
+			cy.get( 'input#beyondwords_api_key' )
+				.clear()
+				.type( Cypress.env( 'apiKey' ) );
+			cy.get( 'input#beyondwords_project_id' )
+				.clear()
+				.type( Cypress.env( 'projectId' ) );
+			cy.get( 'input[type="submit"]' ).click();
+
+			// The language and voices from the mock API response should be synced
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=voices'
+			);
+			cy.get( 'select#beyondwords_project_language_code' )
+				.find( ':selected' )
+				.contains( 'English (American)' );
+			cy.get( 'select#beyondwords_project_title_voice_id' )
+				.find( ':selected' )
+				.contains( 'Ava (Multilingual)' );
+			cy.get( 'select#beyondwords_project_body_voice_id' )
+				.find( ':selected' )
+				.contains( 'Ava (Multilingual)' );
+		} );
 	} );
 
 	// @todo unskip test and add a URL param to force syncing

@@ -2,8 +2,8 @@ const { defineConfig } = require( 'cypress' );
 const util = require( 'util' );
 const exec = util.promisify( require( 'child_process' ).exec );
 
-// Track if we've done the one-time reset for this test run
-let hasResetDatabase = false;
+// Track if we've done the one-time setup for this test run
+let hasSetupDatabase = false;
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
@@ -35,6 +35,10 @@ module.exports = defineConfig( {
 function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
 	require( 'cypress-fail-fast/plugin' )( on, config );
+
+	// Get credentials from config for use in tasks
+	const apiKey = config.env.apiKey || '';
+	const projectId = config.env.projectId || '';
 
 	// implement node event listeners here
 	on( 'task', {
@@ -79,7 +83,7 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
-		async 'ensureTestPlugins'() {
+		async ensureTestPlugins() {
 			// Ensure required test plugins are activated (without full DB reset)
 			const plugins =
 				'speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported';
@@ -94,22 +98,85 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
-		async 'resetOnce'() {
-			// Run database reset only once per test suite
-			if ( hasResetDatabase ) {
+		async setupDatabase() {
+			// Run database setup only once per test suite
+			// This sets up a clean database WITH credentials configured
+			if ( hasSetupDatabase ) {
+				// eslint-disable-next-line no-console
 				console.log(
-					'  ✓ Database already reset for this test run, skipping...'
+					'  ✓ Database already set up for this test run, skipping...'
 				);
 				return null;
 			}
 
-			console.log( '  → Running one-time database reset...' );
+			// eslint-disable-next-line no-console
+			console.log( '  → Running one-time database setup...' );
+
+			// Reset database and activate plugins
+			if ( process.env.CI ) {
+				await exec( 'wp plugin activate wp-reset' );
+				await exec( 'wp reset reset --yes' );
+				await exec( 'wp plugin deactivate --all' );
+				await exec(
+					// eslint-disable-next-line max-len
+					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
+				);
+
+				// Configure plugin credentials for most tests
+				await exec(
+					`wp option update beyondwords_api_key '${ apiKey }'`
+				);
+				await exec(
+					`wp option update beyondwords_project_id '${ projectId }'`
+				);
+			} else {
+				await exec(
+					`yarn wp-env run tests-cli wp plugin activate wp-reset`
+				);
+				await exec( `yarn wp-env run tests-cli wp reset reset --yes` );
+				await exec(
+					`yarn wp-env run tests-cli wp plugin deactivate --all`
+				);
+				await exec(
+					// eslint-disable-next-line max-len
+					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
+				);
+
+				// Configure plugin credentials for most tests
+				// Note: These are read from cypress.env.json or environment
+				await exec(
+					// eslint-disable-next-line max-len
+					`yarn wp-env run tests-cli wp option update beyondwords_api_key '${ apiKey }'`
+				);
+				await exec(
+					// eslint-disable-next-line max-len
+					`yarn wp-env run tests-cli wp option update beyondwords_project_id '${ projectId }'`
+				);
+			}
+
+			hasSetupDatabase = true;
+			// eslint-disable-next-line no-console
+			console.log( '  ✓ Database setup complete with credentials!' );
+			return null;
+		},
+
+		async setupFreshDatabase() {
+			// Setup a fresh database WITHOUT credentials
+			// Use this for tests that need to test fresh install behavior
+			// Note: This always resets, even if setupDatabase was called before
+			// After this runs, we reset the flag so the next test file will
+			// trigger setupDatabase again to restore credentials
+			// eslint-disable-next-line no-console
+			console.log(
+				'\n  🔄 Resetting to FRESH database (no credentials) for fresh-install test...'
+			);
 
 			if ( process.env.CI ) {
 				await exec( 'wp plugin activate wp-reset' );
 				await exec( 'wp reset reset --yes' );
 				await exec( 'wp plugin deactivate --all' );
 				await exec(
+					// eslint-disable-next-line max-len
 					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
 				);
 			} else {
@@ -121,27 +188,20 @@ function setupNodeEvents( on, config ) {
 					`yarn wp-env run tests-cli wp plugin deactivate --all`
 				);
 				await exec(
+					// eslint-disable-next-line max-len
 					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
 				);
 			}
 
-			hasResetDatabase = true;
-			console.log( '  ✓ Database reset complete!' );
-			return null;
-		},
+			// Reset the flag so next test file will run setupDatabase again
+			// This ensures subsequent tests get credentials configured
+			hasSetupDatabase = false;
 
-		async 'wp:post:create'( postType ) {
-			if ( process.env.CI ) {
-				return await exec(
-					// eslint-disable-next-line max-len
-					`wp post create --post_type=${ postType.slug } --post_status=published --post_title='A sample post' --porcelain`
-				);
-			}
-
-			return await exec(
-				// eslint-disable-next-line max-len
-				`yarn wp-env run tests-cli wp post create --post_type=${ postType.slug } --post_status=published --post_title='A sample post' --porcelain`
+			// eslint-disable-next-line no-console
+			console.log(
+				'  ✓ Fresh database ready (credentials NOT configured - ready for fresh-install test)\n'
 			);
+			return null;
 		},
 
 		async 'wp:plugin:activate'( plugin ) {
@@ -177,6 +237,7 @@ function setupNodeEvents( on, config ) {
 		},
 
 		async 'wp:post:deleteAll'( searchTerm ) {
+			// eslint-disable-next-line max-len
 			const wpCmd = `wp post delete $(wp post list --post_type=post,page --s='${ searchTerm }' --format=ids) --force`;
 
 			if ( process.env.CI ) {
@@ -208,6 +269,7 @@ function setupNodeEvents( on, config ) {
 			const escapedTitle = title.replace( /'/g, "'\\''" );
 			const escapedContent = content.replace( /'/g, "'\\''" );
 
+			// eslint-disable-next-line max-len
 			const wpCmd = `wp post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
 
 			if ( process.env.CI ) {
@@ -264,7 +326,9 @@ function setupNodeEvents( on, config ) {
 				if ( process.env.CI ) {
 					result = await exec( listCmd );
 				} else {
-					result = await exec( `yarn wp-env run tests-cli ${ listCmd }` );
+					result = await exec(
+						`yarn wp-env run tests-cli ${ listCmd }`
+					);
 				}
 
 				const optionNames = result.stdout
@@ -282,7 +346,9 @@ function setupNodeEvents( on, config ) {
 					if ( process.env.CI ) {
 						await exec( deleteCmd );
 					} else {
-						await exec( `yarn wp-env run tests-cli ${ deleteCmd }` );
+						await exec(
+							`yarn wp-env run tests-cli ${ deleteCmd }`
+						);
 					}
 				}
 			} catch ( error ) {

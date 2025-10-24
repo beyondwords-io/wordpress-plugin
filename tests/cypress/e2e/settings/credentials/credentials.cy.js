@@ -1,6 +1,12 @@
-/* global Cypress, cy, beforeEach, context, it */
+/* global Cypress, cy, before, beforeEach, context, it */
 
 context( 'Settings > Credentials', () => {
+	before( () => {
+		// This test file requires a fresh database WITHOUT credentials
+		// to properly test the credential entry flow
+		cy.task( 'setupFreshDatabase' );
+	} );
+
 	beforeEach( () => {
 		cy.login();
 		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)

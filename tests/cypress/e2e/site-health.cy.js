@@ -2,7 +2,9 @@
 
 context( 'Site Health', () => {
 	before( () => {
-		// One-time setup for all tests
+		// This test requires a fresh database WITHOUT credentials
+		// to test the initial settings sync when credentials are first configured
+		cy.task( 'setupFreshDatabase' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
 	} );
@@ -141,17 +143,17 @@ context( 'Site Health', () => {
 					);
 					cy.get( 'td' ).should( 'have.text', 'No' );
 				} );
-			// Preselect ‘Generate audio’
+			// Preselect 'Generate audio'
 			cy.get( 'tr' )
 				.eq( 11 )
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
-						'Preselect ‘Generate audio’'
+						"Preselect 'Generate audio'"
 					);
 					cy.get( 'td' ).should(
 						'have.text',
-						'{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}'
+						'{\n    "post": "1",\n    "page": "1"\n}'
 					);
 				} );
 			// Default language code
