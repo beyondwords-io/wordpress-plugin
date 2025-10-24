@@ -149,7 +149,7 @@ context( 'Site Health', () => {
 				.within( () => {
 					cy.get( 'th' ).should(
 						'have.text',
-						"Preselect 'Generate audio'"
+						'Preselect \u2018Generate audio\u2019'
 					);
 					cy.get( 'td' ).should(
 						'have.text',
