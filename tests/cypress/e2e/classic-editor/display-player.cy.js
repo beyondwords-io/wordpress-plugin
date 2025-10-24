@@ -2,6 +2,7 @@
 
 context( 'Classic Editor: Display Player', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();

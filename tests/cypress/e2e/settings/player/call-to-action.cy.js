@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Call-to-action', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveMinimalPluginSettings();

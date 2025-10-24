@@ -2,6 +2,7 @@
 
 context( 'Block Editor: Segment markers', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();

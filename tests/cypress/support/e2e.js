@@ -1,4 +1,4 @@
-/* global Cypress, cy, before, beforeEach */
+/* global Cypress, cy, beforeEach */
 
 // ***********************************************************
 // This example support/e2e.js is processed and
@@ -46,17 +46,6 @@ Cypress.on( 'test:after:run', ( test ) => {
 Cypress.on( 'uncaught:exception', () => {
 	// returning false here prevents Cypress from failing the test
 	return false;
-} );
-
-/**
- * Global setup that runs before EACH spec file
- * The setupDatabase task will only run the database setup on the first call
- */
-before( () => {
-	// Set up database once at the start of the test suite
-	// This uses a module-level flag to ensure it only runs once
-	// Sets up a clean database WITH credentials configured for most tests
-	cy.task( 'setupDatabase' );
 } );
 
 beforeEach( () => {

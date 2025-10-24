@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Playback from segments', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveMinimalPluginSettings();

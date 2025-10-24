@@ -2,6 +2,7 @@
 
 describe( 'WordPress Filters', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// Setup plugin settings once for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();

@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Player colors', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveMinimalPluginSettings();

@@ -2,6 +2,7 @@
 
 context( 'Settings > Summarization', () => {
 	before( () => {
+		cy.task( 'setupDatabase' );
 		// One-time setup for all tests
 		cy.login();
 		cy.saveStandardPluginSettings();

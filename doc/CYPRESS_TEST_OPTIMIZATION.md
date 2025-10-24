@@ -433,10 +433,16 @@ yarn cypress:run
      - [tests/cypress/e2e/settings/settings.cy.js](tests/cypress/e2e/settings/settings.cy.js) - Tests voice settings sync on first install
      - [tests/cypress/e2e/site-health.cy.js](tests/cypress/e2e/site-health.cy.js) - Tests initial settings sync and default values
 
-4. **Updated global setup** in [tests/cypress/support/e2e.js](tests/cypress/support/e2e.js):
-   - Changed `cy.task('resetOnce')` → `cy.task('setupDatabase')`
-   - Runs before first spec file
-   - Sets up database WITH credentials for all subsequent tests
+4. **Removed global setup** from [tests/cypress/support/e2e.js](tests/cypress/support/e2e.js):
+   - Removed global `before()` hook to eliminate overhead of 33 task calls
+   - Each test file now explicitly calls `setupDatabase` or `setupFreshDatabase`
+   - This improves performance by avoiding unnecessary async task calls
+
+5. **Added explicit database setup to all 33 test files**:
+   - 30 files call `cy.task('setupDatabase')` in their `before()` hook
+   - 3 files call `cy.task('setupFreshDatabase')` for fresh-install testing
+   - First file to run will trigger the actual database setup
+   - Subsequent files skip setup due to module-level flag
 
 **Files Modified:**
 - [cypress.config.js](cypress.config.js):
@@ -449,15 +455,20 @@ yarn cypress:run
   - Removed duplicate `wp:post:create` task (line 197-209)
   - Added eslint-disable comments for console.log and max-length
 - [tests/cypress/support/e2e.js](tests/cypress/support/e2e.js):
-  - Line 1: Added `before` to globals
-  - Lines 55-59: Updated to call `setupDatabase`
+  - Removed global `before()` hook (was calling setupDatabase for every spec file)
+  - Removed `before` from global declarations
 - [tests/cypress/e2e/settings/credentials/credentials.cy.js](tests/cypress/e2e/settings/credentials/credentials.cy.js):
   - Lines 4-8: Added `before()` hook calling `setupFreshDatabase`
 - [tests/cypress/e2e/settings/settings.cy.js](tests/cypress/e2e/settings/settings.cy.js):
   - Lines 47-78: Wrapped "has synced the voice settings on install" test in nested context with `setupFreshDatabase`
 - [tests/cypress/e2e/site-health.cy.js](tests/cypress/e2e/site-health.cy.js):
   - Lines 4-10: Added `before()` hook calling `setupFreshDatabase`
+  - Line 152: Fixed quote issue using Unicode escapes `\u2018` and `\u2019`
   - Line 156: Fixed expected preselect value to only include post and page (not cpt_active)
+- [tests/cypress/support/commands.js](tests/cypress/support/commands.js):
+  - Lines 469-474: Fixed prepublish panel close to be conditional (prevents timeout)
+- **All 30 remaining test files**:
+  - Added `cy.task('setupDatabase')` as first line in `before()` hook
 
 **Benefits:**
 - ✅ No manual setup required - tests "just work"
