@@ -466,8 +466,12 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 		}
 	} );
 
-	// Close Prepublish panel
-	cy.get( 'button[aria-label="Close panel"]' ).click();
+	// Close Prepublish panel if it's still open
+	cy.get( 'body' ).then( ( $body ) => {
+		if ( $body.find( 'button[aria-label="Close panel"]' ).length ) {
+			cy.get( 'button[aria-label="Close panel"]' ).click();
+		}
+	} );
 } );
 
 // "Save" existing post
