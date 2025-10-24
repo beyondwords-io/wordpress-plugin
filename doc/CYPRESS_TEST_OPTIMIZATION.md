@@ -334,6 +334,77 @@ afterEach(() => {
 **Conclusion:**
 Focus remains on test performance optimization (Phase 1 & 2 complete). JavaScript code coverage would be nice-to-have but not worth compromising WordPress build standards.
 
+### 2025-10-24 - CI Setup Fix 🔧
+
+**Issue:** All CI tests failing with WordPress pointer tooltip covering form fields
+- Error: `cy.clear()` failed because element is covered by `<div class="wp-pointer-content">...</div>`
+- Root cause: Removed `cy.task('reset')` from tests, so WordPress pointers not being dismissed
+
+**Solution:**
+1. **Added `cy.dismissPointers()` command** - Automatically dismisses WordPress admin tooltips
+2. **Updated `cy.saveMinimalPluginSettings()`** - Now calls `cy.dismissPointers()` before interacting with forms
+3. **Created CI setup script** - One-time database initialization for CI environments
+
+**New Files:**
+- [tests/cypress/scripts/setup-ci.js](tests/cypress/scripts/setup-ci.js) - One-time CI setup script
+
+**New Commands:**
+- `yarn cypress:setup` - Run once before Cypress tests in CI to initialize WordPress
+
+**Usage in CI:**
+```bash
+# Run once before the test suite
+yarn cypress:setup
+
+# Then run tests normally
+yarn cypress:run
+```
+
+**Usage Locally:**
+- WordPress pointers are automatically dismissed when visiting settings pages
+- No manual setup needed - `cy.dismissPointers()` is called automatically
+
+### 2025-10-24 - Plugin Settings Isolation Fix 🔧
+
+**Issue:** Plugin settings persisting between test files
+- After removing `cy.task('reset')`, plugin settings from previous test files were affecting subsequent tests
+- Tests were no longer independent - test order mattered
+
+**Solution:**
+1. **Added WP CLI tasks** for option management in `cypress.config.js`:
+   - `wp:option:delete(optionName)` - Delete a single WordPress option
+   - `wp:options:deleteByPattern(pattern)` - Delete all options matching a pattern
+
+2. **Added `cy.resetPluginSettings()` command** - Deletes all `beyondwords_*` options to reset plugin to defaults
+
+3. **Updated all 31 test files** - Added `cy.resetPluginSettings()` to `before()` hooks:
+   ```javascript
+   before(() => {
+     cy.login();
+     cy.resetPluginSettings();  // Ensures clean plugin state
+     cy.saveStandardPluginSettings();
+   });
+   ```
+
+**Files Updated:**
+- 31 test files with `before()` hooks now reset plugin settings
+- 2 test files without `before()` hooks were skipped (settings/settings.cy.js, settings/credentials/credentials.cy.js)
+
+**Result:**
+- Each test file starts with clean plugin settings
+- Tests are now fully independent again
+- No settings pollution between test files
+
+**IMPORTANT FIX - 403 Forbidden Error:**
+- Initially, `cy.resetPluginSettings()` deleted ALL settings including API credentials
+- This caused 403 errors when visiting settings pages
+- **Fixed**: Updated to preserve `beyondwords_api_key` and `beyondwords_project_id`
+- Now only non-credential settings are reset between test files
+
+**Files Modified for Fix:**
+- [cypress.config.js](cypress.config.js:202-239) - Updated `wp:options:deleteByPattern` to accept exclude list
+- [tests/cypress/support/commands.js](tests/cypress/support/commands.js:622-628) - Updated `cy.resetPluginSettings()` to preserve credentials
+
 ### [Date] - Final Results
 - [ ] Old reset method removed
 - [ ] Documentation updated

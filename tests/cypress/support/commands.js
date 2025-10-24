@@ -182,8 +182,25 @@ Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
 		.then( ( $el ) => cy.wrap( $el ) );
 } );
 
+Cypress.Commands.add( 'dismissPointers', () => {
+	// Dismiss WordPress admin pointers/tooltips that may be covering elements
+	cy.get( 'body' ).then( ( $body ) => {
+		if ( $body.find( '.wp-pointer' ).length > 0 ) {
+			// Try clicking the close button (X in top right)
+			cy.get(
+				'.wp-pointer .wp-pointer-buttons a.close, .wp-pointer button.wp-pointer-close'
+			).each( ( $closeBtn ) => {
+				cy.wrap( $closeBtn ).click( { force: true } );
+			} );
+		}
+	} );
+} );
+
 Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
+
+	// Dismiss any WordPress pointers/tooltips that may be covering form fields
+	cy.dismissPointers();
 
 	cy.get( 'input[name="beyondwords_api_key"]' )
 		.clear()
@@ -191,6 +208,22 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 	cy.get( 'input[name="beyondwords_project_id"]' )
 		.clear()
 		.type( Cypress.env( 'projectId' ) );
+
+	cy.get( 'input[type=submit]' ).click();
+	cy.get( '.notice-success' );
+
+	// Also visit Content tab to set minimal preselect settings
+	// Only post and page should be preselected by default
+	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
+
+	cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
+	cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
+	cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
+	// Explicitly uncheck cpt_active (might be checked by previous tests)
+	cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).uncheck();
+	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should(
+		'not.be.checked'
+	);
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
@@ -595,6 +628,19 @@ Cypress.Commands.add(
  */
 Cypress.Commands.add( 'cleanupTestPosts', () => {
 	cy.task( 'wp:post:deleteAll', 'Cypress Test' );
+} );
+
+/**
+ * Reset BeyondWords plugin settings to defaults.
+ * This ensures tests start with a clean slate for plugin configuration.
+ * Preserves API credentials (api_key and project_id) to avoid 403 errors.
+ */
+Cypress.Commands.add( 'resetPluginSettings', () => {
+	// Delete all beyondwords_* options EXCEPT api_key and project_id
+	cy.task( 'wp:options:deleteByPattern', {
+		pattern: 'beyondwords_',
+		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
+	} );
 } );
 
 /**

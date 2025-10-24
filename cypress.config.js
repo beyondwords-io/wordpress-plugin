@@ -76,6 +76,21 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		async 'ensureTestPlugins'() {
+			// Ensure required test plugins are activated (without full DB reset)
+			const plugins =
+				'speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported';
+
+			if ( process.env.CI ) {
+				await exec( `wp plugin activate ${ plugins }` );
+			} else {
+				await exec(
+					`yarn wp-env run tests-cli wp plugin activate ${ plugins }`
+				);
+			}
+			return null;
+		},
+
 		async 'wp:post:create'( postType ) {
 			if ( process.env.CI ) {
 				return await exec(
@@ -174,6 +189,65 @@ function setupNodeEvents( on, config ) {
 				await exec( wpCmd );
 			} else {
 				await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+			}
+
+			return null;
+		},
+
+		async 'wp:option:delete'( optionName ) {
+			const wpCmd = `wp option delete ${ optionName }`;
+
+			if ( process.env.CI ) {
+				try {
+					await exec( wpCmd );
+				} catch ( error ) {
+					// Ignore errors if option doesn't exist
+				}
+			} else {
+				try {
+					await exec( `yarn wp-env run tests-cli ${ wpCmd }` );
+				} catch ( error ) {
+					// Ignore errors if option doesn't exist
+				}
+			}
+
+			return null;
+		},
+
+		async 'wp:options:deleteByPattern'( options ) {
+			const { pattern, exclude = [] } = options;
+
+			// Get all options matching pattern and delete them
+			const listCmd = `wp option list --search='${ pattern }' --field=option_name`;
+
+			try {
+				let result;
+				if ( process.env.CI ) {
+					result = await exec( listCmd );
+				} else {
+					result = await exec( `yarn wp-env run tests-cli ${ listCmd }` );
+				}
+
+				const optionNames = result.stdout
+					.trim()
+					.split( '\n' )
+					.filter( Boolean );
+
+				for ( const optionName of optionNames ) {
+					// Skip excluded options
+					if ( exclude.includes( optionName ) ) {
+						continue;
+					}
+
+					const deleteCmd = `wp option delete ${ optionName }`;
+					if ( process.env.CI ) {
+						await exec( deleteCmd );
+					} else {
+						await exec( `yarn wp-env run tests-cli ${ deleteCmd }` );
+					}
+				}
+			} catch ( error ) {
+				// Ignore errors if no options found
 			}
 
 			return null;

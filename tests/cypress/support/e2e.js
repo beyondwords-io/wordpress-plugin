@@ -49,14 +49,14 @@ Cypress.on( 'uncaught:exception', () => {
 } );
 
 /**
- * Reset WordPress
- * (This is now done in each test)
+ * Global setup that runs ONCE before the first spec file
+ * Ensures required test plugins are activated
  */
-// before( () => {
-//   cy.task( 'reset' )
-//   cy.login()
-//   cy.saveStandardPluginSettings()
-// } )
+before( () => {
+	// Ensure test plugins (cpt-active, cpt-inactive, etc.) are activated
+	// This is needed because we no longer run full DB reset
+	cy.task( 'ensureTestPlugins' );
+} );
 
 beforeEach( () => {
 	// disable Cypress's default behavior of logging all XMLHttpRequests and fetches
