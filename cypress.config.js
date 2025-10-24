@@ -2,6 +2,9 @@ const { defineConfig } = require( 'cypress' );
 const util = require( 'util' );
 const exec = util.promisify( require( 'child_process' ).exec );
 
+// Track if we've done the one-time reset for this test run
+let hasResetDatabase = false;
+
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
@@ -88,6 +91,42 @@ function setupNodeEvents( on, config ) {
 					`yarn wp-env run tests-cli wp plugin activate ${ plugins }`
 				);
 			}
+			return null;
+		},
+
+		async 'resetOnce'() {
+			// Run database reset only once per test suite
+			if ( hasResetDatabase ) {
+				console.log(
+					'  ✓ Database already reset for this test run, skipping...'
+				);
+				return null;
+			}
+
+			console.log( '  → Running one-time database reset...' );
+
+			if ( process.env.CI ) {
+				await exec( 'wp plugin activate wp-reset' );
+				await exec( 'wp reset reset --yes' );
+				await exec( 'wp plugin deactivate --all' );
+				await exec(
+					'wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
+				);
+			} else {
+				await exec(
+					`yarn wp-env run tests-cli wp plugin activate wp-reset`
+				);
+				await exec( `yarn wp-env run tests-cli wp reset reset --yes` );
+				await exec(
+					`yarn wp-env run tests-cli wp plugin deactivate --all`
+				);
+				await exec(
+					`yarn wp-env run tests-cli wp plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported`
+				);
+			}
+
+			hasResetDatabase = true;
+			console.log( '  ✓ Database reset complete!' );
 			return null;
 		},
 

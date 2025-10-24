@@ -49,13 +49,13 @@ Cypress.on( 'uncaught:exception', () => {
 } );
 
 /**
- * Global setup that runs ONCE before the first spec file
- * Ensures required test plugins are activated
+ * Global setup that runs before EACH spec file
+ * The resetOnce task will only run the database reset on the first call
  */
 before( () => {
-	// Ensure test plugins (cpt-active, cpt-inactive, etc.) are activated
-	// This is needed because we no longer run full DB reset
-	cy.task( 'ensureTestPlugins' );
+	// Reset database once at the start of the test suite
+	// This uses a module-level flag to ensure it only runs once
+	cy.task( 'resetOnce' );
 } );
 
 beforeEach( () => {

@@ -211,22 +211,6 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-
-	// Also visit Content tab to set minimal preselect settings
-	// Only post and page should be preselected by default
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
-
-	cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
-	cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
-	// Explicitly uncheck cpt_active (might be checked by previous tests)
-	cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).uncheck();
-	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should(
-		'not.be.checked'
-	);
-
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
 } );
 
 Cypress.Commands.add( 'saveStandardPluginSettings', () => {

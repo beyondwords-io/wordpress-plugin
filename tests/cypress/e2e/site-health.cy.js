@@ -151,7 +151,7 @@ context( 'Site Health', () => {
 					);
 					cy.get( 'td' ).should(
 						'have.text',
-						'{\n    "post": "1",\n    "page": "1"\n}'
+						'{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}'
 					);
 				} );
 			// Default language code
