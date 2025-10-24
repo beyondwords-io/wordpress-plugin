@@ -87,7 +87,12 @@ class PlayerTabTest extends TestCase
         });
 
         $this->assertStringContainsString(
-            'Configure how the player appears on your site',
+            'By default, these settings are applied to the BeyondWords player for all existing and future posts.',
+            $html
+        );
+
+        $this->assertStringContainsString(
+            'Unique player settings per-post is supported via the <a href="https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/wordpress-filters/beyondwords_player_sdk_params" target="_blank" rel="nofollow">beyondwords_player_sdk_params</a> filter.',
             $html
         );
     }
