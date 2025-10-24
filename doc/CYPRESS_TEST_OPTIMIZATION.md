@@ -301,10 +301,38 @@ afterEach(() => {
 1. Run tests to verify they still pass
 2. Measure actual performance improvement
 
-### [Date] - Phase 2 Complete
-- [ ] All test files refactored
-- [ ] Tests passing
-- [ ] Performance improvements verified
+### 2025-10-24 - Code Coverage Investigation ❌
+
+**Goal:** Set up Cypress code coverage to track JavaScript test coverage
+
+**Attempted Approach:**
+- Tried to set up `@cypress/code-coverage` with build-time instrumentation
+- Required adding `babel-plugin-istanbul` to instrument source code during webpack build
+
+**Issue Identified:**
+- No major WordPress projects (Automattic, WordPress core) found using `.babelrc` + `babel-plugin-istanbul` with `@wordpress/scripts`
+- Modifying webpack/Babel configuration would interfere with the official `@wordpress/scripts` build process
+- Risk of breaking WordPress-standard build workflow
+
+**Decision:**
+- ❌ **Not implementing Cypress code coverage at this time**
+- Must maintain compatibility with official WordPress build tooling
+- Code coverage instrumentation would require custom build modifications that aren't supported/documented by WordPress
+
+**What Was Reverted:**
+- Removed `.babelrc` configuration
+- Removed `.nycrc` configuration
+- Removed Cypress coverage integration from `cypress.config.js` and `tests/cypress/support/e2e.js`
+- Uninstalled dependencies: `@cypress/code-coverage`, `babel-plugin-istanbul`, `nyc`, `istanbul-lib-coverage`, `@babel/preset-env`
+- Removed coverage scripts from `package.json`
+
+**Alternative Options (Not Pursued):**
+1. Runtime instrumentation (complex, affects test performance)
+2. Manual code coverage tracking (not practical)
+3. PHPUnit coverage only (already have this at 86.57%)
+
+**Conclusion:**
+Focus remains on test performance optimization (Phase 1 & 2 complete). JavaScript code coverage would be nice-to-have but not worth compromising WordPress build standards.
 
 ### [Date] - Final Results
 - [ ] Old reset method removed
