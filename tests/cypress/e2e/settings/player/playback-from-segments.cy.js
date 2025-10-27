@@ -6,8 +6,6 @@ context( 'Settings > Player > Playback from segments', () => {
 	} );
 
 	it( `sets "Playback from segments"`, () => {
-		cy.saveMinimalPluginSettings();
-
 		// Check
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( '#beyondwords_player_clickable_sections' ).check();

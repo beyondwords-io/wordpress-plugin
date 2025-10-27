@@ -6,8 +6,6 @@ context( 'Settings > Summarization', () => {
 	} );
 
 	it( 'has the "Manage summarization" button', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=summarization'
 		);

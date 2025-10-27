@@ -27,8 +27,6 @@ context( 'Settings > Player > Widget position', () => {
 
 	options.forEach( ( option ) => {
 		it( `sets "${ option.label }"`, () => {
-			cy.saveMinimalPluginSettings();
-
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=player'
 			);

@@ -6,8 +6,6 @@ context( 'Settings > Player UI', () => {
 	} );
 
 	it( 'uses "Enabled" Player UI setting', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' );
 		cy.get( 'input[type="submit"]' ).click();
@@ -23,8 +21,6 @@ context( 'Settings > Player UI', () => {
 	} );
 
 	it( 'uses "Headless" Player UI setting', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' );
 		cy.get( 'input[type="submit"]' ).click();
@@ -40,8 +36,6 @@ context( 'Settings > Player UI', () => {
 	} );
 
 	it( 'uses "Disabled" Player UI setting', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' );
 		cy.get( 'input[type="submit"]' ).click();

@@ -9,8 +9,6 @@ context( 'Settings > Player > Skip button style', () => {
 
 	values.forEach( ( value ) => {
 		it( `sets "${ value }"`, () => {
-			cy.saveMinimalPluginSettings();
-
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=player'
 			);

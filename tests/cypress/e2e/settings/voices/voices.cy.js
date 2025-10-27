@@ -6,8 +6,6 @@ context( 'Settings > Voices', () => {
 	} );
 
 	it( 'opens the "Voices" tab', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
 		cy.get( '#beyondwords-plugin-settings > h2' )
 			.eq( 0 )

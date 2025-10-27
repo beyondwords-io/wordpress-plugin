@@ -9,8 +9,6 @@ context( 'Settings > Player > Call-to-action', () => {
 
 	values.forEach( ( value ) => {
 		it( `sets "${ value }"`, () => {
-			cy.saveMinimalPluginSettings();
-
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=player'
 			);

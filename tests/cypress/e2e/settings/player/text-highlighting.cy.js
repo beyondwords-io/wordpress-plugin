@@ -6,8 +6,6 @@ context( 'Settings > Player > Text highlighting', () => {
 	} );
 
 	it( `sets "Text highlighting"`, () => {
-		cy.saveMinimalPluginSettings();
-
 		// Check
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( '#beyondwords_player_highlight_sections' ).check();

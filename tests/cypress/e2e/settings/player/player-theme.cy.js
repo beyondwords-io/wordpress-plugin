@@ -22,8 +22,6 @@ context( 'Settings > Player > Player theme', () => {
 
 	themes.forEach( ( theme ) => {
 		it( `sets "${ theme.label }"`, () => {
-			cy.saveMinimalPluginSettings();
-
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=player'
 			);

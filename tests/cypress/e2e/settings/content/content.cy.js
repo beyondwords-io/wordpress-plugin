@@ -6,8 +6,6 @@ context( 'Settings > Content', () => {
 	} );
 
 	it( 'can set the Content plugin settings', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=content'
 		);

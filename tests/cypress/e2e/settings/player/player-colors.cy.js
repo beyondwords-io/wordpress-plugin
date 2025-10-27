@@ -26,8 +26,6 @@ context( 'Settings > Player > Player colors', () => {
 	};
 
 	it( `sets Player colors"`, () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 
 		cy.get(

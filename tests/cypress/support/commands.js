@@ -67,6 +67,9 @@ Cypress.Commands.add( 'login', () => {
 	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` );
 
 	cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+
+	// Go to BeyondWords Player settings tab to ensure any settings are loaded
+	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 } );
 
 Cypress.Commands.add( 'createPost', ( options = {} ) => {
@@ -196,7 +199,7 @@ Cypress.Commands.add( 'dismissPointers', () => {
 	} );
 } );
 
-Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
+Cypress.Commands.add( 'manuallySaveAllPluginSettings', () => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
 
 	// Dismiss any WordPress pointers/tooltips that may be covering form fields
@@ -211,10 +214,6 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveStandardPluginSettings', () => {
-	cy.saveMinimalPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
 
@@ -231,10 +230,6 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveAllPluginSettings', () => {
-	cy.saveStandardPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
 	cy.get( 'input[type=submit]' ).click();

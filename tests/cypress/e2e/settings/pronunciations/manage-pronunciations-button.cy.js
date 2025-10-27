@@ -6,8 +6,6 @@ context( 'Settings > Pronunciations', () => {
 	} );
 
 	it( 'has the "Manage pronunciations" button', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=pronunciations'
 		);
