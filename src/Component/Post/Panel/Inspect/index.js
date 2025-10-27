@@ -73,7 +73,12 @@ export function PostInspectPanel( {
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost ] );
 
 	useEffect( () => {
-		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed && removed ) {
+		if (
+			isSavingPost &&
+			! isAutosavingPost &&
+			didPostSaveRequestSucceed &&
+			removed
+		) {
 			setRemoved( false );
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );

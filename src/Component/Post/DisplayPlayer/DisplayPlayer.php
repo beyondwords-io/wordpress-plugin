@@ -77,7 +77,7 @@ class DisplayPlayer
     /**
      * Render the element.
      *
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static, fix checkbox checked bug.
      *
      * @param \WP_Post $post The post object.
      */
@@ -89,7 +89,7 @@ class DisplayPlayer
 
         wp_nonce_field('beyondwords_display_player', 'beyondwords_display_player_nonce');
 
-        $displayPlayer = PostMetaUtils::getDisabled($post->ID) !== '1';
+        $displayPlayer = ! PostMetaUtils::getDisabled($post->ID);
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-display-player">

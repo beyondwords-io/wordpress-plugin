@@ -196,7 +196,7 @@ Cypress.Commands.add( 'dismissPointers', () => {
 	} );
 } );
 
-Cypress.Commands.add( 'manuallySaveAllPluginSettings', () => {
+Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
 
 	// Dismiss any WordPress pointers/tooltips that may be covering form fields
@@ -211,6 +211,10 @@ Cypress.Commands.add( 'manuallySaveAllPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
+} );
+
+Cypress.Commands.add( 'saveStandardPluginSettings', () => {
+	cy.saveMinimalPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
 
@@ -227,6 +231,10 @@ Cypress.Commands.add( 'manuallySaveAllPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
+} );
+
+Cypress.Commands.add( 'saveAllPluginSettings', () => {
+	cy.saveStandardPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
 	cy.get( 'input[type=submit]' ).click();
@@ -262,7 +270,7 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'activatePlugin', plugin );
+		cy.task( 'wp:plugin:activate', plugin );
 	} );
 } );
 
@@ -271,7 +279,7 @@ Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'deactivatePlugin', plugin );
+		cy.task( 'wp:plugin:deactivate', plugin );
 	} );
 } );
 
@@ -280,7 +288,7 @@ Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'uninstallPlugin', plugin );
+		cy.task( 'wp:plugin:uninstall', plugin );
 	} );
 } );
 
@@ -517,6 +525,8 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 	cy.getPlayerScriptTag().each( ( $el ) => {
 		const onload = $el.attr( 'onload' );
 		const match = onload.match( /\{target:this, \.\.\.(.+)\}\)/ );
+		console.log( 'onload', onload );
+		console.log( 'match', match );
 
 		if ( ! match ) {
 			throw new Error(
@@ -605,17 +615,7 @@ Cypress.Commands.add(
  * This is much faster than a full DB reset (100-500ms vs 5-10s).
  */
 Cypress.Commands.add( 'cleanupTestPosts', () => {
-	cy.task( 'deleteAllPosts', 'Cypress Test' );
-} );
-
-/**
- * Update a WordPress option.
- *
- * @param {string} name  - The name of the option to update
- * @param {any}    value - The value to set for the option
- */
-Cypress.Commands.add( 'updateOption', ( name, value ) => {
-	cy.task( 'updateOption', { name, value } );
+	cy.task( 'wp:post:deleteAll', 'Cypress Test' );
 } );
 
 /**
@@ -624,14 +624,10 @@ Cypress.Commands.add( 'updateOption', ( name, value ) => {
  * Preserves API credentials (api_key and project_id) to avoid 403 errors.
  */
 Cypress.Commands.add( 'resetPluginSettings', () => {
-	// Delete all beyondwords_* options EXCEPT creds options
-	cy.task( 'deleteOptionsByPattern', {
+	// Delete all beyondwords_* options EXCEPT api_key and project_id
+	cy.task( 'wp:options:deleteByPattern', {
 		pattern: 'beyondwords_',
-		exclude: [
-			'beyondwords_api_key',
-			'beyondwords_project_id',
-			'beyondwords_valid_api_connection',
-		],
+		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
 	} );
 } );
 
@@ -657,7 +653,7 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 	const testTitle = `Cypress Test - ${ title }`;
 
 	return cy
-		.task( 'createPost', {
+		.task( 'wp:post:create', {
 			title: testTitle,
 			content,
 			status,
@@ -688,7 +684,7 @@ Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 	return cy.createTestPost( { title, content } ).then( ( postId ) => {
 		if ( generateAudio ) {
 			// Set the meta to generate audio for this post
-			cy.task( 'setPostMeta', {
+			cy.task( 'wp:post:setMeta', {
 				postId,
 				metaKey: 'beyondwords_generate_audio',
 				metaValue: '1',
