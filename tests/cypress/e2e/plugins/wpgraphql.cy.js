@@ -2,21 +2,15 @@
 
 context( 'Plugins: WPGraphQL', () => {
 	before( () => {
-		cy.task( 'setupDatabase' );
-		// One-time setup for all tests
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'wp-graphql' );
+		cy.task( 'activatePlugin', 'wp-graphql' );
 	} );
 
 	beforeEach( () => {
 		cy.login();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'wp-graphql' );
+		cy.task( 'deactivatePlugin', 'wp-graphql' );
 	} );
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );

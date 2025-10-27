@@ -9,8 +9,8 @@ let hasSetupDatabase = false;
  * Helper function to execute WP-CLI commands
  * Automatically handles CI vs local environment differences
  *
- * @param {string|string[]} commands - Single command or array of commands
- * @param {Object}          options - Optional configuration
+ * @param {string|string[]} commands             - Single command or array of commands
+ * @param {Object}          options              - Optional configuration
  * @param {boolean}         options.returnResult - Return exec result
  * @return {Promise<void|Object>} Exec result if returnResult is true
  */
@@ -67,40 +67,6 @@ function setupNodeEvents( on, config ) {
 
 	// implement node event listeners here
 	on( 'task', {
-		async 'wp-env:clean'() {
-			return await exec( 'yarn wp-env clean' );
-		},
-
-		async run( command ) {
-			if ( process.env.CI ) {
-				return await exec( command );
-			}
-
-			return await exec(
-				`yarn wp-env run tests-cli ${ JSON.stringify(
-					String( command )
-				) }`
-			);
-		},
-
-		async reset() {
-			await execWp( [
-				'plugin activate wp-reset',
-				'reset reset --yes',
-				'plugin deactivate --all',
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
-			] );
-			return null;
-		},
-
-		async ensureTestPlugins() {
-			// Ensure required test plugins are activated (without full DB reset)
-			await execWp(
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported'
-			);
-			return null;
-		},
-
 		async setupDatabase() {
 			// Run database setup only once per test suite
 			// This sets up a clean database WITH credentials configured
@@ -113,7 +79,7 @@ function setupNodeEvents( on, config ) {
 			}
 
 			// eslint-disable-next-line no-console
-			console.log( '  → Running one-time database setup...' );
+			console.log( '  - Running database setup...' );
 
 			// Reset database and activate plugins
 			await execWp( [
@@ -127,12 +93,13 @@ function setupNodeEvents( on, config ) {
 				`option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`,
 				// Set defaults for options NOT synced from API
 				'option add beyondwords_player_ui enabled',
-				'option add beyondwords_preselect \'{"post":"1","page":"1"}\' --format=json',
+				// eslint-disable-next-line max-len
+				'option add beyondwords_preselect \'{"post":"1","page":"1","cpt_active":"1"}\' --format=json',
 			] );
 
 			hasSetupDatabase = true;
 			// eslint-disable-next-line no-console
-			console.log( '  ✓ Database setup complete with credentials!' );
+			console.log( '  ✓ Database setup complete' );
 			return null;
 		},
 
@@ -144,7 +111,7 @@ function setupNodeEvents( on, config ) {
 			// trigger setupDatabase again to restore credentials
 			// eslint-disable-next-line no-console
 			console.log(
-				'\n  🔄 Resetting to FRESH database (no credentials) for fresh-install test...'
+				'\n  🔄 Resetting to FRESH database (no credentials)...'
 			);
 
 			await execWp( [
@@ -160,29 +127,29 @@ function setupNodeEvents( on, config ) {
 
 			// eslint-disable-next-line no-console
 			console.log(
-				'  ✓ Fresh database ready (credentials NOT configured - ready for fresh-install test)\n'
+				'  ✓ Fresh database ready (credentials NOT configured)\n'
 			);
 			return null;
 		},
 
-		async 'wp:plugin:activate'( plugin ) {
+		async activatePlugin( plugin ) {
 			await execWp( `plugin activate ${ plugin }` );
 			return null;
 		},
 
-		async 'wp:plugin:deactivate'( plugin ) {
+		async deactivatePlugin( plugin ) {
 			await execWp( `plugin deactivate ${ plugin }` );
 			return null;
 		},
 
-		async 'wp:plugin:uninstall'( plugin ) {
+		async uninstallPlugin( plugin ) {
 			await execWp( `plugin uninstall --deactivate ${ plugin }` );
 			return null;
 		},
 
-		async 'wp:post:deleteAll'( searchTerm ) {
+		async deleteAllPosts( searchTerm ) {
 			// eslint-disable-next-line max-len
-			const wpCmd = `post delete $(wp post list --post_type=post,page --s='${ searchTerm }' --format=ids) --force`;
+			const wpCmd = `post delete $(wp post list --post_type=post,page,cpt_active --s='${ searchTerm }' --format=ids) --force`;
 
 			try {
 				await execWp( wpCmd );
@@ -192,7 +159,7 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
-		async 'wp:post:create'( options ) {
+		async createPost( options ) {
 			const {
 				title = 'Test Post',
 				content = '',
@@ -211,7 +178,7 @@ function setupNodeEvents( on, config ) {
 			return parseInt( result.stdout.trim(), 10 );
 		},
 
-		async 'wp:post:setMeta'( options ) {
+		async setPostMeta( options ) {
 			const { postId, metaKey, metaValue } = options;
 			await execWp(
 				`post meta set ${ postId } ${ metaKey } '${ metaValue }'`
@@ -219,7 +186,7 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
-		async 'wp:option:delete'( optionName ) {
+		async deleteOption( optionName ) {
 			try {
 				await execWp( `option delete ${ optionName }` );
 			} catch ( error ) {
@@ -228,7 +195,7 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
-		async 'wp:options:deleteByPattern'( options ) {
+		async deleteOptionsByPattern( options ) {
 			const { pattern, exclude = [] } = options;
 
 			try {

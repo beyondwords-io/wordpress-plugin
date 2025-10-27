@@ -1,17 +1,8 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Settings > Player > Widget style', () => {
-	before( () => {
-		cy.task( 'setupDatabase' );
-		// One-time setup for all tests
-		cy.login();
-		cy.saveMinimalPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	const options = [

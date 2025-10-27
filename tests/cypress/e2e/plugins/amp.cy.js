@@ -2,21 +2,15 @@
 
 context( 'Plugins: AMP', () => {
 	before( () => {
-		cy.task( 'setupDatabase' );
-		// One-time setup for all tests
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'amp' );
+		cy.task( 'activatePlugin', 'amp' );
 	} );
 
 	beforeEach( () => {
 		cy.login();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'amp' );
+		cy.task( 'deactivatePlugin', 'amp' );
 	} );
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );

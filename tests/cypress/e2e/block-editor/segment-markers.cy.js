@@ -1,17 +1,8 @@
-/* global Cypress, cy, before, beforeEach, context, expect, it */
+/* global Cypress, cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Segment markers', () => {
-	before( () => {
-		cy.task( 'setupDatabase' );
-		// One-time setup for all tests
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	const markerRegex =
@@ -137,7 +128,7 @@ context( 'Block Editor: Segment markers', () => {
 					} );
 				} );
 
-				cy.deactivatePlugin( 'speechkit' );
+				cy.task( 'deactivatePlugin', 'speechkit' );
 				cy.reload();
 
 				// Check content on page again, after deactivating the plugin
@@ -146,7 +137,7 @@ context( 'Block Editor: Segment markers', () => {
 						.should( 'not.have.attr', 'data-beyondwords-marker' );
 				} );
 
-				cy.activatePlugin( 'speechkit' );
+				cy.task( 'activatePlugin', 'speechkit' );
 			} );
 
 			it( `assigns unique markers for duplicated blocks in a ${ postType.name }`, () => {

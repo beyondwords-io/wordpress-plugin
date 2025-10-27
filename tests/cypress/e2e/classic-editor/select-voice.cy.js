@@ -4,21 +4,15 @@ context( 'Classic Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'setupDatabase' );
-		// One-time setup for all tests
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'classic-editor' );
+		cy.task( 'activatePlugin', 'classic-editor' );
 	} );
 
 	beforeEach( () => {
 		cy.login();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'classic-editor' );
+		cy.task( 'deactivatePlugin', 'classic-editor' );
 	} );
 
 	// Only test priority post types

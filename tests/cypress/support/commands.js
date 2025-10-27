@@ -270,7 +270,7 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:activate', plugin );
+		cy.task( 'activatePlugin', plugin );
 	} );
 } );
 
@@ -279,7 +279,7 @@ Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:deactivate', plugin );
+		cy.task( 'deactivatePlugin', plugin );
 	} );
 } );
 
@@ -288,7 +288,7 @@ Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:uninstall', plugin );
+		cy.task( 'uninstallPlugin', plugin );
 	} );
 } );
 
@@ -615,7 +615,7 @@ Cypress.Commands.add(
  * This is much faster than a full DB reset (100-500ms vs 5-10s).
  */
 Cypress.Commands.add( 'cleanupTestPosts', () => {
-	cy.task( 'wp:post:deleteAll', 'Cypress Test' );
+	cy.task( 'deleteAllPosts', 'Cypress Test' );
 } );
 
 /**
@@ -624,10 +624,14 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
  * Preserves API credentials (api_key and project_id) to avoid 403 errors.
  */
 Cypress.Commands.add( 'resetPluginSettings', () => {
-	// Delete all beyondwords_* options EXCEPT api_key and project_id
-	cy.task( 'wp:options:deleteByPattern', {
+	// Delete all beyondwords_* options EXCEPT creds options
+	cy.task( 'deleteOptionsByPattern', {
 		pattern: 'beyondwords_',
-		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
+		exclude: [
+			'beyondwords_api_key',
+			'beyondwords_project_id',
+			'beyondwords_valid_api_connection',
+		],
 	} );
 } );
 
@@ -635,10 +639,10 @@ Cypress.Commands.add( 'resetPluginSettings', () => {
  * Create a test post with a unique identifier.
  * Posts created with this command can be cleaned up with cy.cleanupTestPosts().
  *
- * @param {Object} options - Post creation options
- * @param {string} options.title - Post title (will be prefixed with "Cypress Test - ")
- * @param {string} options.content - Post content
- * @param {string} options.status - Post status (default: 'publish')
+ * @param {Object} options          - Post creation options
+ * @param {string} options.title    - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string} options.content  - Post content
+ * @param {string} options.status   - Post status (default: 'publish')
  * @param {string} options.postType - Post type (default: 'post')
  * @return {Promise<number>} The created post ID (aliased as @testPostId)
  */
@@ -653,7 +657,7 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 	const testTitle = `Cypress Test - ${ title }`;
 
 	return cy
-		.task( 'wp:post:create', {
+		.task( 'createPost', {
 			title: testTitle,
 			content,
 			status,
@@ -668,9 +672,9 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 /**
  * Create a test post with BeyondWords audio generation enabled.
  *
- * @param {Object} options - Post creation options
- * @param {string} options.title - Post title (will be prefixed with "Cypress Test - ")
- * @param {string} options.content - Post content
+ * @param {Object}  options               - Post creation options
+ * @param {string}  options.title         - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string}  options.content       - Post content
  * @param {boolean} options.generateAudio - Whether to generate audio (default: true)
  * @return {Promise<number>} The created post ID (aliased as @testPostId)
  */
@@ -684,7 +688,7 @@ Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 	return cy.createTestPost( { title, content } ).then( ( postId ) => {
 		if ( generateAudio ) {
 			// Set the meta to generate audio for this post
-			cy.task( 'wp:post:setMeta', {
+			cy.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_generate_audio',
 				metaValue: '1',

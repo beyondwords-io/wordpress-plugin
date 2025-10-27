@@ -7,8 +7,6 @@ context( 'Site Health', () => {
 		cy.task( 'setupFreshDatabase' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
-		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
-		cy.cleanupTestPosts();
 	} );
 
 	const semverRegex =

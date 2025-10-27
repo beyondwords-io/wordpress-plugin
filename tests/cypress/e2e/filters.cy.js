@@ -1,17 +1,8 @@
-/* global Cypress, cy, before, beforeEach, describe, expect, it */
+/* global Cypress, cy, beforeEach, describe, expect, it */
 
 describe( 'WordPress Filters', () => {
-	before( () => {
-		cy.task( 'setupDatabase' );
-		// Setup plugin settings once for all tests
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
-		// Clean up test posts from previous test (fast - 100-500ms)
-		cy.cleanupTestPosts();
 	} );
 
 	const postTypes = require( '../../../tests/fixtures/post-types.json' );
@@ -21,7 +12,7 @@ describe( 'WordPress Filters', () => {
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
 			it( `can filter Player SDK params for a ${ postType.name }`, () => {
-				cy.activatePlugin( 'beyondwords-filter-player-sdk-params' );
+				cy.task( 'activatePlugin', 'beyondwords-filter-player-sdk-params' );
 
 				cy.publishPostWithAudio( {
 					postType,
@@ -40,11 +31,11 @@ describe( 'WordPress Filters', () => {
 					segmentWidgetPosition: '10-oclock',
 				} );
 
-				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );
+				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-sdk-params' );
 			} );
 
 			it( `can filter Player script onload for a ${ postType.name }`, () => {
-				cy.activatePlugin( 'beyondwords-filter-player-script-onload' );
+				cy.task( 'activatePlugin', 'beyondwords-filter-player-script-onload' );
 
 				cy.publishPostWithAudio( {
 					postType,
@@ -71,7 +62,7 @@ describe( 'WordPress Filters', () => {
 					expect( contentId ).to.equal( Cypress.env( 'contentId' ) );
 				} );
 
-				cy.deactivatePlugin( 'beyondwords-filter-player-sdk-params' );
+				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-sdk-params' );
 			} );
 		} );
 } );
