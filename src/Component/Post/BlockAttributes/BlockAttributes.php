@@ -104,8 +104,14 @@ class BlockAttributes
             return $blockContent;
         }
 
+        $postId = get_the_ID();
+
+        if (! $postId) {
+            return $blockContent;
+        }
+
         // Skip adding marker if no content exists
-        if (! PostMetaUtils::hasContent(get_the_ID())) {
+        if (! PostMetaUtils::hasContent($postId)) {
             return $blockContent;
         }
 
