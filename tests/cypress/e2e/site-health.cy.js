@@ -1,4 +1,4 @@
-/* global Cypress, cy, before, beforeEach, context, expect, it */
+/* global Cypress, cy, before, context, expect, it */
 
 context( 'Site Health', () => {
 	before( () => {
@@ -7,10 +7,6 @@ context( 'Site Health', () => {
 		cy.task( 'setupFreshDatabase' );
 		cy.login();
 		cy.saveMinimalPluginSettings();
-	} );
-
-	beforeEach( () => {
-		cy.login();
 		// Fast cleanup of test posts (100-500ms vs 5-10s full reset)
 		cy.cleanupTestPosts();
 	} );
