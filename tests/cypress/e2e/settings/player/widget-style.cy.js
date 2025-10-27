@@ -3,6 +3,7 @@
 context( 'Settings > Player > Widget style', () => {
 	beforeEach( () => {
 		cy.updateOption( 'beyondwords_video_enabled', '1' );
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 

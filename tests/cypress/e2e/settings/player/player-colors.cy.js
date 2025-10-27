@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Player colors', () => {
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 

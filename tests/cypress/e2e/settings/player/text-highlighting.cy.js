@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Text highlighting', () => {
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 

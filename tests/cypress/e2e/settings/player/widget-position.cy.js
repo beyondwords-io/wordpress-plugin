@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Widget position', () => {
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 

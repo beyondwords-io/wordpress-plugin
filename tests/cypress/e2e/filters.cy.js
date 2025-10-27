@@ -62,7 +62,7 @@ describe( 'WordPress Filters', () => {
 					expect( contentId ).to.equal( Cypress.env( 'contentId' ) );
 				} );
 
-				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-sdk-params' );
+				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-script-onload' );
 			} );
 		} );
 } );

@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Call-to-action', () => {
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 

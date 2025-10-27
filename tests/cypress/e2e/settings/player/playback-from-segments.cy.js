@@ -2,6 +2,7 @@
 
 context( 'Settings > Player > Playback from segments', () => {
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 
