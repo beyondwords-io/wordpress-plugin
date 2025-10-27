@@ -1,4 +1,4 @@
-/* global Cypress, cy, beforeEach */
+/* global Cypress, cy, before, beforeEach */
 
 // ***********************************************************
 // This example support/e2e.js is processed and

@@ -525,8 +525,6 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 	cy.getPlayerScriptTag().each( ( $el ) => {
 		const onload = $el.attr( 'onload' );
 		const match = onload.match( /\{target:this, \.\.\.(.+)\}\)/ );
-		console.log( 'onload', onload );
-		console.log( 'match', match );
 
 		if ( ! match ) {
 			throw new Error(
