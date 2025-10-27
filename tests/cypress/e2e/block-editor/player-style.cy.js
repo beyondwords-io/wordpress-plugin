@@ -4,6 +4,8 @@ context( 'Block Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_video_enabled', '1' );
+		cy.updateOption( 'beyondwords_player_style', 'standard' );
 		cy.login();
 	} );
 

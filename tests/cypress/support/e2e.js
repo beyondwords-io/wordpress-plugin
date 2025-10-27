@@ -49,6 +49,7 @@ Cypress.on( 'uncaught:exception', () => {
 } );
 
 before( () => {
+	// Clean up test posts from previous test (fast - 100-500ms)
 	cy.task( 'setupDatabase' );
 } );
 

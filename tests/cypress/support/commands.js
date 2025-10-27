@@ -67,9 +67,6 @@ Cypress.Commands.add( 'login', () => {
 	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` );
 
 	cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
-
-	// Go to BeyondWords Player settings tab to ensure any settings are loaded
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 } );
 
 Cypress.Commands.add( 'createPost', ( options = {} ) => {
@@ -609,6 +606,16 @@ Cypress.Commands.add(
  */
 Cypress.Commands.add( 'cleanupTestPosts', () => {
 	cy.task( 'deleteAllPosts', 'Cypress Test' );
+} );
+
+/**
+ * Update a WordPress option.
+ *
+ * @param {string} name  - The name of the option to update
+ * @param {any}    value - The value to set for the option
+ */
+Cypress.Commands.add( 'updateOption', ( name, value ) => {
+	cy.task( 'updateOption', { name, value } );
 } );
 
 /**
