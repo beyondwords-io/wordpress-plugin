@@ -72,10 +72,9 @@ context( 'Block Editor: Add Post', () => {
 					} );
 			} );
 
-			it.skip( `can add a ${ postType.name } with "Pending review" audio`, () => {
+			it( `can add a ${ postType.name } with "Pending review" audio`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can add a ${ postType.name } with "Pending Review" audio`,
 				} );
 
 				cy.openBeyondwordsEditorPanel();

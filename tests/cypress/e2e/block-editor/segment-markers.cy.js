@@ -257,7 +257,7 @@ context( 'Block Editor: Segment markers', () => {
 			} );
 
 			// So far unable to write tests for pasted content, all attempts have failed :(
-			it.skip( 'assigns markers when content is pasted', () => {
+			it( 'assigns markers when content is pasted', () => {
 				cy.createPost( {
 					title: `I see markers for pasted content`,
 				} );
@@ -303,7 +303,7 @@ context( 'Block Editor: Segment markers', () => {
 			} );
 		} );
 
-	it.skip( `makes existing duplicate segment markers unique`, () => {
+	it( `makes existing duplicate segment markers unique`, () => {
 		cy.createPost( {
 			title: `I see existing duplicate markers are replaced with unique markers`,
 		} );

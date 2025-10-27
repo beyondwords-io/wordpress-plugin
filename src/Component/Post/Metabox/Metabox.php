@@ -147,14 +147,20 @@ class Metabox
      * @since 3.7.0
      * @since 6.0.0 Make static.
      *
-     * @var \WP_Post $post Post.
+     * @var int|\WP_Post $post The WordPress post ID, or post object.
      */
     public static function pendingReviewNotice($post)
     {
+        $post = get_post($post);
+
+        if (!($post instanceof \WP_Post)) {
+            return;
+        }
+
         $projectUrl = sprintf(
             '%s/dashboard/project/%d/content',
             Environment::getDashboardUrl(),
-            PostMetaUtils::getProjectId($post)
+            PostMetaUtils::getProjectId($post->ID)
         );
 
         ?>
