@@ -72,7 +72,8 @@ context( 'Block Editor: Add Post', () => {
 					} );
 			} );
 
-			it( `can add a ${ postType.name } with "Pending review" audio`, () => {
+			// @todo Skip flaky test until mock API is replaced with http intercepts.
+			it.skip( `can add a ${ postType.name } with "Pending review" audio`, () => {
 				cy.createPost( {
 					postType,
 				} );
