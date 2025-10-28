@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Settings;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\Languages\Languages;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 use Beyondwords\Wordpress\Component\Settings\Tabs\Content\Content;
@@ -40,40 +41,40 @@ class Settings
      *
      * @since 3.0.0 Introduced.
      * @since 5.4.0 Add plugin review notice.
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        (new Credentials())->init();
-        (new Sync())->init();
+        (new Credentials())::init();
+        (new Sync())::init();
 
         if (SettingsUtils::hasValidApiConnection()) {
-            (new Voices())->init();
-            (new Content())->init();
-            (new Player())->init();
-            (new Summarization())->init();
-            (new Pronunciations())->init();
+            (new Voices())::init();
+            (new Content())::init();
+            (new Player())::init();
+            (new Summarization())::init();
+            (new Pronunciations())::init();
         }
 
-        add_action('admin_menu', array($this, 'addOptionsPage'), 1);
-        add_action('admin_notices', array($this, 'printMissingApiCredsWarning'), 100);
-        add_action('admin_notices', array($this, 'printSettingsErrors'), 200);
-        add_action('admin_notices', array($this, 'maybePrintPluginReviewNotice'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
-        add_action('load-settings_page_beyondwords', array($this, 'maybeValidateApiCreds'));
+        add_action('admin_menu', [self::class, 'addOptionsPage'], 1);
+        add_action('admin_notices', [self::class, 'printMissingApiCredsWarning'], 100);
+        add_action('admin_notices', [self::class, 'printSettingsErrors'], 200);
+        add_action('admin_notices', [self::class, 'maybePrintPluginReviewNotice']);
+        add_action('admin_enqueue_scripts', [self::class, 'enqueueScripts']);
+        add_action('load-settings_page_beyondwords', [self::class, 'maybeValidateApiCreds']);
 
-        add_action('rest_api_init', array($this, 'restApiInit'));
+        add_action('rest_api_init', [self::class, 'restApiInit']);
 
-        add_filter('plugin_action_links_speechkit/speechkit.php', array($this, 'addSettingsLinkToPluginPage'));
+        add_filter('plugin_action_links_speechkit/speechkit.php', [self::class, 'addSettingsLinkToPluginPage']);
     }
 
     /**
      * Add items to the WordPress admin menu.
      *
      * @since  3.0.0
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function addOptionsPage()
+    public static function addOptionsPage(): void
     {
         // Settings > BeyondWords
         add_options_page(
@@ -81,7 +82,7 @@ class Settings
             __('BeyondWords', 'speechkit'),
             'manage_options',
             'beyondwords',
-            array($this, 'createAdminInterface')
+            [self::class, 'createAdminInterface']
         );
     }
 
@@ -89,10 +90,9 @@ class Settings
      * Validate API creds if we are on the credentials tab.
      *
      * @since 5.4.0
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function maybeValidateApiCreds()
+    public static function maybeValidateApiCreds(): void
     {
         $activeTab = self::getActiveTab();
 
@@ -106,10 +106,9 @@ class Settings
      *
      * @since 3.0.0
      * @since 4.7.0 Added tabs.
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function createAdminInterface()
+    public static function createAdminInterface(): void
     {
         $tabs      = self::getTabs();
         $activeTab = self::getActiveTab();
@@ -170,8 +169,9 @@ class Settings
      *
      * @since 3.0.0
      * @since 4.7.0 Prepend custom links instead of appending them.
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsLinkToPluginPage($links)
+    public static function addSettingsLinkToPluginPage(array $links): array
     {
         $settingsLink = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
@@ -190,16 +190,16 @@ class Settings
      *
      * @return array Tabs
      */
-    public static function getTabs()
+    public static function getTabs(): array
     {
-        $tabs = array(
+        $tabs = [
             'credentials'    => __('Credentials', 'speechkit'),
             'content'        => __('Content', 'speechkit'),
             'voices'         => __('Voices', 'speechkit'),
             'player'         => __('Player', 'speechkit'),
             'summarization'  => __('Summarization', 'speechkit'),
             'pronunciations' => __('Pronunciations', 'speechkit'),
-        );
+        ];
 
         if (! SettingsUtils::hasValidApiConnection()) {
             $tabs = array_splice($tabs, 0, 1);
@@ -216,7 +216,7 @@ class Settings
      *
      * @return string Active tab
      */
-    public static function getActiveTab()
+    public static function getActiveTab(): string
     {
         $tabs = self::getTabs();
 
@@ -247,10 +247,9 @@ class Settings
      * Print missing API creds warning.
      *
      * @since 5.2.0
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function printMissingApiCredsWarning()
+    public static function printMissingApiCredsWarning(): void
     {
         if (! SettingsUtils::hasApiCreds()) :
             ?>
@@ -291,10 +290,9 @@ class Settings
      * Maybe print plugin review notice.
      *
      * @since 5.4.0
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function maybePrintPluginReviewNotice()
+    public static function maybePrintPluginReviewNotice(): void
     {
         $screen = get_current_screen();
         if ($screen && 'settings_page_beyondwords' !== $screen->id) {
@@ -341,10 +339,9 @@ class Settings
      * Print settings errors.
      *
      * @since 3.0.0
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function printSettingsErrors()
+    public static function printSettingsErrors(): void
     {
         $settingsErrors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
         wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
@@ -360,18 +357,18 @@ class Settings
                             // Only allow links with href and target attributes
                             wp_kses(
                                 $error,
-                                array(
-                                    'a' => array(
-                                        'href'   => array(),
-                                        'target' => array(),
-                                    ),
-                                    'b' => array(),
-                                    'strong' => array(),
-                                    'i' => array(),
-                                    'em' => array(),
-                                    'br' => array(),
-                                    'code' => array(),
-                                )
+                                [
+                                    'a' => [
+                                        'href'   => [],
+                                        'target' => [],
+                                    ],
+                                    'b' => [],
+                                    'strong' => [],
+                                    'i' => [],
+                                    'em' => [],
+                                    'br' => [],
+                                    'code' => [],
+                                ]
                             )
                         );
                     }
@@ -386,37 +383,30 @@ class Settings
      * Register WP REST API routes
      *
      * @since 5.4.0 Add REST API route to dismiss review notice.
-     *
-     * @return void
+     * @since 6.0.0 Make static.
      */
-    public function restApiInit()
+    public static function restApiInit(): void
     {
         // settings endpoint
-        register_rest_route('beyondwords/v1', '/settings', array(
+        register_rest_route('beyondwords/v1', '/settings', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'restApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'restApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
 
         // settings endpoint
-        register_rest_route('beyondwords/v1', '/settings', array(
+        register_rest_route('beyondwords/v1', '/settings', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'restApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'restApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
 
         // dismiss review notice endpoint
-        register_rest_route('beyondwords/v1', '/settings/notices/review/dismiss', array(
+        register_rest_route('beyondwords/v1', '/settings/notices/review/dismiss', [
             'methods'  => \WP_REST_Server::CREATABLE,
-            'callback' => array($this, 'dismissReviewNotice'),
-            'permission_callback' => function () {
-                return current_user_can('manage_options');
-            },
-        ));
+            'callback' => [self::class, 'dismissReviewNotice'],
+            'permission_callback' => fn() => current_user_can('manage_options'),
+        ]);
     }
 
     /**
@@ -426,18 +416,20 @@ class Settings
      *
      * @since 3.0.0
      * @since 3.4.0 Add pluginVersion and wpVersion.
+     * @since 6.0.0 Make static and add integrationMethod.
      *
      * @return \WP_REST_Response
      */
-    public function restApiResponse()
+    public static function restApiResponse()
     {
         global $wp_version;
 
         return new \WP_REST_Response([
             'apiKey'              => get_option('beyondwords_api_key', ''),
+            'integrationMethod'   => IntegrationMethod::getIntegrationMethod(),
             'pluginVersion'       => BEYONDWORDS__PLUGIN_VERSION,
             'projectId'           => get_option('beyondwords_project_id', ''),
-            'preselect'           => get_option('beyondwords_preselect', PreselectGenerateAudio::DEFAULT_PRESELECT),
+            'preselect'           => get_option(PreselectGenerateAudio::OPTION_NAME, PreselectGenerateAudio::DEFAULT_PRESELECT), // phpcs:ignore Generic.Files.LineLength.TooLong
             'projectLanguageCode' => get_option('beyondwords_project_language_code', ''),
             'projectBodyVoiceId'  => get_option('beyondwords_project_body_voice_id', ''),
             'restUrl'             => get_rest_url(),
@@ -449,10 +441,11 @@ class Settings
      * Dismiss review notice.
      *
      * @since 5.4.0
+     * @since 6.0.0 Make static.
      *
      * @return \WP_REST_Response
      */
-    public function dismissReviewNotice()
+    public static function dismissReviewNotice()
     {
         $success = update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM));
 
@@ -468,12 +461,11 @@ class Settings
      * Register the settings script.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $hook Page hook
-     *
-     * @return void
      */
-    public function enqueueScripts($hook)
+    public static function enqueueScripts(string $hook): void
     {
         if ($hook === 'settings_page_beyondwords') {
             // jQuery UI JS

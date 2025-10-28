@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 
-class SettingsUtilsTest extends WP_UnitTestCase
+class SettingsUtilsTest extends TestCase
 {
     public function setUp(): void
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Compatibility\WPGraphQL\WPGraphQL;
 
-class WPGraphQLTest extends WP_UnitTestCase
+class WPGraphQLTest extends TestCase
 {
     public function setUp(): void
     {
@@ -27,10 +27,9 @@ class WPGraphQLTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $wpgraphql = new WPGraphQL();
-        $wpgraphql->init();
+        WPGraphQL::init();
 
         // Actions
-        $this->assertEquals(10, has_action('graphql_register_types', array($wpgraphql, 'graphqlRegisterTypes')));
+        $this->assertEquals(10, has_action('graphql_register_types', array(WPGraphQL::class, 'graphqlRegisterTypes')));
     }
 }

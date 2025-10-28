@@ -81,16 +81,6 @@ class Environment
     public const BEYONDWORDS_DASHBOARD_URL = 'https://dash.beyondwords.io';
 
     /**
-     * Use the inline player script.
-     *
-     * Override with BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG in wp-config.php.
-     *
-     * @since  5.2.0
-     * @var    bool
-     */
-    public const BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG = false;
-
-    /**
      * Auto-sync settings.
      *
      * @since  5.2.0
@@ -98,10 +88,7 @@ class Environment
      */
     public const BEYONDWORDS_AUTO_SYNC_SETTINGS = true;
 
-    /**
-     * @return string
-     */
-    public static function getApiUrl()
+    public static function getApiUrl(): string
     {
         if (defined('BEYONDWORDS_API_URL') && strlen(BEYONDWORDS_API_URL)) {
             return BEYONDWORDS_API_URL;
@@ -110,10 +97,7 @@ class Environment
         return static::BEYONDWORDS_API_URL;
     }
 
-    /**
-     * @return string
-     */
-    public static function getBackendUrl()
+    public static function getBackendUrl(): string
     {
         if (defined('BEYONDWORDS_BACKEND_URL') && strlen(BEYONDWORDS_BACKEND_URL)) {
             return BEYONDWORDS_BACKEND_URL;
@@ -122,10 +106,7 @@ class Environment
         return static::BEYONDWORDS_BACKEND_URL;
     }
 
-    /**
-     * @return string
-     */
-    public static function getJsSdkUrl()
+    public static function getJsSdkUrl(): string
     {
         if (defined('BEYONDWORDS_JS_SDK_URL') && strlen(BEYONDWORDS_JS_SDK_URL)) {
             return BEYONDWORDS_JS_SDK_URL;
@@ -134,10 +115,7 @@ class Environment
         return static::BEYONDWORDS_JS_SDK_URL;
     }
 
-    /**
-     * @return string
-     */
-    public static function getAmpPlayerUrl()
+    public static function getAmpPlayerUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_PLAYER_URL') && strlen(BEYONDWORDS_AMP_PLAYER_URL)) {
             return BEYONDWORDS_AMP_PLAYER_URL;
@@ -146,10 +124,7 @@ class Environment
         return static::BEYONDWORDS_AMP_PLAYER_URL;
     }
 
-    /**
-     * @return string
-     */
-    public static function getAmpImgUrl()
+    public static function getAmpImgUrl(): string
     {
         if (defined('BEYONDWORDS_AMP_IMG_URL') && strlen(BEYONDWORDS_AMP_IMG_URL)) {
             return BEYONDWORDS_AMP_IMG_URL;
@@ -158,10 +133,7 @@ class Environment
         return static::BEYONDWORDS_AMP_IMG_URL;
     }
 
-    /**
-     * @return string
-     */
-    public static function getDashboardUrl()
+    public static function getDashboardUrl(): string
     {
         if (defined('BEYONDWORDS_DASHBOARD_URL') && strlen(BEYONDWORDS_DASHBOARD_URL)) {
             return BEYONDWORDS_DASHBOARD_URL;
@@ -170,29 +142,7 @@ class Environment
         return static::BEYONDWORDS_DASHBOARD_URL;
     }
 
-    /**
-     * @return bool
-     */
-    public static function hasPlayerInlineScriptTag()
-    {
-        $value = static::BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
-
-        if (defined('BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG')) {
-            $value = (bool) BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG;
-        }
-
-        /**
-         * Filters whether the inline player script tag should be loaded.
-         */
-        $value = apply_filters('beyondwords_player_inline_script_tag', $value);
-
-        return $value;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function hasAutoSyncSettings()
+    public static function hasAutoSyncSettings(): bool
     {
         $value = static::BEYONDWORDS_AUTO_SYNC_SETTINGS;
 

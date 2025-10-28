@@ -1,19 +1,12 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Settings > Player > Text highlighting', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveMinimalPluginSettings();
-	} );
-
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 
 	it( `sets "Text highlighting"`, () => {
-		cy.saveMinimalPluginSettings();
-
 		// Check
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 		cy.get( '#beyondwords_player_highlight_sections' ).check();

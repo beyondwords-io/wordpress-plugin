@@ -37,21 +37,23 @@ class PreselectGenerateAudio
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
+        add_action('admin_init', [self::class, 'addSetting']);
+        add_action('admin_enqueue_scripts', [self::class, 'enqueueScripts']);
     }
 
     /**
      * Init setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_content_settings',
@@ -64,7 +66,7 @@ class PreselectGenerateAudio
         add_settings_field(
             'beyondwords-preselect',
             __('Preselect ‘Generate audio’', 'speechkit'),
-            array($this, 'render'),
+            [self::class, 'render'],
             'beyondwords_content',
             'content'
         );
@@ -74,14 +76,15 @@ class PreselectGenerateAudio
      * Render setting field.
      *
      * @since 3.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-        if (! is_array($postTypes) || count($postTypes) === 0) :
+        if (count($postTypes) === 0) :
             ?>
             <p class="description">
                 <?php
@@ -104,11 +107,11 @@ class PreselectGenerateAudio
                         type="checkbox"
                         name="<?php echo esc_attr(self::OPTION_NAME); ?>[<?php echo esc_attr($postType->name); ?>]"
                         value="1"
-                        <?php checked($this->postTypeIsSelected($postType)); ?>
+                        <?php checked(self::postTypeIsSelected($postType)); ?>
                     />
                     <?php echo esc_html($postType->label); ?>
                 </label>
-                <?php $this->renderTaxonomyFields($postType); ?>
+                <?php self::renderTaxonomyFields($postType); ?>
             </div>
             <?php
         endforeach;
@@ -118,10 +121,11 @@ class PreselectGenerateAudio
      * Get the taxonomy fields, as a hierarchical list of nested checkboxes.
      *
      * @since 3.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function renderTaxonomyFields($postType)
+    public static function renderTaxonomyFields($postType)
     {
         $taxonomies = get_object_taxonomies($postType->name, 'objects');
 
@@ -141,7 +145,7 @@ class PreselectGenerateAudio
                     ?>
                     <h4 style="margin: 0.5rem 0 0.5rem 1.5rem;"><?php echo esc_html($taxonomy->label); ?></h4>
                     <?php
-                    $this->renderTaxonomyTerms($postType, $taxonomy);
+                    self::renderTaxonomyTerms($postType, $taxonomy);
                 }
                 ?>
             </div>
@@ -153,10 +157,11 @@ class PreselectGenerateAudio
      * Get the taxonomy terms, as a hierarchical list of nested checkboxes.
      *
      * @since 3.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function renderTaxonomyTerms($postType, $taxonomy, $parent = 0)
+    public static function renderTaxonomyTerms($postType, $taxonomy, $parent = 0)
     {
         $terms = get_terms([
             'taxonomy'   => $taxonomy->name,
@@ -182,11 +187,11 @@ class PreselectGenerateAudio
                                 type="checkbox"
                                 name="<?php echo esc_attr($inputName); ?>"
                                 value="<?php echo esc_attr($term->term_id); ?>"
-                                <?php checked($this->termIsSelected($postType, $taxonomy, $term)) ?>
+                                <?php checked(self::termIsSelected($postType, $taxonomy, $term)) ?>
                             />
                             <?php echo esc_html($term->name); ?>
                         </label>
-                        <?php $this->renderTaxonomyTerms($postType, $taxonomy, $term->term_id); ?>
+                        <?php self::renderTaxonomyTerms($postType, $taxonomy, $term->term_id); ?>
                     </li>
                     <?php
                 endforeach;
@@ -196,7 +201,12 @@ class PreselectGenerateAudio
         }
     }
 
-    public function postTypeIsSelected($postType)
+    /**
+     * Check whether a post type should be preselected.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function postTypeIsSelected($postType)
     {
         $preselect = get_option(self::OPTION_NAME);
 
@@ -207,7 +217,12 @@ class PreselectGenerateAudio
         return array_key_exists($postType->name, $preselect) && $preselect[$postType->name] === '1';
     }
 
-    public function taxonomyIsSelected($postType, $taxonomy)
+    /**
+     * Check whether a taxonomy should be preselected for a post type.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function taxonomyIsSelected($postType, $taxonomy)
     {
         $preselect = get_option(self::OPTION_NAME);
 
@@ -222,7 +237,12 @@ class PreselectGenerateAudio
         return in_array($taxonomy->name, $preselect[$postType->name]);
     }
 
-    public function termIsSelected($postType, $taxonomy, $term)
+    /**
+     * Check whether a term is selected for a post type and taxonomy.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function termIsSelected($postType, $taxonomy, $term)
     {
         $preselect = get_option(self::OPTION_NAME);
 
@@ -245,12 +265,13 @@ class PreselectGenerateAudio
      * Register the component scripts.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $hook Page hook
      *
      * @return void
      */
-    public function enqueueScripts($hook)
+    public static function enqueueScripts($hook)
     {
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_register_script(

@@ -39,10 +39,11 @@ class AutoPublish
      * Init.
      *
      * @since 5.1.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -54,10 +55,11 @@ class AutoPublish
      * Init setting.
      *
      * @since 5.1.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_content_settings',
@@ -72,7 +74,7 @@ class AutoPublish
         add_settings_field(
             'beyondwords-auto-publish',
             __('Auto-publish', 'speechkit'),
-            array($this, 'render'),
+            [self::class, 'render'],
             'beyondwords_content',
             'content'
         );
@@ -82,10 +84,11 @@ class AutoPublish
      * Render setting field.
      *
      * @since 5.1.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $value = get_option(self::OPTION_NAME);
         ?>
@@ -99,11 +102,11 @@ class AutoPublish
                     value="1"
                     <?php checked($value); ?>
                 />
-                <?php 
+                <?php
                 esc_html_e(
                     'When auto-publish is disabled all audio content created in WordPress will need to be manually published in the BeyondWords dashboard',  // phpcs:ignore Generic.Files.LineLength.TooLong
                     'speechkit'
-                ); 
+                );
                 ?>
             </label>
         </div>

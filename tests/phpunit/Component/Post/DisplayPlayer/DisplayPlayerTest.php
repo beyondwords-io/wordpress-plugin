@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class DisplayPlayerTest extends WP_UnitTestCase
+class DisplayPlayerTest extends TestCase
 {
     public function setUp(): void
     {
@@ -36,13 +36,12 @@ class DisplayPlayerTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $displayPlayer = new DisplayPlayer();
-        $displayPlayer->init();
+        DisplayPlayer::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(20, has_action('save_post_post', array($displayPlayer, 'save')));
-        $this->assertEquals(20, has_action('save_post_page', array($displayPlayer, 'save')));
+        $this->assertEquals(20, has_action('save_post_post', array(DisplayPlayer::class, 'save')));
+        $this->assertEquals(20, has_action('save_post_page', array(DisplayPlayer::class, 'save')));
     }
 
     /**
@@ -52,25 +51,23 @@ class DisplayPlayerTest extends WP_UnitTestCase
     {
         $_POST['beyondwords_display_player_nonce'] = wp_create_nonce('beyondwords_display_player');
 
-        $displayPlayer = new DisplayPlayer();
-
         $postId = self::factory()->post->create([
             'post_title' => 'DisplayPlayerTest::save',
         ]);
 
-        $displayPlayer->save($postId);
+        DisplayPlayer::save($postId);
 
         $this->assertEquals('1', get_post_meta($postId, 'beyondwords_disabled', true));
 
         $_POST['beyondwords_display_player'] = '1';
 
-        $displayPlayer->save($postId);
+        DisplayPlayer::save($postId);
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_disabled', true));
 
         unset($_POST['beyondwords_display_player']);
 
-        $displayPlayer->save($postId);
+        DisplayPlayer::save($postId);
 
         $this->assertEquals('1', get_post_meta($postId, 'beyondwords_disabled', true));
 
@@ -82,11 +79,9 @@ class DisplayPlayerTest extends WP_UnitTestCase
      */
     public function element()
     {
-        $displayPlayer = new DisplayPlayer();
-
-        $displayPlayer->element(null);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            DisplayPlayer::element(null);
+        });
 
         $this->assertSame('', $html);
 
@@ -94,9 +89,9 @@ class DisplayPlayerTest extends WP_UnitTestCase
             'post_title' => 'DisplayPlayerTest::element',
         ]);
 
-        $displayPlayer->element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            DisplayPlayer::element($post);
+        });
 
         $crawler = new Crawler($html);
 

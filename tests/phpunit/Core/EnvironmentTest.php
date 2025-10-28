@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\Environment;
 
-class EnvironmentTest extends WP_UnitTestCase
+class EnvironmentTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Core\Environment
@@ -17,13 +17,11 @@ class EnvironmentTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new Environment();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();

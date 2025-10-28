@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\CoreUtils;
 
-class CoreUtilsTest extends WP_UnitTestCase
+class CoreUtilsTest extends TestCase
 {
     public function setUp(): void
     {
@@ -60,6 +60,7 @@ class CoreUtilsTest extends WP_UnitTestCase
         $keys = [
             // Current
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',
@@ -125,6 +126,7 @@ class CoreUtilsTest extends WP_UnitTestCase
         $keys = [
             // Current
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',

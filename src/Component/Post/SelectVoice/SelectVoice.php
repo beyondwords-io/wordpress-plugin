@@ -27,18 +27,19 @@ class SelectVoice
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('rest_api_init', array($this, 'restApiInit'));
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
+        add_action('rest_api_init', [self::class, 'restApiInit']);
+        add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 10);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 10);
                 }
             }
         });
@@ -50,27 +51,82 @@ class SelectVoice
      * @since 4.0.0
      * @since 4.5.1 Hide element if no language data exists.
      * @since 5.4.0 Always display all languages and associated voices.
+     * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      *
      * @return string|null
      */
-    public function element($post)
+    public static function element($post)
     {
-        $postLanguageCode = get_post_meta($post->ID, 'beyondwords_language_code', true);
-        $postVoiceId      = get_post_meta($post->ID, 'beyondwords_body_voice_id', true);
-
-        $languageCode = $postLanguageCode ?: get_option('beyondwords_project_language_code');
-        $voiceId      = $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
-
+        $languageCode = self::getLanguageCode($post->ID);
+        $voiceId = self::getVoiceId($post->ID);
         $languages = ApiClient::getLanguages();
-        $voices    = ApiClient::getVoices($languageCode);
-
-        if (! is_array($voices)) {
-            $voices = [];
-        }
+        $voices = self::getVoicesForLanguage($languageCode);
 
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
+
+        self::renderLanguageSelect($languages, $languageCode);
+        self::renderVoiceSelect($voices, $voiceId, $languageCode);
+        self::renderLoadingSpinner();
+    }
+
+    /**
+     * Get the language code for a post.
+     *
+     * @since 6.0.0
+     *
+     * @param int $postId The post ID.
+     * @return string|false The language code or false if not set.
+     */
+    private static function getLanguageCode(int $postId)
+    {
+        $postLanguageCode = get_post_meta($postId, 'beyondwords_language_code', true);
+        return $postLanguageCode ?: get_option('beyondwords_project_language_code');
+    }
+
+    /**
+     * Get the voice ID for a post.
+     *
+     * @since 6.0.0
+     *
+     * @param int $postId The post ID.
+     * @return string|false The voice ID or false if not set.
+     */
+    private static function getVoiceId(int $postId)
+    {
+        $postVoiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
+        return $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
+    }
+
+    /**
+     * Get voices for a language code.
+     *
+     * @since 6.0.0
+     *
+     * @param string|false $languageCode The language code.
+     * @return array The voices array.
+     */
+    private static function getVoicesForLanguage($languageCode): array
+    {
+        if ($languageCode === false || $languageCode === '') {
+            return [];
+        }
+
+        $voices = ApiClient::getVoices($languageCode);
+        return is_array($voices) ? $voices : [];
+    }
+
+    /**
+     * Render the language select dropdown.
+     *
+     * @since 6.0.0
+     *
+     * @param array $languages The languages array.
+     * @param string|false $selectedLanguageCode The selected language code.
+     */
+    private static function renderLanguageSelect(array $languages, $selectedLanguageCode): void
+    {
         ?>
         <p
             id="beyondwords-metabox-select-voice--language-code"
@@ -83,20 +139,35 @@ class SelectVoice
         <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
             <?php
             foreach ($languages as $language) {
-                if (empty($language['code']) || empty($language['name'])  || empty($language['accent'])) {
+                if (empty($language['code']) || empty($language['name']) || empty($language['accent'])) {
                     continue;
                 }
                 printf(
                     '<option value="%s" data-default-voice-id="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
                     esc_attr($language['default_voices']['body']['id'] ?? ''),
-                    selected(strval($language['code']), strval($languageCode)),
+                    selected(strval($language['code']), strval($selectedLanguageCode)),
                     esc_html($language['name']),
                     esc_html($language['accent'])
                 );
             }
             ?>
         </select>
+        <?php
+    }
+
+    /**
+     * Render the voice select dropdown.
+     *
+     * @since 6.0.0
+     *
+     * @param array $voices The voices array.
+     * @param string|false $selectedVoiceId The selected voice ID.
+     * @param string|false $languageCode The language code.
+     */
+    private static function renderVoiceSelect(array $voices, $selectedVoiceId, $languageCode): void
+    {
+        ?>
         <p
             id="beyondwords-metabox-select-voice--voice-id"
             class="post-attributes-label-wrapper page-template-label-wrapper"
@@ -116,12 +187,23 @@ class SelectVoice
                 printf(
                     '<option value="%s" %s>%s</option>',
                     esc_attr($voice['id']),
-                    selected(strval($voice['id']), strval($voiceId)),
+                    selected(strval($voice['id']), strval($selectedVoiceId)),
                     esc_html($voice['name'])
                 );
             }
             ?>
         </select>
+        <?php
+    }
+
+    /**
+     * Render the loading spinner.
+     *
+     * @since 6.0.0
+     */
+    private static function renderLoadingSpinner(): void
+    {
+        ?>
         <img
             src="/wp-admin/images/spinner.gif"
             class="beyondwords-settings__loader"
@@ -134,10 +216,11 @@ class SelectVoice
      * Save the meta when the post is saved.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;
@@ -189,28 +272,25 @@ class SelectVoice
      * Register WP REST API route
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function restApiInit()
+    public static function restApiInit()
     {
         // Languages endpoint
-        register_rest_route('beyondwords/v1', '/languages', array(
+        register_rest_route('beyondwords/v1', '/languages', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'languagesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'languagesRestApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
 
         // Voices endpoint
-        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', array(
+        register_rest_route('beyondwords/v1', '/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices', [
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'voicesRestApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'voicesRestApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
     }
 
     /**
@@ -218,10 +298,11 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 5.4.0 No longer filter by "Languages" plugin setting.
+     * @since 6.0.0 Make static.
      *
      * @return \WP_REST_Response
      */
-    public function languagesRestApiResponse()
+    public static function languagesRestApiResponse()
     {
         $languages = ApiClient::getLanguages();
 
@@ -233,10 +314,11 @@ class SelectVoice
      * and Block Editor).
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return \WP_REST_Response
      */
-    public function voicesRestApiResponse(\WP_REST_Request $data)
+    public static function voicesRestApiResponse(\WP_REST_Request $data)
     {
         $params = $data->get_url_params();
 
@@ -248,13 +330,14 @@ class SelectVoice
     /**
      * Register the component scripts.
      *
-     * @since  4.0.0
+     * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $hook Page hook
      *
      * @return void
      */
-    public function adminEnqueueScripts($hook)
+    public static function adminEnqueueScripts($hook)
     {
         if (! CoreUtils::isGutenbergPage() && ( $hook === 'post.php' || $hook === 'post-new.php')) {
             wp_register_script(
@@ -271,10 +354,10 @@ class SelectVoice
             wp_localize_script(
                 'beyondwords-metabox--select-voice',
                 'beyondwordsData',
-                array(
+                [
                     'nonce' => wp_create_nonce('wp_rest'),
                     'root' => esc_url_raw(rest_url()),
-                )
+                ]
             );
 
             wp_enqueue_script('beyondwords-metabox--select-voice');

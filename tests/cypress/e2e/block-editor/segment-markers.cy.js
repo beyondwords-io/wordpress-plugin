@@ -1,12 +1,6 @@
-/* global Cypress, cy, before, beforeEach, context, expect, it */
+/* global Cypress, cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Segment markers', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
 	} );
@@ -55,7 +49,7 @@ context( 'Block Editor: Segment markers', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'not.exist' );
+				cy.getPlayerScriptTag().should( 'not.exist' );
 				cy.hasNoBeyondwordsWindowObject();
 
 				cy.contains( 'p', 'One.' ).should(
@@ -123,7 +117,7 @@ context( 'Block Editor: Segment markers', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				testCases.forEach( ( testCase ) => {
@@ -134,7 +128,7 @@ context( 'Block Editor: Segment markers', () => {
 					} );
 				} );
 
-				cy.deactivatePlugin( 'speechkit' );
+				cy.task( 'deactivatePlugin', 'speechkit' );
 				cy.reload();
 
 				// Check content on page again, after deactivating the plugin
@@ -143,7 +137,7 @@ context( 'Block Editor: Segment markers', () => {
 						.should( 'not.have.attr', 'data-beyondwords-marker' );
 				} );
 
-				cy.activatePlugin( 'speechkit' );
+				cy.task( 'activatePlugin', 'speechkit' );
 			} );
 
 			it( `assigns unique markers for duplicated blocks in a ${ postType.name }`, () => {
@@ -185,7 +179,7 @@ context( 'Block Editor: Segment markers', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.get( '.entry-content p:not(:empty)' )
@@ -233,7 +227,7 @@ context( 'Block Editor: Segment markers', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.get( '.entry-content p:not(:empty)' )
@@ -254,7 +248,7 @@ context( 'Block Editor: Segment markers', () => {
 			} );
 
 			// So far unable to write tests for pasted content, all attempts have failed :(
-			it.skip( 'assigns markers when content is pasted', () => {
+			it( 'assigns markers when content is pasted', () => {
 				cy.createPost( {
 					title: `I see markers for pasted content`,
 				} );
@@ -279,7 +273,7 @@ context( 'Block Editor: Segment markers', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.get( '.entry-content p:not(:empty)' )
@@ -339,7 +333,7 @@ context( 'Block Editor: Segment markers', () => {
 		// "View post"
 		cy.viewPostViaSnackbar();
 
-		cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+		cy.getPlayerScriptTag().should( 'exist' );
 		cy.hasPlayerInstances( 1 );
 
 		cy.get( '.entry-content p:not(:empty)' )

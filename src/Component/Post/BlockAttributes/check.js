@@ -5,7 +5,10 @@ import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 
-export function BlockAttributesCheck( { supportsCustomFieldsAction, children } ) {
+export function BlockAttributesCheck( {
+	supportsCustomFieldsAction,
+	children,
+} ) {
 	if ( ! supportsCustomFieldsAction ) {
 		return null;
 	}
@@ -20,7 +23,9 @@ export default compose( [
 
 		return {
 			supportsCustomFieldsAction:
-				!! select( coreStore ).getPostType( postType )?.supports?.['custom-fields'],
+				!! select( coreStore ).getPostType( postType )?.supports?.[
+					'custom-fields'
+				],
 		};
 	} ),
 ] )( BlockAttributesCheck );

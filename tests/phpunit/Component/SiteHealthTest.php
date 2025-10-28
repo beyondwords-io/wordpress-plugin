@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
 use Beyondwords\Wordpress\Core\Environment;
 
-class SiteHealthTest extends WP_UnitTestCase
+class SiteHealthTest extends TestCase
 {
     /**
      * @var array
@@ -35,12 +35,11 @@ class SiteHealthTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $siteHealth = new SiteHealth();
-        $siteHealth->init();
+        SiteHealth::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_filter('debug_information', array($siteHealth, 'debugInformation')));
+        $this->assertEquals(10, has_filter('debug_information', array(SiteHealth::class, 'debugInformation')));
     }
 
     /**

@@ -36,10 +36,11 @@ class PlayerUI
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -49,11 +50,12 @@ class PlayerUI
     /**
      * Add setting.
      *
-     * @since  4.0.0
+     * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -66,7 +68,7 @@ class PlayerUI
         add_settings_field(
             'beyondwords-player-ui',
             __('Player UI', 'speechkit'),
-            array($this, 'render'),
+            [self::class, 'render'],
             'beyondwords_player',
             'player'
         );
@@ -76,10 +78,11 @@ class PlayerUI
      * Render setting field.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $currentUi = get_option(self::OPTION_NAME, PlayerUI::ENABLED);
         $playerUIs = PlayerUI::getAllPlayerUIs();

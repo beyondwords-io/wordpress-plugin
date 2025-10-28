@@ -26,15 +26,16 @@ class DisplayPlayer
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 20);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 20);
                 }
             }
         });
@@ -43,9 +44,11 @@ class DisplayPlayer
     /**
      * Save the meta when the post is saved.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;
@@ -74,9 +77,11 @@ class DisplayPlayer
     /**
      * Render the element.
      *
-     * @param WP_Post $post The post object.
+     * @since 6.0.0 Make static, fix checkbox checked bug.
+     *
+     * @param \WP_Post $post The post object.
      */
-    public function element($post)
+    public static function element($post)
     {
         if (!($post instanceof \WP_Post)) {
             return;
@@ -84,7 +89,7 @@ class DisplayPlayer
 
         wp_nonce_field('beyondwords_display_player', 'beyondwords_display_player_nonce');
 
-        $displayPlayer = PostMetaUtils::getDisabled($post->ID) !== '1';
+        $displayPlayer = ! PostMetaUtils::getDisabled($post->ID);
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-display-player">

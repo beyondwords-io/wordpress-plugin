@@ -18,8 +18,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
 /**
  * "Credentials" settings tab
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Credentials
@@ -28,26 +26,28 @@ class Credentials
      * Init
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        (new ApiKey())->init();
-        (new ProjectId())->init();
+        (new ApiKey())::init();
+        (new ProjectId())::init();
 
-        add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
      * Add Settings sections.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsSection()
+    public static function addSettingsSection()
     {
         add_settings_section(
             'credentials',
             __('Credentials', 'speechkit'),
-            array($this, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_credentials',
         );
     }
@@ -56,10 +56,11 @@ class Credentials
      * Section callback
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function sectionCallback()
+    public static function sectionCallback()
     {
         ?>
         <p class="description">

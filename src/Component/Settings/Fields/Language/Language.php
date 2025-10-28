@@ -31,10 +31,11 @@ class Language
      * Constructor
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME_CODE, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME_CODE);
             return $value;
@@ -45,15 +46,16 @@ class Language
      * Add setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         add_settings_field(
             'beyondwords-default-language',
             __('Language', 'speechkit'),
-            array($this, 'render'),
+            [self::class, 'render'],
             'beyondwords_voices',
             'voices'
         );
@@ -63,12 +65,13 @@ class Language
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
-        $options = $this->getOptions();
+        $options = self::getOptions();
 
         $current = get_option(self::OPTION_NAME_CODE);
         ?>
@@ -108,10 +111,11 @@ class Language
      * Get options for the <select> element.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return string[] Array of options (value, label).
      **/
-    public function getOptions()
+    public static function getOptions()
     {
         $languages = ApiClient::getLanguages();
 
@@ -119,7 +123,7 @@ class Language
             $languages = [];
         }
 
-        $options = array_map(function ($language) {
+        return array_map(function ($language) {
             $label = $language['name'];
 
             if (isset($language['accent'])) {
@@ -132,7 +136,5 @@ class Language
                 'voices' => wp_json_encode($language['default_voices']),
             ];
         }, $languages);
-
-        return $options;
     }
 }

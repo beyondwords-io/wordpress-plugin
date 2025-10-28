@@ -16,6 +16,7 @@ function PlayAudio( {
 	loadContentAs,
 	previewToken,
 	projectId,
+	sourceId,
 	wrapper = Fragment,
 } ) {
 	const Wrapper = wrapper;
@@ -25,6 +26,7 @@ function PlayAudio( {
 	useBeyondWordsPlayer( {
 		target,
 		projectId,
+		sourceId,
 		contentId,
 		previewToken,
 		loadContentAs,
@@ -43,7 +45,8 @@ function PlayAudio( {
 
 export default compose( [
 	withSelect( ( select ) => {
-		const { getEditedPostAttribute } = select( 'core/editor' );
+		const { getCurrentPostId, getEditedPostAttribute } =
+			select( 'core/editor' );
 
 		// Project ID.
 		const beyondwordsProjectId =
@@ -75,6 +78,7 @@ export default compose( [
 				: [ 'article' ],
 			previewToken: beyondwordsPreviewToken,
 			projectId: beyondwordsProjectId || speechkitProjectId,
+			sourceId: getCurrentPostId(),
 		};
 	} ),
 ] )( PlayAudio );

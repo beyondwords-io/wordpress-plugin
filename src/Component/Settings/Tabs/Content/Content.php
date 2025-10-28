@@ -15,13 +15,11 @@ namespace Beyondwords\Wordpress\Component\Settings\Tabs\Content;
 use Beyondwords\Wordpress\Component\Settings\Fields\AutoPublish\AutoPublish;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt\IncludeExcerpt;
 use Beyondwords\Wordpress\Component\Settings\Fields\IncludeTitle\IncludeTitle;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\PreselectGenerateAudio;
 
 /**
  * "Content" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Content
@@ -29,29 +27,32 @@ class Content
     /**
      * Init
      *
-     * @since 5.0.0
+     * @since 5.0.0 Introduced.
+     * @since 6.0.0 Make static and add IntegrationMethod.
      */
-    public function init()
+    public static function init()
     {
-        (new IncludeTitle())->init();
-        (new AutoPublish())->init();
-        (new IncludeExcerpt())->init();
-        (new PreselectGenerateAudio())->init();
+        (new IntegrationMethod())::init();
+        (new IncludeTitle())::init();
+        (new AutoPublish())::init();
+        (new IncludeExcerpt())::init();
+        (new PreselectGenerateAudio())::init();
 
-        add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
      * Add Settings sections.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsSection()
+    public static function addSettingsSection()
     {
         add_settings_section(
             'content',
             __('Content', 'speechkit'),
-            array($this, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_content',
         );
     }
@@ -60,10 +61,11 @@ class Content
      * Section callback
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function sectionCallback()
+    public static function sectionCallback()
     {
         ?>
         <p class="description">

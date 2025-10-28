@@ -23,6 +23,7 @@ export function PostInspectPanel( {
 	beyondwordsDeleteContent,
 	beyondwordsDisabled,
 	beyondwordsGenerateAudio,
+	beyondwordsIntegrationMethod,
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
 	beyondwordsPlayerContent,
@@ -72,7 +73,12 @@ export function PostInspectPanel( {
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost ] );
 
 	useEffect( () => {
-		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed && removed ) {
+		if (
+			isSavingPost &&
+			! isAutosavingPost &&
+			didPostSaveRequestSucceed &&
+			removed
+		) {
 			setRemoved( false );
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
@@ -189,6 +195,13 @@ export function PostInspectPanel( {
 				label="beyondwords_generate_audio"
 				readOnly
 				value={ beyondwordsGenerateAudio }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_integration_method"
+				readOnly
+				value={ beyondwordsIntegrationMethod }
 				__next40pxDefaultSize
 			/>
 
@@ -336,6 +349,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
+			beyondwordsIntegrationMethod:
+				getEditedPostAttribute( 'meta' ).beyondwords_integration_method,
 			beyondwordsContentId:
 				getEditedPostAttribute( 'meta' ).beyondwords_content_id,
 			beyondwordsPreviewToken:

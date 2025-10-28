@@ -11,13 +11,14 @@ The GrumPHP config file is at [`grumphp.yml`](../grumphp.yml).
 The checks are:
 
 - `git_commit_message`: Require a brief commit message (under 120 chars)
-- `phpversion`: Check for PHP version >= 8.0
+- `phpversion`: Check for PHP version >= 8.1
 - `composer`: Validate `composer.json`
 - `composer_normalize`: Keep `composer.json` nice and tidy
 - `phpcs`: Run [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 using the config at `phpcs.xml`, to *PSR-12* and *WordPress VIP* standards.
 - `phplint`: Check source files for syntax errors
 - `phpmd`: Check source files for bad coding standards
+- `rector`: Check source files for refactoring opportunities
 - `test_phpunit`: PHPUnit tests
 - `coverage_check`: PHPUnit code coverage
 

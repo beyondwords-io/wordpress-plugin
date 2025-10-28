@@ -23,6 +23,12 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  */
 class Column
 {
+    public const ALLOWED_HTML = [
+        'span' => [
+            'class'   => [],
+        ],
+    ];
+
     public const OUTPUT_YES = '<span class="dashicons dashicons-yes"></span> ';
 
     public const OUTPUT_NO = '—';
@@ -36,23 +42,24 @@ class Column
      *
      * @since 4.0.0
      * @since 4.5.0 Make BeyondWords column sortable via the pre_get_posts query.
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_filter("manage_{$postType}_posts_columns", array($this, 'renderColumnsHead'));
-                    add_action("manage_{$postType}_posts_custom_column", array($this, 'renderColumnsContent'), 10, 2);
-                    add_filter("manage_edit-{$postType}_sortable_columns", array($this, 'makeColumnSortable'));
+                    add_filter("manage_{$postType}_posts_columns", [self::class, 'renderColumnsHead']);
+                    add_action("manage_{$postType}_posts_custom_column", [self::class, 'renderColumnsContent'], 10, 2); // phpcs:ignore Generic.Files.LineLength.TooLong
+                    add_filter("manage_edit-{$postType}_sortable_columns", [self::class, 'makeColumnSortable']);
                 }
             }
         });
 
         if (CoreUtils::isEditScreen()) {
-            add_action('pre_get_posts', array($this, 'setSortQuery'));
+            add_action('pre_get_posts', [self::class, 'setSortQuery']);
         }
     }
 
@@ -60,29 +67,31 @@ class Column
      * Add a custom column with player status.
      *
      * @since 3.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $columns Array of <td> headers
      *
      * @return array
      **/
-    public function renderColumnsHead($columns)
+    public static function renderColumnsHead($columns)
     {
-        return array_merge($columns, array(
+        return array_merge($columns, [
             'beyondwords' => __('BeyondWords', 'speechkit'),
-        ));
+        ]);
     }
 
     /**
      * Render ✗|✓ in Posts list, under the BeyondWords column.
      *
      * @since 3.0.0
+     * @since 6.0.0 Make static and refactor using self::ALLOWED_HTML and PostMetaUtils.
      *
      * @param string $columnName Column name
      * @param int    $postId     Post ID
      *
      * @return void
      **/
-    public function renderColumnsContent($columnName, $postId)
+    public static function renderColumnsContent($columnName, $postId)
     {
         if ($columnName !== 'beyondwords') {
             return;
@@ -95,25 +104,19 @@ class Column
         }
 
         $errorMessage = PostMetaUtils::getErrorMessage($postId);
-        $contentId    = PostMetaUtils::getContentId($postId);
+        $hasContent   = PostMetaUtils::hasContent($postId);
         $disabled     = PostMetaUtils::getDisabled($postId);
 
-        $allowedTags = array(
-            'span' => array(
-                'class'   => array(),
-            ),
-        );
-
         if (! empty($errorMessage)) {
-            echo wp_kses(self::OUTPUT_ERROR_PREFIX . $errorMessage, $allowedTags);
-        } elseif (empty($contentId)) {
-            echo wp_kses(self::OUTPUT_NO, $allowedTags);
+            echo wp_kses(self::OUTPUT_ERROR_PREFIX . $errorMessage, self::ALLOWED_HTML);
+        } elseif ($hasContent) {
+            echo wp_kses(self::OUTPUT_YES, self::ALLOWED_HTML);
         } else {
-            echo wp_kses(self::OUTPUT_YES, $allowedTags);
+            echo wp_kses(self::OUTPUT_NO, self::ALLOWED_HTML);
         }
 
         if (! empty($disabled)) {
-            echo wp_kses(self::OUTPUT_DISABLED, $allowedTags);
+            echo wp_kses(self::OUTPUT_DISABLED, self::ALLOWED_HTML);
         }
     }
 
@@ -121,12 +124,13 @@ class Column
      * Make the BeyondWords column sortable.
      *
      * @since 4.5.1
+     * @since 6.0.0 Make static.
      *
      * @param array $sortableColumns An array of sortable columns.
      *
      * @return array The adjusted array of sortable columns.
      **/
-    public function makeColumnSortable($sortableColumns)
+    public static function makeColumnSortable($sortableColumns)
     {
         // Make column 'beyondwords' sortable
         $sortableColumns['beyondwords'] = 'beyondwords';
@@ -138,17 +142,18 @@ class Column
      * Set the query to sort by BeyondWords fields.
      *
      * @since 4.5.1
+     * @since 6.0.0 Make static.
      *
      * @param WP_Query $query WordPress query.
      *
-     * @return $query WP_Query
+     * @return WP_Query The adjusted query.
      */
-    public function setSortQuery($query)
+    public static function setSortQuery($query)
     {
         $orderBy = $query->get('orderby');
 
         if ($orderBy === 'beyondwords' && $query->is_main_query()) {
-            $query->set('meta_query', $this->getSortQueryArgs());
+            $query->set('meta_query', self::getSortQueryArgs());
             $query->set('orderby', 'meta_value_num date');
         }
 
@@ -159,12 +164,13 @@ class Column
      * Get the sort search query args.
      *
      * @since 4.5.1
+     * @since 6.0.0 Make static.
      *
      * @param array $sortableColumns An array of sortable columns.
      *
      * @return array
      */
-    public function getSortQueryArgs()
+    public static function getSortQueryArgs()
     {
         return [
             'relation' => 'OR',

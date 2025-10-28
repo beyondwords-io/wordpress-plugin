@@ -9,7 +9,7 @@ use Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices;
  * @group settings-tabs
  * @group settings-tabs-voices
  */
-class VoicesTabTest extends WP_UnitTestCase
+class VoicesTabTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Tabs\Voices\Voices
@@ -25,8 +25,6 @@ class VoicesTabTest extends WP_UnitTestCase
         // Your set up methods here.
         wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
 
-        $this->_instance = new Voices();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
@@ -35,8 +33,6 @@ class VoicesTabTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
         delete_option('beyondwords_valid_api_connection');
@@ -50,10 +46,10 @@ class VoicesTabTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $this->_instance->init();
+        Voices::init();
 
         // Actions
-        $this->assertEquals(5, has_action('admin_init', array($this->_instance, 'addSettingsSection')));
+        $this->assertEquals(5, has_action('admin_init', array(Voices::class, 'addSettingsSection')));
     }
 
     /**
@@ -64,12 +60,12 @@ class VoicesTabTest extends WP_UnitTestCase
         global $wp_settings_sections;
         $wp_settings_sections = null;
 
-        $this->_instance->addSettingsSection();
+        Voices::addSettingsSection();
 
         $this->assertArrayHasKey('beyondwords_voices', $wp_settings_sections);
         $this->assertArrayHasKey('voices', $wp_settings_sections['beyondwords_voices']);
         $this->assertSame('voices', $wp_settings_sections['beyondwords_voices']['voices']['id']);
         $this->assertSame('Voices', $wp_settings_sections['beyondwords_voices']['voices']['title']);
-        $this->assertSame([$this->_instance, 'sectionCallback'], $wp_settings_sections['beyondwords_voices']['voices']['callback']);
+        $this->assertSame([Voices::class, 'sectionCallback'], $wp_settings_sections['beyondwords_voices']['voices']['callback']);
     }
 }

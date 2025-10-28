@@ -1,15 +1,11 @@
-/* global cy, before, beforeEach, context, expect, it */
+/* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_video_enabled', '1' );
+		cy.updateOption( 'beyondwords_player_style', 'standard' );
 		cy.login();
 	} );
 
@@ -111,19 +107,9 @@ context( 'Block Editor: Player Style', () => {
 				cy.viewPostViaSnackbar();
 
 				// Check Player has video player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].playerStyle
-					).to.eq( 'large' );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					playerStyle: 'large',
 				} );
 
 				// Check Player style has also been saved in admin
@@ -155,19 +141,9 @@ context( 'Block Editor: Player Style', () => {
 				cy.viewPostViaSnackbar();
 
 				// Check Player has video player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].playerStyle
-					).to.eq( 'video' );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					playerStyle: 'video',
 				} );
 
 				// Check Player style has also been saved in admin

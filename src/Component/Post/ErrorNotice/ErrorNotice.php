@@ -25,13 +25,19 @@ class ErrorNotice
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('enqueue_block_assets', array($this, 'enqueueBlockAssets'));
+        add_action('enqueue_block_assets', [self::class, 'enqueueBlockAssets']);
     }
 
-    public function enqueueBlockAssets()
+    /**
+     * Enqueue Block Editor assets.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function enqueueBlockAssets()
     {
         // Only enqueue for Gutenberg screens
         if (CoreUtils::isGutenbergPage()) {
@@ -39,7 +45,7 @@ class ErrorNotice
             wp_enqueue_style(
                 'beyondwords-ErrorNotice',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/ErrorNotice/error-notice.css',
-                array(),
+                [],
                 BEYONDWORDS__PLUGIN_VERSION
             );
         }

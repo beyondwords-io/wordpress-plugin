@@ -1,18 +1,8 @@
 <?php
 
-/**
- * BeyondWords Add Player element.
- *
- * Text Domain: speechkit
- *
- * @package Beyondwords\Wordpress
- * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   3.0.0
- */
-
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 
-class AddPlayerTest extends WP_UnitTestCase
+class AddPlayerTest extends TestCase
 {
     public function setUp(): void
     {
@@ -35,20 +25,19 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $addPlayer = new AddPlayer();
-        $addPlayer->init();
+        AddPlayer::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('init', array($addPlayer, 'registerBlock')));
-        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array($addPlayer, 'addBlockEditorStylesheet')));
+        $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'registerBlock')));
+        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'addBlockEditorStylesheet')));
 
-        $this->assertEquals(10, has_action('admin_head', array($addPlayer, 'addEditorStyles')));
-        $this->assertEquals(10, has_filter('tiny_mce_before_init', array($addPlayer, 'filterTinyMceSettings')));
+        $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'addEditorStyles')));
+        $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filterTinyMceSettings')));
 
-        $this->assertEquals(10, has_filter('mce_external_plugins', array($addPlayer, 'addPlugin')));
-        $this->assertEquals(10, has_filter('mce_buttons', array($addPlayer, 'addButton')));
-        $this->assertEquals(10, has_filter('mce_css', array($addPlayer, 'addStylesheet')));
+        $this->assertEquals(10, has_filter('mce_external_plugins', array(AddPlayer::class, 'addPlugin')));
+        $this->assertEquals(10, has_filter('mce_buttons', array(AddPlayer::class, 'addButton')));
+        $this->assertEquals(10, has_filter('mce_css', array(AddPlayer::class, 'addStylesheet')));
     }
 
     /**
@@ -56,15 +45,13 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function addPlugin()
     {
-        $addPlayer = new AddPlayer();
-
         $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/tinymce.js';
 
-        $this->assertSame(['beyondwords_player' => $url], $addPlayer->addPlugin([]));
+        $this->assertSame(['beyondwords_player' => $url], AddPlayer::addPlugin([]));
 
-        $this->assertSame(['beyondwords_player' => $url], $addPlayer->addPlugin(['beyondwords_player' => 'foo']));
+        $this->assertSame(['beyondwords_player' => $url], AddPlayer::addPlugin(['beyondwords_player' => 'foo']));
 
-        $this->assertSame(['foo' => 'bar', 'beyondwords_player' => $url], $addPlayer->addPlugin(['foo' => 'bar']));
+        $this->assertSame(['foo' => 'bar', 'beyondwords_player' => $url], AddPlayer::addPlugin(['foo' => 'bar']));
     }
 
     /**
@@ -72,17 +59,15 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function addButton()
     {
-        $addPlayer = new AddPlayer();
-
         $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/tinymce.js';
 
-        $this->assertSame(['beyondwords_player'], $addPlayer->addButton([]));
+        $this->assertSame(['beyondwords_player'], AddPlayer::addButton([]));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player'], $addPlayer->addButton(['button-1', 'button-2']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player'], AddPlayer::addButton(['button-1', 'button-2']));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv'], $addPlayer->addButton(['button-1', 'button-2', 'wp_adv']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv'], AddPlayer::addButton(['button-1', 'button-2', 'wp_adv']));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv', 'button-extra'], $addPlayer->addButton(['button-1', 'button-2', 'wp_adv', 'button-extra']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv', 'button-extra'], AddPlayer::addButton(['button-1', 'button-2', 'wp_adv', 'button-extra']));
     }
 
     /**
@@ -90,11 +75,9 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function addStylesheet()
     {
-        $addPlayer = new AddPlayer();
-
         $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css';
 
-        $this->assertSame(sprintf('https://example.com/style.css,%s', $url), $addPlayer->addStylesheet('https://example.com/style.css'));
+        $this->assertSame(sprintf('https://example.com/style.css,%s', $url), AddPlayer::addStylesheet('https://example.com/style.css'));
     }
 
     /**
@@ -102,11 +85,9 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function playerPreviewI18nStyles()
     {
-        $addPlayer = new AddPlayer();
-
         $expect = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: 'Player placeholder: The position of the audio player.'; }";
 
-        $this->assertSame($expect, $addPlayer->playerPreviewI18nStyles());
+        $this->assertSame($expect, AddPlayer::playerPreviewI18nStyles());
     }
 
     /**
@@ -114,15 +95,13 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function filterTinyMceSettings()
     {
-        $addPlayer = new AddPlayer();
-
         // No existing styles
-        $settings = $addPlayer->filterTinyMceSettings([]);
-        $this->assertSame($addPlayer->playerPreviewI18nStyles() . ' ', $settings['content_style']);
+        $settings = AddPlayer::filterTinyMceSettings([]);
+        $this->assertSame(AddPlayer::playerPreviewI18nStyles() . ' ', $settings['content_style']);
 
         // Existing styles
-        $settings = $addPlayer->filterTinyMceSettings(['content_style' => 'p { color: red; }']);
-        $this->assertSame('p { color: red; } ' . $addPlayer->playerPreviewI18nStyles() . ' ', $settings['content_style']);
+        $settings = AddPlayer::filterTinyMceSettings(['content_style' => 'p { color: red; }']);
+        $this->assertSame('p { color: red; } ' . AddPlayer::playerPreviewI18nStyles() . ' ', $settings['content_style']);
     }
 
     /**
@@ -130,12 +109,10 @@ class AddPlayerTest extends WP_UnitTestCase
      */
     public function addEditorStyles()
     {
-        $addPlayer = new AddPlayer();
+        $html = $this->captureOutput(function () {
+            AddPlayer::addEditorStyles();
+        });
 
-        $addPlayer->addEditorStyles();
-
-        $html = $this->getActualOutput();
-
-        $this->assertSame('<style>' . $addPlayer->playerPreviewI18nStyles() . '</style>', $html);
+        $this->assertSame('<style>' . AddPlayer::playerPreviewI18nStyles() . '</style>', $html);
     }
 }

@@ -1,13 +1,7 @@
-/* global cy, before, beforeEach, context, expect, it */
+/* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Player Content', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
-
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
 
 	beforeEach( () => {
 		cy.login();
@@ -64,19 +58,9 @@ context( 'Block Editor: Player Content', () => {
 				cy.viewPostViaSnackbar();
 
 				// Check Player appears frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( false );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					loadContentAs: undefined,
 				} );
 
 				// Check Player content has also been saved in admin
@@ -108,19 +92,9 @@ context( 'Block Editor: Player Content', () => {
 				cy.viewPostViaSnackbar();
 
 				// Check Player appears frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].summary
-					).to.eq( true );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					loadContentAs: [ 'summary' ],
 				} );
 
 				// Check Player content has also been saved in admin

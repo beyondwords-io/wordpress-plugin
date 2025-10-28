@@ -4,10 +4,7 @@ context( 'Classic Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'classic-editor' );
+		cy.task( 'activatePlugin', 'classic-editor' );
 	} );
 
 	beforeEach( () => {
@@ -15,7 +12,7 @@ context( 'Classic Editor: Player Style', () => {
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'classic-editor' );
+		cy.task( 'deactivatePlugin', 'classic-editor' );
 	} );
 
 	postTypes
@@ -115,19 +112,9 @@ context( 'Classic Editor: Player Style', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player has large player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].playerStyle
-					).to.eq( 'large' );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					playerStyle: 'large',
 				} );
 
 				// Check Player style has also been saved in admin
@@ -166,19 +153,9 @@ context( 'Classic Editor: Player Style', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Check Player has video player in frontend
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1 );
-
-				// window.BeyondWords should contain 1 player instance
-				cy.window().then( ( win ) => {
-					// eslint-disable-next-line no-unused-expressions
-					expect( win.BeyondWords ).to.exist;
-					expect( win.BeyondWords.Player.instances() ).to.have.length(
-						1
-					);
-					expect(
-						win.BeyondWords.Player.instances()[ 0 ].playerStyle
-					).to.eq( 'video' );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1, {
+					playerStyle: 'video',
 				} );
 
 				// Check Player style has also been saved in admin

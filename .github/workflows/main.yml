@@ -24,12 +24,12 @@ jobs:
       # ######################################
       # PHP
       # ######################################
-      - name: Setup PHP 8.0
+      - name: Setup PHP 8.1
         uses: shivammathur/setup-php@v2
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          php-version: '8.0'
+          php-version: '8.1'
           extensions: mbstring intl
           tools: composer, wp-cli
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-no-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
@@ -184,7 +184,7 @@ jobs:
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
+        - php-version: '8.1'
           phpunit-version: '9'
           operating-system: ['ubuntu-latest']
 
@@ -220,14 +220,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
@@ -260,7 +260,7 @@ jobs:
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/phpunit -c ./phpunit.ci.xml
+        run: ./vendor/bin/phpunit
         env:
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
           BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"
@@ -337,11 +337,9 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ['8.4']
-        phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
-          phpunit-version: '9'
+        - php-version: '8.1'
           operating-system: ['ubuntu-latest']
 
     env:
@@ -369,20 +367,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: phpunit:${{ matrix.phpunit-version }}, composer, wp-cli
+          tools: composer, wp-cli
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
@@ -514,6 +512,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          headed: true # Temporarily set to headed to help with debugging
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
