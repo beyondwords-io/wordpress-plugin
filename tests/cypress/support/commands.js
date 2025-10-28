@@ -270,7 +270,7 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:activate', plugin );
+		cy.task( 'activatePlugin', plugin );
 	} );
 } );
 
@@ -279,7 +279,7 @@ Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:deactivate', plugin );
+		cy.task( 'deactivatePlugin', plugin );
 	} );
 } );
 
@@ -288,7 +288,7 @@ Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:uninstall', plugin );
+		cy.task( 'uninstallPlugin', plugin );
 	} );
 } );
 
@@ -615,7 +615,7 @@ Cypress.Commands.add(
  * This is much faster than a full DB reset (100-500ms vs 5-10s).
  */
 Cypress.Commands.add( 'cleanupTestPosts', () => {
-	cy.task( 'wp:post:deleteAll', 'Cypress Test' );
+	cy.task( 'deleteAllPosts', 'Cypress Test' );
 } );
 
 /**
@@ -625,7 +625,7 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
  */
 Cypress.Commands.add( 'resetPluginSettings', () => {
 	// Delete all beyondwords_* options EXCEPT api_key and project_id
-	cy.task( 'wp:options:deleteByPattern', {
+	cy.task( 'deleteOptionsByPattern', {
 		pattern: 'beyondwords_',
 		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
 	} );
@@ -684,7 +684,7 @@ Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 	return cy.createTestPost( { title, content } ).then( ( postId ) => {
 		if ( generateAudio ) {
 			// Set the meta to generate audio for this post
-			cy.task( 'wp:post:setMeta', {
+			cy.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_generate_audio',
 				metaValue: '1',

@@ -188,7 +188,6 @@ function setupNodeEvents( on, config ) {
 
 		async updateOption( args ) {
 			const { name, value } = args;
-			console.log( `Updating option ${ name } to value: ${ value }` );
 			await execWp( `option update ${ name } '${ value }'` );
 			return null;
 		},
