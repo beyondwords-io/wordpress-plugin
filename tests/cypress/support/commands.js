@@ -611,11 +611,11 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
 /**
  * Update a WordPress option.
  *
- * @param {string} optionName  - The name of the option to update
- * @param {string} optionValue - The new value for the option
+ * @param {string} name  - The name of the option to update
+ * @param {string} value - The new value for the option
  */
-Cypress.Commands.add( 'updateOption', ( optionName, optionValue ) => {
-	cy.task( 'updateOption', { optionName, optionValue } );
+Cypress.Commands.add( 'updateOption', ( name, value ) => {
+	cy.task( 'updateOption', { name, value } );
 } );
 
 /**
