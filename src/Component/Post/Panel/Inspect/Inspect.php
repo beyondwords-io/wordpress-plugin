@@ -25,21 +25,23 @@ class Inspect
 {
     /**
      * Constructor
+     *
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
-        add_action('add_meta_boxes', array($this, 'addMetaBox'));
-        add_action('rest_api_init', array($this, 'restApiInit'));
+        add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
+        add_action('add_meta_boxes', [self::class, 'addMetaBox']);
+        add_action('rest_api_init', [self::class, 'restApiInit']);
 
-        add_filter('default_hidden_meta_boxes', array($this, 'hideMetaBox'));
+        add_filter('default_hidden_meta_boxes', [self::class, 'hideMetaBox']);
 
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 5);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 5);
                 }
             }
         });
@@ -47,15 +49,17 @@ class Inspect
 
     /**
      * Enqueue JS for Inspect feature.
+     *
+     * @since 6.0.0 Make static.
      */
-    public function adminEnqueueScripts($hook)
+    public static function adminEnqueueScripts($hook)
     {
         // Only enqueue for Post screens
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_enqueue_script(
                 'beyondwords-inspect',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Panel/Inspect/js/inspect.js',
-                array('jquery'),
+                ['jquery'],
                 BEYONDWORDS__PLUGIN_VERSION,
                 true
             );
@@ -65,9 +69,11 @@ class Inspect
     /**
      * Hides the metabox by default.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param string[] $hidden An array of IDs of meta boxes hidden by default.
      */
-    public function hideMetaBox($hidden)
+    public static function hideMetaBox($hidden)
     {
         $hidden[] = 'beyondwords__inspect';
         return $hidden;
@@ -78,20 +84,22 @@ class Inspect
      *
      * The Block Editor UI is handled using JavaScript.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param string $postType
      */
-    public function addMetaBox($postType)
+    public static function addMetaBox($postType)
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
-        if (is_array($postTypes) && ! in_array($postType, $postTypes)) {
+        if (! in_array($postType, $postTypes)) {
             return;
         }
 
         add_meta_box(
             'beyondwords__inspect',
             __('BeyondWords', 'speechkit') . ': ' . __('Inspect', 'speechkit'),
-            array($this, 'renderMetaBoxContent'),
+            [self::class, 'renderMetaBoxContent'],
             $postType,
             'advanced',
             'low',
@@ -104,20 +112,22 @@ class Inspect
     /**
      * Render Meta Box content.
      *
-     * @param WP_Post $post The post object.
+     * @since 6.0.0 Make static.
+     *
+     * @param \WP_Post $post The post object.
      */
-    public function renderMetaBoxContent($post)
+    public static function renderMetaBoxContent($post)
     {
         $metadata = PostMetaUtils::getAllBeyondwordsMetadata($post->ID);
 
-        $this->postMetaTable($metadata);
+        self::postMetaTable($metadata);
         ?>
         <button
             type="button"
             id="beyondwords__inspect--copy"
             class="button button-large"
             style="margin: 10px 0 0;"
-            data-clipboard-text="<?php echo esc_attr($this->getClipboardText($metadata)); ?>"
+            data-clipboard-text="<?php echo esc_attr(self::getClipboardText($metadata)); ?>"
         >
             <?php esc_html_e('Copy', 'speechkit'); ?>
             <span
@@ -151,8 +161,9 @@ class Inspect
      *
      * @since v3.0.0
      * @since v3.9.0 Change $postMetaKeys param to $metadata, to support meta_ids.
+     * @since 6.0.0 Make static.
      */
-    public function postMetaTable($metadata)
+    public static function postMetaTable($metadata)
     {
         if (! is_array($metadata)) {
             return;
@@ -178,9 +189,9 @@ class Inspect
                             continue;
                         }
 
-                        $metaId    = $item['meta_id'] ? $item['meta_id'] : $item['meta_key'];
+                        $metaId    = $item['meta_id'] ?: $item['meta_key'];
                         $metaKey   = $item['meta_key'];
-                        $metaValue = $this->formatPostMetaValue($item['meta_value']);
+                        $metaValue = self::formatPostMetaValue($item['meta_value']);
                         ?>
                         <tr id="beyondwords-inspect-<?php echo esc_attr($metaId); ?>" class="alternate">
                             <td class="left">
@@ -237,9 +248,10 @@ class Inspect
      *
      * @param mixed $value The metadata value.
      *
-     * @since v3.9.0
+     * @since 3.9.0
+     * @since 6.0.0 Make static.
      */
-    public function formatPostMetaValue($value)
+    public static function formatPostMetaValue($value)
     {
         if (is_numeric($value) || is_string($value)) {
             return $value;
@@ -256,15 +268,16 @@ class Inspect
      * @since 3.0.0
      * @since 3.9.0 Output all post meta data from the earlier has_meta() call instead of
      *              the previous multiple get_post_meta() calls.
+     * @since 6.0.0 Make static.
      *
      * @return string
      */
-    public function getClipboardText($metadata)
+    public static function getClipboardText($metadata)
     {
         $lines = [];
 
         foreach ($metadata as $m) {
-            $lines[] = $m['meta_key'] . "\r\n" . $this->formatPostMetaValue($m['meta_value']);
+            $lines[] = $m['meta_key'] . "\r\n" . self::formatPostMetaValue($m['meta_value']);
         }
 
         $lines[] = "=== " . __('Copied using the Classic Editor', 'speechkit') . " ===\r\n\r\n";
@@ -286,10 +299,11 @@ class Inspect
      * WordPress but still exists in the REST API.
      *
      * @since 4.0.7
+     * @since 6.0.0 Make static.
      *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;
@@ -318,16 +332,16 @@ class Inspect
      * REST API init.
      *
      * Register REST API routes.
+     *
+     * @since 6.0.0 Make static.
      **/
-    public function restApiInit()
+    public static function restApiInit()
     {
-        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<contentId>[a-zA-Z0-9\-]+)', array( // phpcs:ignore Generic.Files.LineLength.TooLong
+        register_rest_route('beyondwords/v1', '/projects/(?P<projectId>[0-9]+)/content/(?P<beyondwordsId>[a-zA-Z0-9\-]+)', [ // phpcs:ignore Generic.Files.LineLength.TooLong
             'methods'  => \WP_REST_Server::READABLE,
-            'callback' => array($this, 'restApiResponse'),
-            'permission_callback' => function () {
-                return current_user_can('edit_posts');
-            },
-        ));
+            'callback' => [self::class, 'restApiResponse'],
+            'permission_callback' => fn() => current_user_can('edit_posts'),
+        ]);
     }
 
     /**
@@ -335,14 +349,16 @@ class Inspect
      *
      * Fetches a content object from the BeyondWords REST API.
      *
+     * @since 6.0.0 Make static.
+     *
      * @param \WP_REST_Request $request The REST request object.
      *
      * @return \WP_REST_Response
      **/
-    public function restApiResponse(\WP_REST_Request $request)
+    public static function restApiResponse(\WP_REST_Request $request)
     {
-        $projectId = $request['projectId'] ?? '';
-        $contentId = $request['contentId'] ?? '';
+        $projectId     = $request['projectId'] ?? '';
+        $beyondwordsId = $request['beyondwordsId'] ?? ''; // Can be either contentId or sourceId
 
         if (! is_numeric($projectId)) {
             return rest_ensure_response(
@@ -354,17 +370,17 @@ class Inspect
             );
         }
 
-        if (empty($contentId)) {
+        if (empty($beyondwordsId)) {
             return rest_ensure_response(
                 new \WP_Error(
                     400,
                     __('Invalid Content ID', 'speechkit'),
-                    ['contentId' => $contentId]
+                    ['beyondwordsId' => $beyondwordsId]
                 )
             );
         }
 
-        $response = ApiClient::getContent($contentId, $projectId);
+        $response = ApiClient::getContent($beyondwordsId, $projectId);
 
         // Check for REST API connection errors.
         if (is_wp_error($response)) {

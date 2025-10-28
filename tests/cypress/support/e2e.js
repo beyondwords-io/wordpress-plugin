@@ -1,4 +1,4 @@
-/* global Cypress, cy, beforeEach */
+/* global Cypress, cy, before, beforeEach */
 
 // ***********************************************************
 // This example support/e2e.js is processed and
@@ -48,17 +48,15 @@ Cypress.on( 'uncaught:exception', () => {
 	return false;
 } );
 
-/**
- * Reset WordPress
- * (This is now done in each test)
- */
-// before( () => {
-//   cy.task( 'reset' )
-//   cy.login()
-//   cy.saveStandardPluginSettings()
-// } )
+before( () => {
+	// Clean up test posts from previous test (fast - 100-500ms)
+	cy.task( 'setupDatabase' );
+} );
 
 beforeEach( () => {
+	cy.resetPluginSettings();
+	// Clean up test posts from previous test (fast - 100-500ms)
+	cy.cleanupTestPosts();
 	// disable Cypress's default behavior of logging all XMLHttpRequests and fetches
 	cy.intercept( { resourceType: /xhr|fetch/ }, { log: false } );
 } );

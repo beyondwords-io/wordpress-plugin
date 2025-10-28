@@ -1,19 +1,11 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Settings > Content', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
 	} );
 
 	it( 'can set the Content plugin settings', () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=content'
 		);

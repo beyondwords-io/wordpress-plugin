@@ -1,12 +1,6 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Block Editor: Display Player', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
 	} );
@@ -32,7 +26,7 @@ context( 'Block Editor: Display Player', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.visit(
@@ -67,8 +61,6 @@ context( 'Block Editor: Display Player', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				// @todo the script should not be enqueued if the player is not displayed
-				// cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
 				cy.hasPlayerInstances( 0 );
 
 				cy.visit(
@@ -104,7 +96,7 @@ context( 'Block Editor: Display Player', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 			} );
 		} );

@@ -1,13 +1,8 @@
-/* global cy, before, beforeEach, context, expect, it */
+/* global cy, beforeEach, context, expect, it */
 
 context( 'Settings > Player > Player colors', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveMinimalPluginSettings();
-	} );
-
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 
@@ -32,8 +27,6 @@ context( 'Settings > Player > Player colors', () => {
 	};
 
 	it( `sets Player colors"`, () => {
-		cy.saveMinimalPluginSettings();
-
 		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
 
 		cy.get(

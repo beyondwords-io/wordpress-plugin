@@ -37,10 +37,11 @@ class PlaybackControls
      * Init.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSetting'));
+        add_action('admin_init', [self::class, 'addSetting']);
         add_action('pre_update_option_' . self::OPTION_NAME, function ($value) {
             Sync::syncOptionToDashboard(self::OPTION_NAME);
             return $value;
@@ -51,10 +52,11 @@ class PlaybackControls
      * Init setting.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function addSetting()
+    public static function addSetting()
     {
         register_setting(
             'beyondwords_player_settings',
@@ -67,7 +69,7 @@ class PlaybackControls
         add_settings_field(
             'beyondwords-player-skip-button-style',
             __('Skip button style', 'speechkit'),
-            array($this, 'render'),
+            [self::class, 'render'],
             'beyondwords_player',
             'playback-controls'
         );
@@ -77,10 +79,11 @@ class PlaybackControls
      * Render setting field.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function render()
+    public static function render()
     {
         $current = get_option(self::OPTION_NAME);
         ?>

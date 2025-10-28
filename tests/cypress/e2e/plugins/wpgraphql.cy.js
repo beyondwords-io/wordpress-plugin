@@ -2,10 +2,7 @@
 
 context( 'Plugins: WPGraphQL', () => {
 	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'wp-graphql' );
+		cy.task( 'activatePlugin', 'wp-graphql' );
 	} );
 
 	beforeEach( () => {
@@ -13,7 +10,7 @@ context( 'Plugins: WPGraphQL', () => {
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'wp-graphql' );
+		cy.task( 'deactivatePlugin', 'wp-graphql' );
 	} );
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );

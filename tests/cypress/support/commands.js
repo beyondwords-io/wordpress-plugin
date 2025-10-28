@@ -1,4 +1,4 @@
-/* global cy, Cypress, DataTransfer, ClipboardEvent */
+/* global cy, Cypress, DataTransfer, expect, ClipboardEvent */
 
 // ***********************************************
 // This example commands.js shows you how to
@@ -182,8 +182,25 @@ Cypress.Commands.add( 'getPluginSettingsNoticeLink', () => {
 		.then( ( $el ) => cy.wrap( $el ) );
 } );
 
-Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
+Cypress.Commands.add( 'dismissPointers', () => {
+	// Dismiss WordPress admin pointers/tooltips that may be covering elements
+	cy.get( 'body' ).then( ( $body ) => {
+		if ( $body.find( '.wp-pointer' ).length > 0 ) {
+			// Try clicking the close button (X in top right)
+			cy.get(
+				'.wp-pointer .wp-pointer-buttons a.close, .wp-pointer button.wp-pointer-close'
+			).each( ( $closeBtn ) => {
+				cy.wrap( $closeBtn ).click( { force: true } );
+			} );
+		}
+	} );
+} );
+
+Cypress.Commands.add( 'saveAllPluginSettings', () => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
+
+	// Dismiss any WordPress pointers/tooltips that may be covering form fields
+	cy.dismissPointers();
 
 	cy.get( 'input[name="beyondwords_api_key"]' )
 		.clear()
@@ -194,10 +211,6 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveStandardPluginSettings', () => {
-	cy.saveMinimalPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
 
@@ -205,19 +218,13 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 	cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
 	cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
 	cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should(
-		'not.be.checked'
-	);
+	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).uncheck();
 	cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should(
 		'not.exist'
 	);
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveAllPluginSettings', () => {
-	cy.saveStandardPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
 	cy.get( 'input[type=submit]' ).click();
@@ -253,7 +260,7 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 
 Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:activate', plugin );
+		cy.task( 'activatePlugin', plugin );
 	} );
 } );
 
@@ -262,7 +269,7 @@ Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:deactivate', plugin );
+		cy.task( 'deactivatePlugin', plugin );
 	} );
 } );
 
@@ -271,7 +278,7 @@ Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
  */
 Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
 	args.flat().forEach( ( plugin ) => {
-		cy.task( 'wp:plugin:uninstall', plugin );
+		cy.task( 'uninstallPlugin', plugin );
 	} );
 } );
 
@@ -346,7 +353,7 @@ Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.hasPlayerInstances( 1 );
+	cy.hasAdminPlayerInstances( 1 );
 } );
 
 Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
@@ -360,7 +367,7 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 
 	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
 
-	cy.hasPlayerInstances( 0 );
+	cy.hasAdminPlayerInstances( 0 );
 } );
 
 /**
@@ -449,8 +456,12 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 		}
 	} );
 
-	// Close Prepublish panel
-	cy.get( 'button[aria-label="Close panel"]' ).click();
+	// Close Prepublish panel if it's still open
+	cy.get( 'body' ).then( ( $body ) => {
+		if ( $body.find( 'button[aria-label="Close panel"]' ).length ) {
+			cy.get( 'button[aria-label="Close panel"]' ).click();
+		}
+	} );
 } );
 
 // "Save" existing post
@@ -467,31 +478,68 @@ Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 	return cy.get( 'label', ...args ).contains( text );
 } );
 
+// Check for a number of admin player instances.
+Cypress.Commands.add( 'hasAdminPlayerInstances', ( num = 1 ) => {
+	if ( num < 0 ) {
+		throw new Error( 'Number of player instances cannot be negative.' );
+	}
+
+	if ( num === 0 ) {
+		cy.get( '.beyondwords-player-box-wrapper' ).should( 'not.exist' );
+		return;
+	}
+
+	cy.get( '.beyondwords-player-box-wrapper' ).should( 'exist' );
+} );
+
 // Check for a number of player instances.
-Cypress.Commands.add( 'hasPlayerInstances', ( num = 1 ) => {
-	cy.window( { timeout: 10000 } ).should( ( win ) => {
-		if ( ! win.BeyondWords ) {
+Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
+	// Ensure the player script tag count matches the expected number of instances.
+	if ( num < 0 ) {
+		throw new Error( 'Number of player instances cannot be negative.' );
+	}
+
+	if ( num === 0 ) {
+		cy.getPlayerScriptTag().should( 'not.exist' );
+		return;
+	}
+
+	cy.getPlayerScriptTag().should( 'have.length', num );
+
+	if ( _.isEmpty( params ) ) {
+		// eslint-disable-next-line no-useless-return
+		return;
+	}
+
+	// Check params exist in the params of the player script tag's onload init object.
+	cy.getPlayerScriptTag().each( ( $el ) => {
+		const onload = $el.attr( 'onload' );
+		const match = onload.match( /\{target:this, \.\.\.(.+)\}\)/ );
+		console.log( 'onload', onload );
+		console.log( 'match', match );
+
+		if ( ! match ) {
 			throw new Error(
-				'BeyondWords is not available on the window object.'
+				'Could not find params object in onload attribute.'
 			);
 		}
 
-		if (
-			! win.BeyondWords.Player ||
-			typeof win.BeyondWords.Player.instances !== 'function'
-		) {
-			throw new Error(
-				'BeyondWords.Player.instances is not a function.'
-			);
+		const paramsStr = match[ 1 ];
+
+		let paramsObj = JSON.parse( paramsStr );
+
+		// Parse double-encoded JSON strings again.
+		if ( typeof paramsObj === 'string' ) {
+			paramsObj = JSON.parse( paramsObj );
 		}
 
-		const instances = win.BeyondWords.Player.instances();
-
-		if ( instances.length !== num ) {
-			throw new Error(
-				`Expected ${ num } player instance(s), but found ${ instances.length }.`
-			);
-		}
+		Object.entries( params ).forEach( ( [ key, value ] ) => {
+			if ( value === undefined ) {
+				expect( paramsObj ).to.not.have.property( key, value );
+			} else {
+				expect( paramsObj ).to.have.property( key ).that.eql( value );
+			}
+		} );
 	} );
 } );
 
@@ -506,9 +554,13 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 	} );
 } );
 
-// Get frontend audio player element (standard)
-Cypress.Commands.add( 'getEnqueuedPlayerScriptTag', ( ...args ) => {
-	return cy.get( 'script[data-beyondwords-sdk]', ...args );
+// Get frontend audio player script tag.
+Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
+	return cy.get(
+		// eslint-disable-next-line max-len
+		'body script[async][defer][src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js"]',
+		...args
+	);
 } );
 
 /**
@@ -547,3 +599,97 @@ Cypress.Commands.add(
 		} );
 	}
 );
+
+/**
+ * Clean up all test posts with "Cypress Test" in the title.
+ * This is much faster than a full DB reset (100-500ms vs 5-10s).
+ */
+Cypress.Commands.add( 'cleanupTestPosts', () => {
+	cy.task( 'deleteAllPosts', 'Cypress Test' );
+} );
+
+/**
+ * Update a WordPress option.
+ *
+ * @param {string} name  - The name of the option to update
+ * @param {string} value - The new value for the option
+ */
+Cypress.Commands.add( 'updateOption', ( name, value ) => {
+	cy.task( 'updateOption', { name, value } );
+} );
+
+/**
+ * Reset BeyondWords plugin settings to defaults.
+ * This ensures tests start with a clean slate for plugin configuration.
+ * Preserves API credentials (api_key and project_id) to avoid 403 errors.
+ */
+Cypress.Commands.add( 'resetPluginSettings', () => {
+	// Delete all beyondwords_* options EXCEPT api_key and project_id
+	cy.task( 'deleteOptionsByPattern', {
+		pattern: 'beyondwords_',
+		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
+	} );
+} );
+
+/**
+ * Create a test post with a unique identifier.
+ * Posts created with this command can be cleaned up with cy.cleanupTestPosts().
+ *
+ * @param {Object} options          - Post creation options
+ * @param {string} options.title    - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string} options.content  - Post content
+ * @param {string} options.status   - Post status (default: 'publish')
+ * @param {string} options.postType - Post type (default: 'post')
+ * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ */
+Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
+	const {
+		title = 'Untitled',
+		content = '',
+		status = 'publish',
+		postType = 'post',
+	} = options;
+
+	const testTitle = `Cypress Test - ${ title }`;
+
+	return cy
+		.task( 'createPost', {
+			title: testTitle,
+			content,
+			status,
+			postType,
+		} )
+		.then( ( postId ) => {
+			cy.wrap( postId ).as( 'testPostId' );
+			return postId;
+		} );
+} );
+
+/**
+ * Create a test post with BeyondWords audio generation enabled.
+ *
+ * @param {Object}  options               - Post creation options
+ * @param {string}  options.title         - Post title (will be prefixed with "Cypress Test - ")
+ * @param {string}  options.content       - Post content
+ * @param {boolean} options.generateAudio - Whether to generate audio (default: true)
+ * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ */
+Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
+	const {
+		title = 'Untitled',
+		content = 'Test content for audio generation',
+		generateAudio = true,
+	} = options;
+
+	return cy.createTestPost( { title, content } ).then( ( postId ) => {
+		if ( generateAudio ) {
+			// Set the meta to generate audio for this post
+			cy.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_generate_audio',
+				metaValue: '1',
+			} );
+		}
+		return postId;
+	} );
+} );

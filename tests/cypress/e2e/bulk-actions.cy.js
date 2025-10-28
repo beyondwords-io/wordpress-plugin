@@ -1,12 +1,6 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Bulk Actions', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
 	} );

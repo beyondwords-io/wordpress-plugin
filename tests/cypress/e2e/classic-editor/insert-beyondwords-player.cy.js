@@ -2,10 +2,7 @@
 
 context( 'Classic Editor: Insert BeyondWords Player', () => {
 	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-		cy.activatePlugin( 'classic-editor' );
+		cy.task( 'activatePlugin', 'classic-editor' );
 	} );
 
 	beforeEach( () => {
@@ -13,7 +10,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 	} );
 
 	after( () => {
-		cy.deactivatePlugin( 'classic-editor' );
+		cy.task( 'deactivatePlugin', 'classic-editor' );
 	} );
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
@@ -55,9 +52,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
-				cy.get(
-					'div[data-beyondwords-player="true"][contenteditable="false"]'
-				).should( 'have.length', 3 );
+				cy.hasPlayerInstances( 3 );
 			} );
 
 			it( `can add shortcodes into a ${ postType.name }`, () => {
@@ -84,9 +79,7 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 				cy.get( '#sample-permalink' ).click();
 
 				// Count 3x players in frontend
-				cy.get(
-					'div[data-beyondwords-player="true"][contenteditable="false"]'
-				).should( 'have.length', 3 );
+				cy.hasPlayerInstances( 3 );
 			} );
 		} );
 } );

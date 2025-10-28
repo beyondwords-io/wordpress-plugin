@@ -1,13 +1,9 @@
-/* global cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Settings > Player > Widget style', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveMinimalPluginSettings();
-	} );
-
 	beforeEach( () => {
+		cy.updateOption( 'beyondwords_video_enabled', '1' );
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
 		cy.login();
 	} );
 
@@ -36,8 +32,6 @@ context( 'Settings > Player > Widget style', () => {
 
 	options.forEach( ( option ) => {
 		it( `sets "${ option.label }"`, () => {
-			cy.saveMinimalPluginSettings();
-
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=player'
 			);

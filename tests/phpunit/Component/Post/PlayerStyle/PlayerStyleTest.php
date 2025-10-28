@@ -13,7 +13,7 @@
 use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class PostPlayerStyleTest extends WP_UnitTestCase
+class PostPlayerStyleTest extends TestCase
 {
     public function setUp(): void
     {
@@ -40,14 +40,13 @@ class PostPlayerStyleTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $playerStyle = new PlayerStyle();
-        $playerStyle->init();
+        PlayerStyle::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('rest_api_init', array($playerStyle, 'restApiInit')));
-        $this->assertEquals(10, has_action('save_post_page', array($playerStyle, 'save')));
-        $this->assertEquals(10, has_action('save_post_post', array($playerStyle, 'save')));
+        $this->assertEquals(10, has_action('rest_api_init', array(PlayerStyle::class, 'restApiInit')));
+        $this->assertEquals(10, has_action('save_post_page', array(PlayerStyle::class, 'save')));
+        $this->assertEquals(10, has_action('save_post_post', array(PlayerStyle::class, 'save')));
     }
 
     /**
@@ -55,15 +54,13 @@ class PostPlayerStyleTest extends WP_UnitTestCase
      */
     public function element()
     {
-        $playerStyle = new PlayerStyle();
-
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PostPlayerStyleTest::element',
         ]);
 
-        $playerStyle->element($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            PlayerStyle::element($post);
+        });
 
         $crawler = new Crawler($html);
 
@@ -101,25 +98,23 @@ class PostPlayerStyleTest extends WP_UnitTestCase
     {
         $_POST['beyondwords_player_style_nonce'] = wp_create_nonce('beyondwords_player_style');
 
-        $playerStyle = new PlayerStyle();
-
         $postId = self::factory()->post->create([
             'post_title' => 'PlayerStyleTest::save',
         ]);
 
-        $playerStyle->save($postId);
+        PlayerStyle::save($postId);
 
         $this->assertEquals('', get_post_meta($postId, 'beyondwords_player_style', true));
 
         $_POST['beyondwords_player_style'] = 'video';
 
-        $playerStyle->save($postId);
+        PlayerStyle::save($postId);
 
         $this->assertEquals('video', get_post_meta($postId, 'beyondwords_player_style', true));
 
         unset($_POST['beyondwords_player_style']);
 
-        $playerStyle->save($postId);
+        PlayerStyle::save($postId);
 
         $this->assertEquals('video', get_post_meta($postId, 'beyondwords_player_style', true));
 

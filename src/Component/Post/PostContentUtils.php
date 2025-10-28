@@ -23,13 +23,13 @@ class PostContentUtils
      * From API version 1.1 the "summary" param is going to be used differently,
      * so for WordPress we now prepend the WordPress excerpt to the "body" param.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.6.0
      *
      * @return string The content body param.
      */
-    public static function getContentBody($post)
+    public static function getContentBody(int|\WP_Post $post): string|null
     {
         $post = get_post($post);
 
@@ -61,11 +61,11 @@ class PostContentUtils
      * @since 5.0.0 Remove SpeechKit-Start shortcode.
      * @since 5.0.0 Remove beyondwords_content filter.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @return string The body (the processed $post->post_content).
      */
-    public static function getPostBody($post)
+    public static function getPostBody(int|\WP_Post $post): string|null
     {
         $post = get_post($post);
 
@@ -96,13 +96,13 @@ class PostContentUtils
      * This is a <div> with optional attributes depending on the BeyondWords
      * data of the post.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.6.0
      *
      * @return string The summary wrapper <div>.
      */
-    public static function getPostSummaryWrapperFormat($post)
+    public static function getPostSummaryWrapperFormat(int|\WP_Post $post): string
     {
         $post = get_post($post);
 
@@ -122,14 +122,14 @@ class PostContentUtils
     /**
      * Get the post summary for the audio content.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
      * @since 4.6.0 Renamed from PostContentUtils::getSummary() to PostContentUtils::getPostSummary()
      *
      * @return string The summary.
      */
-    public static function getPostSummary($post)
+    public static function getPostSummary(int|\WP_Post $post): string|null
     {
         $post = get_post($post);
 
@@ -162,16 +162,14 @@ class PostContentUtils
      * formatting tags such as <strong> and <em> so we do not pass segments, we pass
      * a HTML string as the body param instead.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
-     *
-     * @return array|null The segments.
      */
-    public static function getSegments($post)
+    public static function getSegments(int|\WP_Post $post): array
     {
         if (! has_blocks($post)) {
-            return null;
+            return [];
         }
 
         $titleSegment = (object) [
@@ -204,9 +202,7 @@ class PostContentUtils
         $segments = array_values(array_merge([$titleSegment], [$summarySegment], $bodySegments));
 
         // Remove any segments with empty text
-        $segments = array_values(array_filter($segments, function ($segment) {
-            return (! empty($segment->text));
-        }));
+        $segments = array_values(array_filter($segments, fn($segment) => ! empty($segment::text)));
 
         return $segments;
     }
@@ -219,14 +215,14 @@ class PostContentUtils
      *
      * This method filters all blocks, removing any which have been excluded.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 3.8.0
      * @since 4.0.0 Replace for loop with array_reduce
      *
      * @return string The post body without excluded blocks.
      */
-    public static function getContentWithoutExcludedBlocks($post)
+    public static function getContentWithoutExcludedBlocks(int|\WP_Post $post): string
     {
         if (! has_blocks($post)) {
             return trim($post->post_content);
@@ -252,14 +248,14 @@ class PostContentUtils
     /**
      * Get audio-enabled blocks.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
      * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
      *
      * @return array The blocks.
      */
-    public static function getAudioEnabledBlocks($post)
+    public static function getAudioEnabledBlocks(int|\WP_Post $post): array
     {
         $post = get_post($post);
 
@@ -273,7 +269,7 @@ class PostContentUtils
 
         $allBlocks = parse_blocks($post->post_content);
 
-        $blocks = array_filter($allBlocks, function ($block) {
+        return array_filter($allBlocks, function ($block) {
             $enabled = true;
 
             if (is_array($block['attrs']) && isset($block['attrs']['beyondwordsAudio'])) {
@@ -282,8 +278,6 @@ class PostContentUtils
 
             return $enabled;
         });
-
-        return $blocks;
     }
 
     /**
@@ -298,13 +292,14 @@ class PostContentUtils
      * @since 4.3.0  Rename from getBodyJson to getContentParams.
      * @since 4.6.0  Remove summary param & prepend body with summary.
      * @since 5.0.0  Remove beyondwords_body_params filter.
+     * @since 6.0.0  Cast return value to string.
      *
      * @static
      * @param int $postId WordPress Post ID.
      *
      * @return string JSON endoded params.
      **/
-    public static function getContentParams($postId)
+    public static function getContentParams(int $postId): array|string
     {
         $body = [
             'type'         => 'auto_segment',
@@ -370,7 +365,7 @@ class PostContentUtils
          */
         $body = apply_filters('beyondwords_content_params', $body, $postId);
 
-        return wp_json_encode($body);
+        return (string) wp_json_encode($body);
     }
 
     /**
@@ -391,9 +386,9 @@ class PostContentUtils
      *
      * @param int $postId Post ID.
      *
-     * @return array
+     * @return object The metadata object (empty if no metadata).
      */
-    public static function getMetadata($postId)
+    public static function getMetadata(int $postId): array|object
     {
         $metadata = new \stdClass();
 
@@ -423,9 +418,9 @@ class PostContentUtils
      *
      * @param int $postId Post ID.
      *
-     * @return array
+     * @return object The taxonomies object (empty if no taxonomies).
      */
-    public static function getAllTaxonomiesAndTerms($postId)
+    public static function getAllTaxonomiesAndTerms(int $postId): array|object
     {
         $postType = get_post_type($postId);
 
@@ -450,10 +445,8 @@ class PostContentUtils
      * @since 3.10.4
      *
      * @param int $postId Post ID.
-     *
-     * @return string
      */
-    public static function getAuthorName($postId)
+    public static function getAuthorName(int $postId): string
     {
         $authorId = get_post_field('post_author', $postId);
 
@@ -474,7 +467,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttribute($html, $marker)
+    public static function addMarkerAttribute(string $html, string $marker): string
     {
         if (! $marker) {
             return $html;
@@ -502,7 +495,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithHTMLTagProcessor($html, $marker)
+    public static function addMarkerAttributeWithHTMLTagProcessor(string $html, string $marker): string
     {
         if (! $marker) {
             return $html;
@@ -544,7 +537,7 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithDOMDocument($html, $marker)
+    public static function addMarkerAttributeWithDOMDocument(string $html, string $marker): string
     {
         if (! $marker) {
             return $html;

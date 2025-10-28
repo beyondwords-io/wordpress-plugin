@@ -14,7 +14,7 @@ grumphp:
       metadata:
         priority: 10
     phpversion:
-      project: '8.0'
+      project: '8.1'
       metadata:
         priority: 10
     composer:
@@ -55,6 +55,17 @@ grumphp:
         - vendor
       metadata:
         priority: 10
+    rector:
+      config: rector.php
+      triggered_by:
+        - php
+      ignore_patterns:
+        - /tests/*
+        - /vendor/*
+      clear_cache: false
+      no_diffs: false
+      metadata:
+        priority: 10
     test_phpunit:
       script: test:phpunit
       metadata:
@@ -77,6 +88,7 @@ grumphp:
         - phpcs
         - phplint
         - phpmd
+        - rector
     code_quality:
       tasks:
         - composer
@@ -84,3 +96,4 @@ grumphp:
         - phpcs
         - phplint
         - phpmd
+        - rector

@@ -43,15 +43,16 @@ class PlayerContent
      * Constructor
      *
      * @since 5.3.0 Introduced.
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('wp_loaded', function () {
+        add_action('wp_loaded', function (): void {
             $postTypes = SettingsUtils::getCompatiblePostTypes();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
-                    add_action("save_post_{$postType}", array($this, 'save'), 10);
+                    add_action("save_post_{$postType}", [self::class, 'save'], 10);
                 }
             }
         });
@@ -61,12 +62,13 @@ class PlayerContent
      * HTML output for this component.
      *
      * @since 5.3.0 Introduced.
+     * @since 6.0.0 Make static.
      *
-     * @param WP_Post $post The post object.
+     * @param \WP_Post $post The post object.
      *
      * @return string|null
      */
-    public function element($post)
+    public static function element($post)
     {
         $playerContent = get_post_meta($post->ID, 'beyondwords_player_content', true);
 
@@ -100,10 +102,11 @@ class PlayerContent
      * Save the meta when the post is saved.
      *
      * @since 5.3.0 Introduced.
+     * @since 6.0.0 Make static.
      *
      * @param int $postId The ID of the post being saved.
      */
-    public function save($postId)
+    public static function save($postId)
     {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $postId;

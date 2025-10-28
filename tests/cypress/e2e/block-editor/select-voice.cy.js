@@ -1,13 +1,7 @@
-/* global cy, before, beforeEach, context, expect, it */
+/* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
-
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
 
 	beforeEach( () => {
 		cy.login();

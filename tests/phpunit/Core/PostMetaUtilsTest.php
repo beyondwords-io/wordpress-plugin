@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 
-class PostMetaUtilsTest extends WP_UnitTestCase
+class PostMetaUtilsTest extends TestCase
 {
     /**
      * @var \WpunitTester

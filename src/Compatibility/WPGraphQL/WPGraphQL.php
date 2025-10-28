@@ -20,11 +20,12 @@ class WPGraphQL
      * Init.
      *
      * @since 3.6.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
         // Actions for WPGraphQL
-        add_action('graphql_register_types', array($this, 'graphqlRegisterTypes'));
+        add_action('graphql_register_types', [self::class, 'graphqlRegisterTypes']);
     }
 
     /**
@@ -33,12 +34,17 @@ class WPGraphQL
      * @since 3.6.0
      * @since 4.0.0 Register contentId field, and contentId/podcastId are now String, not Int
      * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
+     * @since 6.0.0 Make static, add sourceId field.
      */
-    public function graphqlRegisterTypes()
+    public static function graphqlRegisterTypes()
     {
         register_graphql_object_type('Beyondwords', [
             'description' => __('BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK.', 'speechkit'), // phpcs:ignore Generic.Files.LineLength.TooLong
             'fields' => [
+                'sourceId' => [
+                    'description' => __('BeyondWords source ID', 'speechkit'),
+                    'type' => 'String'
+                ],
                 'projectId' => [
                     'description' => __('BeyondWords project ID', 'speechkit'),
                     'type' => 'Int'
@@ -68,22 +74,24 @@ class WPGraphQL
                     'type'        => 'Beyondwords',
                     'description' => __('BeyondWords audio details', 'speechkit'),
                     'resolve'     => function (WPGraphQLPlugin\Model\Post $post) {
-                        $beyondwords = [];
-
-                        $contentId = PostMetaUtils::getContentId($post->ID);
-
-                        if (! empty($contentId)) {
-                            $beyondwords['contentId'] = $contentId;
-                            $beyondwords['podcastId'] = $contentId; // legacy
-                        }
+                        $fields = [
+                            'sourceId' => (string) $post->ID,
+                        ];
 
                         $projectId = PostMetaUtils::getProjectId($post->ID);
 
                         if (! empty($projectId)) {
-                            $beyondwords['projectId'] = $projectId;
+                            $fields['projectId'] = $projectId;
                         }
 
-                        return ! empty($beyondwords) ? $beyondwords : null;
+                        $contentId = PostMetaUtils::getContentId($post->ID);
+
+                        if (! empty($contentId)) {
+                            $fields['contentId'] = $contentId;
+                            $fields['podcastId'] = $contentId; // legacy
+                        }
+
+                        return $fields;
                     }
                 ]);
             }

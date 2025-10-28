@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Request;
 
-class ApiClientTest extends WP_UnitTestCase
+class ApiClientTest extends TestCase
 {
     public function setUp(): void
     {
@@ -155,7 +155,7 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertEquals($deleted, array_values($postIds));
 
         foreach ($deleted as $postId) {
-            wp_delete_post($postId);
+            wp_delete_post($postId, true);
         }
 
         delete_option('beyondwords_api_key');
@@ -362,6 +362,7 @@ class ApiClientTest extends WP_UnitTestCase
         unset($headers['X-Api-Key']);
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
@@ -391,6 +392,7 @@ class ApiClientTest extends WP_UnitTestCase
         $headers['X-Api-Key'] = 'AN INVALID API KEY';
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));

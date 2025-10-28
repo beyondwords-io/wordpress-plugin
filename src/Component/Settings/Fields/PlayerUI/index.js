@@ -7,8 +7,9 @@
 		'.beyondwords-setting__player--player-ui select'
 	);
 
-	const $playerSettingsFields = $( '#beyondwords-plugin-settings' )
-		.find( '.beyondwords-settings__player-field-toggle' );
+	const $playerSettingsFields = $( '#beyondwords-plugin-settings' ).find(
+		'.beyondwords-settings__player-field-toggle'
+	);
 
 	$playerUiField.on( 'change', toggleFieldRow );
 
@@ -21,11 +22,11 @@
 	function toggleFieldRow() {
 		const playerUi = $playerUiField.find( ':selected' ).val();
 
-		$playerSettingsFields.each(function( index ) {
+		$playerSettingsFields.each( function ( index ) {
 			if ( playerUi === 'enabled' ) {
-				jQuery(this).show();
+				jQuery( this ).show();
 			} else {
-				jQuery(this).hide();
+				jQuery( this ).hide();
 			}
 		} );
 	}

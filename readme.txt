@@ -3,8 +3,8 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.5.0
-Requires PHP: 8.0
+Stable tag: 6.0.0-rc.1
+Requires PHP: 8.1
 Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -80,6 +80,18 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 6.0.0-rc.1 =
+
+Release date: TBC
+
+**Enhancements and Features:**
+
+* [#449](https://github.com/beyondwords-io/wordpress-plugin/pull/449) Magic Embed for WordPress.
+    * An **Integration method** plugin setting has been added in the *Content* tab.
+    * The default is **REST API**. This method will continue to send post content and metadata to BeyondWords using REST API calls.
+    * If **Magic Embed** is selected then [Client-Side Integration](https://github.com/beyondwords-io/player/blob/main/doc/client-side-integration.md) will be enabed for new posts. With this method BeyondWords handles the extraction and delivery of audio content using the rendered HTML for the post.
+* [#447](https://github.com/beyondwords-io/wordpress-plugin/pull/447) Make PHP methods static.
+
 = 5.5.0 =
 
 Release date: 2nd July 2025
@@ -93,7 +105,7 @@ Release date: 2nd July 2025
     * As part of the Fetch button update the **Generate audio** checkbox is now always shown in the Block Editor.
     * If **Generate audio** is unchecked before a post is saved then audio **will not** be regenerated from the updated post content.
 * [#444](https://github.com/beyondwords-io/wordpress-plugin/pull/444) PHP 8.4 support.
-    * Run unit and e2e tests against PHP 8.0 and PHP 8.4 in GitHub Actions.
+    * Run unit and e2e tests against PHP 8.1 and PHP 8.4 in GitHub Actions.
 
 = 5.4.0 =
 

@@ -16,20 +16,33 @@ export default compose( [
 	withSelect( ( select ) => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
 
+		const status = getEditedPostAttribute( 'status' );
+		const projectId =
+			getEditedPostAttribute( 'meta' ).beyondwords_project_id;
+		const integrationMethod =
+			getEditedPostAttribute( 'meta' ).beyondwords_integration_method;
+
+		// Get Content ID, inc fallbacks for legacy field names.
 		const beyondwordsContentId =
 			getEditedPostAttribute( 'meta' ).beyondwords_content_id;
 		const beyondwordsPodcastId =
 			getEditedPostAttribute( 'meta' ).beyondwords_podcast_id;
 		const speechkitPodcastId =
 			getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
-		const status = getEditedPostAttribute( 'status' );
+
+		const contentId =
+			beyondwordsContentId || beyondwordsPodcastId || speechkitPodcastId;
+
+		const isClientSide = integrationMethod === 'client-side';
+
+		const hasClientSideContent = isClientSide && projectId;
+
+		const hasRestApiContent = ! isClientSide && projectId && contentId;
 
 		return {
 			hasPlayAudioAction:
 				status !== 'pending' &&
-				( !! beyondwordsContentId ||
-					!! beyondwordsPodcastId ||
-					!! speechkitPodcastId ),
+				( hasClientSideContent || hasRestApiContent ),
 		};
 	} ),
 ] )( PlayAudioCheck );

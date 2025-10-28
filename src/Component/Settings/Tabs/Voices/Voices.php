@@ -20,9 +20,6 @@ use Beyondwords\Wordpress\Component\Settings\Fields\Language\Language;
 
 /**
  * "Voices" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Voices
@@ -31,29 +28,31 @@ class Voices
      * Init
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        (new Language())->init();
-        (new TitleVoice())->init();
-        (new TitleVoiceSpeakingRate())->init();
-        (new BodyVoice())->init();
-        (new BodyVoiceSpeakingRate())->init();
+        Language::init();
+        TitleVoice::init();
+        TitleVoiceSpeakingRate::init();
+        BodyVoice::init();
+        BodyVoiceSpeakingRate::init();
 
-        add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
      * Add Settings sections.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsSection()
+    public static function addSettingsSection()
     {
         add_settings_section(
             'voices',
             __('Voices', 'speechkit'),
-            [$this, 'sectionCallback'],
+            [self::class, 'sectionCallback'],
             'beyondwords_voices',
         );
     }
@@ -62,10 +61,11 @@ class Voices
      * Section callback
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function sectionCallback()
+    public static function sectionCallback()
     {
         ?>
         <p class="description">

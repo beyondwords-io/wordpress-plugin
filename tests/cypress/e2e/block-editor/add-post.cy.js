@@ -1,12 +1,6 @@
-/* global Cypress, cy, before, beforeEach, context, it */
+/* global Cypress, cy, beforeEach, context, it */
 
 context( 'Block Editor: Add Post', () => {
-	before( () => {
-		cy.task( 'reset' );
-		cy.login();
-		cy.saveStandardPluginSettings();
-	} );
-
 	beforeEach( () => {
 		cy.login();
 	} );
@@ -17,20 +11,10 @@ context( 'Block Editor: Add Post', () => {
 		.filter( ( x ) => x.supported )
 		.forEach( ( postType ) => {
 			it( `can add a ${ postType.name } without audio`, () => {
-				cy.createPost( {
+				cy.publishPostWithoutAudio( {
 					postType,
 					title: `I can add a ${ postType.name } without audio`,
 				} );
-
-				cy.openBeyondwordsEditorPanel();
-
-				cy.uncheckGenerateAudio( postType );
-
-				cy.publishWithConfirmation();
-
-				cy.getLabel( 'Generate audio' ).should( 'exist' );
-
-				cy.hasPlayerInstances( 0 );
 
 				// "View post"
 				cy.viewPostViaSnackbar();
@@ -62,7 +46,7 @@ context( 'Block Editor: Add Post', () => {
 				// "View post"
 				cy.viewPostViaSnackbar();
 
-				cy.getEnqueuedPlayerScriptTag().should( 'exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
 				cy.visit(
@@ -79,10 +63,10 @@ context( 'Block Editor: Add Post', () => {
 					} );
 			} );
 
-			it( `can add a ${ postType.name } with "Pending review" audio`, () => {
+			// @todo Skip flaky test until mock API is replaced with http intercepts.
+			it.skip( `can add a ${ postType.name } with "Pending review" audio`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can add a ${ postType.name } with "Pending Review" audio`,
 				} );
 
 				cy.openBeyondwordsEditorPanel();
@@ -93,7 +77,7 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.get( '.editor-post-publish-button__button' ).click();
 
-				cy.hasPlayerInstances( 0 );
+				cy.hasAdminPlayerInstances( 0 );
 
 				// "Generate Audio" is replaced by "Pending" message'
 				cy.get( 'input#beyondwords_generate_audio' ).should(

@@ -3,7 +3,7 @@
 use Beyondwords\Wordpress\Component\Post\Metabox\Metabox;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class MetaboxTest extends WP_UnitTestCase
+class MetaboxTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Post\Metabox\Metabox
@@ -19,14 +19,11 @@ class MetaboxTest extends WP_UnitTestCase
 
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
-
-        $this->_instance = new Metabox();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
 
         // Then...
         parent::tearDown();
@@ -37,12 +34,12 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $this->_instance->init();
+        Metabox::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array($this->_instance, 'adminEnqueueScripts')));
-        $this->assertEquals(10, has_action('add_meta_boxes', array($this->_instance, 'addMetaBox')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(Metabox::class, 'adminEnqueueScripts')));
+        $this->assertEquals(10, has_action('add_meta_boxes', array(Metabox::class, 'addMetaBox')));
     }
 
     /**
@@ -54,13 +51,13 @@ class MetaboxTest extends WP_UnitTestCase
 
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts(null);
+        Metabox::adminEnqueueScripts(null);
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts('edit.php');
+        Metabox::adminEnqueueScripts('edit.php');
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        $this->_instance->adminEnqueueScripts('post.php');
+        Metabox::adminEnqueueScripts('post.php');
         $this->assertTrue(wp_style_is($style, 'enqueued'));
 
         wp_dequeue_style($style);
@@ -73,7 +70,7 @@ class MetaboxTest extends WP_UnitTestCase
     {
         global $wp_meta_boxes;
 
-        $this->_instance->addMetaBox('post');
+        Metabox::addMetaBox('post');
 
         $this->assertArrayHasKey('beyondwords', $wp_meta_boxes['post']['side']['default']);
 
@@ -82,17 +79,20 @@ class MetaboxTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group integration
      * @dataProvider renderMetaBoxContentProvider
      */
     public function renderMetaBoxContent($expectPlayer, $postArgs)
     {
-        $this->markTestSkipped('Needs updated after recent language changes.');
+        // Set up API credentials for metabox rendering
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create($postArgs);
 
-        $this->_instance->renderMetaBoxContent($postId);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($postId) {
+            Metabox::renderMetaBoxContent($postId);
+        });
 
         $crawler = new Crawler($html);
 
@@ -105,7 +105,11 @@ class MetaboxTest extends WP_UnitTestCase
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-help'));
         $this->assertCount(0, $crawler->filter('div#beyondwords-metabox-errors'));
 
-        wp_delete_post($postId);
+        wp_delete_post($postId, true);
+
+        // Clean up
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     public function renderMetaBoxContentProvider()
@@ -150,16 +154,24 @@ class MetaboxTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group integration
      */
     public function renderMetaBoxContentWithInvalidPost()
     {
-        $this->markTestSkipped('Needs updated after recent language changes.');
+        // Set up API credentials
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->_instance->renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
-
-        $html = $this->getActualOutput();
+        // Pass an invalid post (array instead of WP_Post or int)
+        $html = $this->captureOutput(function () {
+            Metabox::renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
+        });
 
         $this->assertEmpty($html);
+
+        // Clean up
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**
@@ -170,9 +182,9 @@ class MetaboxTest extends WP_UnitTestCase
     {
         $post = self::factory()->post->create_and_get($postArgs);
 
-        $this->_instance->errors($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            Metabox::errors($post);
+        });
 
         $crawler = new Crawler($html);
 
@@ -214,9 +226,9 @@ class MetaboxTest extends WP_UnitTestCase
      */
     public function regenerateInstructions()
     {
-        $this->_instance->regenerateInstructions();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            Metabox::regenerateInstructions();
+        });
 
         $crawler = new Crawler($html);
 

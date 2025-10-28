@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\SiteHealth;
 
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
@@ -74,27 +75,27 @@ class SiteHealth
      * Init
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_filter('debug_information', array($this, 'debugInformation'));
+        add_filter('debug_information', [self::class, 'debugInformation']);
     }
 
     /**
      * Add "Site Health" navigation tab.
      *
-     * @since  3.7.0
+     * @since 3.7.0
+     * @since 6.0.0 Make static.
      *
-     * @param array $info
      *
-     * @return array
      */
-    public function debugInformation($info)
+    public static function debugInformation(array $info): array
     {
         $info['beyondwords']['label'] = __('BeyondWords - Text-to-Speech', 'speechkit');
 
-        $this->addPluginVersion($info);
-        $this->addRestApiConnection($info);
+        self::addPluginVersion($info);
+        self::addRestApiConnection($info);
 
         $info['beyondwords']['fields']['compatible-post-types'] = [
             'label' => __('Compatible post types', 'speechkit'),
@@ -104,6 +105,11 @@ class SiteHealth
         $info['beyondwords']['fields']['incompatible-post-types'] = [
             'label' => __('Incompatible post types', 'speechkit'),
             'value' => implode(', ', SettingsUtils::getIncompatiblePostTypes()),
+        ];
+
+        $info['beyondwords']['fields']['integration-method'] = [
+            'label' => __('Integration method', 'speechkit'),
+            'value' => IntegrationMethod::getIntegrationMethod(),
         ];
 
         $info['beyondwords']['fields']['beyondwords_api_key'] = [
@@ -116,15 +122,14 @@ class SiteHealth
             'value' => get_option('beyondwords_project_id'),
         ];
 
-        $this->addContentSettings($info);
-        $this->addProjectSettings($info);
-        $this->addPlayerSettings($info);
-        $this->addFilters($info);
-        $this->addNoticeSettings($info);
+        self::addContentSettings($info);
+        self::addProjectSettings($info);
+        self::addPlayerSettings($info);
+        self::addFilters($info);
+        self::addNoticeSettings($info);
 
-        $this->addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
-        $this->addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
-        $this->addConstant($info, 'BEYONDWORDS_PLAYER_INLINE_SCRIPT_TAG');
+        self::addConstant($info, 'BEYONDWORDS_AUTO_SYNC_SETTINGS');
+        self::addConstant($info, 'BEYONDWORDS_AUTOREGENERATE');
 
         return $info;
     }
@@ -133,12 +138,11 @@ class SiteHealth
      * Add content settings to the info debugging array.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public function addContentSettings(&$info)
+    public static function addContentSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_project_title_enabled'] = [
             'label' => __('Include title in audio', 'speechkit'),
@@ -168,12 +172,11 @@ class SiteHealth
      * Add project settings to the info debugging array.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public function addProjectSettings(&$info)
+    public static function addProjectSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_project_language_code'] = [
             'label' => __('Default language code', 'speechkit'),
@@ -210,12 +213,11 @@ class SiteHealth
      * Add player settings to the info debugging array.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public function addPlayerSettings(&$info)
+    public static function addPlayerSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_player_ui'] = [
             'label' => __('Player UI', 'speechkit'),
@@ -283,13 +285,14 @@ class SiteHealth
     /**
      * Add plugin version to the info debugging array.
      *
-     * @since  3.7.0
+     * @since 3.7.0
+     * @since 6.0.0 Make static.
      *
      * @param array  $info Debugging info array
      *
      * @return array
      */
-    public function addPluginVersion(&$info)
+    public static function addPluginVersion(&$info)
     {
         $constVersion = defined('BEYONDWORDS__PLUGIN_VERSION') ? BEYONDWORDS__PLUGIN_VERSION : '';
         $dbVersion    = get_option('beyondwords_version');
@@ -317,12 +320,13 @@ class SiteHealth
      *
      * @since 3.7.0
      * @since 5.2.2 Remove sslverify param for REST API calls.
+     * @since 6.0.0 Make static.
      *
      * @param array  $info Debugging info array
      *
      * @return array
      */
-    public function addRestApiConnection(&$info)
+    public static function addRestApiConnection(&$info)
     {
         // translators: Tab heading for Site Health navigation.
         $apiUrl = Environment::getApiUrl();
@@ -339,13 +343,13 @@ class SiteHealth
         ]);
 
         if (! is_wp_error($response)) {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => __('BeyondWords API is reachable', 'speechkit'),
                 'debug' => 'true',
-            );
+            ];
         } else {
-            $info['beyondwords']['fields']['api-communication'] = array(
+            $info['beyondwords']['fields']['api-communication'] = [
                 'label' => __('Communication with REST API', 'speechkit'),
                 'value' => sprintf(
                     /* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
@@ -354,7 +358,7 @@ class SiteHealth
                     $response->get_error_message()
                 ),
                 'debug' => $response->get_error_message(),
-            );
+            ];
         }
     }
 
@@ -362,12 +366,11 @@ class SiteHealth
      * Adds filters.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public function addFilters(&$info)
+    public static function addFilters(array &$info): void
     {
         $registered = array_values(array_filter(SiteHealth::FILTERS, 'has_filter'));
 
@@ -390,12 +393,11 @@ class SiteHealth
      * Add notice settings to the info debugging array.
      *
      * @since 5.4.0
+     * @since 6.0.0 Make static.
      *
      * @param array $info Debugging info array
-     *
-     * @return array
      */
-    public function addNoticeSettings(&$info)
+    public static function addNoticeSettings(array &$info): void
     {
         $info['beyondwords']['fields']['beyondwords_date_activated'] = [
             'label' => __('Date Activated', 'speechkit'),
@@ -413,13 +415,12 @@ class SiteHealth
      *
      * @since 3.7.0
      * @since 5.0.0 Handle boolean values.
+     * @since 6.0.0 Make static.
      *
      * @param array  $info Debugging info array
      * @param string $name Constant name
-     *
-     * @return array
      */
-    public function addConstant(&$info, $name)
+    public static function addConstant(array &$info, string $name): void
     {
         $value = __('Undefined', 'speechkit');
 
@@ -446,12 +447,9 @@ class SiteHealth
      * @static
      *
      * @param string $string
-     * @param int $count
-     * @param string $char
      *
-     * @return string
      */
-    public static function maskString($string, $count = 4, $char = 'X')
+    public static function maskString(string|false $string, int $count = 4, string $char = 'X'): string
     {
         if (! is_string($string)) {
             return '';
@@ -460,7 +458,7 @@ class SiteHealth
         if (strlen($string) < 8) {
             return str_repeat($char, strlen($string));
         } else {
-            return str_repeat($char, strlen($string) - $count) . substr($string, (0 - $count));
+            return str_repeat($char, strlen($string) - $count) . substr($string, (-$count));
         }
     }
 }

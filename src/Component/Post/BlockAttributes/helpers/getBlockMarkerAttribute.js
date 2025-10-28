@@ -19,14 +19,16 @@ import { v4 as uuidv4 } from 'uuid';
  *
  * @param {Object} attributes Attributes for the block.
  *
- * @return {String} marker The block marker (segment marker in BeyondWords API).
+ * @return {string} marker The block marker (segment marker in BeyondWords API).
  */
 const getBlockMarkerAttribute = ( attributes ) => {
 	const { beyondwordsMarker } = attributes;
 
-	if ( ! beyondwordsMarker ) return uuidv4();
+	if ( ! beyondwordsMarker ) {
+		return uuidv4();
+	}
 
-	const existingMarkers = getExistingBlockMarkers()
+	const existingMarkers = getExistingBlockMarkers();
 
 	if ( countInArray( existingMarkers, beyondwordsMarker ) > 1 ) {
 		// Return a new UUID if this marker is a duplicate
@@ -35,7 +37,7 @@ const getBlockMarkerAttribute = ( attributes ) => {
 
 	// Return the existing marker only if it is not a duplicate
 	return beyondwordsMarker;
-}
+};
 
 /**
  * Get all existing Block markers for the currently-edited post.
@@ -45,41 +47,42 @@ const getBlockMarkerAttribute = ( attributes ) => {
  *
  * @since 4.0.0
  *
- * @return {String[]} markers The block markers for the current Post.
+ * @return {string[]} markers The block markers for the current Post.
  */
 const getExistingBlockMarkers = () => {
 	// Get all Blocks in current Post
-	const blocks = select( 'core/block-editor' )
-		.getBlocks();
+	const blocks = select( 'core/block-editor' ).getBlocks();
 
 	// Return all non-empty markers of the Blocks
 	return blocks
-		.map( block => block?.attributes?.beyondwordsMarker )
-		.filter( marker => marker );
-}
+		.map( ( block ) => block?.attributes?.beyondwordsMarker )
+		.filter( ( marker ) => marker );
+};
 
 /**
  * Count the number of times an item is in an array.
  *
+ * @param  array
+ * @param  item
  * @since 4.0.0
  * @since 4.4.0 Ensure param is array
  *
- * @return {Number} count The number of times the item occurs.
+ * @return {number} count The number of times the item occurs.
  */
-function countInArray(array, item) {
-	if (! Array.isArray(array)) {
+function countInArray( array, item ) {
+	if ( ! Array.isArray( array ) ) {
 		return 0;
 	}
 
-    var count = 0;
+	let count = 0;
 
-    for ( var i = 0; i < array.length; i++ ) {
-        if ( array[ i ] === item ) {
-            count++;
-        }
-    }
+	for ( let i = 0; i < array.length; i++ ) {
+		if ( array[ i ] === item ) {
+			count++;
+		}
+	}
 
-    return count;
+	return count;
 }
 
 export default getBlockMarkerAttribute;
