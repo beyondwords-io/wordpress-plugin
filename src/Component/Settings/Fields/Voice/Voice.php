@@ -25,25 +25,34 @@ abstract class Voice
      * Get all options for the current component.
      *
      * @since 5.0.0
+     * @since 5.4.0
+     * @since 6.0.0 Make static, handle API errors, and return language_code in each option.
      *
      * @return string[] Associative array of options.
      **/
-    public function getOptions()
+    public static function getOptions()
     {
-        $languageId = get_option('beyondwords_project_language_id');
-        $voices     = ApiClient::getVoices($languageId);
+        $voices = null;
+        $languageCode = get_option('beyondwords_project_language_code');
+        if ($languageCode) {
+            $voices = ApiClient::getVoices($languageCode);
+        }
 
-        if (! $voices) {
+        if (! $voices || ! is_array($voices) || empty($voices)) {
             return [];
         }
 
-        $options = array_map(function ($voice) {
-            return [
-                'value' => $voice['id'],
-                'label' => $voice['name'],
-            ];
-        }, $voices);
+        // Filter out any non-array elements (in case of API errors)
+        $voices = array_filter($voices, 'is_array');
 
-        return $options;
+        if (empty($voices)) {
+            return [];
+        }
+
+        return array_map(fn($voice) => [
+            'value' => $voice['id'],
+            'label' => $voice['name'],
+            'language_code' => $voice['language']['code'] ?? '',
+        ], $voices);
     }
 }

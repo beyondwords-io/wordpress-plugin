@@ -1,55 +1,46 @@
+/* global cy, before, beforeEach, after, context, it */
+
 context( 'Plugins: AMP', () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveStandardPluginSettings()
-    cy.activatePlugin( 'amp' )
-  } )
+	before( () => {
+		cy.task( 'activatePlugin', 'amp' );
+	} );
 
-  beforeEach( () => {
-    cy.login()
-  } )
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  after( () => {
-    cy.deactivatePlugin( 'amp' )
-  } )
+	after( () => {
+		cy.task( 'deactivatePlugin', 'amp' );
+	} );
 
-  const postTypes = require( '../../../../tests/fixtures/post-types.json' )
+	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-  // Only test priority post types
-  postTypes.filter( x => [ 'post', 'page' ].includes( x.slug ) ).forEach( postType => {
-    it( `${postType.name} shows an <amp-iframe> player for AMP requests`, () => {
-      cy.visit( `/wp-admin/post-new.php?post_type=${postType.slug}` ).wait( 500 )
+	// Only test priority post types
+	postTypes
+		.filter( ( x ) => [ 'post', 'page' ].includes( x.slug ) )
+		.forEach( ( postType ) => {
+			it( `${ postType.name } shows an <amp-iframe> player for AMP requests`, () => {
+				cy.publishPostWithAudio( {
+					postType,
+					title: `A ${ postType.slug } has an AMP iframe player`,
+				} );
 
-      cy.closeWelcomeToBlockEditorTips()
+				// "View post"
+				cy.viewPostViaSnackbar();
 
-      cy.openBeyondwordsEditorPanel()
+				// Non-AMP requests have a JS player.
+				cy.get( 'amp-iframe' ).should( 'not.exist' );
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
 
-      cy.checkGenerateAudio( postType )
+				cy.url().then( ( url ) => {
+					// View post as AMP by appending &amp=1
+					cy.visit( `${ url }&amp=1` );
+				} );
 
-      cy.setPostTitle( `A ${postType.slug} has an AMP iframe player` )
-
-      cy.publishWithConfirmation( true )
-
-      cy.getLabel( 'Generate audio' ).should( 'not.exist' )
-
-      cy.getAdminPlayer().should( 'exist' )
-
-      // "View post"
-      cy.viewPostViaSnackbar()
-
-      cy.get( 'amp-iframe' ).should( 'not.exist' )
-      cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-      cy.getFrontendPlayer().should( 'exist' )
-
-      cy.url().then(url => {
-        // View post as AMP by appending &amp=1
-        cy.visit( `${url}&amp=1` ).wait( 500 )
-      } )
-
-      cy.get( 'amp-iframe' ).should( 'exist' )
-      cy.getEnqueuedPlayerScriptTag().should( 'not.exist' )
-      cy.getFrontendPlayer().should( 'not.exist' )
-    } )
-  } )
-} )
+				cy.get( 'amp-iframe' ).should( 'exist' );
+				cy.getPlayerScriptTag().should( 'not.exist' );
+				cy.hasNoBeyondwordsWindowObject();
+			} );
+		} );
+} );

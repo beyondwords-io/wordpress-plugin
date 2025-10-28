@@ -22,7 +22,7 @@ class CoreUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Core\CoreUtils
      */
-    public static function isGutenbergPage()
+    public static function isGutenbergPage(): bool
     {
         if (function_exists('is_gutenberg_page') && is_gutenberg_page()) {
             // The Gutenberg plugin is on.
@@ -54,7 +54,7 @@ class CoreUtils
      * @since 4.0.0
      * @since 4.0.5 Ensure is_admin() and $screen
      */
-    public static function isEditScreen()
+    public static function isEditScreen(): bool
     {
         if (! is_admin()) {
             return false;
@@ -78,6 +78,20 @@ class CoreUtils
     }
 
     /**
+     * Check if the current request is an AMP request.
+     *
+     * @return bool True if AMP.
+     */
+    public static function isAmp(): bool
+    {
+        return (
+            (function_exists('\amp_is_request') && \amp_is_request()) ||
+            (function_exists('\ampforwp_is_amp_endpoint') && \ampforwp_is_amp_endpoint()) ||
+            (function_exists('\is_amp_endpoint') && \is_amp_endpoint())
+        );
+    }
+
+    /**
      * Get the BeyondWords post meta keys.
      *
      * @since 4.1.0
@@ -88,16 +102,18 @@ class CoreUtils
      *
      * @return string[] Post meta keys.
      **/
-    public static function getPostMetaKeys($type = 'current')
+    public static function getPostMetaKeys(string $type = 'current'): array
     {
         $current = [
             'beyondwords_generate_audio',
+            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
             'beyondwords_preview_token',
             'beyondwords_player_content',
             'beyondwords_player_style',
-            'beyondwords_language_id',
+            'beyondwords_language_code',
+            'beyondwords_language_id', // @todo deprecate in v5.6
             'beyondwords_title_voice_id',
             'beyondwords_body_voice_id',
             'beyondwords_summary_voice_id',
@@ -127,24 +143,12 @@ class CoreUtils
             '_speechkit_text',
         ];
 
-        $keys = [];
-
-        switch ($type) {
-            case 'current':
-                $keys = $current;
-                break;
-            case 'deprecated':
-                $keys = $deprecated;
-                break;
-            case 'all':
-                $keys = array_merge($current, $deprecated);
-                break;
-            default:
-                throw \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()');
-                break;
-        }
-
-        return $keys;
+        return match ($type) {
+            'current' => $current,
+            'deprecated' => $deprecated,
+            'all' => array_merge($current, $deprecated),
+            default => throw new \Exception('Unexpected $type param for CoreUtils::getPostMetaKeys()'),
+        };
     }
 
     /**
@@ -158,10 +162,14 @@ class CoreUtils
      *
      * @return string[] Post meta keys.
      **/
-    public static function getOptions($type = 'current')
+    public static function getOptions(string $type = 'current'): array
     {
         $current = [
+            // v6.x
+            'beyondwords_integration_method',
             // v5.x
+            'beyondwords_date_activated',
+            'beyondwords_notice_review_dismissed',
             'beyondwords_player_call_to_action',
             'beyondwords_player_clickable_sections',
             'beyondwords_player_content',
@@ -177,13 +185,11 @@ class CoreUtils
             'beyondwords_project_body_voice_id',
             'beyondwords_project_body_voice_speaking_rate',
             'beyondwords_project_language_code',
-            'beyondwords_project_language_id',
+            'beyondwords_project_language_id', // @todo deprecate in v5.6
             'beyondwords_project_title_enabled',
             'beyondwords_project_title_voice_id',
             'beyondwords_project_title_voice_speaking_rate',
             'beyondwords_video_enabled',
-            // v4.x
-            'beyondwords_languages',
             'beyondwords_player_ui',
             'beyondwords_player_style',
             'beyondwords_player_version',
@@ -198,6 +204,8 @@ class CoreUtils
         ];
 
         $deprecated = [
+            // v4.x
+            'beyondwords_languages',
             // v3.0.0 speechkit_*
             'speechkit_api_key',
             'speechkit_prepend_excerpt',
@@ -218,23 +226,11 @@ class CoreUtils
             'speechkit_wordpress_cron',
         ];
 
-        $keys = [];
-
-        switch ($type) {
-            case 'current':
-                $keys = $current;
-                break;
-            case 'deprecated':
-                $keys = $deprecated;
-                break;
-            case 'all':
-                $keys = array_merge($current, $deprecated);
-                break;
-            default:
-                throw \Exception('Unexpected $type param for CoreUtils::getOptions()');
-                break;
-        }
-
-        return $keys;
+        return match ($type) {
+            'current' => $current,
+            'deprecated' => $deprecated,
+            'all' => array_merge($current, $deprecated),
+            default => throw new \Exception('Unexpected $type param for CoreUtils::getOptions()'),
+        };
     }
 }

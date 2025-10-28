@@ -16,7 +16,13 @@
          convertWarningsToExceptions="true"
          failOnRisky="false"
          failOnWarning="false"
-         verbose="true">
+         verbose="false"
+         stderr="true"
+         testdox="true">
+    <php>
+        <ini name="display_errors" value="0"/>
+        <ini name="error_reporting" value="E_ALL"/>
+    </php>
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">tests/phpunit</directory>

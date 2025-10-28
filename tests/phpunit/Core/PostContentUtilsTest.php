@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 
-class PostContentUtilsTest extends WP_UnitTestCase
+class PostContentUtilsTest extends TestCase
 {
     public function setUp(): void
     {
@@ -69,7 +69,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'meta_input'    => [
-                'beyondwords_summary_voice_id' => '42',
+                'beyondwords_summary_voice_id' => '3555',
             ],
         ]);
 
@@ -79,7 +79,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
 
         delete_option('beyondwords_prepend_excerpt');
 
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
+        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
 
         wp_delete_post($post->ID, true);
     }
@@ -352,8 +352,11 @@ class PostContentUtilsTest extends WP_UnitTestCase
             'post_excerpt' => 'The excerpt.',
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
-            'meta_input'    => [
-                'beyondwords_summary_voice_id' => '42',
+            'meta_input'   => [
+                'beyondwords_language_code'    => 'en_US',
+                'beyondwords_summary_voice_id' => '3555',
+                'beyondwords_title_voice_id'   => '2517',
+                'beyondwords_body_voice_id'    => '3558',
             ],
         ];
 
@@ -372,7 +375,7 @@ class PostContentUtilsTest extends WP_UnitTestCase
         delete_option('beyondwords_project_auto_publish_enabled');
 
         $this->assertSame($args['post_title'], $body['title']);
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="42"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
+        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
         $this->assertSame(get_the_permalink($postId), $body['source_url']);
         $this->assertSame(strval($postId), $body['source_id']);
         $this->assertSame('Jane Smith', $body['author']);
@@ -385,6 +388,11 @@ class PostContentUtilsTest extends WP_UnitTestCase
         // { published: true } should be sent because auto-publish is true
         $this->assertArrayHasKey('published', $body);
         $this->assertTrue($body['published']);
+
+        $this->assertSame('en_US', $body['language']);
+        $this->assertSame(3555, $body['summary_voice_id']);
+        $this->assertSame(2517, $body['title_voice_id']);
+        $this->assertSame(3558, $body['body_voice_id']);
 
         update_option('beyondwords_project_auto_publish_enabled', false);
 

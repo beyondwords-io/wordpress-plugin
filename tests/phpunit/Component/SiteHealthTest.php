@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
 use Beyondwords\Wordpress\Core\Environment;
 
-class SiteHealthTest extends WP_UnitTestCase
+class SiteHealthTest extends TestCase
 {
     /**
      * @var array
@@ -35,12 +35,11 @@ class SiteHealthTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $siteHealth = new SiteHealth();
-        $siteHealth->init();
+        SiteHealth::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_filter('debug_information', array($siteHealth, 'debugInformation')));
+        $this->assertEquals(10, has_filter('debug_information', array(SiteHealth::class, 'debugInformation')));
     }
 
     /**
@@ -69,6 +68,9 @@ class SiteHealthTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey('registered-filters', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('registered-deprecated-filters', $info['beyondwords']['fields']);
+
+        $this->assertArrayHasKey('beyondwords_date_activated', $info['beyondwords']['fields']);
+        $this->assertArrayHasKey('beyondwords_notice_review_dismissed', $info['beyondwords']['fields']);
 
         $this->assertArrayHasKey('BEYONDWORDS_AUTO_SYNC_SETTINGS', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('BEYONDWORDS_AUTOREGENERATE', $info['beyondwords']['fields']);

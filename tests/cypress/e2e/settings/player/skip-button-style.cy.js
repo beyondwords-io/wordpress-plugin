@@ -1,34 +1,36 @@
-context( 'Settings > Player > Skip button style',  () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveMinimalPluginSettings()
-  } )
+/* global cy, beforeEach, context, it */
 
-  beforeEach( () => {
-    cy.login()
-  } )
+context( 'Settings > Player > Skip button style', () => {
+	beforeEach( () => {
+		cy.updateOption( 'beyondwords_player_ui', 'enabled' );
+		cy.login();
+	} );
 
-  const values = [
-    'seconds-5-10',
-    'segments',
-  ];
+	const values = [ 'seconds-5-10', 'segments' ];
 
-  values.forEach( value => {
-    it( `sets "${value}"`, () => {
-      cy.saveMinimalPluginSettings()
+	values.forEach( ( value ) => {
+		it( `sets "${ value }"`, () => {
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=player'
+			);
+			cy.get( 'input[name="beyondwords_player_skip_button_style"]' )
+				.clear()
+				.type( value );
+			cy.get( 'input[type="submit"]' ).click();
 
-      cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-      cy.get( 'input[name="beyondwords_player_skip_button_style"]' ).clear().type( value )
-      cy.get( 'input[type="submit"]' ).click().wait( 1000 )
+			// Check for value in WordPress options
+			cy.visit( '/wp-admin/options.php' );
+			cy.get( '#beyondwords_player_skip_button_style  ' ).should(
+				'have.value',
+				value
+			);
 
-      // Check for value in WordPress options
-      cy.visit( '/wp-admin/options.php' )
-      cy.get( '#beyondwords_player_skip_button_style  ' ).should( 'have.value', value );
-
-      // Check for value in Site Health
-      cy.visitPluginSiteHealth()
-      cy.getSiteHealthValue( 'Skip button style' ).should( 'have.text', value )
-    } )
-  } )
-} )
+			// Check for value in Site Health
+			cy.visitPluginSiteHealth();
+			cy.getSiteHealthValue( 'Skip button style' ).should(
+				'have.text',
+				value
+			);
+		} );
+	} );
+} );

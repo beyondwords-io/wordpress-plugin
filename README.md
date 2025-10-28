@@ -4,8 +4,8 @@
 
 [![Github Actions Workflow](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/beyondwords-io/wordpress-plugin/actions/workflows/main.yml)
 [![PHPUnit Code Coverage](https://beyondwords-io.github.io/wordpress-plugin/coverage-badge.svg)](https://beyondwords-io.github.io/wordpress-plugin/dashboard.html)
-[![Supported WordPress Versions](https://img.shields.io/static/v1?label=&message=5.8+-+6.7&color=blue&logo=wordpress&logoColor=white)](https://wordpress.org/)
-[![Supported PHP Versions](https://img.shields.io/static/v1?label=&message=8.0+-+8.3&color=777bb4&logo=php&logoColor=white)](https://www.php.net/)
+[![Supported WordPress Versions](https://img.shields.io/static/v1?label=&message=5.8+-+6.8&color=blue&logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![Supported PHP Versions](https://img.shields.io/static/v1?label=&message=8.1+-+8.4&color=777bb4&logo=php&logoColor=white)](https://www.php.net/)
 
 ##  Description
 

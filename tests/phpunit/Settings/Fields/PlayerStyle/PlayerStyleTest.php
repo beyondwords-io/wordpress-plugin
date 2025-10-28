@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class SettingsPlayerStyleTest extends WP_UnitTestCase
+class SettingsPlayerStyleTest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle
@@ -22,8 +22,6 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new PlayerStyle();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -31,8 +29,6 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -45,12 +41,11 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
      */
     public function init()
     {
-        $playerStyle = new PlayerStyle();
-        $playerStyle->init();
+        PlayerStyle::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($playerStyle, 'addSetting')));
+        $this->assertEquals(10, has_action('admin_init', array(PlayerStyle::class, 'addSetting')));
         $this->assertTrue(has_action('pre_update_option_beyondwords_player_style'));
     }
 
@@ -61,7 +56,7 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        PlayerStyle::addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-player-style', $wp_settings_fields['beyondwords_player']['styling']);
@@ -70,7 +65,7 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-player-style', $field['id']);
         $this->assertSame('Player style', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array(PlayerStyle::class, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -79,17 +74,15 @@ class SettingsPlayerStyleTest extends WP_UnitTestCase
      */
     public function render()
     {
-        $this->_instance->render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            PlayerStyle::render();
+        });
 
         $crawler = new Crawler($html);
 
-        $field = $crawler->filter('select[name="beyondwords_player_style"]');
-        $field = $crawler->filter('select[name="beyondwords_player_style"] option[value="standard"]');
-        $field = $crawler->filter('select[name="beyondwords_player_style"] option[value="small"]');
-        $field = $crawler->filter('select[name="beyondwords_player_style"] option[value="video"]');
-
-        $this->assertCount(1, $field);
+        $this->assertCount(1, $crawler->filter('select[name="beyondwords_player_style"]'));
+        $this->assertCount(1, $crawler->filter('select[name="beyondwords_player_style"] option[value="standard"]'));
+        $this->assertCount(1, $crawler->filter('select[name="beyondwords_player_style"] option[value="small"]'));
+        $this->assertCount(1, $crawler->filter('select[name="beyondwords_player_style"] option[value="video"]'));
     }
 }

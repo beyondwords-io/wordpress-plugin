@@ -1,86 +1,49 @@
-context( 'Settings > Player UI',  () => {
-  before( () => {
-    cy.task( 'reset' )
-    cy.login()
-    cy.saveMinimalPluginSettings()
-  } )
+/* global cy, beforeEach, context, it */
 
-  beforeEach( () => {
-    cy.login()
-  } )
+context( 'Settings > Player UI', () => {
+	beforeEach( () => {
+		cy.login();
+	} );
 
-  it( 'uses "Enabled" Player UI setting', () => {
-    cy.saveMinimalPluginSettings()
+	it( 'uses "Enabled" Player UI setting', () => {
+		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
+		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' );
+		cy.get( 'input[type="submit"]' ).click();
 
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-    cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' )
-    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
+		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
-    cy.createPostWithAudio( '"Enabled" Player UI' )
+		// Frontend should have a player div
+		cy.viewPostViaSnackbar();
 
-    // Admin should have latest player
-    cy.getAdminPlayer().should( 'exist' )
+		cy.hasPlayerInstances( 1, {
+			showUserInterface: undefined,
+		} );
+	} );
 
-    // Frontend should have a player div
-    cy.viewPostViaSnackbar()
-    cy.getEnqueuedPlayerScriptTag().should( 'exist' )
-    cy.getFrontendPlayer().should( 'exist' )
+	it( 'uses "Headless" Player UI setting', () => {
+		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
+		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' );
+		cy.get( 'input[type="submit"]' ).click();
 
-    // window.BeyondWords should contain 1 player instance
-    cy.window().then( win => {
-      cy.wait( 2000 )
-      expect( win.BeyondWords ).to.not.be.undefined;
-      expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-      expect( win.BeyondWords.Player.instances()[0].showUserInterface ).to.eq( true );
-    } );
-  } )
+		cy.publishPostWithAudio( { title: '"Headless" Player UI' } );
 
-  it( 'uses "Headless" Player UI setting', () => {
-    cy.saveMinimalPluginSettings()
+		cy.viewPostViaSnackbar();
 
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-    cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Headless' )
-    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
+		// Frontend should have a player with showUserInterface set to false
+		cy.hasPlayerInstances( 1, {
+			showUserInterface: false,
+		} );
+	} );
 
-    cy.createPostWithAudio( '"Headless" Player UI' )
+	it( 'uses "Disabled" Player UI setting', () => {
+		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
+		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' );
+		cy.get( 'input[type="submit"]' ).click();
 
-    // Admin should have latest player
-    cy.getAdminPlayer().should( 'exist' )
+		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
 
-    // Frontend should have a player div without a UI
-    cy.viewPostViaSnackbar()
-    cy.get( '.beyondwords-player.bwp' ).should( 'exist' )
-    cy.get( '.beyondwords-player .user-interface' ).should( 'not.exist' )
-
-    // window.BeyondWords should contain 1 player instance
-    cy.window().then( win => {
-      cy.wait( 2000 )
-      expect( win.BeyondWords ).to.not.be.undefined;
-      expect( win.BeyondWords.Player.instances() ).to.have.length( 1 );
-      expect( win.BeyondWords.Player.instances()[0].showUserInterface ).to.eq( false );
-    } );
-  } )
-
-  it( 'uses "Disabled" Player UI setting', () => {
-    cy.saveMinimalPluginSettings()
-
-    cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' )
-    cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Disabled' )
-    cy.get( 'input[type="submit"]' ).click().wait( 1000 )
-
-    cy.createPostWithAudio( '"Disabled" Player UI' )
-
-    // Admin should have latest player
-    cy.getAdminPlayer().should( 'exist' )
-
-    // Frontend should not have a player div
-    cy.viewPostViaSnackbar()
-    cy.get( '.beyondwords-player' ).should( 'not.exist' )
-
-    // window.BeyondWords should be undefined
-    cy.window().then( win => {
-      cy.wait( 2000 )
-      expect(win.BeyondWords).to.be.undefined;
-    } );
-  } )
-} )
+		// Frontend should not have a player div
+		cy.viewPostViaSnackbar();
+		cy.hasPlayerInstances( 0 );
+	} );
+} );

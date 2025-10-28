@@ -16,9 +16,6 @@ use Beyondwords\Wordpress\Core\Environment;
 
 /**
  * "Pronunciations" settings tab
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 5.0.0
  */
 class Pronunciations
@@ -27,23 +24,25 @@ class Pronunciations
      * Init
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('admin_init', array($this, 'addSettingsSection'), 5);
+        add_action('admin_init', [self::class, 'addSettingsSection'], 5);
     }
 
     /**
      * Add Settings sections.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function addSettingsSection()
+    public static function addSettingsSection()
     {
         add_settings_section(
             'pronunciations',
             __('Pronunciations', 'speechkit'),
-            array($this, 'sectionCallback'),
+            [self::class, 'sectionCallback'],
             'beyondwords_pronunciations',
         );
     }
@@ -52,10 +51,11 @@ class Pronunciations
      * Section callback
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function sectionCallback()
+    public static function sectionCallback()
     {
         $rulesUrl = sprintf(
             '%s/dashboard/project/%s/settings?tab=rules',

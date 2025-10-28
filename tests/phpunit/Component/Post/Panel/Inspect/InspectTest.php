@@ -3,7 +3,7 @@
 use Beyondwords\Wordpress\Component\Post\Panel\Inspect\Inspect;
 use \Symfony\Component\DomCrawler\Crawler;
 
-class InspectTest extends \WP_UnitTestCase
+class InspectTest extends TestCase
 {
     /**
      * @var \WpunitTester
@@ -25,14 +25,11 @@ class InspectTest extends \WP_UnitTestCase
 
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
-
-        $this->_instance = new Inspect();
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = NULL;
 
         // Then...
         parent::tearDown();
@@ -45,7 +42,7 @@ class InspectTest extends \WP_UnitTestCase
     {
         global $wp_meta_boxes;
 
-        $this->_instance->addMetaBox('post');
+        Inspect::addMetaBox('post');
 
         $this->assertArrayHasKey('beyondwords__inspect', $wp_meta_boxes['post']['advanced']['low']);
 
@@ -62,13 +59,12 @@ class InspectTest extends \WP_UnitTestCase
             'beyondwords_content_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
             'beyondwords_podcast_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
             'beyondwords_preview_token'    => 'my-preview-token',
-            'beyondwords_language_id'      => '42',
+            'beyondwords_language_code'    => 'en_US',
             'beyondwords_title_voice_id'   => '101',
-            'beyondwords_body_voice_id'    => '202',
+            'beyondwords_body_voice_id'    => '2517',
             'beyondwords_summary_voice_id' => '303',
             'beyondwords_disabled'         => '0',
             'beyondwords_error_message'    => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            'publish_post_to_speechkit'    => 'Value 1',
             'speechkit_info'               => ["foo" => ["bar" => "baz"]],
             'speechkit_response'           => 'Value 7',
             'speechkit_retries'            => '1',
@@ -82,9 +78,9 @@ class InspectTest extends \WP_UnitTestCase
             'meta_input' => $postMeta,
         ]);
 
-        $this->_instance->renderMetaBoxContent($post);
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () use ($post) {
+            Inspect::renderMetaBoxContent($post);
+        });
 
         $crawler = new Crawler($html);
 
@@ -143,7 +139,7 @@ class InspectTest extends \WP_UnitTestCase
         $_POST['beyondwords_delete_content_nonce'] = wp_create_nonce('beyondwords_delete_content');
         $_POST['beyondwords_delete_content'] = '1';
 
-        $this->_instance->save($postId);
+        Inspect::save($postId);
 
         unset($_POST['beyondwords_delete_content']);
 

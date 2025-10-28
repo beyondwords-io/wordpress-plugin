@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post;
 
+use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
+use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
@@ -34,7 +36,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getRenamedPostMeta($postId, $name)
+    public static function getRenamedPostMeta(int $postId, string $name): mixed
     {
         if (metadata_exists('post', $postId, 'beyondwords_' . $name)) {
             return get_post_meta($postId, 'beyondwords_' . $name, true);
@@ -57,7 +59,7 @@ class PostMetaUtils
      *
      * @since 4.1.0 Append 'beyondwords_version' and 'wordpress_version'.
      */
-    public static function getAllBeyondwordsMetadata($postId)
+    public static function getAllBeyondwordsMetadata(int $postId): array
     {
         global $wp_version;
 
@@ -65,9 +67,7 @@ class PostMetaUtils
 
         $metadata = has_meta($postId);
 
-        $metadata = array_filter($metadata, function ($item) use ($keysToCheck) {
-            return in_array($item['meta_key'], $keysToCheck);
-        });
+        $metadata = array_filter($metadata, fn($item) => in_array($item['meta_key'], $keysToCheck));
 
         // Prepend the WordPress Post ID to the meta data
         // phpcs:disable WordPress.DB.SlowDBQuery
@@ -97,7 +97,7 @@ class PostMetaUtils
     /**
      * Remove the BeyondWords metadata for a Post.
      */
-    public static function removeAllBeyondwordsMetadata($postId)
+    public static function removeAllBeyondwordsMetadata(int $postId): void
     {
         $keysToCheck = [
             'beyondwords_generate_audio',
@@ -107,6 +107,7 @@ class PostMetaUtils
             'beyondwords_preview_token',
             'beyondwords_player_content',
             'beyondwords_player_style',
+            'beyondwords_language_code',
             'beyondwords_language_id',
             'beyondwords_body_voice_id',
             'beyondwords_title_voice_id',
@@ -133,8 +134,39 @@ class PostMetaUtils
         foreach ($keysToCheck as $key) {
             delete_post_meta($postId, $key, null);
         }
+    }
 
-        return true;
+    /**
+     * Check if a Post should have BeyondWords content (a Content entity in BeyondWords).
+     *
+     * @since 6.0.0 Introduced.
+     *
+     * @param int $postId Post ID.
+     *
+     * @return bool True if the post should have BeyondWords content, false otherwise.
+     */
+    public static function hasContent(int $postId): bool
+    {
+        $contentId         = PostMetaUtils::getContentId($postId);
+        $integrationMethod = get_post_meta($postId, 'beyondwords_integration_method', true);
+
+        // If the integration method is not set, we assume REST API for legacy compatibility.
+        if (empty($integrationMethod)) {
+            $integrationMethod = IntegrationMethod::REST_API;
+        }
+
+        if (IntegrationMethod::REST_API === $integrationMethod && ! empty($contentId)) {
+            return true;
+        }
+
+        // Get the project ID for the post (do not use the plugin setting).
+        $projectId = PostMetaUtils::getProjectId($postId, true);
+
+        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && ! empty($projectId)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -147,22 +179,30 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Renamed to getContentId() & prioritise beyondwords_content_id
      * @since 5.0.0 Remove beyondwords_content_id filter.
+     * @since 6.0.0 Add fallback parameter to allow falling back to Post ID.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $fallback If true, will fall back to the Post ID if no Content ID is found.
      *
-     * @return int|false Content ID, or false
+     * @return string|false Content ID, or false
      */
-    public static function getContentId($postId)
+    public static function getContentId(int $postId, bool $fallback = false): string|int|false
     {
-        // Check for "Content ID" custom field (string, uuid)
         $contentId = get_post_meta($postId, 'beyondwords_content_id', true);
-
-        if (! $contentId) {
-            // Also try "Podcast ID" custom field (number, or string for > 4.x)
-            $contentId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($contentId)) {
+            return $contentId;
         }
 
-        return $contentId;
+        $podcastId = PostMetaUtils::getPodcastId($postId);
+        if (! empty($podcastId)) {
+            return $podcastId;
+        }
+
+        if ($fallback) {
+            return (string) $postId;
+        }
+
+        return false;
     }
 
     /**
@@ -179,7 +219,7 @@ class PostMetaUtils
      *
      * @return int|false Podcast ID, or false
      */
-    public static function getPodcastId($postId)
+    public static function getPodcastId(int $postId): string|int|false
     {
         // Check for "Podcast ID" custom field (number, or string for > 4.x)
         $podcastId = PostMetaUtils::getRenamedPostMeta($postId, 'podcast_id');
@@ -197,7 +237,7 @@ class PostMetaUtils
         }
 
         // It may also be found by parsing post_meta.speechkit_response
-        $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+        $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
         preg_match('/"podcast_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
         // $matches[2] is the Podcast ID (response.podcast_id)
         if ($matches && $matches[2]) {
@@ -250,11 +290,11 @@ class PostMetaUtils
      *
      * @return string Preview token
      */
-    public static function getPreviewToken($postId)
+    public static function getPreviewToken(int $postId): string|false
     {
         $previewToken = get_post_meta($postId, 'beyondwords_preview_token', true);
 
-        return $previewToken;
+        return $previewToken ?: false;
     }
 
     /**
@@ -262,29 +302,25 @@ class PostMetaUtils
      *
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
+     * @since 6.0.0 Add Magic Embed support.
      *
      * @param int $postId Post ID.
-     *
-     * @return bool
      */
-    public static function hasGenerateAudio($postId)
+    public static function hasGenerateAudio(int $postId): bool
     {
-        if (PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio') === '1') {
+        $generateAudio = PostMetaUtils::getRenamedPostMeta($postId, 'generate_audio');
+
+        // Checkbox was checked.
+        if ($generateAudio === '1') {
             return true;
         }
 
-        if (get_post_meta($postId, 'publish_post_to_speechkit', true) === '1') {
-            return true;
+        // Checkbox was unchecked.
+        if ($generateAudio === '0') {
+            return false;
         }
 
-        $projectId = PostMetaUtils::getProjectId($postId);
-        $contentId = PostMetaUtils::getContentId($postId);
-
-        if ($projectId && $contentId) {
-            return true;
-        }
-
-        return false;
+        return GenerateAudio::shouldPreselectGenerateAudio($postId);
     }
 
     /**
@@ -299,39 +335,47 @@ class PostMetaUtils
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Apply beyondwords_project_id filter
      * @since 5.0.0 Remove beyondwords_project_id filter.
+     * @since 6.0.0 Support Magic Embed and add strict mode.
      *
-     * @param int $postId Post ID.
+     * @param int  $postId Post ID.
+     * @param bool $strict Strict mode, which only checks the custom field. Defaults to false.
      *
      * @return int|false Project ID, or false
      */
-    public static function getProjectId($postId)
+    public static function getProjectId(int $postId, bool $strict = false): int|string|false
     {
-        // Check custom fields
-        $projectId = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
-
-        if (! $projectId) {
-            // It may also be found by parsing post_meta.speechkit_response
-            $speechkit_response = static::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
-            preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
-            // $matches[2] is the Project ID (response.project_id)
-            if ($matches && $matches[2]) {
-                $projectId = intval($matches[2]);
-            }
+        // If strict is true, we only check the custom field and do not fall back to the plugin setting.
+        if ($strict) {
+            return PostMetaUtils::getRenamedPostMeta($postId, 'project_id');
         }
 
-        // If we still don't have an ID then use the default from the plugin settings
-        if (! $projectId) {
-            $projectId = intval(get_option('beyondwords_project_id'));
+        // Check the post custom field.
+        $postMeta = intval(PostMetaUtils::getRenamedPostMeta($postId, 'project_id'));
+
+        if (! empty($postMeta)) {
+            return $postMeta;
         }
 
-        if (! $projectId) {
-            // Return boolean false instead of numeric 0
-            $projectId = false;
+        // Parse post_meta.speechkit_response, if available.
+        $speechkit_response = self::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response');
+
+        preg_match('/"project_id":(")?(\d+)(?(1)\1|)/', (string)$speechkit_response, $matches);
+
+        // $matches[2] is the Project ID (response.project_id)
+        if ($matches && $matches[2]) {
+            return intval($matches[2]);
+        }
+
+        // Check the plugin setting.
+        $setting = get_option('beyondwords_project_id');
+
+        if ($setting) {
+            return intval($setting);
         }
 
         // todo throw ProjectIdNotFoundException?
 
-        return $projectId;
+        return false;
     }
 
     /**
@@ -346,11 +390,11 @@ class PostMetaUtils
      *
      * @return int|false Body Voice ID, or false
      */
-    public static function getBodyVoiceId($postId)
+    public static function getBodyVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -365,11 +409,11 @@ class PostMetaUtils
      *
      * @return int|false Title Voice ID, or false
      */
-    public static function getTitleVoiceId($postId)
+    public static function getTitleVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_title_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -384,11 +428,11 @@ class PostMetaUtils
      *
      * @return int|false Summary Voice ID, or false
      */
-    public static function getSummaryVoiceId($postId)
+    public static function getSummaryVoiceId(int $postId): int|string|false
     {
         $voiceId = get_post_meta($postId, 'beyondwords_summary_voice_id', true);
 
-        return $voiceId;
+        return $voiceId ?: false;
     }
 
     /**
@@ -402,7 +446,7 @@ class PostMetaUtils
      *
      * @return string Player style.
      */
-    public static function getPlayerStyle($postId)
+    public static function getPlayerStyle(int $postId): string
     {
         $playerStyle = get_post_meta($postId, 'beyondwords_player_style', true);
 
@@ -426,7 +470,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getErrorMessage($postId)
+    public static function getErrorMessage(int $postId): string|false
     {
         return PostMetaUtils::getRenamedPostMeta($postId, 'error_message');
     }
@@ -439,12 +483,10 @@ class PostMetaUtils
      * @since 3.7.0
      *
      * @param int $postId Post ID.
-     *
-     * @return string
      */
-    public static function getDisabled($postId)
+    public static function getDisabled(int $postId): bool
     {
-        return PostMetaUtils::getRenamedPostMeta($postId, 'disabled');
+        return (bool) PostMetaUtils::getRenamedPostMeta($postId, 'disabled');
     }
 
     /**
@@ -465,7 +507,7 @@ class PostMetaUtils
      *
      * @return string
      */
-    public static function getHttpResponseBodyFromPostMeta($postId, $metaName)
+    public static function getHttpResponseBodyFromPostMeta(int $postId, string $metaName): array|string|false
     {
         $postMeta = get_post_meta($postId, $metaName, true);
 
@@ -474,7 +516,7 @@ class PostMetaUtils
         }
 
         if (is_wp_error($postMeta)) {
-            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $postMeta->get_error_code(), $postMeta->get_error_message());
+            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $postMeta::get_error_code(), $postMeta::get_error_message());
         }
 
         return (string)$postMeta;

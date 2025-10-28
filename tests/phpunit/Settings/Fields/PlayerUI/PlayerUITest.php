@@ -8,7 +8,7 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * @group settings
  */
-class PlayerUITest extends WP_UnitTestCase
+class PlayerUITest extends TestCase
 {
     /**
      * @var \Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI
@@ -22,8 +22,6 @@ class PlayerUITest extends WP_UnitTestCase
         parent::setUp();
 
         // Your set up methods here.
-        $this->_instance = new PlayerUI();
-
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -31,8 +29,6 @@ class PlayerUITest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
-        $this->_instance = null;
-
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -45,12 +41,11 @@ class PlayerUITest extends WP_UnitTestCase
      */
     public function init()
     {
-        $playerUi = new PlayerUI();
-        $playerUi->init();
+        PlayerUI::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_init', array($playerUi, 'addSetting')));
+        $this->assertEquals(10, has_action('admin_init', array(PlayerUI::class, 'addSetting')));
         $this->assertTrue(has_action('pre_update_option_beyondwords_player_ui'));
     }
 
@@ -61,7 +56,7 @@ class PlayerUITest extends WP_UnitTestCase
     {
         global $wp_settings_fields;
 
-        $this->_instance->addSetting();
+        PlayerUI::addSetting();
 
         // Check for add_settings_field() result
         $this->assertArrayHasKey('beyondwords-player-ui', $wp_settings_fields['beyondwords_player']['player']);
@@ -70,7 +65,7 @@ class PlayerUITest extends WP_UnitTestCase
 
         $this->assertSame('beyondwords-player-ui', $field['id']);
         $this->assertSame('Player UI', $field['title']);
-        $this->assertSame(array($this->_instance, 'render'), $field['callback']);
+        $this->assertSame(array(PlayerUI::class, 'render'), $field['callback']);
         $this->assertSame([], $field['args']);
     }
 
@@ -79,9 +74,9 @@ class PlayerUITest extends WP_UnitTestCase
      */
     public function render()
     {
-        $this->_instance->render();
-
-        $html = $this->getActualOutput();
+        $html = $this->captureOutput(function () {
+            PlayerUI::render();
+        });
 
         $crawler = new Crawler($html);
 
@@ -90,11 +85,13 @@ class PlayerUITest extends WP_UnitTestCase
 
         $this->assertCount(3, $field->filter('option'));
 
-        $this->assertSame('enabled', $field->filter('option:nth-child(1)')->attr('value'));
+        $this->assertSame(PlayerUI::ENABLED, $field->filter('option:nth-child(1)')->attr('value'));
         $this->assertSame('Enabled', $field->filter('option:nth-child(1)')->text());
-        $this->assertSame('headless', $field->filter('option:nth-child(2)')->attr('value'));
+
+        $this->assertSame(PlayerUI::HEADLESS, $field->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('Headless', $field->filter('option:nth-child(2)')->text());
-        $this->assertSame('disabled', $field->filter('option:nth-child(3)')->attr('value'));
+
+        $this->assertSame(PlayerUI::DISABLED, $field->filter('option:nth-child(3)')->attr('value'));
         $this->assertSame('Disabled', $field->filter('option:nth-child(3)')->text());
     }
 }

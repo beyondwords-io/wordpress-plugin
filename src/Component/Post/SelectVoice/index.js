@@ -2,16 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Flex, FlexBlock } from '@wordpress/components';
+import { SelectControl, Flex, FlexBlock, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { Fragment, useMemo } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-
-/**
- * Internal dependencies
- */
-import SelectVoiceCheck from './check';
 
 export function SelectVoice( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
@@ -21,15 +16,29 @@ export function SelectVoice( { wrapper } ) {
 		[]
 	);
 
+	const settings = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getSettings(),
+		[]
+	);
+
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const languageId = meta.beyondwords_language_id;
-	const bodyVoiceId = meta.beyondwords_body_voice_id;
+	const languageCode =
+		meta.beyondwords_language_code || settings.projectLanguageCode;
 
-	const setLanguageId = ( newLanguageId ) => {
+	const languages = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getLanguages(),
+		[]
+	);
+
+	const defaultLanguage = languages?.find(
+		( item ) => item.code === languageCode
+	);
+
+	const setLanguageCode = ( newLanguageCode ) => {
 		setMeta( {
 			...meta,
-			beyondwords_language_id: newLanguageId,
+			beyondwords_language_code: newLanguageCode,
 		} );
 	};
 
@@ -42,58 +51,60 @@ export function SelectVoice( { wrapper } ) {
 		} );
 	};
 
-	const { languages } = useSelect( ( select ) => {
+	const voices = useSelect(
+		( select ) =>
+			languageCode
+				? select( 'beyondwords/settings' ).getVoices( languageCode )
+				: [],
+		[ languageCode ]
+	);
+
+	const candidates = [
+		meta.beyondwords_body_voice_id,
+		settings.projectBodyVoiceId,
+		defaultLanguage?.default_voices?.body?.id,
+	].map( String );
+
+	const defaultVoice =
+		candidates.find( ( candidate ) =>
+			( voices ?? [] ).some( ( { id } ) => String( id ) === candidate )
+		) ?? '';
+
+	const languageOptions = ( languages ?? [] ).map( ( language ) => {
+		const { accent, code, name } = language;
 		return {
-			languages: select( 'beyondwords/settings' ).getLanguages(),
-		}
-	}, [] );
+			// eslint-disable-next-line prettier/prettier
+			label: `${ decodeEntities( name ) } (${ decodeEntities( accent ) })`,
+			value: decodeEntities( code ),
+		};
+	} );
 
-	const { voices } = useSelect( ( select ) => {
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
+	const voiceOptions = ( voices ?? [] ).map( ( voice ) => {
+		const { id, name } = voice;
 		return {
-			voices: languageId ? select( 'beyondwords/settings' ).getVoices( languageId ) : [],
-		}
-	}, [ languageId ] );
+			label: decodeEntities( name ),
+			value: `${ decodeEntities( id ) }`,
+		};
+	} );
 
-	const languageOptions = useMemo( () => {
-		return ( languages ?? [] ).map( ( language ) => {
-			return {
-				label: decodeEntities( language.name ),
-				value: decodeEntities( language.id ),
-			};
-		} );
-	}, [ languages ] );
-
-	const voiceOptions = useMemo( () => {
-		return ( voices ?? [] ).map( ( voice ) => {
-			return {
-				label: decodeEntities( voice.name ),
-				value: decodeEntities( voice.id ),
-			};
-		} );
-	}, [ voices ] );
-
-	if (! languageOptions.length) {
+	if ( ! languageOptions.length ) {
 		return false;
 	}
 
 	return (
-		<SelectVoiceCheck>
+		<>
 			<Wrapper>
 				<Flex>
 					<FlexBlock>
 						<SelectControl
 							className="beyondwords--select-language"
 							label={ __( 'Language', 'speechkit' ) }
-							options={ [
-								{
-									label: __( 'Project default', 'speechkit' ),
-									value: '',
-								},
-								...languageOptions,
-							] }
-							onChange={ ( val ) => setLanguageId( val ) }
-							value={ languageId }
+							options={ languageOptions }
+							onChange={ ( val ) => setLanguageCode( val ) }
+							value={ languageCode }
 							__nextHasNoMarginBottom
+							__next40pxDefaultSize
 						/>
 					</FlexBlock>
 				</Flex>
@@ -101,25 +112,28 @@ export function SelectVoice( { wrapper } ) {
 			<Wrapper>
 				<Flex>
 					<FlexBlock>
-						<SelectControl
-							className="beyondwords--select-voice"
-							label={ __( 'Voice', 'speechkit' ) }
-							options={ [
-								{
-									label: '',
-									value: '',
-								},
-								...voiceOptions,
-							] }
-							onChange={ ( val ) => setAllVoiceIds( val ) }
-							disabled={ ! voiceOptions?.length }
-							value={ bodyVoiceId }
-							__nextHasNoMarginBottom
-						/>
+						{ ! voiceOptions?.length && (
+							<Spinner
+								className="beyondwords--spinner-voices"
+								style={ { marginTop: '1rem' } }
+							/>
+						) }
+						{ !! voiceOptions?.length && (
+							<SelectControl
+								className="beyondwords--select-voice"
+								label={ __( 'Voice', 'speechkit' ) }
+								options={ voiceOptions }
+								onChange={ ( val ) => setAllVoiceIds( val ) }
+								disabled={ ! voiceOptions?.length }
+								value={ defaultVoice }
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+							/>
+						) }
 					</FlexBlock>
 				</Flex>
 			</Wrapper>
-		</SelectVoiceCheck>
+		</>
 	);
 }
 

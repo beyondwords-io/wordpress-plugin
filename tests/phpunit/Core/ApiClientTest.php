@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Beyondwords\Wordpress\Core\ApiClient;
 use Beyondwords\Wordpress\Core\Request;
 
-class ApiClientTest extends WP_UnitTestCase
+class ApiClientTest extends TestCase
 {
     public function setUp(): void
     {
@@ -52,6 +52,7 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
+     * @group current
      */
     public function createAudio()
     {
@@ -64,6 +65,7 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::createAudio($postId);
 
+        $this->assertIsArray($response);
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
         $this->assertSame('processed',  $response['status']);
 
@@ -102,7 +104,6 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      */
     public function deleteAudio()
     {
@@ -130,7 +131,6 @@ class ApiClientTest extends WP_UnitTestCase
 
     /**
      * @test
-     * @group trash
      */
     public function batchDeleteAudio()
     {
@@ -155,7 +155,7 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertEquals($deleted, array_values($postIds));
 
         foreach ($deleted as $postId) {
-            wp_delete_post($postId);
+            wp_delete_post($postId, true);
         }
 
         delete_option('beyondwords_api_key');
@@ -176,38 +176,57 @@ class ApiClientTest extends WP_UnitTestCase
 
         $response = ApiClient::getLanguages();
 
-        $this->assertSame('aa_AA', $response[0]['code']);
-        $this->assertSame('bb_BB', $response[1]['code']);
-        $this->assertSame('cc_CC', $response[2]['code']);
+        $this->assertSame('en_US', $response[32]['code']);
+        $this->assertSame('en_GB', $response[34]['code']);
+        $this->assertSame('cy_GB', $response[91]['code']);
 
-        $this->assertSame(1, $response[0]['id']);
-        $this->assertSame(2, $response[1]['id']);
-        $this->assertSame(3, $response[2]['id']);
+        $this->assertSame(58, $response[32]['id']);
+        $this->assertSame(50, $response[34]['id']);
+        $this->assertSame(39, $response[91]['id']);
 
-        $this->assertSame('Language 1', $response[0]['name']);
-        $this->assertSame('Language 2', $response[1]['name']);
-        $this->assertSame('Language 3', $response[2]['name']);
+        $this->assertSame('English', $response[32]['name']);
+        $this->assertSame('English', $response[34]['name']);
+        $this->assertSame('Welsh',   $response[91]['name']);
 
-        $this->assertSame(2,         $response[0]['default_voices']['title']['id']);
-        $this->assertSame('Voice 2', $response[0]['default_voices']['title']['name']);
-        $this->assertSame(95,        $response[0]['default_voices']['title']['speaking_rate']);
-        $this->assertSame(3,         $response[0]['default_voices']['body']['id']);
-        $this->assertSame('Voice 3', $response[0]['default_voices']['body']['name']);
-        $this->assertSame(105,       $response[0]['default_voices']['body']['speaking_rate']);
+        $this->assertSame('American', $response[32]['accent']);
+        $this->assertSame('British',  $response[34]['accent']);
+        $this->assertSame('Welsh',  $response[91]['accent']);
 
-        $this->assertSame(2,         $response[1]['default_voices']['title']['id']);
-        $this->assertSame('Voice 2', $response[1]['default_voices']['title']['name']);
-        $this->assertSame(90,        $response[1]['default_voices']['title']['speaking_rate']);
-        $this->assertSame(3,         $response[1]['default_voices']['body']['id']);
-        $this->assertSame('Voice 3', $response[1]['default_voices']['body']['name']);
-        $this->assertSame(110,       $response[1]['default_voices']['body']['speaking_rate']);
+        $this->assertSame(2517, $response[32]['default_voices']['title']['id']);
+        $this->assertSame(3558, $response[34]['default_voices']['title']['id']);
+        $this->assertSame(3555, $response[91]['default_voices']['title']['id']);
 
-        $this->assertSame(2,         $response[2]['default_voices']['title']['id']);
-        $this->assertSame('Voice 2', $response[2]['default_voices']['title']['name']);
-        $this->assertSame(85,        $response[2]['default_voices']['title']['speaking_rate']);
-        $this->assertSame(3,         $response[2]['default_voices']['body']['id']);
-        $this->assertSame('Voice 3', $response[2]['default_voices']['body']['name']);
-        $this->assertSame(115,       $response[2]['default_voices']['body']['speaking_rate']);
+        $this->assertSame('Ava (Multilingual)',  $response[32]['default_voices']['title']['name']);
+        $this->assertSame('Ollie (Multilingual)',  $response[34]['default_voices']['title']['name']);
+        $this->assertSame('Ada (Multilingual)', $response[91]['default_voices']['title']['name']);
+
+        $this->assertSame(100,  $response[32]['default_voices']['title']['speaking_rate']);
+        $this->assertSame(100,  $response[34]['default_voices']['title']['speaking_rate']);
+        $this->assertSame(100, $response[91]['default_voices']['title']['speaking_rate']);
+
+        $this->assertSame(2517, $response[32]['default_voices']['body']['id']);
+        $this->assertSame(3558, $response[34]['default_voices']['body']['id']);
+        $this->assertSame(3555, $response[91]['default_voices']['body']['id']);
+
+        $this->assertSame('Ava (Multilingual)',  $response[32]['default_voices']['body']['name']);
+        $this->assertSame('Ollie (Multilingual)',  $response[34]['default_voices']['body']['name']);
+        $this->assertSame('Ada (Multilingual)', $response[91]['default_voices']['body']['name']);
+
+        $this->assertSame(100,  $response[32]['default_voices']['body']['speaking_rate']);
+        $this->assertSame(100, $response[34]['default_voices']['body']['speaking_rate']);
+        $this->assertSame(100, $response[91]['default_voices']['body']['speaking_rate']);
+
+        $this->assertSame(2517, $response[32]['default_voices']['summary']['id']);
+        $this->assertSame(3558, $response[34]['default_voices']['summary']['id']);
+        $this->assertSame(3555, $response[91]['default_voices']['summary']['id']);
+
+        $this->assertSame('Ava (Multilingual)',  $response[32]['default_voices']['summary']['name']);
+        $this->assertSame('Ollie (Multilingual)',  $response[34]['default_voices']['summary']['name']);
+        $this->assertSame('Ada (Multilingual)', $response[91]['default_voices']['summary']['name']);
+
+        $this->assertSame(100, $response[32]['default_voices']['summary']['speaking_rate']);
+        $this->assertSame(100, $response[34]['default_voices']['summary']['speaking_rate']);
+        $this->assertSame(100, $response[91]['default_voices']['summary']['speaking_rate']);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -219,25 +238,25 @@ class ApiClientTest extends WP_UnitTestCase
      */
     public function getVoices()
     {
-        $response = ApiClient::getVoices(2);
+        $response = ApiClient::getVoices('en_US');
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getVoices(2);
+        $response = ApiClient::getVoices('en_US');
 
-        $this->assertSame(1, $response[0]['id']);
-        $this->assertSame(2, $response[1]['id']);
-        $this->assertSame(3, $response[2]['id']);
+        $this->assertSame(3555, $response[0]['id']);
+        $this->assertSame(2517, $response[1]['id']);
+        $this->assertSame(3558, $response[2]['id']);
 
-        $this->assertSame('Voice 1', $response[0]['name']);
-        $this->assertSame('Voice 2', $response[1]['name']);
-        $this->assertSame('Voice 3', $response[2]['name']);
+        $this->assertSame('Ada (Multilingual)', $response[0]['name']);
+        $this->assertSame('Ava (Multilingual)', $response[1]['name']);
+        $this->assertSame('Ollie (Multilingual)', $response[2]['name']);
 
-        $this->assertSame('bb_BB', $response[0]['language']);
-        $this->assertSame('bb_BB', $response[1]['language']);
-        $this->assertSame('bb_BB', $response[2]['language']);
+        $this->assertSame('en_US', $response[0]['language']);
+        $this->assertSame('en_US', $response[1]['language']);
+        $this->assertSame('en_US', $response[2]['language']);
 
         $this->assertSame(100, $response[0]['speaking_rate']);
         $this->assertSame(100, $response[1]['speaking_rate']);
@@ -343,6 +362,7 @@ class ApiClientTest extends WP_UnitTestCase
         unset($headers['X-Api-Key']);
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
@@ -372,6 +392,7 @@ class ApiClientTest extends WP_UnitTestCase
         $headers['X-Api-Key'] = 'AN INVALID API KEY';
 
         $request->setHeaders($headers);
+
         $response = ApiClient::callApi($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
@@ -458,41 +479,6 @@ class ApiClientTest extends WP_UnitTestCase
         $this->assertStringStartsWith('#500:', $errorMessage);
 
         wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     *
-     * 401 Invalid authentication token
-     */
-    public function callApiWithInvalidJsonResponse()
-    {
-        $this->markTestIncomplete();
-
-        update_option('beyondwords_api_key', 'write_XXXXXXXXXXXXXXXX');
-
-        $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidJsonResponse',
-        ]);
-
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
-
-        // Request invalid JSON in mockoon response
-        $headers = $request->getHeaders();
-        $headers['X-Force-Response'] = 'invalid-json';
-
-        $request->setHeaders($headers);
-
-        $response = ApiClient::callApi($request, $postId);
-
-        $this->assertSame(200, wp_remote_retrieve_response_code($response));
-
-        $error = sprintf(ApiClient::ERROR_FORMAT, 500, 'Unable to parse JSON in BeyondWords API response. Reason: Syntax error.');
-        $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
-
-        wp_delete_post($postId, true);
-
-        delete_option('beyondwords_api_key');
     }
 
     /**

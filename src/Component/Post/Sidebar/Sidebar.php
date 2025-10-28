@@ -28,13 +28,19 @@ class Sidebar
      * Init.
      *
      * @since 4.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('enqueue_block_assets', array($this, 'enqueueBlockAssets'));
+        add_action('enqueue_block_assets', [self::class, 'enqueueBlockAssets']);
     }
 
-    public function enqueueBlockAssets()
+    /**
+     * Enqueue Block Editor assets.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function enqueueBlockAssets()
     {
         if (CoreUtils::isGutenbergPage()) {
             $postType = get_post_type();
@@ -46,7 +52,7 @@ class Sidebar
                 wp_enqueue_style(
                     'beyondwords-Sidebar',
                     BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/Sidebar/PostSidebar.css',
-                    array(),
+                    [],
                     BEYONDWORDS__PLUGIN_VERSION
                 );
             }

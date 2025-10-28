@@ -13,15 +13,22 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
+/**
+ * Internal dependencies
+ */
+import FetchButton from './fetch';
+
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
 	beyondwordsDisabled,
 	beyondwordsGenerateAudio,
+	beyondwordsIntegrationMethod,
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
 	beyondwordsPlayerContent,
 	beyondwordsPlayerStyle,
+	beyondwordsLanguageCode,
 	beyondwordsLanguageId,
 	beyondwordsBodyVoiceId,
 	beyondwordsTitleVoiceId,
@@ -66,7 +73,12 @@ export function PostInspectPanel( {
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost ] );
 
 	useEffect( () => {
-		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed && removed ) {
+		if (
+			isSavingPost &&
+			! isAutosavingPost &&
+			didPostSaveRequestSucceed &&
+			removed
+		) {
 			setRemoved( false );
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
@@ -81,6 +93,7 @@ export function PostInspectPanel( {
 			beyondwords_preview_token: beyondwordsPreviewToken,
 			beyondwords_player_content: beyondwordsPlayerContent,
 			beyondwords_player_style: beyondwordsPlayerStyle,
+			beyondwords_language_code: beyondwordsLanguageCode,
 			beyondwords_language_id: beyondwordsLanguageId,
 			beyondwords_body_voice_id: beyondwordsBodyVoiceId,
 			beyondwords_title_voice_id: beyondwordsTitleVoiceId,
@@ -108,6 +121,24 @@ export function PostInspectPanel( {
 		[]
 	);
 
+	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
+		( x ) => !! x?.length
+	);
+
+	const handleRemoveButtonClick = ( e ) => {
+		e.stopPropagation();
+
+		if ( removed ) {
+			setRemoved( false );
+			setDeleteContent( false );
+			removeWarningNotice();
+		} else {
+			setRemoved( true );
+			setDeleteContent( true );
+			createWarningNotice();
+		}
+	};
+
 	const getTextToCopy = () =>
 		[
 			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
@@ -116,6 +147,7 @@ export function PostInspectPanel( {
 			`beyondwords_preview_token\r\n${ beyondwordsPreviewToken }`,
 			`beyondwords_player_content\r\n${ beyondwordsPlayerContent }`,
 			`beyondwords_player_style\r\n${ beyondwordsPlayerStyle }`,
+			`beyondwords_language_code\r\n${ beyondwordsLanguageCode }`,
 			`beyondwords_language_id\r\n${ beyondwordsLanguageId }`,
 			`beyondwords_body_voice_id\r\n${ beyondwordsBodyVoiceId }`,
 			`beyondwords_title_voice_id\r\n${ beyondwordsTitleVoiceId }`,
@@ -153,24 +185,6 @@ export function PostInspectPanel( {
 		} );
 	} );
 
-	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
-		( x ) => !! x?.length
-	);
-
-	const handleRemoveButtonClick = ( e ) => {
-		e.stopPropagation();
-
-		if ( removed ) {
-			setRemoved( false );
-			setDeleteContent( false );
-			removeWarningNotice();
-		} else {
-			setRemoved( true );
-			setDeleteContent( true );
-			createWarningNotice();
-		}
-	};
-
 	return (
 		<PanelBody
 			title={ __( 'Inspect', 'speechkit' ) }
@@ -181,70 +195,84 @@ export function PostInspectPanel( {
 				label="beyondwords_generate_audio"
 				readOnly
 				value={ beyondwordsGenerateAudio }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_integration_method"
+				readOnly
+				value={ beyondwordsIntegrationMethod }
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_project_id"
 				readOnly
 				value={ beyondwordsProjectId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_preview_token"
 				readOnly
 				value={ beyondwordsPreviewToken }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_content_id"
 				readOnly
 				value={ beyondwordsContentId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_player_content"
 				readOnly
 				value={ beyondwordsPlayerContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_player_style"
 				readOnly
 				value={ beyondwordsPlayerStyle }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_language_code"
+				readOnly
+				value={ beyondwordsLanguageCode }
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_language_id"
 				readOnly
 				value={ beyondwordsLanguageId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_body_voice_id"
 				readOnly
 				value={ beyondwordsBodyVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_title_voice_id"
 				readOnly
 				value={ beyondwordsTitleVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_summary_voice_id"
 				readOnly
 				value={ beyondwordsSummaryVoiceId }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			{ /* eslint-disable-next-line prettier/prettier */ }
@@ -253,33 +281,35 @@ export function PostInspectPanel( {
 				readOnly
 				rows="3"
 				value={ beyondwordsErrorMessage }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_disabled"
 				readOnly
 				value={ beyondwordsDisabled }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<TextControl
 				label="beyondwords_delete_content"
 				readOnly
 				value={ beyondwordsDeleteContent }
-				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 
 			<hr />
 
 			<Button
 				id="beyondwords-inspect-copy"
-				variant="secondary"
+				variant="primary"
 				ref={ copyToClipboardRef }
 				disabled={ removed }
 			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
+
+			<FetchButton />
 
 			<Button
 				isDestructive
@@ -319,6 +349,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
+			beyondwordsIntegrationMethod:
+				getEditedPostAttribute( 'meta' ).beyondwords_integration_method,
 			beyondwordsContentId:
 				getEditedPostAttribute( 'meta' ).beyondwords_content_id,
 			beyondwordsPreviewToken:
@@ -327,6 +359,8 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_player_content,
 			beyondwordsPlayerStyle:
 				getEditedPostAttribute( 'meta' ).beyondwords_player_style,
+			beyondwordsLanguageCode:
+				getEditedPostAttribute( 'meta' ).beyondwords_language_code,
 			beyondwordsLanguageId:
 				getEditedPostAttribute( 'meta' ).beyondwords_language_id,
 			beyondwordsBodyVoiceId:

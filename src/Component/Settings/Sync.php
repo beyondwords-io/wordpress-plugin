@@ -47,7 +47,6 @@ class Sync
         // Project
         'beyondwords_project_auto_publish_enabled'      => '[project][auto_publish_enabled]',
         'beyondwords_project_language_code'             => '[project][language]',
-        'beyondwords_project_language_id'               => '[project][language_id]',
         'beyondwords_project_body_voice_id'             => '[project][body][voice][id]',
         'beyondwords_project_body_voice_speaking_rate'  => '[project][body][voice][speaking_rate]',
         'beyondwords_project_title_enabled'             => '[project][title][enabled]',
@@ -58,38 +57,18 @@ class Sync
     ];
 
     /**
-     * PropertyAccessor.
-     *
-     * @var PropertyAccessor
-     *
-     * @since 5.0.0
-     */
-    public $propertyAccessor;
-
-    /**
-     * Constructor.
-     *
-     * @since 5.0.0
-     */
-    public function __construct()
-    {
-        $this->propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
-            ->disableExceptionOnInvalidPropertyPath()
-            ->getPropertyAccessor();
-    }
-
-    /**
      * Init.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      */
-    public function init()
+    public static function init()
     {
-        add_action('load-settings_page_beyondwords', array($this, 'syncToWordPress'), 30);
+        add_action('load-settings_page_beyondwords', [self::class, 'syncToWordPress'], 30);
 
         if (Environment::hasAutoSyncSettings()) {
-            add_action('load-settings_page_beyondwords', array($this, 'scheduleSyncs'), 20);
-            add_action('shutdown', array($this, 'syncToDashboard'));
+            add_action('load-settings_page_beyondwords', [self::class, 'scheduleSyncs'], 20);
+            add_action('shutdown', [self::class, 'syncToDashboard']);
         }
     }
 
@@ -98,18 +77,17 @@ class Sync
      *
      * @since 5.0.0
      * @since 5.2.0 Remove API creds validation.
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function scheduleSyncs()
+    public static function scheduleSyncs()
     {
         $tab       = Settings::getActiveTab();
         $endpoints = [];
 
         switch ($tab) {
             case 'content':
-                $endpoints = ['project'];
-                break;
             case 'voices':
                 $endpoints = ['project'];
                 break;
@@ -126,11 +104,13 @@ class Sync
     /**
      * Sync from the dashboard/BeyondWords REST API to WordPress.
      *
-     * @since 5.0.0
+     * @since 5.0.0 Introduced.
+     * @since 5.4.0 Stop saving language ID – we only need the ISO code now.
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function syncToWordPress()
+    public static function syncToWordPress()
     {
         $sync_to_wordpress = wp_cache_get('beyondwords_sync_to_wordpress', 'beyondwords');
         wp_cache_delete('beyondwords_sync_to_wordpress', 'beyondwords');
@@ -146,9 +126,6 @@ class Sync
             if (! empty($project)) {
                 $responses['project'] = $project;
             }
-
-            // Add the language ID to the project settings response.
-            $this->setLanguageId($responses);
         }
 
         if (! empty(array_intersect($sync_to_wordpress, ['all', 'player_settings']))) {
@@ -166,17 +143,18 @@ class Sync
         }
 
         // Update WordPress options using the REST API response data.
-        $this->updateOptionsFromResponses($responses);
+        self::updateOptionsFromResponses($responses);
     }
 
     /**
      * Update WordPress options from REST API responses.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return boolean
      **/
-    public function updateOptionsFromResponses($responses)
+    public static function updateOptionsFromResponses($responses)
     {
         if (empty($responses)) {
             add_settings_error(
@@ -188,10 +166,14 @@ class Sync
             return false;
         }
 
+        $propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
+
         $updated = false;
 
         foreach (self::MAP_SETTINGS as $optionName => $path) {
-            $value = $this->propertyAccessor->getValue($responses, $path);
+            $value = $propertyAccessor->getValue($responses, $path);
 
             if ($value !== null) {
                 update_option($optionName, $value, false);
@@ -206,10 +188,11 @@ class Sync
      * Sync from WordPress to the dashboard/BeyondWords REST API.
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      **/
-    public function syncToDashboard()
+    public static function syncToDashboard()
     {
         $options = wp_cache_get('beyondwords_sync_to_dashboard', 'beyondwords');
         wp_cache_delete('beyondwords_sync_to_dashboard', 'beyondwords');
@@ -218,11 +201,15 @@ class Sync
             return;
         }
 
+        $propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
+
         $settings = [];
 
         foreach ($options as $option) {
-            if ($this->shouldSyncOptionToDashboard($option)) {
-                $this->propertyAccessor->setValue(
+            if (self::shouldSyncOptionToDashboard($option)) {
+                $propertyAccessor->setValue(
                     $settings,
                     self::MAP_SETTINGS[$option],
                     get_option($option)
@@ -244,7 +231,7 @@ class Sync
 
         // Sync title voice back to API
         if (in_array('beyondwords_project_title_voice_speaking_rate', $options)) {
-            $value = $this->propertyAccessor->getValue(
+            $value = $propertyAccessor->getValue(
                 $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
@@ -259,7 +246,7 @@ class Sync
 
         // Sync body voice back to API
         if (in_array('beyondwords_project_body_voice_speaking_rate', $options)) {
-            $value = $this->propertyAccessor->getValue(
+            $value = $propertyAccessor->getValue(
                 $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
@@ -275,7 +262,7 @@ class Sync
         // Sync project settings back to API
         if (isset($settings['project'])) {
             // Don't send speaking rates back to /project endpoint
-            $titleSpeakingRate = $this->propertyAccessor->getValue(
+            $titleSpeakingRate = $propertyAccessor->getValue(
                 $settings,
                 self::MAP_SETTINGS['beyondwords_project_title_voice_speaking_rate']
             );
@@ -284,7 +271,7 @@ class Sync
             }
 
             // Don't send speaking rates back to /project endpoint
-            $bodySpeakingRate = $this->propertyAccessor->getValue(
+            $bodySpeakingRate = $propertyAccessor->getValue(
                 $settings,
                 self::MAP_SETTINGS['beyondwords_project_body_voice_speaking_rate']
             );
@@ -307,12 +294,13 @@ class Sync
      * Should we sync this option to the dashboard?
      *
      * @since 5.0.0
+     * @since 6.0.0 Make static.
      *
      * @param string $option_name Option name.
      *
      * @return void
      **/
-    public function shouldSyncOptionToDashboard($option_name)
+    public static function shouldSyncOptionToDashboard($option_name)
     {
         if (! array_key_exists($option_name, self::MAP_SETTINGS)) {
             return false;
@@ -347,41 +335,5 @@ class Sync
         $options   = array_unique($options);
 
         wp_cache_set('beyondwords_sync_to_dashboard', $options, 'beyondwords', 60);
-    }
-
-    /**
-     * Set the language ID in the project settings.
-     *
-     * In the REST API query we receive the language code but we need a numeric
-     * ID so we make a API call to get the ID and add it to the settings.
-     *
-     * @since 5.0.0
-     *
-     * @param array $settings Project settings.
-     *
-     * @return void
-     **/
-    public function setLanguageId(&$settings)
-    {
-        $language_code = $this->propertyAccessor->getValue($settings, '[project][language]');
-
-        if (null === $language_code) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', '');
-        }
-
-        $language  = false;
-        $languages = ApiClient::getLanguages();
-
-        if (is_array($languages)) {
-            $language = array_column(
-                $languages,
-                null,
-                'code'
-            )[$language_code] ?? false;
-        }
-
-        if (is_array($language) && array_key_exists('id', $language)) {
-            $this->propertyAccessor->setValue($settings, '[project][language_id]', $language['id']);
-        }
     }
 }

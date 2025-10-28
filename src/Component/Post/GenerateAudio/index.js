@@ -7,11 +7,6 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
 
-/**
- * Internal dependencies
- */
-import GenerateAudioCheck from './check';
-
 export function GenerateAudio( {
 	generateAudio,
 	generateAudioEdited,
@@ -28,19 +23,17 @@ export function GenerateAudio( {
 	}, [ generateAudioEdited, generateAudio ] );
 
 	return (
-		<GenerateAudioCheck>
-			<Wrapper>
-				<CheckboxControl
-					className="beyondwords--generate-audio"
-					label={ __( 'Generate audio', 'speechkit' ) }
-					checked={ generateAudio }
-					onChange={ () => {
-						setGenerateAudio( ! generateAudio );
-					} }
-					__nextHasNoMarginBottom
-				/>
-			</Wrapper>
-		</GenerateAudioCheck>
+		<Wrapper>
+			<CheckboxControl
+				className="beyondwords--generate-audio"
+				label={ __( 'Generate audio', 'speechkit' ) }
+				checked={ generateAudio }
+				onChange={ () => {
+					setGenerateAudio( ! generateAudio );
+				} }
+				__nextHasNoMarginBottom
+			/>
+		</Wrapper>
 	);
 }
 
@@ -80,17 +73,13 @@ export default compose( [
 				beyondwords_generate_audio,
 				/* eslint-disable-next-line camelcase */
 				speechkit_generate_audio,
-				/* eslint-disable-next-line camelcase */
-				publish_post_to_speechkit,
 			} = getCurrentPostAttribute( 'meta' );
 
 			if (
 				/* eslint-disable-next-line camelcase */
 				beyondwords_generate_audio === '1' ||
 				/* eslint-disable-next-line camelcase */
-				speechkit_generate_audio === '1' ||
-				/* eslint-disable-next-line camelcase */
-				publish_post_to_speechkit === '1'
+				speechkit_generate_audio === '1'
 			) {
 				return true;
 			}
@@ -99,9 +88,7 @@ export default compose( [
 				/* eslint-disable-next-line camelcase */
 				beyondwords_generate_audio === '0' ||
 				/* eslint-disable-next-line camelcase */
-				speechkit_generate_audio === '0' ||
-				/* eslint-disable-next-line camelcase */
-				publish_post_to_speechkit === '0'
+				speechkit_generate_audio === '0'
 			) {
 				return false;
 			}

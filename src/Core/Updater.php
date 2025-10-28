@@ -23,8 +23,10 @@ class Updater
      * Run
      *
      * @since 4.0.0
+     * @since 5.4.0 Add beyondwords_date_activated option.
+     * @since 6.0.0 Make static.
      */
-    public function run()
+    public static function run()
     {
         $version = get_option('beyondwords_version', '1.0.0');
 
@@ -33,12 +35,15 @@ class Updater
         }
 
         if (version_compare($version, '3.0.0', '<')) {
-            $this->migrateSettings();
+            self::migrateSettings();
         }
 
         if (version_compare($version, '3.7.0', '<')) {
-            $this->renamePluginSettings();
+            self::renamePluginSettings();
         }
+
+        // Record the date activated so we can track how long users have been using the plugin.
+        add_option('beyondwords_date_activated', gmdate(\DateTime::ATOM), '', false);
 
         // Always update the plugin version, to handle e.g. FTP plugin updates
         update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
@@ -51,11 +56,12 @@ class Updater
      * old location to the new. e.g. from speechkit_settings.speechkit_api_key to beyondwords_api_key.
      *
      * @since 3.0.0
-     * @since 3.5.0 Refactored, adding $this->constructPreselectSetting().
+     * @since 3.5.0 Refactored, adding self::constructPreselectSetting().
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function migrateSettings()
+    public static function migrateSettings()
     {
         $oldSettings = get_option('speechkit_settings', []);
 
@@ -69,7 +75,7 @@ class Updater
             'speechkit_merge_excerpt' => 'speechkit_prepend_excerpt',
         ];
 
-        // Simple mapping of 'old key' -> 'new key'
+        // Simple mapping of 'old key' :: 'new key'
         foreach ($settingsMap as $oldKey => $newKey) {
             if (array_key_exists($oldKey, $oldSettings) && ! get_option($newKey)) {
                 add_option($newKey, $oldSettings[$oldKey]);
@@ -77,7 +83,7 @@ class Updater
         }
 
         if (get_option('speechkit_preselect') === false) {
-            $preselectSetting = $this->constructPreselectSetting();
+            $preselectSetting = self::constructPreselectSetting();
 
             add_option('speechkit_preselect', $preselectSetting);
         }
@@ -90,10 +96,11 @@ class Updater
      * `speechkit_select_post_types` and `speechkit_selected_categories` fields.
      *
      * @since 3.5.0
+     * @since 6.0.0 Make static.
      *
      * @return array `beyondwords_preselect` setting.
      */
-    public function constructPreselectSetting()
+    public static function constructPreselectSetting()
     {
         $oldSettings = get_option('speechkit_settings', []);
 
@@ -141,10 +148,11 @@ class Updater
      * For now, we will leave `speechkit_*` settings in the db, to support plugin downgrades.
      *
      * @since 3.7.0
+     * @since 6.0.0 Make static.
      *
      * @return void
      */
-    public function renamePluginSettings()
+    public static function renamePluginSettings()
     {
         $apiKey         = get_option('speechkit_api_key');
         $projectId      = get_option('speechkit_project_id');

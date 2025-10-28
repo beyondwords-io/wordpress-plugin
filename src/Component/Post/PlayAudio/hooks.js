@@ -48,6 +48,7 @@ export function useBeyondWordsNamespace() {
 export function useBeyondWordsPlayer( {
 	target,
 	projectId,
+	sourceId,
 	contentId,
 	loadContentAs,
 	previewToken,
@@ -65,9 +66,10 @@ export function useBeyondWordsPlayer( {
 		let newPlayer;
 
 		try {
-			newPlayer = new BeyondWords.Player( {
+			const params = {
 				target,
 				projectId,
+				sourceId,
 				contentId,
 				loadContentAs: loadContentAs ?? [ 'article' ],
 				previewToken: previewToken || '',
@@ -76,7 +78,13 @@ export function useBeyondWordsPlayer( {
 				widgetStyle: 'none',
 				introsOutros: [],
 				adverts: [],
-			} );
+			};
+
+			if ( contentId ) {
+				delete params.sourceId;
+			}
+
+			newPlayer = new BeyondWords.Player( params );
 		} catch ( error ) {
 			setPlayer( null );
 
@@ -95,6 +103,7 @@ export function useBeyondWordsPlayer( {
 		BeyondWords?.Player,
 		target,
 		projectId,
+		sourceId,
 		contentId,
 		loadContentAs,
 		previewToken,

@@ -24,12 +24,12 @@ jobs:
       # ######################################
       # PHP
       # ######################################
-      - name: Setup PHP 8.0
+      - name: Setup PHP 8.1
         uses: shivammathur/setup-php@v2
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          php-version: '8.0'
+          php-version: '8.1'
           extensions: mbstring intl
           tools: composer, wp-cli
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-no-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
@@ -79,6 +79,7 @@ jobs:
       - name: Copy plugin files to /tmp
         run: |
           cp -rp \
+            assets \
             build \
             languages \
             src \
@@ -120,14 +121,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.3-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.4-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.3'
+          php_version: '8.4'
 
       - name: Run GrumPHP code_quality test suite
         run: ./vendor/bin/grumphp run --testsuite code_quality
@@ -179,11 +180,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3']
+        php-version: ['8.4']
         phpunit-version: ['10']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
+        - php-version: '8.1'
           phpunit-version: '9'
           operating-system: ['ubuntu-latest']
 
@@ -219,14 +220,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
@@ -259,7 +260,7 @@ jobs:
         run: bash bin/install-wp-tests.sh ${{ env.DB_DATABASE }} ${{ env.DB_USER }} ${{ env.DB_PASSWORD }}
 
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/phpunit -c ./phpunit.ci.xml
+        run: ./vendor/bin/phpunit
         env:
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
           BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"
@@ -305,7 +306,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           # Publish results only for the latest PHP version
-          name: PHPUnit Test Results - PHP 8.3
+          name: PHPUnit Test Results - PHP 8.4
           path: .
 
       - name: Setup Pages
@@ -335,12 +336,10 @@ jobs:
       # don't fail the entire matrix on failure
       fail-fast: false
       matrix:
-        php-version: ['8.3']
-        phpunit-version: ['10']
+        php-version: ['8.4']
         operating-system: ['ubuntu-latest']
         include:
-        - php-version: '8.0'
-          phpunit-version: '9'
+        - php-version: '8.1'
           operating-system: ['ubuntu-latest']
 
     env:
@@ -368,20 +367,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: phpunit:${{ matrix.phpunit-version }}, composer, wp-cli
+          tools: composer, wp-cli
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.0'
+          php_version: '8.1'
 
       - name: Check PHP Version
         run: php -v
@@ -406,7 +405,7 @@ jobs:
         run: cp -r .github/.wp-cli ~/
 
       - name: Download WordPress
-        run: wp core download
+        run: wp core download --version=6.8
 
       - name: Create `wp-config.php` file
         run: wp config create
@@ -444,11 +443,13 @@ jobs:
           cd /tmp
           zip -r  Basic-Auth.zip Basic-Auth
 
+      - name: Uninstall plugins
+        run: wp plugin uninstall --deactivate --all
+
       - name: Install plugins
         run: |
           wp plugin uninstall --deactivate --all
           wp plugin install /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip --force --activate
-          wp plugin install /tmp/Basic-Auth.zip --force --activate
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-content-params.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-script-onload.zip --force
           wp plugin install ${{ github.workspace }}/tests/fixtures/wp-content/plugins/beyondwords-filter-player-inline-script-tag.zip --force
@@ -463,7 +464,48 @@ jobs:
           wp plugin install classic-editor --force
           wp plugin install plugin-check --force
           wp plugin install wp-graphql --force
-          wp plugin install wp-reset --force
+          wp plugin install wp-reset --force --activate
+          wp plugin install /tmp/Basic-Auth.zip --force --activate
+
+      - name: Package and install standalone plugin PHP files
+        run: |
+          set -e
+
+          # Directory with plugin files
+          PLUGIN_SRC_DIR="${{ github.workspace }}/tests/fixtures/wp-content/plugins"
+
+          # Create temporary directory for zips
+          TEMP_ZIP_DIR="/tmp/plugin-zips"
+          mkdir -p "$TEMP_ZIP_DIR"
+
+          for plugin_php in "$PLUGIN_SRC_DIR"/*.php; do
+            # Extract base name without extension
+            plugin_basename=$(basename "$plugin_php" .php)
+
+            # Create a directory structure expected by WordPress
+            plugin_dir="$TEMP_ZIP_DIR/$plugin_basename"
+            mkdir -p "$plugin_dir"
+
+            # Copy the PHP file into that directory and rename to match directory
+            cp "$plugin_php" "${plugin_dir}/{$plugin_basename}.php"
+
+            # Zip the directory
+            (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
+
+            # Debugging
+            pwd
+            ls -la "$plugin_dir"
+            ls -la "$TEMP_ZIP_DIR"
+
+            # Install plugin
+            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
+          done
+
+      - name: Activate selected standalone plugins
+        run: |
+          wp plugin activate cpt-active
+          wp plugin activate cpt-inactive
+          wp plugin activate cpt-unsupported
 
       - run: wp plugin list
 
@@ -479,6 +521,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          headed: true # Temporarily set to headed to help with debugging
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false

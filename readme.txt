@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 5.3.1-beta.1
-Requires PHP: 8.0
-Tested up to: 6.7
+Stable tag: 6.0.0-rc.1
+Requires PHP: 8.1
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -80,9 +80,59 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 6.0.0-rc.1 =
+
+Release date: TBC
+
+**Enhancements and Features:**
+
+* [#449](https://github.com/beyondwords-io/wordpress-plugin/pull/449) Magic Embed for WordPress.
+    * An **Integration method** plugin setting has been added in the *Content* tab.
+    * The default is **REST API**. This method will continue to send post content and metadata to BeyondWords using REST API calls.
+    * If **Magic Embed** is selected then [Client-Side Integration](https://github.com/beyondwords-io/player/blob/main/doc/client-side-integration.md) will be enabed for new posts. With this method BeyondWords handles the extraction and delivery of audio content using the rendered HTML for the post.
+* [#447](https://github.com/beyondwords-io/wordpress-plugin/pull/447) Make PHP methods static.
+
+= 5.5.0 =
+
+Release date: 2nd July 2025
+
+**Enhancements and Features:**
+
+* [#446](https://github.com/beyondwords-io/wordpress-plugin/pull/446) Fetch button for Block Editor Inspect panel.
+    * We've added a Fetch option to the Inspect panel in the BeyondWords Block Editor sidebar.
+    * This allows users to retrieve audio that has already been generated in BeyondWords, helping to quickly restore a missing or broken link between the audio and WordPress post, without needing to regenerate the audio.
+* Always show the **Generate audio** checkbox in the Block Editor.
+    * As part of the Fetch button update the **Generate audio** checkbox is now always shown in the Block Editor.
+    * If **Generate audio** is unchecked before a post is saved then audio **will not** be regenerated from the updated post content.
+* [#444](https://github.com/beyondwords-io/wordpress-plugin/pull/444) PHP 8.4 support.
+    * Run unit and e2e tests against PHP 8.1 and PHP 8.4 in GitHub Actions.
+
+= 5.4.0 =
+
+Release date: 22nd April 2025
+
+**Fixes:**
+
+* [#436](https://github.com/beyondwords-io/wordpress-plugin/pull/436) Article language support in WordPress.
+    * Each `POST` and `PUT` request to the BeyondWords REST API now includes the article language.
+    * This update ensures compatibility with recent REST API changes and improves support for multilingual websites.
+* [#432](https://github.com/beyondwords-io/wordpress-plugin/pull/432) Delete audio and post meta when posts are trashed or deleted.
+    * When a post is moved into the trash in WordPress it is now deleted from the BeyondWords dashboard, and all associated BeyondWords post meta data (e.g. the content ID) is also deleted.
+    * This resolves REST API error messages caused by `DELETE` requests for content that no longer exists.
+    * After this update you will need to regenerate audio again if you restore posts from the trash.
+
+**Enhancements and Features:**
+
+* Tested up to WordPress 6.8.
+* [#405](https://github.com/beyondwords-io/wordpress-plugin/pull/405) "Post a review" notice in WordPress admin.
+    * A new notice prompts you to review our plugin on the WordPress Plugin Directory.
+    * The notice will appear 14 days after activating the plugin, or 14 days after updating to this version (or later) .
+    * The message is permanently dismissed once you close it or follow the link to leave a review.
+* [#434](https://github.com/beyondwords-io/wordpress-plugin/pull/434) Update Cypress to version 14.
+
 = 5.3.1 =
 
-Release date: 10th February 2025
+Release date: 11th February 2025
 
 **Fixes:**
 
