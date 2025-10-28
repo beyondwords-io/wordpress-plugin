@@ -643,7 +643,7 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 	const testTitle = `Cypress Test - ${ title }`;
 
 	return cy
-		.task( 'wp:post:create', {
+		.task( 'createPost', {
 			title: testTitle,
 			content,
 			status,
