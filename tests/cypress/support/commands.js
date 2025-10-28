@@ -609,6 +609,16 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
 } );
 
 /**
+ * Update a WordPress option.
+ *
+ * @param {string} optionName  - The name of the option to update
+ * @param {string} optionValue - The new value for the option
+ */
+Cypress.Commands.add( 'updateOption', ( optionName, optionValue ) => {
+	cy.task( 'updateOption', { optionName, optionValue } );
+} );
+
+/**
  * Reset BeyondWords plugin settings to defaults.
  * This ensures tests start with a clean slate for plugin configuration.
  * Preserves API credentials (api_key and project_id) to avoid 403 errors.
