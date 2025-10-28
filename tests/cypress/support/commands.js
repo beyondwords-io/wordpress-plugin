@@ -196,7 +196,7 @@ Cypress.Commands.add( 'dismissPointers', () => {
 	} );
 } );
 
-Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
+Cypress.Commands.add( 'saveAllPluginSettings', () => {
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
 
 	// Dismiss any WordPress pointers/tooltips that may be covering form fields
@@ -211,10 +211,6 @@ Cypress.Commands.add( 'saveMinimalPluginSettings', () => {
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveStandardPluginSettings', () => {
-	cy.saveMinimalPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
 
@@ -222,19 +218,13 @@ Cypress.Commands.add( 'saveStandardPluginSettings', () => {
 	cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
 	cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
 	cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).should(
-		'not.be.checked'
-	);
+	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).uncheck();
 	cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should(
 		'not.exist'
 	);
 
 	cy.get( 'input[type=submit]' ).click();
 	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'saveAllPluginSettings', () => {
-	cy.saveStandardPluginSettings();
 
 	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
 	cy.get( 'input[type=submit]' ).click();

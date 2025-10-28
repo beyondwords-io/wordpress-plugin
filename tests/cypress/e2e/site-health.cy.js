@@ -5,7 +5,7 @@ context( 'Site Health', () => {
 		// This test requires a fresh database WITHOUT credentials
 		// to test the initial settings sync when credentials are first configured
 		cy.login();
-		cy.manuallySaveAllPluginSettings();
+		cy.saveAllPluginSettings();
 	} );
 
 	const semverRegex =
