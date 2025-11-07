@@ -4,20 +4,68 @@
 import { addFilter } from '@wordpress/hooks';
 
 /**
- * External dependencies
+ * Check if a block should have BeyondWords attributes.
+ * Only content blocks that can be read aloud should have these attributes.
+ *
+ * @param {string} name Block name.
+ * @return {boolean} Whether the block should have BeyondWords attributes.
  */
-import getBlockMarkerAttribute from './helpers/getBlockMarkerAttribute';
+function shouldHaveBeyondWordsAttributes( name ) {
+	// Skip blocks without a name
+	if ( ! name ) {
+		return false;
+	}
+
+	// Skip internal/UI blocks
+	if ( name.startsWith( '__' ) ) {
+		return false;
+	}
+
+	// Skip reusable blocks and template parts (these are containers)
+	if (
+		name.startsWith( 'core/block' ) ||
+		name.startsWith( 'core/template' )
+	) {
+		return false;
+	}
+
+	// Skip editor UI blocks
+	const excludedBlocks = [
+		'core/freeform', // Classic editor
+		'core/legacy-widget',
+		'core/widget-area',
+		'core/navigation',
+		'core/navigation-link',
+		'core/navigation-submenu',
+		'core/site-logo',
+		'core/site-title',
+		'core/site-tagline',
+	];
+
+	if ( excludedBlocks.includes( name ) ) {
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * Register custom block attributes for BeyondWords.
  *
  * @since 4.0.4 Remove settings.attributes undefined check, to match official docs.
+ * @since 6.0.1 Skip internal/UI blocks to prevent breaking the block inserter.
  *
  * @param {Object} settings Settings for the block.
+ * @param {string} name     Block name.
  *
  * @return {Object} settings Modified settings.
  */
-function addAttributes( settings ) {
+function addAttributes( settings, name ) {
+	// Only add attributes to content blocks
+	if ( ! shouldHaveBeyondWordsAttributes( name ) ) {
+		return settings;
+	}
+
 	return {
 		...settings,
 		attributes: {
@@ -38,28 +86,4 @@ addFilter(
 	'blocks.registerBlockType',
 	'beyondwords/beyondwords-block-attributes',
 	addAttributes
-);
-
-/**
- * Set a unique BeyondWords marker for each block that doesn't already have one.
- *
- * @param {Object} attributes Attributes for the block.
- *
- * @return {Object} attributes Modified attributes.
- */
-function setMarkerAttribute( attributes ) {
-	const marker = getBlockMarkerAttribute( attributes );
-
-	attributes = {
-		...attributes,
-		beyondwordsMarker: marker,
-	};
-
-	return attributes;
-}
-
-addFilter(
-	'blocks.getBlockAttributes',
-	'beyondwords/set-marker-attribute',
-	setMarkerAttribute
 );
