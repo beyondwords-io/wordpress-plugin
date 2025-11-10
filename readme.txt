@@ -84,12 +84,32 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 Release date: 10th November 2025
 
-**Enhancements and Features:**
+**Enhancements and Features**
 
-* [#449](https://github.com/beyondwords-io/wordpress-plugin/pull/449) Magic Embed for WordPress.
-    * An **Integration method** plugin setting has been added in the *Content* tab.
-    * The default is **REST API**. This method will continue to send post content and metadata to BeyondWords using REST API calls.
-    * If **Magic Embed** is selected then [Client-Side Integration](https://github.com/beyondwords-io/player/blob/main/doc/client-side-integration.md) will be enabed for new posts. With this method BeyondWords handles the extraction and delivery of audio content using the rendered HTML for the post.
+* [#449](https://github.com/beyondwords-io/wordpress-plugin/pull/449) Added support for Magic Embed integration within the plugin.
+    * A new **"Magic Embed"** option has been added under **Content > Integration method** in the plugin settings.
+    * This option is intended for users working with **page builders such as Elementor**, who may have experienced issues getting the **REST API** to function correctly during initial setup.
+    * **Enabling Magic Embed** will automatically add the Magic Embed script to each of your posts.
+    * For correct functionality:
+        * Magic Embed must be **selected in the WordPress plugin**.
+        * Magic Embed must also be **[enabled and configured](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview#setup) in your BeyondWords dashboard**.
+    * Posts previously created using the **REST API** will continue to use that method.
+    * Refer to our [Magic Embed documentation](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview) for more information.
+
+***If your plugin is already working as expected with the REST API, we recommend continuing to use that integration.***
+
+**Fixes**
+
+* [#457](https://github.com/beyondwords-io/wordpress-plugin/pull/457) Removed segment marker assignment.
+    * Fixes a reported JS issue where the block editor "+" button was not being displayed.
+
+**Code Coverage**
+
+* [#455](https://github.com/beyondwords-io/wordpress-plugin/pull/455) Increased PHPUnit test coverage.
+
+**Refactoring**
+
+* [#454](https://github.com/beyondwords-io/wordpress-plugin/pull/454) PHP type declarations.
 * [#447](https://github.com/beyondwords-io/wordpress-plugin/pull/447) Make PHP methods static.
 
 --------
