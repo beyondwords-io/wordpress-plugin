@@ -80,7 +80,6 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 			}
 
 			const { attributes, setAttributes } = props;
-			// const { beyondwordsAudio, beyondwordsMarker } = attributes;
 			const { beyondwordsAudio } = attributes;
 
 			const icon = !! beyondwordsAudio
@@ -117,24 +116,6 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 									__nextHasNoMarginBottom
 								/>
 							</PanelRow>
-							{ /* { !! beyondwordsAudio && (
-								<PanelRow>
-									<TextControl
-										label={ __(
-											'Segment marker',
-											'speechkit'
-										) }
-										value={ beyondwordsMarker }
-										disabled
-										readOnly
-										placeholder={ __(
-											'Generated on save',
-											'speechkit'
-										) }
-										__nextHasNoMarginBottom
-									/>
-								</PanelRow>
-							) } */ }
 						</PanelBody>
 					</InspectorControls>
 

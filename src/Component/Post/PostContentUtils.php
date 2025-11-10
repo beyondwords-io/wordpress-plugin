@@ -166,6 +166,7 @@ class PostContentUtils
      *
      * @since 3.8.0
      * @since 4.0.0 Replace for loop with array_reduce
+     * @since 6.0.0 Remove beyondwordsMarker attribute from rendered blocks.
      *
      * @return string The post body without excluded blocks.
      */
@@ -181,12 +182,6 @@ class PostContentUtils
         $blocks = PostContentUtils::getAudioEnabledBlocks($post);
 
         foreach ($blocks as $block) {
-            // $marker = $block['attrs']['beyondwordsMarker'] ?? '';
-
-            // $output .= PostContentUtils::addMarkerAttribute(
-            //     render_block($block),
-            //     $marker
-            // );
             $output .= render_block($block);
         }
 
@@ -400,131 +395,4 @@ class PostContentUtils
 
         return get_the_author_meta('display_name', $authorId);
     }
-
-    /**
-     * Add data-beyondwords-marker attribute to the root elements in a HTML
-     * string (typically the rendered HTML of a single block).
-     *
-     * Checks to see whether we can use WP_HTML_Tag_Processor, or whether we
-     * fall back to using DOMDocument to add the marker.
-     *
-     * @since 4.2.2
-     *
-     * @param string  $html   HTML.
-     * @param string  $marker Marker UUID.
-     *
-     * @return string HTML.
-     */
-    // public static function addMarkerAttribute(string $html, string $marker): string
-    // {
-    //     if (! $marker) {
-    //         return $html;
-    //     }
-
-    //     // Prefer WP_HTML_Tag_Processor, introduced in WordPress 6.2
-    //     if (class_exists('WP_HTML_Tag_Processor')) {
-    //         return PostContentUtils::addMarkerAttributeWithHTMLTagProcessor($html, $marker);
-    //     } else {
-    //         return PostContentUtils::addMarkerAttributeWithDOMDocument($html, $marker);
-    //     }
-    // }
-
-    /**
-     * Add data-beyondwords-marker attribute to the root elements in a HTML
-     * string using WP_HTML_Tag_Processor.
-     *
-     * @since 4.0.0
-     * @since 4.2.2 Moved from src/Component/Post/BlockAttributes/BlockAttributes.php
-     *              to src/Component/Post/PostContentUtils.php
-     * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
-     *
-     * @param string  $html   HTML.
-     * @param string  $marker Marker UUID.
-     *
-     * @return string HTML.
-     */
-    // public static function addMarkerAttributeWithHTMLTagProcessor(string $html, string $marker): string
-    // {
-    //     if (! $marker) {
-    //         return $html;
-    //     }
-
-    //     // https://github.com/WordPress/gutenberg/pull/42485
-    //     $tags = new \WP_HTML_Tag_Processor($html);
-
-    //     if ($tags->next_tag()) {
-    //         $tags->set_attribute('data-beyondwords-marker', $marker);
-    //     }
-
-    //     return strval($tags);
-    // }
-
-    /**
-     * Add data-beyondwords-marker attribute to the root elements in a HTML
-     * string using DOMDocument.
-     *
-     * This is a fallback, since WP_HTML_Tag_Processor was only shipped with
-     * WordPress 6.2 on 19 April 2023.
-     *
-     * https://make.wordpress.org/core/2022/10/13/whats-new-in-gutenberg-14-3-12-october/
-     *
-     * Note: It is not ideal to do all the $bodyElement/$fullHtml processing
-     * in this method, but without it DOMDocument does not work as expected if
-     * there is more than 1 root element. The approach here has been taken from
-     * some historic Gutenberg code before they implemented WP_HTML_Tag_Processor:
-     *
-     * https://github.com/WordPress/gutenberg/blob/6671cef1179412a2bbd4969cbbc82705c7f69bac/lib/block-supports/index.php
-     *
-     * @since 4.0.0
-     * @since 4.2.2 Moved from src/Component/Post/BlockAttributes/BlockAttributes.php
-     *              to src/Component/Post/PostContentUtils.php
-     * @since 4.7.0 Prevent empty data-beyondwords-marker attributes.
-     *
-     * @param string  $html   HTML.
-     * @param string  $marker Marker UUID.
-     *
-     * @return string HTML.
-     */
-    // public static function addMarkerAttributeWithDOMDocument(string $html, string $marker): string
-    // {
-    //     if (! $marker) {
-    //         return $html;
-    //     }
-
-    //     $dom = new \DOMDocument('1.0', 'utf-8');
-
-    //     $wrappedHtml =
-    //         '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>'
-    //         . $html
-    //         . '</body></html>';
-
-    //     $success = $dom->loadHTML($wrappedHtml, LIBXML_HTML_NODEFDTD | LIBXML_COMPACT);
-
-    //     if (! $success) {
-    //         return $html;
-    //     }
-
-    //     // Structure is like `<html><head/><body/></html>`, so body is the `lastChild` of our document.
-    //     $bodyElement = $dom->documentElement->lastChild;
-
-    //     $xpath     = new \DOMXPath($dom);
-    //     $blockRoot = $xpath->query('./*', $bodyElement)[0];
-
-    //     if (empty($blockRoot)) {
-    //         return $html;
-    //     }
-
-    //     $blockRoot->setAttribute('data-beyondwords-marker', $marker);
-
-    //     // Avoid using `$dom->saveHtml( $node )` because the node results may not produce consistent
-    //     // whitespace. Saving the root HTML `$dom->saveHtml()` prevents this behavior.
-    //     $fullHtml = $dom->saveHtml();
-
-    //     // Find the <body> open/close tags. The open tag needs to be adjusted so we get inside the tag
-    //     // and not the tag itself.
-    //     $start = strpos($fullHtml, '<body>', 0) + strlen('<body>');
-    //     $end   = strpos($fullHtml, '</body>', $start);
-
-    //     return trim(substr($fullHtml, $start, $end - $start));
-    // }
 }
