@@ -112,6 +112,10 @@ Release date: 10th November 2025
 * [#454](https://github.com/beyondwords-io/wordpress-plugin/pull/454) PHP type declarations.
 * [#447](https://github.com/beyondwords-io/wordpress-plugin/pull/447) Make PHP methods static.
 
+**Compatibility**
+
+* **PHP 8.1** is now our minimum supported version.
+
 --------
 
 [See the previous changelogs here](https://plugins.trac.wordpress.org/browser/speechkit/trunk/changelog.txt).
