@@ -6,7 +6,6 @@ import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	PanelRow,
-	TextControl,
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
@@ -15,49 +14,9 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 
 /**
- * Check if a block should have BeyondWords controls.
- *
- * @param {string} name Block name.
- * @return {boolean} Whether the block should have controls.
+ * Internal dependencies
  */
-function shouldHaveBeyondWordsControls( name ) {
-	// Skip blocks without a name
-	if ( ! name ) {
-		return false;
-	}
-
-	// Skip internal/UI blocks
-	if ( name.startsWith( '__' ) ) {
-		return false;
-	}
-
-	// Skip reusable blocks and template parts (these are containers)
-	if (
-		name.startsWith( 'core/block' ) ||
-		name.startsWith( 'core/template' )
-	) {
-		return false;
-	}
-
-	// Skip editor UI blocks
-	const excludedBlocks = [
-		'core/freeform', // Classic editor
-		'core/legacy-widget',
-		'core/widget-area',
-		'core/navigation',
-		'core/navigation-link',
-		'core/navigation-submenu',
-		'core/site-logo',
-		'core/site-title',
-		'core/site-tagline',
-	];
-
-	if ( excludedBlocks.includes( name ) ) {
-		return false;
-	}
-
-	return true;
-}
+import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
 
 /**
  * Add BeyondWords controls to Gutenberg Blocks.
@@ -75,7 +34,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 
 			// Skip blocks that shouldn't have controls
 			// Do this check BEFORE accessing attributes to avoid unnecessary processing
-			if ( ! shouldHaveBeyondWordsControls( name ) ) {
+			if ( ! isBeyondwordsSupportedBlock( name ) ) {
 				return <BlockEdit { ...props } />;
 			}
 
