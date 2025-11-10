@@ -155,59 +155,6 @@ class PostContentUtils
     }
 
     /**
-     * Get the segments for the audio content, ready to be sent to the BeyondWords API.
-     *
-     * @codeCoverageIgnore
-     * THIS METHOD IS CURRENTLY NOT IN USE. Segments cannot currently include HTML
-     * formatting tags such as <strong> and <em> so we do not pass segments, we pass
-     * a HTML string as the body param instead.
-     *
-     * @param int|\WP_Post $post The WordPress post ID, or post object.
-     *
-     * @since 4.0.0
-     */
-    public static function getSegments(int|\WP_Post $post): array
-    {
-        if (! has_blocks($post)) {
-            return [];
-        }
-
-        $titleSegment = (object) [
-            'section' => 'title',
-            'text'    => get_the_title($post),
-        ];
-
-        $summarySegment = (object) [
-            'section' => 'summary',
-            'text'    => PostContentUtils::getPostSummary($post),
-        ];
-
-        $blocks = PostContentUtils::getAudioEnabledBlocks($post);
-
-        $bodySegments = array_map(function ($block) {
-            $marker = null;
-
-            if (isset($block['attrs']) && isset($block['attrs']['beyondwordsMarker'])) {
-                $marker = $block['attrs']['beyondwordsMarker'];
-            }
-
-            return (object) [
-                'section' => 'body',
-                'marker'  => $marker,
-                'text'    => trim(render_block($block)),
-            ];
-        }, $blocks);
-
-        // Merge title, summary and body segments
-        $segments = array_values(array_merge([$titleSegment], [$summarySegment], $bodySegments));
-
-        // Remove any segments with empty text
-        $segments = array_values(array_filter($segments, fn($segment) => ! empty($segment::text)));
-
-        return $segments;
-    }
-
-    /**
      * Get the post content without blocks which have been filtered.
      *
      * We have added buttons into the Gutenberg editor to optionally exclude selected
@@ -234,12 +181,13 @@ class PostContentUtils
         $blocks = PostContentUtils::getAudioEnabledBlocks($post);
 
         foreach ($blocks as $block) {
-            $marker = $block['attrs']['beyondwordsMarker'] ?? '';
+            // $marker = $block['attrs']['beyondwordsMarker'] ?? '';
 
-            $output .= PostContentUtils::addMarkerAttribute(
-                render_block($block),
-                $marker
-            );
+            // $output .= PostContentUtils::addMarkerAttribute(
+            //     render_block($block),
+            //     $marker
+            // );
+            $output .= render_block($block);
         }
 
         return $output;
@@ -467,19 +415,19 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttribute(string $html, string $marker): string
-    {
-        if (! $marker) {
-            return $html;
-        }
+    // public static function addMarkerAttribute(string $html, string $marker): string
+    // {
+    //     if (! $marker) {
+    //         return $html;
+    //     }
 
-        // Prefer WP_HTML_Tag_Processor, introduced in WordPress 6.2
-        if (class_exists('WP_HTML_Tag_Processor')) {
-            return PostContentUtils::addMarkerAttributeWithHTMLTagProcessor($html, $marker);
-        } else {
-            return PostContentUtils::addMarkerAttributeWithDOMDocument($html, $marker);
-        }
-    }
+    //     // Prefer WP_HTML_Tag_Processor, introduced in WordPress 6.2
+    //     if (class_exists('WP_HTML_Tag_Processor')) {
+    //         return PostContentUtils::addMarkerAttributeWithHTMLTagProcessor($html, $marker);
+    //     } else {
+    //         return PostContentUtils::addMarkerAttributeWithDOMDocument($html, $marker);
+    //     }
+    // }
 
     /**
      * Add data-beyondwords-marker attribute to the root elements in a HTML
@@ -495,21 +443,21 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithHTMLTagProcessor(string $html, string $marker): string
-    {
-        if (! $marker) {
-            return $html;
-        }
+    // public static function addMarkerAttributeWithHTMLTagProcessor(string $html, string $marker): string
+    // {
+    //     if (! $marker) {
+    //         return $html;
+    //     }
 
-        // https://github.com/WordPress/gutenberg/pull/42485
-        $tags = new \WP_HTML_Tag_Processor($html);
+    //     // https://github.com/WordPress/gutenberg/pull/42485
+    //     $tags = new \WP_HTML_Tag_Processor($html);
 
-        if ($tags->next_tag()) {
-            $tags->set_attribute('data-beyondwords-marker', $marker);
-        }
+    //     if ($tags->next_tag()) {
+    //         $tags->set_attribute('data-beyondwords-marker', $marker);
+    //     }
 
-        return strval($tags);
-    }
+    //     return strval($tags);
+    // }
 
     /**
      * Add data-beyondwords-marker attribute to the root elements in a HTML
@@ -537,46 +485,46 @@ class PostContentUtils
      *
      * @return string HTML.
      */
-    public static function addMarkerAttributeWithDOMDocument(string $html, string $marker): string
-    {
-        if (! $marker) {
-            return $html;
-        }
+    // public static function addMarkerAttributeWithDOMDocument(string $html, string $marker): string
+    // {
+    //     if (! $marker) {
+    //         return $html;
+    //     }
 
-        $dom = new \DOMDocument('1.0', 'utf-8');
+    //     $dom = new \DOMDocument('1.0', 'utf-8');
 
-        $wrappedHtml =
-            '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>'
-            . $html
-            . '</body></html>';
+    //     $wrappedHtml =
+    //         '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>'
+    //         . $html
+    //         . '</body></html>';
 
-        $success = $dom->loadHTML($wrappedHtml, LIBXML_HTML_NODEFDTD | LIBXML_COMPACT);
+    //     $success = $dom->loadHTML($wrappedHtml, LIBXML_HTML_NODEFDTD | LIBXML_COMPACT);
 
-        if (! $success) {
-            return $html;
-        }
+    //     if (! $success) {
+    //         return $html;
+    //     }
 
-        // Structure is like `<html><head/><body/></html>`, so body is the `lastChild` of our document.
-        $bodyElement = $dom->documentElement->lastChild;
+    //     // Structure is like `<html><head/><body/></html>`, so body is the `lastChild` of our document.
+    //     $bodyElement = $dom->documentElement->lastChild;
 
-        $xpath     = new \DOMXPath($dom);
-        $blockRoot = $xpath->query('./*', $bodyElement)[0];
+    //     $xpath     = new \DOMXPath($dom);
+    //     $blockRoot = $xpath->query('./*', $bodyElement)[0];
 
-        if (empty($blockRoot)) {
-            return $html;
-        }
+    //     if (empty($blockRoot)) {
+    //         return $html;
+    //     }
 
-        $blockRoot->setAttribute('data-beyondwords-marker', $marker);
+    //     $blockRoot->setAttribute('data-beyondwords-marker', $marker);
 
-        // Avoid using `$dom->saveHtml( $node )` because the node results may not produce consistent
-        // whitespace. Saving the root HTML `$dom->saveHtml()` prevents this behavior.
-        $fullHtml = $dom->saveHtml();
+    //     // Avoid using `$dom->saveHtml( $node )` because the node results may not produce consistent
+    //     // whitespace. Saving the root HTML `$dom->saveHtml()` prevents this behavior.
+    //     $fullHtml = $dom->saveHtml();
 
-        // Find the <body> open/close tags. The open tag needs to be adjusted so we get inside the tag
-        // and not the tag itself.
-        $start = strpos($fullHtml, '<body>', 0) + strlen('<body>');
-        $end   = strpos($fullHtml, '</body>', $start);
+    //     // Find the <body> open/close tags. The open tag needs to be adjusted so we get inside the tag
+    //     // and not the tag itself.
+    //     $start = strpos($fullHtml, '<body>', 0) + strlen('<body>');
+    //     $end   = strpos($fullHtml, '</body>', $start);
 
-        return trim(substr($fullHtml, $start, $end - $start));
-    }
+    //     return trim(substr($fullHtml, $start, $end - $start));
+    // }
 }

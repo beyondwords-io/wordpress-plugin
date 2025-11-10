@@ -15,11 +15,6 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 
 /**
- * External dependencies
- */
-import { v4 as uuidv4 } from 'uuid';
-
-/**
  * Check if a block should have BeyondWords controls.
  *
  * @param {string} name Block name.
@@ -85,7 +80,8 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 			}
 
 			const { attributes, setAttributes } = props;
-			const { beyondwordsAudio, beyondwordsMarker } = attributes;
+			// const { beyondwordsAudio, beyondwordsMarker } = attributes;
+			const { beyondwordsAudio } = attributes;
 
 			const icon = !! beyondwordsAudio
 				? 'controls-volumeon'
@@ -100,15 +96,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 				: __( 'Audio processing disabled', 'speechkit' );
 
 			const toggleBeyondwordsAudio = () => {
-				const newAudioValue = ! beyondwordsAudio;
-				const updates = { beyondwordsAudio: newAudioValue };
-
-				// Only set marker when enabling audio and marker doesn't exist
-				if ( newAudioValue && ! beyondwordsMarker ) {
-					updates.beyondwordsMarker = uuidv4();
-				}
-
-				setAttributes( updates );
+				setAttributes( { beyondwordsAudio: ! beyondwordsAudio } );
 			};
 
 			return (
@@ -129,57 +117,24 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 									__nextHasNoMarginBottom
 								/>
 							</PanelRow>
-							{ !! beyondwordsAudio && (
+							{ /* { !! beyondwordsAudio && (
 								<PanelRow>
-									{ beyondwordsMarker ? (
-										<TextControl
-											label={ __(
-												'Segment marker',
-												'speechkit'
-											) }
-											value={ beyondwordsMarker }
-											disabled
-											readOnly
-											__nextHasNoMarginBottom
-										/>
-									) : (
-										<div style={ { width: '100%' } }>
-											<div
-												style={ {
-													display: 'block',
-													marginBottom: '8px',
-													fontSize: '11px',
-													fontWeight: 500,
-													lineHeight: '1.4',
-													textTransform: 'uppercase',
-													color: '#1e1e1e',
-												} }
-											>
-												{ __(
-													'Segment marker',
-													'speechkit'
-												) }
-											</div>
-											<div
-												style={ {
-													padding: '6px 8px',
-													border: '1px solid #949494',
-													borderRadius: '2px',
-													backgroundColor: '#f0f0f0',
-													color: '#757575',
-													fontSize: '13px',
-													fontStyle: 'italic',
-												} }
-											>
-												{ __(
-													'Generated on save',
-													'speechkit'
-												) }
-											</div>
-										</div>
-									) }
+									<TextControl
+										label={ __(
+											'Segment marker',
+											'speechkit'
+										) }
+										value={ beyondwordsMarker }
+										disabled
+										readOnly
+										placeholder={ __(
+											'Generated on save',
+											'speechkit'
+										) }
+										__nextHasNoMarginBottom
+									/>
 								</PanelRow>
-							) }
+							) } */ }
 						</PanelBody>
 					</InspectorControls>
 

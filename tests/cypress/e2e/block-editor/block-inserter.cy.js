@@ -91,7 +91,7 @@ context( 'Block Editor: Block Inserter', () => {
 				cy.contains( '.wp-block-paragraph', 'Third paragraph' );
 			} );
 
-			it( `duplicated blocks get unique markers for ${ postType.name }`, () => {
+			it.skip( `duplicated blocks get unique markers for ${ postType.name }`, () => {
 				cy.visitPostEditor( postType.slug );
 
 				// Add a title

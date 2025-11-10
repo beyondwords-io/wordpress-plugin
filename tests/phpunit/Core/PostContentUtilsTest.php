@@ -140,14 +140,14 @@ class PostContentUtilsTest extends TestCase
                       '<!-- wp:paragraph --><p>Previous two paragraphs were empty.</p><!-- /wp:paragraph -->';
 
         $withBlocksExpect = '<p>No marker.</p>' .
-                            '<p data-beyondwords-marker="marker-1">Has marker.</p>' .
+                            '<p>Has marker.</p>' .
                             '<p></p>' .
-                            '<p data-beyondwords-marker="marker-2"></p>' .
+                            '<p></p>' .
                             '<p>Previous two paragraphs were empty.</p>';
 
-        $withoutBlocks = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>\n\n";
+        $withoutBlocks = "<p>One</p>\n\n<p></p>\n\n<p>Three</p>\n\n";
 
-        $withoutBlocksExpect = "<p>One</p>\n\n<p></p>\n\n<p data-beyondwords-marker=\"marker-3\">Three</p>";
+        $withoutBlocksExpect = "<p>One</p>\n\n<p></p>\n\n<p>Three</p>";
 
         return [
             'Content with blocks'    => [ $withBlocks, $withBlocksExpect ],
@@ -619,90 +619,90 @@ class PostContentUtilsTest extends TestCase
      * @test
      * @dataProvider addMarkerAttributeWithHTMLTagProcessorProvider
      */
-    public function addMarkerAttributeWithHTMLTagProcessor($html, $marker, $expect) {
-        $result = PostContentUtils::addMarkerAttributeWithHTMLTagProcessor($html, $marker);
+    // public function addMarkerAttributeWithHTMLTagProcessor($html, $marker, $expect) {
+    //     $result = PostContentUtils::addMarkerAttributeWithHTMLTagProcessor($html, $marker);
 
-        $this->assertSame($expect, trim($result));
-    }
+    //     $this->assertSame($expect, trim($result));
+    // }
 
-    public function addMarkerAttributeWithHTMLTagProcessorProvider($args) {
-        return [
-            'No HTML' => [
-                'html'   => '',
-                'marker' => 'foo',
-                'expect' => '',
-            ],
-            'No marker' => [
-                'html'   => '<p>Text</p>',
-                'marker' => '',
-                'expect' => '<p>Text</p>',
-            ],
-            'Paragraph' => [
-                'html'   => '<p>Text</p>',
-                'marker' => 'foo',
-                'expect' => '<p data-beyondwords-marker="foo">Text</p>',
-            ],
-            'Empty paragraph' => [
-                'html'   => '<p></p>',
-                'marker' => 'foo',
-                'expect' => '<p data-beyondwords-marker="foo"></p>',
-            ],
-            'Existing attributes' => [
-                'html'   => '<p class="my-class">Text</p>',
-                'marker' => 'foo',
-                'expect' => '<p data-beyondwords-marker="foo" class="my-class">Text</p>',
-            ],
-            'Multiple root elements' => [
-                'html'   => "<div>One</div>\n<div>Two</div>",
-                'marker' => 'foo',
-                'expect' => "<div data-beyondwords-marker=\"foo\">One</div>\n<div>Two</div>",
-            ],
-        ];
-    }
+    // public function addMarkerAttributeWithHTMLTagProcessorProvider($args) {
+    //     return [
+    //         'No HTML' => [
+    //             'html'   => '',
+    //             'marker' => 'foo',
+    //             'expect' => '',
+    //         ],
+    //         'No marker' => [
+    //             'html'   => '<p>Text</p>',
+    //             'marker' => '',
+    //             'expect' => '<p>Text</p>',
+    //         ],
+    //         'Paragraph' => [
+    //             'html'   => '<p>Text</p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p data-beyondwords-marker="foo">Text</p>',
+    //         ],
+    //         'Empty paragraph' => [
+    //             'html'   => '<p></p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p data-beyondwords-marker="foo"></p>',
+    //         ],
+    //         'Existing attributes' => [
+    //             'html'   => '<p class="my-class">Text</p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p data-beyondwords-marker="foo" class="my-class">Text</p>',
+    //         ],
+    //         'Multiple root elements' => [
+    //             'html'   => "<div>One</div>\n<div>Two</div>",
+    //             'marker' => 'foo',
+    //             'expect' => "<div data-beyondwords-marker=\"foo\">One</div>\n<div>Two</div>",
+    //         ],
+    //     ];
+    // }
 
     /**
      * @test
      * @dataProvider addMarkerAttributeWithDOMDocumentProvider
      */
-    public function addMarkerAttributeWithDOMDocument($html, $marker, $expect)
-    {
-        $result = PostContentUtils::addMarkerAttributeWithDOMDocument($html, $marker);
+    // public function addMarkerAttributeWithDOMDocument($html, $marker, $expect)
+    // {
+    //     $result = PostContentUtils::addMarkerAttributeWithDOMDocument($html, $marker);
 
-        $this->assertSame($expect, trim($result));
-    }
+    //     $this->assertSame($expect, trim($result));
+    // }
 
-    public function addMarkerAttributeWithDOMDocumentProvider($args) {
-        return [
-            'No HTML' => [
-                'html'   => '',
-                'marker' => 'foo',
-                'expect' => '',
-            ],
-            'No marker' => [
-                'html'   => '<p>Text</p>',
-                'marker' => '',
-                'expect' => '<p>Text</p>',
-            ],
-            'Paragraph' => [
-                'html'   => '<p>Text</p>',
-                'marker' => 'foo',
-                'expect' => '<p data-beyondwords-marker="foo">Text</p>',
-            ],
-            'Empty paragraph' => [
-                'html'   => '<p></p>',
-                'marker' => 'foo',
-                'expect' => '<p data-beyondwords-marker="foo"></p>',
-            ],
-            'Existing attributes' => [
-                'html'   => '<p class="my-class">Text</p>',
-                'marker' => 'foo',
-                'expect' => '<p class="my-class" data-beyondwords-marker="foo">Text</p>',
-            ],
-            'Multiple root elements' => [
-                'html'   => "<div>One</div>\n<div>Two</div>",
-                'marker' => 'foo',
-                'expect' => "<div data-beyondwords-marker=\"foo\">One</div>\n<div>Two</div>",
-            ],
-        ];
-    }
+    // public function addMarkerAttributeWithDOMDocumentProvider($args) {
+    //     return [
+    //         'No HTML' => [
+    //             'html'   => '',
+    //             'marker' => 'foo',
+    //             'expect' => '',
+    //         ],
+    //         'No marker' => [
+    //             'html'   => '<p>Text</p>',
+    //             'marker' => '',
+    //             'expect' => '<p>Text</p>',
+    //         ],
+    //         'Paragraph' => [
+    //             'html'   => '<p>Text</p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p data-beyondwords-marker="foo">Text</p>',
+    //         ],
+    //         'Empty paragraph' => [
+    //             'html'   => '<p></p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p data-beyondwords-marker="foo"></p>',
+    //         ],
+    //         'Existing attributes' => [
+    //             'html'   => '<p class="my-class">Text</p>',
+    //             'marker' => 'foo',
+    //             'expect' => '<p class="my-class" data-beyondwords-marker="foo">Text</p>',
+    //         ],
+    //         'Multiple root elements' => [
+    //             'html'   => "<div>One</div>\n<div>Two</div>",
+    //             'marker' => 'foo',
+    //             'expect' => "<div data-beyondwords-marker=\"foo\">One</div>\n<div>Two</div>",
+    //         ],
+    //     ];
+    // }
 }

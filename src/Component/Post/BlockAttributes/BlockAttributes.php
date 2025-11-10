@@ -36,10 +36,10 @@ class BlockAttributes
     {
         add_filter('register_block_type_args', [self::class, 'registerAudioAttribute']);
         add_filter('register_block_type_args', [self::class, 'registerMarkerAttribute']);
-        add_filter('render_block', [self::class, 'renderBlock'], 10, 2);
+        // add_filter('render_block', [self::class, 'renderBlock'], 10, 2);
 
         // Register hooks for marker initialization
-        add_filter('wp_insert_post_data', [self::class, 'initializeBlockMarkersBeforeSave'], 10, 2);
+        // add_filter('wp_insert_post_data', [self::class, 'initializeBlockMarkersBeforeSave'], 10, 2);
     }
 
     /**
@@ -95,12 +95,12 @@ class BlockAttributes
             // Serialize blocks back to content
             $data['post_content'] = serialize_blocks($updatedBlocks);
 
-            // Debug logging
-            error_log(sprintf(
-                'BeyondWords: Generated markers for post %d, found %d existing markers',
-                $postarr['ID'] ?? 0,
-                count($existingMarkers)
-            ));
+            // Debug: Log marker summary
+            // error_log(sprintf(
+            //     'BeyondWords: Generated markers for post %d, found %d existing markers',
+            //     $postarr['ID'] ?? 0,
+            //     count($existingMarkers)
+            // ));
         }
 
         return $data;
@@ -143,6 +143,7 @@ class BlockAttributes
         if (! array_key_exists('beyondwordsMarker', $args['attributes'])) {
             $args['attributes']['beyondwordsMarker'] = [
                 'type' => 'string',
+                'default' => '',
             ];
         }
 
@@ -164,26 +165,26 @@ class BlockAttributes
      *
      * @return string Block Content (HTML).
      */
-    public static function renderBlock($blockContent, $block)
-    {
-        // Skip adding marker if player UI is disabled
-        if (get_option(PlayerUI::OPTION_NAME) === PlayerUI::DISABLED) {
-            return $blockContent;
-        }
+    // public static function renderBlock($blockContent, $block)
+    // {
+    //     // Skip adding marker if player UI is disabled
+    //     if (get_option(PlayerUI::OPTION_NAME) === PlayerUI::DISABLED) {
+    //         return $blockContent;
+    //     }
 
-        $postId = get_the_ID();
+    //     $postId = get_the_ID();
 
-        if (! $postId) {
-            return $blockContent;
-        }
+    //     if (! $postId) {
+    //         return $blockContent;
+    //     }
 
-        $marker = $block['attrs']['beyondwordsMarker'] ?? '';
+    //     $marker = $block['attrs']['beyondwordsMarker'] ?? '';
 
-        return PostContentUtils::addMarkerAttribute(
-            $blockContent,
-            $marker
-        );
-    }
+    //     return PostContentUtils::addMarkerAttribute(
+    //         $blockContent,
+    //         $marker
+    //     );
+    // }
 
     /**
      * Recursively process blocks to initialize and deduplicate markers.
@@ -196,59 +197,60 @@ class BlockAttributes
      *
      * @return array Updated blocks.
      */
-    private static function processBlocksForMarkers($blocks, &$existingMarkers, &$needsUpdate)
-    {
-        $updatedBlocks = [];
+    // private static function processBlocksForMarkers($blocks, &$existingMarkers, &$needsUpdate)
+    // {
+    //     $updatedBlocks = [];
 
-        foreach ($blocks as $block) {
-            // Skip blocks that shouldn't have markers
-            if (! self::shouldHaveBeyondWordsMarker($block['blockName'])) {
-                $updatedBlocks[] = $block;
-                continue;
-            }
+    //     foreach ($blocks as $block) {
+    //         // Skip blocks that shouldn't have markers
+    //         if (! self::shouldHaveBeyondWordsMarker($block['blockName'])) {
+    //             $updatedBlocks[] = $block;
+    //             continue;
+    //         }
 
-            // Check if block has beyondwordsAudio attribute
-            $hasAudio = $block['attrs']['beyondwordsAudio'] ?? true;
+    //         // Check if block has beyondwordsAudio attribute
+    //         $hasAudio = $block['attrs']['beyondwordsAudio'] ?? true;
 
-            // Only process blocks with audio enabled
-            if ($hasAudio) {
-                $currentMarker = $block['attrs']['beyondwordsMarker'] ?? '';
+    //         // Only process blocks with audio enabled
+    //         if ($hasAudio) {
+    //             $currentMarker = $block['attrs']['beyondwordsMarker'] ?? '';
 
-                // Check if marker is missing or duplicate
-                if (empty($currentMarker) || in_array($currentMarker, $existingMarkers, true)) {
-                    // Generate new unique marker
-                    $newMarker = self::generateUniqueUuid($existingMarkers);
+    //             // Check if marker is missing or duplicate
+    //             if (empty($currentMarker) || in_array($currentMarker, $existingMarkers, true)) {
+    //                 // Generate new unique marker
+    //                 $newMarker = self::generateUniqueUuid($existingMarkers);
 
-                    error_log(sprintf(
-                        'BeyondWords: Generating marker for block %s (had: %s, generated: %s)',
-                        $block['blockName'] ?? 'unknown',
-                        $currentMarker ?: 'none',
-                        $newMarker
-                    ));
+    //                 // Debug: Log marker generation
+    //                 // error_log(sprintf(
+    //                 //     'BeyondWords: Generating marker for block %s (had: %s, generated: %s)',
+    //                 //     $block['blockName'] ?? 'unknown',
+    //                 //     $currentMarker ?: 'none',
+    //                 //     $newMarker
+    //                 // ));
 
-                    $block['attrs']['beyondwordsMarker'] = $newMarker;
-                    $existingMarkers[] = $newMarker;
-                    $needsUpdate = true;
-                } else {
-                    // Track existing marker
-                    $existingMarkers[] = $currentMarker;
-                }
-            }
+    //                 $block['attrs']['beyondwordsMarker'] = $newMarker;
+    //                 $existingMarkers[] = $newMarker;
+    //                 $needsUpdate = true;
+    //             } else {
+    //                 // Track existing marker
+    //                 $existingMarkers[] = $currentMarker;
+    //             }
+    //         }
 
-            // Process inner blocks recursively
-            if (! empty($block['innerBlocks'])) {
-                $block['innerBlocks'] = self::processBlocksForMarkers(
-                    $block['innerBlocks'],
-                    $existingMarkers,
-                    $needsUpdate
-                );
-            }
+    //         // Process inner blocks recursively
+    //         if (! empty($block['innerBlocks'])) {
+    //             $block['innerBlocks'] = self::processBlocksForMarkers(
+    //                 $block['innerBlocks'],
+    //                 $existingMarkers,
+    //                 $needsUpdate
+    //             );
+    //         }
 
-            $updatedBlocks[] = $block;
-        }
+    //         $updatedBlocks[] = $block;
+    //     }
 
-        return $updatedBlocks;
-    }
+    //     return $updatedBlocks;
+    // }
 
     /**
      * Check if a block should have BeyondWords marker.
