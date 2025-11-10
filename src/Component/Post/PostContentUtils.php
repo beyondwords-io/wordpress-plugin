@@ -84,6 +84,7 @@ class PostContentUtils
         }
 
         // Apply the_content filters to handle shortcodes etc
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
         $content = apply_filters('the_content', $content);
 
         // Trim to remove trailing newlines – common for WordPress content
@@ -146,6 +147,7 @@ class PostContentUtils
             // Escape characters
             $summary = htmlentities($post->post_excerpt, ENT_QUOTES | ENT_XHTML);
             // Apply WordPress filters
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
             $summary = apply_filters('get_the_excerpt', $summary);
             // Convert line breaks into paragraphs
             $summary = trim(wpautop($summary));
