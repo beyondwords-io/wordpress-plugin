@@ -6,27 +6,22 @@ import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	PanelRow,
-	TextControl,
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-
-/**
- * External dependencies
- */
-import getBlockMarkerAttribute from './helpers/getBlockMarkerAttribute';
 
 /**
  * Internal dependencies
  */
-import BlockAttributesCheck from './check';
+import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
 
 /**
  * Add BeyondWords controls to Gutenberg Blocks.
+ *
+ * @since 6.0.1 Skip internal/UI blocks to prevent breaking the block inserter.
  *
  * @param {Function} BlockEdit Block edit component.
  *
@@ -35,15 +30,16 @@ import BlockAttributesCheck from './check';
 const withBeyondwordsBlockControls = createHigherOrderComponent(
 	( BlockEdit ) => {
 		return ( props ) => {
+			const { name } = props;
+
+			// Skip blocks that shouldn't have controls
+			// Do this check BEFORE accessing attributes to avoid unnecessary processing
+			if ( ! isBeyondwordsSupportedBlock( name ) ) {
+				return <BlockEdit { ...props } />;
+			}
+
 			const { attributes, setAttributes } = props;
-
-			useEffect( () => {
-				setAttributes( {
-					beyondwordsMarker: getBlockMarkerAttribute( attributes ),
-				} );
-			}, [] );
-
-			const { beyondwordsAudio, beyondwordsMarker } = attributes;
+			const { beyondwordsAudio } = attributes;
 
 			const icon = !! beyondwordsAudio
 				? 'controls-volumeon'
@@ -57,56 +53,41 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 				? __( 'Audio processing enabled', 'speechkit' )
 				: __( 'Audio processing disabled', 'speechkit' );
 
-			const toggleBeyondwordsAudio = () =>
+			const toggleBeyondwordsAudio = () => {
 				setAttributes( { beyondwordsAudio: ! beyondwordsAudio } );
+			};
 
 			return (
 				<>
 					<BlockEdit { ...props } />
 
-					<BlockAttributesCheck>
-						<InspectorControls>
-							<PanelBody
-								icon="controls-volumeon"
-								title={ __( 'BeyondWords', 'speechkit' ) }
-								initialOpen={ true }
-							>
-								<PanelRow>
-									<ToggleControl
-										label={ toggleLabel }
-										checked={ !! beyondwordsAudio }
-										onChange={ toggleBeyondwordsAudio }
-										__nextHasNoMarginBottom
-									/>
-								</PanelRow>
-								{ !! beyondwordsAudio && (
-									<PanelRow>
-										<TextControl
-											label={ __(
-												'Segment marker',
-												'speechkit'
-											) }
-											value={ beyondwordsMarker }
-											disabled
-											readOnly
-											__nextHasNoMarginBottom
-										/>
-									</PanelRow>
-								) }
-							</PanelBody>
-						</InspectorControls>
-
-						<BlockControls>
-							<ToolbarGroup>
-								<ToolbarButton
-									icon={ icon }
-									label={ buttonLabel }
-									className="components-toolbar__control"
-									onClick={ toggleBeyondwordsAudio }
+					<InspectorControls>
+						<PanelBody
+							icon="controls-volumeon"
+							title={ __( 'BeyondWords', 'speechkit' ) }
+							initialOpen={ true }
+						>
+							<PanelRow>
+								<ToggleControl
+									label={ toggleLabel }
+									checked={ !! beyondwordsAudio }
+									onChange={ toggleBeyondwordsAudio }
+									__nextHasNoMarginBottom
 								/>
-							</ToolbarGroup>
-						</BlockControls>
-					</BlockAttributesCheck>
+							</PanelRow>
+						</PanelBody>
+					</InspectorControls>
+
+					<BlockControls>
+						<ToolbarGroup>
+							<ToolbarButton
+								icon={ icon }
+								label={ buttonLabel }
+								className="components-toolbar__control"
+								onClick={ toggleBeyondwordsAudio }
+							/>
+						</ToolbarGroup>
+					</BlockControls>
 				</>
 			);
 		};

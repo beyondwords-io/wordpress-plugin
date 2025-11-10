@@ -1,15 +1,9 @@
 <?php
 
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
 
 class BlockAttributesTest extends TestCase
 {
-    /**
-     * @var \Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes
-     */
-    private $_instance;
-
     public function setUp(): void
     {
         // Before...
@@ -37,7 +31,6 @@ class BlockAttributesTest extends TestCase
 
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerAudioAttribute')));
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerMarkerAttribute')));
-        $this->assertEquals(10, has_action('render_block', array(BlockAttributes::class, 'renderBlock')));
     }
 
     /**
@@ -184,114 +177,5 @@ class BlockAttributesTest extends TestCase
                 ],
             ],
         ];
-    }
-
-    /**
-     * @test
-     */
-    public function renderBlockWithUiDisabled()
-    {
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
-
-        $this->assertSame(
-            '<p>Test</p>',
-            BlockAttributes::renderBlock('<p>Test</p>', [
-                'attrs' => [
-                    'beyondwordsMarker' => 'foo',
-                ]
-            ])
-        );
-
-        delete_option(PlayerUI::OPTION_NAME);
-    }
-
-    /**
-     * @test
-     */
-    public function renderBlockWithoutCustomFields()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'BlockAttributesTest::renderBlockWithoutCustomFields',
-            'post_type' => 'post',
-        ]);
-
-        $this->go_to(get_permalink($postId));
-        global $post;
-        setup_postdata($post);
-
-        $this->assertSame(
-            '<p>Test</p>',
-            BlockAttributes::renderBlock('<p>Test</p>', [
-                'attrs' => [
-                    'beyondwordsMarker' => 'foo',
-                ]
-            ])
-        );
-
-        wp_reset_postdata();
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     */
-    public function renderBlockWithoutMarkerAttribute()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'BlockAttributesTest::renderBlockWithoutMarkerAttribute',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $this->go_to(get_permalink($postId));
-        global $post;
-        setup_postdata($post);
-
-        $this->assertSame(
-            '<p>Test</p>',
-            BlockAttributes::renderBlock('<p>Test</p>', [
-                'attrs' => [
-                    'foo' => 'bar',
-                ]
-            ])
-        );
-
-        wp_reset_postdata();
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     */
-    public function renderBlockWithMarkerAttribute()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'BlockAttributesTest::renderBlockWithMarkerAttribute',
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-            ],
-        ]);
-
-        $this->go_to(get_permalink($postId));
-        global $post;
-        setup_postdata($post);
-
-        $this->assertSame(
-            '<p data-beyondwords-marker="baz">Test</p>',
-            BlockAttributes::renderBlock('<p>Test</p>', [
-                'attrs' => [
-                    'beyondwordsMarker' => 'baz',
-                ]
-            ])
-        );
-
-        wp_reset_postdata();
-
-        wp_delete_post($postId, true);
     }
 }

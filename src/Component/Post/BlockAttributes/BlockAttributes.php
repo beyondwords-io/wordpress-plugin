@@ -13,15 +13,12 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\BlockAttributes;
 
-use Beyondwords\Wordpress\Component\Post\PostContentUtils;
-use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-
 /**
  * BlockAttributes
  *
  * @since 3.7.0
- * @since 4.0.0 Renamed from BlockAudioAttribute to BlockAttributes to support multiple attributes
+ * @since 4.0.0 Renamed from BlockAudioAttribute to BlockAttributes to support multiple attributes.
+ * @since 6.0.0 Stop adding beyondwordsMarker attribute to blocks.
  */
 class BlockAttributes
 {
@@ -29,13 +26,12 @@ class BlockAttributes
      * Init.
      *
      * @since 4.0.0
-     * @since 6.0.0 Make static.
+     * @since 6.0.0 Make static and remove renderBlock registration.
      */
     public static function init()
     {
         add_filter('register_block_type_args', [self::class, 'registerAudioAttribute']);
         add_filter('register_block_type_args', [self::class, 'registerMarkerAttribute']);
-        add_filter('render_block', [self::class, 'renderBlock'], 10, 2);
     }
 
     /**
@@ -63,6 +59,8 @@ class BlockAttributes
     /**
      * Register "Segment marker" attribute for Gutenberg blocks.
      *
+     * @deprecated This attribute is no longer used as of 6.0.0, but kept for backward compatibility.
+     *
      * @since 6.0.0 Make static.
      */
     public static function registerMarkerAttribute($args)
@@ -80,46 +78,5 @@ class BlockAttributes
         }
 
         return $args;
-    }
-
-    /**
-     * Render block as HTML.
-     *
-     * Performs some checks and then attempts to add data-beyondwords-marker
-     * attribute to the root element of Gutenberg blocks.
-     *
-     * @since 4.0.0
-     * @since 4.2.2 Rename method to renderBlock.
-     * @since 6.0.0 Make static and update for Magic Embed.
-     *
-     * @param string $blockContent The block content (HTML).
-     * @param string $block        The full block, including name and attributes.
-     *
-     * @return string Block Content (HTML).
-     */
-    public static function renderBlock($blockContent, $block)
-    {
-        // Skip adding marker if player UI is disabled
-        if (get_option(PlayerUI::OPTION_NAME) === PlayerUI::DISABLED) {
-            return $blockContent;
-        }
-
-        $postId = get_the_ID();
-
-        if (! $postId) {
-            return $blockContent;
-        }
-
-        // Skip adding marker if no content exists
-        if (! PostMetaUtils::hasContent($postId)) {
-            return $blockContent;
-        }
-
-        $marker = $block['attrs']['beyondwordsMarker'] ?? '';
-
-        return PostContentUtils::addMarkerAttribute(
-            $blockContent,
-            $marker
-        );
     }
 }

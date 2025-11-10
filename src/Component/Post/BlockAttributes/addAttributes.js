@@ -4,20 +4,27 @@
 import { addFilter } from '@wordpress/hooks';
 
 /**
- * External dependencies
+ * Internal dependencies
  */
-import getBlockMarkerAttribute from './helpers/getBlockMarkerAttribute';
+import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
 
 /**
  * Register custom block attributes for BeyondWords.
  *
  * @since 4.0.4 Remove settings.attributes undefined check, to match official docs.
+ * @since 6.0.1 Skip internal/UI blocks to prevent breaking the block inserter.
  *
  * @param {Object} settings Settings for the block.
+ * @param {string} name     Block name.
  *
  * @return {Object} settings Modified settings.
  */
-function addAttributes( settings ) {
+function addAttributes( settings, name ) {
+	// Only add attributes to content blocks
+	if ( ! isBeyondwordsSupportedBlock( name ) ) {
+		return settings;
+	}
+
 	return {
 		...settings,
 		attributes: {
@@ -38,28 +45,4 @@ addFilter(
 	'blocks.registerBlockType',
 	'beyondwords/beyondwords-block-attributes',
 	addAttributes
-);
-
-/**
- * Set a unique BeyondWords marker for each block that doesn't already have one.
- *
- * @param {Object} attributes Attributes for the block.
- *
- * @return {Object} attributes Modified attributes.
- */
-function setMarkerAttribute( attributes ) {
-	const marker = getBlockMarkerAttribute( attributes );
-
-	attributes = {
-		...attributes,
-		beyondwordsMarker: marker,
-	};
-
-	return attributes;
-}
-
-addFilter(
-	'blocks.getBlockAttributes',
-	'beyondwords/set-marker-attribute',
-	setMarkerAttribute
 );
