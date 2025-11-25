@@ -65,7 +65,12 @@ class Player
     /**
      * Replace the legacy custom player div with the shortcode.
      *
+     * @since 6.0.0
+     * @since 6.0.1 Use regex to match legacy player divs.
      *
+     * @param string $content The post content.
+     *
+     * @return string The post content.
      */
     public static function replaceLegacyCustomPlayer(string $content): string
     {
