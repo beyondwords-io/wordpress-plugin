@@ -73,17 +73,15 @@ class Player
             return $content;
         }
 
-        // @todo improve this check - use xcode or WordPress functions?
-        return str_replace(
-            [
-                '<div data-beyondwords-player="true"></div>',
-                '<div data-beyondwords-player="true" contenteditable="false"></div>',
-                '<div contenteditable="false" data-beyondwords-player="true"></div>',
-                '<div data-beyondwords-player="true" />',
-            ],
-            '[beyondwords_player]',
-            $content
-        );
+        // Use regex to match legacy player divs with any whitespace or attribute ordering.
+        // This handles variations like:
+        // - <div data-beyondwords-player="true"></div>
+        // - <div data-beyondwords-player="true" contenteditable="false"></div>
+        // - <div contenteditable="false" data-beyondwords-player="true"> </div>
+        // - <div data-beyondwords-player="true" />
+        $pattern = '/<div\s+(?=[^>]*data-beyondwords-player=["\']true["\'])[^>]*(?:\/>|>\s*<\/div>)/i';
+
+        return preg_replace($pattern, '[beyondwords_player]', $content);
     }
 
     /**

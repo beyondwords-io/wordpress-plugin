@@ -99,15 +99,15 @@ class PlayerTest extends TestCase
     /**
      * @test
      * @group player
+     *
+     * @dataProvider replaceLegacyCustomPlayerProvider
      */
-    public function replaceLegacyCustomPlayer()
+    public function replaceLegacyCustomPlayer($content, $expected)
     {
         global $post;
 
-        $content = "<p>Before</p>\n<div data-beyondwords-player=\"true\" contenteditable=\"false\"></div>\n<p>After</p>";
-
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::autoPrependPlayer',
+            'post_title' => 'PlayerTest::replaceLegacyCustomPlayer',
             'post_content' => $content,
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
@@ -127,11 +127,100 @@ class PlayerTest extends TestCase
         $output = Player::replaceLegacyCustomPlayer($content);
 
         // We are now is_singular() so player div should be replaced with player shortcode
-        $this->assertSame("<p>Before</p>\n[beyondwords_player]\n<p>After</p>", $output);
+        $this->assertSame($expected, $output);
 
         wp_reset_postdata();
 
         wp_delete_post($post->ID, true);
+    }
+
+    public function replaceLegacyCustomPlayerProvider()
+    {
+        return [
+            // === SHOULD BE REPLACED ===
+            'Basic div' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with contenteditable after' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\" contenteditable=\"false\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with contenteditable before' => [
+                "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player=\"true\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Self-closing div' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\" />\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with whitespace inside' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"> </div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with contenteditable before and whitespace inside' => [
+                "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player=\"true\"> </div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with single quotes' => [
+                "<p>Before</p>\n<div data-beyondwords-player='true'></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with newline inside' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\">\n</div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Div with tabs inside' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\">\t\t</div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Multiple player divs' => [
+                "<div data-beyondwords-player=\"true\"></div>\n<p>Middle</p>\n<div data-beyondwords-player=\"true\"> </div>",
+                "[beyondwords_player]\n<p>Middle</p>\n[beyondwords_player]",
+            ],
+
+            // === SHOULD NOT BE REPLACED ===
+            'No player div' => [
+                "<p>Before</p>\n<div class=\"other\">Content</div>\n<p>After</p>",
+                "<p>Before</p>\n<div class=\"other\">Content</div>\n<p>After</p>",
+            ],
+            'Div with text content - should preserve' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\">Some text</div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\">Some text</div>\n<p>After</p>",
+            ],
+            'Div with nested elements - should preserve' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"><span>Nested</span></div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"><span>Nested</span></div>\n<p>After</p>",
+            ],
+            'Div with player set to false - should preserve' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
+            ],
+            'Span element with player attribute - should preserve' => [
+                "<p>Before</p>\n<span data-beyondwords-player=\"true\"></span>\n<p>After</p>",
+                "<p>Before</p>\n<span data-beyondwords-player=\"true\"></span>\n<p>After</p>",
+            ],
+            'Attribute in class name - should preserve' => [
+                "<p>Before</p>\n<div class=\"data-beyondwords-player-true\"></div>\n<p>After</p>",
+                "<p>Before</p>\n<div class=\"data-beyondwords-player-true\"></div>\n<p>After</p>",
+            ],
+            'Attribute value without quotes - should preserve' => [
+                "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
+            ],
+            // Note: HTML comments are NOT handled specially by the regex.
+            // This is a known limitation but is acceptable because:
+            // 1. It's extremely unlikely someone would put a player div in a comment
+            // 2. Even if replaced, the shortcode in a comment won't render (invisible to users)
+            'HTML comment with player div - known limitation' => [
+                "<p>Before</p>\n<!-- <div data-beyondwords-player=\"true\"></div> -->\n<p>After</p>",
+                "<p>Before</p>\n<!-- [beyondwords_player] -->\n<p>After</p>",
+            ],
+            'Div with child div inside - should preserve' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"><div></div></div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-beyondwords-player=\"true\"><div></div></div>\n<p>After</p>",
+            ],
+        ];
     }
 
     /**
