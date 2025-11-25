@@ -406,13 +406,15 @@ class Core
      *
      * @since 5.4.0 Introduced.
      * @since 6.0.0 Make static.
+     * @since 6.0.1 Accept a null $meta_key parameter.
      *
-     * @param mixed  $value     The value of the metadata.
-     * @param int    $object_id The ID of the object metadata is for.
-     * @param string $meta_key  The key of the metadata.
-     * @param bool   $single    Whether to return a single value.
+     * @param mixed   $value     The value of the metadata.
+     * @param int     $object_id The ID of the object metadata is for.
+     * @param ?string $meta_key  The key of the metadata.
+     *
+     * @return mixed The metadata value.
      */
-    public static function getLangCodeFromJsonIfEmpty(mixed $value, int $object_id, string $meta_key): mixed
+    public static function getLangCodeFromJsonIfEmpty(mixed $value, int $object_id, ?string $meta_key): mixed
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);
