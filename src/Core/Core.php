@@ -316,16 +316,21 @@ class Core
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 6.0.1 Accept null params from WP core.
      */
-    public static function isProtectedMeta(bool $protected, string $metaKey): bool
+    public static function isProtectedMeta(?bool $protected, ?string $metaKey): bool
     {
+        if ($metaKey === null) {
+            return (bool) $protected;
+        }
+
         $keysToProtect = CoreUtils::getPostMetaKeys('all');
 
         if (in_array($metaKey, $keysToProtect, true)) {
-            $protected = true;
+            return true;
         }
 
-        return $protected;
+        return (bool) $protected;
     }
 
     /**
