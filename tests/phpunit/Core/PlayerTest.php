@@ -178,6 +178,30 @@ class PlayerTest extends TestCase
                 "<div data-beyondwords-player=\"true\"></div>\n<p>Middle</p>\n<div data-beyondwords-player=\"true\"> </div>",
                 "[beyondwords_player]\n<p>Middle</p>\n[beyondwords_player]",
             ],
+            'Attribute value without quotes' => [
+                "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Boolean attribute (no value)' => [
+                "<p>Before</p>\n<div data-beyondwords-player></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Boolean attribute with other attrs' => [
+                "<p>Before</p>\n<div data-beyondwords-player contenteditable=\"false\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Boolean attribute with whitespace inside' => [
+                "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player> </div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Attribute with false value (still a boolean attr)' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
+            'Attribute with arbitrary value' => [
+                "<p>Before</p>\n<div data-beyondwords-player=\"anything\"></div>\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
+            ],
 
             // === SHOULD NOT BE REPLACED ===
             'No player div' => [
@@ -192,10 +216,6 @@ class PlayerTest extends TestCase
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\"><span>Nested</span></div>\n<p>After</p>",
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\"><span>Nested</span></div>\n<p>After</p>",
             ],
-            'Div with player set to false - should preserve' => [
-                "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
-                "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
-            ],
             'Span element with player attribute - should preserve' => [
                 "<p>Before</p>\n<span data-beyondwords-player=\"true\"></span>\n<p>After</p>",
                 "<p>Before</p>\n<span data-beyondwords-player=\"true\"></span>\n<p>After</p>",
@@ -204,9 +224,13 @@ class PlayerTest extends TestCase
                 "<p>Before</p>\n<div class=\"data-beyondwords-player-true\"></div>\n<p>After</p>",
                 "<p>Before</p>\n<div class=\"data-beyondwords-player-true\"></div>\n<p>After</p>",
             ],
-            'Attribute value without quotes - should preserve' => [
-                "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
-                "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
+            'Attribute string in id value - should preserve' => [
+                "<p>Before</p>\n<div id=\"data-beyondwords-player\"></div>\n<p>After</p>",
+                "<p>Before</p>\n<div id=\"data-beyondwords-player\"></div>\n<p>After</p>",
+            ],
+            'Attribute string in data attr value - should preserve' => [
+                "<p>Before</p>\n<div data-foo=\"data-beyondwords-player\"></div>\n<p>After</p>",
+                "<p>Before</p>\n<div data-foo=\"data-beyondwords-player\"></div>\n<p>After</p>",
             ],
             // Note: HTML comments are NOT handled specially by the regex.
             // This is a known limitation but is acceptable because:

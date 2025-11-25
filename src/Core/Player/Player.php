@@ -74,12 +74,16 @@ class Player
         }
 
         // Use regex to match legacy player divs with any whitespace or attribute ordering.
+        // data-beyondwords-player is a boolean attribute - its presence indicates a player div,
+        // regardless of the value (true, false, or any other value).
         // This handles variations like:
         // - <div data-beyondwords-player="true"></div>
-        // - <div data-beyondwords-player="true" contenteditable="false"></div>
-        // - <div contenteditable="false" data-beyondwords-player="true"> </div>
-        // - <div data-beyondwords-player="true" />
-        $pattern = '/<div\s+(?=[^>]*data-beyondwords-player=["\']true["\'])[^>]*(?:\/>|>\s*<\/div>)/i';
+        // - <div data-beyondwords-player="anything"></div>
+        // - <div data-beyondwords-player></div> (boolean attribute)
+        // - <div data-beyondwords-player contenteditable="false"></div>
+        // - <div contenteditable="false" data-beyondwords-player> </div>
+        // - <div data-beyondwords-player />
+        $pattern = '/<div\s+(?=[^>]*data-beyondwords-player[\s>=\/])[^>]*(?:\/>|>\s*<\/div>)/i';
 
         return preg_replace($pattern, '[beyondwords_player]', $content);
     }
