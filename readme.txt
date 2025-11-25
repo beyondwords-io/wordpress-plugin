@@ -16,9 +16,11 @@ BeyondWords is the AI voice platform that brings frictionless audio publishing t
 
 == GET STARTED WITH BEYONDWORDS ==
 
-To get started with BeyondWords, please [book a demo](https://beyondwords.io/book-a-demo/) with our team.
+To get started with BeyondWords, please [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team.
+
 We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio.
-Any questions? Visit our website https://beyondwords.io or email support@beyondwords.io.
+
+Any questions? Visit our website [https://beyondwords.io](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <support@beyondwords.io>.
 
 == Key features of our text-to-speech plugin for WordPress: ==
 
