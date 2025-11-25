@@ -669,6 +669,71 @@ class CoreTest extends TestCase
 
     /**
      * @test
+     * @dataProvider isProtectedMetaProvider
+     */
+    public function isProtectedMeta($expect, $protected, $metaKey)
+    {
+        $this->assertSame($expect, Core::isProtectedMeta($protected, $metaKey));
+    }
+
+    public function isProtectedMetaProvider()
+    {
+        return [
+            'BeyondWords meta key with protected=true' => [
+                'expect' => true,
+                'protected' => true,
+                'metaKey' => 'beyondwords_project_id',
+            ],
+            'BeyondWords meta key with protected=false' => [
+                'expect' => true,
+                'protected' => false,
+                'metaKey' => 'beyondwords_content_id',
+            ],
+            'BeyondWords meta key with protected=null' => [
+                'expect' => true,
+                'protected' => null,
+                'metaKey' => 'beyondwords_generate_audio',
+            ],
+            'Deprecated meta key with protected=null' => [
+                'expect' => true,
+                'protected' => null,
+                'metaKey' => 'speechkit_status',
+            ],
+            'Non-BeyondWords meta key with protected=true' => [
+                'expect' => true,
+                'protected' => true,
+                'metaKey' => 'some_other_meta_key',
+            ],
+            'Non-BeyondWords meta key with protected=false' => [
+                'expect' => false,
+                'protected' => false,
+                'metaKey' => 'some_other_meta_key',
+            ],
+            'Non-BeyondWords meta key with protected=null' => [
+                'expect' => false,
+                'protected' => null,
+                'metaKey' => 'wp_persisted_preferences',
+            ],
+            'Null meta key with protected=true' => [
+                'expect' => true,
+                'protected' => true,
+                'metaKey' => null,
+            ],
+            'Null meta key with protected=false' => [
+                'expect' => false,
+                'protected' => false,
+                'metaKey' => null,
+            ],
+            'Null meta key with protected=null' => [
+                'expect' => false,
+                'protected' => null,
+                'metaKey' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @test
      * @dataProvider langCodes
      */
     public function getLangCodeFromJsonIfEmpty($language_id, $language_code) {
