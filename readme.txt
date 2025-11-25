@@ -14,11 +14,11 @@ BeyondWords is the AI voice platform that brings frictionless audio publishing t
 
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses. Automatically create audio versions of WordPress posts and pages and embed via a customizable player. Lifelike neural voices and customizable text-to-speech algorithms deliver realistic speech that keeps listeners coming back for more.
 
-== GET STARTED IN MINUTES ==
+== GET STARTED WITH BEYONDWORDS ==
 
-1. [Create a free Pilot account](https://dash.beyondwords.io/auth/signup?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) (no credit card required)
-2. Copy the project ID and API key from your dashboard
-3. Download and [set up the WordPress plugin](https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/install?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin)
+To get started with BeyondWords, please [book a demo](https://beyondwords.io/book-a-demo/) with our team.
+We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio.
+Any questions? Visit our website https://beyondwords.io or email support@beyondwords.io.
 
 == Key features of our text-to-speech plugin for WordPress: ==
 
@@ -71,12 +71,6 @@ Users can even create custom playlists that keep listeners listening for longer.
 You get access to project analytics, which means you can track listener engagement at the project level through your BeyondWords dashboard. Users can also get access to audio analytics, as well as Google Analytics and Google Tag Manager integrations.
 
 You can even leverage your listenership through audio advertising. Use our self-serve audio advertising feature to create your own campaigns or use VAST (video ad serving template) to connect a programmatic advertising platform, such as Google Ad Manager.
-
-== CREATE YOUR FREE ACCOUNT TODAY ==
-
-[Create your Pilot account](https://dash.beyondwords.io/auth/signup?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) to see how the BeyondWords text-to-speech plugin improves reach and engagement on your WordPress site. There's a [pricing plan](https://beyondwords.io/pricing/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) to suit every publisher, from independent writers to global media companies.
-
-Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <hello@beyondwords.io>.
 
 == Changelog ==
 
