@@ -80,6 +80,15 @@ Any questions? [Visit our website](https://beyondwords.io/?utm_source=wordpress&
 
 == Changelog ==
 
+= 6.0.1 =
+
+Release date: 25th November 2025
+
+**Fixes**
+
+* [#461](https://github.com/beyondwords-io/wordpress-plugin/pull/461) Accept `null` params from WP Core for `isProtectedMeta`.
+* [#460](https://github.com/beyondwords-io/wordpress-plugin/pull/460) Accept a `null` parameter in `getLangCodeFromJsonIfEmpty`.
+
 = 6.0.0 =
 
 Release date: 10th November 2025
