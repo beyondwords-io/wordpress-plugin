@@ -684,6 +684,26 @@ class CoreTest extends TestCase
         $this->assertSame(["$language_code"], Core::getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
     }
 
+    /**
+     * @test
+     */
+    public function getLangCodeFromJsonIfEmptyHandlesNullMetaKey() {
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::getLangCodeFromJsonIfEmptyHandlesNullMetaKey',
+            'meta_input' => [
+                'beyondwords_language_id' => '50',
+            ],
+        ]);
+
+        // When meta_key is null (e.g. when get_post_meta is called without a key),
+        // the function should return the value unchanged
+        $this->assertNull(Core::getLangCodeFromJsonIfEmpty(null, $postId, null));
+        $this->assertSame('foo', Core::getLangCodeFromJsonIfEmpty('foo', $postId, null));
+        $this->assertSame(['bar'], Core::getLangCodeFromJsonIfEmpty(['bar'], $postId, null));
+
+        wp_delete_post($postId, true);
+    }
+
     public function langCodes()
     {
         return [
