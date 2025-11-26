@@ -61,7 +61,7 @@ class AddPlayer
      *
      * @param array TinyMCE plugin array
      */
-    public static function addPlugin(array $plugin_array): array
+    public static function addPlugin($plugin_array)
     {
         $plugin_array['beyondwords_player'] = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/tinymce.js';
         return $plugin_array;
@@ -74,7 +74,7 @@ class AddPlayer
      *
      * @param array TinyMCE buttons array
      */
-    public static function addButton(array $buttons): array
+    public static function addButton($buttons)
     {
         $advIndex = array_search('wp_adv', $buttons);
 
@@ -96,7 +96,7 @@ class AddPlayer
      *
      * @return string Comma-delimited list of stylesheets with the "Add Player" CSS appended.
      */
-    public static function addStylesheet(string $stylesheets): string
+    public static function addStylesheet($stylesheets)
     {
         return $stylesheets . ',' . BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css';
     }
@@ -131,7 +131,7 @@ class AddPlayer
      *
      * @return mixed[] An array with TinyMCE config.
      */
-    public static function filterTinyMceSettings(array $settings): array
+    public static function filterTinyMceSettings($settings)
     {
         if (isset($settings['content_style'])) {
             $settings['content_style'] .= ' ' . self::playerPreviewI18nStyles() . ' ';
@@ -167,7 +167,7 @@ class AddPlayer
      *
      * @since 6.0.0 Make static.
      */
-    public static function addBlockEditorStylesheet(string $hook): void
+    public static function addBlockEditorStylesheet($hook)
     {
         // Only enqueue for Gutenberg/Post screens
         if (CoreUtils::isGutenbergPage() || $hook === 'post.php' || $hook === 'post-new.php') {

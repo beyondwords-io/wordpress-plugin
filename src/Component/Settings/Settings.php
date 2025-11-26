@@ -171,7 +171,7 @@ class Settings
      * @since 4.7.0 Prepend custom links instead of appending them.
      * @since 6.0.0 Make static.
      */
-    public static function addSettingsLinkToPluginPage(array $links): array
+    public static function addSettingsLinkToPluginPage($links)
     {
         $settingsLink = '<a href="' .
             esc_url(admin_url('options-general.php?page=beyondwords')) .
@@ -465,7 +465,7 @@ class Settings
      *
      * @param string $hook Page hook
      */
-    public static function enqueueScripts(string $hook): void
+    public static function enqueueScripts($hook)
     {
         if ($hook === 'settings_page_beyondwords') {
             // jQuery UI JS

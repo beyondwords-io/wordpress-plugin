@@ -90,7 +90,7 @@ class SiteHealth
      *
      *
      */
-    public static function debugInformation(array $info): array
+    public static function debugInformation($info)
     {
         $info['beyondwords']['label'] = __('BeyondWords - Text-to-Speech', 'speechkit');
 
