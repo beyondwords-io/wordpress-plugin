@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.1
+Stable tag: 6.1.0
 Requires PHP: 8.1
 Tested up to: 6.8
 License: GPLv2 or later
@@ -75,6 +75,15 @@ You get access to project analytics, which means you can track listener engageme
 You can even leverage your listenership through audio advertising. Use our self-serve audio advertising feature to create your own campaigns or use VAST (video ad serving template) to connect a programmatic advertising platform, such as Google Ad Manager.
 
 == Changelog ==
+
+= 6.1.0 =
+
+Release date: TBC
+
+**Fixes**
+
+* [#466](https://github.com/beyondwords-io/wordpress-plugin/pull/466) Removed PHP type hints from methods hooked directly into WordPress `add_action`/`add_filter`.
+
 
 = 6.0.1 =
 
