@@ -78,10 +78,11 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 = 6.0.1 =
 
-Release date: 25th November 2025
+Release date: 26th November 2025
 
 **Fixes**
 
+* [#464](https://github.com/beyondwords-io/wordpress-plugin/pull/464) Use `CoreUtils::getPostMetaKeys` to get all keys for removal.
 * [#461](https://github.com/beyondwords-io/wordpress-plugin/pull/461) Accept `null` params from WP Core for `isProtectedMeta`.
 * [#460](https://github.com/beyondwords-io/wordpress-plugin/pull/460) Accept a `null` parameter in `getLangCodeFromJsonIfEmpty`.
 

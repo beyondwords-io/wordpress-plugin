@@ -96,42 +96,17 @@ class PostMetaUtils
 
     /**
      * Remove the BeyondWords metadata for a Post.
+     *
+     * @param int $postId Post ID.
+     *
+     * @since 4.x   Introduced.
+     * @since 6.0.1 Use CoreUtils::getPostMetaKeys() to get all keys.
      */
     public static function removeAllBeyondwordsMetadata(int $postId): void
     {
-        $keysToCheck = [
-            'beyondwords_generate_audio',
-            'beyondwords_project_id',
-            'beyondwords_content_id',
-            'beyondwords_podcast_id',
-            'beyondwords_preview_token',
-            'beyondwords_player_content',
-            'beyondwords_player_style',
-            'beyondwords_language_code',
-            'beyondwords_language_id',
-            'beyondwords_body_voice_id',
-            'beyondwords_title_voice_id',
-            'beyondwords_summary_voice_id',
-            'beyondwords_error_message',
-            'beyondwords_disabled',
-            'beyondwords_delete_content',
-            'publish_post_to_speechkit',
-            'speechkit_generate_audio',
-            'speechkit_project_id',
-            'speechkit_podcast_id',
-            'speechkit_error_message',
-            'speechkit_disabled',
-            'speechkit_access_key',
-            'speechkit_error',
-            'speechkit_info',
-            'speechkit_response',
-            'speechkit_retries',
-            'speechkit_status',
-            '_speechkit_link',
-            '_speechkit_text',
-        ];
+        $keys = CoreUtils::getPostMetaKeys('all');
 
-        foreach ($keysToCheck as $key) {
+        foreach ($keys as $key) {
             delete_post_meta($postId, $key, null);
         }
     }
