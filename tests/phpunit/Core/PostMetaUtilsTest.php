@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
+use Beyondwords\Wordpress\Core\CoreUtils;
 
 class PostMetaUtilsTest extends TestCase
 {
@@ -277,5 +278,60 @@ class PostMetaUtilsTest extends TestCase
             'speechkit_generate_audio is "-1"'    => [false, ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '-1']]],
             'speechkit_generate_audio is "1"'     => [true,  ['post_title' => 'UtilsTest:hasGenerateAudio', 'meta_input' => ['speechkit_generate_audio' => '1']]],
         ];
+    }
+
+    /**
+     * Test removeAllBeyondwordsMetadata removes all BeyondWords keys
+     * without affecting other post meta.
+     *
+     * @since 6.0.1
+     *
+     * @test
+     */
+    public function removeAllBeyondwordsMetadata()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'PostMetaUtilsTest:removeAllBeyondwordsMetadata',
+        ]);
+
+        // Set all BeyondWords meta keys
+        $beyondwordsKeys = CoreUtils::getPostMetaKeys('all');
+
+        foreach ($beyondwordsKeys as $key) {
+            update_post_meta($postId, $key, 'test_value');
+        }
+
+        // Set a non-BeyondWords meta key that should NOT be removed
+        $customKey = 'my_custom_meta_key';
+        update_post_meta($postId, $customKey, 'custom_value');
+
+        // Verify all keys are set
+        foreach ($beyondwordsKeys as $key) {
+            $this->assertNotEmpty(
+                get_post_meta($postId, $key, true),
+                "Expected $key to be set before removal"
+            );
+        }
+        $this->assertEquals('custom_value', get_post_meta($postId, $customKey, true));
+
+        // Remove all BeyondWords metadata
+        PostMetaUtils::removeAllBeyondwordsMetadata($postId);
+
+        // Verify all BeyondWords keys are removed
+        foreach ($beyondwordsKeys as $key) {
+            $this->assertEmpty(
+                get_post_meta($postId, $key, true),
+                "Expected $key to be removed"
+            );
+        }
+
+        // Verify non-BeyondWords key is still present
+        $this->assertEquals(
+            'custom_value',
+            get_post_meta($postId, $customKey, true),
+            'Expected custom meta key to remain after removal'
+        );
+
+        wp_delete_post($postId, true);
     }
 }
