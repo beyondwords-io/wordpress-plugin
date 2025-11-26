@@ -53,7 +53,7 @@ class Player
      *
      *
      */
-    public static function autoPrependPlayer(string $content): string
+    public static function autoPrependPlayer($content)
     {
         if (! is_singular() || self::hasCustomPlayer($content)) {
             return $content;
@@ -72,7 +72,7 @@ class Player
      *
      * @return string The post content.
      */
-    public static function replaceLegacyCustomPlayer(string $content): string
+    public static function replaceLegacyCustomPlayer($content)
     {
         if (! is_singular()) {
             return $content;
