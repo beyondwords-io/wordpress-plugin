@@ -65,7 +65,12 @@ class Player
     /**
      * Replace the legacy custom player div with the shortcode.
      *
+     * @since 6.0.0
+     * @since 6.0.1 Use regex to match legacy player divs.
      *
+     * @param string $content The post content.
+     *
+     * @return string The post content.
      */
     public static function replaceLegacyCustomPlayer(string $content): string
     {
@@ -73,17 +78,19 @@ class Player
             return $content;
         }
 
-        // @todo improve this check - use xcode or WordPress functions?
-        return str_replace(
-            [
-                '<div data-beyondwords-player="true"></div>',
-                '<div data-beyondwords-player="true" contenteditable="false"></div>',
-                '<div contenteditable="false" data-beyondwords-player="true"></div>',
-                '<div data-beyondwords-player="true" />',
-            ],
-            '[beyondwords_player]',
-            $content
-        );
+        // Use regex to match legacy player divs with any whitespace or attribute ordering.
+        // data-beyondwords-player is a boolean attribute - its presence indicates a player div,
+        // regardless of the value (true, false, or any other value).
+        // This handles variations like:
+        // - <div data-beyondwords-player="true"></div>
+        // - <div data-beyondwords-player="anything"></div>
+        // - <div data-beyondwords-player></div> (boolean attribute)
+        // - <div data-beyondwords-player contenteditable="false"></div>
+        // - <div contenteditable="false" data-beyondwords-player> </div>
+        // - <div data-beyondwords-player />
+        $pattern = '/<div\s+(?=[^>]*data-beyondwords-player[\s>=\/])[^>]*(?:\/>|>\s*<\/div>)/i';
+
+        return preg_replace($pattern, '[beyondwords_player]', $content);
     }
 
     /**
