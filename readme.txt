@@ -5,7 +5,7 @@ Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 6.0.1
 Requires PHP: 8.1
-Tested up to: 6.8
+Tested up to: 6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.

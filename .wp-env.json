@@ -1,6 +1,6 @@
 {
     "core": null,
-    "phpVersion": "8.4",
+    "phpVersion": "8.5",
     "plugins": [
         "./",
         "WP-API/Basic-Auth",
