@@ -248,7 +248,7 @@ class Core
      * @since 4.5.1 Disable plugin features if we don't have valid API settings.
      * @since 6.0.0 Make static.
      */
-    public static function enqueueBlockEditorAssets(): void
+    public static function enqueueBlockEditorAssets()
     {
         if (! SettingsUtils::hasValidApiConnection()) {
             return;
@@ -282,7 +282,7 @@ class Core
      * @since 3.9.0 Don't register speechkit_status - downgrades to plugin v2.x are no longer expected.
      * @since 6.0.0 Make static.
      **/
-    public static function registerMeta(): void
+    public static function registerMeta()
     {
         $postTypes = SettingsUtils::getCompatiblePostTypes();
 
@@ -318,7 +318,7 @@ class Core
      * @since 6.0.0 Make static.
      * @since 6.0.1 Accept null params from WP core.
      */
-    public static function isProtectedMeta(?bool $protected, ?string $metaKey): bool
+    public static function isProtectedMeta($protected, $metaKey)
     {
         if ($metaKey === null) {
             return (bool) $protected;
@@ -346,8 +346,9 @@ class Core
      *
      * @param int $postId Post ID.
      **/
-    public static function onTrashPost(int $postId): void
+    public static function onTrashPost($postId)
     {
+        $postId = (int) $postId;
         ApiClient::deleteAudio($postId);
         PostMetaUtils::removeAllBeyondwordsMetadata($postId);
     }
@@ -363,8 +364,9 @@ class Core
      *
      * @param int $postId Post ID.
      **/
-    public static function onDeletePost(int $postId): void
+    public static function onDeletePost($postId)
     {
+        $postId = (int) $postId;
         ApiClient::deleteAudio($postId);
     }
 
@@ -385,8 +387,10 @@ class Core
      *
      * @param int $postId Post ID.
      **/
-    public static function onAddOrUpdatePost(int $postId): bool
+    public static function onAddOrUpdatePost($postId)
     {
+        $postId = (int) $postId;
+
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {
             // Make DELETE API request
@@ -414,7 +418,7 @@ class Core
      *
      * @return mixed The metadata value.
      */
-    public static function getLangCodeFromJsonIfEmpty(mixed $value, int $object_id, ?string $meta_key): mixed
+    public static function getLangCodeFromJsonIfEmpty($value, $object_id, $meta_key)
     {
         if ('beyondwords_language_code' === $meta_key && empty($value)) {
             $languageId = get_post_meta($object_id, 'beyondwords_language_id', true);

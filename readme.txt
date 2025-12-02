@@ -84,6 +84,10 @@ Release date: 2nd December 2025
 
 * [#468](https://github.com/beyondwords-io/wordpress-plugin/pull/468) Tested up to WordPress 6.9.
 
+**Fixes**
+
+* [#466](https://github.com/beyondwords-io/wordpress-plugin/pull/466) Removed PHP type hints from methods hooked directly into WordPress `add_action`/`add_filter`.
+
 = 6.0.1 =
 
 Release date: 26th November 2025
