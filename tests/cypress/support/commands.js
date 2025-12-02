@@ -470,7 +470,10 @@ Cypress.Commands.add( 'savePost', () => {
 } );
 
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
-	cy.get( '.components-snackbar' ).find( 'a' ).click();
+	cy.get( '.components-snackbar' )
+		.find( 'a' )
+		.invoke( 'removeAttr', 'target' )
+		.click();
 } );
 
 // Get label element from text

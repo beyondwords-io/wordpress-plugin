@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.1.0-beta.1
+Stable tag: 6.0.2
 Requires PHP: 8.1
-Tested up to: 6.8
+Tested up to: 6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -76,14 +76,17 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
-= 6.1.0-beta.1 =
+= 6.0.2 =
 
-Release date: TBC
+Release date: 2nd December 2025
+
+**Enhancements and Features**
+
+* [#468](https://github.com/beyondwords-io/wordpress-plugin/pull/468) Tested up to WordPress 6.9.
 
 **Fixes**
 
 * [#466](https://github.com/beyondwords-io/wordpress-plugin/pull/466) Removed PHP type hints from methods hooked directly into WordPress `add_action`/`add_filter`.
-
 
 = 6.0.1 =
 
