@@ -122,6 +122,8 @@ class CoreTest extends TestCase
     {
         global $post, $wp_scripts;
 
+        $wp_scripts = null;
+
         $post = self::factory()->post->create_and_get([
             'post_title' => 'CoreTest::enqueueBlockEditorAssets',
             'post_type' => 'post',
@@ -132,8 +134,6 @@ class CoreTest extends TestCase
         set_current_screen( 'edit-post' );
         $current_screen = get_current_screen();
         $current_screen->is_block_editor( true );
-
-        $this->assertNull($wp_scripts);
 
         /**
          * Enqueuing without a valid API connection should do nothing
