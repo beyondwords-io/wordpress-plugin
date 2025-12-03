@@ -78,7 +78,7 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 = 6.0.2 =
 
-Release date: 2nd December 2025
+Release date: 3rd December 2025
 
 **Enhancements and Features**
 
@@ -86,6 +86,7 @@ Release date: 2nd December 2025
 
 **Fixes**
 
+* [#469](https://github.com/beyondwords-io/wordpress-plugin/pull/469) Add `beyondwords_integration_method` into Inspect Panel copied data.
 * [#466](https://github.com/beyondwords-io/wordpress-plugin/pull/466) Removed PHP type hints from methods hooked directly into WordPress `add_action`/`add_filter`.
 
 = 6.0.1 =
