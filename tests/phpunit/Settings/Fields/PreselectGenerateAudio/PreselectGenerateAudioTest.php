@@ -98,24 +98,19 @@ class PreselectGenerateAudioTest extends TestCase
      */
     public function enqueueScripts()
     {
-        global $wp_scripts;
-
-        $this->assertNull($wp_scripts);
-
         PreselectGenerateAudio::enqueueScripts( null );
-        $this->assertNull($wp_scripts);
+        $this->assertFalse(wp_script_is('beyondwords-settings--preselect-post', 'enqueued'));
 
         PreselectGenerateAudio::enqueueScripts( 'edit.php' );
-        $this->assertNull($wp_scripts);
+        $this->assertFalse(wp_script_is('beyondwords-settings--preselect-post', 'enqueued'));
 
         PreselectGenerateAudio::enqueueScripts( 'post.php' );
-        $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
+        $this->assertTrue(wp_script_is('beyondwords-settings--preselect-post', 'enqueued'));
 
-        $wp_scripts = null;
+        wp_dequeue_script('beyondwords-settings--preselect-post');
+        $this->assertFalse(wp_script_is('beyondwords-settings--preselect-post', 'enqueued'));
 
         PreselectGenerateAudio::enqueueScripts( 'post-new.php' );
-        $this->assertContains('beyondwords-settings--preselect-post', $wp_scripts->queue);
-
-        $wp_scripts = null;
+        $this->assertTrue(wp_script_is('beyondwords-settings--preselect-post', 'enqueued'));
     }
 }
