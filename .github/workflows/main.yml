@@ -31,7 +31,7 @@ jobs:
         with:
           php-version: '8.0'
           extensions: mbstring intl
-          tools: composer, wp-cli
+          tools: composer
 
       - name: Check PHP Version
         run: php -v
@@ -66,8 +66,14 @@ jobs:
       # ######################################
       # i18n
       # ######################################
+      - name: Install dev dependencies for i18n
+        run: composer install --ignore-platform-reqs --optimize-autoloader
+
       - name: Make i18n POT file
         run: 'composer wp:i18n:make-pot'
+
+      - name: Reinstall without dev dependencies
+        run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
       # ######################################
       # Generate Plugin ZIP file
@@ -367,7 +373,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: composer, wp-cli
+          tools: composer
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
