@@ -23,6 +23,6 @@ return RectorConfig::configure()
         codeQuality: false, // Don't auto-refactor code quality (too aggressive for WordPress)
     )
     ->withPhpSets(
-        php81: true // Use PHP 8.1 features
+        php80: true // Use PHP 8.0 features
     )
     ->withTypeCoverageLevel(0); // Don't enforce type coverage (just clean up)
