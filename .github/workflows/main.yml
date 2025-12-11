@@ -410,6 +410,13 @@ jobs:
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
 
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
+
       - name: Download WordPress
         run: wp core download --version=6.9
 
