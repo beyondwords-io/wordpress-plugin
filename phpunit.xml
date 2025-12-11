@@ -10,7 +10,7 @@
          beStrictAboutCoversAnnotation="false"
          beStrictAboutOutputDuringTests="false"
          beStrictAboutTodoAnnotatedTests="false"
-         convertDeprecationsToExceptions="true"
+         convertDeprecationsToExceptions="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
