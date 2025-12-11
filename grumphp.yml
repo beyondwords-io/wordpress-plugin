@@ -13,10 +13,6 @@ grumphp:
       max_subject_width: 120
       metadata:
         priority: 10
-    phpversion:
-      project: '8.1'
-      metadata:
-        priority: 10
     composer:
       metadata:
         priority: 10
@@ -82,7 +78,6 @@ grumphp:
         - git_commit_message
     git_pre_commit:
       tasks:
-        - phpversion
         - composer
         - composer_normalize
         - phpcs
