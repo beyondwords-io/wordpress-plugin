@@ -78,7 +78,7 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 = 6.0.3 =
 
-Release date: 11th December 2025
+Release date: 15th December 2025
 
 **Compatibility**
 
