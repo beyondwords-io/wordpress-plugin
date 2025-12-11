@@ -7,6 +7,12 @@ require dirname( dirname( dirname( __FILE__ ) ) ) . '/vendor/yoast/phpunit-polyf
  * @package Speechkit
  */
 
+// PHP 8.4+: Suppress deprecation warnings from Symfony 5.4 (required for PHP 8.0 support)
+// When PHP 8.0 support is dropped, upgrade to Symfony 6.4+ and remove this.
+if ( PHP_VERSION_ID >= 80400 ) {
+	error_reporting( E_ALL & ~E_DEPRECATED );
+}
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
