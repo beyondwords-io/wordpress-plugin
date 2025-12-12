@@ -16,7 +16,7 @@ jobs:
   # ######################################
   build:
     name: Build Plugin ZIP
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -24,14 +24,14 @@ jobs:
       # ######################################
       # PHP
       # ######################################
-      - name: Setup PHP 8.1
+      - name: Setup PHP 8.0
         uses: shivammathur/setup-php@v2
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          php-version: '8.1'
-          extensions: mbstring intl
-          tools: composer, wp-cli
+          php-version: '8.0'
+          extensions: mbstring, intl
+          tools: composer
 
       - name: Check PHP Version
         run: php -v
@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.1-no-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
@@ -66,8 +66,14 @@ jobs:
       # ######################################
       # i18n
       # ######################################
+      - name: Install dev dependencies for i18n
+        run: composer install --ignore-platform-reqs --optimize-autoloader
+
       - name: Make i18n POT file
         run: 'composer wp:i18n:make-pot'
+
+      - name: Reinstall without dev dependencies
+        run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
       # ######################################
       # Generate Plugin ZIP file
@@ -112,7 +118,7 @@ jobs:
   # ######################################
   grumphp:
     name: GrumPHP
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -138,7 +144,7 @@ jobs:
   # ######################################
   plugin-check:
     name: Plugin Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: production
     needs: [build]
 
@@ -182,11 +188,11 @@ jobs:
       matrix:
         php-version: ['8.4']
         phpunit-version: ['10']
-        operating-system: ['ubuntu-latest']
+        operating-system: ['ubuntu-22.04']
         include:
-        - php-version: '8.1'
+        - php-version: '8.0'
           phpunit-version: '9'
-          operating-system: ['ubuntu-latest']
+          operating-system: ['ubuntu-22.04']
 
     env:
       DB_HOST: 127.0.0.1
@@ -220,14 +226,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.1'
+          php_version: '8.0'
 
       - name: Check PHP Version
         run: php -v
@@ -286,7 +292,7 @@ jobs:
   # #######################################
   publish-phpunit-results:
     name: Publish PHPUnit results
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [phpunit-tests]
     # Only run on "main" branch
     if: success() && github.ref == 'refs/heads/main'
@@ -337,10 +343,10 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ['8.4']
-        operating-system: ['ubuntu-latest']
+        operating-system: ['ubuntu-22.04']
         include:
-        - php-version: '8.1'
-          operating-system: ['ubuntu-latest']
+        - php-version: '8.0'
+          operating-system: ['ubuntu-22.04']
 
     env:
       DB_HOST: 127.0.0.1
@@ -367,20 +373,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: composer, wp-cli
+          tools: composer
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
-          key: ${{ runner.os }}-php8.1-dev-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
 
       - name: Install Composer dependencies (dev)
         uses: php-actions/composer@v6
         with:
           dev: yes
           args: --ignore-platform-reqs --optimize-autoloader --profile
-          php_version: '8.1'
+          php_version: '8.0'
 
       - name: Check PHP Version
         run: php -v
@@ -403,6 +409,13 @@ jobs:
 
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
+
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
 
       - name: Download WordPress
         run: wp core download --version=6.9
@@ -567,7 +580,7 @@ jobs:
   # ##############################################
   deploy_assets:
     name: 🚢 Assets
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: production
     needs: [cypress-tests]
     if: success() && github.ref == 'refs/heads/main'
@@ -589,7 +602,7 @@ jobs:
   # #######################################
   deploy_plugin:
     name: 🚢 Plugin ZIP
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: production
     needs: [cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')

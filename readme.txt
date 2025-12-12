@@ -3,8 +3,8 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.2
-Requires PHP: 8.1
+Stable tag: 6.0.3-rc.1
+Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -76,6 +76,14 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.0.3 =
+
+Release date: 15th December 2025
+
+**Compatibility**
+
+* **PHP 8.0** is now our minimum supported version.
+
 = 6.0.2 =
 
 Release date: 3rd December 2025
@@ -133,7 +141,7 @@ Release date: 10th November 2025
 
 **Compatibility**
 
-* **PHP 8.1** is now our minimum supported version.
+* ~~**PHP 8.1** is now our minimum supported version.~~
 
 --------
 

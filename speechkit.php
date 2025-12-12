@@ -15,12 +15,12 @@ declare(strict_types=1);
  * Description:       The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player.
  * Author:            BeyondWords
  * Author URI:        https://beyondwords.io
- * Version:           6.0.2
+ * Version:           6.0.3-rc.1
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
  * Domain Path:       /languages
- * Requires PHP:      8.1
+ * Requires PHP:      8.0
  * Requires at least: 5.8
  */
 // phpcs:enable
@@ -35,7 +35,7 @@ require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // Define constants
 // phpcs:disable
-define('BEYONDWORDS__PLUGIN_VERSION', '6.0.2');
+define('BEYONDWORDS__PLUGIN_VERSION', '6.0.3-rc.1');
 define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable

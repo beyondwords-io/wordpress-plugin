@@ -151,6 +151,7 @@ class Sync
      *
      * @since 5.0.0
      * @since 6.0.0 Make static.
+     * @since 6.0.3 Check path is readable before getting value.
      *
      * @return boolean
      **/
@@ -173,11 +174,12 @@ class Sync
         $updated = false;
 
         foreach (self::MAP_SETTINGS as $optionName => $path) {
-            $value = $propertyAccessor->getValue($responses, $path);
-
-            if ($value !== null) {
-                update_option($optionName, $value, false);
-                $updated = true;
+            if ($propertyAccessor->isReadable($responses, $path)) {
+                $value = $propertyAccessor->getValue($responses, $path);
+                if ($value !== null) {
+                    update_option($optionName, $value, false);
+                    $updated = true;
+                }
             }
         }
 
