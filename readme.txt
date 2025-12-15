@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.3-rc.1
+Stable tag: 6.0.3
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -82,7 +82,7 @@ Release date: 15th December 2025
 
 **Compatibility**
 
-* **PHP 8.0** is now our minimum supported version.
+* [#473](https://github.com/beyondwords-io/wordpress-plugin/pull/473) Reintroduce support for **PHP 8.0**.
 
 = 6.0.2 =
 
