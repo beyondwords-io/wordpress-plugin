@@ -256,9 +256,6 @@ jobs:
       # ######################################
       - run: yarn build
 
-      - name: Start Mockoon CLI
-        run: yarn mockoon:start &
-
       - name: Install SVN
         run: sudo apt-get install subversion
 
@@ -268,6 +265,7 @@ jobs:
       - name: Run PHPUnit Tests
         run: ./vendor/bin/phpunit
         env:
+          BEYONDWORDS_MOCK_API: "true"
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
           BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"
           BEYONDWORDS_TESTS_CONTENT_ID: "${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}"
@@ -404,9 +402,6 @@ jobs:
       # ######################################
       - run: yarn install --immutable --immutable-cache
 
-      - name: Start Mockoon CLI
-        run: yarn mockoon:start &
-
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
 
@@ -430,6 +425,10 @@ jobs:
       - name: Disable BEYONDWORDS_AUTO_SYNC_SETTINGS
         run: |
           wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
+
+      - name: Enable BEYONDWORDS_MOCK_API
+        run: |
+          wp config set BEYONDWORDS_MOCK_API true --raw
 
       - name: Set WordPress core config values
         run: |
@@ -510,6 +509,7 @@ jobs:
           wp plugin activate cpt-active
           wp plugin activate cpt-inactive
           wp plugin activate cpt-unsupported
+          wp plugin activate mock-rest-api-responses
 
       - run: wp plugin list
 

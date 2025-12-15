@@ -86,7 +86,8 @@ function setupNodeEvents( on, config ) {
 				'plugin activate wp-reset',
 				'reset reset --yes',
 				'plugin deactivate --all',
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+				// eslint-disable-next-line max-len
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported mock-rest-api-responses',
 				// Configure plugin credentials for most tests
 				`option update beyondwords_api_key '${ apiKey }'`,
 				`option update beyondwords_project_id '${ projectId }'`,
@@ -118,7 +119,8 @@ function setupNodeEvents( on, config ) {
 				'plugin activate wp-reset',
 				'reset reset --yes',
 				'plugin deactivate --all',
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+				// eslint-disable-next-line max-len
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported mock-rest-api-responses',
 			] );
 
 			// Reset the flag so next test file will run setupDatabase again
