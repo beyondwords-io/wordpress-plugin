@@ -481,7 +481,9 @@ jobs:
           TEMP_ZIP_DIR="/tmp/plugin-zips"
           mkdir -p "$TEMP_ZIP_DIR"
 
+          # Process individual PHP files (single-file plugins)
           for plugin_php in "$PLUGIN_SRC_DIR"/*.php; do
+            [ -f "$plugin_php" ] || continue
             # Extract base name without extension
             plugin_basename=$(basename "$plugin_php" .php)
 
@@ -495,10 +497,20 @@ jobs:
             # Zip the directory
             (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
 
-            # Debugging
-            pwd
-            ls -la "$plugin_dir"
-            ls -la "$TEMP_ZIP_DIR"
+            # Install plugin
+            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
+          done
+
+          # Process plugin directories (multi-file plugins)
+          for plugin_folder in "$PLUGIN_SRC_DIR"/*/; do
+            [ -d "$plugin_folder" ] || continue
+            plugin_basename=$(basename "$plugin_folder")
+
+            # Copy the entire folder
+            cp -r "$plugin_folder" "$TEMP_ZIP_DIR/$plugin_basename"
+
+            # Zip the directory
+            (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
 
             # Install plugin
             wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
