@@ -76,7 +76,7 @@ require "{$_tests_dir}/includes/bootstrap.php";
 
 // Load mock API responses plugin if enabled (after WP boots so filters work).
 if ( defined( 'BEYONDWORDS_MOCK_API' ) && BEYONDWORDS_MOCK_API ) {
-	require dirname( __DIR__ ) . '/fixtures/wp-content/plugins/mock-rest-api-responses.php';
+	require dirname( __DIR__ ) . '/fixtures/wp-content/plugins/beyondwords-mock-rest-api-responses/mock-rest-api-responses.php';
 }
 
 // Load base TestCase class

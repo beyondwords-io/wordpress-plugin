@@ -750,36 +750,30 @@ function beyondwords_mock_get_video_settings( $params ) {
 /**
  * Mock: GET organization/languages
  *
- * Returns an array of 148 languages loaded from the mock-api-languages.json fixture file.
+ * Returns an array of 148 languages loaded from the languages.json fixture file.
  */
 function beyondwords_mock_get_languages() {
-	// Load languages from fixture file.
-	$fixture_file = dirname( dirname( __DIR__ ) ) . '/mock-api-languages.json';
+	// Load languages from fixture file (same directory as this plugin).
+	$fixture_file = __DIR__ . '/languages.json';
 
 	if ( file_exists( $fixture_file ) ) {
 		$languages = json_decode( file_get_contents( $fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	} else {
-		// Fallback for PHPUnit tests where the fixture path may be different.
-		$alt_fixture_file = dirname( __DIR__ ) . '/mock-api-languages.json';
-		if ( file_exists( $alt_fixture_file ) ) {
-			$languages = json_decode( file_get_contents( $alt_fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		} else {
-			// Ultimate fallback - return minimal set for tests.
-			$languages = array(
-				array(
-					'code'           => 'en_US',
-					'name'           => 'English',
-					'accent'         => 'American',
-					'id'             => 58,
-					'created'        => '2022-01-25T07:40:27Z',
-					'default_voices' => array(
-						'title'   => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
-						'body'    => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
-						'summary' => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
-					),
+		// Ultimate fallback - return minimal set for tests.
+		$languages = array(
+			array(
+				'code'           => 'en_US',
+				'name'           => 'English',
+				'accent'         => 'American',
+				'id'             => 58,
+				'created'        => '2022-01-25T07:40:27Z',
+				'default_voices' => array(
+					'title'   => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+					'body'    => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+					'summary' => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
 				),
-			);
-		}
+			),
+		);
 	}
 
 	return beyondwords_mock_response( $languages );

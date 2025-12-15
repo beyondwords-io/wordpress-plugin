@@ -509,7 +509,7 @@ jobs:
           wp plugin activate cpt-active
           wp plugin activate cpt-inactive
           wp plugin activate cpt-unsupported
-          wp plugin activate mock-rest-api-responses
+          wp plugin activate beyondwords-mock-rest-api-responses
 
       - run: wp plugin list
 
