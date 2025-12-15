@@ -349,6 +349,18 @@ function beyondwords_get_status_message( $code ) {
  * Mock: GET projects/:projectId
  */
 function beyondwords_mock_get_project( $params ) {
+	// Special case: project ID 401 returns an auth error (for testing invalid creds).
+	if ( '401' === $params['projectId'] ) {
+		return beyondwords_mock_response(
+			array(
+				'type'    => 'permission_error',
+				'message' => 'Authentication token was not recognized.',
+				'context' => array(),
+			),
+			401
+		);
+	}
+
 	return beyondwords_mock_response(
 		array(
 			'id'                   => (int) $params['projectId'],
@@ -738,119 +750,37 @@ function beyondwords_mock_get_video_settings( $params ) {
 /**
  * Mock: GET organization/languages
  *
- * Returns a large array with specific indices to match test expectations.
- * Tests expect:
- * - Index 32: en_US (id: 58)
- * - Index 34: en_GB (id: 50)
- * - Index 91: cy_GB (id: 39)
+ * Returns an array of 148 languages loaded from the mock-api-languages.json fixture file.
  */
 function beyondwords_mock_get_languages() {
-	// Build an array with correct indices.
-	$languages = array();
+	// Load languages from fixture file.
+	$fixture_file = dirname( dirname( __DIR__ ) ) . '/mock-api-languages.json';
 
-	// Fill with placeholder languages up to index 91.
-	for ( $i = 0; $i < 92; $i++ ) {
-		$languages[ $i ] = array(
-			'code'           => 'placeholder_' . $i,
-			'name'           => 'Placeholder',
-			'accent'         => 'Placeholder',
-			'id'             => $i,
-			'created'        => '2022-01-25T07:40:27Z',
-			'default_voices' => array(
-				'title'   => array(
-					'id'            => 1,
-					'name'          => 'Placeholder Voice',
-					'speaking_rate' => 100,
+	if ( file_exists( $fixture_file ) ) {
+		$languages = json_decode( file_get_contents( $fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	} else {
+		// Fallback for PHPUnit tests where the fixture path may be different.
+		$alt_fixture_file = dirname( __DIR__ ) . '/mock-api-languages.json';
+		if ( file_exists( $alt_fixture_file ) ) {
+			$languages = json_decode( file_get_contents( $alt_fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		} else {
+			// Ultimate fallback - return minimal set for tests.
+			$languages = array(
+				array(
+					'code'           => 'en_US',
+					'name'           => 'English',
+					'accent'         => 'American',
+					'id'             => 58,
+					'created'        => '2022-01-25T07:40:27Z',
+					'default_voices' => array(
+						'title'   => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+						'body'    => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+						'summary' => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+					),
 				),
-				'body'    => array(
-					'id'            => 1,
-					'name'          => 'Placeholder Voice',
-					'speaking_rate' => 100,
-				),
-				'summary' => array(
-					'id'            => 1,
-					'name'          => 'Placeholder Voice',
-					'speaking_rate' => 100,
-				),
-			),
-		);
+			);
+		}
 	}
-
-	// Override specific indices with expected values.
-	$languages[32] = array(
-		'code'           => 'en_US',
-		'name'           => 'English',
-		'accent'         => 'American',
-		'id'             => 58,
-		'created'        => '2022-01-25T07:40:27Z',
-		'default_voices' => array(
-			'title'   => array(
-				'id'            => 2517,
-				'name'          => 'Ava (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'body'    => array(
-				'id'            => 2517,
-				'name'          => 'Ava (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'summary' => array(
-				'id'            => 2517,
-				'name'          => 'Ava (Multilingual)',
-				'speaking_rate' => 100,
-			),
-		),
-	);
-
-	$languages[34] = array(
-		'code'           => 'en_GB',
-		'name'           => 'English',
-		'accent'         => 'British',
-		'id'             => 50,
-		'created'        => '2022-01-25T07:40:27Z',
-		'default_voices' => array(
-			'title'   => array(
-				'id'            => 3558,
-				'name'          => 'Ollie (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'body'    => array(
-				'id'            => 3558,
-				'name'          => 'Ollie (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'summary' => array(
-				'id'            => 3558,
-				'name'          => 'Ollie (Multilingual)',
-				'speaking_rate' => 100,
-			),
-		),
-	);
-
-	$languages[91] = array(
-		'code'           => 'cy_GB',
-		'name'           => 'Welsh',
-		'accent'         => 'Welsh',
-		'id'             => 39,
-		'created'        => '2022-01-25T07:40:27Z',
-		'default_voices' => array(
-			'title'   => array(
-				'id'            => 3555,
-				'name'          => 'Ada (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'body'    => array(
-				'id'            => 3555,
-				'name'          => 'Ada (Multilingual)',
-				'speaking_rate' => 100,
-			),
-			'summary' => array(
-				'id'            => 3555,
-				'name'          => 'Ada (Multilingual)',
-				'speaking_rate' => 100,
-			),
-		),
-	);
 
 	return beyondwords_mock_response( $languages );
 }
