@@ -12,7 +12,6 @@
   "homepage": "https://beyondwords.io",
   "main": "index.js",
   "devDependencies": {
-    "@mockoon/cli": "^9.2.0",
     "@wordpress/env": "^10.19.1",
     "@wordpress/eslint-plugin": "^22.5.1",
     "@wordpress/scripts": "^30.12.1",
@@ -43,7 +42,6 @@
     "lint:md:docs": "wp-scripts lint-md-docs",
     "lint:md:js": "wp-scripts lint-md-js",
     "lint:pkg-json": "wp-scripts lint-pkg-json",
-    "mockoon:start": "mockoon-cli start --data ./.mockoon/beyondwords-api.json --port 3000",
     "packages-update": "wp-scripts packages-update",
     "rector": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process --dry-run",
     "rector:fix": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process",
