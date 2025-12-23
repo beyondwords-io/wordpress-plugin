@@ -162,7 +162,7 @@ function setupNodeEvents( on, config ) {
 		async createPost( options ) {
 			const {
 				title = 'Test Post',
-				content = '',
+				content = '<p>One</p><p>Two</p>',
 				status = 'publish',
 				postType = 'post',
 			} = options;

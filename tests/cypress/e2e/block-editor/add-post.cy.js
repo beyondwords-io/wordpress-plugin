@@ -121,29 +121,11 @@ context( 'Block Editor: Add Post', () => {
 				} );
 
 				it( `can update a ${ postStatus } ${ postType.name } with audio`, () => {
-					cy.createTestPost( {
+					cy.createTestPostWithAudio( {
 						title: `can update a ${ postStatus } ${ postType.name } with audio`,
 						status: postStatus,
 						postType: postType.name,
 					} ).then( ( postId ) => {
-						cy.task( 'setPostMeta', {
-							postId,
-							metaKey: 'beyondwords_generate_audio',
-							metaValue: '1',
-						} );
-
-						cy.task( 'setPostMeta', {
-							postId,
-							metaKey: 'beyondwords_project_id',
-							metaValue: Cypress.env( 'projectId' ),
-						} );
-
-						cy.task( 'setPostMeta', {
-							postId,
-							metaKey: 'beyondwords_content_id',
-							metaValue: Cypress.env( 'contentId' ),
-						} );
-
 						cy.task( 'setPostMeta', {
 							postId,
 							metaKey: 'beyondwords_error_message',

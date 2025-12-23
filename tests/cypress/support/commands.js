@@ -680,21 +680,24 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
  * @return {Promise<number>} The created post ID (aliased as @testPostId)
  */
 Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
-	const {
-		title = 'Untitled',
-		content = 'Test content for audio generation',
-		generateAudio = true,
-	} = options;
+	return cy.createTestPost( options ).then( ( postId ) => {
+		// Set the meta to generate audio for this post
+		cy.task( 'setPostMeta', {
+			postId,
+			metaKey: 'beyondwords_generate_audio',
+			metaValue: '1',
+		} );
+		cy.task( 'setPostMeta', {
+			postId,
+			metaKey: 'beyondwords_project_id',
+			metaValue: Cypress.env( 'projectId' ),
+		} );
 
-	return cy.createTestPost( { title, content } ).then( ( postId ) => {
-		if ( generateAudio ) {
-			// Set the meta to generate audio for this post
-			cy.task( 'setPostMeta', {
-				postId,
-				metaKey: 'beyondwords_generate_audio',
-				metaValue: '1',
-			} );
-		}
+		cy.task( 'setPostMeta', {
+			postId,
+			metaKey: 'beyondwords_content_id',
+			metaValue: Cypress.env( 'contentId' ),
+		} );
 		return postId;
 	} );
 } );
