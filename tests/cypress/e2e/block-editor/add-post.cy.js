@@ -14,9 +14,9 @@ context( 'Block Editor: Add Post', () => {
 		.filter( ( x ) => x.supported )
 		.forEach( ( postType ) => {
 			postStatuses.forEach( ( postStatus ) => {
-				it( `can add a "${ postStatus }" ${ postType.name } without audio`, () => {
+				it( `can add a ${ postStatus } ${ postType.name } without audio`, () => {
 					cy.createPost( {
-						title: `can add a "${ postStatus }" ${ postType.name } without audio`,
+						title: `can add a ${ postStatus } ${ postType.name } without audio`,
 						status: postStatus,
 						postType,
 					} );
@@ -48,9 +48,9 @@ context( 'Block Editor: Add Post', () => {
 						} );
 				} );
 
-				it( `can add a "${ postStatus }" ${ postType.name } with audio`, () => {
+				it( `can add a ${ postStatus } ${ postType.name } with audio`, () => {
 					cy.createPost( {
-						title: `I can add a "${ postStatus }" ${ postType.name } with audio`,
+						title: `I can add a ${ postStatus } ${ postType.name } with audio`,
 						status: postStatus,
 						postType,
 					} );
@@ -81,9 +81,9 @@ context( 'Block Editor: Add Post', () => {
 						} );
 				} );
 
-				it( `can update a "${ postStatus }" ${ postType.name } without audio`, () => {
+				it( `can update a ${ postStatus } ${ postType.name } without audio`, () => {
 					cy.createTestPost( {
-						title: `can update a "${ postStatus }" ${ postType.name } without audio`,
+						title: `can update a ${ postStatus } ${ postType.name } without audio`,
 						status: postStatus,
 						postType: postType.name,
 					} ).then( ( postId ) => {
@@ -120,9 +120,9 @@ context( 'Block Editor: Add Post', () => {
 					} );
 				} );
 
-				it( `can update a "${ postStatus }" ${ postType.name } with audio`, () => {
+				it( `can update a ${ postStatus } ${ postType.name } with audio`, () => {
 					cy.createTestPost( {
-						title: `can update a "${ postStatus }" ${ postType.name } with audio`,
+						title: `can update a ${ postStatus } ${ postType.name } with audio`,
 						status: postStatus,
 						postType: postType.name,
 					} ).then( ( postId ) => {
