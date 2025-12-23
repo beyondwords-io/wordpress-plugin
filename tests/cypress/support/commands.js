@@ -443,9 +443,10 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 	// Confirm "Publish" in the Prepublish panel
 	cy.get(
 		'.editor-post-publish-panel__header-publish-button > .components-button'
-	)
-		.click()
-		.wait( 250 );
+	).click();
+
+	// Wait for publish to complete
+	cy.get( '.editor-post-publish-panel' ).should( 'exist' );
 
 	// Close "Patterns" modal if it opens (introduced in WordPress 6.6)
 	cy.get( 'body' ).then( ( $body ) => {
@@ -453,6 +454,7 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 			cy.get(
 				'.components-modal__frame button.components-button[aria-label="Close"]'
 			).click();
+			cy.get( '.components-modal__frame' ).should( 'not.exist' );
 		}
 	} );
 
