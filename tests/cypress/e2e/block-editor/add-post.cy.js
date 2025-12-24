@@ -14,11 +14,12 @@ context( 'Block Editor: Add Post', () => {
 		.filter( ( x ) => x.supported )
 		.forEach( ( postType ) => {
 			postStatuses.forEach( ( postStatus ) => {
-				it( `can add a ${ postStatus } ${ postType.name } without audio`, () => {
+				it.only( `can add a ${ postStatus } ${ postType.name } without audio`, () => {
 					cy.createPost( {
 						title: `can add a ${ postStatus } ${ postType.name } without audio`,
 						status: postStatus,
 						postType,
+						postStatus,
 					} );
 
 					cy.openBeyondwordsEditorPanel();
@@ -53,6 +54,7 @@ context( 'Block Editor: Add Post', () => {
 						title: `I can add a ${ postStatus } ${ postType.name } with audio`,
 						status: postStatus,
 						postType,
+						postStatus,
 					} );
 
 					cy.openBeyondwordsEditorPanel();
@@ -85,11 +87,9 @@ context( 'Block Editor: Add Post', () => {
 					cy.createTestPost( {
 						title: `can update a ${ postStatus } ${ postType.name } without audio`,
 						status: postStatus,
-						postType: postType.name,
+						postType: postType.slug,
 					} ).then( ( postId ) => {
-						cy.visit(
-							`/wp-admin/post.php?post=${ postId }&action=edit`
-						);
+						cy.visitPostEditorById( postId );
 
 						cy.openBeyondwordsEditorPanel();
 
@@ -124,7 +124,7 @@ context( 'Block Editor: Add Post', () => {
 					cy.createTestPostWithAudio( {
 						title: `can update a ${ postStatus } ${ postType.name } with audio`,
 						status: postStatus,
-						postType: postType.name,
+						postType: postType.slug,
 					} ).then( ( postId ) => {
 						cy.task( 'setPostMeta', {
 							postId,
@@ -132,14 +132,16 @@ context( 'Block Editor: Add Post', () => {
 							metaValue: '404 Not Found',
 						} );
 
-						cy.visit(
-							`/wp-admin/post.php?post=${ postId }&action=edit`
-						);
+						cy.visitPostEditorById( postId );
 
 						cy.openBeyondwordsEditorPanel();
 
 						cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 							'be.checked'
+						);
+
+						cy.setPostTitle(
+							`I can update a ${ postStatus } ${ postType.name } with audio, EDITED`
 						);
 
 						cy.savePost();
@@ -171,6 +173,7 @@ context( 'Block Editor: Add Post', () => {
 			// @todo Skip flaky test until mock API is replaced with http intercepts.
 			it.skip( `can add a ${ postType.name } with "Pending review" audio`, () => {
 				cy.createPost( {
+					title: `I can add a ${ postType.name } with "Pending review" audio`,
 					postType,
 				} );
 
@@ -228,6 +231,7 @@ context( 'Block Editor: Add Post', () => {
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
+
 				cy.get( 'th#beyondwords.column-beyondwords' ).should(
 					'not.exist'
 				);

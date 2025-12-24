@@ -162,7 +162,7 @@ function setupNodeEvents( on, config ) {
 		async createPost( options ) {
 			const {
 				title = 'Test Post',
-				content = '<p>One</p><p>Two</p>',
+				content = '<p>Test</p>',
 				status = 'publish',
 				postType = 'post',
 			} = options;
@@ -175,7 +175,20 @@ function setupNodeEvents( on, config ) {
 			const wpCmd = `post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
 
 			const result = await execWp( wpCmd, { returnResult: true } );
-			return parseInt( result.stdout.trim(), 10 );
+
+			// wp-env echoes the command before output - get the last line
+			const lastLine = result.stdout.trim().split( '\n' ).pop();
+			const postId = parseInt( lastLine, 10 );
+
+			if ( isNaN( postId ) ) {
+				throw new Error(
+					`Failed to parse post ID from: "${ result.stdout }"`
+				);
+			}
+
+			// eslint-disable-next-line no-console
+			console.log( `  ✓ Created ${ postType } with ID: ${ postId }` );
+			return postId;
 		},
 
 		async setPostMeta( options ) {
