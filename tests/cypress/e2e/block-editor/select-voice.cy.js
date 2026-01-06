@@ -1,4 +1,4 @@
-/* global cy, Cypress, beforeEach, context, expect, it */
+/* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
@@ -167,12 +167,10 @@ context( 'Block Editor: Select Voice', () => {
 						} );
 					} );
 
-				// Now check Voice (will be loaded since Language is correct)
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
 
-				// Now check Voice (will be loaded since Language is correct)
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Ava (Multilingual)' );

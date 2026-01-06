@@ -165,6 +165,7 @@ function setupNodeEvents( on, config ) {
 				content = '<p>Test</p>',
 				status = 'publish',
 				postType = 'post',
+				postDate = '',
 			} = options;
 
 			// Escape single quotes in title and content
@@ -172,7 +173,17 @@ function setupNodeEvents( on, config ) {
 			const escapedContent = content.replace( /'/g, "'\\''" );
 
 			// eslint-disable-next-line max-len
-			const wpCmd = `post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
+			const wpCmd = [
+				'post create',
+				`--post_type=${ postType }`,
+				`--post_status=${ status }`,
+				`--post_title='${ escapedTitle }'`,
+				`--post_content='${ escapedContent }'`,
+				postDate ? `--post_date='${ postDate }'` : '',
+				'--porcelain',
+			]
+				.filter( Boolean )
+				.join( ' ' );
 
 			const result = await execWp( wpCmd, { returnResult: true } );
 

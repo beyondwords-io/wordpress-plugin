@@ -632,7 +632,7 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 		// Set future date 10 years from now
 		const futureDate = new Date();
 		const year = futureDate.getFullYear() + 10;
-		options.postDate = `${ year }-01-01 00:00:00`;
+		options.postDate = `${ year }-01-01T00:00:00Z`;
 	}
 	return cy.task( 'createPost', options );
 } );

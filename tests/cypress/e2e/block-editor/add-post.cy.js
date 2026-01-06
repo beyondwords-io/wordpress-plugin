@@ -7,14 +7,14 @@ context( 'Block Editor: Add Post', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// @todo Set to 'draft', 'future', 'publish', 'pending', 'private'
-	const postStatuses = [ 'publish' ];
+	// These post statuses should make REST API requests.
+	const postStatuses = [ 'draft', 'future', 'publish', 'pending', 'private' ];
 
 	postTypes
 		.filter( ( x ) => x.supported )
 		.forEach( ( postType ) => {
 			postStatuses.forEach( ( postStatus ) => {
-				it.only( `can add a ${ postStatus } ${ postType.name } without audio`, () => {
+				it( `can add a ${ postStatus } ${ postType.name } without audio`, () => {
 					cy.createPost( {
 						title: `can add a ${ postStatus } ${ postType.name } without audio`,
 						status: postStatus,
