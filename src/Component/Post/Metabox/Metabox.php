@@ -26,6 +26,8 @@ use Beyondwords\Wordpress\Core\Environment;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class Metabox
 {
     /**

@@ -17,6 +17,8 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      3.5.0
  */
+defined('ABSPATH') || exit;
+
 class PostMetaUtils
 {
     public const WP_ERROR_FORMAT = 'WP_Error [%s] %s';

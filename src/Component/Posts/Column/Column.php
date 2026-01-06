@@ -21,6 +21,8 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class Column
 {
     public const ALLOWED_HTML = [

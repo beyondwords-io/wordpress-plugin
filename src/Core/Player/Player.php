@@ -14,6 +14,8 @@ use Symfony\Component\DomCrawler\Crawler;
  *
  * Entry point for registering player-related WordPress hooks.
  */
+defined('ABSPATH') || exit;
+
 class Player
 {
     /**

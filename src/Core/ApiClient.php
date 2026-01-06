@@ -13,6 +13,8 @@ use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\Integratio
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  **/
+defined('ABSPATH') || exit;
+
 class ApiClient
 {
     /**

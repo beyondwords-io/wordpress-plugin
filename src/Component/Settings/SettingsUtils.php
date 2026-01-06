@@ -17,6 +17,8 @@ use Beyondwords\Wordpress\Core\Request;
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      3.5.0
  */
+defined('ABSPATH') || exit;
+
 class SettingsUtils
 {
     /**

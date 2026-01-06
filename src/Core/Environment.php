@@ -17,6 +17,8 @@ namespace Beyondwords\Wordpress\Core;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class Environment
 {
     /**

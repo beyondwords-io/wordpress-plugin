@@ -19,6 +19,8 @@ namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
  *
  * @since 4.5.0
  */
+defined('ABSPATH') || exit;
+
 class Notices
 {
     /**

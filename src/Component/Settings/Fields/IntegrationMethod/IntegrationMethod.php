@@ -18,6 +18,8 @@ use WP_Post;
  *
  * @since 6.0.0 Introduced.
  */
+defined('ABSPATH') || exit;
+
 class IntegrationMethod
 {
     /**
