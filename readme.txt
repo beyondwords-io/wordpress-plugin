@@ -76,6 +76,20 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.0.4 =
+
+Release date: TBC
+
+**Fixes**
+
+* [#477](https://github.com/beyondwords-io/wordpress-plugin/pull/477) Fix `saveErrorMessage()` bug.
+    * In the error message saving method we were incorrectly checking the integration method for the plugin instead of the post, which may explain a reported problem where unexpected 404 error messages were being saved.
+
+**Codebase Enhancements**
+
+* Improve the Cypress test suite by adding more assertions and testing more post statuses.
+* Check for `ABSPATH` at the top of all PHP files.
+
 = 6.0.3 =
 
 Release date: 16th December 2025
