@@ -97,8 +97,7 @@ context( 'Block Editor: Add Post', () => {
 
 						cy.savePost();
 
-						// "View post"
-						cy.viewPostViaSnackbar();
+						cy.viewPostById( postId );
 
 						cy.getPlayerScriptTag().should( 'not.exist' );
 						cy.hasPlayerInstances( 0 );
@@ -146,8 +145,7 @@ context( 'Block Editor: Add Post', () => {
 
 						cy.savePost();
 
-						// "View post"
-						cy.viewPostViaSnackbar();
+						cy.viewPostById( postId );
 
 						cy.getPlayerScriptTag().should( 'exist' );
 						cy.hasPlayerInstances( 1 );

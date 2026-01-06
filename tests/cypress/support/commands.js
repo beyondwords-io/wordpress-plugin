@@ -455,6 +455,10 @@ Cypress.Commands.add( 'savePost', () => {
 	cy.get( '.editor-post-publish-button' ).click();
 } );
 
+Cypress.Commands.add( 'viewPostById', ( postId ) => {
+	cy.visit( `/?p=${ postId }` );
+} );
+
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
 	cy.get( '.components-snackbar' )
 		.find( 'a' )
