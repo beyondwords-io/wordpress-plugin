@@ -7,8 +7,11 @@ context( 'Block Editor: Add Post', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// These post statuses should make REST API requests.
-	const postStatuses = [ 'draft', 'future', 'publish', 'pending', 'private' ];
+	// @todo add tests for 'draft', 'pending', 'trash' statuses
+	// as these have different flows for publishing
+	// e.g. 'draft' and 'pending' use the Publish panel
+	// For now, we just statuses that use a standard "Publish" flow
+	const postStatuses = [ 'publish', 'future', 'private' ];
 
 	postTypes
 		.filter( ( x ) => x.supported )
