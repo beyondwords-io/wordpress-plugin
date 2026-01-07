@@ -20,6 +20,8 @@ namespace Beyondwords\Wordpress\Component\Post\BlockAttributes;
  * @since 4.0.0 Renamed from BlockAudioAttribute to BlockAttributes to support multiple attributes.
  * @since 6.0.0 Stop adding beyondwordsMarker attribute to blocks.
  */
+defined('ABSPATH') || exit;
+
 class BlockAttributes
 {
     /**

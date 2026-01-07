@@ -24,6 +24,8 @@ use Beyondwords\Wordpress\Plugin;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class BulkEdit
 {
     /**

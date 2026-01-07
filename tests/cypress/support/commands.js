@@ -73,58 +73,42 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 	const { postType = postTypes[ 0 ], title = '' } = options;
 
 	cy.visitPostEditor( postType.slug );
+	cy.setPostTitle( title );
+} );
 
+Cypress.Commands.add( 'setPostTitle', ( title ) => {
 	if ( title ) {
-		cy.get( '.editor-post-title__input' ).type( title );
+		cy.get( '.editor-post-title__input' ).clear().type( title );
 	}
 } );
 
 Cypress.Commands.add( 'visitPostEditor', ( postType ) => {
-	const key = `WP_PREFERENCES_USER_1`;
+	cy.visit( `/wp-admin/post-new.php?post_type=${ postType }` );
+	cy.disableWelcomeGuides();
+} );
 
-	cy.visit( `/wp-admin/post-new.php?post_type=${ postType }`, {
-		onBeforeLoad( win ) {
-			let state = {};
+Cypress.Commands.add( 'visitPostEditorById', ( postId ) => {
+	cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
+	cy.disableWelcomeGuides();
+} );
 
-			// Attempt to load existing preferences.
-			const raw = win.localStorage.getItem( key );
-			if ( raw ) {
-				try {
-					state = JSON.parse( raw );
-				} catch ( err ) {}
-			}
+Cypress.Commands.add( 'disableWelcomeGuides', () => {
+	// Wait for editor and dismiss welcome modal if it appears
+	cy.window()
+		.its( 'wp.data' )
+		.then( ( data ) => {
+			const prefs = data.dispatch( 'core/preferences' );
+			prefs.set( 'core/edit-post', 'welcomeGuide', false );
+			prefs.set( 'core/edit-post', 'welcomeGuideTemplate', false );
+			prefs.set( 'core', 'enableChoosePatternModal', false );
+		} );
 
-			// Disable "Show starter patterns".
-			state.core = {
-				...( state.core || {} ),
-				enableChoosePatternModal: false,
-			};
-
-			// Close Welcome Guides.
-			state[ 'core/edit-post' ] = {
-				...( state[ 'core/edit-post' ] || {} ),
-				welcomeGuide: false,
-				welcomeGuideTemplate: false,
-			};
-
-			// Write it back.
-			win.localStorage.setItem( key, JSON.stringify( state ) );
-		},
-	} );
-
-	cy.get( 'body' ).should(
-		'not.contain.text',
-		'Welcome to the block editor'
-	);
-
-	// Close "Choose a pattern" dialog.
+	// Wait briefly for any modal to render, then dismiss it
+	cy.wait( 500 ); // eslint-disable-line
 	cy.get( 'body' ).then( ( $body ) => {
-		if ( $body.find( 'button:contains("Start blank")' ).length ) {
-			cy.contains( 'button', 'Start blank' ).click( { force: true } );
-		} else if ( $body.find( 'button[aria-label="Close dialog"]' ).length ) {
-			cy.get( 'button[aria-label="Close dialog"]' ).click( {
-				force: true,
-			} );
+		const closeBtn = $body.find( '.components-modal__header button' );
+		if ( closeBtn.length ) {
+			cy.wrap( closeBtn ).first().click();
 		}
 	} );
 } );
@@ -443,9 +427,10 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 	// Confirm "Publish" in the Prepublish panel
 	cy.get(
 		'.editor-post-publish-panel__header-publish-button > .components-button'
-	)
-		.click()
-		.wait( 250 );
+	).click();
+
+	// Wait for publish to complete
+	cy.get( '.editor-post-publish-panel' ).should( 'exist' );
 
 	// Close "Patterns" modal if it opens (introduced in WordPress 6.6)
 	cy.get( 'body' ).then( ( $body ) => {
@@ -453,6 +438,7 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 			cy.get(
 				'.components-modal__frame button.components-button[aria-label="Close"]'
 			).click();
+			cy.get( '.components-modal__frame' ).should( 'not.exist' );
 		}
 	} );
 
@@ -467,6 +453,10 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 // "Save" existing post
 Cypress.Commands.add( 'savePost', () => {
 	cy.get( '.editor-post-publish-button' ).click();
+} );
+
+Cypress.Commands.add( 'viewPostById', ( postId ) => {
+	cy.visit( `/?p=${ postId }` );
 } );
 
 Cypress.Commands.add( 'viewPostViaSnackbar', () => {
@@ -638,61 +628,44 @@ Cypress.Commands.add( 'resetPluginSettings', () => {
  * Create a test post with a unique identifier.
  * Posts created with this command can be cleaned up with cy.cleanupTestPosts().
  *
- * @param {Object} options          - Post creation options
- * @param {string} options.title    - Post title (will be prefixed with "Cypress Test - ")
- * @param {string} options.content  - Post content
- * @param {string} options.status   - Post status (default: 'publish')
- * @param {string} options.postType - Post type (default: 'post')
- * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ * @param {Object} options - Post creation options
+ * @return {Promise<number>} The created post ID
  */
 Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
-	const {
-		title = 'Untitled',
-		content = '',
-		status = 'publish',
-		postType = 'post',
-	} = options;
-
-	const testTitle = `Cypress Test - ${ title }`;
-
-	return cy
-		.task( 'createPost', {
-			title: testTitle,
-			content,
-			status,
-			postType,
-		} )
-		.then( ( postId ) => {
-			cy.wrap( postId ).as( 'testPostId' );
-			return postId;
-		} );
+	if ( 'future' === options.postStatus ) {
+		// Set future date 10 years from now
+		const futureDate = new Date();
+		const year = futureDate.getFullYear() + 10;
+		options.postDate = `${ year }-01-01T00:00:00Z`;
+	}
+	return cy.task( 'createPost', options );
 } );
 
 /**
  * Create a test post with BeyondWords audio generation enabled.
  *
- * @param {Object}  options               - Post creation options
- * @param {string}  options.title         - Post title (will be prefixed with "Cypress Test - ")
- * @param {string}  options.content       - Post content
- * @param {boolean} options.generateAudio - Whether to generate audio (default: true)
- * @return {Promise<number>} The created post ID (aliased as @testPostId)
+ * @param {Object} options - Post creation options
+ * @return {Promise<number>} The created post ID
  */
 Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
-	const {
-		title = 'Untitled',
-		content = 'Test content for audio generation',
-		generateAudio = true,
-	} = options;
-
-	return cy.createTestPost( { title, content } ).then( ( postId ) => {
-		if ( generateAudio ) {
-			// Set the meta to generate audio for this post
-			cy.task( 'setPostMeta', {
+	return cy.createTestPost( options ).then( ( postId ) => {
+		// Set the meta to generate audio for this post
+		return cy
+			.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_generate_audio',
 				metaValue: '1',
-			} );
-		}
-		return postId;
+			} )
+			.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_project_id',
+				metaValue: Cypress.env( 'projectId' ),
+			} )
+			.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_content_id',
+				metaValue: Cypress.env( 'contentId' ),
+			} )
+			.then( () => postId );
 	} );
 } );

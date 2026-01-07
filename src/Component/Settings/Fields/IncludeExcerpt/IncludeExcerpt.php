@@ -18,6 +18,8 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\IncludeExcerpt;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class IncludeExcerpt
 {
     /**

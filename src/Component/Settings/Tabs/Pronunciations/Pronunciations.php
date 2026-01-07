@@ -18,6 +18,8 @@ use Beyondwords\Wordpress\Core\Environment;
  * "Pronunciations" settings tab
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class Pronunciations
 {
     /**

@@ -18,6 +18,8 @@ use Beyondwords\Wordpress\Core\Environment;
  * "Summarization" settings tab
  * @since 5.3.0
  */
+defined('ABSPATH') || exit;
+
 class Summarization
 {
     /**

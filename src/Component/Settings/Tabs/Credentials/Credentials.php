@@ -20,6 +20,8 @@ use Beyondwords\Wordpress\Component\Settings\Fields\ProjectId\ProjectId;
  *
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class Credentials
 {
     /**

@@ -29,6 +29,8 @@ use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
+defined('ABSPATH') || exit;
+
 class Plugin
 {
     /**

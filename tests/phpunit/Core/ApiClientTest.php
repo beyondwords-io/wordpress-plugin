@@ -522,6 +522,128 @@ class ApiClientTest extends TestCase
 
     /**
      * @test
+     *
+     * Test that 404 errors are saved for REST_API posts even when global setting is CLIENT_SIDE.
+     * This tests the bug where saveErrorMessage checked the global option instead of post meta.
+     */
+    public function saveErrorMessage404ForRestApiPostWhenGlobalIsClientSide()
+    {
+        // Set global integration method to CLIENT_SIDE
+        update_option('beyondwords_integration_method', 'client-side');
+
+        // Create a post with REST_API integration method in post meta
+        $postId = self::factory()->post->create([
+            'post_title' => 'ApiClientTest::saveErrorMessage404ForRestApiPostWhenGlobalIsClientSide',
+            'meta_input' => [
+                'beyondwords_integration_method' => 'rest-api',
+            ],
+        ]);
+
+        // Call saveErrorMessage with a 404 error
+        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+
+        // The error SHOULD be saved because the post uses REST_API integration
+        // (even though the global setting is CLIENT_SIDE)
+        $error = get_post_meta($postId, 'beyondwords_error_message', true);
+        $this->assertEquals('#404: Not Found', $error);
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_integration_method');
+    }
+
+    /**
+     * @test
+     *
+     * Test that 404 errors are NOT saved for CLIENT_SIDE posts.
+     */
+    public function saveErrorMessage404NotSavedForClientSidePost()
+    {
+        // Set global integration method to REST_API
+        update_option('beyondwords_integration_method', 'rest-api');
+
+        // Create a post with CLIENT_SIDE integration method in post meta
+        $postId = self::factory()->post->create([
+            'post_title' => 'ApiClientTest::saveErrorMessage404NotSavedForClientSidePost',
+            'meta_input' => [
+                'beyondwords_integration_method' => 'client-side',
+            ],
+        ]);
+
+        // Call saveErrorMessage with a 404 error
+        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+
+        // The error should NOT be saved because the post uses CLIENT_SIDE integration
+        $error = get_post_meta($postId, 'beyondwords_error_message', true);
+        $this->assertEmpty($error);
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_integration_method');
+    }
+
+    /**
+     * @test
+     *
+     * Test legacy posts (no integration method meta) with global=REST_API.
+     * 404 errors SHOULD be saved because legacy posts default to REST_API.
+     */
+    public function saveErrorMessage404ForLegacyPostWhenGlobalIsRestApi()
+    {
+        // Set global integration method to REST_API
+        update_option('beyondwords_integration_method', 'rest-api');
+
+        // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
+        $postId = self::factory()->post->create([
+            'post_title' => 'ApiClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsRestApi',
+            'meta_input' => [
+                'beyondwords_content_id' => 'legacy-content-123', // Has content from REST API
+                // Note: NO beyondwords_integration_method meta
+            ],
+        ]);
+
+        // Call saveErrorMessage with a 404 error
+        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+
+        // The error SHOULD be saved because legacy posts fall back to global (REST_API)
+        $error = get_post_meta($postId, 'beyondwords_error_message', true);
+        $this->assertEquals('#404: Not Found', $error);
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_integration_method');
+    }
+
+    /**
+     * @test
+     *
+     * Test legacy posts (no integration method meta) with global=CLIENT_SIDE.
+     * 404 errors should NOT be saved because the post falls back to global CLIENT_SIDE.
+     */
+    public function saveErrorMessage404ForLegacyPostWhenGlobalIsClientSide()
+    {
+        // Set global integration method to CLIENT_SIDE
+        update_option('beyondwords_integration_method', 'client-side');
+
+        // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
+        $postId = self::factory()->post->create([
+            'post_title' => 'ApiClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsClientSide',
+            'meta_input' => [
+                'beyondwords_content_id' => 'legacy-content-123', // Has content from REST API
+                // Note: NO beyondwords_integration_method meta
+            ],
+        ]);
+
+        // Call saveErrorMessage with a 404 error
+        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+
+        // The error should NOT be saved because legacy posts fall back to global (CLIENT_SIDE)
+        $error = get_post_meta($postId, 'beyondwords_error_message', true);
+        $this->assertEmpty($error);
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_integration_method');
+    }
+
+    /**
+     * @test
      */
     public function errorMessageFromResponse()
     {

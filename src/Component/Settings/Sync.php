@@ -25,6 +25,8 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.NPathComplexity)
  */
+defined('ABSPATH') || exit;
+
 class Sync
 {
     /**
