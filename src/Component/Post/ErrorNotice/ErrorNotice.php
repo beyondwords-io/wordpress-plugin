@@ -19,6 +19,8 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class ErrorNotice
 {
     /**

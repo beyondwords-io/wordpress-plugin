@@ -20,6 +20,8 @@ use Beyondwords\Wordpress\Component\Settings\Sync;
  *
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class BodyVoice extends Voice
 {
     /**

@@ -19,6 +19,8 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  *
  * @since 5.3.0
  */
+defined('ABSPATH') || exit;
+
 class PlayerContent
 {
     /**

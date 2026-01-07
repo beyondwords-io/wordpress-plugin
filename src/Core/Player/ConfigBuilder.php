@@ -14,6 +14,8 @@ use Beyondwords\Wordpress\Core\Core;
  *
  * Constructs the parameters object for the BeyondWords JS SDK.
  */
+defined('ABSPATH') || exit;
+
 class ConfigBuilder
 {
     /**

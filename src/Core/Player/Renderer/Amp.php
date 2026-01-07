@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
@@ -11,6 +13,8 @@ use Beyondwords\Wordpress\Core\Environment;
  *
  * Renders the AMP-compatible BeyondWords player.
  */
+defined('ABSPATH') || exit;
+
 class Amp extends Base
 {
     /**

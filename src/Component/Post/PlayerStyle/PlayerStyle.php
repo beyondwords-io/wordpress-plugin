@@ -21,6 +21,8 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  *
  * @since 4.1.0
  */
+defined('ABSPATH') || exit;
+
 class PlayerStyle
 {
     /**

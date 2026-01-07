@@ -32,6 +32,8 @@ use Beyondwords\Wordpress\Core\Environment;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class Settings
 {
     public const REVIEW_NOTICE_TIME_FORMAT = '-14 days';

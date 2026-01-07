@@ -14,6 +14,8 @@ use WPGraphQL as WPGraphQLPlugin;
  * @since 3.6.0
  * @since 4.7.0 Moved graphqlRegisterTypes() from Beyondwords\Wordpress\Core to here.
  */
+defined('ABSPATH') || exit;
+
 class WPGraphQL
 {
     /**

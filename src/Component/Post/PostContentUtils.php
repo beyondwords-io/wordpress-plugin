@@ -12,6 +12,8 @@ namespace Beyondwords\Wordpress\Component\Post;
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      3.5.0
  */
+defined('ABSPATH') || exit;
+
 class PostContentUtils
 {
     public const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';

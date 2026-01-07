@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
@@ -11,6 +13,8 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  *
  * Base class for player renderers.
  */
+defined('ABSPATH') || exit;
+
 class Base
 {
     /**
