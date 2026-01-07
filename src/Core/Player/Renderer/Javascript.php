@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
@@ -11,6 +13,8 @@ use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
  *
  * Responsible for rendering the JavaScript BeyondWords player.
  */
+defined('ABSPATH') || exit;
+
 class Javascript extends Base
 {
     /**

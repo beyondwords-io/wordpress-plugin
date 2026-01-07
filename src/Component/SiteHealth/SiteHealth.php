@@ -21,6 +21,8 @@ use Beyondwords\Wordpress\Core\Environment;
  *
  * @since 3.7.0
  */
+defined('ABSPATH') || exit;
+
 class SiteHealth
 {
     /**

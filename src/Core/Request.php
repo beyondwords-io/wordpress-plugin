@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Core;
 
+defined('ABSPATH') || exit;
+
 class Request
 {
     public const AUTH_HEADER_NAME = 'X-Api-Key';

@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.3-rc.1
+Stable tag: 6.0.4-rc.1
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -76,13 +76,27 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.0.4 =
+
+Release date: TBC
+
+**Fixes**
+
+* [#477](https://github.com/beyondwords-io/wordpress-plugin/pull/477) Fix `saveErrorMessage()` bug.
+    * In the error message saving method we were incorrectly checking the integration method for the plugin instead of the post, which may explain a reported problem where unexpected 404 error messages were being saved.
+
+**Codebase Enhancements**
+
+* Improve the Cypress test suite by adding more assertions and testing more post statuses.
+* Check for `ABSPATH` at the top of all PHP files.
+
 = 6.0.3 =
 
-Release date: 15th December 2025
+Release date: 16th December 2025
 
 **Compatibility**
 
-* **PHP 8.0** is now our minimum supported version.
+* [#473](https://github.com/beyondwords-io/wordpress-plugin/pull/473) Reintroduce support for **PHP 8.0**.
 
 = 6.0.2 =
 

@@ -13,6 +13,8 @@ use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\Integratio
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  **/
+defined('ABSPATH') || exit;
+
 class ApiClient
 {
     /**
@@ -626,6 +628,8 @@ class ApiClient
      * @since 4.4.0 Rename from error() to saveErrorMessage().
      * @since 5.2.0 Make static.
      * @since 6.0.0 Add Magic Embed support.
+     * @since 6.0.4 Fix bug where global integration method was checked instead of post meta.
+     * @since 6.0.4 Remove unnecessary extra sprintf() param for self::ERROR_FORMAT.
      *
      * @param int    $postId  WordPress post ID.
      * @param string $message Error message.
@@ -637,8 +641,14 @@ class ApiClient
             return;
         }
 
+        $post = get_post($postId);
+
         // Don't save an error message for Client-side 404s - they will (re)generate when pages are visited.
-        if (404 === $code && IntegrationMethod::CLIENT_SIDE === IntegrationMethod::getIntegrationMethod()) {
+        if (
+            404 === $code &&
+            $post instanceof \WP_Post &&
+            IntegrationMethod::CLIENT_SIDE === IntegrationMethod::getIntegrationMethod($post)
+        ) {
             return;
         }
 
@@ -657,7 +667,7 @@ class ApiClient
         update_post_meta(
             $postId,
             'beyondwords_error_message',
-            sprintf(self::ERROR_FORMAT, (string)$code, $message, $code)
+            sprintf(self::ERROR_FORMAT, (string)$code, $message)
         );
     }
 }

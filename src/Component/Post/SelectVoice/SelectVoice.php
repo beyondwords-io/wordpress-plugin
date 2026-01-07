@@ -21,6 +21,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
  *
  * @since 4.0.0
  */
+defined('ABSPATH') || exit;
+
 class SelectVoice
 {
     /**

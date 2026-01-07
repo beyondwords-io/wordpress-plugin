@@ -20,6 +20,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
  *
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class Language
 {
     /**

@@ -14,6 +14,8 @@ namespace Beyondwords\Wordpress\Component\Settings\Fields\Voice;
 
 use Beyondwords\Wordpress\Core\ApiClient;
 
+defined('ABSPATH') || exit;
+
 /**
  * Voice
  *

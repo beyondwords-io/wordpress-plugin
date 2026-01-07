@@ -22,6 +22,8 @@ use Beyondwords\Wordpress\Component\Settings\Fields\PreselectGenerateAudio\Prese
  * "Content" settings tab
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class Content
 {
     /**

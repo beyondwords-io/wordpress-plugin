@@ -12,6 +12,8 @@ namespace Beyondwords\Wordpress\Component\Post;
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      6.0.0
  */
+defined('ABSPATH') || exit;
+
 class Post
 {
     /**

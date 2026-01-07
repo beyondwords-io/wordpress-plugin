@@ -63,6 +63,11 @@ context( 'Block Editor: Select Voice', () => {
 					'English (British)'
 				);
 
+				// Verify the language selection took effect
+				cy.getBlockEditorSelect( 'Language' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'English (British)' );
+
 				// Assert we have the expected Voices
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option' )
@@ -82,20 +87,90 @@ context( 'Block Editor: Select Voice', () => {
 					'Ava (Multilingual)'
 				);
 
+				// Verify meta is correctly set in the data store BEFORE publishing
+				cy.window()
+					.its( 'wp.data' )
+					.then( ( data ) => {
+						cy.wrap( null, { timeout: 10000 } ).should( () => {
+							const meta = data
+								.select( 'core/editor' )
+								.getEditedPostAttribute( 'meta' );
+							// eslint-disable-next-line no-unused-expressions
+							expect( meta?.beyondwords_language_code ).to.not.be
+								.empty;
+						} );
+					} );
+
 				cy.checkGenerateAudio( postType );
-
-				// TODO check Language/Voice in Sidebar
-
-				// TODO check Language/Voice in Prepublish panel
 
 				cy.publishWithConfirmation();
 
-				// Check Language/Voice has been saved by refreshing the page
-				cy.reload();
+				// "View post"
+				cy.viewPostViaSnackbar();
+
+				// Check Player appears frontend
+				cy.getPlayerScriptTag().should( 'exist' );
+				cy.hasPlayerInstances( 1 );
+
+				// Check HTML head for voice and language meta tags
+				cy.get( 'head' )
+					.find( 'meta[name="beyondwords-title-voice-id"]' )
+					.should( 'have.attr', 'content', '2517' )
+					.should(
+						'have.attr',
+						'data-beyondwords-title-voice-id',
+						'2517'
+					);
+
+				cy.get( 'head' )
+					.find( 'meta[name="beyondwords-body-voice-id"]' )
+					.should( 'have.attr', 'content', '2517' )
+					.should(
+						'have.attr',
+						'data-beyondwords-body-voice-id',
+						'2517'
+					);
+
+				cy.get( 'head' )
+					.find( 'meta[name="beyondwords-summary-voice-id"]' )
+					.should( 'have.attr', 'content', '2517' )
+					.should(
+						'have.attr',
+						'data-beyondwords-summary-voice-id',
+						'2517'
+					);
+
+				cy.get( 'head' )
+					.find( 'meta[name="beyondwords-article-language"]' )
+					.should( 'have.attr', 'content', 'en_GB' )
+					.should(
+						'have.attr',
+						'data-beyondwords-article-language',
+						'en_GB'
+					);
+
+				// Check Player content has also been saved in admin
+				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsEditorPanel();
+
+				// Verify meta is correctly set in the data store AFTER publishing
+				cy.window()
+					.its( 'wp.data' )
+					.then( ( data ) => {
+						cy.wrap( null, { timeout: 10000 } ).should( () => {
+							const meta = data
+								.select( 'core/editor' )
+								.getEditedPostAttribute( 'meta' );
+							// eslint-disable-next-line no-unused-expressions
+							expect( meta?.beyondwords_language_code ).to.not.be
+								.empty;
+						} );
+					} );
+
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
+
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Ava (Multilingual)' );

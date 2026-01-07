@@ -19,6 +19,8 @@ use Beyondwords\Wordpress\Core\CoreUtils;
  *
  * @since 3.2.0
  */
+defined('ABSPATH') || exit;
+
 class AddPlayer
 {
     // The CSS declaration block for the player preview in both Classic Editor and Block Editor.
