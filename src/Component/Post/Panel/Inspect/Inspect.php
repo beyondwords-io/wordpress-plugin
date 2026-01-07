@@ -21,6 +21,8 @@ use Beyondwords\Wordpress\Core\ApiClient;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class Inspect
 {
     /**

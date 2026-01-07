@@ -26,6 +26,8 @@ use Beyondwords\Wordpress\Component\Settings\Fields\TextHighlighting\TextHighlig
  * "Player" settings tab
  * @since 5.0.0
  */
+defined('ABSPATH') || exit;
+
 class Player
 {
     /**

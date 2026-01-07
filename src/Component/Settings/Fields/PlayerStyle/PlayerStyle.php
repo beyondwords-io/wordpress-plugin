@@ -19,6 +19,8 @@ use Beyondwords\Wordpress\Component\Settings\Sync;
  *
  * @since 4.1.0
  */
+defined('ABSPATH') || exit;
+
 class PlayerStyle
 {
     /**

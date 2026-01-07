@@ -164,9 +164,10 @@ function setupNodeEvents( on, config ) {
 		async createPost( options ) {
 			const {
 				title = 'Test Post',
-				content = '',
+				content = '<p>Test</p>',
 				status = 'publish',
 				postType = 'post',
+				postDate = '',
 			} = options;
 
 			// Escape single quotes in title and content
@@ -174,10 +175,33 @@ function setupNodeEvents( on, config ) {
 			const escapedContent = content.replace( /'/g, "'\\''" );
 
 			// eslint-disable-next-line max-len
-			const wpCmd = `post create --post_type=${ postType } --post_status=${ status } --post_title='${ escapedTitle }' --post_content='${ escapedContent }' --porcelain`;
+			const wpCmd = [
+				'post create',
+				`--post_type=${ postType }`,
+				`--post_status=${ status }`,
+				`--post_title='${ escapedTitle }'`,
+				`--post_content='${ escapedContent }'`,
+				postDate ? `--post_date='${ postDate }'` : '',
+				'--porcelain',
+			]
+				.filter( Boolean )
+				.join( ' ' );
 
 			const result = await execWp( wpCmd, { returnResult: true } );
-			return parseInt( result.stdout.trim(), 10 );
+
+			// wp-env echoes the command before output - get the last line
+			const lastLine = result.stdout.trim().split( '\n' ).pop();
+			const postId = parseInt( lastLine, 10 );
+
+			if ( isNaN( postId ) ) {
+				throw new Error(
+					`Failed to parse post ID from: "${ result.stdout }"`
+				);
+			}
+
+			// eslint-disable-next-line no-console
+			console.log( `  ✓ Created ${ postType } with ID: ${ postId }` );
+			return postId;
 		},
 
 		async setPostMeta( options ) {

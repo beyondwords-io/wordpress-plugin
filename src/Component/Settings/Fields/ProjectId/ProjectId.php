@@ -19,6 +19,8 @@ use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
  *
  * @since 3.0.0
  */
+defined('ABSPATH') || exit;
+
 class ProjectId
 {
     /**
