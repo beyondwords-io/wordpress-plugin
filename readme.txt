@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.4
+Stable tag: 6.1.0-beta.1
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -75,6 +75,16 @@ You get access to project analytics, which means you can track listener engageme
 You can even leverage your listenership through audio advertising. Use our self-serve audio advertising feature to create your own campaigns or use VAST (video ad serving template) to connect a programmatic advertising platform, such as Google Ad Manager.
 
 == Changelog ==
+
+= 6.1.0 =
+
+Release date: TBC
+
+**Enhancements**
+
+* [#481](https://github.com/beyondwords-io/wordpress-plugin/pull/481) Add `$context` param to `beyondwords_player_html` filter.
+    * Use the `$context` param to filter the HTML output of the player depending on whether it was output using a shortcode, a WordPress block, or if has been autoprepended to the content.
+    * This filter can be used to hide autoprepended players and shown when using the shortcode, enabling the shortcode to the used effectively in PHP template files.
 
 = 6.0.4 =
 
