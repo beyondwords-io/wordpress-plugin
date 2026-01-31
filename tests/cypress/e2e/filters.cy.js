@@ -65,4 +65,29 @@ describe( 'WordPress Filters', () => {
 				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-script-onload' );
 			} );
 		} );
+
+	it( 'displays two players when shortcode is placed outside the_content', () => {
+		cy.task( 'activatePlugin', 'beyondwords-shortcode-in-footer' );
+
+		cy.createTestPostWithAudio( {
+			title: 'Shortcode in footer test',
+		} ).then( ( postId ) => {
+			cy.visit( `/?p=${ postId }` );
+
+			// Should have 2 player script tags: auto + footer shortcode
+			cy.hasPlayerInstances( 2 );
+
+			// Verify contexts via the data attribute
+			cy.get( '[data-beyondwords-wp-context="auto"]' ).should(
+				'have.length',
+				1
+			);
+			cy.get( '[data-beyondwords-wp-context="shortcode"]' ).should(
+				'have.length',
+				1
+			);
+		} );
+
+		cy.task( 'deactivatePlugin', 'beyondwords-shortcode-in-footer' );
+	} );
 } );

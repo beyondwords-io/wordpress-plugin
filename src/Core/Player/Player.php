@@ -47,7 +47,10 @@ class Player
      */
     public static function registerShortcodes(): void
     {
-        add_shortcode('beyondwords_player', fn() => self::renderPlayer());
+        add_shortcode('beyondwords_player', function ($atts) {
+            $atts = shortcode_atts(['context' => 'shortcode'], $atts);
+            return self::renderPlayer($atts['context']);
+        });
     }
 
     /**
@@ -61,7 +64,7 @@ class Player
             return $content;
         }
 
-        return self::renderPlayer() . $content;
+        return self::renderPlayer('auto') . $content;
     }
 
     /**
@@ -92,13 +95,16 @@ class Player
         // - <div data-beyondwords-player />
         $pattern = '/<div\s+(?=[^>]*data-beyondwords-player[\s>=\/])[^>]*(?:\/>|>\s*<\/div>)/i';
 
-        return preg_replace($pattern, '[beyondwords_player]', $content);
+        return preg_replace($pattern, '[beyondwords_player context="block"]', $content);
     }
 
     /**
      * Render a player (AMP/JS depending on context).
+     *
+     * @param string $context The context in which the player is being rendered.
+     *                        One of 'shortcode', 'block', or 'auto'.
      */
-    public static function renderPlayer(): string
+    public static function renderPlayer(string $context = 'shortcode'): string
     {
         $post = get_post();
 
@@ -125,13 +131,20 @@ class Player
          *
          * @since 4.0.0
          * @since 4.3.0 Applied to all player renderers (AMP and JavaScript).
+         * @since 6.1.0 Add $content parameter.
          *
          * @param string $html      The HTML for the audio player.
          * @param int    $postId    WordPress post ID.
          * @param int    $projectId BeyondWords project ID.
          * @param int    $contentId BeyondWords content ID.
+         * @param string $context   The context: 'shortcode', 'block', or 'auto'.
          */
-        $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId);
+        $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId, $context);
+
+        if (! empty($html)) {
+            $attr = sprintf('data-beyondwords-wp-context="%s"', esc_attr($context));
+            $html = preg_replace('/^(\s*<\w[\w-]*)/', "$1 $attr", $html, 1);
+        }
 
         return $html;
     }
