@@ -78,11 +78,11 @@ describe( 'WordPress Filters', () => {
 			cy.hasPlayerInstances( 2 );
 
 			// Verify contexts via the data attribute
-			cy.get( '[data-beyondwords-wp-context="auto"]' ).should(
+			cy.get( '[data-beyondwords-player-context="auto"]' ).should(
 				'have.length',
 				1
 			);
-			cy.get( '[data-beyondwords-wp-context="shortcode"]' ).should(
+			cy.get( '[data-beyondwords-player-context="shortcode"]' ).should(
 				'have.length',
 				1
 			);

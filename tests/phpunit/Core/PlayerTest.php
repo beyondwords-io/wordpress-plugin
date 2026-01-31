@@ -9,7 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends TestCase
 {
-    public const PLAYER_HTML_FORMAT = '<script data-beyondwords-wp-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
+    public const PLAYER_HTML_FORMAT = '<script data-beyondwords-player-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
 
     /**
      * @test
@@ -63,12 +63,12 @@ class PlayerTest extends TestCase
      * @test
      * @group player
      */
-    public function addBlock()
+    public function addLegacyPlayer()
     {
         global $post;
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::addBlock',
+            'post_title' => 'PlayerTest::addLegacyPlayer',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -84,7 +84,7 @@ class PlayerTest extends TestCase
         \the_content();
         $content = trim(ob_get_clean());
 
-        $this->assertSame("<p>Before</p>\n" . sprintf(self::PLAYER_HTML_FORMAT, 'block') . "\n<p>After</p>", $content);
+        $this->assertSame("<p>Before</p>\n" . sprintf(self::PLAYER_HTML_FORMAT, 'shortcode') . "\n<p>After</p>", $content);
 
         wp_reset_postdata();
 
@@ -172,67 +172,67 @@ class PlayerTest extends TestCase
             // === SHOULD BE REPLACED ===
             'Basic div' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with contenteditable after' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\" contenteditable=\"false\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with contenteditable before' => [
                 "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player=\"true\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Self-closing div' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\" />\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with whitespace inside' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\"> </div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with contenteditable before and whitespace inside' => [
                 "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player=\"true\"> </div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with single quotes' => [
                 "<p>Before</p>\n<div data-beyondwords-player='true'></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with newline inside' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\">\n</div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Div with tabs inside' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\">\t\t</div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Multiple player divs' => [
                 "<div data-beyondwords-player=\"true\"></div>\n<p>Middle</p>\n<div data-beyondwords-player=\"true\"> </div>",
-                "[beyondwords_player context=\"block\"]\n<p>Middle</p>\n[beyondwords_player context=\"block\"]",
+                "[beyondwords_player]\n<p>Middle</p>\n[beyondwords_player]",
             ],
             'Attribute value without quotes' => [
                 "<p>Before</p>\n<div data-beyondwords-player=true></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Boolean attribute (no value)' => [
                 "<p>Before</p>\n<div data-beyondwords-player></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Boolean attribute with other attrs' => [
                 "<p>Before</p>\n<div data-beyondwords-player contenteditable=\"false\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Boolean attribute with whitespace inside' => [
                 "<p>Before</p>\n<div contenteditable=\"false\" data-beyondwords-player> </div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Attribute with false value (still a boolean attr)' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"false\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
             'Attribute with arbitrary value' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"anything\"></div>\n<p>After</p>",
-                "<p>Before</p>\n[beyondwords_player context=\"block\"]\n<p>After</p>",
+                "<p>Before</p>\n[beyondwords_player]\n<p>After</p>",
             ],
 
             // === SHOULD NOT BE REPLACED ===
@@ -270,7 +270,7 @@ class PlayerTest extends TestCase
             // 2. Even if replaced, the shortcode in a comment won't render (invisible to users)
             'HTML comment with player div - known limitation' => [
                 "<p>Before</p>\n<!-- <div data-beyondwords-player=\"true\"></div> -->\n<p>After</p>",
-                "<p>Before</p>\n<!-- [beyondwords_player context=\"block\"] -->\n<p>After</p>",
+                "<p>Before</p>\n<!-- [beyondwords_player] -->\n<p>After</p>",
             ],
             'Div with child div inside - should preserve' => [
                 "<p>Before</p>\n<div data-beyondwords-player=\"true\"><div></div></div>\n<p>After</p>",
@@ -362,7 +362,7 @@ class PlayerTest extends TestCase
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
         $this->assertSame('shortcode', $wrapper->attr('data-context'));
-        $this->assertSame('shortcode', $wrapper->attr('data-beyondwords-wp-context'));
+        $this->assertSame('shortcode', $wrapper->attr('data-beyondwords-player-context'));
 
         $script = $wrapper->filter('script[async][defer]');
         $this->assertCount(1, $script);

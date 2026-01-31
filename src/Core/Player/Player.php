@@ -95,14 +95,14 @@ class Player
         // - <div data-beyondwords-player />
         $pattern = '/<div\s+(?=[^>]*data-beyondwords-player[\s>=\/])[^>]*(?:\/>|>\s*<\/div>)/i';
 
-        return preg_replace($pattern, '[beyondwords_player context="block"]', $content);
+        return preg_replace($pattern, '[beyondwords_player]', $content);
     }
 
     /**
      * Render a player (AMP/JS depending on context).
      *
      * @param string $context The context in which the player is being rendered.
-     *                        One of 'shortcode', 'block', or 'auto'.
+     *                        One of 'auto' or 'shortcode'.
      */
     public static function renderPlayer(string $context = 'shortcode'): string
     {
@@ -131,18 +131,18 @@ class Player
          *
          * @since 4.0.0
          * @since 4.3.0 Applied to all player renderers (AMP and JavaScript).
-         * @since 6.1.0 Add $content parameter.
+         * @since 6.1.0 Add $context parameter.
          *
          * @param string $html      The HTML for the audio player.
          * @param int    $postId    WordPress post ID.
          * @param int    $projectId BeyondWords project ID.
          * @param int    $contentId BeyondWords content ID.
-         * @param string $context   The context: 'shortcode', 'block', or 'auto'.
+         * @param string $context   The context: 'auto' or 'shortcode'.
          */
         $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId, $context);
 
         if (! empty($html)) {
-            $attr = sprintf('data-beyondwords-wp-context="%s"', esc_attr($context));
+            $attr = sprintf('data-beyondwords-player-context="%s"', esc_attr($context));
             $html = preg_replace('/^(\s*<\w[\w-]*)/', "$1 $attr", $html, 1);
         }
 

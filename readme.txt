@@ -83,8 +83,9 @@ Release date: TBC
 **Enhancements**
 
 * [#481](https://github.com/beyondwords-io/wordpress-plugin/pull/481) Add `$context` param to `beyondwords_player_html` filter.
-    * Use the `$context` param to filter the HTML output of the player depending on whether it was output using a shortcode, a WordPress block, or if has been autoprepended to the content.
-    * This filter can be used to hide autoprepended players and shown when using the shortcode, enabling the shortcode to the used effectively in PHP template files.
+    * Use the `$context` param to enable filtering of the player HTML based on whether it was auto-prepended to `the_content` or added manually using a shortcode.
+    * This filter can be used to hide only the auto-prepended players, enabling the shortcode to be used effectively in PHP template files.
+    * Check the [Examples](https://docs.beyondwords.io/docs-and-guides/integrations/wordpress/filters?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin#beyondwords_player_html) in our docs for further information.
 
 = 6.0.4 =
 
