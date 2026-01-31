@@ -48,11 +48,9 @@ class Player
     public static function registerShortcodes(): void
     {
         add_shortcode('beyondwords_player', function ($atts) {
-            $atts = shortcode_atts(['context' => 'shortcode'], $atts);
-            return self::renderPlayer($atts['context']);
+            return self::renderPlayer('shortcode');
         });
     }
-
     /**
      * Conditionally prepend the player to a string (the post content).
      *
