@@ -20,6 +20,8 @@ class Javascript extends Base
     /**
      * Render the JavaScript player HTML.
      *
+     * @param \WP_Post $post   WordPress post object for which to render the player.
+     * @param string   $context Rendering context, either 'auto' or 'shortcode'.
      * @return string HTML output.
      */
     public static function render(\WP_Post $post, string $context = 'shortcode'): string
