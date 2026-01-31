@@ -117,7 +117,7 @@ class Player
         foreach (self::$renderers as $rendererClass) {
             if (is_callable([$rendererClass, 'check']) && $rendererClass::check($post)) {
                 if (is_callable([$rendererClass, 'render'])) {
-                    $html = $rendererClass::render($post);
+                    $html = $rendererClass::render($post, $context);
                     break;
                 }
             }
@@ -140,11 +140,6 @@ class Player
          * @param string $context   The context: 'auto' or 'shortcode'.
          */
         $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId, $context);
-
-        if (! empty($html)) {
-            $attr = sprintf('data-beyondwords-player-context="%s"', esc_attr($context));
-            $html = preg_replace('/^(\s*<\w[\w-]*)/', "$1 $attr", $html, 1);
-        }
 
         return $html;
     }

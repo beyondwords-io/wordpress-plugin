@@ -362,12 +362,12 @@ class PlayerTest extends TestCase
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
         $this->assertSame('shortcode', $wrapper->attr('data-context'));
-        $this->assertSame('shortcode', $wrapper->attr('data-beyondwords-player-context'));
 
         $script = $wrapper->filter('script[async][defer]');
         $this->assertCount(1, $script);
         $this->assertSame(Environment::getJsSdkUrl(), $script->attr('src'));
         $this->assertNotEmpty($script->attr('onload'));
+        $this->assertSame('shortcode', $script->attr('data-beyondwords-player-context'));
 
         wp_reset_postdata();
         wp_delete_post($post->ID, true);
