@@ -117,6 +117,7 @@ class Core
      * @since 3.5.0 Refactored, adding self::shouldGenerateAudioForPost()
      * @since 5.1.0 Move project ID check into self::shouldGenerateAudioForPost()
      * @since 6.0.0 Make static and support Magic Embed.
+     * @since 6.0.5 If the audio update request 404s, clear the stale content ID and create new audio content.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -158,6 +159,16 @@ class Core
             }
 
             $response = ApiClient::updateAudio($postId);
+
+            // If the API returned 404, the content no longer exists.
+            // Clear the stale ID and create fresh content.
+            if (is_array($response) && ($response['code'] ?? null) === 404) {
+                delete_post_meta($postId, 'beyondwords_content_id');
+                delete_post_meta($postId, 'beyondwords_podcast_id');
+                delete_post_meta($postId, 'speechkit_podcast_id');
+
+                $response = ApiClient::createAudio($postId);
+            }
         } else {
             $response = ApiClient::createAudio($postId);
         }
@@ -386,12 +397,21 @@ class Core
      * @since 4.5.0 Remove unwanted debugging custom fields.
      * @since 5.1.0 Move post status check out of here.
      * @since 6.0.0 Make static and refactor for Magic Embed updates.
+     * @since 6.0.5 Skip second wp_after_insert_post triggered by Gutenberg's meta box save.
      *
      * @param int $postId Post ID.
      **/
     public static function onAddOrUpdatePost($postId)
     {
         $postId = (int) $postId;
+
+        // Gutenberg fires wp_after_insert_post twice: once via the REST API,
+        // and again via a backward-compatible meta box save POST to post.php.
+        // Skip the second (redundant) request to prevent duplicate API calls.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if (! empty($_REQUEST['meta-box-loader'])) {
+            return false;
+        }
 
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {

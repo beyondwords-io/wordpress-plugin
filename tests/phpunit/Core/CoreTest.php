@@ -860,4 +860,148 @@ class CoreTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @test
+     * @group deduplication
+     */
+    public function onAddOrUpdatePostSkipsMetaBoxLoaderRequest()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onAddOrUpdatePostSkipsMetaBoxLoaderRequest',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        // Simulate Gutenberg's meta box compat request
+        $_REQUEST['meta-box-loader'] = '1';
+
+        $result = Core::onAddOrUpdatePost($postId);
+
+        // Should return false without making any API calls
+        $this->assertFalse($result);
+
+        // Clean up
+        unset($_REQUEST['meta-box-loader']);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group deduplication
+     */
+    public function onAddOrUpdatePostRunsWithoutMetaBoxLoader()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onAddOrUpdatePostRunsWithoutMetaBoxLoader',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        // Ensure meta-box-loader is not set
+        unset($_REQUEST['meta-box-loader']);
+
+        $result = Core::onAddOrUpdatePost($postId);
+
+        // Should not be false — the method should proceed to generateAudioForPost
+        $this->assertTrue($result);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group 404-recovery
+     */
+    public function generateAudioForPostRecoversFrom404()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $staleContentId = '00000000-0000-0000-0000-000000000000';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::generateAudioForPostRecoversFrom404',
+            'post_content' => '<p>Test content for 404 recovery.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => $staleContentId,
+            ],
+        ]);
+
+        $response = Core::generateAudioForPost($postId);
+
+        // Should have recovered by creating new content
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('id', $response);
+
+        // The stale content ID should have been replaced with a new one
+        $newContentId = get_post_meta($postId, 'beyondwords_content_id', true);
+        $this->assertNotEmpty($newContentId);
+        $this->assertNotEquals($staleContentId, $newContentId);
+
+        // No error message should remain
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group 404-recovery
+     */
+    public function generateAudioForPostClearsLegacyIdsOn404()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $staleContentId = '00000000-0000-0000-0000-000000000000';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::generateAudioForPostClearsLegacyIdsOn404',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => $staleContentId,
+                'beyondwords_podcast_id' => 'stale-podcast-id',
+                'speechkit_podcast_id' => 'stale-speechkit-id',
+            ],
+        ]);
+
+        Core::generateAudioForPost($postId);
+
+        // Legacy ID fields should be cleared
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_podcast_id', true));
+        $this->assertEmpty(get_post_meta($postId, 'speechkit_podcast_id', true));
+
+        // New content ID should be set
+        $newContentId = get_post_meta($postId, 'beyondwords_content_id', true);
+        $this->assertNotEmpty($newContentId);
+        $this->assertNotEquals($staleContentId, $newContentId);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
 }

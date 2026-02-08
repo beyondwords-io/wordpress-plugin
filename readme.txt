@@ -76,9 +76,19 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.0.5 =
+
+Release date: 14th February 2026
+
+**Fixes**
+
+* [#477](https://github.com/beyondwords-io/wordpress-plugin/pull/477) Investigate 404 issues from REST API.
+    * Skip the second `wp_after_insert_post` triggered by Gutenberg's meta box save.
+    * If the audio update request to our REST API 404s, clear the stale content ID in WordPress and create new audio content.
+
 = 6.0.4 =
 
-Release date: 7th Jan 2026
+Release date: 7th January 2026
 
 **Fixes**
 
