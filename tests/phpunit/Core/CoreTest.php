@@ -936,6 +936,8 @@ class CoreTest extends TestCase
             // Restore original state
             if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
+            } else {
+                unset($_REQUEST['meta-box-loader']);
             }
         }
 
