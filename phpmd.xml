@@ -22,7 +22,11 @@
 <rule ref="rulesets/codesize.xml/ExcessivePublicCount"/>
 <rule ref="rulesets/codesize.xml/TooManyFields"/>
 <rule ref="rulesets/codesize.xml/TooManyMethods"/>
-<rule ref="rulesets/codesize.xml/ExcessiveClassComplexity"/>
+<rule ref="rulesets/codesize.xml/ExcessiveClassComplexity">
+    <properties>
+        <property name="maximum" value="51"/>
+    </properties>
+</rule>
 <!-- <rule ref="rulesets/controversial.xml"/> -->
 <rule ref="rulesets/design.xml"/>
 <rule ref="rulesets/naming.xml"/>

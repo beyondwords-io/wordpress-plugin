@@ -68,12 +68,7 @@ class Core
          */
         $statuses = apply_filters('beyondwords_settings_post_statuses', $statuses);
 
-        // Only generate audio for certain post statuses
-        if (is_array($statuses) && in_array($status, $statuses)) {
-            return true;
-        }
-
-        return false;
+        return is_array($statuses) && in_array($status, $statuses);
     }
 
     /**
@@ -158,17 +153,7 @@ class Core
                 return false;
             }
 
-            $response = ApiClient::updateAudio($postId);
-
-            // If the API returned 404, the content no longer exists.
-            // Clear the stale ID and create fresh content.
-            if (is_array($response) && ($response['code'] ?? null) === 404) {
-                delete_post_meta($postId, 'beyondwords_content_id');
-                delete_post_meta($postId, 'beyondwords_podcast_id');
-                delete_post_meta($postId, 'speechkit_podcast_id');
-
-                $response = ApiClient::createAudio($postId);
-            }
+            $response = self::updateOrRecreateAudio($postId);
         } else {
             $response = ApiClient::createAudio($postId);
         }
@@ -176,6 +161,36 @@ class Core
         $projectId = PostMetaUtils::getProjectId($postId);
 
         self::processResponse($response, $projectId, $postId);
+
+        return $response;
+    }
+
+    /**
+     * Update audio for a post, recovering from 404 by creating fresh content.
+     *
+     * When the BeyondWords API returns 404 for an update (content no longer
+     * exists), this method clears the stale content ID and falls back to
+     * creating new content via POST.
+     *
+     * @since 6.0.5
+     *
+     * @param int $postId WordPress Post ID.
+     *
+     * @return array|null|false Response from API.
+     */
+    private static function updateOrRecreateAudio(int $postId): array|null|false
+    {
+        $response = ApiClient::updateAudio($postId);
+
+        // If the API returned 404, the content no longer exists.
+        // Clear the stale ID and create fresh content.
+        if (is_array($response) && ($response['code'] ?? null) === 404) {
+            delete_post_meta($postId, 'beyondwords_content_id');
+            delete_post_meta($postId, 'beyondwords_podcast_id');
+            delete_post_meta($postId, 'speechkit_podcast_id');
+
+            $response = ApiClient::createAudio($postId);
+        }
 
         return $response;
     }
