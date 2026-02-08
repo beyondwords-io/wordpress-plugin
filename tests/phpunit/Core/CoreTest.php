@@ -936,8 +936,9 @@ class CoreTest extends TestCase
             // Restore original state
             if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
+            } else {
+                // Key was not set originally, and it's already unset in the try block
             }
-            // If it wasn't set originally, it's already unset in the try block
         }
 
         wp_delete_post($postId, true);
