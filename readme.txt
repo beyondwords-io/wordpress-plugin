@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.4
+Stable tag: 6.0.5-beta.1
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -82,9 +82,9 @@ Release date: 14th February 2026
 
 **Fixes**
 
-* [#477](https://github.com/beyondwords-io/wordpress-plugin/pull/477) Investigate 404 issues from REST API.
+* [#483](https://github.com/beyondwords-io/wordpress-plugin/pull/483) Fix reported REST API 404 responses.
     * Skip the second `wp_after_insert_post` triggered by Gutenberg's meta box save.
-    * If the audio update request to our REST API 404s, clear the stale content ID in WordPress and create new audio content.
+    * If the audio update request to our REST API results in a 404 then clear the stale content ID in WordPress and create new audio.
 
 = 6.0.4 =
 
