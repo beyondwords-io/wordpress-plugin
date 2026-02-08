@@ -877,16 +877,25 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        // Simulate Gutenberg's meta box compat request
-        $_REQUEST['meta-box-loader'] = '1';
+        // Save the original value to restore later
+        $originalMetaBoxLoader = $_REQUEST['meta-box-loader'] ?? null;
 
-        $result = Core::onAddOrUpdatePost($postId);
+        try {
+            // Simulate Gutenberg's meta box compat request
+            $_REQUEST['meta-box-loader'] = '1';
 
-        // Should return false without making any API calls
-        $this->assertFalse($result);
+            $result = Core::onAddOrUpdatePost($postId);
 
-        // Clean up
-        unset($_REQUEST['meta-box-loader']);
+            // Should return false without making any API calls
+            $this->assertFalse($result);
+        } finally {
+            // Restore original value
+            if ($originalMetaBoxLoader === null) {
+                unset($_REQUEST['meta-box-loader']);
+            } else {
+                $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
+            }
+        }
 
         wp_delete_post($postId, true);
 
@@ -910,13 +919,23 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        // Ensure meta-box-loader is not set
-        unset($_REQUEST['meta-box-loader']);
+        // Save the original value to restore later
+        $originalMetaBoxLoader = $_REQUEST['meta-box-loader'] ?? null;
 
-        $result = Core::onAddOrUpdatePost($postId);
+        try {
+            // Ensure meta-box-loader is not set
+            unset($_REQUEST['meta-box-loader']);
 
-        // Should not be false — the method should proceed to generateAudioForPost
-        $this->assertTrue($result);
+            $result = Core::onAddOrUpdatePost($postId);
+
+            // Should not be false — the method should proceed to generateAudioForPost
+            $this->assertTrue($result);
+        } finally {
+            // Restore original value
+            if ($originalMetaBoxLoader !== null) {
+                $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
+            }
+        }
 
         wp_delete_post($postId, true);
 
