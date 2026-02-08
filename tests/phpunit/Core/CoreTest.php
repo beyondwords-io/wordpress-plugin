@@ -877,8 +877,9 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        // Save the original value to restore later
-        $originalMetaBoxLoader = $_REQUEST['meta-box-loader'] ?? null;
+        // Save the original state to restore later
+        $hadMetaBoxLoader = isset($_REQUEST['meta-box-loader']);
+        $originalMetaBoxLoader = $hadMetaBoxLoader ? $_REQUEST['meta-box-loader'] : null;
 
         try {
             // Simulate Gutenberg's meta box compat request
@@ -889,11 +890,11 @@ class CoreTest extends TestCase
             // Should return false without making any API calls
             $this->assertFalse($result);
         } finally {
-            // Restore original value
-            if ($originalMetaBoxLoader === null) {
-                unset($_REQUEST['meta-box-loader']);
-            } else {
+            // Restore original state
+            if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
+            } else {
+                unset($_REQUEST['meta-box-loader']);
             }
         }
 
@@ -919,8 +920,9 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        // Save the original value to restore later
-        $originalMetaBoxLoader = $_REQUEST['meta-box-loader'] ?? null;
+        // Save the original state to restore later
+        $hadMetaBoxLoader = isset($_REQUEST['meta-box-loader']);
+        $originalMetaBoxLoader = $hadMetaBoxLoader ? $_REQUEST['meta-box-loader'] : null;
 
         try {
             // Ensure meta-box-loader is not set
@@ -931,10 +933,11 @@ class CoreTest extends TestCase
             // Should not be false — the method should proceed to generateAudioForPost
             $this->assertTrue($result);
         } finally {
-            // Restore original value
-            if ($originalMetaBoxLoader !== null) {
+            // Restore original state
+            if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
             }
+            // If it wasn't set originally, it's already unset in the try block
         }
 
         wp_delete_post($postId, true);
