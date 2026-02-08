@@ -930,9 +930,6 @@ class CoreTest extends TestCase
      */
     public function generateAudioForPostRecoversFrom404()
     {
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
         $staleContentId = '00000000-0000-0000-0000-000000000000';
 
         $postId = self::factory()->post->create([
@@ -945,7 +942,14 @@ class CoreTest extends TestCase
             ],
         ]);
 
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = $this->addNotFoundFilter($staleContentId, ['PUT']);
+
         $response = Core::generateAudioForPost($postId);
+
+        remove_filter('pre_http_request', $filter);
 
         // Should have recovered by creating new content
         $this->assertIsArray($response);
@@ -971,9 +975,6 @@ class CoreTest extends TestCase
      */
     public function generateAudioForPostClearsLegacyIdsOn404()
     {
-        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-
         $staleContentId = '00000000-0000-0000-0000-000000000000';
 
         $postId = self::factory()->post->create([
@@ -988,7 +989,14 @@ class CoreTest extends TestCase
             ],
         ]);
 
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = $this->addNotFoundFilter($staleContentId, ['PUT']);
+
         Core::generateAudioForPost($postId);
+
+        remove_filter('pre_http_request', $filter);
 
         // Legacy ID fields should be cleared
         $this->assertEmpty(get_post_meta($postId, 'beyondwords_podcast_id', true));
