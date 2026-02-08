@@ -184,7 +184,11 @@ class Core
 
         // If the API returned 404, the content no longer exists.
         // Clear the stale ID and create fresh content.
-        if (is_array($response) && ($response['code'] ?? null) === 404) {
+        // We check the error message that callApi() saves using the HTTP
+        // status code, rather than parsing the response body format.
+        $errorMessage = (string) get_post_meta($postId, 'beyondwords_error_message', true);
+
+        if (str_starts_with($errorMessage, '#404:')) {
             delete_post_meta($postId, 'beyondwords_content_id');
             delete_post_meta($postId, 'beyondwords_podcast_id');
             delete_post_meta($postId, 'speechkit_podcast_id');
