@@ -65,6 +65,11 @@ class Uninstaller
             }
         }
 
+        // Clean up legacy plugin registration flag from debug/import tools
+        if (delete_option('beyondwords_tools_page_registered')) {
+            $total++;
+        }
+
         return $total;
     }
 
