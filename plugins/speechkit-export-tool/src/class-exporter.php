@@ -110,14 +110,10 @@ class Exporter {
 		$csv_contents = stream_get_contents( $fp );
 		fclose( $fp );
 
-		$filename = sanitize_file_name( 'speechkit-' . gmdate( 'd-m-Y-H-i', time() ) ) . '.csv';
-		// Remove any potential CR/LF characters to prevent header injection.
-		$filename = str_replace( array( "\r", "\n" ), '', $filename );
-
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );
 		header( 'Content-type: application/vnd.ms-excel' );
-		header( 'Content-disposition: attachment; filename="' . str_replace( '"', '\\"', $filename ) . '"' );
+		header( 'Content-disposition: attachment; filename="beyondwords-export.csv"' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV output for file download.
 		echo $csv_contents;
