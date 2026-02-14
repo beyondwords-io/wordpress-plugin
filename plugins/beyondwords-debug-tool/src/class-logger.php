@@ -241,6 +241,7 @@ class Logger {
 	 * @return string
 	 */
 	private static function get_stack_trace() {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Stack traces are core functionality of this debug tool.
 		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 20 );
 		$lines = [];
 

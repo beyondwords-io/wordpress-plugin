@@ -56,6 +56,7 @@ class LogFile {
 			if ( ! wp_mkdir_p( $log_dir ) ) {
 				return [
 					'writable' => false,
+					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a directory path.
 					'message'  => sprintf(
 						__( 'Could not create directory: %s. Please create it manually with write permissions.', 'speechkit' ),
 						$log_dir
@@ -66,10 +67,12 @@ class LogFile {
 
 		// Try to create the log file if it doesn't exist.
 		if ( ! file_exists( $log_file ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Writing to wp-content/uploads.
 			$created = @file_put_contents( $log_file, '' );
 			if ( $created === false ) {
 				return [
 					'writable' => false,
+					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 					'message'  => sprintf(
 						__( 'Could not create log file: %s. Please create it manually with write permissions.', 'speechkit' ),
 						$log_file
@@ -79,10 +82,12 @@ class LogFile {
 		}
 
 		// Check if the file is writable.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_is_writable -- Checking wp-content/uploads writability.
 		if ( ! is_writable( $log_file ) ) {
 			return [
 				'writable' => false,
-				'message'  => sprintf(
+				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
+					'message'  => sprintf(
 					__( 'Log file is not writable: %s. Please ensure PHP has write permissions.', 'speechkit' ),
 					$log_file
 				),
@@ -110,6 +115,7 @@ class LogFile {
 			return;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Appending to log file in wp-content/uploads.
 		file_put_contents( $log_file, $message . "\n", FILE_APPEND | LOCK_EX );
 	}
 
@@ -124,16 +130,20 @@ class LogFile {
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_die() escapes output.
 			wp_die( __( 'You do not have permission to download this file.', 'speechkit' ) );
 		}
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce value is only compared, not stored.
 		if ( ! wp_verify_nonce( $_GET['beyondwords_download_log'], 'beyondwords_download_log' ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_die() escapes output.
 			wp_die( __( 'Security check failed.', 'speechkit' ) );
 		}
 
 		$log_file = self::get_log_file_path();
 
 		if ( ! file_exists( $log_file ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_die() escapes output.
 			wp_die( __( 'Log file does not exist.', 'speechkit' ) );
 		}
 

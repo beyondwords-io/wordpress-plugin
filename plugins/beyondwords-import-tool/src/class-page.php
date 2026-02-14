@@ -184,13 +184,16 @@ class Page {
 		$importable      = $total_records - $skipped_count;
 
 		?>
+		<?php // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count. ?>
 		<p><?php printf( esc_html__( 'Processing %d records...', 'speechkit' ), intval( $total_records ) ); ?></p>
+		<?php // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %1$d and %2$d are numeric counts. ?>
 		<p><?php printf( esc_html__( 'Found %1$d records to import (%2$d post meta operations).', 'speechkit' ), intval( $importable ), intval( $importable ) * 3 ); ?></p>
 
 		<?php if ( $skipped_count > 0 ) : ?>
 			<div class="notice notice-warning inline" style="margin: 10px 0;">
 				<p>
 					<?php
+					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count.
 					printf(
 						esc_html__( '%d record(s) will be skipped because a matching WordPress post could not be found:', 'speechkit' ),
 						intval( $skipped_count )
@@ -246,6 +249,7 @@ class Page {
 			<div id="beyondwords-import-progress-wrapper" style="width: 100%; background: #ccc; border-radius: 4px; margin: 20px 0;">
 				<div id="beyondwords-import-progress-bar" style="width: 0%; height: 30px; background: #0073aa; border-radius: 4px; transition: width 0.3s;"></div>
 			</div>
+			<?php // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count. ?>
 			<p id="beyondwords-import-status"><?php printf( esc_html__( 'Processing 0 of %d records...', 'speechkit' ), intval( $total_records ) ); ?></p>
 		</div>
 		<div id="beyondwords-import-complete" style="display: none;">

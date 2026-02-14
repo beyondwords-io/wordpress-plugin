@@ -126,6 +126,7 @@ class FileHandler {
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			Notices::add(
+				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a JSON error message.
 				sprintf( __( 'Invalid JSON: %s', 'speechkit' ), json_last_error_msg() ),
 				'error'
 			);
@@ -140,6 +141,7 @@ class FileHandler {
 		$max_records = 10000;
 		if ( count( $data ) > $max_records ) {
 			Notices::add(
+				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a formatted number.
 				sprintf( __( 'Too many records. Maximum is %s per import.', 'speechkit' ), number_format_i18n( $max_records ) ),
 				'error'
 			);

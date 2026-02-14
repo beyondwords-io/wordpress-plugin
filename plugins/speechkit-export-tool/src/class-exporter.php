@@ -61,6 +61,7 @@ class Exporter {
 	public static function handle_export() {
 		if (
 			! isset( $_POST['export_speechkit_data_nonce'] ) ||
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce value is only compared, not stored.
 			! wp_verify_nonce( $_POST['export_speechkit_data_nonce'], 'export' )
 		) {
 			return;
@@ -120,9 +121,11 @@ class Exporter {
 		}
 
 		// Write to memory (unless buffer exceeds 2mb when it will write to /tmp).
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Using php://temp stream, not filesystem.
 		$fp = fopen( 'php://temp', 'w+' );
 
 		foreach ( $data as $fields ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv -- Writing to php://temp stream, not filesystem.
 			fputcsv( $fp, $fields, ',', '"', "\0" );
 		}
 
@@ -137,6 +140,7 @@ class Exporter {
 		header( 'Content-type: application/vnd.ms-excel' );
 		header( 'Content-disposition: attachment; filename=' . $filename . '.csv' );
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV output for file download.
 		echo $csv_contents;
 		exit;
 	}
