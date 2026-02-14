@@ -193,8 +193,8 @@ class Page {
 			<div class="notice notice-warning inline" style="margin: 10px 0;">
 				<p>
 					<?php
-					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count.
 					printf(
+						// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count.
 						esc_html__( '%d record(s) will be skipped because a matching WordPress post could not be found:', 'speechkit' ),
 						intval( $skipped_count )
 					);

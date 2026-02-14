@@ -56,8 +56,8 @@ class LogFile {
 			if ( ! wp_mkdir_p( $log_dir ) ) {
 				return [
 					'writable' => false,
-					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a directory path.
 					'message'  => sprintf(
+						// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a directory path.
 						__( 'Could not create directory: %s. Please create it manually with write permissions.', 'speechkit' ),
 						$log_dir
 					),
@@ -72,8 +72,8 @@ class LogFile {
 			if ( $created === false ) {
 				return [
 					'writable' => false,
-					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 					'message'  => sprintf(
+						// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 						__( 'Could not create log file: %s. Please create it manually with write permissions.', 'speechkit' ),
 						$log_file
 					),
@@ -86,8 +86,8 @@ class LogFile {
 		if ( ! is_writable( $log_file ) ) {
 			return [
 				'writable' => false,
-				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 					'message'  => sprintf(
+					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 					__( 'Log file is not writable: %s. Please ensure PHP has write permissions.', 'speechkit' ),
 					$log_file
 				),
