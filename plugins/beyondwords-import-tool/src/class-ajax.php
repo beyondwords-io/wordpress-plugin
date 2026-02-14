@@ -95,6 +95,12 @@ class Ajax {
 	 * @return bool True on success, false on failure.
 	 */
 	private static function import_record( array $record ): bool {
+		static $allowed_types = null;
+
+		if ( $allowed_types === null ) {
+			$allowed_types = get_post_types_by_support( 'custom-fields' );
+		}
+
 		$post_id = Helpers::get_post_id_for_record( $record );
 
 		if ( $post_id === false ) {
@@ -108,7 +114,6 @@ class Ajax {
 		}
 
 		// Only import to post types that support custom fields.
-		$allowed_types = get_post_types_by_support( 'custom-fields' );
 		if ( ! in_array( $post->post_type, $allowed_types, true ) ) {
 			return false;
 		}
