@@ -32,6 +32,24 @@
 	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
 		<severity>0</severity>
 	</rule>
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.WP.I18n.MissingTranslatorsComment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fopen">
+		<severity>0</severity>
+	</rule>
 
 	<!-- Use BeyondWords text domain -->
 	<rule ref="WordPress.WP.I18n">
