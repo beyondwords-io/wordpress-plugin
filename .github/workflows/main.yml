@@ -703,7 +703,7 @@ jobs:
     name: 🚢 GitHub Release
     runs-on: ubuntu-22.04
     environment: production
-    needs: [cypress-tests]
+    needs: [build, cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     permissions:
       contents: write
