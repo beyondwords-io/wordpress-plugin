@@ -43,7 +43,8 @@ class Notices {
 	 * @since 1.0.0
 	 *
 	 * @param string $message The notice message.
-	 * @param string $type    The notice type (error, warning, success, info).
+	 * @param string $type    The notice type (error, warning, success, info, updated).
+	 *                        Invalid types will fall back to 'info'.
 	 */
 	public static function add( $message, $type = 'info' ) {
 		self::$notices[] = [
@@ -57,7 +58,7 @@ class Notices {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed $type The notice type to validate.
+	 * @param mixed $type The notice type to validate. Must be one of: error, warning, success, info, updated.
 	 * @return string Valid notice type, defaults to 'info' if invalid.
 	 */
 	private static function validate_notice_type( $type ) {
