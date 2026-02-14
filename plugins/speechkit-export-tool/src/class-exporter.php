@@ -111,6 +111,8 @@ class Exporter {
 		fclose( $fp );
 
 		$filename = sanitize_file_name( 'speechkit-' . gmdate( 'd-m-Y-H-i', time() ) ) . '.csv';
+		// Remove any potential CR/LF characters to prevent header injection.
+		$filename = str_replace( array( "\r", "\n" ), '', $filename );
 
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );
