@@ -166,14 +166,14 @@ class LogFile {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		$handle = fopen( $log_file, 'rb' );
+		$handle = fopen( $log_file, 'rb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Streaming log file download from wp-content/uploads.
 		if ( false === $handle ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_die() escapes output.
 			wp_die( __( 'Failed to open log file for reading.', 'speechkit' ) );
 		}
 
 		while ( ! feof( $handle ) ) {
-			$buffer = fread( $handle, 8192 ); // 8 KB chunks to limit memory usage.
+			$buffer = fread( $handle, 8192 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread -- 8 KB chunks to limit memory usage.
 			if ( false === $buffer ) {
 				break;
 			}
