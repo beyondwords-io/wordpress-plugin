@@ -35,30 +35,35 @@ class Page {
 	 * @since 1.0.0
 	 */
 	public static function register_management_page() {
-		global $submenu;
+		// Shared flag key used across BeyondWords tools to avoid duplicate registration.
+		$flag_key = 'beyondwords_tools_page_registered';
 
-		// Only add the menu page if it doesn't already exist.
-		// Note: this shared page registration is duplicated in
-		// beyondwords-import-tool/src/class-page.php — keep both in sync.
-		$exists = false;
-
-		if ( ! empty( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( $item[2] === self::MENU_SLUG ) {
-					$exists = true;
-					break;
-				}
-			}
+		// If another BeyondWords tool has already registered the shared page (in a
+		// previous request), skip registration.
+		if ( get_option( $flag_key ) ) {
+			return;
 		}
 
-		if ( ! $exists ) {
-			add_management_page(
-				__( 'BeyondWords', 'speechkit' ),
-				__( 'BeyondWords', 'speechkit' ),
-				'manage_options',
-				self::MENU_SLUG,
-				[ self::class, 'render_page' ]
-			);
+		// If WordPress already has a hook for this page in the current request,
+		// record the flag and skip registering it again.
+		$existing_hook = get_plugin_page_hookname( self::MENU_SLUG, 'tools.php' );
+		if ( ! empty( $existing_hook ) ) {
+			update_option( $flag_key, 1, false );
+			return;
+		}
+
+		$hook = add_management_page(
+			__( 'BeyondWords', 'speechkit' ),
+			__( 'BeyondWords', 'speechkit' ),
+			'manage_options',
+			self::MENU_SLUG,
+			[ self::class, 'render_page' ]
+		);
+
+		// If registration was successful, set the flag so other tools know the
+		// shared page already exists.
+		if ( ! empty( $hook ) ) {
+			update_option( $flag_key, 1, false );
 		}
 	}
 
