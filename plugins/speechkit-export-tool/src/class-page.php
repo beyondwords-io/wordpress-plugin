@@ -37,7 +37,7 @@ class Page {
 		$hook = add_management_page(
 			__( 'Export SpeechKit Data', 'speechkit' ),
 			__( 'Export SpeechKit Data', 'speechkit' ),
-			'install_plugins',
+			'manage_options',
 			self::MENU_SLUG,
 			[ self::class, 'render_page' ]
 		);

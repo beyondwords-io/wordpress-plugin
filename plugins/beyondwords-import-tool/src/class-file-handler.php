@@ -117,9 +117,19 @@ class FileHandler {
 			}
 		}
 
-		if ( $mime_type && 'application/json' !== $mime_type ) {
-			Notices::add( __( 'Invalid file content. Please upload a valid JSON file.', 'speechkit' ), 'error' );
-			return false;
+		if ( $mime_type ) {
+			// Normalize MIME type (strip parameters like charset and compare case-insensitively).
+			$normalized_mime_type = strtolower( trim( explode( ';', $mime_type )[0] ) );
+			$allowed_mime_types   = [
+				'application/json',
+				'application/ld+json',
+				'text/json',
+			];
+
+			if ( ! in_array( $normalized_mime_type, $allowed_mime_types, true ) ) {
+				Notices::add( __( 'Invalid file content. Please upload a valid JSON file.', 'speechkit' ), 'error' );
+				return false;
+			}
 		}
 		return $file;
 	}
