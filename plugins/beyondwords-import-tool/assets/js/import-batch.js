@@ -146,6 +146,12 @@ jQuery(document).ready(function($) {
 			data: {
 				action: 'beyondwords_import_cleanup',
 				nonce: nonce
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// Log cleanup errors to console for debugging, but don't disrupt UX.
+				if (window.console && console.error) {
+					console.error('BeyondWords: Cleanup error:', textStatus, errorThrown);
+				}
 			}
 		});
 	}
