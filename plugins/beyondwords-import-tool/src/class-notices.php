@@ -41,8 +41,26 @@ class Notices {
 	public static function add( $message, $type = 'info' ) {
 		self::$notices[] = [
 			'message' => $message,
-			'type'    => $type,
+			'type'    => self::validate_notice_type( $type ),
 		];
+	}
+
+	/**
+	 * Validate and sanitize notice type.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $type The notice type to validate.
+	 * @return string Valid notice type, defaults to 'info' if invalid.
+	 */
+	private static function validate_notice_type( $type ) {
+		$valid_types = [ 'error', 'warning', 'success', 'info', 'updated' ];
+
+		if ( in_array( $type, $valid_types, true ) ) {
+			return $type;
+		}
+
+		return 'info';
 	}
 
 	/**
