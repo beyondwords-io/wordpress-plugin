@@ -154,6 +154,37 @@ jobs:
           path: /tmp/beyondwords-debug-tool.zip
           retention-days: 7
 
+      - name: Build beyondwords-remove-auto-player ZIP
+        run: |
+          mkdir /tmp/beyondwords-remove-auto-player
+          cp -rp \
+            plugin.php \
+            /tmp/beyondwords-remove-auto-player
+          cd /tmp && zip -r beyondwords-remove-auto-player.zip beyondwords-remove-auto-player
+        working-directory: plugins/beyondwords-remove-auto-player
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beyondwords-remove-auto-player.zip
+          path: /tmp/beyondwords-remove-auto-player.zip
+          retention-days: 7
+
+      - name: Build speechkit-export-tool ZIP
+        run: |
+          mkdir /tmp/speechkit-export-tool
+          cp -rp \
+            plugin.php \
+            src \
+            /tmp/speechkit-export-tool
+          cd /tmp && zip -r speechkit-export-tool.zip speechkit-export-tool
+        working-directory: plugins/speechkit-export-tool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speechkit-export-tool.zip
+          path: /tmp/speechkit-export-tool.zip
+          retention-days: 7
+
 
   # ######################################
   # GrumPHP
@@ -703,6 +734,18 @@ jobs:
           name: beyondwords-debug-tool.zip
           path: /tmp
 
+      - name: Download remove auto player artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beyondwords-remove-auto-player.zip
+          path: /tmp
+
+      - name: Download export tool artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: speechkit-export-tool.zip
+          path: /tmp
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -711,3 +754,5 @@ jobs:
             /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
             /tmp/beyondwords-import-tool.zip
             /tmp/beyondwords-debug-tool.zip
+            /tmp/beyondwords-remove-auto-player.zip
+            /tmp/speechkit-export-tool.zip
