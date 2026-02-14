@@ -45,6 +45,8 @@
     "lint:pkg-json": "wp-scripts lint-pkg-json",
     "mockoon:start": "mockoon-cli start --data ./.mockoon/beyondwords-api.json --port 3000",
     "packages-update": "wp-scripts packages-update",
+    "phpcs": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcs -d memory_limit=512M",
+    "phpcbf": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcbf -d memory_limit=512M",
     "rector": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process --dry-run",
     "rector:fix": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process",
     "rector:fix:diff": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process --debug",

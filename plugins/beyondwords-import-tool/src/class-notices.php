@@ -55,7 +55,13 @@ class Notices {
 			printf(
 				'<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
 				esc_attr( $notice['type'] ),
-				wp_kses( $notice['message'], [ 'br' => [], 'code' => [] ] )
+				wp_kses(
+					$notice['message'],
+					[
+						'br'   => [],
+						'code' => [],
+					] 
+				)
 			);
 		}
 	}

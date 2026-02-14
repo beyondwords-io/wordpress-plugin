@@ -113,6 +113,12 @@ jobs:
           retention-days: 7
 
       # ######################################
+      # Lint Extension Plugins (WordPress VIP)
+      # ######################################
+      - name: Lint extension plugins
+        run: ./vendor/bin/phpcs --standard=plugins/phpcs.xml plugins/
+
+      # ######################################
       # Generate Extension Plugin ZIP files
       # ######################################
       - name: Build beyondwords-import-tool ZIP
@@ -130,6 +136,22 @@ jobs:
         with:
           name: beyondwords-import-tool.zip
           path: /tmp/beyondwords-import-tool.zip
+          retention-days: 7
+
+      - name: Build beyondwords-debug-tool ZIP
+        run: |
+          mkdir /tmp/beyondwords-debug-tool
+          cp -rp \
+            plugin.php \
+            src \
+            /tmp/beyondwords-debug-tool
+          cd /tmp && zip -r beyondwords-debug-tool.zip beyondwords-debug-tool
+        working-directory: plugins/beyondwords-debug-tool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beyondwords-debug-tool.zip
+          path: /tmp/beyondwords-debug-tool.zip
           retention-days: 7
 
 
@@ -675,6 +697,12 @@ jobs:
           name: beyondwords-import-tool.zip
           path: /tmp
 
+      - name: Download debug tool artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beyondwords-debug-tool.zip
+          path: /tmp
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -682,3 +710,4 @@ jobs:
           files: |
             /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
             /tmp/beyondwords-import-tool.zip
+            /tmp/beyondwords-debug-tool.zip

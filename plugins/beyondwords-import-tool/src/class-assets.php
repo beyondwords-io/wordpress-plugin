@@ -60,12 +60,12 @@ class Assets {
 				'batchSize'    => 50,
 				'nonce'        => wp_create_nonce( 'beyondwords_import_batch' ),
 				'i18n'         => [
-					'processing'    => __( 'Processing %1$d of %2$d records...', 'speechkit' ),
+					'processing'     => __( 'Processing %1$d of %2$d records...', 'speechkit' ),
 					'successSummary' => __( 'Successfully updated %1$d records (%2$d meta values).', 'speechkit' ),
-					'failedSummary' => __( '%d record(s) could not be imported because a matching WordPress post could not be found:', 'speechkit' ),
-					'ajaxError'     => __( 'An error occurred during import.', 'speechkit' ),
-					'networkError'  => __( 'A network error occurred. Please try again.', 'speechkit' ),
-					'copiedMessage' => __( 'Failed records copied to clipboard.', 'speechkit' ),
+					'failedSummary'  => __( '%d record(s) could not be imported because a matching WordPress post could not be found:', 'speechkit' ),
+					'ajaxError'      => __( 'An error occurred during import.', 'speechkit' ),
+					'networkError'   => __( 'A network error occurred. Please try again.', 'speechkit' ),
+					'copiedMessage'  => __( 'Failed records copied to clipboard.', 'speechkit' ),
 				],
 			]
 		);

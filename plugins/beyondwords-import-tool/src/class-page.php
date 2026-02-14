@@ -185,7 +185,7 @@ class Page {
 
 		?>
 		<p><?php printf( esc_html__( 'Processing %d records...', 'speechkit' ), intval( $total_records ) ); ?></p>
-		<p><?php printf( esc_html__( 'Found %d records to import (%d post meta operations).', 'speechkit' ), intval( $importable ), intval( $importable ) * 3 ); ?></p>
+		<p><?php printf( esc_html__( 'Found %1$d records to import (%2$d post meta operations).', 'speechkit' ), intval( $importable ), intval( $importable ) * 3 ); ?></p>
 
 		<?php if ( $skipped_count > 0 ) : ?>
 			<div class="notice notice-warning inline" style="margin: 10px 0;">
@@ -294,7 +294,6 @@ class Page {
 		<?php
 		Assets::enqueue_batch_script( $total_records );
 	}
-
 }
 
 Page::init();
