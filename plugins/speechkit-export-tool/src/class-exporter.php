@@ -71,32 +71,12 @@ class Exporter {
 			return;
 		}
 
-		global $wpdb;
-
-		$placeholders = implode( ',', array_fill( 0, count( self::META_KEYS ), '%s' ) );
-
 		$data = [
 			0 => self::CSV_HEADERS,
 		];
 
 		// Query 50 of the OLDEST posts with SpeechKit data.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off export query, not cached.
-		$oldest = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated string of %s tokens, table names use $wpdb properties.
-			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts}
-				INNER JOIN {$wpdb->postmeta}
-				ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id)
-				WHERE (
-					{$wpdb->postmeta}.meta_key IN ({$placeholders})
-					AND LENGTH({$wpdb->postmeta}.meta_value) > 0
-				)
-				GROUP BY {$wpdb->posts}.ID
-				ORDER BY {$wpdb->posts}.post_date ASC
-				LIMIT 50",
-				...self::META_KEYS
-			)
-		);
+		$oldest = self::query_posts_with_meta( 'ASC' );
 
 		if ( $oldest ) {
 			foreach ( $oldest as $obj ) {
@@ -107,23 +87,7 @@ class Exporter {
 		}
 
 		// Query 50 of the NEWEST posts with SpeechKit data.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off export query, not cached.
-		$newest = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated string of %s tokens, table names use $wpdb properties.
-			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts}
-				INNER JOIN {$wpdb->postmeta}
-				ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id)
-				WHERE (
-					{$wpdb->postmeta}.meta_key IN ({$placeholders})
-					AND LENGTH({$wpdb->postmeta}.meta_value) > 0
-				)
-				GROUP BY {$wpdb->posts}.ID
-				ORDER BY {$wpdb->posts}.post_date DESC
-				LIMIT 50",
-				...self::META_KEYS
-			)
-		);
+		$newest = self::query_posts_with_meta( 'DESC' );
 
 		if ( $newest ) {
 			foreach ( $newest as $obj ) {
@@ -179,6 +143,37 @@ class Exporter {
 		}
 
 		return $row;
+	}
+
+	/**
+	 * Query posts that have SpeechKit meta data.
+	 *
+	 * @since 1.0.3
+	 *
+	 * @param string $order 'ASC' or 'DESC' sort order by post_date.
+	 *
+	 * @return array|object|null Database query results.
+	 */
+	private static function query_posts_with_meta( $order ) {
+		global $wpdb;
+
+		$placeholders = implode( ',', array_fill( 0, count( self::META_KEYS ), '%s' ) );
+
+		// Build query via concatenation to satisfy PHPCS (no interpolated variables inside prepare()).
+		$sql = 'SELECT ID FROM ' . $wpdb->posts
+			. ' INNER JOIN ' . $wpdb->postmeta
+			. ' ON (' . $wpdb->posts . '.ID = ' . $wpdb->postmeta . '.post_id)'
+			. ' WHERE (' . $wpdb->postmeta . '.meta_key IN (' . $placeholders . ')'
+			. ' AND LENGTH(' . $wpdb->postmeta . '.meta_value) > 0)'
+			. ' GROUP BY ' . $wpdb->posts . '.ID'
+			. ' ORDER BY ' . $wpdb->posts . '.post_date ' . ( 'ASC' === $order ? 'ASC' : 'DESC' )
+			. ' LIMIT 50';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off export query, not cached.
+		return $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is built from $wpdb table properties and %s placeholders only.
+			$wpdb->prepare( $sql, ...self::META_KEYS )
+		);
 	}
 
 	/**

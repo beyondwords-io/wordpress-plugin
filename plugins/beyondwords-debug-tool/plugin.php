@@ -32,7 +32,7 @@ require_once plugin_dir_path( __FILE__ ) . 'src/class-settings.php';
 
 register_deactivation_hook(
 	__FILE__,
-	function () {
+	function (): void {
 		Beyondwords\Wordpress\Debug\Settings::deactivate();
 		Beyondwords\Wordpress\Debug\LogFile::delete_log_file();
 	}

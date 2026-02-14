@@ -83,7 +83,7 @@ class Helpers {
 		$lines   = [];
 		$skipped = [];
 
-		foreach ( $import_data as $index => &$record ) {
+		foreach ( $import_data as &$record ) {
 			$post_id = self::get_post_id_for_record( $record );
 
 			// Cache the resolved post ID so the AJAX import can skip url_to_postid().
