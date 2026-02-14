@@ -156,6 +156,12 @@ class Page {
 			<?php wp_nonce_field( 'beyondwords_import_upload', 'beyondwords_import_nonce' ); ?>
 		</form>
 		<?php
+
+		// Clean up any lingering transients when showing the upload form.
+		// This ensures cleanup happens when users return to step 1 or if transients
+		// were left behind from a previous incomplete import.
+		Transients::delete_import_data();
+		Transients::delete_failed();
 	}
 
 	/**

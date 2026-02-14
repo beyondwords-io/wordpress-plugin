@@ -52,7 +52,7 @@ class FileHandler {
 	 * @since 1.0.0
 	 */
 	private static function process() {
-		// Raise memory limit for large file processing (up to 10 MB JSON / 10,000 records).
+		// Raise memory limit for large file processing (up to 5 MB JSON / 5,000 records).
 		wp_raise_memory_limit( 'admin' );
 
 		$file = self::validate_upload();
@@ -167,11 +167,11 @@ class FileHandler {
 			return false;
 		}
 
-		$max_records = 10000;
+		$max_records = 5000;
 		if ( count( $data ) > $max_records ) {
 			Notices::add(
 				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a formatted number.
-				sprintf( __( 'Too many records. Maximum is %s per import.', 'speechkit' ), number_format_i18n( $max_records ) ),
+				sprintf( __( 'Too many records. Maximum is %s per import. Please split your file into smaller batches and import them separately.', 'speechkit' ), number_format_i18n( $max_records ) ),
 				'error'
 			);
 			return false;
