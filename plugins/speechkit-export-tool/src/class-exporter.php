@@ -110,12 +110,10 @@ class Exporter {
 		$csv_contents = stream_get_contents( $fp );
 		fclose( $fp );
 
-		$filename = 'speechkit-' . gmdate( 'd-m-Y-H-i', time() );
-
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );
 		header( 'Content-type: application/vnd.ms-excel' );
-		header( 'Content-disposition: attachment; filename=' . $filename . '.csv' );
+		header( 'Content-disposition: attachment; filename="beyondwords-export.csv"' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV output for file download.
 		echo $csv_contents;
