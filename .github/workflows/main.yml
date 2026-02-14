@@ -72,6 +72,12 @@ jobs:
       - name: Make i18n POT file
         run: 'composer wp:i18n:make-pot'
 
+      # ######################################
+      # Lint Extension Plugins (WordPress VIP)
+      # ######################################
+      - name: Lint extension plugins
+        run: ./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/
+
       - name: Reinstall without dev dependencies
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
@@ -111,12 +117,6 @@ jobs:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           retention-days: 7
-
-      # ######################################
-      # Lint Extension Plugins (WordPress VIP)
-      # ######################################
-      - name: Lint extension plugins
-        run: ./vendor/bin/phpcs --standard=plugins/phpcs.xml plugins/
 
       # ######################################
       # Generate Extension Plugin ZIP files
