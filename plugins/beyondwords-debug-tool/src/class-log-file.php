@@ -162,6 +162,9 @@ class LogFile {
 		header( 'Content-Type: text/plain' );
 		header( 'Content-Disposition: attachment; filename="beyondwords-rest-api.log"' );
 		header( 'Content-Length: ' . filesize( $log_file ) );
+		header( 'Cache-Control: no-store, no-cache, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
 
 		readfile( $log_file );
 		exit;
