@@ -59,7 +59,7 @@ class Exporter {
 	 * @since 1.0.0
 	 */
 	public static function handle_export() {
-		if ( ! current_user_can( 'install_plugins' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
@@ -109,6 +109,12 @@ class Exporter {
 		rewind( $fp );
 		$csv_contents = stream_get_contents( $fp );
 		fclose( $fp );
+
+		// Clear any output buffers to prevent corrupted downloads.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- ob_end_clean() warns if no buffer exists.
+		while ( ob_get_level() ) {
+			@ob_end_clean();
+		}
 
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );

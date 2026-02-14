@@ -193,8 +193,9 @@ class Logger {
 		foreach ( $headers as $name => $value ) {
 			$display_value = is_array( $value ) ? implode( ', ', $value ) : $value;
 
-			// Mask API keys, showing only last 4 characters.
-			if ( strtolower( $name ) === 'x-api-key' && strlen( $display_value ) > 4 ) {
+			// Mask API keys and authorization headers, showing only last 4 characters.
+			$lower_name = strtolower( $name );
+			if ( in_array( $lower_name, [ 'x-api-key', 'authorization' ], true ) && strlen( $display_value ) > 4 ) {
 				$display_value = '******' . substr( $display_value, -4 );
 			}
 

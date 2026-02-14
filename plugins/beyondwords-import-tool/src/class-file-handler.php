@@ -124,6 +124,7 @@ class FileHandler {
 				'application/json',
 				'application/ld+json',
 				'text/json',
+				'text/plain',
 			];
 
 			if ( ! in_array( $normalized_mime_type, $allowed_mime_types, true ) ) {

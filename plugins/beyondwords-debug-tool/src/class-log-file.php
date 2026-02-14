@@ -159,6 +159,12 @@ class LogFile {
 			wp_die( __( 'Log file does not exist.', 'speechkit' ) );
 		}
 
+		// Clear any output buffers to prevent corrupted downloads.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- ob_end_clean() warns if no buffer exists.
+		while ( ob_get_level() ) {
+			@ob_end_clean();
+		}
+
 		header( 'Content-Type: text/plain' );
 		header( 'Content-Disposition: attachment; filename="beyondwords-rest-api.log"' );
 		header( 'Content-Length: ' . filesize( $log_file ) );

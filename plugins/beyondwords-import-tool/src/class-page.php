@@ -91,6 +91,8 @@ class Page {
 				self::render_preview( $import_data );
 			} elseif ( $step === 3 && $import_data && self::$import_confirmed ) {
 				self::render_progress( $import_data );
+			} elseif ( ( $step === 2 || $step === 3 ) && ! $import_data ) {
+				self::render_session_expired();
 			} else {
 				self::render_upload_form();
 			}
@@ -115,6 +117,24 @@ class Page {
 		) {
 			self::$import_confirmed = true;
 		}
+	}
+
+	/**
+	 * Render a message when the import session has expired.
+	 *
+	 * @since 1.0.0
+	 */
+	private static function render_session_expired() {
+		?>
+		<div class="notice notice-warning inline" style="margin: 10px 0;">
+			<p><?php esc_html_e( 'Your import session has expired. Please upload the file again.', 'speechkit' ); ?></p>
+		</div>
+		<p>
+			<a href="<?php echo esc_url( admin_url( 'tools.php?page=' . self::MENU_SLUG ) ); ?>" class="button button-primary">
+				<?php esc_html_e( 'Start Over', 'speechkit' ); ?>
+			</a>
+		</p>
+		<?php
 	}
 
 	/**
