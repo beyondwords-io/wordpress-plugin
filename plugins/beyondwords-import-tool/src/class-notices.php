@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Notices {
 	/**
+	 * Valid WordPress notice types.
+	 *
+	 * @var array
+	 */
+	private const VALID_NOTICE_TYPES = [ 'error', 'warning', 'success', 'info', 'updated' ];
+
+	/**
 	 * Queued admin notices to display.
 	 *
 	 * @var array
@@ -36,13 +43,35 @@ class Notices {
 	 * @since 1.0.0
 	 *
 	 * @param string $message The notice message.
-	 * @param string $type    The notice type (error, warning, success, info).
+	 * @param mixed  $type    The notice type (error, warning, success, info, updated).
+	 *                        Invalid types will fall back to 'info'.
 	 */
 	public static function add( $message, $type = 'info' ) {
 		self::$notices[] = [
 			'message' => $message,
-			'type'    => $type,
+			'type'    => self::validate_notice_type( $type ),
 		];
+	}
+
+	/**
+	 * Validate and sanitize notice type.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param mixed $type The notice type to validate. Must be one of: error, warning, success, info, updated.
+	 * @return string Valid notice type, defaults to 'info' if invalid.
+	 */
+	private static function validate_notice_type( $type ) {
+		// Ensure type is a string
+		if ( ! is_string( $type ) ) {
+			return 'info';
+		}
+
+		if ( in_array( $type, self::VALID_NOTICE_TYPES, true ) ) {
+			return $type;
+		}
+
+		return 'info';
 	}
 
 	/**
