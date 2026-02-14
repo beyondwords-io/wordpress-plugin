@@ -35,31 +35,20 @@ class Page {
 	 * @since 1.0.0
 	 */
 	public static function register_management_page() {
-		global $submenu;
-
-		// Only add the menu page if it doesn't already exist.
-		// Note: this shared page registration is duplicated in
-		// beyondwords-import-tool/src/class-page.php — keep both in sync.
-		$exists = false;
-
-		if ( ! empty( $submenu['tools.php'] ) ) {
-			foreach ( $submenu['tools.php'] as $item ) {
-				if ( $item[2] === self::MENU_SLUG ) {
-					$exists = true;
-					break;
-				}
-			}
+		// Check if WordPress already has a hook for this page in the current request.
+		// This works across multiple BeyondWords plugins without requiring database operations.
+		$existing_hook = get_plugin_page_hookname( self::MENU_SLUG, 'tools.php' );
+		if ( ! empty( $existing_hook ) ) {
+			return;
 		}
 
-		if ( ! $exists ) {
-			add_management_page(
-				__( 'BeyondWords', 'speechkit' ),
-				__( 'BeyondWords', 'speechkit' ),
-				'manage_options',
-				self::MENU_SLUG,
-				[ self::class, 'render_page' ]
-			);
-		}
+		add_management_page(
+			__( 'BeyondWords', 'speechkit' ),
+			__( 'BeyondWords', 'speechkit' ),
+			'manage_options',
+			self::MENU_SLUG,
+			[ self::class, 'render_page' ]
+		);
 	}
 
 	/**
