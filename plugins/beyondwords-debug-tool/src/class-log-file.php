@@ -166,7 +166,26 @@ class LogFile {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		readfile( $log_file );
+		$handle = fopen( $log_file, 'rb' );
+		if ( false === $handle ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_die() escapes output.
+			wp_die( __( 'Failed to open log file for reading.', 'speechkit' ) );
+		}
+
+		while ( ! feof( $handle ) ) {
+			$buffer = fread( $handle, 8192 ); // 8 KB chunks to limit memory usage.
+			if ( false === $buffer ) {
+				break;
+			}
+			echo $buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw log content for download.
+
+			// Stop sending data if the client connection has been aborted.
+			if ( connection_aborted() ) {
+				break;
+			}
+		}
+
+		fclose( $handle );
 		exit;
 	}
 	/**
