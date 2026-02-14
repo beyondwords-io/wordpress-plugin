@@ -43,7 +43,7 @@ class Notices {
 	 * @since 1.0.0
 	 *
 	 * @param string $message The notice message.
-	 * @param string $type    The notice type (error, warning, success, info, updated).
+	 * @param mixed  $type    The notice type (error, warning, success, info, updated).
 	 *                        Invalid types will fall back to 'info'.
 	 */
 	public static function add( $message, $type = 'info' ) {
