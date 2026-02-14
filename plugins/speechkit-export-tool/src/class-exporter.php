@@ -110,7 +110,7 @@ class Exporter {
 		$csv_contents = stream_get_contents( $fp );
 		fclose( $fp );
 
-		$filename = sanitize_file_name( 'speechkit-' . gmdate( 'd-m-Y-H-i', time() ) . '.csv' );
+		$filename = sanitize_file_name( 'speechkit-' . gmdate( 'd-m-Y-H-i', time() ) ) . '.csv';
 
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );
