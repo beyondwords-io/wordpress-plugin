@@ -63,11 +63,6 @@ jQuery(document).ready(function($) {
 								copyFailed($(this));
 							});
 						}
-
-						// Ensure transients are cleaned up after results are displayed.
-						// This provides additional safety beyond the server-side cleanup
-						// that happens in the final batch response.
-						cleanupTransients();
 					} else {
 						processBatch();
 					}
@@ -75,8 +70,6 @@ jQuery(document).ready(function($) {
 					$('#beyondwords-import-progress-container').hide();
 					$('#beyondwords-import-error').show();
 					$('#beyondwords-import-error-message').text(response.data.message || config.i18n.ajaxError);
-					// Clean up transients on error to prevent them from lingering.
-					cleanupTransients();
 				}
 			},
 			error: function() {
@@ -93,8 +86,6 @@ jQuery(document).ready(function($) {
 				$('#beyondwords-import-progress-container').hide();
 				$('#beyondwords-import-error').show();
 				$('#beyondwords-import-error-message').text(config.i18n.networkError);
-				// Clean up transients on error to prevent them from lingering.
-				cleanupTransients();
 			}
 		});
 	}
@@ -134,26 +125,6 @@ jQuery(document).ready(function($) {
 		setTimeout(function() {
 			$success.hide().attr('aria-hidden', 'true');
 		}, 3000);
-	}
-
-	function cleanupTransients() {
-		// Silent cleanup call - no need to handle response or errors
-		// as transients are already cleaned up server-side in the final batch.
-		// This is just an additional safety measure.
-		$.ajax({
-			url: ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'beyondwords_import_cleanup',
-				nonce: nonce
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				// Log cleanup errors to console for debugging, but don't disrupt UX.
-				if (window.console && console.error) {
-					console.error('BeyondWords: Cleanup error:', textStatus, errorThrown);
-				}
-			}
-		});
 	}
 
 	processBatch();
