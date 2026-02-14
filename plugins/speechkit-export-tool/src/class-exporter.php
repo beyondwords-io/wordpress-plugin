@@ -110,12 +110,12 @@ class Exporter {
 		$csv_contents = stream_get_contents( $fp );
 		fclose( $fp );
 
-		$filename = 'speechkit-' . gmdate( 'd-m-Y-H-i', time() );
+		$filename = sanitize_file_name( 'speechkit-' . gmdate( 'd-m-Y-H-i', time() ) . '.csv' );
 
 		header( 'Cache-Control: must-revalidate' );
 		header( 'Pragma: must-revalidate' );
 		header( 'Content-type: application/vnd.ms-excel' );
-		header( 'Content-disposition: attachment; filename=' . $filename . '.csv' );
+		header( 'Content-disposition: attachment; filename="' . str_replace( '"', '\\"', $filename ) . '"' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV output for file download.
 		echo $csv_contents;
