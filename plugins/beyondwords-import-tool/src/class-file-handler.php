@@ -105,6 +105,22 @@ class FileHandler {
 			return false;
 		}
 
+		// Validate the actual MIME type of the uploaded file, not just the extension.
+		$mime_type = '';
+		if ( ! empty( $file['tmp_name'] ) && function_exists( 'mime_content_type' ) ) {
+			$mime_type = mime_content_type( $file['tmp_name'] );
+		} elseif ( ! empty( $file['tmp_name'] ) && function_exists( 'finfo_open' ) ) {
+			$finfo = finfo_open( FILEINFO_MIME_TYPE );
+			if ( $finfo ) {
+				$mime_type = finfo_file( $finfo, $file['tmp_name'] );
+				finfo_close( $finfo );
+			}
+		}
+
+		if ( $mime_type && 'application/json' !== $mime_type ) {
+			Notices::add( __( 'Invalid file content. Please upload a valid JSON file.', 'speechkit' ), 'error' );
+			return false;
+		}
 		return $file;
 	}
 

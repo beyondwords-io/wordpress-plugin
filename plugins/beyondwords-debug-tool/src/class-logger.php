@@ -60,7 +60,7 @@ class Logger {
 	 */
 	private static function is_beyondwords_request( $url ) {
 		$api_url = self::get_api_url();
-		return str_starts_with($url, $api_url);
+		return str_starts_with( $url, $api_url );
 	}
 
 	/**
