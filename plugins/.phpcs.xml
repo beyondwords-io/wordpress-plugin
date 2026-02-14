@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="BeyondWords Plugins">
+	<description>WordPress VIP coding standards for BeyondWords plugins.</description>
+
+	<!-- What to scan -->
+	<file>.</file>
+
+	<!-- How to scan -->
+	<arg value="sp"/>
+	<arg name="basepath" value="./"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+
+	<!-- Rules: WordPress VIP -->
+	<rule ref="WordPress-VIP-Go"/>
+
+	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED"/>
+</ruleset>
