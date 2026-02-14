@@ -60,7 +60,7 @@ class Notices {
 					[
 						'br'   => [],
 						'code' => [],
-					] 
+					]
 				)
 			);
 		}
