@@ -24,10 +24,7 @@ grumphp:
         priority: 10
     phpcs:
       standard:
-        - phpcs.xml
-      exclude:
-        - PSR12.Files.FileHeader
-        - PSR12.Files.OpenTag
+        - .phpcs.xml
       triggered_by:
         - php
       tab_width: 4

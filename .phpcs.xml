@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="WordPress Coding Standards based custom ruleset for your plugin">
-	<description>Generally-applicable sniffs for WordPress plugins.</description>
+<ruleset name="BeyondWords WordPress Plugin">
+	<description>Coding standards for the BeyondWords WordPress plugin.</description>
 
 	<!-- What to scan -->
 	<file>.</file>
@@ -8,34 +8,41 @@
 	<exclude-pattern>/node_modules/</exclude-pattern>
 
 	<!-- How to scan -->
-	<!-- Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
-	<!-- Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml -->
-	<arg value="sp"/> <!-- Show sniff and progress -->
-	<arg name="basepath" value="./"/><!-- Strip the file paths down to the relevant bit -->
+	<arg value="sp"/>
+	<arg name="basepath" value="./"/>
 	<arg name="colors"/>
 	<arg name="extensions" value="php"/>
-	<arg name="parallel" value="8"/><!-- Enables parallel processing when available for faster results. -->
+	<arg name="parallel" value="8"/>
+	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED"/>
 
-	<!-- Rules: Check PHP version compatibility -->
-	<!-- https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions -->
+	<!-- PHP version compatibility -->
 	<config name="testVersion" value="5.6-"/>
-	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
 	<rule ref="PHPCompatibilityWP"/>
 
-	<!-- Rules: WordPress Coding Standards -->
-	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
-	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
+	<!-- VIP security and performance rules for all code -->
 	<config name="minimum_supported_wp_version" value="4.6"/>
-	<rule ref="WordPress"/>
+	<rule ref="WordPressVIPMinimum"/>
+
+	<!-- Full WordPress formatting for plugins only -->
+	<rule ref="WordPress">
+		<include-pattern>*/plugins/*</include-pattern>
+	</rule>
+
+	<!-- PSR-12 for main code (not plugins) -->
+	<rule ref="PSR12">
+		<exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+		<exclude-pattern>*/plugins/*</exclude-pattern>
+	</rule>
+
+	<!-- Prefix config (main plugin only, not sub-plugins) -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
-			<!-- Value: replace the function, class, and variable prefixes used. Separate multiple prefixes with a comma. -->
 			<property name="prefixes" type="array" value="speechkit"/>
 		</properties>
+		<exclude-pattern>*/plugins/*</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<!-- Value: replace the text domain used. -->
 			<property name="text_domain" type="array" value="speechkit"/>
 		</properties>
 	</rule>
