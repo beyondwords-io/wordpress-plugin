@@ -107,8 +107,8 @@ class Ajax {
 			return false;
 		}
 
-		// Only import to content post types, not revisions, nav menus, etc.
-		$allowed_types = (array) get_option( 'beyondwords_post_types', [ 'post', 'page' ] );
+		// Only import to post types that support custom fields.
+		$allowed_types = get_post_types_by_support( 'custom-fields' );
 		if ( ! in_array( $post->post_type, $allowed_types, true ) ) {
 			return false;
 		}
