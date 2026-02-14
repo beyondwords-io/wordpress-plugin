@@ -99,9 +99,8 @@ class Page {
 		$step        = isset( $_GET['step'] ) ? intval( $_GET['step'] ) : 1;
 		$import_data = Transients::get_import_data();
 
-		// Clean up transients when user is on step 1 (upload form).
-		// This ensures cleanup even if import completed but user never explicitly returned.
-		if ( $step === 1 ) {
+		// Clean up transients when user returns to step 1 (upload form).
+		if ( $step === 1 && $import_data ) {
 			Transients::delete_import_data();
 			Transients::delete_failed();
 			$import_data = false;

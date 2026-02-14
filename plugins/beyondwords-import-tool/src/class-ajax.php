@@ -28,6 +28,7 @@ class Ajax {
 	 */
 	public static function init() {
 		add_action( 'wp_ajax_beyondwords_import_batch', [ self::class, 'process_batch' ] );
+		add_action( 'wp_ajax_beyondwords_import_cleanup', [ self::class, 'cleanup_transients' ] );
 	}
 
 	/**
@@ -116,6 +117,24 @@ class Ajax {
 		PostMeta::update_for_record( $post_id, $record );
 
 		return PostMeta::verify_for_record( $post_id, $record );
+	}
+
+	/**
+	 * Clean up transients (can be called explicitly from JavaScript).
+	 *
+	 * @since 1.0.0
+	 */
+	public static function cleanup_transients() {
+		check_ajax_referer( 'beyondwords_import_batch', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Permission denied.', 'speechkit' ) ] );
+		}
+
+		Transients::delete_import_data();
+		Transients::delete_failed();
+
+		wp_send_json_success();
 	}
 }
 
