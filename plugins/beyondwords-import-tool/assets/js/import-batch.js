@@ -77,7 +77,9 @@ jQuery(document).ready(function($) {
 				retries++;
 
 				if (retries <= maxRetries) {
-					processBatch();
+					// Exponential backoff: 2s, 4s.
+					var delay = Math.pow(2, retries) * 1000;
+					setTimeout(processBatch, delay);
 					return;
 				}
 

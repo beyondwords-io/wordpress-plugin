@@ -38,6 +38,8 @@ class Page {
 		global $submenu;
 
 		// Only add the menu page if it doesn't already exist.
+		// Note: this shared page registration is duplicated in
+		// beyondwords-import-tool/src/class-page.php — keep both in sync.
 		$exists = false;
 
 		if ( ! empty( $submenu['tools.php'] ) ) {

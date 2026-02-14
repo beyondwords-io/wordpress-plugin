@@ -27,6 +27,11 @@ class Helpers {
 	 * @return int|false The post ID, or false if it could not be resolved.
 	 */
 	public static function get_post_id_for_record( $record ) {
+		// Use the cached resolved post ID if available (set during preview).
+		if ( ! empty( $record['resolved_post_id'] ) ) {
+			return intval( $record['resolved_post_id'] );
+		}
+
 		if ( self::is_numeric_post_id( $record['source_id'] ) ) {
 			return intval( $record['source_id'] );
 		}
@@ -62,20 +67,27 @@ class Helpers {
 	}
 
 	/**
-	 * Generate the preview code showing all update_post_meta() calls.
+	 * Generate the preview code and cache resolved post IDs in the import data.
+	 *
+	 * Resolves each record's post ID once during preview and stores the result
+	 * as `resolved_post_id` in the transient, so the AJAX import does not need
+	 * to call url_to_postid() again.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $import_data The parsed and validated import data.
+	 * @param array &$import_data The parsed and validated import data (modified in place).
 	 *
 	 * @return array { code: string, skipped: array }
 	 */
-	public static function generate_preview_code( $import_data ) {
+	public static function generate_preview_code( &$import_data ) {
 		$lines   = [];
 		$skipped = [];
 
-		foreach ( $import_data as $record ) {
+		foreach ( $import_data as $index => &$record ) {
 			$post_id = self::get_post_id_for_record( $record );
+
+			// Cache the resolved post ID so the AJAX import can skip url_to_postid().
+			$record['resolved_post_id'] = $post_id !== false ? $post_id : 0;
 
 			if ( $post_id === false ) {
 				$skipped[] = $record;
@@ -113,6 +125,7 @@ class Helpers {
 				$comment
 			);
 		}
+		unset( $record );
 
 		return [
 			'code'    => implode( "\n", $lines ),

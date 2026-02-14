@@ -20,6 +20,11 @@ class LogFile {
 	const LOG_FILE_RELATIVE = 'beyondwords/rest-api.log';
 
 	/**
+	 * Maximum log file size in bytes (50 MB).
+	 */
+	const MAX_LOG_SIZE = 50 * 1024 * 1024;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * @since 1.0.0
@@ -63,6 +68,8 @@ class LogFile {
 					),
 				];
 			}
+
+			self::protect_log_directory( $log_dir );
 		}
 
 		// Try to create the log file if it doesn't exist.
@@ -115,6 +122,11 @@ class LogFile {
 			return;
 		}
 
+		// Rotate if the log file exceeds the size limit.
+		if ( file_exists( $log_file ) && filesize( $log_file ) > self::MAX_LOG_SIZE ) {
+			self::rotate_log( $log_file );
+		}
+
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Appending to log file in wp-content/uploads.
 		file_put_contents( $log_file, $message . "\n", FILE_APPEND | LOCK_EX );
 	}
@@ -153,6 +165,81 @@ class LogFile {
 
 		readfile( $log_file );
 		exit;
+	}
+	/**
+	 * Protect the log directory from public access.
+	 *
+	 * Creates .htaccess (Apache) and index.php files to prevent directory
+	 * listing and direct file access.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $dir The directory path to protect.
+	 */
+	private static function protect_log_directory( $dir ) {
+		$htaccess = $dir . '/.htaccess';
+		if ( ! file_exists( $htaccess ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Writing security file to wp-content/uploads.
+			@file_put_contents( $htaccess, "Deny from all\n" );
+		}
+
+		$index = $dir . '/index.php';
+		if ( ! file_exists( $index ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Writing security file to wp-content/uploads.
+			@file_put_contents( $index, "<?php\n// Silence is golden.\n" );
+		}
+	}
+
+	/**
+	 * Rotate the log file by renaming it with a timestamp suffix.
+	 *
+	 * Keeps only the current and one previous log file.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $log_file The log file path.
+	 */
+	private static function rotate_log( $log_file ) {
+		$rotated = $log_file . '.' . gmdate( 'Y-m-d-H-i-s' ) . '.old';
+
+		// Remove any existing rotated file to keep only one backup.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Ignore if glob fails.
+		$existing = @glob( $log_file . '.*.old' );
+		if ( $existing ) {
+			foreach ( $existing as $old_file ) {
+				// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink -- Cleaning up rotated log files.
+				@unlink( $old_file );
+			}
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_rename -- Rotating log file.
+		@rename( $log_file, $rotated );
+	}
+
+	/**
+	 * Delete the log file and any rotated copies.
+	 *
+	 * Called during plugin deactivation to clean up sensitive data.
+	 *
+	 * @since 1.1.0
+	 */
+	public static function delete_log_file() {
+		$log_file = self::get_log_file_path();
+
+		if ( file_exists( $log_file ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink -- Cleaning up log file on deactivation.
+			@unlink( $log_file );
+		}
+
+		// Remove rotated copies.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Ignore if glob fails.
+		$rotated = @glob( $log_file . '.*.old' );
+		if ( $rotated ) {
+			foreach ( $rotated as $old_file ) {
+				// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink -- Cleaning up rotated log files on deactivation.
+				@unlink( $old_file );
+			}
+		}
 	}
 }
 

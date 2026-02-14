@@ -205,7 +205,7 @@ class Logger {
 	}
 
 	/**
-	 * Format body for logging.
+	 * Format body for logging, scrubbing sensitive fields.
 	 *
 	 * @since 1.0.0
 	 *
@@ -222,15 +222,53 @@ class Logger {
 			$body = wp_json_encode( $body, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		}
 
-		// Try to pretty-print JSON.
+		// Try to pretty-print JSON, scrubbing sensitive fields.
 		$decoded = json_decode( $body, true );
 		if ( json_last_error() === JSON_ERROR_NONE && $decoded !== null ) {
-			$body = wp_json_encode( $decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			$decoded = self::scrub_sensitive_fields( $decoded );
+			$body    = wp_json_encode( $decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		}
 
 		// Indent each line.
 		$lines = explode( "\n", $body );
 		return '  ' . implode( "\n  ", $lines );
+	}
+
+	/**
+	 * Sensitive field names to mask in logged JSON bodies.
+	 */
+	const SENSITIVE_KEYS = [
+		'token',
+		'access_token',
+		'refresh_token',
+		'secret',
+		'password',
+		'api_key',
+		'apikey',
+		'authorization',
+		'credential',
+		'private_key',
+	];
+
+	/**
+	 * Recursively scrub sensitive fields from a decoded JSON array.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $data The decoded JSON data.
+	 *
+	 * @return array The scrubbed data.
+	 */
+	private static function scrub_sensitive_fields( array $data ): array {
+		foreach ( $data as $key => &$value ) {
+			if ( is_array( $value ) ) {
+				$value = self::scrub_sensitive_fields( $value );
+			} elseif ( is_string( $key ) && in_array( strtolower( $key ), self::SENSITIVE_KEYS, true ) && is_string( $value ) && strlen( $value ) > 0 ) {
+				$value = '******';
+			}
+		}
+
+		return $data;
 	}
 
 	/**
@@ -251,7 +289,8 @@ class Logger {
 				continue;
 			}
 
-			$file     = $frame['file'] ?? '(unknown file)';
+			// Strip ABSPATH to avoid leaking server directory structure.
+			$file     = str_replace( ABSPATH, '', $frame['file'] ?? '(unknown file)' );
 			$line     = $frame['line'] ?? '?';
 			$class    = isset( $frame['class'] ) ? $frame['class'] . $frame['type'] : '';
 			$function = $frame['function'] ?? '(unknown function)';

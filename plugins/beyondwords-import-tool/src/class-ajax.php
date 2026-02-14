@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Ajax {
 	/**
+	 * Maximum number of failed records to store in the transient.
+	 *
+	 * Prevents unbounded growth in wp_options when many records fail.
+	 */
+	const MAX_STORED_FAILURES = 500;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * @since 1.0.0
@@ -49,7 +56,10 @@ class Ajax {
 
 		foreach ( $batch as $record ) {
 			if ( ! self::import_record( $record ) ) {
-				$failed[] = $record;
+				// Cap stored failures to prevent unbounded transient growth.
+				if ( count( $failed ) < self::MAX_STORED_FAILURES ) {
+					$failed[] = $record;
+				}
 			}
 		}
 
@@ -87,7 +97,19 @@ class Ajax {
 	private static function import_record( array $record ): bool {
 		$post_id = Helpers::get_post_id_for_record( $record );
 
-		if ( $post_id === false || ! get_post( $post_id ) ) {
+		if ( $post_id === false ) {
+			return false;
+		}
+
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return false;
+		}
+
+		// Only import to content post types, not revisions, nav menus, etc.
+		$allowed_types = (array) get_option( 'beyondwords_post_types', [ 'post', 'page' ] );
+		if ( ! in_array( $post->post_type, $allowed_types, true ) ) {
 			return false;
 		}
 

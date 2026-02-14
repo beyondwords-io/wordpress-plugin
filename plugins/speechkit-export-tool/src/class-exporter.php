@@ -59,6 +59,10 @@ class Exporter {
 	 * @since 1.0.0
 	 */
 	public static function handle_export() {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
+
 		if (
 			! isset( $_POST['export_speechkit_data_nonce'] ) ||
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce value is only compared, not stored.
@@ -67,56 +71,65 @@ class Exporter {
 			return;
 		}
 
-		global $table_prefix;
+		global $wpdb;
 
-		mysqli_report( MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT );
-
-		$mysqli = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
-
-		$meta_keys_sql = self::get_meta_keys_sql( $mysqli );
-		$prefix        = $mysqli->real_escape_string( $table_prefix );
+		$placeholders = implode( ',', array_fill( 0, count( self::META_KEYS ), '%s' ) );
 
 		$data = [
 			0 => self::CSV_HEADERS,
 		];
 
 		// Query 50 of the OLDEST posts with SpeechKit data.
-		$result = $mysqli->query(
-			"SELECT ID, post_date FROM {$prefix}posts
-			INNER JOIN {$prefix}postmeta
-			ON ({$prefix}posts.ID = {$prefix}postmeta.post_id)
-			WHERE (
-				{$prefix}postmeta.meta_key IN ({$meta_keys_sql})
-				AND LENGTH({$prefix}postmeta.meta_value) > 0
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off export query, not cached.
+		$oldest = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated string of %s tokens, table names use $wpdb properties.
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				INNER JOIN {$wpdb->postmeta}
+				ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id)
+				WHERE (
+					{$wpdb->postmeta}.meta_key IN ({$placeholders})
+					AND LENGTH({$wpdb->postmeta}.meta_value) > 0
+				)
+				GROUP BY {$wpdb->posts}.ID
+				ORDER BY {$wpdb->posts}.post_date ASC
+				LIMIT 50",
+				...self::META_KEYS
 			)
-			GROUP BY {$prefix}posts.ID
-			ORDER BY {$prefix}posts.post_date ASC
-			LIMIT 0,50;"
 		);
 
-		while ( $obj = $result->fetch_object() ) {
-			if ( ! array_key_exists( $obj->ID, $data ) ) {
-				$data[ $obj->ID ] = self::get_csv_row( $obj->ID );
+		if ( $oldest ) {
+			foreach ( $oldest as $obj ) {
+				if ( ! array_key_exists( $obj->ID, $data ) ) {
+					$data[ $obj->ID ] = self::get_csv_row( $obj->ID );
+				}
 			}
 		}
 
 		// Query 50 of the NEWEST posts with SpeechKit data.
-		$result = $mysqli->query(
-			"SELECT ID, post_date FROM {$prefix}posts
-			INNER JOIN {$prefix}postmeta
-			ON ({$prefix}posts.ID = {$prefix}postmeta.post_id)
-			WHERE (
-				{$prefix}postmeta.meta_key IN ({$meta_keys_sql})
-				AND LENGTH({$prefix}postmeta.meta_value) > 0
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off export query, not cached.
+		$newest = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated string of %s tokens, table names use $wpdb properties.
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				INNER JOIN {$wpdb->postmeta}
+				ON ({$wpdb->posts}.ID = {$wpdb->postmeta}.post_id)
+				WHERE (
+					{$wpdb->postmeta}.meta_key IN ({$placeholders})
+					AND LENGTH({$wpdb->postmeta}.meta_value) > 0
+				)
+				GROUP BY {$wpdb->posts}.ID
+				ORDER BY {$wpdb->posts}.post_date DESC
+				LIMIT 50",
+				...self::META_KEYS
 			)
-			GROUP BY {$prefix}posts.ID
-			ORDER BY {$prefix}posts.post_date DESC
-			LIMIT 0,50;"
 		);
 
-		while ( $obj = $result->fetch_object() ) {
-			if ( ! array_key_exists( $obj->ID, $data ) ) {
-				$data[ $obj->ID ] = self::get_csv_row( $obj->ID );
+		if ( $newest ) {
+			foreach ( $newest as $obj ) {
+				if ( ! array_key_exists( $obj->ID, $data ) ) {
+					$data[ $obj->ID ] = self::get_csv_row( $obj->ID );
+				}
 			}
 		}
 
@@ -162,27 +175,33 @@ class Exporter {
 		];
 
 		foreach ( self::META_KEYS as $meta_key ) {
-			$row[] = get_post_meta( $post_id, $meta_key, true );
+			$row[] = self::sanitize_csv_value( get_post_meta( $post_id, $meta_key, true ) );
 		}
 
 		return $row;
 	}
 
 	/**
-	 * Build an SQL-safe IN clause from the meta keys.
+	 * Sanitize a value for safe CSV output.
 	 *
-	 * @since 1.0.0
+	 * Prevents formula injection by prefixing dangerous leading characters
+	 * with a single quote, which neutralises them in spreadsheet applications.
 	 *
-	 * @param \mysqli $mysqli The database connection.
+	 * @since 1.0.3
 	 *
-	 * @return string
+	 * @param mixed $value The value to sanitize.
+	 *
+	 * @return mixed The sanitized value.
 	 */
-	private static function get_meta_keys_sql( $mysqli ) {
-		$escaped = array_map(
-			fn($key) => "'" . $mysqli->real_escape_string( $key ) . "'",
-			self::META_KEYS
-		);
+	private static function sanitize_csv_value( $value ) {
+		if ( ! is_string( $value ) || $value === '' ) {
+			return $value;
+		}
 
-		return implode( ',', $escaped );
+		if ( in_array( $value[0], [ '=', '+', '-', '@', "\t", "\r" ], true ) ) {
+			return "'" . $value;
+		}
+
+		return $value;
 	}
 }

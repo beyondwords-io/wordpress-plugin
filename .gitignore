@@ -3,7 +3,7 @@
 .bk.*
 .DS_Store
 /.build
-/.docker/php/volumes
+/.docker
 /.env
 /.env.*
 /.idea
@@ -11,7 +11,7 @@
 /.phpunit.result.cache
 /.wp-env.override.json
 /build
-/codeception.yml
+/CLAUDE.md
 /cypress.env.json
 /log
 /node_modules

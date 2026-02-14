@@ -46,6 +46,8 @@ class Page {
 		global $submenu;
 
 		// Only add the menu page if it doesn't already exist.
+		// Note: this shared page registration is duplicated in
+		// beyondwords-debug-tool/src/class-page.php — keep both in sync.
 		$exists = false;
 
 		if ( ! empty( $submenu['tools.php'] ) ) {
@@ -177,7 +179,12 @@ class Page {
 	private static function render_preview( $import_data ) {
 		Assets::enqueue_code_mirror();
 
-		$preview         = Helpers::generate_preview_code( $import_data );
+		// generate_preview_code() caches resolved post IDs in each record.
+		$preview = Helpers::generate_preview_code( $import_data );
+
+		// Save the updated import data with cached post IDs back to the transient.
+		Transients::set_import_data( $import_data );
+
 		$total_records   = count( $import_data );
 		$skipped_records = $preview['skipped'];
 		$skipped_count   = count( $skipped_records );

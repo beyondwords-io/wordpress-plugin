@@ -52,6 +52,9 @@ class FileHandler {
 	 * @since 1.0.0
 	 */
 	private static function process() {
+		// Raise memory limit for large file processing (up to 10 MB JSON / 10,000 records).
+		wp_raise_memory_limit( 'admin' );
+
 		$file = self::validate_upload();
 		if ( ! $file ) {
 			return;
