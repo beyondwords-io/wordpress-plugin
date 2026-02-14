@@ -99,13 +99,6 @@ class Page {
 		$step        = isset( $_GET['step'] ) ? intval( $_GET['step'] ) : 1;
 		$import_data = Transients::get_import_data();
 
-		// Clean up transients when user returns to step 1 (upload form).
-		if ( $step === 1 && $import_data ) {
-			Transients::delete_import_data();
-			Transients::delete_failed();
-			$import_data = false;
-		}
-
 		?>
 		<div class="beyondwords-tool-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
 			<h2><?php esc_html_e( 'Import Tool', 'speechkit' ); ?></h2>
@@ -179,6 +172,12 @@ class Page {
 			<?php wp_nonce_field( 'beyondwords_import_upload', 'beyondwords_import_nonce' ); ?>
 		</form>
 		<?php
+
+		// Clean up any lingering transients when showing the upload form.
+		// This ensures cleanup happens when users return to step 1 or if transients
+		// were left behind from a previous incomplete import.
+		Transients::delete_import_data();
+		Transients::delete_failed();
 	}
 
 	/**
