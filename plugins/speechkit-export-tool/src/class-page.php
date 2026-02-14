@@ -63,7 +63,7 @@ class Page {
 						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Download Export File', 'speechkit' ); ?>" />
 					</p>
 				</div>
-				<?php wp_nonce_field( 'export', 'export_speechkit_data_nonce' ); ?>
+				<?php wp_nonce_field( 'beyondwords_export', 'export_speechkit_data_nonce' ); ?>
 			</form>
 		</div>
 		<?php

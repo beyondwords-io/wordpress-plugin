@@ -66,7 +66,7 @@ class Exporter {
 		if (
 			! isset( $_POST['export_speechkit_data_nonce'] ) ||
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce value is only compared, not stored.
-			! wp_verify_nonce( $_POST['export_speechkit_data_nonce'], 'export' )
+			! wp_verify_nonce( $_POST['export_speechkit_data_nonce'], 'beyondwords_export' )
 		) {
 			return;
 		}

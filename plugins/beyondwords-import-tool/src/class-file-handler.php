@@ -145,6 +145,13 @@ class FileHandler {
 	 * @return array|false The parsed data array on success, false on failure.
 	 */
 	private static function parse_json( array $file ) {
+		// Verify the file is a genuine PHP upload before reading.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_is_uploaded_file -- Validating upload before file_get_contents.
+		if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+			Notices::add( __( 'Could not verify the uploaded file. Please try again.', 'speechkit' ), 'error' );
+			return false;
+		}
+
 		$json_content = file_get_contents( $file['tmp_name'] );
 
 		if ( $json_content === false ) {

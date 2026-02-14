@@ -15,9 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class LogFile {
 	/**
-	 * Log file path relative to wp-content/uploads.
+	 * Option name for the random log file token.
+	 *
+	 * The token is appended to the log filename to make it unguessable,
+	 * preventing direct URL access on servers that don't support .htaccess
+	 * (e.g. Nginx, Caddy, LiteSpeed).
 	 */
-	const LOG_FILE_RELATIVE = 'beyondwords/rest-api.log';
+	const TOKEN_OPTION = 'beyondwords_debug_log_token';
+
+	/**
+	 * Log file directory relative to wp-content/uploads.
+	 */
+	const LOG_DIR = 'beyondwords';
 
 	/**
 	 * Maximum log file size in bytes (50 MB).
@@ -36,13 +45,38 @@ class LogFile {
 	/**
 	 * Get the full path to the log file.
 	 *
+	 * Uses a random token in the filename so the URL is unguessable,
+	 * even on servers where .htaccess has no effect (e.g. Nginx).
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return string
 	 */
 	public static function get_log_file_path() {
 		$upload_dir = wp_upload_dir();
-		return $upload_dir['basedir'] . '/' . self::LOG_FILE_RELATIVE;
+		$token      = self::get_or_create_token();
+
+		return $upload_dir['basedir'] . '/' . self::LOG_DIR . '/rest-api-' . $token . '.log';
+	}
+
+	/**
+	 * Get the existing log token or generate a new one.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string 32-character alphanumeric token.
+	 */
+	private static function get_or_create_token() {
+		$token = get_option( self::TOKEN_OPTION );
+
+		if ( ! empty( $token ) && is_string( $token ) ) {
+			return $token;
+		}
+
+		$token = wp_generate_password( 32, false );
+		update_option( self::TOKEN_OPTION, $token, false );
+
+		return $token;
 	}
 
 	/**
@@ -268,6 +302,9 @@ class LogFile {
 				@unlink( $old_file );
 			}
 		}
+
+		// Remove the token so a new one is generated on next activation.
+		delete_option( self::TOKEN_OPTION );
 	}
 }
 
