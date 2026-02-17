@@ -2,18 +2,9 @@
 
 ##  Prerequisites
 
-###  1. Start mock API server
+###  1. Ensure Mock API is enabled
 
-Before you run any tests or push commits to Git you will need to start a mock API server, so
-the tests in our pre-commit [automated code quality checks](../doc/code-quality-checks.md)
-will pass.
-
-Make sure port `3000` is free for the [Mockoon](https://mockoon.com/) mock API
-server, then run:
-
-```bash
-yarn mockoon:start
-```
+Set the environment variable `BEYONDWORDS_MOCK_API` to `true` in your `.wp-env.override.json` file. Restart wp-env if required using `yarn wp-env:start`.
 
 ###  2. Create test audio in BeyondWords dashboard
 

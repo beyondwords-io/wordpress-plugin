@@ -323,9 +323,6 @@ jobs:
       # ######################################
       - run: yarn build
 
-      - name: Start Mockoon CLI
-        run: yarn mockoon:start &
-
       - name: Install SVN
         run: sudo apt-get install subversion
 
@@ -335,6 +332,7 @@ jobs:
       - name: Run PHPUnit Tests
         run: ./vendor/bin/phpunit
         env:
+          BEYONDWORDS_MOCK_API: "true"
           BEYONDWORDS_API_URL: "${{ secrets.BEYONDWORDS_API_URL }}"
           BEYONDWORDS_TESTS_API_KEY: "${{ secrets.BEYONDWORDS_TESTS_API_KEY }}"
           BEYONDWORDS_TESTS_CONTENT_ID: "${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}"
@@ -471,9 +469,6 @@ jobs:
       # ######################################
       - run: yarn install --immutable --immutable-cache
 
-      - name: Start Mockoon CLI
-        run: yarn mockoon:start &
-
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
 
@@ -497,6 +492,10 @@ jobs:
       - name: Disable BEYONDWORDS_AUTO_SYNC_SETTINGS
         run: |
           wp config set BEYONDWORDS_AUTO_SYNC_SETTINGS false --raw
+
+      - name: Enable BEYONDWORDS_MOCK_API
+        run: |
+          wp config set BEYONDWORDS_MOCK_API true --raw
 
       - name: Set WordPress core config values
         run: |
@@ -549,7 +548,9 @@ jobs:
           TEMP_ZIP_DIR="/tmp/plugin-zips"
           mkdir -p "$TEMP_ZIP_DIR"
 
+          # Process individual PHP files (single-file plugins)
           for plugin_php in "$PLUGIN_SRC_DIR"/*.php; do
+            [ -f "$plugin_php" ] || continue
             # Extract base name without extension
             plugin_basename=$(basename "$plugin_php" .php)
 
@@ -563,10 +564,20 @@ jobs:
             # Zip the directory
             (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
 
-            # Debugging
-            pwd
-            ls -la "$plugin_dir"
-            ls -la "$TEMP_ZIP_DIR"
+            # Install plugin
+            wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
+          done
+
+          # Process plugin directories (multi-file plugins)
+          for plugin_folder in "$PLUGIN_SRC_DIR"/*/; do
+            [ -d "$plugin_folder" ] || continue
+            plugin_basename=$(basename "$plugin_folder")
+
+            # Copy the entire folder
+            cp -r "$plugin_folder" "$TEMP_ZIP_DIR/$plugin_basename"
+
+            # Zip the directory
+            (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
 
             # Install plugin
             wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
@@ -577,6 +588,7 @@ jobs:
           wp plugin activate cpt-active
           wp plugin activate cpt-inactive
           wp plugin activate cpt-unsupported
+          wp plugin activate beyondwords-mock-rest-api-responses
 
       - run: wp plugin list
 
