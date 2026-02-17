@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ruleset name="BeyondWords Extension Plugins">
+	<description>WordPress VIP coding standards for BeyondWords extension plugins.</description>
+
+	<rule ref="WordPress-VIP-Go"/>
+
+	<!-- Scan PHP files only -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Show colors and progress -->
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<!-- Scan all plugin directories -->
+	<file>.</file>
+
+	<!-- Exclude test data -->
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+
+	<!-- Ignored rules -->
+	<rule ref="WordPress.WP.CapitalPDangit.MisspelledNamespaceName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FileComment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Use BeyondWords text domain -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="speechkit"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

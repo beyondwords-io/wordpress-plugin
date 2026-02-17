@@ -11,9 +11,9 @@ on:
       - main
 
 jobs:
-  # ######################################
+  # ######################################
   # Build
-  # ######################################
+  # ######################################
   build:
     name: Build Plugin ZIP
     runs-on: ubuntu-22.04
@@ -21,9 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ######################################
+      # ######################################
       # PHP
-      # ######################################
+      # ######################################
       - name: Setup PHP 8.0
         uses: shivammathur/setup-php@v2
         # env:
@@ -45,27 +45,27 @@ jobs:
       - name: Install Composer dependencies (no-dev)
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader --profile
 
-      # ######################################
+      # ######################################
       # Node
-      # ######################################
+      # ######################################
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      # ######################################
+      # ######################################
       # yarn install
-      # ######################################
+      # ######################################
       - run: yarn install --immutable --immutable-cache
 
-      # ######################################
+      # ######################################
       # yarn build (could add caching here)
-      # ######################################
+      # ######################################
       - run: yarn build
 
-      # ######################################
+      # ######################################
       # i18n
-      # ######################################
+      # ######################################
       - name: Install dev dependencies for i18n
         run: composer install --ignore-platform-reqs --optimize-autoloader
 
@@ -75,9 +75,9 @@ jobs:
       - name: Reinstall without dev dependencies
         run: composer install --no-dev --ignore-platform-reqs --optimize-autoloader
 
-      # ######################################
+      # ######################################
       # Generate Plugin ZIP file
-      # ######################################
+      # ######################################
       - name: Make tmp plugin directory
         run: mkdir ${{ vars.WP_ORG_PLUGIN_NAME }}
         working-directory: /tmp
@@ -103,19 +103,86 @@ jobs:
         run: zip -r ${{ vars.WP_ORG_PLUGIN_NAME }}.zip ${{ vars.WP_ORG_PLUGIN_NAME }}
         working-directory: /tmp
 
-      # ######################################
+      # ######################################
       # Upload Plugin ZIP file
-      # ######################################
+      # ######################################
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           retention-days: 7
 
+      # ######################################
+      # Generate Extension Plugin ZIP files
+      # ######################################
+      - name: Build beyondwords-import-tool ZIP
+        run: |
+          mkdir /tmp/beyondwords-import-tool
+          cp -rp \
+            plugin.php \
+            src \
+            assets \
+            /tmp/beyondwords-import-tool
+          cd /tmp && zip -r beyondwords-import-tool.zip beyondwords-import-tool
+        working-directory: plugins/beyondwords-import-tool
 
-  # ######################################
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beyondwords-import-tool.zip
+          path: /tmp/beyondwords-import-tool.zip
+          retention-days: 7
+
+      - name: Build beyondwords-debug-tool ZIP
+        run: |
+          mkdir /tmp/beyondwords-debug-tool
+          cp -rp \
+            plugin.php \
+            src \
+            /tmp/beyondwords-debug-tool
+          cd /tmp && zip -r beyondwords-debug-tool.zip beyondwords-debug-tool
+        working-directory: plugins/beyondwords-debug-tool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beyondwords-debug-tool.zip
+          path: /tmp/beyondwords-debug-tool.zip
+          retention-days: 7
+
+      - name: Build beyondwords-remove-auto-player ZIP
+        run: |
+          mkdir /tmp/beyondwords-remove-auto-player
+          cp -rp \
+            plugin.php \
+            /tmp/beyondwords-remove-auto-player
+          cd /tmp && zip -r beyondwords-remove-auto-player.zip beyondwords-remove-auto-player
+        working-directory: plugins/beyondwords-remove-auto-player
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beyondwords-remove-auto-player.zip
+          path: /tmp/beyondwords-remove-auto-player.zip
+          retention-days: 7
+
+      - name: Build speechkit-export-tool ZIP
+        run: |
+          mkdir /tmp/speechkit-export-tool
+          cp -rp \
+            plugin.php \
+            src \
+            /tmp/speechkit-export-tool
+          cd /tmp && zip -r speechkit-export-tool.zip speechkit-export-tool
+        working-directory: plugins/speechkit-export-tool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speechkit-export-tool.zip
+          path: /tmp/speechkit-export-tool.zip
+          retention-days: 7
+
+
+  # ######################################
   # GrumPHP
-  # ######################################
+  # ######################################
   grumphp:
     name: GrumPHP
     runs-on: ubuntu-22.04
@@ -139,9 +206,9 @@ jobs:
       - name: Run GrumPHP code_quality test suite
         run: ./vendor/bin/grumphp run --testsuite code_quality
 
-  # ######################################
-  # Plugin Check
-  # ######################################
+  # ######################################
+  # Plugin Check
+  # ######################################
   plugin-check:
     name: Plugin Check
     runs-on: ubuntu-22.04
@@ -174,9 +241,9 @@ jobs:
           build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
           exclude-directories: 'vendor'
 
-  # ######################################
+  # ######################################
   # PHPUnit Tests
-  # ######################################
+  # ######################################
   phpunit-tests:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
@@ -204,15 +271,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ######################################
+      # ######################################
       # MySQL
-      # ######################################
+      # ######################################
       - name: Start MySQL
         run: sudo /etc/init.d/mysql start
 
-      # ######################################
+      # ######################################
       # PHP
-      # ######################################
+      # ######################################
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -238,22 +305,22 @@ jobs:
       - name: Check PHP Version
         run: php -v
 
-      # ######################################
+      # ######################################
       # Node
-      # ######################################
+      # ######################################
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      # ######################################
+      # ######################################
       # yarn install
-      # ######################################
+      # ######################################
       - run: yarn install --immutable --immutable-cache
 
-      # ######################################
+      # ######################################
       # yarn build (could add caching here)
-      # ######################################
+      # ######################################
       - run: yarn build
 
       - name: Install SVN
@@ -285,9 +352,9 @@ jobs:
           name: PHPUnit Test Results - PHP ${{ matrix.php-version }}
           path: ${{ github.workspace }}/tests/phpunit/_report
 
-  # #######################################
+  # #######################################
   # Publish PHPUnit results to GitHub Pages
-  # #######################################
+  # #######################################
   publish-phpunit-results:
     name: Publish PHPUnit results
     runs-on: ubuntu-22.04
@@ -325,9 +392,9 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  # ######################################
-  # Cypress Tests
-  # ######################################
+  # ######################################
+  # Cypress Tests
+  # ######################################
   cypress-tests:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
@@ -356,17 +423,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ######################################
+      # ######################################
       # MySQL
-      # ######################################
+      # ######################################
       - name: Set up MySQL
         run: |
           sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
 
-      # ######################################
+      # ######################################
       # PHP
-      # ######################################
+      # ######################################
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
@@ -389,17 +456,17 @@ jobs:
       - name: Check PHP Version
         run: php -v
 
-      # ######################################
+      # ######################################
       # Node
-      # ######################################
+      # ######################################
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      # ######################################
+      # ######################################
       # yarn install
-      # ######################################
+      # ######################################
       - run: yarn install --immutable --immutable-cache
 
       - name: Copy .github/.wp-cli directory
@@ -541,7 +608,7 @@ jobs:
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
-          # Set env vars like this, otherwise numeric project IDs become ints
+          # Set env vars like this, otherwise numeric project IDs become ints
           env: apiUrl="${{ secrets.BEYONDWORDS_API_URL }}",apiKey="${{ secrets.BEYONDWORDS_TESTS_API_KEY }}",projectId="${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}",contentId="${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}"
           # ######################################
           # Run an individual spec file like this:
@@ -587,9 +654,9 @@ jobs:
           path: ${{ github.workspace }}/tests/cypress/results
           retention-days: 7
 
-  # ##############################################
+  # ##############################################
   # Deploy Assets (only for pushes to main branch)
-  # ##############################################
+  # ##############################################
   deploy_assets:
     name: 🚢 Assets
     runs-on: ubuntu-22.04
@@ -609,9 +676,9 @@ jobs:
           WP_ORG_PLUGIN_NAME: "${{ vars.WP_ORG_PLUGIN_NAME }}"
 
 
-  # #######################################
+  # #######################################
   # Deploy Plugin (only for pushes to tags)
-  # #######################################
+  # #######################################
   deploy_plugin:
     name: 🚢 Plugin ZIP
     runs-on: ubuntu-22.04
@@ -640,3 +707,59 @@ jobs:
           WP_ORG_PLUGIN_NAME: "${{ vars.WP_ORG_PLUGIN_NAME }}"
       - run: ls -R
         working-directory: /tmp/svn
+
+  # #######################################
+  # GitHub Release (only for pushes to tags)
+  # #######################################
+  github_release:
+    name: 🚢 GitHub Release
+    runs-on: ubuntu-22.04
+    environment: production
+    needs: [build, deploy_plugin]
+    if: success() && startsWith(github.event.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download import tool artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beyondwords-import-tool.zip
+          path: /tmp
+
+      - name: Download debug tool artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beyondwords-debug-tool.zip
+          path: /tmp
+
+      - name: Download remove auto player artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: beyondwords-remove-auto-player.zip
+          path: /tmp
+
+      - name: Download export tool artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: speechkit-export-tool.zip
+          path: /tmp
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            The main BeyondWords plugin is available from the [WordPress Plugin Directory](https://wordpress.org/plugins/speechkit/).
+
+            ## Extension Plugins
+
+            The following extension plugins are attached to this release as ZIP files. Install them by uploading the ZIP file via **Plugins > Add New Plugin > Upload Plugin** in your WordPress admin.
+          files: |
+            /tmp/beyondwords-import-tool.zip
+            /tmp/beyondwords-debug-tool.zip
+            /tmp/beyondwords-remove-auto-player.zip
+            /tmp/speechkit-export-tool.zip
