@@ -80,6 +80,12 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 Release date: TBC
 
+**Fixes**
+
+* [#483](https://github.com/beyondwords-io/wordpress-plugin/pull/483) Fix reported REST API 404 responses.
+    * Skip the second `wp_after_insert_post` triggered by Gutenberg's meta box save.
+    * If the audio update request to our REST API results in a 404 then clear the stale content ID in WordPress and create new audio.
+
 **Enhancements**
 
 * [#481](https://github.com/beyondwords-io/wordpress-plugin/pull/481) Add `$context` param to `beyondwords_player_html` filter.
@@ -89,7 +95,7 @@ Release date: TBC
 
 = 6.0.4 =
 
-Release date: 7th Jan 2026
+Release date: 7th January 2026
 
 **Fixes**
 
