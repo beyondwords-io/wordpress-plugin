@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "6.0.4",
+  "version": "6.1.0-beta.1",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -33,7 +33,7 @@
     "check-licenses": "wp-scripts check-licenses",
     "composer": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
     "cypress:open": "yarn cypress open --e2e --browser chrome",
-    "cypress:run": "yarn cypress run --browser chrome",
+    "cypress:run": "ELECTRON_RUN_AS_NODE= yarn cypress run",
     "cypress:setup": "node tests/cypress/scripts/setup-ci.js",
     "format": "wp-scripts format",
     "format:src": "wp-scripts format ./src",
