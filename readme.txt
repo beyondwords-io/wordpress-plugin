@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.0.5-beta.1
+Stable tag: 6.1.0-beta.1
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -76,15 +76,22 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
-= 6.0.5 =
+= 6.1.0 =
 
-Release date: 14th February 2026
+Release date: TBC
 
 **Fixes**
 
 * [#483](https://github.com/beyondwords-io/wordpress-plugin/pull/483) Fix reported REST API 404 responses.
     * Skip the second `wp_after_insert_post` triggered by Gutenberg's meta box save.
     * If the audio update request to our REST API results in a 404 then clear the stale content ID in WordPress and create new audio.
+
+**Enhancements**
+
+* [#481](https://github.com/beyondwords-io/wordpress-plugin/pull/481) Add `$context` param to `beyondwords_player_html` filter.
+    * Use the `$context` param to enable filtering of the player HTML based on whether it was auto-prepended to `the_content` or added manually using a shortcode.
+    * This filter can be used to hide only the auto-prepended players, enabling the shortcode to be used effectively in PHP template files.
+    * Check the [Examples](https://docs.beyondwords.io/docs-and-guides/integrations/wordpress/filters?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin#beyondwords_player_html) in our docs for further information.
 
 = 6.0.4 =
 
