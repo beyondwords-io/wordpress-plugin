@@ -68,12 +68,7 @@ class Core
          */
         $statuses = apply_filters('beyondwords_settings_post_statuses', $statuses);
 
-        // Only generate audio for certain post statuses
-        if (is_array($statuses) && in_array($status, $statuses)) {
-            return true;
-        }
-
-        return false;
+        return is_array($statuses) && in_array($status, $statuses);
     }
 
     /**
@@ -117,6 +112,7 @@ class Core
      * @since 3.5.0 Refactored, adding self::shouldGenerateAudioForPost()
      * @since 5.1.0 Move project ID check into self::shouldGenerateAudioForPost()
      * @since 6.0.0 Make static and support Magic Embed.
+     * @since 6.0.5 If the audio update request 404s, clear the stale content ID and create new audio content.
      *
      * @param int $postId WordPress Post ID.
      *
@@ -157,7 +153,7 @@ class Core
                 return false;
             }
 
-            $response = ApiClient::updateAudio($postId);
+            $response = self::updateOrRecreateAudio($postId);
         } else {
             $response = ApiClient::createAudio($postId);
         }
@@ -165,6 +161,40 @@ class Core
         $projectId = PostMetaUtils::getProjectId($postId);
 
         self::processResponse($response, $projectId, $postId);
+
+        return $response;
+    }
+
+    /**
+     * Update audio for a post, recovering from 404 by creating fresh content.
+     *
+     * When the BeyondWords API returns 404 for an update (content no longer
+     * exists), this method clears the stale content ID and falls back to
+     * creating new content via POST.
+     *
+     * @since 6.0.5
+     *
+     * @param int $postId WordPress Post ID.
+     *
+     * @return array|null|false Response from API.
+     */
+    private static function updateOrRecreateAudio(int $postId): array|null|false
+    {
+        $response = ApiClient::updateAudio($postId);
+
+        // If the API returned 404, the content no longer exists.
+        // Clear the stale ID and create fresh content.
+        // We check the error message that callApi() saves using the HTTP
+        // status code, rather than parsing the response body format.
+        $errorMessage = (string) get_post_meta($postId, 'beyondwords_error_message', true);
+
+        if (str_starts_with($errorMessage, '#404:')) {
+            delete_post_meta($postId, 'beyondwords_content_id');
+            delete_post_meta($postId, 'beyondwords_podcast_id');
+            delete_post_meta($postId, 'speechkit_podcast_id');
+
+            $response = ApiClient::createAudio($postId);
+        }
 
         return $response;
     }
@@ -386,12 +416,21 @@ class Core
      * @since 4.5.0 Remove unwanted debugging custom fields.
      * @since 5.1.0 Move post status check out of here.
      * @since 6.0.0 Make static and refactor for Magic Embed updates.
+     * @since 6.0.5 Skip second wp_after_insert_post triggered by Gutenberg's meta box save.
      *
      * @param int $postId Post ID.
      **/
     public static function onAddOrUpdatePost($postId)
     {
         $postId = (int) $postId;
+
+        // Gutenberg fires wp_after_insert_post twice: once via the REST API,
+        // and again via a backward-compatible meta box save POST to post.php.
+        // Skip the second (redundant) request to prevent duplicate API calls.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if (! empty($_REQUEST['meta-box-loader'])) {
+            return false;
+        }
 
         // Has the "Remove" feature been used?
         if (get_post_meta($postId, 'beyondwords_delete_content', true) === '1') {

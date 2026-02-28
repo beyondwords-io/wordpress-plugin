@@ -203,6 +203,9 @@ class CoreUtils
             'beyondwords_preselect',
             'beyondwords_project_id',
             'beyondwords_version',
+            // Debug tool (extension plugin).
+            'beyondwords_debug_rest_api',
+            'beyondwords_debug_log_token',
         ];
 
         $deprecated = [
