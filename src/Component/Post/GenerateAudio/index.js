@@ -3,19 +3,42 @@
  */
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { Fragment, useEffect, useState } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
+import { Fragment, useEffect } from '@wordpress/element';
 
-export function GenerateAudio( { wrapper } ) {
+export function GenerateAudio( {
+	generateAudio,
+	generateAudioEdited,
+	setGenerateAudio,
+	wrapper,
+} ) {
 	const Wrapper = wrapper || Fragment;
 
-	// Track whether the user has manually interacted with the checkbox.
-	// This prevents taxonomy-based auto-selection from overriding user choice.
-	const [ isManuallySet, setIsManuallySet ] = useState( false );
+	// Set "Generate audio" to "1" in the store when it has been preselected
+	useEffect( () => {
+		if ( ! generateAudioEdited && generateAudio ) {
+			setGenerateAudio( generateAudio );
+		}
+	}, [ generateAudioEdited, generateAudio ] );
 
-	const { editPost } = useDispatch( 'core/editor' );
+	return (
+		<Wrapper>
+			<CheckboxControl
+				className="beyondwords--generate-audio"
+				label={ __( 'Generate audio', 'speechkit' ) }
+				checked={ generateAudio }
+				onChange={ () => {
+					setGenerateAudio( ! generateAudio );
+				} }
+				__nextHasNoMarginBottom
+			/>
+		</Wrapper>
+	);
+}
 
-	const { generateAudio, shouldPreselect } = useSelect( ( select ) => {
+export default compose( [
+	withSelect( ( select ) => {
 		const {
 			getCurrentPostAttribute,
 			getCurrentPostType,
@@ -23,35 +46,50 @@ export function GenerateAudio( { wrapper } ) {
 			getPostEdits,
 		} = select( 'core/editor' );
 
+		const { getGenerateAudioEdited } = select( 'beyondwords/interactions' );
 		const { getSettings } = select( 'beyondwords/settings' );
 
 		/**
-		 * Get the Generate audio value from post meta.
+		 * Get the Generate audio value.
 		 *
-		 * Returns:
-		 * - true/false if explicitly set in meta
-		 * - null if not set (should use preselect logic)
+		 * This is a little complex because it is also controlled (auto-checked/unchecked)
+		 * based on the assigned Categories, and we need to be able to override it.
 		 */
 		const getGenerateAudio = () => {
 			const { meta } = getPostEdits();
 
-			// Check if edited in this session
-			if ( meta && 'beyondwords_generate_audio' in meta ) {
+			// Has "Generate audio" been edited in this session (manually checked or unchecked)?
+			if (
+				getGenerateAudioEdited() &&
+				meta &&
+				'beyondwords_generate_audio' in meta
+			) {
 				return meta.beyondwords_generate_audio === '1';
 			}
 
-			// Check saved post meta
-			const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
+			// Check various custom fields in the saved post
 			const {
-				beyondwords_generate_audio: beyondwordsValue,
-				speechkit_generate_audio: speechkitValue,
-			} = savedMeta;
+				/* eslint-disable-next-line camelcase */
+				beyondwords_generate_audio,
+				/* eslint-disable-next-line camelcase */
+				speechkit_generate_audio,
+			} = getCurrentPostAttribute( 'meta' );
 
-			if ( beyondwordsValue === '1' || speechkitValue === '1' ) {
+			if (
+				/* eslint-disable-next-line camelcase */
+				beyondwords_generate_audio === '1' ||
+				/* eslint-disable-next-line camelcase */
+				speechkit_generate_audio === '1'
+			) {
 				return true;
 			}
 
-			if ( beyondwordsValue === '0' || speechkitValue === '0' ) {
+			if (
+				/* eslint-disable-next-line camelcase */
+				beyondwords_generate_audio === '0' ||
+				/* eslint-disable-next-line camelcase */
+				speechkit_generate_audio === '0'
+			) {
 				return false;
 			}
 
@@ -64,6 +102,7 @@ export function GenerateAudio( { wrapper } ) {
 		const getShouldPreselect = () => {
 			const settings = getSettings();
 
+			// Do we have settings?
 			if ( ! settings ) {
 				return false;
 			}
@@ -77,24 +116,28 @@ export function GenerateAudio( { wrapper } ) {
 			const postType = getCurrentPostType();
 
 			// Exit if the current post type does not exist in the plugin settings
-			if ( ! ( postType in preselect ) ) {
+			if ( false === postType in preselect ) {
 				return false;
 			}
 
-			// Is the current post type checked at post-level in the plugin settings?
-			// If so, preselect Generate audio regardless of taxonomies
+			// Is the current post type checked in the plugin settings
+			// If it is checked at post-level then we preselect Generate audio regardless
+			// of the applied taxonomies
 			if ( preselect[ postType ] === '1' ) {
 				return true;
 			}
 
-			// Check if categories have been edited
-			// todo: support multiple taxonomies
+			// Get the Post edits
 			const postEdits = getPostEdits();
+
+			// Check that categories have been edited?
+			// todo support multiple taxonomies
 			if ( ! Array.isArray( postEdits.categories ) ) {
 				return false;
 			}
 
 			// Handle cases where preselect[ postType ] is not an object
+			// This can happen when the plugin setting is empty or corrupt
 			if (
 				typeof preselect[ postType ] !== 'object' ||
 				preselect[ postType ] === null
@@ -102,60 +145,55 @@ export function GenerateAudio( { wrapper } ) {
 				return false;
 			}
 
-			// Do any post categories match the plugin settings?
-			// todo: support multiple taxonomies
-			if ( ! ( 'category' in preselect[ postType ] ) ) {
-				return false;
-			}
-
-			// Get all post categories
+			// Get all Post categories
 			const categories = getEditedPostAttribute( 'categories' );
 
-			return categories.some( ( x ) =>
-				preselect[ postType ].category.includes( String( x ) )
-			);
+			// Do any Post categories match the plugin settings?
+			const hasMatchingCategories = categories.some( ( x ) => {
+				// todo support multiple taxonomies
+				if ( false === 'category' in preselect[ postType ] ) {
+					return false;
+				}
+				// todo support multiple taxonomies
+				return preselect[ postType ].category.includes( String( x ) );
+			} );
+
+			if ( hasMatchingCategories ) {
+				return true;
+			}
+
+			// todo Do any Post OTHER TAXONOMIES match the plugin settings?
+
+			return false;
 		};
 
-		const currentValue = getGenerateAudio();
+		const generateAudio = getGenerateAudio();
 
 		return {
 			generateAudio:
-				currentValue === null ? getShouldPreselect() : currentValue,
-			shouldPreselect: getShouldPreselect(),
+				generateAudio === null ? getShouldPreselect() : generateAudio,
+			generateAudioEdited: getGenerateAudioEdited(),
 		};
-	}, [] );
+	} ),
+	withDispatch( ( dispatch ) => {
+		const { editPost } = dispatch( 'core/editor' );
+		const { setGenerateAudioEdited } = dispatch(
+			'beyondwords/interactions'
+		);
 
-	// Set "Generate audio" meta when preselected (on initial load only)
-	useEffect( () => {
-		if ( ! isManuallySet && shouldPreselect ) {
-			editPost( {
-				meta: {
-					beyondwords_generate_audio: '1',
-				},
-			} );
-		}
-	}, [ isManuallySet, shouldPreselect, editPost ] );
-
-	const handleChange = () => {
-		setIsManuallySet( true );
-		editPost( {
-			meta: {
-				beyondwords_generate_audio: ! generateAudio ? '1' : '0',
+		return {
+			setGenerateAudio: ( generateAudio ) => {
+				// Update the Custom Field
+				editPost( {
+					meta: {
+						/* eslint-disable-next-line camelcase */
+						beyondwords_generate_audio: generateAudio ? '1' : '0',
+					},
+				} );
+				// Mark "Generate audio" as being (manually) edited, so other components
+				// know the checkbox has been changed from it's default value.
+				setGenerateAudioEdited( true );
 			},
-		} );
-	};
-
-	return (
-		<Wrapper>
-			<CheckboxControl
-				className="beyondwords--generate-audio"
-				label={ __( 'Generate audio', 'speechkit' ) }
-				checked={ generateAudio }
-				onChange={ handleChange }
-				__nextHasNoMarginBottom
-			/>
-		</Wrapper>
-	);
-}
-
-export default GenerateAudio;
+		};
+	} ),
+] )( GenerateAudio );
