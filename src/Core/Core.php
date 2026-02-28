@@ -381,6 +381,12 @@ class Core
     public static function onTrashPost($postId)
     {
         $postId = (int) $postId;
+
+        // Skip posts that don't have BeyondWords content (e.g. revisions, Jetpack sitemaps)
+        if (! PostMetaUtils::hasContent($postId)) {
+            return;
+        }
+
         ApiClient::deleteAudio($postId);
         PostMetaUtils::removeAllBeyondwordsMetadata($postId);
     }
@@ -399,6 +405,12 @@ class Core
     public static function onDeletePost($postId)
     {
         $postId = (int) $postId;
+
+        // Skip posts that don't have BeyondWords content (e.g. revisions, Jetpack sitemaps)
+        if (! PostMetaUtils::hasContent($postId)) {
+            return;
+        }
+
         ApiClient::deleteAudio($postId);
     }
 
