@@ -2,6 +2,7 @@
     "core": "https://wordpress.org/wordpress-6.9-RC4.zip",
     "phpVersion": "8.0",
     "config": {
+        "BEYONDWORDS_MOCK_API": true,
         "BEYONDWORDS_TESTS_API_KEY": "write_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "BEYONDWORDS_TESTS_CONTENT_ID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
         "BEYONDWORDS_TESTS_PROJECT_ID": "xxxx"

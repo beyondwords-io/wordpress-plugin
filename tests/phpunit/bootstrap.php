@@ -33,28 +33,18 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
 
-/**
- * Manually load the plugin being tested.
- */
-function _manually_load_plugin() {
-	require dirname( dirname( dirname( __FILE__ ) ) ) . '/speechkit.php';
-}
-
-tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
-
-// Start up the WP testing environment.
-require "{$_tests_dir}/includes/bootstrap.php";
-
-// Load base TestCase class
-require __DIR__ . '/TestCase.php';
-
 /*
- * Define plugin constants from system env vars
+ * Define plugin constants from system env vars (before WP boots)
  */
 
 $apiUrl = getenv( 'BEYONDWORDS_API_URL' );
 if ( false !== $apiUrl ) {
 	define( 'BEYONDWORDS_API_URL', $apiUrl );
+}
+
+$mockApi = getenv( 'BEYONDWORDS_MOCK_API' );
+if ( false !== $mockApi && $mockApi ) {
+	define( 'BEYONDWORDS_MOCK_API', true );
 }
 
 $testsApiKey = getenv( 'BEYONDWORDS_TESTS_API_KEY' );
@@ -71,3 +61,23 @@ $testsProjectId = getenv( 'BEYONDWORDS_TESTS_PROJECT_ID' );
 if ( false !== $testsProjectId ) {
 	define( 'BEYONDWORDS_TESTS_PROJECT_ID', $testsProjectId );
 }
+
+/**
+ * Manually load the plugin being tested.
+ */
+function _manually_load_plugin() {
+	require dirname( dirname( dirname( __FILE__ ) ) ) . '/speechkit.php';
+}
+
+tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+// Start up the WP testing environment.
+require "{$_tests_dir}/includes/bootstrap.php";
+
+// Load mock API responses plugin if enabled (after WP boots so filters work).
+if ( defined( 'BEYONDWORDS_MOCK_API' ) && BEYONDWORDS_MOCK_API ) {
+	require dirname( __DIR__ ) . '/fixtures/wp-content/plugins/beyondwords-mock-rest-api-responses/mock-rest-api-responses.php';
+}
+
+// Load base TestCase class
+require __DIR__ . '/TestCase.php';
