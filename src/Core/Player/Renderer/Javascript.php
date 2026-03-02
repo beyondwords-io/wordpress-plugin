@@ -20,10 +20,11 @@ class Javascript extends Base
     /**
      * Render the JavaScript player HTML.
      *
-     * @param \WP_Post $post
+     * @param \WP_Post $post   WordPress post object for which to render the player.
+     * @param string   $context Rendering context, either 'auto' or 'shortcode'.
      * @return string HTML output.
      */
-    public static function render($post): string
+    public static function render(\WP_Post $post, string $context = 'shortcode'): string
     {
         if (PlayerUI::DISABLED === get_option(PlayerUI::OPTION_NAME)) {
             return '';
@@ -39,7 +40,8 @@ class Javascript extends Base
 
         return sprintf(
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-            '<script async defer src="%s" onload=\'%s\'></script>',
+            '<script data-beyondwords-player-context="%s" async defer src="%s" onload=\'%s\'></script>',
+            esc_attr($context),
             Environment::getJsSdkUrl(),
             $onload
         );

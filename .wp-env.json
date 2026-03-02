@@ -23,7 +23,11 @@
         "wp-content/plugins/query-monitor": "https://downloads.wordpress.org/plugin/query-monitor.zip",
         "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.zip",
         "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip",
-        "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip"
+        "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip",
+        "wp-content/plugins/beyondwords-debug-tool": "./plugins/beyondwords-debug-tool",
+        "wp-content/plugins/beyondwords-import-tool": "./plugins/beyondwords-import-tool",
+        "wp-content/plugins/beyondwords-remove-auto-player": "./plugins/beyondwords-remove-auto-player",
+        "wp-content/plugins/speechkit-export-tool": "./plugins/speechkit-export-tool"
     },
     "env": {
         "tests": {

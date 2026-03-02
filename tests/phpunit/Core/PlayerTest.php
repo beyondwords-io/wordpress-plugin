@@ -9,7 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends TestCase
 {
-    public const PLAYER_HTML = '<script async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
+    public const PLAYER_HTML_FORMAT = '<script data-beyondwords-player-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
 
     /**
      * @test
@@ -52,7 +52,39 @@ class PlayerTest extends TestCase
         \the_content();
         $content = trim(ob_get_clean());
 
-        $this->assertSame("<p>Before</p>\n" . self::PLAYER_HTML . "\n<p>After</p>", $content);
+        $this->assertSame("<p>Before</p>\n" . sprintf(self::PLAYER_HTML_FORMAT, 'shortcode') . "\n<p>After</p>", $content);
+
+        wp_reset_postdata();
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     * @group player
+     */
+    public function addLegacyPlayer()
+    {
+        global $post;
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PlayerTest::addLegacyPlayer',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+            'post_content' => "<p>Before</p>\n<div data-beyondwords-player=\"true\"></div>\n<p>After</p>",
+        ]);
+
+        $this->go_to("/?p={$post->ID}");
+
+        setup_postdata($post);
+
+        ob_start();
+        \the_content();
+        $content = trim(ob_get_clean());
+
+        $this->assertSame("<p>Before</p>\n" . sprintf(self::PLAYER_HTML_FORMAT, 'shortcode') . "\n<p>After</p>", $content);
 
         wp_reset_postdata();
 
@@ -89,7 +121,7 @@ class PlayerTest extends TestCase
         $output = Player::autoPrependPlayer($content);
 
         // We are now is_singular() so player should be prepended
-        $this->assertSame(self::PLAYER_HTML . $content, $output);
+        $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'auto') . $content, $output);
 
         wp_reset_postdata();
 
@@ -281,7 +313,7 @@ class PlayerTest extends TestCase
 
         // Case 5: Post exists, player enabled, should render player HTML
         delete_post_meta($post->ID, 'beyondwords_disabled');
-        $this->assertSame(self::PLAYER_HTML, Player::renderPlayer());
+        $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'shortcode'), Player::renderPlayer());
 
         wp_reset_postdata();
         wp_delete_post($post->ID, true);
@@ -304,21 +336,22 @@ class PlayerTest extends TestCase
 
         setup_postdata($post);
 
-        $filter = function($html, $postId, $projectId, $contentId) {
+        $filter = function($html, $postId, $projectId, $contentId, $context) {
             return sprintf(
-                '<div id="wrapper" data-post-id="%d" data-project-id="%d" data-podcast-id="%s">%s</div>',
+                '<div id="wrapper" data-post-id="%d" data-project-id="%d" data-podcast-id="%s" data-context="%s">%s</div>',
                 $postId,
                 $projectId,
                 $contentId,
+                $context,
                 $html
             );
         };
 
-        add_filter('beyondwords_player_html', $filter, 10, 4);
+        add_filter('beyondwords_player_html', $filter, 10, 5);
 
-        $html = Player::renderPlayer($post);
+        $html = Player::renderPlayer();
 
-        remove_filter('beyondwords_player_html', $filter, 10, 4);
+        remove_filter('beyondwords_player_html', $filter, 10, 5);
 
         $crawler = new Crawler($html);
 
@@ -328,11 +361,13 @@ class PlayerTest extends TestCase
         $this->assertSame("$post->ID", $wrapper->attr('data-post-id'));
         $this->assertSame(BEYONDWORDS_TESTS_PROJECT_ID, $wrapper->attr('data-project-id'));
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, $wrapper->attr('data-podcast-id'));
+        $this->assertSame('shortcode', $wrapper->attr('data-context'));
 
         $script = $wrapper->filter('script[async][defer]');
         $this->assertCount(1, $script);
         $this->assertSame(Environment::getJsSdkUrl(), $script->attr('src'));
         $this->assertNotEmpty($script->attr('onload'));
+        $this->assertSame('shortcode', $script->attr('data-beyondwords-player-context'));
 
         wp_reset_postdata();
         wp_delete_post($post->ID, true);

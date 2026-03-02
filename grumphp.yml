@@ -24,21 +24,20 @@ grumphp:
         priority: 10
     phpcs:
       standard:
-        - phpcs.xml
-      exclude:
-        - PSR12.Files.FileHeader
-        - PSR12.Files.OpenTag
+        - .phpcs.xml
       triggered_by:
         - php
       tab_width: 4
       ignore_patterns:
         - /wp-tests-config-sample.php
         - /tests/*
+        - /plugins/*
       metadata:
         priority: 10
     phplint:
       exclude:
         - vendor
+        - plugins
       triggered_by:
         - php
       metadata:
@@ -49,6 +48,7 @@ grumphp:
       exclude:
         - tests
         - vendor
+        - plugins
       metadata:
         priority: 10
     rector:
@@ -58,10 +58,16 @@ grumphp:
       ignore_patterns:
         - /tests/*
         - /vendor/*
+        - /plugins/*
       clear_cache: false
       no_diffs: false
       metadata:
         priority: 10
+    lint_plugins:
+      script: lint:plugins
+      metadata:
+        priority: 10
+        task: composer_script
     test_phpunit:
       script: test:phpunit
       metadata:
@@ -81,6 +87,7 @@ grumphp:
         - composer
         - composer_normalize
         - phpcs
+        - lint_plugins
         - phplint
         - phpmd
         - rector
@@ -89,6 +96,7 @@ grumphp:
         - composer
         - composer_normalize
         - phpcs
+        - lint_plugins
         - phplint
         - phpmd
         - rector

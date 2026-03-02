@@ -47,9 +47,8 @@ class Player
      */
     public static function registerShortcodes(): void
     {
-        add_shortcode('beyondwords_player', fn() => self::renderPlayer());
+        add_shortcode('beyondwords_player', fn() => self::renderPlayer('shortcode'));
     }
-
     /**
      * Conditionally prepend the player to a string (the post content).
      *
@@ -61,7 +60,7 @@ class Player
             return $content;
         }
 
-        return self::renderPlayer() . $content;
+        return self::renderPlayer('auto') . $content;
     }
 
     /**
@@ -97,8 +96,11 @@ class Player
 
     /**
      * Render a player (AMP/JS depending on context).
+     *
+     * @param string $context The context in which the player is being rendered.
+     *                        One of 'auto' or 'shortcode'.
      */
-    public static function renderPlayer(): string
+    public static function renderPlayer(string $context = 'shortcode'): string
     {
         $post = get_post();
 
@@ -111,7 +113,7 @@ class Player
         foreach (self::$renderers as $rendererClass) {
             if (is_callable([$rendererClass, 'check']) && $rendererClass::check($post)) {
                 if (is_callable([$rendererClass, 'render'])) {
-                    $html = $rendererClass::render($post);
+                    $html = $rendererClass::render($post, $context);
                     break;
                 }
             }
@@ -125,13 +127,15 @@ class Player
          *
          * @since 4.0.0
          * @since 4.3.0 Applied to all player renderers (AMP and JavaScript).
+         * @since 6.1.0 Add $context parameter.
          *
          * @param string $html      The HTML for the audio player.
          * @param int    $postId    WordPress post ID.
          * @param int    $projectId BeyondWords project ID.
          * @param int    $contentId BeyondWords content ID.
+         * @param string $context   The context: 'auto' or 'shortcode'.
          */
-        $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId);
+        $html = apply_filters('beyondwords_player_html', $html, $post->ID, $projectId, $contentId, $context);
 
         return $html;
     }

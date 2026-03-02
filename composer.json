@@ -67,6 +67,7 @@
         "sort-packages": true
     },
     "scripts": {
+        "lint:plugins": "./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
         "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",
         "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80 --only-percentage | sed 's/[^0-9.]*//g'",
         "test:phpunit": [

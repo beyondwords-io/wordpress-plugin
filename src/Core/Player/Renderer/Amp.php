@@ -39,7 +39,7 @@ class Amp extends Base
      *
      * @return string HTML markup for AMP player.
      */
-    public static function render(\WP_Post $post): string
+    public static function render(\WP_Post $post, string $context = 'shortcode'): string
     {
         $projectId = PostMetaUtils::getProjectId($post->ID);
         $contentId = PostMetaUtils::getContentId($post->ID, true); // Fallback to Post ID if Content ID is not set
@@ -49,6 +49,7 @@ class Amp extends Base
         ob_start();
         ?>
         <amp-iframe
+            data-beyondwords-player-context="<?php echo esc_attr($context); ?>"
             frameborder="0"
             height="43"
             layout="responsive"
