@@ -32,7 +32,11 @@ class EnvironmentTest extends TestCase
      */
     public function getApiUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_API_URL, Environment::getApiUrl());
+        if (defined('BEYONDWORDS_API_URL')) {
+            $this->assertSame(BEYONDWORDS_API_URL, Environment::getApiUrl());
+        } else {
+            $this->assertSame(Environment::BEYONDWORDS_API_URL, Environment::getApiUrl());
+        }
     }
 
     /**
