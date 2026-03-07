@@ -475,7 +475,7 @@ function beyondwords_mock_create_content( $params, $parsed_args ) {
 			'source_id'                    => $body['source_id'] ?? '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d',
 			'source_url'                   => $body['source_url'] ?? 'https://example.com',
 			'author'                       => $body['author'] ?? 'Jane Smith',
-			'image_url'                    => $body['image'] ?? 'https://example.com/image.jpg',
+			'image_url'                    => $body['image_url'] ?? ( $body['image'] ?? 'https://example.com/image.jpg' ),
 			'audio'                        => array(
 				array(
 					'id'           => 12192819,
@@ -543,7 +543,7 @@ function beyondwords_mock_update_content( $params, $parsed_args ) {
 			'source_id'                    => $body['source_id'] ?? '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d',
 			'source_url'                   => $body['source_url'] ?? 'https://example.com',
 			'author'                       => $body['author'] ?? 'Jane Smith',
-			'image_url'                    => $body['image'] ?? 'https://example.com/image.jpg',
+			'image_url'                    => $body['image_url'] ?? 'https://example.com/image.jpg',
 			'audio'                        => array(
 				array(
 					'id'           => 12192819,
