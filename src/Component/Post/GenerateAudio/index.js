@@ -114,13 +114,14 @@ export function GenerateAudio( { wrapper } ) {
 			};
 
 			const currentValue = getGenerateAudio();
+			const shouldPreselectValue = getShouldPreselect();
 
 			return {
 				generateAudio:
 					currentValue === null
-						? getShouldPreselect()
+						? shouldPreselectValue
 						: currentValue,
-				shouldPreselect: getShouldPreselect(),
+				shouldPreselect: shouldPreselectValue,
 				hasExplicitValue: currentValue !== null,
 			};
 		},
