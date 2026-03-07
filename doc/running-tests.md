@@ -4,7 +4,7 @@
 
 ###  1. Ensure Mock API is enabled
 
-Set the environment variable `BEYONDWORDS_MOCK_API` to `true` in your `.wp-env.override.json` file. Restart wp-env if required using `yarn wp-env:start`.
+Set the `BEYONDWORDS_MOCK_API` wp-config constant to `true` via your `.wp-env.override.json` file (for example, using the `config` section). Restart wp-env if required using `yarn wp-env:start`.
 
 ###  2. Create test audio in BeyondWords dashboard
 
