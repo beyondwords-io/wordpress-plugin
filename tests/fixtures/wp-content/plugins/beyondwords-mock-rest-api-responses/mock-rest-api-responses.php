@@ -45,7 +45,8 @@ function beyondwords_mock_api_request( $preempt, $parsed_args, $url ) {
 	$endpoint_with_query = ltrim( $endpoint_with_query, '/' );
 
 	// Strip query params for route matching.
-	$endpoint = strtok( $endpoint_with_query, '?' );
+	// strtok() returns false for empty strings (e.g. when URL equals the API base URL).
+	$endpoint = strtok( $endpoint_with_query, '?' ) ?: '';
 
 	$method = strtoupper( $parsed_args['method'] ?? 'GET' );
 
