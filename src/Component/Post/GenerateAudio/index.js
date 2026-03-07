@@ -111,11 +111,10 @@ export function GenerateAudio( { wrapper } ) {
 
 				// Do any post categories match the plugin settings?
 				// todo: support multiple taxonomies
-				if ( ! ( 'category' in preselect[ postType ] ) ) {
+				if ( ! Array.isArray( preselect[ postType ].category ) ) {
 					return false;
 				}
 
-				// Get all post categories
 				const categories = getEditedPostAttribute( 'categories' );
 
 				return categories.some( ( x ) =>
@@ -128,9 +127,7 @@ export function GenerateAudio( { wrapper } ) {
 
 			return {
 				generateAudio:
-					currentValue === null
-						? shouldPreselectValue
-						: currentValue,
+					currentValue === null ? shouldPreselectValue : currentValue,
 				shouldPreselect: shouldPreselectValue,
 				hasExplicitValue: currentValue !== null,
 			};
