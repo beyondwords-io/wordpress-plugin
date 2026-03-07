@@ -38,27 +38,27 @@ require_once "{$_tests_dir}/includes/functions.php";
  */
 
 $apiUrl = getenv( 'BEYONDWORDS_API_URL' );
-if ( false !== $apiUrl ) {
+if ( ! empty( $apiUrl ) ) {
 	define( 'BEYONDWORDS_API_URL', $apiUrl );
 }
 
 $mockApi = getenv( 'BEYONDWORDS_MOCK_API' );
-if ( false !== $mockApi && filter_var( $mockApi, FILTER_VALIDATE_BOOLEAN ) ) {
+if ( ! empty( $mockApi ) && filter_var( $mockApi, FILTER_VALIDATE_BOOLEAN ) ) {
 	define( 'BEYONDWORDS_MOCK_API', true );
 }
 
 $testsApiKey = getenv( 'BEYONDWORDS_TESTS_API_KEY' );
-if ( false !== $testsApiKey ) {
+if ( ! empty( $testsApiKey ) ) {
 	define( 'BEYONDWORDS_TESTS_API_KEY', $testsApiKey );
 }
 
 $testsContentId = getenv( 'BEYONDWORDS_TESTS_CONTENT_ID' );
-if ( false !== $testsContentId ) {
+if ( ! empty( $testsContentId ) ) {
 	define( 'BEYONDWORDS_TESTS_CONTENT_ID', $testsContentId );
 }
 
 $testsProjectId = getenv( 'BEYONDWORDS_TESTS_PROJECT_ID' );
-if ( false !== $testsProjectId ) {
+if ( ! empty( $testsProjectId ) ) {
 	define( 'BEYONDWORDS_TESTS_PROJECT_ID', $testsProjectId );
 }
 
