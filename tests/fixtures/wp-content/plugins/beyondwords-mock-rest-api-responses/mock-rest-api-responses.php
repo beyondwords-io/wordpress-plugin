@@ -81,9 +81,14 @@ function beyondwords_mock_api_request( $preempt, $parsed_args, $url ) {
 	 * @param string     $method      The HTTP method (GET, POST, PUT, DELETE).
 	 * @param array      $parsed_args The original request arguments.
 	 */
-	$response = apply_filters( 'beyondwords_mock_api_response', $response, $endpoint, $method, $parsed_args );
+	$filtered_response = apply_filters( 'beyondwords_mock_api_response', $response, $endpoint, $method, $parsed_args );
 
-	return $response;
+	if ( null === $filtered_response ) {
+		// If a filter returns null, fall back to the default mock response.
+		return $response;
+	}
+
+	return $filtered_response;
 }
 
 /**

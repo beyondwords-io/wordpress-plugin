@@ -43,7 +43,7 @@ if ( false !== $apiUrl ) {
 }
 
 $mockApi = getenv( 'BEYONDWORDS_MOCK_API' );
-if ( false !== $mockApi && $mockApi ) {
+if ( false !== $mockApi && filter_var( $mockApi, FILTER_VALIDATE_BOOLEAN ) ) {
 	define( 'BEYONDWORDS_MOCK_API', true );
 }
 

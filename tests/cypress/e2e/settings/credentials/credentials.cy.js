@@ -54,7 +54,7 @@ context( 'Settings > Credentials', () => {
 			.clear()
 			.type( Cypress.env( 'apiKey' ) );
 
-		// Project 401 triggers a 403 response in the mock API
+		// Project 401 triggers a 401 response in the mock API
 		cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' );
 		cy.get( 'input[type="submit"]' ).click();
 		cy.showsInvalidApiCredsNotice();
