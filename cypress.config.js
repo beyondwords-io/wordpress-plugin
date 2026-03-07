@@ -87,7 +87,7 @@ function setupNodeEvents( on, config ) {
 				'reset reset --yes',
 				'plugin deactivate --all',
 				// eslint-disable-next-line max-len
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses/mock-rest-api-responses.php',
 				// Configure plugin credentials for most tests
 				`option update beyondwords_api_key '${ apiKey }'`,
 				`option update beyondwords_project_id '${ projectId }'`,
