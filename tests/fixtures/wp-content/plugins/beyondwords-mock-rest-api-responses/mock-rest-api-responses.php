@@ -469,7 +469,7 @@ function beyondwords_mock_create_content( $params, $parsed_args ) {
 
 	return beyondwords_mock_response(
 		array(
-			'id'                           => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+			'id'                           => defined( 'BEYONDWORDS_TESTS_CONTENT_ID' ) ? BEYONDWORDS_TESTS_CONTENT_ID : '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
 			'title'                        => $body['title'] ?? 'Title',
 			'type'                         => 'auto_segment',
 			'source_id'                    => $body['source_id'] ?? '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d',
@@ -758,27 +758,31 @@ function beyondwords_mock_get_video_settings( $params ) {
  * Returns an array of 148 languages loaded from the languages.json fixture file.
  */
 function beyondwords_mock_get_languages() {
-	// Load languages from fixture file (same directory as this plugin).
-	$fixture_file = __DIR__ . '/languages.json';
+	static $languages = null;
 
-	if ( file_exists( $fixture_file ) ) {
-		$languages = json_decode( file_get_contents( $fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-	} else {
-		// Ultimate fallback - return minimal set for tests.
-		$languages = array(
-			array(
-				'code'           => 'en_US',
-				'name'           => 'English',
-				'accent'         => 'American',
-				'id'             => 58,
-				'created'        => '2022-01-25T07:40:27Z',
-				'default_voices' => array(
-					'title'   => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
-					'body'    => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
-					'summary' => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+	if ( null === $languages ) {
+		// Load languages from fixture file (same directory as this plugin).
+		$fixture_file = __DIR__ . '/languages.json';
+
+		if ( file_exists( $fixture_file ) ) {
+			$languages = json_decode( file_get_contents( $fixture_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		} else {
+			// Ultimate fallback - return minimal set for tests.
+			$languages = array(
+				array(
+					'code'           => 'en_US',
+					'name'           => 'English',
+					'accent'         => 'American',
+					'id'             => 58,
+					'created'        => '2022-01-25T07:40:27Z',
+					'default_voices' => array(
+						'title'   => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+						'body'    => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+						'summary' => array( 'id' => 2517, 'name' => 'Ava (Multilingual)', 'speaking_rate' => 100 ),
+					),
 				),
-			),
-		);
+			);
+		}
 	}
 
 	return beyondwords_mock_response( $languages );
