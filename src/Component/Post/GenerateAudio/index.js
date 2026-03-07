@@ -11,7 +11,7 @@ export function GenerateAudio( { wrapper } ) {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { generateAudio, shouldPreselect, metaExistsInEdits } = useSelect(
+	const { generateAudio, shouldPreselect, hasExplicitValue } = useSelect(
 		( select ) => {
 			const {
 				getCurrentPostAttribute,
@@ -114,7 +114,6 @@ export function GenerateAudio( { wrapper } ) {
 			};
 
 			const currentValue = getGenerateAudio();
-			const { meta } = getPostEdits();
 
 			return {
 				generateAudio:
@@ -122,28 +121,27 @@ export function GenerateAudio( { wrapper } ) {
 						? getShouldPreselect()
 						: currentValue,
 				shouldPreselect: getShouldPreselect(),
-				metaExistsInEdits:
-					!! meta && 'beyondwords_generate_audio' in meta,
+				hasExplicitValue: currentValue !== null,
 			};
 		},
 		[]
 	);
 
-	// Set "Generate audio" meta when preselected, but only if the meta
-	// hasn't already been set in the current editing session. This check
-	// is important because GenerateAudio renders in both the document
-	// settings panel and the pre-publish panel — when the pre-publish
-	// panel mounts a new instance, we must not override a user's earlier
-	// manual uncheck.
+	// Set "Generate audio" meta when preselected, but only if the value
+	// is truly unset (null) — neither in post edits nor saved meta.
+	// This prevents overriding an explicit '0' on existing posts, and
+	// also prevents the pre-publish panel instance from overriding a
+	// user's earlier manual uncheck (since GenerateAudio renders in
+	// both the document settings panel and the pre-publish panel).
 	useEffect( () => {
-		if ( shouldPreselect && ! metaExistsInEdits ) {
+		if ( shouldPreselect && ! hasExplicitValue ) {
 			editPost( {
 				meta: {
 					beyondwords_generate_audio: '1',
 				},
 			} );
 		}
-	}, [ shouldPreselect, metaExistsInEdits, editPost ] );
+	}, [ shouldPreselect, hasExplicitValue, editPost ] );
 
 	const handleChange = () => {
 		editPost( {
