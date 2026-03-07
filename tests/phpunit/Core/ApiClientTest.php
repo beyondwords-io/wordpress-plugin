@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Beyondwords\Wordpress\Core\ApiClient;
+use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Request;
 
 class ApiClientTest extends TestCase
@@ -355,7 +356,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithoutAuthHeader',
         ]);
 
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Unset Auth header
         $headers = $request->getHeaders();
@@ -385,7 +386,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithEmptyAuthHeader',
         ]);
 
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Unset Auth header
         $headers = $request->getHeaders();
@@ -415,7 +416,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithInvalidContentTypeHeader',
         ]);
 
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Set an invalid Content-Type header
         $headers = $request->getHeaders();
@@ -445,7 +446,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithInvalidEndpoint',
         ]);
 
-        $request = new Request('POST', \BEYONDWORDS_API_URL . '/foo/1234/bar', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::getApiUrl() . '/foo/1234/bar', '{"body":"Hello"}');
 
         $response = ApiClient::callApi($request, $postId);
 

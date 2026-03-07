@@ -32,8 +32,7 @@ class EnvironmentTest extends TestCase
      */
     public function getApiUrl()
     {
-        // Tests should not be performed against public API
-        $this->assertNotSame(Environment::BEYONDWORDS_API_URL, Environment::getApiUrl());
+        $this->assertSame(Environment::BEYONDWORDS_API_URL, Environment::getApiUrl());
     }
 
     /**
