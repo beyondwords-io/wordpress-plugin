@@ -797,7 +797,7 @@ function beyondwords_mock_get_voices() {
 				'id'                  => 3555,
 				'name'                => 'Ada (Multilingual)',
 				'speaking_rate'       => 100,
-				'language'            => 'en_US',
+				'language'            => array( 'code' => 'en_US' ),
 				'languages'           => array(
 					array(
 						'code'   => 'en_US',
@@ -823,7 +823,7 @@ function beyondwords_mock_get_voices() {
 				'id'                  => 2517,
 				'name'                => 'Ava (Multilingual)',
 				'speaking_rate'       => 100,
-				'language'            => 'en_US',
+				'language'            => array( 'code' => 'en_US' ),
 				'languages'           => array(
 					array(
 						'code'   => 'en_US',
@@ -849,7 +849,7 @@ function beyondwords_mock_get_voices() {
 				'id'                  => 3558,
 				'name'                => 'Ollie (Multilingual)',
 				'speaking_rate'       => 100,
-				'language'            => 'en_US',
+				'language'            => array( 'code' => 'en_US' ),
 				'languages'           => array(
 					array(
 						'code'   => 'en_US',
@@ -887,7 +887,7 @@ function beyondwords_mock_update_voice( $params, $parsed_args ) {
 				'id'                  => (int) $params['voiceId'],
 				'name'                => 'Ada (Multilingual)',
 				'speaking_rate'       => 100,
-				'language'            => 'en_US',
+				'language'            => array( 'code' => 'en_US' ),
 				'languages'           => array(
 					array(
 						'code'   => 'en_US',

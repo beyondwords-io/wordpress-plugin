@@ -554,7 +554,7 @@ jobs:
             mkdir -p "$plugin_dir"
 
             # Copy the PHP file into that directory and rename to match directory
-            cp "$plugin_php" "${plugin_dir}/{$plugin_basename}.php"
+            cp "$plugin_php" "${plugin_dir}/${plugin_basename}.php"
 
             # Zip the directory
             (cd "$TEMP_ZIP_DIR" && zip -r "${plugin_basename}.zip" "$plugin_basename")
