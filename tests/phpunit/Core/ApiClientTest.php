@@ -255,9 +255,9 @@ class ApiClientTest extends TestCase
         $this->assertSame('Ava (Multilingual)', $response[1]['name']);
         $this->assertSame('Ollie (Multilingual)', $response[2]['name']);
 
-        $this->assertSame('en_US', $response[0]['language']);
-        $this->assertSame('en_US', $response[1]['language']);
-        $this->assertSame('en_US', $response[2]['language']);
+        $this->assertSame(array('code' => 'en_US'), $response[0]['language']);
+        $this->assertSame(array('code' => 'en_US'), $response[1]['language']);
+        $this->assertSame(array('code' => 'en_US'), $response[2]['language']);
 
         $this->assertSame(100, $response[0]['speaking_rate']);
         $this->assertSame(100, $response[1]['speaking_rate']);
