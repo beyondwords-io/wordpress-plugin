@@ -44,14 +44,24 @@ export function GenerateAudio( { wrapper } ) {
 					speechkit_generate_audio: speechkitValue,
 				} = savedMeta;
 
-				if ( beyondwordsValue === '1' || speechkitValue === '1' ) {
+				// Give precedence to beyondwords_generate_audio when explicitly set
+				if ( beyondwordsValue === '1' ) {
 					return true;
 				}
 
-				if ( beyondwordsValue === '0' || speechkitValue === '0' ) {
+				if ( beyondwordsValue === '0' ) {
 					return false;
 				}
 
+				// Fall back to deprecated speechkit_generate_audio only if
+				// beyondwords_generate_audio is not explicitly set
+				if ( speechkitValue === '1' ) {
+					return true;
+				}
+
+				if ( speechkitValue === '0' ) {
+					return false;
+				}
 				return null;
 			};
 
