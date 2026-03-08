@@ -30,6 +30,11 @@ add_filter( 'pre_http_request', 'beyondwords_mock_api_request', 10, 3 );
  * @return false|array Return false to proceed with the request, or array to short-circuit.
  */
 function beyondwords_mock_api_request( $preempt, $parsed_args, $url ) {
+	// Respect earlier filters that have already short-circuited the request.
+	if ( false !== $preempt ) {
+		return $preempt;
+	}
+
 	// Get the API URL to match against.
 	$api_url = defined( 'BEYONDWORDS_API_URL' )
 		? BEYONDWORDS_API_URL
