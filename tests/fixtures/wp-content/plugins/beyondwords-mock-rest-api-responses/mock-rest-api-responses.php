@@ -36,7 +36,7 @@ function beyondwords_mock_api_request( $preempt, $parsed_args, $url ) {
 	}
 
 	// Get the API URL to match against.
-	$api_url = defined( 'BEYONDWORDS_API_URL' )
+	$api_url = defined( 'BEYONDWORDS_API_URL' ) && strlen( BEYONDWORDS_API_URL )
 		? BEYONDWORDS_API_URL
 		: 'https://api.beyondwords.io/v1';
 
