@@ -76,6 +76,15 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.2.0 =
+
+Release date: 11th March 2026
+
+**Enhancements**
+
+* [#498](https://github.com/beyondwords-io/wordpress-plugin/pull/498) "Generate Audio" component improvements.
+    * Stability and performance updates for the Generate Audio component in the block editor.
+
 = 6.1.0 =
 
 Release date: 2nd March 2026
