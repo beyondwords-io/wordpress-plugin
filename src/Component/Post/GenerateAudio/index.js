@@ -145,17 +145,26 @@ export default compose( [
 				return false;
 			}
 
-			// Do any Post categories match the plugin settings?
-			// todo support multiple taxonomies
-			if ( ! Array.isArray( preselect[ postType ].category ) ) {
-				return false;
-			}
-
+			// Get all Post categories
 			const categories = getEditedPostAttribute( 'categories' );
 
-			return categories.some( ( x ) =>
-				preselect[ postType ].category.includes( String( x ) )
-			);
+			// Do any Post categories match the plugin settings?
+			const hasMatchingCategories = categories.some( ( x ) => {
+				// todo support multiple taxonomies
+				if ( false === 'category' in preselect[ postType ] ) {
+					return false;
+				}
+				// todo support multiple taxonomies
+				return preselect[ postType ].category.includes( String( x ) );
+			} );
+
+			if ( hasMatchingCategories ) {
+				return true;
+			}
+
+			// todo Do any Post OTHER TAXONOMIES match the plugin settings?
+
+			return false;
 		};
 
 		const generateAudio = getGenerateAudio();
