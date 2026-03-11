@@ -76,6 +76,15 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 == Changelog ==
 
+= 6.2.0 =
+
+Release date: 11th March 2026
+
+**Codebase Enhancements**
+
+* [#474](https://github.com/beyondwords-io/wordpress-plugin/pull/474) Replace Mock API responses with pre_http_request filter.
+    * Mockoon has been replaced with WordPress HTTP filters, and completely removed.
+
 = 6.1.0 =
 
 Release date: 2nd March 2026
