@@ -80,6 +80,11 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 Release date: 11th March 2026
 
+**Enhancements**
+
+* [#498](https://github.com/beyondwords-io/wordpress-plugin/pull/498) "Generate Audio" component improvements.
+    * Stability and performance updates for the Generate Audio component in the block editor.
+
 **Codebase Enhancements**
 
 * [#474](https://github.com/beyondwords-io/wordpress-plugin/pull/474) Replace Mock API responses with pre_http_request filter.
