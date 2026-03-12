@@ -122,6 +122,40 @@ context( 'Block Editor: Add Post', () => {
 					} );
 				} );
 
+				if ( postType.preselect ) {
+					it( `respects saved generate_audio=0 for ${ postStatus } ${ postType.name } when preselect is enabled`, () => {
+						cy.createTestPost( {
+							title: `respects saved 0 for ${ postStatus } ${ postType.name }`,
+							status: postStatus,
+							postType: postType.slug,
+						} ).then( ( postId ) => {
+							// Explicitly save generate_audio as '0'
+							cy.task( 'setPostMeta', {
+								postId,
+								metaKey: 'beyondwords_generate_audio',
+								metaValue: '0',
+							} );
+
+							cy.visitPostEditorById( postId );
+
+							cy.openBeyondwordsEditorPanel();
+
+							// Checkbox must stay unchecked despite preselect being enabled
+							cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+								'not.be.checked'
+							);
+
+							// Save and verify no audio was generated
+							cy.savePost();
+
+							cy.viewPostById( postId );
+
+							cy.getPlayerScriptTag().should( 'not.exist' );
+							cy.hasPlayerInstances( 0 );
+						} );
+					} );
+				}
+
 				it( `can update a ${ postStatus } ${ postType.name } with audio`, () => {
 					cy.createTestPostWithAudio( {
 						title: `can update a ${ postStatus } ${ postType.name } with audio`,

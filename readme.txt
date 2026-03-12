@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.1.0-rc.1
+Stable tag: 6.2.0
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -75,6 +75,20 @@ You get access to project analytics, which means you can track listener engageme
 You can even leverage your listenership through audio advertising. Use our self-serve audio advertising feature to create your own campaigns or use VAST (video ad serving template) to connect a programmatic advertising platform, such as Google Ad Manager.
 
 == Changelog ==
+
+= 6.2.0 =
+
+Release date: 11th March 2026
+
+**Enhancements**
+
+* [#498](https://github.com/beyondwords-io/wordpress-plugin/pull/498) "Generate Audio" component improvements.
+    * Stability and performance updates for the Generate Audio component in the block editor.
+
+**Codebase Enhancements**
+
+* [#474](https://github.com/beyondwords-io/wordpress-plugin/pull/474) Replace Mock API responses with pre_http_request filter.
+    * Mockoon has been replaced with WordPress HTTP filters, and completely removed.
 
 = 6.1.0 =
 
