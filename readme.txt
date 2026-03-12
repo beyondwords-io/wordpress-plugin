@@ -12,35 +12,36 @@ BeyondWords is the AI voice platform that brings frictionless audio publishing t
 
 == Description ==
 
-BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses. Automatically create audio versions of WordPress posts and pages and embed via a customizable player. Lifelike neural voices and customizable text-to-speech algorithms deliver realistic speech that keeps listeners coming back for more.
+[BeyondWords](https://beyondwords.io/) is the AI audio and video platform built for publishers. Connect the plugin to automatically generate audio and video versions of your WordPress posts, which can be instantly embedded into your pages or distributed across third-party platforms.
+
+Choose from a variety of ElevenLabs and Azure voices to power your narration, or create your own hyper-realistic [voice clones](https://beyondwords.io/voice-cloning/).
+
 
 == GET STARTED WITH BEYONDWORDS ==
 
-To get started with BeyondWords, please [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team.
+To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/) with our team. 
 
-We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio.
-
-Any questions? Visit our website [https://beyondwords.io](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) or email <support@beyondwords.io>.
+We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio and/or video.
 
 == Key features of our text-to-speech plugin for WordPress: ==
 
-* Easily pick which pages and posts are converted into audio
-* Audio is automatically created and embedded via our customizable player
-* Powerful and versatile player options to fit your web and mobile experience.
+* Easily pick which pages and posts are converted into audio and/or video
+* Automatic content extraction ensures only editorial content is converted
+* Powerful and versatile player options to fit your web and mobile experience
+
 
 == Key features of your BeyondWords dashboard: ==
 
-* Lifelike AI voices enhanced by customizable NLP algorithms
-* Create or edit audio in the Text-to-Speech Editor
-* Curate custom playlists and podcast feeds
-* Embed audio manually or share via URL
-* Monitor engagement through analytics
-* Manage audio through the audio CMS
-* Monetize your audio with audio ads
+* Choose from hundreds of premade AI voices or create lifelike voice clones
+* Configure audio, video, and player settings to suit your publication’s needs
+* Curate your own playlists and podcast feeds
+* Monitor engagement through BeyondWords Analytics or third-party platforms
+* Monetize your content with audio and video advertising or subscriptions
 
-You are just minutes away from engaging audiences with AI audio. Join the hundreds of WordPress publishers already using our text-to-speech plugin and platform to make the most of their news articles, reports, guides, and more.
+Join hundreds of WordPress publishers already using our text-to-speech plugin and platform to increase engagement, boost subscriptions, and generate revenue.
 
-If you have any questions, feedback, or issues, please email <support@beyondwords.io>.
+If you have any questions or feedback, please email <support@beyondwords.io>.
+
 
 == CUSTOMER TESTIMONIAL ==
 
@@ -48,31 +49,30 @@ If you have any questions, feedback, or issues, please email <support@beyondword
 >
 > &mdash; Kenneth Creamer, Creamer Media
 
-== ADVANCED TEXT-TO-SPEECH ==
 
-Looking for the best text-to-speech plugin on WordPress?
+== HYPER-REALISTIC VOICES ==
 
-Using methods like natural language processing (NLP), BeyondWords' unique text processing algorithms optimally convert your content into speech synthesis markup language (SSML). This enables AI voices to effectively pronounce elements that other platforms can struggle with, such as names, numbers, and dates, as well as filtering out elements that shouldn't be read aloud. You can even add aliases to ensure everything is read exactly how you want it.
+BeyondWords offers a curated selection of AI voices from ElevenLabs and Azure, making it easy for you to find the right sound for your newsroom. You can also create Instant voice clones from just a few seconds of audio, or invest in a top-quality Professional clone for consistent, on-brand narration.
 
-BeyondWords gives you access to neural voices from Google Cloud, Amazon Web Services, and Microsoft Azure (500+ voices across 140+ language locales).
+Our AI preprocessing system automatically handles numbers, abbreviations, scores, and other non-standard text, converting them into the optimal spoken form for audio or video. For those rare exceptions, you can define custom pronunciations directly in your dashboard.
 
-You can also get access to premium neural voices &mdash; voice clones of professional voice actors that are exclusive to BeyondWords. Users have the option to develop a completely bespoke custom voice using our voice cloning service.
+The result is natural-sounding narration that engages your audience—at a fraction of the cost of traditional voice recording.
 
-The result is naturalistic spoken-word audio content that engages your target audience &mdash; at a fraction of the cost of human recordings.
 
 == EFFORTLESS DISTRIBUTION ==
 
-BeyondWords makes it easy to reach new audiences and grow your listenership. As well as auto-embedding audio players to your WordPress site, you can embed your audio manually or share via URL. You can even download your audios as mp3 files.
+With the BeyondWords for WordPress plugin, you can automatically embed audio and video versions into your posts using our customizable player. Enable playback-by-paragraph to let readers click anywhere to start listening, and update the color scheme to match your publication’s branding.
 
-This includes content created automatically with our WordPress text-to-speech plugin, as well as content created manually with the Text-to-Speech Editor &mdash; perfect for audio newsletters.
+In your BeyondWords dashboard, you can create custom playlists that keep audiences listening for longer. Embed these on your website or turn them into podcast feeds, ready for submission to platforms like Spotify, Apple Podcasts, and YouTube.
 
-Users can even create custom playlists that keep listeners listening for longer. These can be embedded, shared via URL, or even distributed via podcast feed. That means you can reach audiences through platforms like Apple Podcasts and Spotify.
+You can also download your audio/video files and share them via URL.
 
-== ANALYTICS AND MONETIZATION ==
 
-You get access to project analytics, which means you can track listener engagement at the project level through your BeyondWords dashboard. Users can also get access to audio analytics, as well as Google Analytics and Google Tag Manager integrations.
+== MONETIZATION AND ANALYTICS ==
 
-You can even leverage your listenership through audio advertising. Use our self-serve audio advertising feature to create your own campaigns or use VAST (video ad serving template) to connect a programmatic advertising platform, such as Google Ad Manager.
+Monetize your BeyondWords audio and video by uploading your own advertising assets, or connect to an ad network through VAST integration. Our plugin is also compatible with subscriptions, allowing you to hide the player from non-logged-in users when needed.
+
+Keep on top of performance with BeyondWords Analytics or by forwarding events to your own analytics tools. You can track plays, engagement rate, unique listeners, listening time, retention, and other key audio and video metrics.
 
 == Changelog ==
 
