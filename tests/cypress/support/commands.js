@@ -614,13 +614,17 @@ Cypress.Commands.add( 'updateOption', ( name, value ) => {
 /**
  * Reset BeyondWords plugin settings to defaults.
  * This ensures tests start with a clean slate for plugin configuration.
- * Preserves API credentials (api_key and project_id) to avoid 403 errors.
+ * Preserves infrastructure options set by setupDatabase: API credentials
+ * (to avoid 403 errors) and preselect (whose PHP default excludes cpt_active).
  */
 Cypress.Commands.add( 'resetPluginSettings', () => {
-	// Delete all beyondwords_* options EXCEPT api_key and project_id
 	cy.task( 'deleteOptionsByPattern', {
 		pattern: 'beyondwords_',
-		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
+		exclude: [
+			'beyondwords_api_key',
+			'beyondwords_project_id',
+			'beyondwords_preselect',
+		],
 	} );
 } );
 
