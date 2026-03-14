@@ -1,4 +1,4 @@
-/* global Cypress, cy, beforeEach, afterEach, context, it, expect */
+/* global Cypress, cy, beforeEach, context, it, expect */
 
 context( 'Block Editor: Content ID', () => {
 	beforeEach( () => {
@@ -39,7 +39,9 @@ context( 'Block Editor: Content ID', () => {
 			cy.openBeyondwordsEditorPanel();
 
 			cy.get( '.beyondwords-sidebar input[type="text"]' )
-				.filter( ( _i, el ) => el.value === Cypress.env( 'contentId' ) )
+				.filter(
+					( _i, el ) => el.value === Cypress.env( 'contentId' )
+				)
 				.should( 'exist' );
 		} );
 	} );
@@ -67,21 +69,25 @@ context( 'Block Editor: Content ID', () => {
 				.contains( 'button', 'Fetch' )
 				.click();
 
-			// Wait for the fetch to complete — Generate audio should be unchecked
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
-
-			// Verify content ID is set in editor state
+			// Wait for the fetch to complete by polling editor meta state
 			cy.window()
 				.its( 'wp.data' )
-				.then( ( data ) => {
+				.should( ( data ) => {
 					const meta = data
 						.select( 'core/editor' )
 						.getEditedPostAttribute( 'meta' );
 					expect( meta.beyondwords_content_id ).to.equal(
 						testContentId
 					);
+				} );
+
+			// Verify all meta fields are set correctly
+			cy.window()
+				.its( 'wp.data' )
+				.then( ( data ) => {
+					const meta = data
+						.select( 'core/editor' )
+						.getEditedPostAttribute( 'meta' );
 					expect( meta.beyondwords_generate_audio ).to.equal( '0' );
 					expect( meta.beyondwords_language_code ).to.equal(
 						'en_US'
@@ -120,11 +126,6 @@ context( 'Block Editor: Content ID', () => {
 	} );
 
 	it( 'handles fetch error and sets error message', () => {
-		cy.task(
-			'activatePlugin',
-			'beyondwords-mock-get-content-404.php'
-		);
-
 		cy.createTestPost( {
 			title: 'Cypress Test: content id fetch error',
 			status: 'draft',
@@ -133,7 +134,17 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsEditorPanel();
 
-			// Type the special "not found" content ID
+			// Intercept the fetch request at browser level and return 404
+			cy.intercept(
+				'GET',
+				'**/beyondwords/v1/projects/*/content/not-found-content-id',
+				{
+					statusCode: 404,
+					body: { code: 404, message: 'Not Found' },
+				}
+			).as( 'fetchContent' );
+
+			// Type the "not found" content ID
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
@@ -145,10 +156,12 @@ context( 'Block Editor: Content ID', () => {
 				.contains( 'button', 'Fetch' )
 				.click();
 
+			cy.wait( '@fetchContent' );
+
 			// Verify error message is set in editor state
 			cy.window()
 				.its( 'wp.data' )
-				.then( ( data ) => {
+				.should( ( data ) => {
 					const meta = data
 						.select( 'core/editor' )
 						.getEditedPostAttribute( 'meta' );
@@ -171,11 +184,6 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_error_message ).to.not.be.empty;
 				} );
 		} );
-
-		cy.task(
-			'deactivatePlugin',
-			'beyondwords-mock-get-content-404.php'
-		);
 	} );
 
 	it( 'fetched content is reflected on the frontend', () => {
@@ -200,10 +208,17 @@ context( 'Block Editor: Content ID', () => {
 				.contains( 'button', 'Fetch' )
 				.click();
 
-			// Wait for fetch to complete
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			// Wait for the fetch to complete by polling editor meta state
+			cy.window()
+				.its( 'wp.data' )
+				.should( ( data ) => {
+					const meta = data
+						.select( 'core/editor' )
+						.getEditedPostAttribute( 'meta' );
+					expect( meta.beyondwords_content_id ).to.equal(
+						testContentId
+					);
+				} );
 
 			// View the post on the frontend
 			cy.viewPostById( postId );
