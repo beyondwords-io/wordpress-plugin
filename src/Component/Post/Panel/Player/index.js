@@ -7,6 +7,7 @@ import { PanelBody, PanelRow } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import ContentId from '../../ContentId';
 import DisplayPlayer from '../../DisplayPlayer';
 import ErrorNotice from '../../ErrorNotice';
 import GenerateAudio from '../../GenerateAudio';
@@ -24,6 +25,7 @@ export function PlayerPanel() {
 			className={ `beyondwords beyondwords-sidebar__status` }
 		>
 			<PendingNotice wrapper={ PanelRow } />
+			<ContentId wrapper={ PanelRow } />
 			<PlayAudio wrapper={ PanelRow } />
 			<GenerateAudio wrapper={ PanelRow } />
 			<DisplayPlayer wrapper={ PanelRow } />

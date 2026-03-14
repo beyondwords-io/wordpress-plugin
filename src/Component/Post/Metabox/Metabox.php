@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\Metabox;
 
+use Beyondwords\Wordpress\Component\Post\ContentId\ContentId;
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
@@ -110,6 +111,9 @@ class Metabox
 
         // Show errors for posts with/without audio
         self::errors($post);
+
+        // Content ID field with Fetch button
+        ContentId::element($post);
 
         $hasContent = PostMetaUtils::hasContent($post->ID);
 

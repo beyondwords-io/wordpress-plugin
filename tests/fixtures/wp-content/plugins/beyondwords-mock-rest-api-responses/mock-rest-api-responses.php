@@ -154,6 +154,7 @@ function beyondwords_endpoint_exists( $endpoint, $method ) {
 	$known_routes = array(
 		'GET:projects/:projectId',
 		'PUT:projects/:projectId',
+		'GET:projects/:projectId/content/:contentId',
 		'POST:projects/:projectId/content',
 		'PUT:projects/:projectId/content/:contentId',
 		'DELETE:projects/:projectId/content/:contentId',
@@ -191,6 +192,9 @@ function beyondwords_get_mock_response( $endpoint, $method, $parsed_args ) {
 
 		case 'PUT:projects/:projectId':
 			return beyondwords_mock_update_project( $params, $parsed_args );
+
+		case 'GET:projects/:projectId/content/:contentId':
+			return beyondwords_mock_get_content( $params );
 
 		case 'POST:projects/:projectId/content':
 			return beyondwords_mock_create_content( $params, $parsed_args );
@@ -463,6 +467,60 @@ function beyondwords_mock_update_project( $params, $parsed_args ) {
 				),
 			),
 			$body
+		)
+	);
+}
+
+/**
+ * Mock: GET projects/:projectId/content/:contentId
+ */
+function beyondwords_mock_get_content( $params ) {
+	$content_id = $params['contentId'];
+
+	return beyondwords_mock_response(
+		array(
+			'id'                           => $content_id,
+			'title'                        => 'Fetched Content Title',
+			'type'                         => 'auto_segment',
+			'source_id'                    => '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d',
+			'source_url'                   => 'https://example.com',
+			'author'                       => 'Jane Smith',
+			'image_url'                    => 'https://example.com/image.jpg',
+			'audio'                        => array(
+				array(
+					'id'           => 12192819,
+					'content_type' => 'application/x-mpegURL',
+					'url'          => 'https://beyondwords-cdn-b7fyckdeejejb6dj.a03.azurefd.net/audio/projects/9969/podcasts/3161419/media/e8219ee2f3465d6834984f9ae607a81e.m3u8',
+					'duration'     => 2685,
+					'base64_file'  => null,
+					'variant'      => 'article',
+				),
+			),
+			'video'                        => array(),
+			'ads_enabled'                  => true,
+			'is_copy'                      => false,
+			'title_voice_id'               => 2517,
+			'summary_voice_id'             => 2517,
+			'body_voice_id'                => 2517,
+			'title_enabled'                => true,
+			'body_enabled'                 => true,
+			'summary_enabled'              => true,
+			'summary_title_enabled'        => false,
+			'background_track'             => null,
+			'language'                     => 'en_US',
+			'preview_token'                => 'd9ce36ea-ddc4-4611-b60c-4f90ed0fc082',
+			'status'                       => 'processed',
+			'metadata'                     => array(
+				'categories' => array( 'News', 'Audio' ),
+			),
+			'created'                      => '2022-01-02T23:59:59Z',
+			'updated'                      => '2022-03-04T00:00:00Z',
+			'published'                    => true,
+			'publish_date'                 => '2099-12-31T23:59:59Z',
+			'auto_segment_updates_enabled' => true,
+			'ai_summary_updates_enabled'   => true,
+			'summary'                      => 'Summary',
+			'body'                         => '<p>Test.</p>',
 		)
 	);
 }
