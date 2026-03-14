@@ -69,7 +69,9 @@ context( 'Block Editor: Content ID', () => {
 				.contains( 'button', 'Fetch' )
 				.click();
 
-			// Wait for the fetch to complete by polling editor meta state
+			// Wait for the fetch to complete and verify all meta fields.
+			// All assertions are in a single .should() block so Cypress
+			// retries until every field has settled.
 			cy.window()
 				.its( 'wp.data' )
 				.should( ( data ) => {
@@ -79,15 +81,6 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_content_id ).to.equal(
 						testContentId
 					);
-				} );
-
-			// Verify all meta fields are set correctly
-			cy.window()
-				.its( 'wp.data' )
-				.then( ( data ) => {
-					const meta = data
-						.select( 'core/editor' )
-						.getEditedPostAttribute( 'meta' );
 					expect( meta.beyondwords_generate_audio ).to.equal( '0' );
 					expect( meta.beyondwords_language_code ).to.equal(
 						'en_US'
