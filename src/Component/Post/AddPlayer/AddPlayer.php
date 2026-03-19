@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\AddPlayer;
 
-use Beyondwords\Wordpress\Core\CoreUtils;
-
 /**
  * AddPlayer
  *
@@ -23,8 +21,11 @@ defined('ABSPATH') || exit;
 
 class AddPlayer
 {
-    // The CSS declaration block for the player preview in both Classic Editor and Block Editor.
+    // The CSS declaration block for the player preview in the Classic Editor (TinyMCE content_style).
     public const PLAYER_PREVIEW_STYLE_FORMAT = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: '%s'; }"; // phpcs:ignore Generic.Files.LineLength.TooLong
+
+    // The CSS declaration block for the player preview inside the Block Editor iframe (apiVersion 3).
+    public const BLOCK_EDITOR_PREVIEW_STYLE_FORMAT = "[data-beyondwords-player]:empty:after { content: '%s'; }";
 
     /**
      * Init.
@@ -154,9 +155,14 @@ class AddPlayer
      */
     public static function addBlockEditorInlineStyles()
     {
+        $css = sprintf(
+            self::BLOCK_EDITOR_PREVIEW_STYLE_FORMAT,
+            esc_attr__('Player placeholder: The position of the audio player.', 'speechkit')
+        );
+
         wp_add_inline_style(
             'beyondwords-player-editor-style',
-            self::playerPreviewI18nStyles()
+            $css
         );
     }
 }

@@ -60,7 +60,7 @@ class AddPlayerTest extends TestCase
      */
     public function blockJsonDeclaresApiVersion3()
     {
-        $blockJsonPath = dirname(__DIR__, 4) . '/../src/Component/Post/AddPlayer/block.json';
+        $blockJsonPath = BEYONDWORDS__PLUGIN_DIR . 'src/Component/Post/AddPlayer/block.json';
         $blockJson = json_decode(file_get_contents($blockJsonPath), true);
 
         $this->assertArrayHasKey('apiVersion', $blockJson);
@@ -72,7 +72,7 @@ class AddPlayerTest extends TestCase
      */
     public function blockJsonDeclaresEditorStyle()
     {
-        $blockJsonPath = dirname(__DIR__, 4) . '/../src/Component/Post/AddPlayer/block.json';
+        $blockJsonPath = BEYONDWORDS__PLUGIN_DIR . 'src/Component/Post/AddPlayer/block.json';
         $blockJson = json_decode(file_get_contents($blockJsonPath), true);
 
         $this->assertArrayHasKey('editorStyle', $blockJson, 'editorStyle must be declared in block.json so styles are loaded inside the iframed editor');
@@ -164,11 +164,26 @@ class AddPlayerTest extends TestCase
      */
     public function addBlockEditorInlineStyles()
     {
+        // Register the block so the editorStyle handle exists in wp_styles().
+        AddPlayer::registerBlock();
+
+        // Enqueue the editor style handle so wp_add_inline_style() can attach data to it.
+        wp_enqueue_style('beyondwords-player-editor-style');
+
         AddPlayer::addBlockEditorInlineStyles();
 
         $inlineStyle = wp_styles()->get_data('beyondwords-player-editor-style', 'after');
 
         $this->assertIsArray($inlineStyle);
-        $this->assertStringContainsString('Player placeholder', implode('', $inlineStyle));
+
+        $css = implode('', $inlineStyle);
+
+        // Must contain the i18n placeholder text.
+        $this->assertStringContainsString('Player placeholder', $css);
+
+        // Must use the iframe-compatible selector (no parent-document selectors).
+        $this->assertStringContainsString('[data-beyondwords-player]:empty:after', $css);
+        $this->assertStringNotContainsString('iframe [data-beyondwords-player]', $css);
+        $this->assertStringNotContainsString('.edit-post-visual-editor', $css);
     }
 }
