@@ -21,11 +21,9 @@ defined('ABSPATH') || exit;
 
 class AddPlayer
 {
-    // The CSS declaration block for the player preview in the Classic Editor (TinyMCE content_style).
-    public const PLAYER_PREVIEW_STYLE_FORMAT = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: '%s'; }"; // phpcs:ignore Generic.Files.LineLength.TooLong
-
-    // The CSS declaration block for the player preview inside the Block Editor iframe (apiVersion 3).
-    public const BLOCK_EDITOR_PREVIEW_STYLE_FORMAT = "[data-beyondwords-player]:empty:after { content: '%s'; }";
+    // The CSS declaration block for the player preview placeholder text.
+    // The %s placeholder is replaced with a wp_json_encode()'d string (already quoted).
+    public const PLAYER_PREVIEW_STYLE_FORMAT = '[data-beyondwords-player]:empty:after { content: %s; }';
 
     /**
      * Init.
@@ -118,7 +116,7 @@ class AddPlayer
     {
         return sprintf(
             self::PLAYER_PREVIEW_STYLE_FORMAT,
-            esc_attr__('Player placeholder: The position of the audio player.', 'speechkit')
+            wp_json_encode(__('Player placeholder: The position of the audio player.', 'speechkit'))
         );
     }
 
@@ -155,14 +153,9 @@ class AddPlayer
      */
     public static function addBlockEditorInlineStyles()
     {
-        $css = sprintf(
-            self::BLOCK_EDITOR_PREVIEW_STYLE_FORMAT,
-            esc_attr__('Player placeholder: The position of the audio player.', 'speechkit')
-        );
-
         wp_add_inline_style(
             'beyondwords-player-editor-style',
-            $css
+            self::playerPreviewI18nStyles()
         );
     }
 }

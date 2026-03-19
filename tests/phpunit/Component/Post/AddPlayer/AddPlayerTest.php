@@ -140,7 +140,7 @@ class AddPlayerTest extends TestCase
      */
     public function playerPreviewI18nStyles()
     {
-        $expect = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: 'Player placeholder: The position of the audio player.'; }";
+        $expect = '[data-beyondwords-player]:empty:after { content: "Player placeholder: The position of the audio player."; }';
 
         $this->assertSame($expect, AddPlayer::playerPreviewI18nStyles());
     }
