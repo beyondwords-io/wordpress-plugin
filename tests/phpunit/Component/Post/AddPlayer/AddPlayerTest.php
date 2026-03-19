@@ -14,7 +14,10 @@ class AddPlayerTest extends TestCase
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
+        // Unregister the block if it was registered during the test.
+        if (\WP_Block_Type_Registry::get_instance()->is_registered('beyondwords/player')) {
+            \WP_Block_Type_Registry::get_instance()->unregister('beyondwords/player');
+        }
 
         // Then...
         parent::tearDown();
@@ -30,14 +33,66 @@ class AddPlayerTest extends TestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'registerBlock')));
-        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'addBlockEditorStylesheet')));
+        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'addBlockEditorInlineStyles')));
 
-        $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'addEditorStyles')));
         $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filterTinyMceSettings')));
 
         $this->assertEquals(10, has_filter('mce_external_plugins', array(AddPlayer::class, 'addPlugin')));
         $this->assertEquals(10, has_filter('mce_buttons', array(AddPlayer::class, 'addButton')));
         $this->assertEquals(10, has_filter('mce_css', array(AddPlayer::class, 'addStylesheet')));
+    }
+
+    /**
+     * @test
+     */
+    public function initDoesNotHookAdminHead()
+    {
+        AddPlayer::init();
+
+        do_action('wp_loaded');
+
+        // admin_head <style> injection does not work inside the iframed editor (apiVersion 3).
+        $this->assertFalse(has_action('admin_head', array(AddPlayer::class, 'addEditorStyles')));
+    }
+
+    /**
+     * @test
+     */
+    public function blockJsonDeclaresApiVersion3()
+    {
+        $blockJsonPath = dirname(__DIR__, 4) . '/../src/Component/Post/AddPlayer/block.json';
+        $blockJson = json_decode(file_get_contents($blockJsonPath), true);
+
+        $this->assertArrayHasKey('apiVersion', $blockJson);
+        $this->assertGreaterThanOrEqual(3, $blockJson['apiVersion'], 'apiVersion must be 3 or higher for WordPress 7.0+ iframe editor compatibility');
+    }
+
+    /**
+     * @test
+     */
+    public function blockJsonDeclaresEditorStyle()
+    {
+        $blockJsonPath = dirname(__DIR__, 4) . '/../src/Component/Post/AddPlayer/block.json';
+        $blockJson = json_decode(file_get_contents($blockJsonPath), true);
+
+        $this->assertArrayHasKey('editorStyle', $blockJson, 'editorStyle must be declared in block.json so styles are loaded inside the iframed editor');
+        $this->assertStringContainsString('AddPlayer.css', $blockJson['editorStyle']);
+    }
+
+    /**
+     * @test
+     */
+    public function registerBlockCreatesBlockType()
+    {
+        AddPlayer::registerBlock();
+
+        $registry = \WP_Block_Type_Registry::get_instance();
+
+        $this->assertTrue($registry->is_registered('beyondwords/player'));
+
+        $blockType = $registry->get_registered('beyondwords/player');
+
+        $this->assertGreaterThanOrEqual(3, $blockType->api_version, 'Registered block must have apiVersion >= 3');
     }
 
     /**
@@ -107,12 +162,13 @@ class AddPlayerTest extends TestCase
     /**
      * @test
      */
-    public function addEditorStyles()
+    public function addBlockEditorInlineStyles()
     {
-        $html = $this->captureOutput(function () {
-            AddPlayer::addEditorStyles();
-        });
+        AddPlayer::addBlockEditorInlineStyles();
 
-        $this->assertSame('<style>' . AddPlayer::playerPreviewI18nStyles() . '</style>', $html);
+        $inlineStyle = wp_styles()->get_data('beyondwords-player-editor-style', 'after');
+
+        $this->assertIsArray($inlineStyle);
+        $this->assertStringContainsString('Player placeholder', implode('', $inlineStyle));
     }
 }

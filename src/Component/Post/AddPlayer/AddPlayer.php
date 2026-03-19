@@ -31,13 +31,13 @@ class AddPlayer
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 6.3.0 Replace admin_head style injection with iframe-compatible editorStyle (apiVersion 3).
      */
     public static function init()
     {
         add_action('init', [self::class, 'registerBlock']);
-        add_action('enqueue_block_editor_assets', [self::class, 'addBlockEditorStylesheet']);
+        add_action('enqueue_block_editor_assets', [self::class, 'addBlockEditorInlineStyles']);
 
-        add_action('admin_head', [self::class, 'addEditorStyles']);
         add_filter('tiny_mce_before_init', [self::class, 'filterTinyMceSettings']);
 
         add_filter('mce_external_plugins', [self::class, 'addPlugin']);
@@ -145,41 +145,18 @@ class AddPlayer
     }
 
     /**
-     * Add editor styles.
+     * Add Block Editor inline styles for the player placeholder i18n text.
      *
-     * Adds i18n-compatible Block Editor CSS for the player placeholder.
+     * Uses wp_add_inline_style on the block's editorStyle handle so styles
+     * are loaded inside the iframed editor (apiVersion 3).
      *
-     * @since 3.3.0
-     * @since 6.0.0 Make static.
+     * @since 6.3.0
      */
-    public static function addEditorStyles()
+    public static function addBlockEditorInlineStyles()
     {
-        $allowed_html = [
-            'style' => [],
-        ];
-
-        echo wp_kses(
-            sprintf('<style>%s</style>', self::playerPreviewI18nStyles()),
-            $allowed_html
+        wp_add_inline_style(
+            'beyondwords-player-editor-style',
+            self::playerPreviewI18nStyles()
         );
-    }
-
-    /**
-     * Add Block Editor Stylesheet.
-     *
-     * @since 6.0.0 Make static.
-     */
-    public static function addBlockEditorStylesheet($hook)
-    {
-        // Only enqueue for Gutenberg/Post screens
-        if (CoreUtils::isGutenbergPage() || $hook === 'post.php' || $hook === 'post-new.php') {
-            // Register the Classic/Block Editor "Add Player" CSS
-            wp_enqueue_style(
-                'beyondwords-AddPlayer',
-                BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css',
-                [],
-                BEYONDWORDS__PLUGIN_VERSION
-            );
-        }
     }
 }
