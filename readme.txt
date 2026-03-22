@@ -80,9 +80,9 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 Release date: TBC
 
-**Enhancements**
+**Codebase Enhancements**
 
-* Update BeyondWords Player Block to support WordPress 7.0.
+* Bump BeyondWords Player `apiVersion` to fixing failing Plugin Check jobs in CI.
 
 = 6.2.0 =
 
