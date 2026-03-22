@@ -54,6 +54,14 @@ context( 'Block Editor: Content ID', () => {
 			status: 'draft',
 			postType: 'post',
 		} ).then( ( postId ) => {
+			// Explicitly set generate_audio so the preselect useEffect
+			// does not race with the Fetch editPost call.
+			cy.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_generate_audio',
+				metaValue: '1',
+			} );
+
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsEditorPanel();
 
