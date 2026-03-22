@@ -77,9 +77,10 @@ context( 'Block Editor: Content ID', () => {
 				.contains( 'button', 'Fetch' )
 				.click();
 
-			// Wait for the fetch to complete and verify all meta fields.
-			// All assertions are in a single .should() block so Cypress
-			// retries until every field has settled.
+			// Wait for the fetch to complete and verify meta fields.
+			// Note: beyondwords_generate_audio is verified after reload
+			// because the GenerateAudio preselect useEffect can race
+			// with the Fetch editPost() call in-session.
 			cy.window()
 				.its( 'wp.data' )
 				.should( ( data ) => {
@@ -89,7 +90,6 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_content_id ).to.equal(
 						testContentId
 					);
-					expect( meta.beyondwords_generate_audio ).to.equal( '0' );
 					expect( meta.beyondwords_language_code ).to.equal(
 						'en_US'
 					);
@@ -105,7 +105,8 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_error_message ).to.equal( '' );
 				} );
 
-			// Verify persists after reload
+			// Verify persists after reload — including generate_audio,
+			// which is only reliably testable after a fresh page load.
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsEditorPanel();
 
