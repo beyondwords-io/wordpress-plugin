@@ -156,6 +156,7 @@ export function ContentId( { wrapper } ) {
 						onChange={ setContentId }
 						disabled={ isLoading }
 						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 					/>
 				</FlexItem>
 				<FlexItem>
@@ -163,7 +164,7 @@ export function ContentId( { wrapper } ) {
 						variant="secondary"
 						onClick={ handleFetch }
 						disabled={ isLoading || ! contentId }
-						style={ { marginBottom: '1px' } }
+						__next40pxDefaultSize
 					>
 						{ isLoading ? (
 							<Spinner style={ { margin: 0 } } />

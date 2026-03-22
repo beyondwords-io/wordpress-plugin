@@ -13,7 +13,6 @@ import ErrorNotice from '../../../Post/ErrorNotice';
 import GenerateAudio from '../../../Post/GenerateAudio';
 import OpenSidebar from '../../../Post/OpenSidebar';
 import PendingNotice from '../../../Post/PendingNotice';
-import ContentId from '../../../Post/ContentId';
 import PlayAudio from '../../../Post/PlayAudio';
 import SelectVoice from '../../../Post/SelectVoice';
 import PlayerContent from '../../../Post/PlayerContent';
@@ -29,7 +28,6 @@ export default class DocumentSettingPanel extends Component {
 			>
 				<ErrorNotice wrapper={ PanelRow } />
 				<PendingNotice wrapper={ PanelRow } />
-				<ContentId wrapper={ PanelRow } />
 				<PlayAudio wrapper={ PanelRow } />
 				<GenerateAudio wrapper={ PanelRow } />
 				<PlayerStyle wrapper={ PanelRow } />
