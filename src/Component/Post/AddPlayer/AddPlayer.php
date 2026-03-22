@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\AddPlayer;
 
+use Beyondwords\Wordpress\Core\CoreUtils;
+
 /**
  * AddPlayer
  *
@@ -21,22 +23,21 @@ defined('ABSPATH') || exit;
 
 class AddPlayer
 {
-    // The CSS declaration block for the player preview placeholder text.
-    // The %s placeholder is replaced with a wp_json_encode()'d string (already quoted).
-    public const PLAYER_PREVIEW_STYLE_FORMAT = '[data-beyondwords-player]:empty:after { content: %s; }';
+    // The CSS declaration block for the player preview in both Classic Editor and Block Editor.
+    public const PLAYER_PREVIEW_STYLE_FORMAT = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: '%s'; }"; // phpcs:ignore Generic.Files.LineLength.TooLong
 
     /**
      * Init.
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
-     * @since 6.3.0 Replace admin_head style injection with iframe-compatible editorStyle (apiVersion 3).
      */
     public static function init()
     {
         add_action('init', [self::class, 'registerBlock']);
-        add_action('enqueue_block_editor_assets', [self::class, 'addBlockEditorInlineStyles']);
+        add_action('enqueue_block_editor_assets', [self::class, 'addBlockEditorStylesheet']);
 
+        add_action('admin_head', [self::class, 'addEditorStyles']);
         add_filter('tiny_mce_before_init', [self::class, 'filterTinyMceSettings']);
 
         add_filter('mce_external_plugins', [self::class, 'addPlugin']);
@@ -116,7 +117,7 @@ class AddPlayer
     {
         return sprintf(
             self::PLAYER_PREVIEW_STYLE_FORMAT,
-            wp_json_encode(__('Player placeholder: The position of the audio player.', 'speechkit'))
+            esc_attr__('Player placeholder: The position of the audio player.', 'speechkit')
         );
     }
 
@@ -144,18 +145,41 @@ class AddPlayer
     }
 
     /**
-     * Add Block Editor inline styles for the player placeholder i18n text.
+     * Add editor styles.
      *
-     * Uses wp_add_inline_style on the block's editorStyle handle so styles
-     * are loaded inside the iframed editor (apiVersion 3).
+     * Adds i18n-compatible Block Editor CSS for the player placeholder.
      *
-     * @since 6.3.0
+     * @since 3.3.0
+     * @since 6.0.0 Make static.
      */
-    public static function addBlockEditorInlineStyles()
+    public static function addEditorStyles()
     {
-        wp_add_inline_style(
-            'beyondwords-player-editor-style',
-            self::playerPreviewI18nStyles()
+        $allowed_html = [
+            'style' => [],
+        ];
+
+        echo wp_kses(
+            sprintf('<style>%s</style>', self::playerPreviewI18nStyles()),
+            $allowed_html
         );
+    }
+
+    /**
+     * Add Block Editor Stylesheet.
+     *
+     * @since 6.0.0 Make static.
+     */
+    public static function addBlockEditorStylesheet($hook)
+    {
+        // Only enqueue for Gutenberg/Post screens
+        if (CoreUtils::isGutenbergPage() || $hook === 'post.php' || $hook === 'post-new.php') {
+            // Register the Classic/Block Editor "Add Player" CSS
+            wp_enqueue_style(
+                'beyondwords-AddPlayer',
+                BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css',
+                [],
+                BEYONDWORDS__PLUGIN_VERSION
+            );
+        }
     }
 }

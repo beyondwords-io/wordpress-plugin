@@ -8,6 +8,5 @@
 	"icon": "controls-volumeon",
 	"keywords": [ "audio", "text-to-speech" ],
 	"version": "1.0.0",
-	"textdomain": "speechkit",
-	"editorStyle": "file:./AddPlayer.css"
+	"textdomain": "speechkit"
 }
