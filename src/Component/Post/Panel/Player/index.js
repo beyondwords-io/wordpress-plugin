@@ -28,8 +28,10 @@ export function PlayerPanel() {
 			<PendingNotice wrapper={ PanelRow } />
 			<PlayAudio wrapper={ PanelRow } />
 			<ContentId wrapper={ PanelRow } />
+			<hr />
 			<GenerateAudio wrapper={ PanelRow } />
 			<DisplayPlayer wrapper={ PanelRow } />
+			<hr />
 			<PlayerStyle wrapper={ PanelRow } />
 			<PlayerContent wrapper={ PanelRow } />
 			<SelectVoice wrapper={ PanelRow } />

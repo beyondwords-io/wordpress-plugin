@@ -30,6 +30,7 @@ export default class DocumentSettingPanel extends Component {
 				<PendingNotice wrapper={ PanelRow } />
 				<PlayAudio wrapper={ PanelRow } />
 				<GenerateAudio wrapper={ PanelRow } />
+				<hr />
 				<PlayerStyle wrapper={ PanelRow } />
 				<PlayerContent wrapper={ PanelRow } />
 				<SelectVoice wrapper={ PanelRow } />
