@@ -55,7 +55,7 @@ class ContentId
     public static function element($post)
     {
         $contentId = PostMetaUtils::getContentId($post->ID) ?: '';
-        $projectId = get_option('beyondwords_project_id', '');
+        $projectId = PostMetaUtils::getProjectId($post->ID) ?: get_option('beyondwords_project_id', '');
 
         wp_nonce_field('beyondwords_content_id', 'beyondwords_content_id_nonce');
         ?>

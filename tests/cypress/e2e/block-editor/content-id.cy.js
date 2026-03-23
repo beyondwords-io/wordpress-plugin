@@ -226,7 +226,9 @@ context( 'Block Editor: Content ID', () => {
 			cy.viewPostById( postId );
 
 			// The player script tag should include the fetched content ID
-			cy.getPlayerScriptTag().should( 'exist' );
+			cy.getPlayerScriptTag()
+				.should( 'have.attr', 'src' )
+				.and( 'include', testContentId );
 		} );
 	} );
 } );

@@ -10,7 +10,7 @@ import {
 	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { Fragment, useState } from '@wordpress/element';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -35,7 +35,15 @@ export function ContentId( { wrapper } ) {
 	);
 
 	const settingsProjectId = useSelect(
-		( select ) => select( 'beyondwords/settings' ).getSettings()?.projectId,
+		( select ) => {
+			const metaProjectId =
+				select( 'core/editor' ).getEditedPostAttribute( 'meta' )
+					?.beyondwords_project_id;
+			const settings =
+				select( 'beyondwords/settings' ).getSettings() || {};
+
+			return metaProjectId || settings.projectId;
+		},
 		[]
 	);
 
@@ -48,11 +56,9 @@ export function ContentId( { wrapper } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 
 	// Keep local state in sync when savedContentId changes externally.
-	const [ prevSavedContentId, setPrevSavedContentId ] = useState( savedContentId );
-	if ( savedContentId !== prevSavedContentId ) {
-		setPrevSavedContentId( savedContentId );
+	useEffect( () => {
 		setContentId( savedContentId );
-	}
+	}, [ savedContentId ] );
 
 	const handleFetch = async () => {
 		if ( ! contentId || ! settingsProjectId ) {
