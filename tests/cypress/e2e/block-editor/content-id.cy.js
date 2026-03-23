@@ -5,14 +5,14 @@ context( 'Block Editor: Content ID', () => {
 		cy.login();
 	} );
 
-	it( 'displays the Content ID field in the document settings panel', () => {
+	it( 'displays the Content ID field in the sidebar panel', () => {
 		cy.createTestPost( {
 			title: 'Cypress Test: content id field visible',
 			status: 'draft',
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			cy.getLabel( 'Content ID' ).should( 'exist' );
 		} );
@@ -24,7 +24,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: { slug: 'post' },
 		} );
 
-		cy.openBeyondwordsEditorPanel();
+		cy.openBeyondwordsPluginSidebar();
 
 		cy.getLabel( 'Content ID' ).should( 'exist' );
 	} );
@@ -36,9 +36,9 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
-			cy.get( '.beyondwords-sidebar input[type="text"]' )
+			cy.get( '.beyondwords-sidebar__status input[type="text"]' )
 				.filter(
 					( _i, el ) => el.value === Cypress.env( 'contentId' )
 				)
@@ -63,19 +63,19 @@ context( 'Block Editor: Content ID', () => {
 			} );
 
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			// Type a content ID into the field
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
-				.clear()
-				.type( testContentId );
+				.clear( { force: true } )
+				.type( testContentId, { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar' )
+			cy.get( '.beyondwords-sidebar__status' )
 				.contains( 'button', 'Fetch' )
-				.click();
+				.click( { force: true } );
 
 			// Wait for the fetch to complete and verify meta fields.
 			// Note: beyondwords_generate_audio is verified after reload
@@ -108,7 +108,7 @@ context( 'Block Editor: Content ID', () => {
 			// Verify persists after reload — including generate_audio,
 			// which is only reliably testable after a fresh page load.
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			cy.window()
 				.its( 'wp.data' )
@@ -134,7 +134,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			// Intercept the fetch request at browser level and return 404
 			cy.intercept(
@@ -150,13 +150,13 @@ context( 'Block Editor: Content ID', () => {
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
-				.clear()
-				.type( 'not-found-content-id' );
+				.clear( { force: true } )
+				.type( 'not-found-content-id', { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar' )
+			cy.get( '.beyondwords-sidebar__status' )
 				.contains( 'button', 'Fetch' )
-				.click();
+				.click( { force: true } );
 
 			cy.wait( '@fetchContent' );
 
@@ -175,7 +175,7 @@ context( 'Block Editor: Content ID', () => {
 
 			// Verify error persists after reload
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			cy.window()
 				.its( 'wp.data' )
@@ -197,18 +197,18 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsEditorPanel();
+			cy.openBeyondwordsPluginSidebar();
 
 			// Type a content ID and fetch
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
-				.clear()
-				.type( testContentId );
+				.clear( { force: true } )
+				.type( testContentId, { force: true } );
 
-			cy.get( '.beyondwords-sidebar' )
+			cy.get( '.beyondwords-sidebar__status' )
 				.contains( 'button', 'Fetch' )
-				.click();
+				.click( { force: true } );
 
 			// Wait for the fetch to complete by polling editor meta state
 			cy.window()

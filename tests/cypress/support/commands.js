@@ -414,6 +414,14 @@ Cypress.Commands.add( 'openBeyondwordsEditorPanel', () => {
 	} );
 } );
 
+Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
+	cy.openBeyondwordsEditorPanel();
+	cy.get( '.beyondwords-sidebar' )
+		.contains( 'a', 'BeyondWords sidebar' )
+		.click();
+	cy.get( '.beyondwords-sidebar__status' ).should( 'be.visible' );
+} );
+
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 	return cy
 		.get( 'label', ...args )

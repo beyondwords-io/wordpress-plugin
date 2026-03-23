@@ -109,13 +109,13 @@ export function ContentId( { wrapper } ) {
 
 			const meta = {
 				beyondwords_generate_audio: '0',
-				beyondwords_project_id: project_id || '',
+				beyondwords_project_id: String( project_id || '' ),
 				beyondwords_content_id: id || '',
 				beyondwords_preview_token: preview_token || '',
 				beyondwords_language_code: language || '',
-				beyondwords_title_voice_id: title_voice_id || '',
-				beyondwords_summary_voice_id: summary_voice_id || '',
-				beyondwords_body_voice_id: body_voice_id || '',
+				beyondwords_title_voice_id: String( title_voice_id || '' ),
+				beyondwords_summary_voice_id: String( summary_voice_id || '' ),
+				beyondwords_body_voice_id: String( body_voice_id || '' ),
 				beyondwords_delete_content: '',
 				beyondwords_disabled: '',
 				beyondwords_error_message: '',

@@ -480,6 +480,7 @@ function beyondwords_mock_get_content( $params ) {
 	return beyondwords_mock_response(
 		array(
 			'id'                           => $content_id,
+			'project_id'                   => (int) $params['projectId'],
 			'title'                        => 'Fetched Content Title',
 			'type'                         => 'auto_segment',
 			'source_id'                    => '90e4cbff-6382-4a88-adc5-1eb3ffa16c6d',
