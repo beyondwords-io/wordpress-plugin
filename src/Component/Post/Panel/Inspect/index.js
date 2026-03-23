@@ -13,7 +13,6 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
-
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
@@ -66,6 +65,7 @@ export function PostInspectPanel( {
 		if ( isSavingPost && ! isAutosavingPost && didPostSaveRequestSucceed ) {
 			removeWarningNotice();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost ] );
 
 	useEffect( () => {
@@ -115,6 +115,7 @@ export function PostInspectPanel( {
 			_speechkit_link: speechkitLink,
 			_speechkit_text: speechkitText,
 		} ),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
 

@@ -34,18 +34,15 @@ export function ContentId( { wrapper } ) {
 		[]
 	);
 
-	const settingsProjectId = useSelect(
-		( select ) => {
-			const metaProjectId =
-				select( 'core/editor' ).getEditedPostAttribute( 'meta' )
-					?.beyondwords_project_id;
-			const settings =
-				select( 'beyondwords/settings' ).getSettings() || {};
+	const settingsProjectId = useSelect( ( select ) => {
+		const metaProjectId =
+			select( 'core/editor' ).getEditedPostAttribute(
+				'meta'
+			)?.beyondwords_project_id;
+		const settings = select( 'beyondwords/settings' ).getSettings() || {};
 
-			return metaProjectId || settings.projectId;
-		},
-		[]
-	);
+		return metaProjectId || settings.projectId;
+	}, [] );
 
 	const restUrl = useSelect(
 		( select ) => select( 'beyondwords/settings' ).getSettings()?.restUrl,

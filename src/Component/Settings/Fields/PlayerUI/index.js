@@ -22,7 +22,7 @@
 	function toggleFieldRow() {
 		const playerUi = $playerUiField.find( ':selected' ).val();
 
-		$playerSettingsFields.each( function ( index ) {
+		$playerSettingsFields.each( function () {
 			if ( playerUi === 'enabled' ) {
 				jQuery( this ).show();
 			} else {

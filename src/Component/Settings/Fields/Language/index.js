@@ -1,4 +1,4 @@
-/* global jQuery, TomSelect */
+/* global jQuery, TomSelect, beyondwordsData */
 'use strict';
 ( function ( $ ) {
 	$( document ).ready( function () {
@@ -26,6 +26,7 @@
 				const $bodyVoicesSelect = $(
 					'#beyondwords_project_body_voice_id'
 				);
+				// eslint-disable-next-line max-len
 				const endpoint = `${ beyondwordsData.root }beyondwords/v1/languages/${ languageCode }/voices`;
 
 				$( '.beyondwords-settings__loader-default-language' ).show();
@@ -56,7 +57,7 @@
 						},
 					} )
 					.done( function ( voices ) {
-						$voicesSelects.each( function ( index ) {
+						$voicesSelects.each( function () {
 							$( this )
 								.empty()
 								.append(
@@ -110,6 +111,7 @@
 						}
 					} )
 					.fail( function ( xhr ) {
+						// eslint-disable-next-line no-console
 						console.log( '🔊 Unable to load voices', xhr );
 						$( '#beyondwords_project_language_code' ).setValue(
 							originalLanguageCode

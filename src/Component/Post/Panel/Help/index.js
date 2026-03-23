@@ -19,12 +19,20 @@ export default () => (
 	>
 		<PanelRow>
 			{ __(
-				'For setup instructions, troubleshooting, and FAQs, see our BeyondWords for WordPress guide.',
+				'For setup instructions, troubleshooting, and FAQs,' +
+					' see our BeyondWords for WordPress guide.',
 				'speechkit'
 			) }
 		</PanelRow>
 		<PanelRow>
-			<ExternalLink href="https://docs.beyondwords.io/docs-and-guides/content/connect-cms/wordpress/install?utm_source=wordpress&amp;utm_medium=referral&amp;utm_campaign=&amp;utm_content=plugin">
+			<ExternalLink
+				href={
+					'https://docs.beyondwords.io/docs-and-guides/content/' +
+					'connect-cms/wordpress/install?utm_source=wordpress' +
+					'&amp;utm_medium=referral&amp;utm_campaign=' +
+					'&amp;utm_content=plugin'
+				}
+			>
 				{ __( 'Setup guide', 'speechkit' ) }
 			</ExternalLink>
 		</PanelRow>
