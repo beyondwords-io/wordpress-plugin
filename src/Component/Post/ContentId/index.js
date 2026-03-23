@@ -27,11 +27,6 @@ export function ContentId( { wrapper } ) {
 		[]
 	);
 
-	const postType = useSelect(
-		( select ) => select( 'core/editor' ).getCurrentPostType(),
-		[]
-	);
-
 	const savedContentId = useSelect(
 		( select ) =>
 			select( 'core/editor' ).getEditedPostAttribute( 'meta' )

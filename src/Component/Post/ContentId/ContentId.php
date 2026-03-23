@@ -59,10 +59,12 @@ class ContentId
 
         wp_nonce_field('beyondwords_content_id', 'beyondwords_content_id_nonce');
         ?>
-        <div id="beyondwords-metabox-content-id" style="margin: 8px 0;">
-            <label for="beyondwords_content_id" class="post-attributes-label">
-                <?php esc_html_e('Content ID', 'speechkit'); ?>
-            </label>
+        <div id="beyondwords-metabox-content-id" style="margin: 8px 0 13px;">
+            <p class="post-attributes-label-wrapper">
+                <label for="beyondwords_content_id" class="post-attributes-label">
+                    <?php esc_html_e('Content ID', 'speechkit'); ?>
+                </label>
+            </p>
             <div style="display: flex; gap: 4px; align-items: center;">
                 <input
                     type="text"

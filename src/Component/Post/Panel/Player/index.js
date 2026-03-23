@@ -24,15 +24,15 @@ export function PlayerPanel() {
 			opened={ true }
 			className={ `beyondwords beyondwords-sidebar__status` }
 		>
+			<ErrorNotice wrapper={ PanelRow } />
 			<PendingNotice wrapper={ PanelRow } />
-			<ContentId wrapper={ PanelRow } />
 			<PlayAudio wrapper={ PanelRow } />
+			<ContentId wrapper={ PanelRow } />
 			<GenerateAudio wrapper={ PanelRow } />
 			<DisplayPlayer wrapper={ PanelRow } />
 			<PlayerStyle wrapper={ PanelRow } />
 			<PlayerContent wrapper={ PanelRow } />
 			<SelectVoice wrapper={ PanelRow } />
-			<ErrorNotice wrapper={ PanelRow } />
 		</PanelBody>
 	);
 }

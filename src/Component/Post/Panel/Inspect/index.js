@@ -13,10 +13,6 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
-/**
- * Internal dependencies
- */
-import FetchButton from './fetch';
 
 export function PostInspectPanel( {
 	// Current custom fields
@@ -310,8 +306,6 @@ export function PostInspectPanel( {
 			>
 				{ __( 'Copy', 'speechkit' ) }
 			</Button>
-
-			<FetchButton />
 
 			<Button
 				isDestructive

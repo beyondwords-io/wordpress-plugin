@@ -112,9 +112,6 @@ class Metabox
         // Show errors for posts with/without audio
         self::errors($post);
 
-        // Content ID field with Fetch button
-        ContentId::element($post);
-
         $hasContent = PostMetaUtils::hasContent($post->ID);
 
         if ($hasContent) {
@@ -124,6 +121,12 @@ class Metabox
             } else {
                 self::playerEmbed($post);
             }
+        }
+
+        // Content ID field with Fetch button
+        ContentId::element($post);
+
+        if ($hasContent) {
             echo '<hr />';
             (new DisplayPlayer())::element($post);
         } else {
@@ -215,10 +218,11 @@ class Metabox
 
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
+        <div id="beyondwords-metabox-player" style="margin: 13px 0;">
         <script async defer
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
             onload='const player = new BeyondWords.Player({
-                target: this,
+                target: this.parentElement,
                 projectId: <?php echo esc_attr($projectId); ?>,
                 <?php if (! empty($contentId)) : ?>
                 contentId: "<?php echo esc_attr($contentId); ?>",
@@ -234,6 +238,7 @@ class Metabox
             });'
         >
         </script>
+        </div>
         <?php
         // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
     }
