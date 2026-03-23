@@ -10,6 +10,7 @@ use Beyondwords\Wordpress\Core\Player\Player;
 use Beyondwords\Wordpress\Core\Updater;
 use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
 use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
+use Beyondwords\Wordpress\Component\Post\ContentId\ContentId;
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use Beyondwords\Wordpress\Component\Post\ErrorNotice\ErrorNotice;
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
@@ -80,6 +81,7 @@ class Plugin
             Inspect::init();
 
             // Post screen metabox
+            ContentId::init();
             GenerateAudio::init();
             DisplayPlayer::init();
             SelectVoice::init();
