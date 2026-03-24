@@ -102,7 +102,6 @@ export function ContentId( { wrapper } ) {
 
 				await updatePostMeta( postId, errorMeta );
 				editPost( { meta: errorMeta } );
-				setIsLoading( false );
 				return;
 			}
 
@@ -139,8 +138,6 @@ export function ContentId( { wrapper } ) {
 
 			// Update local state with the returned content ID.
 			setContentId( id || '' );
-
-			setIsLoading( false );
 		} catch ( err ) {
 			/* eslint-disable camelcase */
 			const errorMeta = {
@@ -152,8 +149,13 @@ export function ContentId( { wrapper } ) {
 			};
 			/* eslint-enable camelcase */
 
-			await updatePostMeta( postId, errorMeta );
+			try {
+				await updatePostMeta( postId, errorMeta );
+			} catch {
+				// Persist failed — still update local editor state below.
+			}
 			editPost( { meta: errorMeta } );
+		} finally {
 			setIsLoading( false );
 		}
 	};
