@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * @package Beyondwords\Wordpress
  * @author  Stuart McAlpine <stu@beyondwords.io>
- * @since   6.1.0
+ * @since   6.3.0
  */
 
 namespace Beyondwords\Wordpress\Component\Post\ContentId;
@@ -19,7 +19,7 @@ use Beyondwords\Wordpress\Core\CoreUtils;
 /**
  * ContentId
  *
- * @since 6.1.0
+ * @since 6.3.0
  */
 defined('ABSPATH') || exit;
 
@@ -28,7 +28,7 @@ class ContentId
     /**
      * Init.
      *
-     * @since 6.1.0
+     * @since 6.3.0
      */
     public static function init()
     {
@@ -48,7 +48,7 @@ class ContentId
     /**
      * HTML output for this component.
      *
-     * @since 6.1.0
+     * @since 6.3.0
      *
      * @param \WP_Post $post The post object.
      */
@@ -89,7 +89,7 @@ class ContentId
     /**
      * Register the component scripts.
      *
-     * @since 6.1.0
+     * @since 6.3.0
      *
      * @param string $hook Page hook
      */
@@ -120,7 +120,7 @@ class ContentId
     /**
      * Save the meta when the post is saved.
      *
-     * @since 6.1.0
+     * @since 6.3.0
      *
      * @param int $postId The ID of the post being saved.
      */

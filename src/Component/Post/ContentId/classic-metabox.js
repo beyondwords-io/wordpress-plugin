@@ -16,6 +16,19 @@ jQuery( document ).ready( function ( $ ) {
 			return;
 		}
 
+		// Determine the correct REST base for the current post type.
+		const postType = $( '#post_type' ).val() || 'post';
+		let restBase;
+
+		if ( postType === 'post' ) {
+			restBase = 'posts';
+		} else if ( postType === 'page' ) {
+			restBase = 'pages';
+		} else {
+			// For custom post types, the REST base commonly matches the post type slug.
+			restBase = postType;
+		}
+
 		$button.prop( 'disabled', true );
 		$input.prop( 'readonly', true );
 
@@ -46,19 +59,6 @@ jQuery( document ).ready( function ( $ ) {
 				return response.json();
 			} )
 			.then( function ( data ) {
-				// Determine the correct REST base for the current post type.
-				var postType = $( '#post_type' ).val() || 'post';
-				var restBase;
-
-				if ( postType === 'post' ) {
-					restBase = 'posts';
-				} else if ( postType === 'page' ) {
-					restBase = 'pages';
-				} else {
-					// For custom post types, the REST base commonly matches the post type slug.
-					restBase = postType;
-				}
-
 				// Save the fetched meta to the post via WP REST API.
 				return fetch(
 					beyondwordsData.root + 'wp/v2/' + restBase + '/' + postId,
@@ -76,7 +76,8 @@ jQuery( document ).ready( function ( $ ) {
 									data.project_id || ''
 								),
 								beyondwords_content_id: data.id || '',
-								beyondwords_preview_token: data.preview_token || '',
+								beyondwords_preview_token:
+									data.preview_token || '',
 								beyondwords_language_code: data.language || '',
 								beyondwords_title_voice_id: String(
 									data.title_voice_id || ''
@@ -119,23 +120,26 @@ jQuery( document ).ready( function ( $ ) {
 				}
 
 				// Save error message to post meta.
-				fetch( beyondwordsData.root + 'wp/v2/posts/' + postId, {
-					method: 'POST',
-					credentials: 'same-origin',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-WP-Nonce': beyondwordsData.nonce,
-					},
-					body: JSON.stringify( {
-						meta: {
-							beyondwords_content_id: contentId,
-							beyondwords_error_message: wp.i18n.__(
-								'Failed to fetch content. Please check the Content ID.',
-								'speechkit'
-							),
+				fetch(
+					beyondwordsData.root + 'wp/v2/' + restBase + '/' + postId,
+					{
+						method: 'POST',
+						credentials: 'same-origin',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': beyondwordsData.nonce,
 						},
-					} ),
-				} ).finally( function () {
+						body: JSON.stringify( {
+							meta: {
+								beyondwords_content_id: contentId,
+								beyondwords_error_message: wp.i18n.__(
+									'Failed to fetch content. Please check the Content ID.',
+									'speechkit'
+								),
+							},
+						} ),
+					}
+				).finally( function () {
 					window.location.reload();
 				} );
 			} );

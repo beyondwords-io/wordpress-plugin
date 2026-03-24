@@ -13,10 +13,8 @@ import { useSelect, useDispatch, select } from '@wordpress/data';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
-/**
- * Internal utilities
- */
-const updatePostMeta = ( postId, metaKey, metaValue ) => {
+// Internal utilities
+const updatePostMeta = ( postId, meta ) => {
 	const postType = select( 'core/editor' ).getCurrentPostType();
 	const postTypeInfo = select( 'core' ).getPostType( postType );
 	const restBase = postTypeInfo?.rest_base || postType;
@@ -24,11 +22,7 @@ const updatePostMeta = ( postId, metaKey, metaValue ) => {
 	return apiFetch( {
 		path: `/wp/v2/${ restBase }/${ postId }`,
 		method: 'POST',
-		data: {
-			meta: {
-				[ metaKey ]: metaValue,
-			},
-		},
+		data: { meta },
 	} );
 };
 export function ContentId( { wrapper } ) {
@@ -37,18 +31,18 @@ export function ContentId( { wrapper } ) {
 	const { editPost } = useDispatch( 'core/editor' );
 
 	const postId = useSelect(
-		( select ) => select( 'core/editor' ).getCurrentPostId(),
+		() => select( 'core/editor' ).getCurrentPostId(),
 		[]
 	);
 
 	const savedContentId = useSelect(
-		( select ) =>
+		() =>
 			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
 				?.beyondwords_content_id || '',
 		[]
 	);
 
-	const settingsProjectId = useSelect( ( select ) => {
+	const settingsProjectId = useSelect( () => {
 		const metaProjectId =
 			select( 'core/editor' ).getEditedPostAttribute(
 				'meta'
@@ -59,7 +53,7 @@ export function ContentId( { wrapper } ) {
 	}, [] );
 
 	const restUrl = useSelect(
-		( select ) => select( 'beyondwords/settings' ).getSettings()?.restUrl,
+		() => select( 'beyondwords/settings' ).getSettings()?.restUrl,
 		[]
 	);
 
