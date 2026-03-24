@@ -83,11 +83,11 @@ Release date: TBC
 **Enhancements**
 
 * [#500](https://github.com/beyondwords-io/wordpress-plugin/pull/500) Editable content ID field.
-    * Adda a new "Content ID" feature, allowing users to input and fetch audio metadata by Content ID directly from the editor and classic metabox.
+    * Adds a new "Content ID" feature, allowing users to input and fetch audio metadata by Content ID directly from the editor and classic metabox.
 
 **Codebase Enhancements**
 
-* Bump BeyondWords Player block `apiVersion` to fixing failing Plugin Check jobs in CI.
+* Bump BeyondWords Player block `apiVersion` to fix failing Plugin Check jobs in CI.
 
 = 6.2.0 =
 

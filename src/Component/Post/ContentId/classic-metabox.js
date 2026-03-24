@@ -46,38 +46,54 @@ jQuery( document ).ready( function ( $ ) {
 				return response.json();
 			} )
 			.then( function ( data ) {
+				// Determine the correct REST base for the current post type.
+				var postType = $( '#post_type' ).val() || 'post';
+				var restBase;
+
+				if ( postType === 'post' ) {
+					restBase = 'posts';
+				} else if ( postType === 'page' ) {
+					restBase = 'pages';
+				} else {
+					// For custom post types, the REST base commonly matches the post type slug.
+					restBase = postType;
+				}
+
 				// Save the fetched meta to the post via WP REST API.
-				return fetch( beyondwordsData.root + 'wp/v2/posts/' + postId, {
-					method: 'POST',
-					credentials: 'same-origin',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-WP-Nonce': beyondwordsData.nonce,
-					},
-					body: JSON.stringify( {
-						meta: {
-							beyondwords_generate_audio: '0',
-							beyondwords_project_id: String(
-								data.project_id || ''
-							),
-							beyondwords_content_id: data.id || '',
-							beyondwords_preview_token: data.preview_token || '',
-							beyondwords_language_code: data.language || '',
-							beyondwords_title_voice_id: String(
-								data.title_voice_id || ''
-							),
-							beyondwords_summary_voice_id: String(
-								data.summary_voice_id || ''
-							),
-							beyondwords_body_voice_id: String(
-								data.body_voice_id || ''
-							),
-							beyondwords_delete_content: '',
-							beyondwords_disabled: '',
-							beyondwords_error_message: '',
+				return fetch(
+					beyondwordsData.root + 'wp/v2/' + restBase + '/' + postId,
+					{
+						method: 'POST',
+						credentials: 'same-origin',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': beyondwordsData.nonce,
 						},
-					} ),
-				} ).then( function ( saveResponse ) {
+						body: JSON.stringify( {
+							meta: {
+								beyondwords_generate_audio: '0',
+								beyondwords_project_id: String(
+									data.project_id || ''
+								),
+								beyondwords_content_id: data.id || '',
+								beyondwords_preview_token: data.preview_token || '',
+								beyondwords_language_code: data.language || '',
+								beyondwords_title_voice_id: String(
+									data.title_voice_id || ''
+								),
+								beyondwords_summary_voice_id: String(
+									data.summary_voice_id || ''
+								),
+								beyondwords_body_voice_id: String(
+									data.body_voice_id || ''
+								),
+								beyondwords_delete_content: '',
+								beyondwords_disabled: '',
+								beyondwords_error_message: '',
+							},
+						} ),
+					}
+				).then( function ( saveResponse ) {
 					if ( ! saveResponse.ok ) {
 						throw new Error( 'Failed to save' );
 					}
