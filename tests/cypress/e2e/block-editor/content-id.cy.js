@@ -227,7 +227,7 @@ context( 'Block Editor: Content ID', () => {
 
 			// The player script tag should include the fetched content ID
 			cy.getPlayerScriptTag()
-				.should( 'have.attr', 'src' )
+				.should( 'have.attr', 'onload' )
 				.and( 'include', testContentId );
 		} );
 	} );
