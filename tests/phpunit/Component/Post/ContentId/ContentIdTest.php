@@ -160,7 +160,7 @@ class ContentIdTest extends TestCase
             ],
             'Script injection' => [
                 'postValue' => '<script>alert("xss")</script>',
-                'expect'    => 'alert("xss")',
+                'expect'    => '',
             ],
             'HTML tags stripped' => [
                 'postValue' => 'abc<b>def</b>ghi',
