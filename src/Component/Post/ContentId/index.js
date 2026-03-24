@@ -9,14 +9,28 @@ import {
 	TextControl,
 	Spinner,
 } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, select } from '@wordpress/data';
 import { Fragment, useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Internal dependencies
+ * Internal utilities
  */
-import { updatePostMeta } from '../Panel/Inspect/fetch/utils';
+const updatePostMeta = ( postId, metaKey, metaValue ) => {
+	const postType = select( 'core/editor' ).getCurrentPostType();
+	const postTypeInfo = select( 'core' ).getPostType( postType );
+	const restBase = postTypeInfo?.rest_base || postType;
 
+	return apiFetch( {
+		path: `/wp/v2/${ restBase }/${ postId }`,
+		method: 'POST',
+		data: {
+			meta: {
+				[ metaKey ]: metaValue,
+			},
+		},
+	} );
+};
 export function ContentId( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
