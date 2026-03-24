@@ -18,15 +18,19 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Determine the correct REST base for the current post type.
 		const postType = $( '#post_type' ).val() || 'post';
-		let restBase;
+		// Prefer a rest_base value passed from PHP (e.g. via data-rest-base),
+		// and fall back to the default mapping when not available.
+		let restBase = $button.data( 'rest-base' );
 
-		if ( postType === 'post' ) {
-			restBase = 'posts';
-		} else if ( postType === 'page' ) {
-			restBase = 'pages';
-		} else {
-			// For custom post types, the REST base commonly matches the post type slug.
-			restBase = postType;
+		if ( ! restBase ) {
+			if ( postType === 'post' ) {
+				restBase = 'posts';
+			} else if ( postType === 'page' ) {
+				restBase = 'pages';
+			} else {
+				// For custom post types without an explicit rest_base, fall back to the slug.
+				restBase = postType;
+			}
 		}
 
 		$button.prop( 'disabled', true );
