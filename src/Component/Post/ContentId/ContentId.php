@@ -56,6 +56,8 @@ class ContentId
     {
         $contentId = PostMetaUtils::getContentId($post->ID) ?: '';
         $projectId = PostMetaUtils::getProjectId($post->ID) ?: get_option('beyondwords_project_id', '');
+        $postTypeObj = get_post_type_object(get_post_type($post));
+        $restBase = $postTypeObj->rest_base ?? get_post_type($post);
 
         wp_nonce_field('beyondwords_content_id', 'beyondwords_content_id_nonce');
         ?>
@@ -78,6 +80,7 @@ class ContentId
                     id="beyondwords__content-id--fetch"
                     class="button"
                     data-project-id="<?php echo esc_attr($projectId); ?>"
+                    data-rest-base="<?php echo esc_attr($restBase); ?>"
                 >
                     <?php esc_html_e('Fetch', 'speechkit'); ?>
                 </button>
