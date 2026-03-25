@@ -102,7 +102,7 @@ class ContentId
             wp_register_script(
                 'beyondwords-metabox--content-id',
                 BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/ContentId/classic-metabox.js',
-                ['jquery'],
+                ['wp-i18n'],
                 BEYONDWORDS__PLUGIN_VERSION,
                 true
             );
