@@ -155,10 +155,8 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				// "Generate Audio" checkbox remains but is unchecked after publish
-				cy.get( 'input#beyondwords_generate_audio' ).should(
-					'not.be.checked'
-				);
+				// "Generate Audio" checkbox is now always visible
+				cy.get( 'input#beyondwords_generate_audio' ).should( 'exist' );
 				cy.get( 'input#beyondwords_display_player' ).should(
 					'be.checked'
 				);
