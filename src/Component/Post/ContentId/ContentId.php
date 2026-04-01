@@ -145,18 +145,10 @@ class ContentId
         }
 
         if (isset($_POST['beyondwords_content_id'])) {
-            $raw_content_id = wp_unslash($_POST['beyondwords_content_id']);
-            $sanitized_content_id = sanitize_text_field($raw_content_id);
-
-            // If the raw value contains a <script> tag, treat it as invalid and save an empty string.
-            if (is_string($raw_content_id) && preg_match('/<\s*script\b/i', $raw_content_id) === 1) {
-                $sanitized_content_id = '';
-            }
-
             update_post_meta(
                 $postId,
                 'beyondwords_content_id',
-                $sanitized_content_id
+                sanitize_text_field(wp_unslash($_POST['beyondwords_content_id']))
             );
         }
 
