@@ -126,14 +126,13 @@ class Metabox
         // Content ID field with Fetch button
         ContentId::element($post);
 
+        (new GenerateAudio())::element($post);
+
         if ($hasContent) {
-            echo '<hr />';
             (new DisplayPlayer())::element($post);
-        } else {
-            self::errors($post);
-            // Enable these components for posts without audio
-            (new GenerateAudio())::element($post);
         }
+
+        echo '<hr />';
 
         // Enable these components for posts with/without audio
         (new SelectVoice())::element($post);

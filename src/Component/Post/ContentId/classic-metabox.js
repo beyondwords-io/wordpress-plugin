@@ -4,12 +4,9 @@
 	'use strict';
 
 	/**
-	 * Show a dismissible notice inside the metabox.
-	 *
-	 * @param {string} message Notice text.
-	 * @param {string} type    'success' or 'error'.
+	 * Remove any existing notice from the metabox.
 	 */
-	function showNotice( message, type ) {
+	function clearNotice() {
 		const container = document.getElementById(
 			'beyondwords-metabox-content-id'
 		);
@@ -17,32 +14,39 @@
 			return;
 		}
 
-		// Remove any existing notice.
 		const existing = container.querySelector(
 			'.beyondwords-content-id-notice'
 		);
 		if ( existing ) {
 			existing.remove();
 		}
+	}
+
+	/**
+	 * Show a dismissible notice inside the metabox.
+	 *
+	 * @param {string} message Notice text.
+	 * @param {string} type    'success' or 'error'.
+	 */
+	function showNotice( message, type ) {
+		clearNotice();
+
+		const container = document.getElementById(
+			'beyondwords-metabox-content-id'
+		);
+		if ( ! container ) {
+			return;
+		}
 
 		const notice = document.createElement( 'div' );
-		notice.className = 'beyondwords-content-id-notice';
-		notice.style.cssText =
-			'padding:8px 12px;margin:8px 0 0;border-left:4px solid ' +
-			( type === 'error' ? '#d63638' : '#00a32a' ) +
-			';background:#fff;';
-		notice.textContent = message;
+		notice.className =
+			'beyondwords-content-id-notice ' +
+			( type === 'error' ? 'beyondwords-error' : 'beyondwords-success' );
+		const p = document.createElement( 'p' );
+		p.textContent = message;
+		notice.appendChild( p );
 
 		container.appendChild( notice );
-
-		// Auto-dismiss success notices after 6 seconds.
-		if ( type === 'success' ) {
-			setTimeout( function () {
-				if ( notice.parentNode ) {
-					notice.remove();
-				}
-			}, 6000 );
-		}
 	}
 
 	/**
@@ -123,12 +127,17 @@
 				meta.beyondwords_generate_audio === '1';
 		}
 
-		// Language select.
+		// Language select — only update if the value exists as an option.
 		const languageSelect = document.getElementById(
 			'beyondwords_language_code'
 		);
-		if ( languageSelect && meta.beyondwords_language_code !== undefined ) {
-			languageSelect.value = meta.beyondwords_language_code;
+		if ( languageSelect && meta.beyondwords_language_code ) {
+			const option = languageSelect.querySelector(
+				'option[value="' + meta.beyondwords_language_code + '"]'
+			);
+			if ( option ) {
+				languageSelect.value = meta.beyondwords_language_code;
+			}
 		}
 
 		// Clear any previous error notices rendered by PHP.
@@ -194,6 +203,7 @@
 			}
 
 			const restBase = getRestBase( button );
+			clearNotice();
 			let spinner = setLoading( button, input, true );
 
 			// Fetch content from the BeyondWords API.
