@@ -12,9 +12,9 @@
   "homepage": "https://beyondwords.io",
   "main": "index.js",
   "devDependencies": {
-    "@wordpress/env": "^10.19.1",
-    "@wordpress/eslint-plugin": "^22.5.1",
-    "@wordpress/scripts": "^30.12.1",
+    "@wordpress/env": "^11.2.0",
+    "@wordpress/eslint-plugin": "^24.4.0",
+    "@wordpress/scripts": "^31.7.0",
     "badge-maker": "^4.1.0",
     "cypress": "^15.8.1",
     "cypress-fail-fast": "^7.1.1",
