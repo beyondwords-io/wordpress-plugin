@@ -74,7 +74,9 @@ export function ContentId( { wrapper } ) {
 
 		try {
 			const response = await fetch(
-				`${ restUrl }beyondwords/v1/projects/${ settingsProjectId }/content/${ contentId }`,
+				`${ restUrl }beyondwords/v1/projects/${ encodeURIComponent(
+					settingsProjectId
+				) }/content/${ encodeURIComponent( contentId ) }`,
 				{
 					credentials: 'same-origin',
 					headers: {
