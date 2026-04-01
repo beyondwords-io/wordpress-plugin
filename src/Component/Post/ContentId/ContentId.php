@@ -56,8 +56,9 @@ class ContentId
     {
         $contentId = PostMetaUtils::getContentId($post->ID) ?: '';
         $projectId = PostMetaUtils::getProjectId($post->ID) ?: get_option('beyondwords_project_id', '');
-        $postTypeObj = get_post_type_object(get_post_type($post));
-        $restBase = $postTypeObj->rest_base ?? get_post_type($post);
+        $postType = get_post_type($post);
+        $postTypeObj = $postType ? get_post_type_object($postType) : null;
+        $restBase = ($postTypeObj && ! empty($postTypeObj->rest_base)) ? $postTypeObj->rest_base : $postType;
 
         wp_nonce_field('beyondwords_content_id', 'beyondwords_content_id_nonce');
         ?>
