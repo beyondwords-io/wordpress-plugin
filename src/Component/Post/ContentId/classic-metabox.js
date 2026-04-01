@@ -247,9 +247,9 @@
 		fetch(
 			beyondwordsData.root +
 				'beyondwords/v1/projects/' +
-				projectId +
+				encodeURIComponent( projectId ) +
 				'/content/' +
-				contentId,
+				encodeURIComponent( contentId ),
 			{
 				method: 'GET',
 				credentials: 'same-origin',
