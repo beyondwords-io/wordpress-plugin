@@ -176,129 +176,127 @@
 		return null;
 	}
 
-	document.addEventListener( 'DOMContentLoaded', function () {
-		document.body.addEventListener( 'click', function ( event ) {
-			const button = event.target.closest(
-				'#beyondwords__content-id--fetch'
-			);
-			if ( ! button ) {
-				return;
+	document.body.addEventListener( 'click', function ( event ) {
+		const button = event.target.closest(
+			'#beyondwords__content-id--fetch'
+		);
+		if ( ! button ) {
+			return;
+		}
+
+		const input = document.getElementById( 'beyondwords_content_id' );
+		const contentId = input ? input.value.trim() : '';
+		const projectId = button.getAttribute( 'data-project-id' );
+		const postIdInput = document.getElementById( 'post_ID' );
+		const postId = postIdInput ? postIdInput.value : '';
+
+		if ( ! contentId || ! projectId || ! postId ) {
+			return;
+		}
+
+		if (
+			typeof beyondwordsData === 'undefined' ||
+			! beyondwordsData.root
+		) {
+			return;
+		}
+
+		const restBase = getRestBase( button );
+		clearNotice();
+		let spinner = setLoading( button, input, true );
+
+		// Fetch content from the BeyondWords API.
+		fetch(
+			beyondwordsData.root +
+				'beyondwords/v1/projects/' +
+				projectId +
+				'/content/' +
+				contentId,
+			{
+				method: 'GET',
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': beyondwordsData.nonce,
+				},
 			}
-
-			const input = document.getElementById( 'beyondwords_content_id' );
-			const contentId = input ? input.value.trim() : '';
-			const projectId = button.getAttribute( 'data-project-id' );
-			const postIdInput = document.getElementById( 'post_ID' );
-			const postId = postIdInput ? postIdInput.value : '';
-
-			if ( ! contentId || ! projectId || ! postId ) {
-				return;
-			}
-
-			if (
-				typeof beyondwordsData === 'undefined' ||
-				! beyondwordsData.root
-			) {
-				return;
-			}
-
-			const restBase = getRestBase( button );
-			clearNotice();
-			let spinner = setLoading( button, input, true );
-
-			// Fetch content from the BeyondWords API.
-			fetch(
-				beyondwordsData.root +
-					'beyondwords/v1/projects/' +
-					projectId +
-					'/content/' +
-					contentId,
-				{
-					method: 'GET',
-					credentials: 'same-origin',
-					headers: {
-						'X-WP-Nonce': beyondwordsData.nonce,
-					},
+		)
+			.then( function ( response ) {
+				if ( ! response.ok ) {
+					throw new Error( response.statusText );
 				}
-			)
-				.then( function ( response ) {
-					if ( ! response.ok ) {
-						throw new Error( response.statusText );
-					}
-					return response.json();
-				} )
-				.then( function ( data ) {
-					const meta = {
-						beyondwords_generate_audio: '0',
-						beyondwords_project_id: String( data.project_id || '' ),
-						beyondwords_content_id: data.id || '',
-						beyondwords_preview_token: data.preview_token || '',
-						beyondwords_language_code: data.language || '',
-						beyondwords_title_voice_id: String(
-							data.title_voice_id || ''
-						),
-						beyondwords_summary_voice_id: String(
-							data.summary_voice_id || ''
-						),
-						beyondwords_body_voice_id: String(
-							data.body_voice_id || ''
-						),
-						beyondwords_delete_content: '',
-						beyondwords_disabled: '',
-						beyondwords_error_message: '',
-					};
+				return response.json();
+			} )
+			.then( function ( data ) {
+				const meta = {
+					beyondwords_generate_audio: '0',
+					beyondwords_project_id: String( data.project_id || '' ),
+					beyondwords_content_id: data.id || '',
+					beyondwords_preview_token: data.preview_token || '',
+					beyondwords_language_code: data.language || '',
+					beyondwords_title_voice_id: String(
+						data.title_voice_id || ''
+					),
+					beyondwords_summary_voice_id: String(
+						data.summary_voice_id || ''
+					),
+					beyondwords_body_voice_id: String(
+						data.body_voice_id || ''
+					),
+					beyondwords_delete_content: '',
+					beyondwords_disabled: '',
+					beyondwords_error_message: '',
+				};
 
-					return savePostMeta( restBase, postId, meta ).then(
-						function () {
-							updateMetaboxUI( meta );
-							showNotice(
-								wp.i18n.__(
-									'Content fetched and saved successfully.',
-									'speechkit'
-								),
-								'success'
-							);
-						}
-					);
-				} )
-				.catch( function ( fetchError ) {
-					if ( fetchError.message === 'Failed to save' ) {
+				return savePostMeta( restBase, postId, meta ).then(
+					function () {
+						updateMetaboxUI( meta );
 						showNotice(
 							wp.i18n.__(
-								'Failed to save fetched content.',
+								'Content fetched and saved successfully.',
+								'speechkit'
+							),
+							'success'
+						);
+					}
+				);
+			} )
+			.catch( function ( fetchError ) {
+				if ( fetchError.message === 'Failed to save' ) {
+					showNotice(
+						wp.i18n.__(
+							'Failed to save fetched content.',
+							'speechkit'
+						),
+						'error'
+					);
+					return;
+				}
+
+				// Persist the error message to post meta.
+				const errorMeta = {
+					beyondwords_content_id: contentId,
+					beyondwords_error_message: wp.i18n.__(
+						'Failed to fetch content. Please check the Content ID.',
+						'speechkit'
+					),
+				};
+
+				savePostMeta( restBase, postId, errorMeta )
+					.catch( function () {
+						// Ignore save failure — still show the notice.
+					} )
+					.then( function () {
+						showNotice(
+							wp.i18n.__(
+								'Failed to fetch content. Please check the Content ID.',
 								'speechkit'
 							),
 							'error'
 						);
-						return;
-					}
-
-					// Persist the error message to post meta.
-					const errorMeta = {
-						beyondwords_content_id: contentId,
-						beyondwords_error_message: wp.i18n.__(
-							'Failed to fetch content. Please check the Content ID.',
-							'speechkit'
-						),
-					};
-
-					savePostMeta( restBase, postId, errorMeta )
-						.catch( function () {
-							// Ignore save failure — still show the notice.
-						} )
-						.then( function () {
-							showNotice(
-								wp.i18n.__(
-									'Failed to fetch content. Please check the Content ID.',
-									'speechkit'
-								),
-								'error'
-							);
-						} );
-				} )
-				.finally( function () {
-					spinner = setLoading( button, input, false, spinner );
-				} );
-		} );
+					} );
+			} )
+			.finally( function () {
+				spinner = setLoading( button, input, false, spinner );
+			} );
 	} );
 } )();
