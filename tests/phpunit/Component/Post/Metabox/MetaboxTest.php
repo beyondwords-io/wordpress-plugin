@@ -96,11 +96,8 @@ class MetaboxTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        if ($expectPlayer) {
-            $this->assertCount(0, $crawler->filter('p#beyondwords-metabox-generate-audio'));
-        } else {
-            $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-generate-audio'));
-        }
+        // Generate audio checkbox is always rendered.
+        $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-generate-audio'));
 
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-help'));
         $this->assertCount(0, $crawler->filter('div#beyondwords-metabox-errors'));
