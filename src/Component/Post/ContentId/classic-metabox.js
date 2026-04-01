@@ -1,4 +1,4 @@
-/* global beyondwordsData */
+/* global beyondwordsData, BeyondWords */
 
 ( function () {
 	'use strict';
@@ -146,6 +146,44 @@
 		);
 		if ( errorContainer ) {
 			errorContainer.remove();
+		}
+
+		// Re-initialise the player preview with the fetched content.
+		if (
+			meta.beyondwords_content_id &&
+			meta.beyondwords_project_id &&
+			typeof BeyondWords !== 'undefined'
+		) {
+			let playerContainer = document.getElementById(
+				'beyondwords-metabox-player'
+			);
+
+			if ( ! playerContainer ) {
+				// Create the container if the post had no content before.
+				const metabox = document.getElementById( 'beyondwords' );
+				const inner = metabox && metabox.querySelector( '.inside' );
+				if ( inner ) {
+					playerContainer = document.createElement( 'div' );
+					playerContainer.id = 'beyondwords-metabox-player';
+					playerContainer.style.margin = '13px 0';
+					inner.insertBefore( playerContainer, inner.firstChild );
+				}
+			}
+
+			if ( playerContainer ) {
+				playerContainer.innerHTML = '';
+				new BeyondWords.Player( {
+					target: playerContainer,
+					projectId: Number( meta.beyondwords_project_id ),
+					contentId: meta.beyondwords_content_id,
+					previewToken: meta.beyondwords_preview_token || '',
+					adverts: [],
+					analyticsConsent: 'none',
+					introsOutros: [],
+					playerStyle: 'small',
+					widgetStyle: 'none',
+				} );
+			}
 		}
 	}
 

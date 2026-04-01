@@ -218,7 +218,7 @@ class Metabox
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
         <div id="beyondwords-metabox-player" style="margin: 13px 0;">
-        <script async defer
+        <script defer
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
             onload='const player = new BeyondWords.Player({
                 target: this.parentElement,
