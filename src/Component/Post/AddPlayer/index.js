@@ -19,7 +19,7 @@ registerBlockType( 'beyondwords/player', {
 			</div>
 		);
 	},
-	save() {
+	save: function Save() {
 		const blockProps = useBlockProps.save( { contentEditable: false } );
 
 		return (
