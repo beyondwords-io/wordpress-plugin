@@ -212,6 +212,21 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		async getPostMeta( options ) {
+			const { postId, metaKey } = options;
+			try {
+				const result = await execWp(
+					`post meta get ${ postId } ${ metaKey }`,
+					{ returnResult: true }
+				);
+				const value = result.stdout.trim().split( '\n' ).pop();
+				return value || '';
+			} catch ( error ) {
+				// wp post meta get exits with code 1 if the key doesn't exist
+				return '';
+			}
+		},
+
 		async updateOption( args ) {
 			const { name, value } = args;
 			await execWp( `option update ${ name } '${ value }'` );

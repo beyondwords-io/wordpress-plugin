@@ -155,10 +155,8 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				// "Generate Audio" is replaced by JS Player
-				cy.get( 'input#beyondwords_generate_audio' ).should(
-					'not.exist'
-				);
+				// "Generate Audio" checkbox is now always visible
+				cy.get( 'input#beyondwords_generate_audio' ).should( 'exist' );
 				cy.get( 'input#beyondwords_display_player' ).should(
 					'be.checked'
 				);
@@ -223,9 +221,9 @@ context( 'Classic Editor: Add Post', () => {
 				// Wait for success message
 				cy.get( 'div#message.notice-success' );
 
-				// "Generate Audio" should be replaced by custom "Pending" message
+				// "Generate Audio" checkbox remains but is unchecked
 				cy.get( 'input#beyondwords_generate_audio' ).should(
-					'not.exist'
+					'not.be.checked'
 				);
 				cy.contains(
 					'#beyondwords-pending-review-message',
