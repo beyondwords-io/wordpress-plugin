@@ -22,9 +22,20 @@ table tr th#speechkit_status{
   border-left-color: #d63638;
 }
 
-.beyondwords-error p {
+.beyondwords-error p,
+.beyondwords-success p {
   font-size: 13px;
   line-height: 1.5;
   margin: 0.5em 0;
   padding: 2px;
+}
+
+.beyondwords-success {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-left-width: 4px;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 4%);
+  margin: 5px 0 15px;
+  padding: 1px 12px;
+  border-left-color: #00a32a;
 }

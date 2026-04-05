@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\Metabox;
 
+use Beyondwords\Wordpress\Component\Post\ContentId\ContentId;
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
 use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
@@ -120,13 +121,18 @@ class Metabox
             } else {
                 self::playerEmbed($post);
             }
-            echo '<hr />';
-            (new DisplayPlayer())::element($post);
-        } else {
-            self::errors($post);
-            // Enable these components for posts without audio
-            (new GenerateAudio())::element($post);
         }
+
+        // Content ID field with Fetch button
+        ContentId::element($post);
+
+        (new GenerateAudio())::element($post);
+
+        if ($hasContent) {
+            (new DisplayPlayer())::element($post);
+        }
+
+        echo '<hr />';
 
         // Enable these components for posts with/without audio
         (new SelectVoice())::element($post);
@@ -211,10 +217,11 @@ class Metabox
 
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
-        <script async defer
+        <div id="beyondwords-metabox-player" style="margin: 13px 0;">
+        <script defer
             src='<?php echo esc_url(Environment::getJsSdkUrl()); ?>'
             onload='const player = new BeyondWords.Player({
-                target: this,
+                target: this.parentElement,
                 projectId: <?php echo esc_attr($projectId); ?>,
                 <?php if (! empty($contentId)) : ?>
                 contentId: "<?php echo esc_attr($contentId); ?>",
@@ -230,6 +237,7 @@ class Metabox
             });'
         >
         </script>
+        </div>
         <?php
         // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
     }
