@@ -268,4 +268,6 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 	} );
+
+	return config;
 }
