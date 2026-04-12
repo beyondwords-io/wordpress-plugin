@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.3.0-rc.1
+Stable tag: 6.3.0
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -78,7 +78,7 @@ You can even leverage your listenership through audio advertising. Use our self-
 
 = 6.3.0 =
 
-Release date: TBC
+Release date: 12th April 2026
 
 **Enhancements**
 
@@ -88,6 +88,7 @@ Release date: TBC
 **Codebase Enhancements**
 
 * Bump BeyondWords Player block `apiVersion` to fix failing Plugin Check jobs in CI.
+* Various dependency updates to clear Dependabot security warnings.
 
 = 6.2.0 =
 
