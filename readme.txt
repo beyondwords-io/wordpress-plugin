@@ -12,14 +12,14 @@ BeyondWords is the AI voice platform that brings frictionless audio publishing t
 
 == Description ==
 
-[BeyondWords](https://beyondwords.io/) is the AI audio and video platform built for publishers. Connect the plugin to automatically generate audio and video versions of your WordPress posts, which can be instantly embedded into your pages or distributed across third-party platforms.
+[BeyondWords](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) is the AI audio and video platform built for publishers. Connect the plugin to automatically generate audio and video versions of your WordPress posts, which can be instantly embedded into your pages or distributed across third-party platforms.
 
-Choose from a variety of ElevenLabs and Azure voices to power your narration, or create your own hyper-realistic [voice clones](https://beyondwords.io/voice-cloning/).
+Choose from a variety of ElevenLabs and Azure voices to power your narration, or create your own hyper-realistic [voice clones](https://beyondwords.io/voice-cloning/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin).
 
 
 == GET STARTED WITH BEYONDWORDS ==
 
-To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/) with our team. 
+To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team. 
 
 We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio and/or video.
 
@@ -179,9 +179,9 @@ Release date: 10th November 2025
     * **Enabling Magic Embed** will automatically add the Magic Embed script to each of your posts.
     * For correct functionality:
         * Magic Embed must be **selected in the WordPress plugin**.
-        * Magic Embed must also be **[enabled and configured](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview#setup) in your BeyondWords dashboard**.
+        * Magic Embed must also be **[enabled and configured](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin#setup) in your BeyondWords dashboard**.
     * Posts previously created using the **REST API** will continue to use that method.
-    * Refer to our [Magic Embed documentation](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview) for more information.
+    * Refer to our [Magic Embed documentation](https://docs.beyondwords.io/docs-and-guides/integrations/magic-embed/overview?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) for more information.
 
 ***If your plugin is already working as expected with the REST API, we recommend continuing to use that integration.***
 
