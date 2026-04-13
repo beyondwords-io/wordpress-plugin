@@ -42,8 +42,8 @@ class Logger {
 	 * @return string
 	 */
 	public static function get_api_url() {
-		if ( defined( 'BEYONDWORDS_API_URL' ) ) {
-			return constant( 'BEYONDWORDS_API_URL' );
+		if ( defined( 'BEYONDWORDS_API_URL' ) && strlen( BEYONDWORDS_API_URL ) ) {
+			return BEYONDWORDS_API_URL;
 		}
 
 		return 'https://api.beyondwords.io/v1';

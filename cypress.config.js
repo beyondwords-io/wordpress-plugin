@@ -86,7 +86,8 @@ function setupNodeEvents( on, config ) {
 				'plugin activate wp-reset',
 				'reset reset --yes',
 				'plugin deactivate --all',
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+				// eslint-disable-next-line max-len
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses/mock-rest-api-responses.php',
 				// Configure plugin credentials for most tests
 				`option update beyondwords_api_key '${ apiKey }'`,
 				`option update beyondwords_project_id '${ projectId }'`,
@@ -118,7 +119,8 @@ function setupNodeEvents( on, config ) {
 				'plugin activate wp-reset',
 				'reset reset --yes',
 				'plugin deactivate --all',
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported',
+				// eslint-disable-next-line max-len
+				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
 			] );
 
 			// Reset the flag so next test file will run setupDatabase again
@@ -210,6 +212,21 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		async getPostMeta( options ) {
+			const { postId, metaKey } = options;
+			try {
+				const result = await execWp(
+					`post meta get ${ postId } ${ metaKey }`,
+					{ returnResult: true }
+				);
+				const value = result.stdout.trim().split( '\n' ).pop();
+				return value || '';
+			} catch ( error ) {
+				// wp post meta get exits with code 1 if the key doesn't exist
+				return '';
+			}
+		},
+
 		async updateOption( args ) {
 			const { name, value } = args;
 			await execWp( `option update ${ name } '${ value }'` );
@@ -251,4 +268,6 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 	} );
+
+	return config;
 }

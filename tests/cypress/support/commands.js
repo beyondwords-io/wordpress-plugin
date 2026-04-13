@@ -39,6 +39,27 @@ Cypress.Commands.overwrite(
 	}
 );
 
+/**
+ * Get the block editor canvas body.
+ *
+ * WordPress 6.8+ renders the editor inside an iframe. This command
+ * checks for the iframe first and falls back to the top-level document
+ * for older versions.
+ */
+Cypress.Commands.add( 'getEditorCanvasBody', () => {
+	return cy.get( 'body' ).then( ( $body ) => {
+		const $iframe = $body.find( 'iframe[name="editor-canvas"]' );
+		if ( $iframe.length ) {
+			return cy
+				.wrap( $iframe )
+				.its( '0.contentDocument.body' )
+				.should( 'not.be.empty' )
+				.then( cy.wrap );
+		}
+		return cy.wrap( $body );
+	} );
+} );
+
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 	// get the iframe > document > body
 	// and retry until the body element is not empty
@@ -78,7 +99,10 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 
 Cypress.Commands.add( 'setPostTitle', ( title ) => {
 	if ( title ) {
-		cy.get( '.editor-post-title__input' ).clear().type( title );
+		cy.getEditorCanvasBody()
+			.find( '.editor-post-title__input' )
+			.clear()
+			.type( title );
 	}
 } );
 
@@ -365,15 +389,17 @@ Cypress.Commands.add( 'classicSetPostTitle', ( title ) => {
  * Add (append) a new paragraph block with the specified text.
  */
 Cypress.Commands.add( 'addParagraphBlock', ( text ) => {
-	cy.get( '.wp-block-post-content p:last-of-type' ).click();
-	cy.get( 'body' ).type( `${ text }{enter}` ).wait( 200 );
+	cy.getEditorCanvasBody()
+		.find( '.wp-block-post-content p:last-of-type' )
+		.click();
+	cy.getEditorCanvasBody().type( `${ text }{enter}` ).wait( 200 );
 } );
 
 /**
  * Add (append) a new paragraph block with the specified text.
  */
 Cypress.Commands.add( 'clickTitleBlock', () => {
-	cy.get( '.editor-post-title' ).click();
+	cy.getEditorCanvasBody().find( '.editor-post-title' ).click();
 } );
 
 Cypress.Commands.add( 'openBeyondwordsEditorPanel', () => {
@@ -386,6 +412,14 @@ Cypress.Commands.add( 'openBeyondwordsEditorPanel', () => {
 			cy.wrap( $el ).click();
 		}
 	} );
+} );
+
+Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
+	cy.openBeyondwordsEditorPanel();
+	cy.get( '.beyondwords-sidebar' )
+		.contains( 'a', 'BeyondWords sidebar' )
+		.click();
+	cy.get( '.beyondwords-sidebar__status' ).should( 'be.visible' );
 } );
 
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
@@ -614,13 +648,17 @@ Cypress.Commands.add( 'updateOption', ( name, value ) => {
 /**
  * Reset BeyondWords plugin settings to defaults.
  * This ensures tests start with a clean slate for plugin configuration.
- * Preserves API credentials (api_key and project_id) to avoid 403 errors.
+ * Preserves infrastructure options set by setupDatabase: API credentials
+ * (to avoid 403 errors) and preselect (whose PHP default excludes cpt_active).
  */
 Cypress.Commands.add( 'resetPluginSettings', () => {
-	// Delete all beyondwords_* options EXCEPT api_key and project_id
 	cy.task( 'deleteOptionsByPattern', {
 		pattern: 'beyondwords_',
-		exclude: [ 'beyondwords_api_key', 'beyondwords_project_id' ],
+		exclude: [
+			'beyondwords_api_key',
+			'beyondwords_project_id',
+			'beyondwords_preselect',
+		],
 	} );
 } );
 

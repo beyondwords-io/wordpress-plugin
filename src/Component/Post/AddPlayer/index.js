@@ -6,7 +6,7 @@ import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 
 // Register the block
 registerBlockType( 'beyondwords/player', {
-	edit() {
+	edit: function Edit() {
 		const blockProps = useBlockProps( { contentEditable: false } );
 
 		return (
@@ -19,7 +19,7 @@ registerBlockType( 'beyondwords/player', {
 			</div>
 		);
 	},
-	save() {
+	save: function Save() {
 		const blockProps = useBlockProps.save( { contentEditable: false } );
 
 		return (

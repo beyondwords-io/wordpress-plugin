@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.1.0-rc.1
+Stable tag: 6.3.0
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -75,6 +75,34 @@ Monetize your BeyondWords audio and video by uploading your own advertising asse
 Keep on top of performance with BeyondWords Analytics or by forwarding events to your own analytics tools. You can track plays, engagement rate, unique listeners, listening time, retention, and other key audio and video metrics.
 
 == Changelog ==
+
+= 6.3.0 =
+
+Release date: 12th April 2026
+
+**Enhancements**
+
+* [#500](https://github.com/beyondwords-io/wordpress-plugin/pull/500) Editable content ID field.
+    * Adds a new "Content ID" feature, allowing users to input and fetch audio metadata by Content ID directly from the editor and classic metabox.
+
+**Codebase Enhancements**
+
+* Bump BeyondWords Player block `apiVersion` to fix failing Plugin Check jobs in CI.
+* Various dependency updates to clear Dependabot security warnings.
+
+= 6.2.0 =
+
+Release date: 11th March 2026
+
+**Enhancements**
+
+* [#498](https://github.com/beyondwords-io/wordpress-plugin/pull/498) "Generate Audio" component improvements.
+    * Stability and performance updates for the Generate Audio component in the block editor.
+
+**Codebase Enhancements**
+
+* [#474](https://github.com/beyondwords-io/wordpress-plugin/pull/474) Replace Mock API responses with pre_http_request filter.
+    * Mockoon has been replaced with WordPress HTTP filters, and completely removed.
 
 = 6.1.0 =
 
