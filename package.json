@@ -12,7 +12,7 @@
   "homepage": "https://beyondwords.io",
   "main": "index.js",
   "devDependencies": {
-    "@wordpress/env": "^11.3.0",
+    "@wordpress/env": "^11.4.0",
     "@wordpress/eslint-plugin": "^25.0.0",
     "@wordpress/scripts": "^32.0.0",
     "badge-maker": "^4.1.0",

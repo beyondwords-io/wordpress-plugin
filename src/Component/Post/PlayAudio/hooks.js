@@ -85,7 +85,7 @@ export function useBeyondWordsPlayer( {
 			}
 
 			newPlayer = new BeyondWords.Player( params );
-		} catch ( error ) {
+		} catch {
 			setPlayer( null );
 
 			// @todo display error notice in Wordpress admin.

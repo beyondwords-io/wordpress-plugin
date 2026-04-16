@@ -91,7 +91,6 @@
 
 			const { root, nonce } = beyondwordsData;
 
-			// eslint-disable-next-line max-len
 			const endpoint = `${ root }beyondwords/v1/languages/${ languageCode }/voices`;
 
 			jQuery
