@@ -13,8 +13,8 @@
   "main": "index.js",
   "devDependencies": {
     "@wordpress/env": "^11.3.0",
-    "@wordpress/eslint-plugin": "^24.5.0",
-    "@wordpress/scripts": "^31.8.0",
+    "@wordpress/eslint-plugin": "^25.0.0",
+    "@wordpress/scripts": "^32.0.0",
     "badge-maker": "^4.1.0",
     "cypress": "^15.13.0",
     "cypress-fail-fast": "^8.1.0",
