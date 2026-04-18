@@ -20,7 +20,6 @@ jobs:
   build:
     name: Build Plugin ZIP
     runs-on: ubuntu-22.04
-    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -189,7 +188,6 @@ jobs:
   grumphp:
     name: GrumPHP
     runs-on: ubuntu-22.04
-    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -215,7 +213,6 @@ jobs:
   plugin-check:
     name: Plugin Check
     runs-on: ubuntu-22.04
-    environment: production
     needs: [build]
 
     steps:
@@ -250,7 +247,6 @@ jobs:
   phpunit-tests:
     name: PHPUnit - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
-    environment: production
     needs: [grumphp]
 
     strategy:
@@ -400,7 +396,6 @@ jobs:
   cypress-tests:
     name: Cypress - PHP ${{ matrix.php-version }}
     runs-on: ${{ matrix.operating-system }}
-    environment: production
     needs: [plugin-check, phpunit-tests]
     # Only run on "main" branch and tags/branches starting with "v*"
     # if: success() && (github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/v') || startsWith(github.event.ref, 'refs/heads/v'))
@@ -658,7 +653,6 @@ jobs:
   deploy_assets:
     name: 🚢 Assets
     runs-on: ubuntu-22.04
-    environment: production
     needs: [cypress-tests]
     if: success() && github.ref == 'refs/heads/main'
     steps:
@@ -680,7 +674,6 @@ jobs:
   deploy_plugin:
     name: 🚢 Plugin ZIP
     runs-on: ubuntu-22.04
-    environment: production
     needs: [cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     steps:
@@ -712,7 +705,6 @@ jobs:
   github_release:
     name: 🚢 GitHub Release
     runs-on: ubuntu-22.04
-    environment: production
     needs: [build, deploy_plugin]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     permissions:
