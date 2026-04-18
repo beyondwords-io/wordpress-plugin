@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ######################################
       # PHP
@@ -40,7 +40,7 @@ jobs:
         run: php -v
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-php8.0-no-dev-${{ hashFiles('**/composer.lock') }}
@@ -51,7 +51,7 @@ jobs:
       # ######################################
       # Node
       # ######################################
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -109,7 +109,7 @@ jobs:
       # ######################################
       # Upload Plugin ZIP file
       # ######################################
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}.zip
@@ -129,7 +129,7 @@ jobs:
           cd /tmp && zip -r beyondwords-import-tool.zip beyondwords-import-tool
         working-directory: plugins/beyondwords-import-tool
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: beyondwords-import-tool.zip
           path: /tmp/beyondwords-import-tool.zip
@@ -145,7 +145,7 @@ jobs:
           cd /tmp && zip -r beyondwords-debug-tool.zip beyondwords-debug-tool
         working-directory: plugins/beyondwords-debug-tool
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: beyondwords-debug-tool.zip
           path: /tmp/beyondwords-debug-tool.zip
@@ -160,7 +160,7 @@ jobs:
           cd /tmp && zip -r beyondwords-remove-auto-player.zip beyondwords-remove-auto-player
         working-directory: plugins/beyondwords-remove-auto-player
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: beyondwords-remove-auto-player.zip
           path: /tmp/beyondwords-remove-auto-player.zip
@@ -176,7 +176,7 @@ jobs:
           cd /tmp && zip -r speechkit-export-tool.zip speechkit-export-tool
         working-directory: plugins/speechkit-export-tool
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: speechkit-export-tool.zip
           path: /tmp/speechkit-export-tool.zip
@@ -191,10 +191,10 @@ jobs:
     runs-on: ubuntu-22.04
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-php8.4-dev-${{ hashFiles('**/composer.lock') }}
@@ -219,10 +219,10 @@ jobs:
     needs: [build]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp
@@ -272,7 +272,7 @@ jobs:
       DB_PASSWORD: root
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ######################################
       # MySQL
@@ -293,7 +293,7 @@ jobs:
           tools: phpunit:${{ matrix.phpunit-version }}, composer
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
@@ -311,7 +311,7 @@ jobs:
       # ######################################
       # Node
       # ######################################
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -349,7 +349,7 @@ jobs:
 
       - name: Upload PHPUnit Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PHPUnit Test Results - PHP ${{ matrix.php-version }}
           path: ${{ github.workspace }}/tests/phpunit/_report
@@ -376,7 +376,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           # Publish results only for the latest PHP version
           name: PHPUnit Test Results - PHP 8.4
@@ -423,7 +423,7 @@ jobs:
       DB_PASSWORD: root
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ######################################
       # MySQL
@@ -443,7 +443,7 @@ jobs:
           tools: composer
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-php8.0-dev-${{ hashFiles('**/composer.lock') }}
@@ -461,7 +461,7 @@ jobs:
       # ######################################
       # Node
       # ######################################
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -508,7 +508,7 @@ jobs:
           wp option update home http://localhost:8889
 
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp
@@ -620,7 +620,7 @@ jobs:
       # Alternative: create and commit an empty cypress/screenshots folder
       # to always have something to upload
       - name: Save Cypress screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: Cypress Screenshots - PHP ${{ matrix.php-version }}
@@ -629,7 +629,7 @@ jobs:
 
       # Test run video was always captured, so this action uses "always()" condition
       - name: Save Cypress videos
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Cypress Videos - PHP ${{ matrix.php-version }}
@@ -637,7 +637,7 @@ jobs:
           retention-days: 1
 
       - name: Save Cypress downloads
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Cypress Downloads - PHP ${{ matrix.php-version }}
@@ -645,7 +645,7 @@ jobs:
           retention-days: 7
 
       - name: Save Cypress results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Cypress Results - PHP ${{ matrix.php-version }}
@@ -662,7 +662,7 @@ jobs:
     needs: [cypress-tests]
     if: success() && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install SVN
         run: sudo apt-get install subversion
       - name: Deploy assets to WordPress plugin directory
@@ -684,9 +684,9 @@ jobs:
     needs: [cypress-tests]
     if: success() && startsWith(github.event.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp
@@ -718,28 +718,28 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download import tool artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: beyondwords-import-tool.zip
           path: /tmp
 
       - name: Download debug tool artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: beyondwords-debug-tool.zip
           path: /tmp
 
       - name: Download remove auto player artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: beyondwords-remove-auto-player.zip
           path: /tmp
 
       - name: Download export tool artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: speechkit-export-tool.zip
           path: /tmp
