@@ -252,7 +252,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.5']
         phpunit-version: ['10']
         operating-system: ['ubuntu-22.04']
         include:
@@ -375,7 +375,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           # Publish results only for the latest PHP version
-          name: PHPUnit Test Results - PHP 8.4
+          name: PHPUnit Test Results - PHP 8.5
           path: .
 
       - name: Setup Pages
@@ -404,7 +404,7 @@ jobs:
       # don't fail the entire matrix on failure
       fail-fast: false
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.5']
         operating-system: ['ubuntu-22.04']
         include:
         - php-version: '8.0'
