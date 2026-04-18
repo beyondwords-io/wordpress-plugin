@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.3.0
+Stable tag: 6.4.0
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -75,6 +75,14 @@ Monetize your BeyondWords audio and video by uploading your own advertising asse
 Keep on top of performance with BeyondWords Analytics or by forwarding events to your own analytics tools. You can track plays, engagement rate, unique listeners, listening time, retention, and other key audio and video metrics.
 
 == Changelog ==
+
+= 6.4.0 =
+
+**Compatibility**
+
+* PHP 8.5 support.
+    * Run unit and e2e tests against PHP 8.0 and PHP 8.5 in GitHub Actions.
+    * Bumped `phpVersion` in wp-env to 8.5.
 
 = 6.3.0 =
 
