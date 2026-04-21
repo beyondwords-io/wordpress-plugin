@@ -2,7 +2,7 @@
     "core": null,
     "port": 8888,
     "testsPort": 8889,
-    "phpVersion": "8.4",
+    "phpVersion": "8.5",
     "plugins": [
         "./",
         "WP-API/Basic-Auth",
