@@ -415,7 +415,6 @@ export default compose( [
 				createNotice(
 					'warning',
 					__(
-						// eslint-disable-next-line max-len
 						'The BeyondWords data for this post will be removed when the post is saved.',
 						'speechkit'
 					),

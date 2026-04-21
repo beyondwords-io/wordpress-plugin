@@ -10,7 +10,6 @@
 			function ( event ) {
 				event.preventDefault();
 
-				// eslint-disable-next-line max-len
 				const endpoint = `${ beyondwordsData.root }beyondwords/v1/settings/notices/review/dismiss`;
 
 				$.ajax( {
