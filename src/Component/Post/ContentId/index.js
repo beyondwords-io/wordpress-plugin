@@ -86,7 +86,6 @@ export function ContentId( { wrapper } ) {
 			);
 
 			if ( ! response.ok ) {
-				/* eslint-disable camelcase */
 				const errorMeta = {
 					beyondwords_content_id: contentId,
 					beyondwords_error_message: __(
@@ -94,7 +93,6 @@ export function ContentId( { wrapper } ) {
 						'speechkit'
 					),
 				};
-				/* eslint-enable camelcase */
 
 				await updatePostMeta( postId, errorMeta );
 				editPost( { meta: errorMeta } );
@@ -134,8 +132,7 @@ export function ContentId( { wrapper } ) {
 
 			// Update local state with the returned content ID.
 			setContentId( id || '' );
-		} catch ( err ) {
-			/* eslint-disable camelcase */
+		} catch {
 			const errorMeta = {
 				beyondwords_content_id: contentId,
 				beyondwords_error_message: __(
@@ -143,7 +140,6 @@ export function ContentId( { wrapper } ) {
 					'speechkit'
 				),
 			};
-			/* eslint-enable camelcase */
 
 			try {
 				await updatePostMeta( postId, errorMeta );

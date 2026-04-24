@@ -274,7 +274,6 @@ export function PostInspectPanel( {
 				__next40pxDefaultSize
 			/>
 
-			{ /* eslint-disable-next-line prettier/prettier */ }
 			<TextareaControl
 				label="beyondwords_error_message"
 				readOnly
@@ -416,7 +415,6 @@ export default compose( [
 				createNotice(
 					'warning',
 					__(
-						// eslint-disable-next-line max-len
 						'The BeyondWords data for this post will be removed when the post is saved.',
 						'speechkit'
 					),
@@ -432,7 +430,6 @@ export default compose( [
 				// Update the Post Meta (AKA the Custom Field)
 				editPost( {
 					meta: {
-						/* eslint-disable-next-line camelcase */
 						beyondwords_delete_content: deleteContent ? '1' : '',
 					},
 				} );

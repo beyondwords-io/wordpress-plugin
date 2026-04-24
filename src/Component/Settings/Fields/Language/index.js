@@ -26,7 +26,6 @@
 				const $bodyVoicesSelect = $(
 					'#beyondwords_project_body_voice_id'
 				);
-				// eslint-disable-next-line max-len
 				const endpoint = `${ beyondwordsData.root }beyondwords/v1/languages/${ languageCode }/voices`;
 
 				$( '.beyondwords-settings__loader-default-language' ).show();
