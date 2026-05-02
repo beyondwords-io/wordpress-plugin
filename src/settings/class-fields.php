@@ -6,7 +6,8 @@
  * Compound fields (e.g. preselect) live in their own class.
  *
  * @package BeyondWords\Settings
- * @since   7.0.0
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -23,6 +24,8 @@ defined( 'ABSPATH' ) || exit;
  * value enums for the integration method and player UI are exposed as
  * class constants so the rest of the plugin can read them without going
  * through the settings page.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Fields {
 

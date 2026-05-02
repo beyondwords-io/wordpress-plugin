@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * PostMetabox
  *
  * @since 3.0.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -26,6 +28,7 @@ class DisplayPlayer
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -44,6 +47,7 @@ class DisplayPlayer
      * Save the meta when the post is saved.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */
@@ -77,6 +81,7 @@ class DisplayPlayer
      * Render the element.
      *
      * @since 6.0.0 Make static, fix checkbox checked bug.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      */

@@ -7,6 +7,7 @@
  *
  * @package BeyondWords\Core
  * @since   3.7.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -17,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Database cleanup helpers used during plugin uninstall.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Uninstaller {
 

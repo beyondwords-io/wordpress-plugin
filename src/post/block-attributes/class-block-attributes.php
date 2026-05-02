@@ -9,6 +9,7 @@ declare(strict_types=1);
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.7.0
  * @since   4.0.0 Renamed from BlockAudioAttribute.php to BlockAttributes.php to support multiple attributes
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -19,6 +20,7 @@ namespace BeyondWords\Post;
  * @since 3.7.0
  * @since 4.0.0 Renamed from BlockAudioAttribute to BlockAttributes to support multiple attributes.
  * @since 6.0.0 Stop adding beyondwordsMarker attribute to blocks.
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -29,6 +31,7 @@ class BlockAttributes
      *
      * @since 4.0.0
      * @since 6.0.0 Make static and remove renderBlock registration.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -40,6 +43,7 @@ class BlockAttributes
      * Register "Audio" attribute for Gutenberg blocks.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function register_audio_attribute($args)
     {
@@ -60,6 +64,8 @@ class BlockAttributes
 
     /**
      * Register "Segment marker" attribute for Gutenberg blocks.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @deprecated This attribute is no longer used as of 6.0.0, but kept for backward compatibility.
      *

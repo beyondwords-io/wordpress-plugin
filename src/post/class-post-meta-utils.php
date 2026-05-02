@@ -11,6 +11,7 @@ namespace BeyondWords\Post;
  * @subpackage Beyondwords/includes
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      3.5.0
+ * @since      7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -27,6 +28,7 @@ class PostMetaUtils
      * This method checks both prefixes, copying `speechkit_*` data to `beyondwords_*`.
      *
      * @since 3.7.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int    $post_id Post ID.
      * @param string $name   Custom field name, without the prefix.
@@ -55,6 +57,7 @@ class PostMetaUtils
      * Get the BeyondWords metadata for a Post.
      *
      * @since 4.1.0 Append 'beyondwords_version' and 'wordpress_version'.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function get_all_beyondwords_metadata(int $post_id): array
     {
@@ -94,6 +97,8 @@ class PostMetaUtils
     /**
      * Remove the BeyondWords metadata for a Post.
      *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+     *
      * @param int $post_id Post ID.
      *
      * @since 4.x   Introduced.
@@ -112,6 +117,7 @@ class PostMetaUtils
      * Check if a Post should have BeyondWords content (a Content entity in BeyondWords).
      *
      * @since 6.0.0 Introduced.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -152,6 +158,7 @@ class PostMetaUtils
      * @since 4.0.0 Renamed to getContentId() & prioritise beyondwords_content_id
      * @since 5.0.0 Remove beyondwords_content_id filter.
      * @since 6.0.0 Add fallback parameter to allow falling back to Post ID.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int  $post_id Post ID.
      * @param bool $fallback If true, will fall back to the Post ID if no Content ID is found.
@@ -186,6 +193,7 @@ class PostMetaUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 4.0.0 Allow string values for UUIDs stored >= v4.x
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -257,6 +265,7 @@ class PostMetaUtils
      * is created/updated, and stored in a WordPress custom field.
      *
      * @since 4.5.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -275,6 +284,7 @@ class PostMetaUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 6.0.0 Add Magic Embed support.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      */
@@ -308,6 +318,7 @@ class PostMetaUtils
      * @since 4.0.0 Apply beyondwords_project_id filter
      * @since 5.0.0 Remove beyondwords_project_id filter.
      * @since 6.0.0 Support Magic Embed and add strict mode.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int  $post_id Post ID.
      * @param bool $strict Strict mode, which only checks the custom field. Defaults to false.
@@ -357,6 +368,7 @@ class PostMetaUtils
      * custom field, bypassing any filters we add here.
      *
      * @since 4.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -376,6 +388,7 @@ class PostMetaUtils
      * custom field, bypassing any filters we add here.
      *
      * @since 4.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -395,6 +408,7 @@ class PostMetaUtils
      * custom field, bypassing any filters we add here.
      *
      * @since 4.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -413,6 +427,7 @@ class PostMetaUtils
      * Defaults to the plugin setting if the custom field doesn't exist.
      *
      * @since 4.1.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -431,6 +446,7 @@ class PostMetaUtils
      * Supports data saved with the `beyondwords_*` prefix and the legacy `speechkit_*` prefix.
      *
      * @since 3.7.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -447,6 +463,7 @@ class PostMetaUtils
      * Supports data saved with the `beyondwords_*` prefix and the legacy `speechkit_*` prefix.
      *
      * @since 3.7.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      */
@@ -467,6 +484,7 @@ class PostMetaUtils
      * @since 3.0.3
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 3.6.1 Handle responses saved as object of class WP_Error
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int    $post_id   Post ID.
      * @param string $meta_name Post Meta name.

@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   4.1.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * PlayerStyle
  *
  * @since 4.1.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -37,7 +39,6 @@ class PlayerStyle
     /**
      * Player style options for the per-post selector.
      *
-     * @since 7.0.0 Inlined here when the global Settings\Fields\PlayerStyle class was deleted.
      *
      * @return array<string,array{value:string,label:string,disabled?:bool}>
      */
@@ -67,6 +68,7 @@ class PlayerStyle
      * Constructor
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -89,6 +91,7 @@ class PlayerStyle
      * @since 4.1.0
      * @since 4.5.1 Hide element if no language data exists.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      *
@@ -131,6 +134,7 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */
@@ -171,6 +175,7 @@ class PlayerStyle
      *
      * @since 4.1.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return void
      */
@@ -190,6 +195,7 @@ class PlayerStyle
      * @since 4.1.0
      * @since 5.0.0 Stop saving a dedicated player styles transient for each project ID.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function player_styles_rest_api_response()
     {

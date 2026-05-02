@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   6.3.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * ContentId
  *
  * @since 6.3.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -25,6 +27,7 @@ class ContentId
      * Init.
      *
      * @since 6.3.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -45,6 +48,7 @@ class ContentId
      * HTML output for this component.
      *
      * @since 6.3.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      */
@@ -90,6 +94,7 @@ class ContentId
      * Register the component scripts.
      *
      * @since 6.3.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string $hook Page hook
      */
@@ -121,6 +126,7 @@ class ContentId
      * Save the meta when the post is saved.
      *
      * @since 6.3.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */

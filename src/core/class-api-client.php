@@ -8,6 +8,7 @@
  *
  * @package BeyondWords\Core
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -20,6 +21,8 @@ defined( 'ABSPATH' ) || exit;
  * BeyondWords API client.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class ApiClient {
 

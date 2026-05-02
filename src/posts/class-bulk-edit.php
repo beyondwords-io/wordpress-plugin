@@ -7,6 +7,7 @@
  *
  * @package BeyondWords\Posts
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -17,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Bulk-edit support for the BeyondWords column.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class BulkEdit {
 

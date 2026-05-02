@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   5.3.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * PlayerContent
  *
  * @since 5.3.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -44,6 +46,7 @@ class PlayerContent
      *
      * @since 5.3.0 Introduced.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -63,6 +66,7 @@ class PlayerContent
      *
      * @since 5.3.0 Introduced.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      *
@@ -103,6 +107,7 @@ class PlayerContent
      *
      * @since 5.3.0 Introduced.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */

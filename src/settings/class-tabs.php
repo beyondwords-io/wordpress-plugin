@@ -8,7 +8,8 @@
  * for which tab a field belongs to.
  *
  * @package BeyondWords\Settings
- * @since   7.0.0
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -22,6 +23,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * `register()` runs on `admin_init` and creates the settings sections that
  * the field renderers attach to.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Tabs {
 

@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * PostMetabox
  *
  * @since 3.0.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -26,6 +28,7 @@ class Metabox
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -37,6 +40,7 @@ class Metabox
      * Enque JS for Bulk Edit feature.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function admin_enqueue_scripts_callback($hook)
     {
@@ -56,6 +60,7 @@ class Metabox
      * Adds the meta box container.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string $post_type
      */
@@ -82,6 +87,8 @@ class Metabox
 
     /**
      * Render Meta Box content.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|WP_Post $post The WordPress post ID, or post object.
      *
@@ -143,6 +150,7 @@ class Metabox
      *
      * @since 3.7.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @var int|\WP_Post $post The WordPress post ID, or post object.
      */
@@ -179,6 +187,8 @@ class Metabox
 
     /**
      * Embed a player for a WordPress post.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|WP_Post (Optional) Post ID or WP_Post object. Default is global $post.
      *
@@ -235,6 +245,7 @@ class Metabox
      * Display errors for the post.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function errors($post)
     {
@@ -258,6 +269,7 @@ class Metabox
      * Display help text for the metabox.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function help()
     {
@@ -278,6 +290,7 @@ class Metabox
      * Display instructions for regenerating audio.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function regenerate_instructions()
     {

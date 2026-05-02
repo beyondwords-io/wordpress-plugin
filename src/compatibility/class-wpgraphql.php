@@ -7,6 +7,7 @@
  *
  * @package BeyondWords\Compatibility
  * @since   3.6.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -17,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Expose BeyondWords fields in WPGraphQL.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class WPGraphQL {
 

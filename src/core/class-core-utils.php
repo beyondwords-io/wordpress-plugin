@@ -4,6 +4,7 @@
  *
  * @package BeyondWords\Core
  * @since   3.5.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -15,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Core-wide utilities: editor-screen detection and the option/meta-key registries
  * the uninstaller iterates.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class CoreUtils {
 

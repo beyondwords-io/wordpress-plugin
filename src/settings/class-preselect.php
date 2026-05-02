@@ -6,7 +6,8 @@
  * by default in the post editor.
  *
  * @package BeyondWords\Settings
- * @since   7.0.0
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -22,6 +23,8 @@ defined( 'ABSPATH' ) || exit;
  * In v6.x and earlier, the value could also be an array of taxonomy term
  * IDs — that branch is collapsed to `'1'` by the v7.0.0 migration in
  * `Updater::run()`.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Preselect {
 

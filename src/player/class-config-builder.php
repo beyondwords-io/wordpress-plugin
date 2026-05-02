@@ -4,6 +4,7 @@
  *
  * @package BeyondWords\Player
  * @since   6.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -18,6 +19,8 @@ defined( 'ABSPATH' ) || exit;
  * Two-step build: project-level defaults first, then per-post overrides via
  * `merge_post_settings()`. Final result passes through the
  * `beyondwords_player_sdk_params` filter so callers can mutate it.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class ConfigBuilder {
 

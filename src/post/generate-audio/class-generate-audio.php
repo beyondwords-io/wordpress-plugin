@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * GenerateAudio
  *
  * @since 3.0.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -26,6 +28,7 @@ class GenerateAudio
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -42,6 +45,8 @@ class GenerateAudio
 
     /**
      * Check whether the post type should preselect the "Generate audio" checkbox.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post|int $post The post object or ID.
      *
@@ -75,6 +80,7 @@ class GenerateAudio
      * Render the element.
      *
      * @since 6.0.0 Make static and refactor generate audio check.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function element($post)
     {
@@ -100,6 +106,7 @@ class GenerateAudio
      * Save the meta when the post is saved.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */

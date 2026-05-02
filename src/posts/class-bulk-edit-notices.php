@@ -4,6 +4,7 @@
  *
  * @package BeyondWords\Posts
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -15,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * One notice per post-bulk-action result, all gated on the same nonce so
  * direct URL fiddling can't surface arbitrary text.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class BulkEditNotices {
 

@@ -11,6 +11,7 @@ namespace BeyondWords\Post;
  * @subpackage Beyondwords/includes
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      6.0.0
+ * @since      7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -20,6 +21,7 @@ class Post
      * Init.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -31,6 +33,7 @@ class Post
      * We set both the [content] attribute and a custom data attribute for compatibility.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return void
      */

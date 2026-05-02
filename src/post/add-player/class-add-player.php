@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.2.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * AddPlayer
  *
  * @since 3.2.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -29,6 +31,7 @@ class AddPlayer
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -48,6 +51,7 @@ class AddPlayer
      *
      * @since 3.2.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function register_block()
     {
@@ -58,6 +62,7 @@ class AddPlayer
      * Add TinyMCE buttons.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array TinyMCE plugin array
      */
@@ -71,6 +76,7 @@ class AddPlayer
      * Register TinyMCE buttons.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array TinyMCE buttons array
      */
@@ -91,6 +97,7 @@ class AddPlayer
      * Filters the comma-delimited list of stylesheets to load in TinyMCE.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string $stylesheets Comma-delimited list of stylesheets.
      *
@@ -108,6 +115,7 @@ class AddPlayer
      *
      * @since 3.3.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return string CSS Block for player preview i18n delcerations.
      */
@@ -126,6 +134,7 @@ class AddPlayer
      *
      * @since 3.3.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param mixed[] $setings An array with TinyMCE config.
      *
@@ -149,6 +158,7 @@ class AddPlayer
      *
      * @since 3.3.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function add_editor_styles()
     {
@@ -166,6 +176,7 @@ class AddPlayer
      * Add Block Editor Stylesheet.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function add_block_editor_stylesheet($hook)
     {

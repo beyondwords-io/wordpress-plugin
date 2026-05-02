@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   3.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * Inspect
  *
  * @since 3.0.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -25,6 +27,7 @@ class InspectPanel
      * Constructor
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -49,6 +52,7 @@ class InspectPanel
      * Enqueue JS for Inspect feature.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function admin_enqueue_scripts_callback($hook)
     {
@@ -68,6 +72,7 @@ class InspectPanel
      * Hides the metabox by default.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string[] $hidden An array of IDs of meta boxes hidden by default.
      */
@@ -83,6 +88,7 @@ class InspectPanel
      * The Block Editor UI is handled using JavaScript.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string $post_type
      */
@@ -111,6 +117,7 @@ class InspectPanel
      * Render Meta Box content.
      *
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      */
@@ -154,6 +161,8 @@ class InspectPanel
 
     /**
      * Render Meta Box table.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array   $metadata The metadata returned by has_meta.
      *
@@ -244,6 +253,8 @@ class InspectPanel
     /**
      * Format post meta value.
      *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+     *
      * @param mixed $value The metadata value.
      *
      * @since 3.9.0
@@ -260,6 +271,8 @@ class InspectPanel
 
     /**
      * Get Clipboard Text.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array $metadata Post metadata.
      *
@@ -298,6 +311,7 @@ class InspectPanel
      *
      * @since 4.0.7
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */

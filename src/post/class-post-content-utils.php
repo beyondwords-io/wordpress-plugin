@@ -11,6 +11,7 @@ namespace BeyondWords\Post;
  * @subpackage Beyondwords/includes
  * @author     Stuart McAlpine <stu@beyondwords.io>
  * @since      3.5.0
+ * @since      7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -24,6 +25,8 @@ class PostContentUtils
      *
      * From API version 1.1 the "summary" param is going to be used differently,
      * so for WordPress we now prepend the WordPress excerpt to the "body" param.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
@@ -62,6 +65,7 @@ class PostContentUtils
      * @since 4.7.0 Remove wpautop filter for block editor API requests.
      * @since 5.0.0 Remove SpeechKit-Start shortcode.
      * @since 5.0.0 Remove beyondwords_content filter.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
@@ -99,6 +103,8 @@ class PostContentUtils
      * This is a <div> with optional attributes depending on the BeyondWords
      * data of the post.
      *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+     *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.6.0
@@ -124,6 +130,8 @@ class PostContentUtils
 
     /**
      * Get the post summary for the audio content.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
@@ -166,6 +174,8 @@ class PostContentUtils
      *
      * This method filters all blocks, removing any which have been excluded.
      *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+     *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 3.8.0
@@ -194,6 +204,8 @@ class PostContentUtils
 
     /**
      * Get audio-enabled blocks.
+     *
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
@@ -344,6 +356,7 @@ class PostContentUtils
      * @since 3.3.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils.
      * @since 5.0.0 Remove beyondwords_post_metadata filter.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -376,6 +389,7 @@ class PostContentUtils
      *
      * @since 3.3.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      *
@@ -404,6 +418,7 @@ class PostContentUtils
      * Get author name for a post.
      *
      * @since 3.10.4
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id Post ID.
      */

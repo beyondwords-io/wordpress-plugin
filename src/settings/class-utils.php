@@ -3,7 +3,8 @@
  * BeyondWords settings utilities.
  *
  * @package BeyondWords\Settings
- * @since   7.0.0
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
@@ -17,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * Helpers shared across the settings classes — post-type compatibility
  * checks, API credential checks, and the BeyondWords REST connection check.
+ *
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Utils {
 

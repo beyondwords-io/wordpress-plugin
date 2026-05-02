@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @package BeyondWords
  * @author  Stuart McAlpine <stu@beyondwords.io>
  * @since   4.0.0
+ * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 namespace BeyondWords\Post;
@@ -16,6 +17,7 @@ namespace BeyondWords\Post;
  * SelectVoice
  *
  * @since 4.0.0
+ * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 defined('ABSPATH') || exit;
 
@@ -26,6 +28,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     public static function init()
     {
@@ -50,6 +53,7 @@ class SelectVoice
      * @since 4.5.1 Hide element if no language data exists.
      * @since 5.4.0 Always display all languages and associated voices.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param \WP_Post $post The post object.
      *
@@ -73,6 +77,7 @@ class SelectVoice
      * Get the language code for a post.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The post ID.
      * @return string|false The language code or false if not set.
@@ -87,6 +92,7 @@ class SelectVoice
      * Get the voice ID for a post.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The post ID.
      * @return string|false The voice ID or false if not set.
@@ -101,6 +107,7 @@ class SelectVoice
      * Get voices for a language code.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string|false $language_code The language code.
      * @return array The voices array.
@@ -119,6 +126,7 @@ class SelectVoice
      * Render the language select dropdown.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array $languages The languages array.
      * @param string|false $selected_language_code The selected language code.
@@ -158,6 +166,7 @@ class SelectVoice
      * Render the voice select dropdown.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array $voices The voices array.
      * @param string|false $selected_voice_id The selected voice ID.
@@ -198,6 +207,7 @@ class SelectVoice
      * Render the loading spinner.
      *
      * @since 6.0.0
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      */
     private static function render_loading_spinner(): void
     {
@@ -215,6 +225,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param int $post_id The ID of the post being saved.
      */
@@ -271,6 +282,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return void
      */
@@ -297,6 +309,7 @@ class SelectVoice
      * @since 4.0.0
      * @since 5.4.0 No longer filter by "Languages" plugin setting.
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return \WP_REST_Response
      */
@@ -313,6 +326,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @return \WP_REST_Response
      */
@@ -330,6 +344,7 @@ class SelectVoice
      *
      * @since 4.0.0
      * @since 6.0.0 Make static.
+     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param string $hook Page hook
      *
