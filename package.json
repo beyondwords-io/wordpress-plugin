@@ -64,9 +64,11 @@
     "start": "wp-scripts start",
     "test:e2e": "wp-scripts test-e2e",
     "test:unit": "wp-scripts test-unit-js",
-    "test:phpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit",
+    "test:phpunit": "wp-env --config .wp-env.tests.json run cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
-    "wp-env": "wp-env",
-    "wp-env:start": "wp-env start --xdebug=debug,coverage --update"
+    "env": "wp-env",
+    "env:start": "wp-env start --xdebug=debug,coverage --update && wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update",
+    "env:tests": "wp-env --config .wp-env.tests.json",
+    "env:tests:start": "wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update"
   }
 }

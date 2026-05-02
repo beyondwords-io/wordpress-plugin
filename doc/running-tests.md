@@ -1,10 +1,31 @@
 #   Running tests
 
+##  Environments
+
+There are two `wp-env` environments, defined by separate config files:
+
+| Environment | Config file              | Port  | npm scripts                    |
+|-------------|--------------------------|-------|--------------------------------|
+| Development | `.wp-env.json`           | 8888  | `npm run env`, `npm run env:start` |
+| Tests       | `.wp-env.tests.json`     | 8889  | `npm run env:tests`, `npm run env:tests:start` |
+
+`npm run env:start` boots **both** environments. Use `npm run env:tests:start` if you only need the tests env (e.g. when developing locally).
+
+To run an arbitrary `wp-env` command against a specific environment:
+
+```bash
+# dev (default)
+npm run env -- run cli wp option get siteurl
+
+# tests
+npm run env:tests run cli wp option get siteurl
+```
+
 ##  Prerequisites
 
 ###  1. Ensure Mock API is enabled
 
-Set the `BEYONDWORDS_MOCK_API` wp-config constant to `true` via your `.wp-env.override.json` file (for example, using the `config` section). Restart wp-env if required using `npm run wp-env:start`.
+The tests environment has `BEYONDWORDS_MOCK_API` set to `true` by default in [`.wp-env.tests.json`](../.wp-env.tests.json). To override anything per developer, create a `.wp-env.override.json` file (for example, using the `config` section). Restart with `npm run env:tests:start` after editing.
 
 ###  2. Create test audio in BeyondWords dashboard
 
@@ -25,7 +46,7 @@ cp .wp-env.override.json.example .wp-env.override.json
 cp cypress.env.json.example cypress.env.json
 ```
 
-Edit both files, providing the **API Key**, **Project ID** and **Content ID**`
+Edit both files, providing the **API Key**, **Project ID** and **Content ID**
 you noted earlier.
 
 ##  Cypress e2e tests
