@@ -23,7 +23,7 @@ async function execWp( commands, options = {} ) {
 	for ( const command of commandArray ) {
 		const fullCommand = isCI
 			? `wp ${ command }`
-			: `yarn wp-env run tests-cli wp ${ command }`;
+			: `npx wp-env run tests-cli wp ${ command }`;
 		lastResult = await exec( fullCommand );
 	}
 

@@ -53,17 +53,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       # ######################################
-      # yarn build (could add caching here)
+      # npm build (could add caching here)
       # ######################################
-      - run: yarn build
+      - run: npm run build
 
       # ######################################
       # i18n
@@ -310,17 +310,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       # ######################################
-      # yarn build (could add caching here)
+      # npm build (could add caching here)
       # ######################################
-      - run: yarn build
+      - run: npm run build
 
       - name: Install SVN
         run: sudo apt-get install subversion
@@ -459,12 +459,12 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/

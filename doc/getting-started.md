@@ -31,17 +31,15 @@ nvm use
 
 ##  4. Install Node dependencies
 
-[Get Yarn](https://classic.yarnpkg.com/lang/en/docs/install/).
-
 ```bash
-yarn install
-yarn build
+npm install
+npm run build
 ```
 
 ##  5. Install PHP dependencies
 
 ```bash
-yarn composer install
+npm run composer -- install
 ```
 
 ##  6. Start wp-env development server
@@ -49,10 +47,10 @@ yarn composer install
 Ensure that Docker is running, then:
 
 ```bash
-yarn wp-env:start
+npm run wp-env:start
 ```
 
-After a few minutes, you should see something like:
+After some time you should see something like:
 
 ```
 WordPress development site started at http://localhost:8888/

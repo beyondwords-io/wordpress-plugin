@@ -30,7 +30,7 @@ async function setupCI() {
 		} else {
 			console.log( '⚠️  Not in CI environment, skipping setup' );
 			console.log(
-				'   If running locally, use: yarn wp-env run tests-cli wp reset reset --yes'
+				'   If running locally, use: npx wp-env run tests-cli wp reset reset --yes'
 			);
 		}
 	} catch ( error ) {

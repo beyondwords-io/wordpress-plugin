@@ -4,7 +4,7 @@
 
 ###  1. Ensure Mock API is enabled
 
-Set the `BEYONDWORDS_MOCK_API` wp-config constant to `true` via your `.wp-env.override.json` file (for example, using the `config` section). Restart wp-env if required using `yarn wp-env:start`.
+Set the `BEYONDWORDS_MOCK_API` wp-config constant to `true` via your `.wp-env.override.json` file (for example, using the `config` section). Restart wp-env if required using `npm run wp-env:start`.
 
 ###  2. Create test audio in BeyondWords dashboard
 
@@ -35,13 +35,13 @@ you noted earlier.
 To open the Cypress app:
 
 ```bash
-yarn cypress:open
+npm run cypress:open
 ```
 
 Or to run all tests in terminal (like we do in CI):
 
 ```bash
-yarn cypress:run
+npm run cypress:run
 ```
 
 ##  PHPUnit tests
@@ -49,7 +49,7 @@ yarn cypress:run
 `/tests/phpunit/`
 
 ```bash
-yarn composer test:phpunit
+npm run composer -- test:phpunit
 ```
 
 This will:
@@ -67,7 +67,7 @@ open tests/phpunit/_report/index.html
 To run code coverage independently:
 
 ```bash
-yarn composer test:coverage-check
+npm run composer -- test:coverage-check
 ```
 
 ##  Further reading

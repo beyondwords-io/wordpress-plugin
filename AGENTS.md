@@ -106,15 +106,15 @@ The bootstrap in `src/Plugin.php` invokes each class's `init()`:
 Run before commit:
 
 ```bash
-yarn phpcs       # WordPress-VIP-Go check
-yarn phpcbf      # auto-fix what can be fixed
+npm run phpcs       # WordPress-VIP-Go check
+npm run phpcbf      # auto-fix what can be fixed
 composer test:phpunit
 ```
 
 ## JavaScript standards
 
 - **ESLint config:** `@wordpress/eslint-plugin` (already in `package.json`). Configured for WordPress JS Coding Standards.
-- **Build tooling:** `@wordpress/scripts` (`wp-scripts`). Use `yarn build` / `yarn start`.
+- **Build tooling:** `@wordpress/scripts` (`wp-scripts`). Use `npm run build` / `npm start`.
 - **Formatting:** `wp-scripts format` — Prettier with WordPress config.
 - **i18n:** `@wordpress/i18n` (`__`, `_x`, `sprintf`) with the `'speechkit'` text domain.
 - **No jQuery in new code.** Use vanilla DOM or `@wordpress/element` (React).
@@ -122,10 +122,15 @@ composer test:phpunit
 Run before commit:
 
 ```bash
-yarn lint:js
-yarn lint:css
-yarn format
+npm run lint:js
+npm run lint:css
+npm run format
 ```
+
+## Package management
+
+- **Use npm.** The lockfile is `package-lock.json`. CI runs `npm ci`. Don't introduce `yarn.lock`, `pnpm-lock.yaml`, or `bun.lockb`.
+- For npm scripts that themselves accept arguments (notably the `composer` passthrough), forward args with `--`: `npm run composer -- test:phpunit`.
 
 ## Deprecating settings
 
