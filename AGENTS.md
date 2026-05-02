@@ -129,6 +129,14 @@ npm run composer:tests -- test   # PHPUnit test suite + coverage check
 
 ## JavaScript standards
 
+All JS code must follow the [Block Editor Handbook](https://developer.wordpress.org/block-editor/) conventions. In particular:
+
+1. **Prefer WordPress block editor components and APIs over raw React.** Reach for `@wordpress/components`, `@wordpress/block-editor`, `@wordpress/data`, `@wordpress/core-data` etc. before writing custom React. If `<Panel>`, `<PanelBody>`, `<TextControl>`, `<SelectControl>`, `<Button>` exist, use them — don't reimplement.
+2. **Every JS-driven feature must have a Cypress test that exercises its full functionality across every relevant post type.** No new editor surface ships without coverage in [tests/cypress/e2e/](tests/cypress/e2e/) — and the test must iterate over each compatible post type (post, page, and any CPT a user might enable BeyondWords for).
+3. **Use modern WordPress/React idioms.** Prefer `useEntityProp` over manual `dispatch`/`select` plumbing for post meta. Use `useSelect` with the `isResolved` / `hasResolved` pattern instead of polling. Use `useDispatch`, `useEntityRecord`, `core/notices` for admin notices, etc. Function components + hooks only — no class components.
+
+Other rules:
+
 - **ESLint config:** `@wordpress/eslint-plugin` (already in `package.json`). Configured for WordPress JS Coding Standards.
 - **Build tooling:** `@wordpress/scripts` (`wp-scripts`). Use `npm run build` / `npm start`.
 - **Formatting:** `wp-scripts format` — Prettier with WordPress config.
