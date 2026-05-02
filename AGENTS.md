@@ -124,7 +124,7 @@ Run before commit:
 ```bash
 npm run phpcs              # WordPress-VIP-Go check
 npm run phpcbf             # auto-fix what can be fixed
-npm run composer -- test   # PHPUnit test suite + coverage check
+npm run composer:tests -- test   # PHPUnit test suite + coverage check
 ```
 
 ## JavaScript standards
@@ -146,7 +146,7 @@ npm run format
 ## Package management
 
 - **Use npm.** The lockfile is `package-lock.json`. CI runs `npm ci`. Don't introduce `yarn.lock`, `pnpm-lock.yaml`, or `bun.lockb`.
-- For npm scripts that themselves accept arguments (notably the `composer` passthrough), forward args with `--`: `npm run composer -- test`.
+- For npm scripts that themselves accept arguments (notably the `composer` / `composer:tests` passthroughs), forward args with `--`: `npm run composer:tests -- test`.
 
 ## Deprecating settings
 
@@ -167,10 +167,10 @@ Source: `tests/phpunit/` — folder layout mirrors `src/` (e.g. `tests/phpunit/C
 Run the suite (PHPUnit + clover coverage report + 80% coverage gate):
 
 ```bash
-npm run composer -- test
+npm run composer:tests -- test
 ```
 
-The test suite runs inside the dedicated tests environment ([.wp-env.tests.json](.wp-env.tests.json), port 8889), separate from the dev env, so it doesn't disturb whatever you're working on locally.
+`composer:tests` dispatches into the tests-cli container ([.wp-env.tests.json](.wp-env.tests.json), port 8889), separate from the dev env, so PHPUnit doesn't disturb whatever you're working on locally. Use `npm run composer -- ...` (no `:tests` suffix) for composer commands targeting the dev env.
 
 **Test secrets** — three constants are needed (`BEYONDWORDS_TESTS_API_KEY`, `BEYONDWORDS_TESTS_PROJECT_ID`, `BEYONDWORDS_TESTS_CONTENT_ID`). Provide them via:
 

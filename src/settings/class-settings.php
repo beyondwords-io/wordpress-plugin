@@ -30,15 +30,15 @@ class Settings {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'admin_menu', array( self::class, 'add_options_page' ), 1 );
-		add_action( 'admin_notices', array( self::class, 'maybe_print_missing_creds_warning' ), 100 );
-		add_action( 'admin_notices', array( self::class, 'print_settings_errors' ), 200 );
-		add_action( 'admin_notices', array( self::class, 'maybe_print_review_notice' ) );
-		add_action( 'load-settings_page_' . self::PAGE_SLUG, array( self::class, 'maybe_validate_api_creds' ) );
+		add_action( 'admin_menu', [ self::class, 'add_options_page' ], 1 );
+		add_action( 'admin_notices', [ self::class, 'maybe_print_missing_creds_warning' ], 100 );
+		add_action( 'admin_notices', [ self::class, 'print_settings_errors' ], 200 );
+		add_action( 'admin_notices', [ self::class, 'maybe_print_review_notice' ] );
+		add_action( 'load-settings_page_' . self::PAGE_SLUG, [ self::class, 'maybe_validate_api_creds' ] );
 
-		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ self::class, 'register_rest_routes' ] );
 
-		add_filter( 'plugin_action_links_speechkit/speechkit.php', array( self::class, 'add_plugin_action_link' ) );
+		add_filter( 'plugin_action_links_speechkit/speechkit.php', [ self::class, 'add_plugin_action_link' ] );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Settings {
 			__( 'BeyondWords', 'speechkit' ),
 			'manage_options',
 			self::PAGE_SLUG,
-			array( self::class, 'render_admin_page' )
+			[ self::class, 'render_admin_page' ]
 		);
 	}
 
@@ -88,7 +88,7 @@ class Settings {
 							<li>
 								<a
 									class="nav-tab <?php echo $slug === $active_tab ? 'nav-tab-active' : ''; ?>"
-									href="<?php echo esc_url( add_query_arg( array( 'page' => self::PAGE_SLUG, 'tab' => $slug ) ) ); ?>"
+									href="<?php echo esc_url( add_query_arg( [ 'page' => self::PAGE_SLUG, 'tab' => $slug ] ) ); ?>"
 								>
 									<?php echo esc_html( $label ); ?>
 								</a>
@@ -219,15 +219,15 @@ class Settings {
 			return;
 		}
 
-		$allowed = array(
-			'a'      => array( 'href' => array(), 'target' => array() ),
-			'b'      => array(),
-			'strong' => array(),
-			'i'      => array(),
-			'em'     => array(),
-			'br'     => array(),
-			'code'   => array(),
-		);
+		$allowed = [
+			'a'      => [ 'href' => [], 'target' => [] ],
+			'b'      => [],
+			'strong' => [],
+			'i'      => [],
+			'em'     => [],
+			'br'     => [],
+			'code'   => [],
+		];
 		?>
 		<div class="notice notice-error">
 			<ul class="ul-disc">
@@ -246,21 +246,21 @@ class Settings {
 		register_rest_route(
 			'beyondwords/v1',
 			'/settings',
-			array(
+			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( self::class, 'rest_settings_response' ),
+				'callback'            => [ self::class, 'rest_settings_response' ],
 				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
-			)
+			]
 		);
 
 		register_rest_route(
 			'beyondwords/v1',
 			'/settings/notices/review/dismiss',
-			array(
+			[
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( self::class, 'rest_dismiss_review_notice' ),
+				'callback'            => [ self::class, 'rest_dismiss_review_notice' ],
 				'permission_callback' => static fn() => current_user_can( 'manage_options' ),
-			)
+			]
 		);
 	}
 
@@ -274,7 +274,7 @@ class Settings {
 		global $wp_version;
 
 		return new \WP_REST_Response(
-			array(
+			[
 				'apiKey'            => (string) get_option( Fields::OPTION_API_KEY, '' ),
 				'integrationMethod' => Fields::get_integration_method(),
 				'pluginVersion'     => BEYONDWORDS__PLUGIN_VERSION,
@@ -282,7 +282,7 @@ class Settings {
 				'preselect'         => Preselect::get(),
 				'restUrl'           => get_rest_url(),
 				'wpVersion'         => $wp_version,
-			)
+			]
 		);
 	}
 
@@ -290,11 +290,11 @@ class Settings {
 	 * Mark the review notice as dismissed.
 	 */
 	public static function rest_dismiss_review_notice(): \WP_REST_Response {
-		$ok = update_option( 'beyondwords_notice_review_dismissed', gmdate( \DateTime::ATOM ) );
+		$saved = update_option( 'beyondwords_notice_review_dismissed', gmdate( \DateTime::ATOM ) );
 
 		return new \WP_REST_Response(
-			array( 'success' => $ok ),
-			$ok ? 200 : 500
+			[ 'success' => $saved ],
+			$saved ? 200 : 500
 		);
 	}
 

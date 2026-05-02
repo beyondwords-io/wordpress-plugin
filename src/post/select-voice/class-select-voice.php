@@ -129,9 +129,9 @@ class SelectVoice
      * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
      * @param array $languages The languages array.
-     * @param string|false $selected_language_code The selected language code.
+     * @param string|false $selected_lang_code The selected language code.
      */
-    private static function render_language_select(array $languages, $selected_language_code): void
+    private static function render_language_select(array $languages, $selected_lang_code): void
     {
         ?>
         <p
@@ -152,7 +152,7 @@ class SelectVoice
                     '<option value="%s" data-default-voice-id="%s" %s>%s (%s)</option>',
                     esc_attr($language['code']),
                     esc_attr($language['default_voices']['body']['id'] ?? ''),
-                    selected(strval($language['code']), strval($selected_language_code)),
+                    selected(strval($language['code']), strval($selected_lang_code)),
                     esc_html($language['name']),
                     esc_html($language['accent'])
                 );

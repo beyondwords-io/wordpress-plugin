@@ -43,6 +43,7 @@
     "check-engines": "wp-scripts check-engines",
     "check-licenses": "wp-scripts check-licenses",
     "composer": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
+    "composer:tests": "wp-env --config .wp-env.tests.json run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
     "cypress:open": "cypress open --e2e --browser chrome",
     "cypress:run": "ELECTRON_RUN_AS_NODE= cypress run",
     "cypress:setup": "node tests/cypress/scripts/setup-ci.js",

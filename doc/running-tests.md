@@ -82,10 +82,10 @@ npm run cypress:run
 Run the test suite (PHPUnit + coverage HTML report + 80% coverage gate):
 
 ```bash
-npm run composer -- test
+npm run composer:tests -- test
 ```
 
-This runs inside the **tests** wp-env (port 8889) — see the [Environments](#environments) section above. It does not disturb the dev env.
+`composer:tests` dispatches into the **tests** wp-env (port 8889) — see the [Environments](#environments) section above. It does not disturb the dev env.
 
 To view the coverage HTML report:
 
@@ -96,7 +96,7 @@ open tests/phpunit/_report/index.html
 To run the coverage gate standalone (without re-running the suite):
 
 ```bash
-npm run composer -- test:coverage-check
+npm run composer:tests -- test:coverage-check
 ```
 
 ##  Further reading

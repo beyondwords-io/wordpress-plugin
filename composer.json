@@ -68,7 +68,7 @@
     "scripts": {
         "lint:plugins": "./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
         "test": [
-            "npx wp-env --config .wp-env.tests.json run cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
+            "./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
         ],
         "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",

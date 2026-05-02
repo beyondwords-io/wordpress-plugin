@@ -27,7 +27,7 @@ class WPGraphQL {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'graphql_register_types', array( self::class, 'graphql_register_types' ) );
+		add_action( 'graphql_register_types', [ self::class, 'graphql_register_types' ] );
 	}
 
 	/**
@@ -36,36 +36,32 @@ class WPGraphQL {
 	public static function graphql_register_types(): void {
 		register_graphql_object_type(
 			'Beyondwords',
-			array(
+			[
 				'description' => __( 'BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK.', 'speechkit' ),
-				'fields'      => array(
-					'sourceId'  => array(
+				'fields'      => [
+					'sourceId'  => [
 						'description' => __( 'BeyondWords source ID', 'speechkit' ),
 						'type'        => 'String',
-					),
-					'projectId' => array(
+					],
+					'projectId' => [
 						'description' => __( 'BeyondWords project ID', 'speechkit' ),
 						'type'        => 'Int',
-					),
-					'contentId' => array(
+					],
+					'contentId' => [
 						'description' => __( 'BeyondWords content ID', 'speechkit' ),
 						'type'        => 'String',
-					),
-					'podcastId' => array(
+					],
+					'podcastId' => [
 						'description' => __( 'BeyondWords legacy podcast ID', 'speechkit' ),
 						'type'        => 'String',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
-		$beyondwords_post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
+		$bw_post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
 		$graphql_post_types     = \WPGraphQL::get_allowed_post_types();
-		$post_types             = array_intersect( $beyondwords_post_types, $graphql_post_types );
-
-		if ( empty( $post_types ) ) {
-			return;
-		}
+		$post_types             = array_intersect( $bw_post_types, $graphql_post_types );
 
 		foreach ( $post_types as $post_type ) {
 			$post_type_object = get_post_type_object( $post_type );
@@ -77,13 +73,13 @@ class WPGraphQL {
 			register_graphql_field(
 				$post_type_object->graphql_single_name,
 				'beyondwords',
-				array(
+				[
 					'type'        => 'Beyondwords',
 					'description' => __( 'BeyondWords audio details', 'speechkit' ),
 					'resolve'     => static function ( \WPGraphQL\Model\Post $post ) {
-						$fields = array(
+						$fields = [
 							'sourceId' => (string) $post->ID,
-						);
+						];
 
 						$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
 						if ( ! empty( $project_id ) ) {
@@ -98,7 +94,7 @@ class WPGraphQL {
 
 						return $fields;
 					},
-				)
+				]
 			);
 		}
 	}
