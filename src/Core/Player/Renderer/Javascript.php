@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use BeyondWords\Settings\Fields as SettingsFields;
 use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
 
@@ -26,7 +26,7 @@ class Javascript extends Base
      */
     public static function render(\WP_Post $post, string $context = 'shortcode'): string
     {
-        if (PlayerUI::DISABLED === get_option(PlayerUI::OPTION_NAME)) {
+        if (SettingsFields::PLAYER_UI_DISABLED === get_option(SettingsFields::OPTION_PLAYER_UI)) {
             return '';
         }
 

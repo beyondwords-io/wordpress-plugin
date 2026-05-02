@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\PlayerContent;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 
 /**
  * PlayerContent
@@ -50,7 +50,7 @@ class PlayerContent
     public static function init()
     {
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {

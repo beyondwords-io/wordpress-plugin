@@ -82,14 +82,6 @@ class Environment
      */
     public const BEYONDWORDS_DASHBOARD_URL = 'https://dash.beyondwords.io';
 
-    /**
-     * Auto-sync settings.
-     *
-     * @since  5.2.0
-     * @var    bool
-     */
-    public const BEYONDWORDS_AUTO_SYNC_SETTINGS = true;
-
     public static function getApiUrl(): string
     {
         if (defined('BEYONDWORDS_API_URL') && strlen(BEYONDWORDS_API_URL)) {
@@ -144,14 +136,4 @@ class Environment
         return static::BEYONDWORDS_DASHBOARD_URL;
     }
 
-    public static function hasAutoSyncSettings(): bool
-    {
-        $value = static::BEYONDWORDS_AUTO_SYNC_SETTINGS;
-
-        if (defined('BEYONDWORDS_AUTO_SYNC_SETTINGS')) {
-            $value = (bool) BEYONDWORDS_AUTO_SYNC_SETTINGS;
-        }
-
-        return $value;
-    }
 }

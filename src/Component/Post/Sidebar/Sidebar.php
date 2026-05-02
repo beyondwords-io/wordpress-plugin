@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Beyondwords\Wordpress\Component\Post\Sidebar;
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -47,7 +47,7 @@ class Sidebar
         if (CoreUtils::isGutenbergPage()) {
             $postType = get_post_type();
 
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (in_array($postType, $postTypes)) {
                 // Register the Block Editor "Sidebar" CSS

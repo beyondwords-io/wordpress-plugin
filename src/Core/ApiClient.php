@@ -8,7 +8,7 @@ use Beyondwords\Wordpress\Core\Environment;
 use Beyondwords\Wordpress\Core\Request;
 use Beyondwords\Wordpress\Component\Post\PostContentUtils;
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
+use BeyondWords\Settings\Fields as SettingsFields;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -315,7 +315,7 @@ class ApiClient
     public static function getVoice(int $voiceId, int|string|false $languageCode = false): object|array|false
     {
         if (! $languageCode) {
-            $languageCode = get_option('beyondwords_project_language_code');
+            return false;
         }
 
         $voices = self::getVoices($languageCode);
@@ -529,7 +529,7 @@ class ApiClient
         // Save error messages from WordPress HTTP errors and BeyondWords REST API error responses
         if (
             $post instanceof \WP_Post &&
-            IntegrationMethod::REST_API === IntegrationMethod::getIntegrationMethod($post) &&
+            SettingsFields::INTEGRATION_REST_API === SettingsFields::get_integration_method($post) &&
             (is_wp_error($response) || $responseCode > 299)
         ) {
             $message = self::errorMessageFromResponse($response);
@@ -647,7 +647,7 @@ class ApiClient
         if (
             404 === $code &&
             $post instanceof \WP_Post &&
-            IntegrationMethod::CLIENT_SIDE === IntegrationMethod::getIntegrationMethod($post)
+            SettingsFields::INTEGRATION_CLIENT_SIDE === SettingsFields::get_integration_method($post)
         ) {
             return;
         }

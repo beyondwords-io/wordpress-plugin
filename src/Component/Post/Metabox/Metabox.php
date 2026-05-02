@@ -19,7 +19,7 @@ use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
 use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
 use Beyondwords\Wordpress\Component\Post\PlayerContent\PlayerContent;
 use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\Environment;
 
 /**
@@ -71,7 +71,7 @@ class Metabox
      */
     public static function addMetaBox($postType)
     {
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (! in_array($postType, $postTypes)) {
             return;

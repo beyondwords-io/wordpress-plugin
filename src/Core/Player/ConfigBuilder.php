@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use BeyondWords\Settings\Fields as SettingsFields;
 use Beyondwords\Wordpress\Core\Core;
 
 /**
@@ -35,43 +34,9 @@ class ConfigBuilder
             'projectId' => is_numeric($projectId) ? (int) $projectId : $projectId,
         ];
 
-        $params = self::mergePluginSettings($params);
         $params = self::mergePostSettings($post, $params);
 
         return (object) apply_filters('beyondwords_player_sdk_params', $params, $post->ID);
-    }
-
-    /**
-     * Merge global plugin settings into the SDK parameters.
-     *
-     * @param array $params Existing params.
-     *
-     * @return array Modified params.
-     */
-    public static function mergePluginSettings(array $params): array
-    {
-        $mapping = [
-            'beyondwords_player_style'              => 'playerStyle',
-            'beyondwords_player_call_to_action'     => 'callToAction',
-            'beyondwords_player_highlight_sections' => 'highlightSections',
-            'beyondwords_player_widget_style'       => 'widgetStyle',
-            'beyondwords_player_widget_position'    => 'widgetPosition',
-            'beyondwords_player_skip_button_style'  => 'skipButtonStyle',
-        ];
-
-        foreach ($mapping as $wpOption => $sdkParam) {
-            $val = get_option($wpOption);
-
-            if (! empty($val)) {
-                $params[$sdkParam] = $val;
-            }
-        }
-
-        if (! empty(get_option('beyondwords_player_clickable_sections'))) {
-            $params['clickableSections'] = 'body';
-        }
-
-        return $params;
     }
 
     /**
@@ -90,9 +55,9 @@ class ConfigBuilder
             $params['contentId'] = (string) $contentId;
         }
 
-        $playerUI = get_option(PlayerUI::OPTION_NAME);
+        $playerUI = get_option(SettingsFields::OPTION_PLAYER_UI);
 
-        if ($playerUI === PlayerUI::HEADLESS) {
+        if ($playerUI === SettingsFields::PLAYER_UI_HEADLESS) {
             $params['showUserInterface'] = false;
         }
 
@@ -108,9 +73,9 @@ class ConfigBuilder
             $params['loadContentAs'] = [$content];
         }
 
-        $method = IntegrationMethod::getIntegrationMethod($post);
+        $method = SettingsFields::get_integration_method($post);
 
-        if ($method === IntegrationMethod::CLIENT_SIDE && empty($params['contentId'])) {
+        if ($method === SettingsFields::INTEGRATION_CLIENT_SIDE && empty($params['contentId'])) {
             $params['clientSideEnabled'] = true;
             $params['sourceId'] = (string) $post->ID;
             unset($params['contentId']);

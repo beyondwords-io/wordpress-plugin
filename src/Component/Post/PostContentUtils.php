@@ -273,8 +273,22 @@ class PostContentUtils
         if (in_array($status, ['draft', 'pending'])) {
             $body['published'] = false;
             unset($body['publish_date']);
-        } elseif (get_option('beyondwords_project_auto_publish_enabled')) {
-            $body['published'] = true;
+        } else {
+            /**
+             * Filters whether generated content is auto-published to BeyondWords.
+             *
+             * Replaces the v6.x `beyondwords_project_auto_publish_enabled` setting.
+             * Default `true` matches the previous default; sites that need to keep
+             * generated content as drafts can return `false`.
+             *
+             * @since 7.0.0
+             *
+             * @param bool $auto_publish Whether to mark generated content as published.
+             * @param int  $postId       WordPress post ID.
+             */
+            if (apply_filters('beyondwords_auto_publish', true, $postId)) {
+                $body['published'] = true;
+            }
         }
 
         $languageCode = get_post_meta($postId, 'beyondwords_language_code', true);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player\Renderer;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
+use BeyondWords\Settings\Fields as SettingsFields;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -41,9 +41,9 @@ class Base
         }
 
         $contentId = PostMetaUtils::getContentId($post->ID);
-        $method = IntegrationMethod::getIntegrationMethod($post);
+        $method = SettingsFields::get_integration_method($post);
 
-        return $method === IntegrationMethod::CLIENT_SIDE ||
-               ($method === IntegrationMethod::REST_API && $contentId);
+        return $method === SettingsFields::INTEGRATION_CLIENT_SIDE ||
+               ($method === SettingsFields::INTEGRATION_REST_API && $contentId);
     }
 }

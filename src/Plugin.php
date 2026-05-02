@@ -23,8 +23,6 @@ use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
 use Beyondwords\Wordpress\Component\Posts\Column\Column;
 use Beyondwords\Wordpress\Component\Posts\BulkEdit\BulkEdit;
 use Beyondwords\Wordpress\Component\Posts\BulkEdit\Notices as BulkEditNotices;
-use Beyondwords\Wordpress\Component\Settings\Settings;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
 use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
 
 /**
@@ -61,14 +59,17 @@ class Plugin
         // Post
         Post::init();
 
-        // Settings
-        Settings::init();
+        // Settings (new BeyondWords\Settings namespace under includes/)
+        \BeyondWords\Settings\Tabs::init();
+        \BeyondWords\Settings\Fields::init();
+        \BeyondWords\Settings\Preselect::init();
+        \BeyondWords\Settings\Settings::init();
 
         /**
          * To prevent browser JS errors we skip adding admin UI components until
          * we have a valid REST API connection.
          */
-        if (SettingsUtils::hasValidApiConnection()) {
+        if (\BeyondWords\Settings\Utils::has_valid_api_connection()) {
             // Posts screen
             BulkEdit::init();
             BulkEditNotices::init();

@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\PlayerStyle;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle as PlayerStyleSetting;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 
 /**
  * PlayerStyle
@@ -39,6 +38,35 @@ class PlayerStyle
     ];
 
     /**
+     * Player style options for the per-post selector.
+     *
+     * @since 7.0.0 Inlined here when the global Settings\Fields\PlayerStyle class was deleted.
+     *
+     * @return array<string,array{value:string,label:string,disabled?:bool}>
+     */
+    public static function getOptions(): array
+    {
+        $styles = [
+            'standard' => ['value' => 'standard', 'label' => __('Standard', 'speechkit')],
+            'small'    => ['value' => 'small',    'label' => __('Small', 'speechkit')],
+            'large'    => ['value' => 'large',    'label' => __('Large', 'speechkit')],
+            'video'    => ['value' => 'video',    'label' => __('Video', 'speechkit')],
+        ];
+
+        /**
+         * Filters the player styles offered in the per-post selector.
+         *
+         * @since 4.1.0 Introduced as `beyondwords_player_styles`.
+         * @since 5.0.0 Renamed to `beyondwords_settings_player_styles`.
+         *
+         * @param array $styles Associative array of player styles.
+         */
+        $styles = apply_filters('beyondwords_settings_player_styles', $styles);
+
+        return is_array($styles) ? $styles : [];
+    }
+
+    /**
      * Constructor
      *
      * @since 6.0.0 Make static.
@@ -48,7 +76,7 @@ class PlayerStyle
         add_action('rest_api_init', [self::class, 'restApiInit']);
 
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -72,7 +100,7 @@ class PlayerStyle
     public static function element($post)
     {
         $playerStyle     = PostMetaUtils::getPlayerStyle($post->ID);
-        $allPlayerStyles = PlayerStyleSetting::getOptions();
+        $allPlayerStyles = self::getOptions();
 
         wp_nonce_field('beyondwords_player_style', 'beyondwords_player_style_nonce');
         ?>
@@ -168,7 +196,7 @@ class PlayerStyle
      */
     public static function playerStylesRestApiResponse()
     {
-        $response = PlayerStyleSetting::getOptions();
+        $response = self::getOptions();
 
         // Convert from object to array so we can use find() in Block Editor JS.
         $response = array_values($response);

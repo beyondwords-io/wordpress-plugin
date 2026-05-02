@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post;
 
 use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
+use BeyondWords\Settings\Fields as SettingsFields;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -129,17 +128,17 @@ class PostMetaUtils
 
         // If the integration method is not set, we assume REST API for legacy compatibility.
         if (empty($integrationMethod)) {
-            $integrationMethod = IntegrationMethod::REST_API;
+            $integrationMethod = SettingsFields::INTEGRATION_REST_API;
         }
 
-        if (IntegrationMethod::REST_API === $integrationMethod && ! empty($contentId)) {
+        if (SettingsFields::INTEGRATION_REST_API === $integrationMethod && ! empty($contentId)) {
             return true;
         }
 
         // Get the project ID for the post (do not use the plugin setting).
         $projectId = PostMetaUtils::getProjectId($postId, true);
 
-        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod && ! empty($projectId)) {
+        if (SettingsFields::INTEGRATION_CLIENT_SIDE === $integrationMethod && ! empty($projectId)) {
             return true;
         }
 
@@ -427,13 +426,7 @@ class PostMetaUtils
     {
         $playerStyle = get_post_meta($postId, 'beyondwords_player_style', true);
 
-        // Prefer custom field
-        if ($playerStyle) {
-            return $playerStyle;
-        }
-
-        // Fall back to plugin setting
-        return get_option('beyondwords_player_style', PlayerStyle::STANDARD);
+        return is_string($playerStyle) ? $playerStyle : '';
     }
 
     /**

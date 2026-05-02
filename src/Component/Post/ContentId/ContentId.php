@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\ContentId;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -35,7 +35,7 @@ class ContentId
         add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
 
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {

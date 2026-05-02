@@ -16,7 +16,7 @@ namespace Beyondwords\Wordpress\Component\Posts\BulkEdit;
 
 use Beyondwords\Wordpress\Core\Core;
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Plugin;
 
 /**
@@ -40,7 +40,7 @@ class BulkEdit
         add_action('wp_ajax_save_bulk_edit_beyondwords', [self::class, 'saveBulkEdit']);
 
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -63,7 +63,7 @@ class BulkEdit
             return;
         }
 
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (! in_array($postType, $postTypes)) {
             return;

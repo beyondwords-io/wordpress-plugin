@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Fields as SettingsFields;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 defined('ABSPATH') || exit;
@@ -130,19 +130,19 @@ class Core
             return false;
         }
 
-        $integrationMethod = IntegrationMethod::getIntegrationMethod($post);
+        $integrationMethod = SettingsFields::get_integration_method($post);
 
         // For Magic Embed we call the "get_player_by_source_id" endpoint to import content.
-        if (IntegrationMethod::CLIENT_SIDE === $integrationMethod) {
+        if (SettingsFields::INTEGRATION_CLIENT_SIDE === $integrationMethod) {
             // Save the integration method & Project ID.
-            update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::CLIENT_SIDE);
+            update_post_meta($postId, 'beyondwords_integration_method', SettingsFields::INTEGRATION_CLIENT_SIDE);
             update_post_meta($postId, 'beyondwords_project_id', get_option('beyondwords_project_id'));
 
             return ApiClient::getPlayerBySourceId($postId);
         }
 
         // For non-Magic Embed we use the REST API to generate audio.
-        update_post_meta($postId, 'beyondwords_integration_method', IntegrationMethod::REST_API);
+        update_post_meta($postId, 'beyondwords_integration_method', SettingsFields::INTEGRATION_REST_API);
 
         // Does this post already have audio?
         $contentId = PostMetaUtils::getContentId($postId);
@@ -282,13 +282,13 @@ class Core
      */
     public static function enqueueBlockEditorAssets()
     {
-        if (! SettingsUtils::hasValidApiConnection()) {
+        if (! SettingsUtils::has_valid_api_connection()) {
             return;
         }
 
         $postType = get_post_type();
 
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (in_array($postType, $postTypes, true)) {
             $assetFile = include BEYONDWORDS__PLUGIN_DIR . 'build/index.asset.php';
@@ -316,7 +316,7 @@ class Core
      **/
     public static function registerMeta()
     {
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (is_array($postTypes)) {
             $keys = CoreUtils::getPostMetaKeys('all');

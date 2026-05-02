@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Core\Player;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
+use BeyondWords\Settings\Fields as SettingsFields;
 use Beyondwords\Wordpress\Core\Environment;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -155,9 +155,9 @@ class Player
         }
 
         // Default to "Enabled".
-        $playerUI = get_option(PlayerUI::OPTION_NAME, PlayerUI::ENABLED);
+        $playerUI = get_option(SettingsFields::OPTION_PLAYER_UI, SettingsFields::PLAYER_UI_ENABLED);
 
-        $enabled = [PlayerUI::ENABLED, PlayerUI::HEADLESS];
+        $enabled = [SettingsFields::PLAYER_UI_ENABLED, SettingsFields::PLAYER_UI_HEADLESS];
 
         return in_array($playerUI, $enabled, true);
     }

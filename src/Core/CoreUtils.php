@@ -167,41 +167,17 @@ class CoreUtils
     public static function getOptions(string $type = 'current'): array
     {
         $current = [
-            // v6.x
-            'beyondwords_integration_method',
-            // v5.x
-            'beyondwords_date_activated',
-            'beyondwords_notice_review_dismissed',
-            'beyondwords_player_call_to_action',
-            'beyondwords_player_clickable_sections',
-            'beyondwords_player_content',
-            'beyondwords_player_highlight_sections',
-            'beyondwords_player_skip_button_style',
-            'beyondwords_player_theme',
-            'beyondwords_player_theme_dark',
-            'beyondwords_player_theme_light',
-            'beyondwords_player_theme_video',
-            'beyondwords_player_widget_position',
-            'beyondwords_player_widget_style',
-            'beyondwords_project_auto_publish_enabled',
-            'beyondwords_project_body_voice_id',
-            'beyondwords_project_body_voice_speaking_rate',
-            'beyondwords_project_language_code',
-            'beyondwords_project_language_id', // @todo deprecate in v5.6
-            'beyondwords_project_title_enabled',
-            'beyondwords_project_title_voice_id',
-            'beyondwords_project_title_voice_speaking_rate',
-            'beyondwords_video_enabled',
-            'beyondwords_player_ui',
-            'beyondwords_player_style',
-            'beyondwords_player_version',
-            'beyondwords_settings_updated',
-            'beyondwords_valid_api_connection',
-            // v3.7.0 beyondwords_*
+            // v7.x
             'beyondwords_api_key',
+            'beyondwords_date_activated',
+            'beyondwords_integration_method',
+            'beyondwords_notice_review_dismissed',
+            'beyondwords_player_ui',
             'beyondwords_prepend_excerpt',
             'beyondwords_preselect',
             'beyondwords_project_id',
+            'beyondwords_settings_updated',
+            'beyondwords_valid_api_connection',
             'beyondwords_version',
             // Debug tool (extension plugin).
             'beyondwords_debug_rest_api',
@@ -209,6 +185,30 @@ class CoreUtils
         ];
 
         $deprecated = [
+            // Removed in v7.0.0 — settings UI consolidated to three tabs and
+            // player/project styling moved to the BeyondWords dashboard.
+            'beyondwords_player_call_to_action',
+            'beyondwords_player_clickable_sections',
+            'beyondwords_player_content',
+            'beyondwords_player_highlight_sections',
+            'beyondwords_player_skip_button_style',
+            'beyondwords_player_style',
+            'beyondwords_player_theme',
+            'beyondwords_player_theme_dark',
+            'beyondwords_player_theme_light',
+            'beyondwords_player_theme_video',
+            'beyondwords_player_version',
+            'beyondwords_player_widget_position',
+            'beyondwords_player_widget_style',
+            'beyondwords_project_auto_publish_enabled',
+            'beyondwords_project_body_voice_id',
+            'beyondwords_project_body_voice_speaking_rate',
+            'beyondwords_project_language_code',
+            'beyondwords_project_language_id',
+            'beyondwords_project_title_enabled',
+            'beyondwords_project_title_voice_id',
+            'beyondwords_project_title_voice_speaking_rate',
+            'beyondwords_video_enabled',
             // v4.x
             'beyondwords_languages',
             // v3.0.0 speechkit_*

@@ -6,8 +6,7 @@
     "homepage": "https://beyondwords.io",
     "require": {
         "php": ">=8.0",
-        "symfony/dom-crawler": "^5.4",
-        "symfony/property-access": "^5.4"
+        "symfony/dom-crawler": "^5.4"
     },
     "require-dev": {
         "automattic/vipwpcs": "^3.0.1",
@@ -41,7 +40,10 @@
     "autoload": {
         "psr-4": {
             "Beyondwords\\Wordpress\\": "src/"
-        }
+        },
+        "classmap": [
+            "src/settings/"
+        ]
     },
     "config": {
         "allow-plugins": {

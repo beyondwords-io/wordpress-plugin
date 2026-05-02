@@ -32,10 +32,6 @@ class Updater
     {
         $version = get_option('beyondwords_version', '1.0.0');
 
-        if (version_compare($version, '5.0.0', '<') && get_option('beyondwords_api_key')) {
-            wp_cache_set('beyondwords_sync_to_wordpress', ['all'], 'beyondwords', 60);
-        }
-
         if (version_compare($version, '3.0.0', '<')) {
             self::migrateSettings();
         }
@@ -44,11 +40,52 @@ class Updater
             self::renamePluginSettings();
         }
 
+        if (version_compare($version, '7.0.0', '<')) {
+            self::flattenPreselect();
+        }
+
         // Record the date activated so we can track how long users have been using the plugin.
         add_option('beyondwords_date_activated', gmdate(\DateTime::ATOM), '', false);
 
         // Always update the plugin version, to handle e.g. FTP plugin updates
         update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
+    }
+
+    /**
+     * Flatten the legacy preselect format.
+     *
+     * Pre-7.0.0, `beyondwords_preselect` could store taxonomy term arrays per post type
+     * (e.g. `['post' => ['category' => ['1','2']]]`). 7.0.0 simplifies this to a plain
+     * "is this post type preselected?" map (`['post' => '1']`).
+     *
+     * Per spec: a post type is considered preselected if its old value was the literal
+     * string `'1'`, OR was an array containing one or more taxonomy terms.
+     *
+     * @since 7.0.0
+     */
+    public static function flattenPreselect(): void
+    {
+        $preselect = get_option('beyondwords_preselect');
+
+        if (! is_array($preselect)) {
+            return;
+        }
+
+        $flattened = [];
+
+        foreach ($preselect as $postType => $value) {
+            if ($value === '1') {
+                $flattened[(string) $postType] = '1';
+                continue;
+            }
+
+            // Legacy taxonomy-term arrays: any non-empty value preserves the post type.
+            if (is_array($value) && ! empty($value)) {
+                $flattened[(string) $postType] = '1';
+            }
+        }
+
+        update_option('beyondwords_preselect', $flattened, false);
     }
 
     /**

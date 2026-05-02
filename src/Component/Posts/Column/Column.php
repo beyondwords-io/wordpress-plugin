@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Posts\Column;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\CoreUtils;
 
 /**
@@ -49,7 +49,7 @@ class Column
     public static function init()
     {
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -99,7 +99,7 @@ class Column
             return;
         }
 
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (empty($postTypes)) {
             return;

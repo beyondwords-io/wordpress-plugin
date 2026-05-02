@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\SelectVoice;
 
 use Beyondwords\Wordpress\Core\CoreUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
@@ -37,7 +37,7 @@ class SelectVoice
         add_action('admin_enqueue_scripts', [self::class, 'adminEnqueueScripts']);
 
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -84,7 +84,7 @@ class SelectVoice
     private static function getLanguageCode(int $postId)
     {
         $postLanguageCode = get_post_meta($postId, 'beyondwords_language_code', true);
-        return $postLanguageCode ?: get_option('beyondwords_project_language_code');
+        return $postLanguageCode ?: '';
     }
 
     /**
@@ -98,7 +98,7 @@ class SelectVoice
     private static function getVoiceId(int $postId)
     {
         $postVoiceId = get_post_meta($postId, 'beyondwords_body_voice_id', true);
-        return $postVoiceId ?: get_option('beyondwords_project_body_voice_id');
+        return $postVoiceId ?: '';
     }
 
     /**

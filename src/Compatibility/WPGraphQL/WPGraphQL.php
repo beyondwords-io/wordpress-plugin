@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Compatibility\WPGraphQL;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use WPGraphQL as WPGraphQLPlugin;
 
 /**
@@ -62,7 +62,7 @@ class WPGraphQL
             ],
         ]);
 
-        $beyondwordsPostTypes = SettingsUtils::getCompatiblePostTypes();
+        $beyondwordsPostTypes = SettingsUtils::get_compatible_post_types();
 
         $graphqlPostTypes = WPGraphQLPlugin::get_allowed_post_types();
 

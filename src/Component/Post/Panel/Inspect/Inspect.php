@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Beyondwords\Wordpress\Component\Post\Panel\Inspect;
 
 use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils as SettingsUtils;
 use Beyondwords\Wordpress\Core\ApiClient;
 
 /**
@@ -39,7 +39,7 @@ class Inspect
         add_filter('default_hidden_meta_boxes', [self::class, 'hideMetaBox']);
 
         add_action('wp_loaded', function (): void {
-            $postTypes = SettingsUtils::getCompatiblePostTypes();
+            $postTypes = SettingsUtils::get_compatible_post_types();
 
             if (is_array($postTypes)) {
                 foreach ($postTypes as $postType) {
@@ -92,7 +92,7 @@ class Inspect
      */
     public static function addMetaBox($postType)
     {
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = SettingsUtils::get_compatible_post_types();
 
         if (! in_array($postType, $postTypes)) {
             return;
