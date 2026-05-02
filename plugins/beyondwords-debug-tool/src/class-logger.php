@@ -1,12 +1,10 @@
 <?php
 
-declare( strict_types=1 );
+declare( strict_types = 1 );
 
 namespace Beyondwords\Wordpress\Debug;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * HTTP request/response logging for the debug tool.

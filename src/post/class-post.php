@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types = 1 );
 
 namespace BeyondWords\Post;
 
@@ -13,7 +13,7 @@ namespace BeyondWords\Post;
  * @since      6.0.0
  * @since      7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 class Post
 {

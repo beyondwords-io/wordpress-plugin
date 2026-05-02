@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types = 1 );
 
 // phpcs:disable
 /**
@@ -25,10 +25,7 @@ declare(strict_types=1);
  */
 // phpcs:enable
 
-// If this file is called directly, abort.
-if (! defined('WPINC')) {
-    die;
-}
+defined( 'ABSPATH' ) || exit;
 
 // Composer autoload
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';

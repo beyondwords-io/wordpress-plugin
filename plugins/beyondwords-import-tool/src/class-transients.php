@@ -1,12 +1,10 @@
 <?php
 
-declare( strict_types=1 );
+declare( strict_types = 1 );
 
 namespace Beyondwords\Wordpress\Import;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Transient storage for import data and failed records.

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types = 1 );
 
 /**
  * BeyondWords support for Gutenberg blocks.
@@ -22,7 +22,7 @@ namespace BeyondWords\Post;
  * @since 6.0.0 Stop adding beyondwordsMarker attribute to blocks.
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 class BlockAttributes
 {
