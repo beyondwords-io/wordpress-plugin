@@ -40,5 +40,5 @@ define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable
 
-// Follow WordPress convention by using snakecase for variable name
-Beyondwords\Wordpress\Plugin::init();
+// Bootstrap.
+BeyondWords\Core\Plugin::init();

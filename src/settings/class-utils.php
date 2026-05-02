@@ -10,10 +10,6 @@ declare( strict_types = 1 );
 
 namespace BeyondWords\Settings;
 
-use Beyondwords\Wordpress\Core\ApiClient;
-use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\Request;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -138,8 +134,8 @@ class Utils {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', Environment::getApiUrl(), $project_id );
-		$response = ApiClient::callApi( new Request( 'GET', $url ) );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$response = \BeyondWords\Core\ApiClient::call_api( new \BeyondWords\Core\Request( 'GET', $url ) );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );

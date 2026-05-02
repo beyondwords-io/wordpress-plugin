@@ -38,11 +38,8 @@
     },
     "prefer-stable": true,
     "autoload": {
-        "psr-4": {
-            "Beyondwords\\Wordpress\\": "src/"
-        },
         "classmap": [
-            "src/settings/"
+            "src/"
         ]
     },
     "config": {

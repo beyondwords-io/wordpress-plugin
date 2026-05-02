@@ -13,8 +13,6 @@ declare( strict_types = 1 );
 
 namespace BeyondWords\Settings;
 
-use Beyondwords\Wordpress\Core\Environment;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -33,7 +31,6 @@ class Settings {
 		add_action( 'admin_notices', array( self::class, 'maybe_print_missing_creds_warning' ), 100 );
 		add_action( 'admin_notices', array( self::class, 'print_settings_errors' ), 200 );
 		add_action( 'admin_notices', array( self::class, 'maybe_print_review_notice' ) );
-		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		add_action( 'load-settings_page_' . self::PAGE_SLUG, array( self::class, 'maybe_validate_api_creds' ) );
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
@@ -155,7 +152,7 @@ class Settings {
 			<p>
 				<a
 					class="button button-secondary"
-					href="<?php echo esc_url( sprintf( '%s/auth/signup', Environment::getDashboardUrl() ) ); ?>"
+					href="<?php echo esc_url( sprintf( '%s/auth/signup', \BeyondWords\Core\Environment::get_dashboard_url() ) ); ?>"
 					target="_blank"
 				>
 					<?php esc_html_e( 'Sign up free', 'speechkit' ); ?>
@@ -298,44 +295,4 @@ class Settings {
 		);
 	}
 
-	/**
-	 * Enqueue scripts and styles on the settings page only.
-	 *
-	 * @param string $hook Current admin page hook.
-	 */
-	public static function enqueue_assets( string $hook ): void {
-		if ( 'settings_page_' . self::PAGE_SLUG !== $hook ) {
-			return;
-		}
-
-		wp_enqueue_script( 'jquery-ui-core' );
-		wp_enqueue_script( 'jquery-ui-tabs' );
-
-		wp_register_script(
-			'beyondwords-settings',
-			BEYONDWORDS__PLUGIN_URI . 'build/settings.js',
-			array( 'jquery', 'jquery-ui-core', 'jquery-ui-tabs', 'underscore' ),
-			BEYONDWORDS__PLUGIN_VERSION,
-			true
-		);
-
-		wp_enqueue_style(
-			'beyondwords-settings',
-			BEYONDWORDS__PLUGIN_URI . 'src/Component/Settings/settings.css',
-			array(),
-			BEYONDWORDS__PLUGIN_VERSION
-		);
-
-		wp_add_inline_script(
-			'beyondwords-settings',
-			sprintf(
-				'var beyondwordsData = beyondwordsData || {}; beyondwordsData.nonce = %s; beyondwordsData.root = %s;',
-				wp_json_encode( wp_create_nonce( 'wp_rest' ) ),
-				wp_json_encode( esc_url_raw( rest_url() ) )
-			),
-			'before'
-		);
-
-		wp_enqueue_script( 'beyondwords-settings' );
-	}
 }

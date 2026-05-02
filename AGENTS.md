@@ -9,23 +9,25 @@ Conventions for working in the BeyondWords WordPress plugin codebase. These appl
 
 ## File structure
 
-New code lives under `src/{feature}/`, with WordPress-style file names:
+All PHP under `src/` follows the same WordPress-style layout:
 
 ```
 src/
-  settings/
-    class-settings.php
-    class-tabs.php
-    class-fields.php
-    class-preselect.php
-    class-utils.php
-  {other-feature}/
-    class-{name}.php
+  compatibility/   class-{name}.php       — third-party plugin compatibility shims
+  core/            class-{name}.php       — bootstrap, post-lifecycle, API client, env, request, updater, uninstaller
+  editor/          {feature}/index.js     — block-editor `@wordpress/plugins` slot registrations (JS-only)
+  player/          class-{name}.php       — front-end player + renderer/{base,amp,javascript}
+  post/            class-{name}.php       — per-post screen UI (each component in its own subfolder when JS/CSS travels with it)
+  posts/           class-{name}.php       — posts list-screen UI
+  settings/        class-{name}.php       — plugin settings page + REST endpoints
+  site-health/     class-{name}.php       — Site Health debug panel
+  index.js         build entry that requires each component's `index.js`
 ```
 
-- One class per file. File name is `class-{kebab-case-name}.php`. Class name is the PascalCase form (e.g. `class-tabs.php` defines `Tabs`).
-- Group by feature, not by class type. `Fields` lives next to `Tabs` because they're both part of the settings feature, not in a separate `Fields/` folder.
-- The legacy code elsewhere under `src/` follows an older PSR-12-with-deep-namespaces convention (e.g. `src/Component/...`, `src/Core/...`). **When you rewrite a class, move it to a `src/{feature}/class-{name}.php` location.** Don't migrate untouched code.
+- **One class per file.** File name is `class-{kebab-case-name}.php` (e.g. `class-api-client.php` → `ApiClient`).
+- **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-post-meta-utils.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/post/add-player/{class-add-player.php,index.js,AddPlayer.css}`).
+- **JS folders use kebab-case** to match the PHP folder convention (`src/post/add-player/`, `src/editor/document-setting/`).
+- **Group by feature, not by class type.** `Fields` lives next to `Tabs` because they're both part of the settings feature, not in a separate `Fields/` folder.
 
 ## Class structure
 
@@ -50,7 +52,8 @@ class Tabs {
 	}
 
 	public static function register(): void {
-		// ...
+		// Cross-namespace references use FQN — see "Class references" below.
+		\BeyondWords\Core\CoreUtils::is_edit_screen();
 	}
 }
 ```
@@ -60,35 +63,48 @@ Rules:
 - **Namespaces are required.** Top-level namespace is `BeyondWords\`, then the feature (e.g. `BeyondWords\Settings`). Class names stay short.
 - **Static methods only.** No instances, no constructors, no DI. State lives in WordPress options/transients/post meta, not in objects.
 - **`init()` is the entry point.** It owns all `add_action`/`add_filter` registrations for the class. It must be idempotent.
-- **No bottom-of-file `Class::init();` self-call.** Autoloading wouldn't load the file until the class is referenced anyway, so `init()` is invoked explicitly from the plugin bootstrap (`src/Plugin.php`).
+- **No bottom-of-file `Class::init();` self-call.** Autoloading wouldn't load the file until the class is referenced anyway, so `init()` is invoked explicitly from the plugin bootstrap ([src/core/class-plugin.php](src/core/class-plugin.php)).
 - **snake_case for methods, variables, hook names, option keys.** Class names stay PascalCase to match WordPress conventions for class identifiers.
 - **PHPDoc blocks on every public method.** Param/return types are required where they aren't obvious from signature.
 
+## Class references
+
+**Use fully-qualified names inline** at every call site rather than top-of-file `use` imports. We deliberately removed all `use` statements from `src/` for two reasons:
+
+1. **Locality.** Reading `\BeyondWords\Settings\Utils::has_valid_api_connection()` at the call site tells you exactly which class is being invoked without scrolling to the imports block.
+2. **Refactor safety.** Moving a class to a new namespace requires updating every call site explicitly — no risk of an aliased import quietly resolving to the wrong class after a rename.
+
+```php
+// preferred — FQN inline.
+$result = \BeyondWords\Core\Environment::get_api_url();
+$post   = \WPGraphQL\Model\Post::class;
+
+// avoid — top-of-file use imports.
+use BeyondWords\Core\Environment;
+use WPGraphQL\Model\Post;
+```
+
+**Exceptions** (when bare references are fine):
+
+- **Same-namespace references.** Inside `BeyondWords\Core`, calling `Updater::run()` or `extends Base` resolves correctly without a leading `\` and without a `use` import.
+- **`self::`, `static::`, `parent::`** are language constructs, not class references.
+- **`\WP_Post`, `\WP_Error`, `\WP_REST_Response`** etc. are root-namespaced WordPress classes and the leading `\` is enough on its own — no further qualification needed.
+
+If you find yourself wanting a `use` to shorten a deeply-nested namespace, that's usually a signal that the call site is doing too much — extract a helper.
+
 ## Autoloading
 
-Two autoload entries in [composer.json](composer.json) coexist:
+Composer **classmap** autoload covers the whole `src/` tree:
 
 ```json
 "autoload": {
-    "psr-4": {
-        "Beyondwords\\Wordpress\\": "src/"
-    },
-    "classmap": ["src/settings/"]
+    "classmap": ["src/"]
 }
 ```
 
-- **PSR-4** continues to handle the legacy `Beyondwords\Wordpress\…` namespaces under `src/Component/`, `src/Core/`, etc.
-- **Classmap** handles the new WordPress-style files (`class-tabs.php` etc.) — PSR-4 can't because file names don't match class names. Add a new classmap entry for each new feature directory, e.g. `"src/{feature}/"`.
+Classmap (not PSR-4) is required because PSR-4 expects file names to match class names — incompatible with `class-tabs.php` style. Run `composer dump-autoload` after adding, removing, or renaming files in `src/`.
 
-Run `composer dump-autoload` after adding, removing, or renaming files in any classmap directory.
-
-The bootstrap in `src/Plugin.php` invokes each class's `init()`:
-
-```php
-\BeyondWords\Settings\Settings::init();
-\BeyondWords\Settings\Tabs::init();
-\BeyondWords\Settings\Fields::init();
-```
+The bootstrap is [src/core/class-plugin.php](src/core/class-plugin.php) (`BeyondWords\Core\Plugin::init()`), invoked from [speechkit.php](speechkit.php). It calls each class's `init()` in dependency order — keep new classes' init wiring there.
 
 ## PHP standards
 

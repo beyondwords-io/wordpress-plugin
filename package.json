@@ -29,7 +29,6 @@
     "@wordpress/notices": "^5.44.0",
     "@wordpress/plugins": "^7.44.0",
     "@wordpress/scripts": "^32.0.0",
-    "badge-maker": "^5.0.2",
     "cypress": "^15.14.0",
     "cypress-fail-fast": "^8.1.0",
     "cypress-map": "^1.56.0",
@@ -37,8 +36,7 @@
     "cypress-terminal-report": "^7.3.3",
     "dotenv": "^17.4.2",
     "lodash": "^4.18.1",
-    "mochawesome": "^7.1.4",
-    "uuid": "^14.0.0"
+    "mochawesome": "^7.1.4"
   },
   "scripts": {
     "build": "wp-scripts build",
