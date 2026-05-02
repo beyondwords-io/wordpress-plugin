@@ -30,15 +30,15 @@ class Preselect {
 
 	const OPTION_NAME = 'beyondwords_preselect';
 
-	const DEFAULT_VALUE = array(
+	const DEFAULT_VALUE = [
 		'post' => '1',
-	);
+	];
 
 	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'admin_init', array( self::class, 'register' ) );
+		add_action( 'admin_init', [ self::class, 'register' ] );
 	}
 
 	/**
@@ -48,17 +48,17 @@ class Preselect {
 		register_setting(
 			Tabs::SETTINGS_GROUP_PREFERENCES,
 			self::OPTION_NAME,
-			array(
+			[
 				'type'              => 'object',
 				'default'           => self::DEFAULT_VALUE,
-				'sanitize_callback' => array( self::class, 'sanitize' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitize' ],
+			]
 		);
 
 		add_settings_field(
 			'beyondwords-preselect',
 			__( 'Preselect ‘Generate audio’', 'speechkit' ),
-			array( self::class, 'render' ),
+			[ self::class, 'render' ],
 			Tabs::PAGE_PREFERENCES,
 			Tabs::SECTION_PREFERENCES
 		);
@@ -76,11 +76,11 @@ class Preselect {
 	 */
 	public static function sanitize( $value ): array {
 		if ( ! is_array( $value ) ) {
-			return array();
+			return [];
 		}
 
 		$compatible = Utils::get_compatible_post_types();
-		$clean      = array();
+		$clean      = [];
 
 		foreach ( $value as $post_type => $flag ) {
 			$post_type = (string) $post_type;
@@ -141,7 +141,7 @@ class Preselect {
 	 */
 	public static function get(): array {
 		$preselect = get_option( self::OPTION_NAME, self::DEFAULT_VALUE );
-		return is_array( $preselect ) ? $preselect : array();
+		return is_array( $preselect ) ? $preselect : [];
 	}
 
 	/**

@@ -30,7 +30,7 @@ class Request {
 	private string $method  = '';
 	private string $url     = '';
 	private string $body    = '';
-	private array $headers = array();
+	private array $headers = [];
 
 	/**
 	 * Build a request, auto-attaching the API key and (for write methods) a JSON
@@ -45,23 +45,23 @@ class Request {
 		string $method,
 		string $url,
 		string $body = '',
-		array $headers = array()
+		array $headers = []
 	) {
 		$this->set_method( $method );
 		$this->set_url( $url );
 		$this->set_body( $body );
 
 		$this->add_headers(
-			array(
+			[
 				self::AUTH_HEADER_NAME => get_option( 'beyondwords_api_key' ),
-			)
+			]
 		);
 
-		if ( in_array( $this->method, array( 'POST', 'PUT', 'DELETE' ), true ) ) {
+		if ( in_array( $this->method, [ 'POST', 'PUT', 'DELETE' ], true ) ) {
 			$this->add_headers(
-				array(
+				[
 					self::CONTENT_TYPE_HEADER_NAME => self::CONTENT_TYPE_HEADER_VALUE,
-				)
+				]
 			);
 		}
 

@@ -34,9 +34,9 @@ class ConfigBuilder {
 	public static function build( \WP_Post $post ): object {
 		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
 
-		$params = array(
+		$params = [
 			'projectId' => is_numeric( $project_id ) ? (int) $project_id : $project_id,
-		);
+		];
 
 		$params = self::merge_post_settings( $post, $params );
 
@@ -72,7 +72,7 @@ class ConfigBuilder {
 
 		$content = get_post_meta( $post->ID, 'beyondwords_player_content', true );
 		if ( ! empty( $content ) ) {
-			$params['loadContentAs'] = array( $content );
+			$params['loadContentAs'] = [ $content ];
 		}
 
 		$method = \BeyondWords\Settings\Fields::get_integration_method( $post );

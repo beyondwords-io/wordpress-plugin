@@ -88,7 +88,7 @@ class CoreUtils {
 	 * @throws \Exception When `$type` is unrecognised.
 	 */
 	public static function get_post_meta_keys( string $type = 'current' ): array {
-		$current = array(
+		$current = [
 			'beyondwords_generate_audio',
 			'beyondwords_integration_method',
 			'beyondwords_project_id',
@@ -104,9 +104,9 @@ class CoreUtils {
 			'beyondwords_error_message',
 			'beyondwords_disabled',
 			'beyondwords_delete_content',
-		);
+		];
 
-		$deprecated = array(
+		$deprecated = [
 			'beyondwords_podcast_id',
 			'beyondwords_hash',
 			'publish_post_to_speechkit',
@@ -125,7 +125,7 @@ class CoreUtils {
 			'speechkit_updated_at',
 			'_speechkit_link',
 			'_speechkit_text',
-		);
+		];
 
 		return match ( $type ) {
 			'current'    => $current,
@@ -148,7 +148,7 @@ class CoreUtils {
 	 * @throws \Exception When `$type` is unrecognised.
 	 */
 	public static function get_options( string $type = 'current' ): array {
-		$current = array(
+		$current = [
 			// v7.x.
 			'beyondwords_api_key',
 			'beyondwords_date_activated',
@@ -164,9 +164,9 @@ class CoreUtils {
 			// Debug tool (extension plugin).
 			'beyondwords_debug_rest_api',
 			'beyondwords_debug_log_token',
-		);
+		];
 
-		$deprecated = array(
+		$deprecated = [
 			// Removed in v7.0.0 — settings UI consolidated to three tabs and
 			// player/project styling moved to the BeyondWords dashboard.
 			'beyondwords_player_call_to_action',
@@ -211,7 +211,7 @@ class CoreUtils {
 			'speechkit_merge_excerpt',
 			'speechkit_enable_marfeel_comp',
 			'speechkit_wordpress_cron',
-		);
+		];
 
 		return match ( $type ) {
 			'current'    => $current,

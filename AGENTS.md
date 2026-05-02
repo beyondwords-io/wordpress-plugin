@@ -115,7 +115,7 @@ The bootstrap is [src/core/class-plugin.php](src/core/class-plugin.php) (`Beyond
 - **Nonces:** every form submission and admin-side state change verifies a nonce.
 - **Translation:** every user-facing string uses `__()` / `esc_html__()` with the `'speechkit'` text domain.
 - **i18n placeholders:** numbered (`%1$s`, `%2$s`) when there's more than one — never positional.
-- **Arrays:** short syntax (`array()` and `[]` both accepted by the ruleset; existing code mixes them). Prefer long `array()` in new code under `src/{feature}/` to match WordPress core style.
+- **Arrays:** always short syntax — `[]`, never `array()`. Enforced by `Generic.Arrays.DisallowLongArraySyntax` in `.phpcs.xml`; `npm run phpcbf` auto-fixes any long-form leftovers.
 - **No `extract()`, `eval()`, `query_posts()`, `wp_reset_query()`, or direct `$wpdb` queries** unless there is no WP API equivalent.
 - **Caching:** anything that hits the database in a hot path must be cached. VIP fails the build otherwise.
 

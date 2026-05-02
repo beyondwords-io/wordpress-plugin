@@ -46,9 +46,9 @@ class Fields {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'admin_init', array( self::class, 'register_authentication_fields' ) );
-		add_action( 'admin_init', array( self::class, 'register_integration_fields' ) );
-		add_action( 'admin_init', array( self::class, 'register_preferences_fields' ) );
+		add_action( 'admin_init', [ self::class, 'register_authentication_fields' ] );
+		add_action( 'admin_init', [ self::class, 'register_integration_fields' ] );
+		add_action( 'admin_init', [ self::class, 'register_preferences_fields' ] );
 	}
 
 	/**
@@ -58,27 +58,27 @@ class Fields {
 		register_setting(
 			Tabs::SETTINGS_GROUP_AUTHENTICATION,
 			self::OPTION_API_KEY,
-			array(
+			[
 				'type'              => 'string',
 				'default'           => '',
-				'sanitize_callback' => array( self::class, 'sanitize_api_key' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitize_api_key' ],
+			]
 		);
 
 		register_setting(
 			Tabs::SETTINGS_GROUP_AUTHENTICATION,
 			self::OPTION_PROJECT_ID,
-			array(
+			[
 				'type'              => 'string',
 				'default'           => '',
-				'sanitize_callback' => array( self::class, 'sanitize_project_id' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitize_project_id' ],
+			]
 		);
 
 		add_settings_field(
 			'beyondwords-api-key',
 			__( 'API key', 'speechkit' ),
-			array( self::class, 'render_api_key' ),
+			[ self::class, 'render_api_key' ],
 			Tabs::PAGE_AUTHENTICATION,
 			Tabs::SECTION_AUTHENTICATION
 		);
@@ -86,7 +86,7 @@ class Fields {
 		add_settings_field(
 			'beyondwords-project-id',
 			__( 'Project ID', 'speechkit' ),
-			array( self::class, 'render_project_id' ),
+			[ self::class, 'render_project_id' ],
 			Tabs::PAGE_AUTHENTICATION,
 			Tabs::SECTION_AUTHENTICATION
 		);
@@ -99,17 +99,17 @@ class Fields {
 		register_setting(
 			Tabs::SETTINGS_GROUP_INTEGRATION,
 			self::OPTION_INTEGRATION_METHOD,
-			array(
+			[
 				'type'              => 'string',
 				'default'           => self::INTEGRATION_REST_API,
-				'sanitize_callback' => array( self::class, 'sanitize_integration_method' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitize_integration_method' ],
+			]
 		);
 
 		add_settings_field(
 			'beyondwords-integration-method',
 			__( 'Integration method', 'speechkit' ),
-			array( self::class, 'render_integration_method' ),
+			[ self::class, 'render_integration_method' ],
 			Tabs::PAGE_INTEGRATION,
 			Tabs::SECTION_INTEGRATION
 		);
@@ -125,28 +125,28 @@ class Fields {
 		register_setting(
 			Tabs::SETTINGS_GROUP_PREFERENCES,
 			self::OPTION_PREPEND_EXCERPT,
-			array(
+			[
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
-			)
+			]
 		);
 		add_filter( 'option_' . self::OPTION_PREPEND_EXCERPT, 'rest_sanitize_boolean' );
 
 		register_setting(
 			Tabs::SETTINGS_GROUP_PREFERENCES,
 			self::OPTION_PLAYER_UI,
-			array(
+			[
 				'type'              => 'string',
 				'default'           => self::PLAYER_UI_ENABLED,
-				'sanitize_callback' => array( self::class, 'sanitize_player_ui' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitize_player_ui' ],
+			]
 		);
 
 		add_settings_field(
 			'beyondwords-include-excerpt',
 			__( 'Excerpt', 'speechkit' ),
-			array( self::class, 'render_prepend_excerpt' ),
+			[ self::class, 'render_prepend_excerpt' ],
 			Tabs::PAGE_PREFERENCES,
 			Tabs::SECTION_PREFERENCES
 		);
@@ -154,7 +154,7 @@ class Fields {
 		add_settings_field(
 			'beyondwords-player-ui',
 			__( 'Player UI', 'speechkit' ),
-			array( self::class, 'render_player_ui' ),
+			[ self::class, 'render_player_ui' ],
 			Tabs::PAGE_PREFERENCES,
 			Tabs::SECTION_PREFERENCES
 		);
@@ -192,14 +192,14 @@ class Fields {
 
 	public static function sanitize_integration_method( $value ): string {
 		$value = is_string( $value ) ? $value : '';
-		return in_array( $value, array( self::INTEGRATION_REST_API, self::INTEGRATION_CLIENT_SIDE ), true )
+		return in_array( $value, [ self::INTEGRATION_REST_API, self::INTEGRATION_CLIENT_SIDE ], true )
 			? $value
 			: self::INTEGRATION_REST_API;
 	}
 
 	public static function sanitize_player_ui( $value ): string {
 		$value = is_string( $value ) ? $value : '';
-		return in_array( $value, array( self::PLAYER_UI_ENABLED, self::PLAYER_UI_HEADLESS, self::PLAYER_UI_DISABLED ), true )
+		return in_array( $value, [ self::PLAYER_UI_ENABLED, self::PLAYER_UI_HEADLESS, self::PLAYER_UI_DISABLED ], true )
 			? $value
 			: self::PLAYER_UI_ENABLED;
 	}
@@ -336,10 +336,10 @@ class Fields {
 	 * @return array<string,string>
 	 */
 	public static function get_integration_method_options(): array {
-		return array(
+		return [
 			self::INTEGRATION_REST_API    => __( 'REST API', 'speechkit' ),
 			self::INTEGRATION_CLIENT_SIDE => __( 'Magic Embed', 'speechkit' ),
-		);
+		];
 	}
 
 	/**
@@ -348,10 +348,10 @@ class Fields {
 	 * @return array<string,string>
 	 */
 	public static function get_player_ui_options(): array {
-		return array(
+		return [
 			self::PLAYER_UI_ENABLED  => __( 'Enabled', 'speechkit' ),
 			self::PLAYER_UI_HEADLESS => __( 'Headless', 'speechkit' ),
 			self::PLAYER_UI_DISABLED => __( 'Disabled', 'speechkit' ),
-		);
+		];
 	}
 }

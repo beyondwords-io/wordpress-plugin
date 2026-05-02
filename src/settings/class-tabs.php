@@ -48,7 +48,7 @@ class Tabs {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'admin_init', array( self::class, 'register_sections' ) );
+		add_action( 'admin_init', [ self::class, 'register_sections' ] );
 	}
 
 	/**
@@ -86,14 +86,14 @@ class Tabs {
 	 * @return array<string,string> Map of tab slug to display label.
 	 */
 	public static function get_visible_tabs(): array {
-		$tabs = array(
+		$tabs = [
 			self::TAB_AUTHENTICATION => __( 'Authentication', 'speechkit' ),
 			self::TAB_INTEGRATION    => __( 'Integration', 'speechkit' ),
 			self::TAB_PREFERENCES    => __( 'Preferences', 'speechkit' ),
-		);
+		];
 
 		if ( ! Utils::has_valid_api_connection() ) {
-			return array( self::TAB_AUTHENTICATION => $tabs[ self::TAB_AUTHENTICATION ] );
+			return [ self::TAB_AUTHENTICATION => $tabs[ self::TAB_AUTHENTICATION ] ];
 		}
 
 		return $tabs;
@@ -125,21 +125,21 @@ class Tabs {
 	public static function get_active_page_and_group(): array {
 		switch ( self::get_active_tab() ) {
 			case self::TAB_INTEGRATION:
-				return array(
+				return [
 					'page'  => self::PAGE_INTEGRATION,
 					'group' => self::SETTINGS_GROUP_INTEGRATION,
-				);
+				];
 			case self::TAB_PREFERENCES:
-				return array(
+				return [
 					'page'  => self::PAGE_PREFERENCES,
 					'group' => self::SETTINGS_GROUP_PREFERENCES,
-				);
+				];
 			case self::TAB_AUTHENTICATION:
 			default:
-				return array(
+				return [
 					'page'  => self::PAGE_AUTHENTICATION,
 					'group' => self::SETTINGS_GROUP_AUTHENTICATION,
-				);
+				];
 		}
 	}
 }

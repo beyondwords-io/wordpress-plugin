@@ -19,6 +19,9 @@
 	<!-- WordPress VIP Go -->
 	<rule ref="WordPress-VIP-Go"/>
 
+	<!-- Always use short array syntax: [] not array() -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
 	<!-- The legacy code under src/ (excluding src/settings/) predates this ruleset; relax until migrated. -->
 	<rule ref="WordPress.WP.CapitalPDangit.MisspelledNamespaceName">
 		<severity>0</severity>

@@ -27,8 +27,8 @@ class BulkEdit {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'bulk_edit_custom_box', array( self::class, 'bulk_edit_custom_box' ), 10, 2 );
-		add_action( 'wp_ajax_save_bulk_edit_beyondwords', array( self::class, 'save_bulk_edit' ) );
+		add_action( 'bulk_edit_custom_box', [ self::class, 'bulk_edit_custom_box' ], 10, 2 );
+		add_action( 'wp_ajax_save_bulk_edit_beyondwords', [ self::class, 'save_bulk_edit' ] );
 
 		add_action(
 			'wp_loaded',
@@ -40,9 +40,9 @@ class BulkEdit {
 				}
 
 				foreach ( $post_types as $post_type ) {
-					add_filter( "bulk_actions-edit-{$post_type}", array( self::class, 'bulk_actions_edit' ) );
-					add_filter( "handle_bulk_actions-edit-{$post_type}", array( self::class, 'handle_bulk_delete_action' ), 10, 3 );
-					add_filter( "handle_bulk_actions-edit-{$post_type}", array( self::class, 'handle_bulk_generate_action' ), 10, 3 );
+					add_filter( "bulk_actions-edit-{$post_type}", [ self::class, 'bulk_actions_edit' ] );
+					add_filter( "handle_bulk_actions-edit-{$post_type}", [ self::class, 'handle_bulk_delete_action' ], 10, 3 );
+					add_filter( "handle_bulk_actions-edit-{$post_type}", [ self::class, 'handle_bulk_generate_action' ], 10, 3 );
 				}
 			}
 		);
@@ -101,7 +101,7 @@ class BulkEdit {
 		}
 
 		if ( ! isset( $_POST['beyondwords_bulk_edit'] ) || ! isset( $_POST['post_ids'] ) || ! is_array( $_POST['post_ids'] ) ) {
-			return array();
+			return [];
 		}
 
 		$post_ids = array_filter( array_map( 'intval', wp_unslash( $_POST['post_ids'] ) ) );
@@ -115,7 +115,7 @@ class BulkEdit {
 				return self::delete_audio_for_posts( $post_ids );
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -127,10 +127,10 @@ class BulkEdit {
 	 */
 	public static function generate_audio_for_posts( ?array $post_ids ): array {
 		if ( ! is_array( $post_ids ) ) {
-			return array();
+			return [];
 		}
 
-		$updated_post_ids = array();
+		$updated_post_ids = [];
 
 		foreach ( $post_ids as $post_id ) {
 			if ( ! get_post_meta( $post_id, 'beyondwords_content_id', true ) ) {
@@ -153,7 +153,7 @@ class BulkEdit {
 	 */
 	public static function delete_audio_for_posts( ?array $post_ids ): array {
 		if ( ! is_array( $post_ids ) ) {
-			return array();
+			return [];
 		}
 
 		$response = \BeyondWords\Core\Core::batch_delete_audio_for_posts( $post_ids );
@@ -165,7 +165,7 @@ class BulkEdit {
 		}
 
 		$keys             = \BeyondWords\Core\CoreUtils::get_post_meta_keys( 'all' );
-		$updated_post_ids = array();
+		$updated_post_ids = [];
 
 		foreach ( $response as $post_id ) {
 			foreach ( $keys as $key ) {
@@ -204,12 +204,12 @@ class BulkEdit {
 		}
 
 		$redirect = remove_query_arg(
-			array(
+			[
 				'beyondwords_bulk_generated',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
 				'beyondwords_bulk_error',
-			),
+			],
 			$redirect
 		);
 
@@ -255,12 +255,12 @@ class BulkEdit {
 		}
 
 		$redirect = remove_query_arg(
-			array(
+			[
 				'beyondwords_bulk_generated',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
 				'beyondwords_bulk_error',
-			),
+			],
 			$redirect
 		);
 

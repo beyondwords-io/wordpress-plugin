@@ -51,18 +51,6 @@ grumphp:
         - plugins
       metadata:
         priority: 10
-    rector:
-      config: rector.php
-      triggered_by:
-        - php
-      ignore_patterns:
-        - /tests/*
-        - /vendor/*
-        - /plugins/*
-      clear_cache: false
-      no_diffs: false
-      metadata:
-        priority: 10
     lint_plugins:
       script: lint:plugins
       metadata:
@@ -90,7 +78,6 @@ grumphp:
         - lint_plugins
         - phplint
         - phpmd
-        - rector
     code_quality:
       tasks:
         - composer
@@ -99,4 +86,3 @@ grumphp:
         - lint_plugins
         - phplint
         - phpmd
-        - rector

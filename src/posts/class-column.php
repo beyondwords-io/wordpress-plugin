@@ -21,11 +21,11 @@ defined( 'ABSPATH' ) || exit;
  */
 class Column {
 
-	const ALLOWED_HTML = array(
-		'span' => array(
-			'class' => array(),
-		),
-	);
+	const ALLOWED_HTML = [
+		'span' => [
+			'class' => [],
+		],
+	];
 
 	const OUTPUT_YES          = '<span class="dashicons dashicons-yes"></span> ';
 	const OUTPUT_NO           = '—';
@@ -46,15 +46,15 @@ class Column {
 				}
 
 				foreach ( $post_types as $post_type ) {
-					add_filter( "manage_{$post_type}_posts_columns", array( self::class, 'render_columns_head' ) );
-					add_action( "manage_{$post_type}_posts_custom_column", array( self::class, 'render_columns_content' ), 10, 2 );
-					add_filter( "manage_edit-{$post_type}_sortable_columns", array( self::class, 'make_column_sortable' ) );
+					add_filter( "manage_{$post_type}_posts_columns", [ self::class, 'render_columns_head' ] );
+					add_action( "manage_{$post_type}_posts_custom_column", [ self::class, 'render_columns_content' ], 10, 2 );
+					add_filter( "manage_edit-{$post_type}_sortable_columns", [ self::class, 'make_column_sortable' ] );
 				}
 			}
 		);
 
 		if ( \BeyondWords\Core\CoreUtils::is_edit_screen() ) {
-			add_action( 'pre_get_posts', array( self::class, 'set_sort_query' ) );
+			add_action( 'pre_get_posts', [ self::class, 'set_sort_query' ] );
 		}
 	}
 
@@ -68,7 +68,7 @@ class Column {
 	public static function render_columns_head( $columns ) {
 		return array_merge(
 			$columns,
-			array( 'beyondwords' => __( 'BeyondWords', 'speechkit' ) )
+			[ 'beyondwords' => __( 'BeyondWords', 'speechkit' ) ]
 		);
 	}
 
@@ -146,16 +146,16 @@ class Column {
 	 * @return array<string,mixed>
 	 */
 	public static function get_sort_query_args(): array {
-		return array(
+		return [
 			'relation' => 'OR',
-			array(
+			[
 				'key'     => 'beyondwords_generate_audio',
 				'compare' => 'NOT EXISTS',
-			),
-			array(
+			],
+			[
 				'key'     => 'beyondwords_generate_audio',
 				'compare' => 'EXISTS',
-			),
-		);
+			],
+		];
 	}
 }

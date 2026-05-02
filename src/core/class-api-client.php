@@ -149,8 +149,8 @@ class ApiClient {
 	 * @throws \Exception When no posts have BeyondWords data, or multiple projects are mixed.
 	 */
 	public static function batch_delete_audio( array $post_ids ): array|false {
-		$content_ids      = array();
-		$updated_post_ids = array();
+		$content_ids      = [];
+		$updated_post_ids = [];
 
 		foreach ( $post_ids as $post_id ) {
 			$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
@@ -181,17 +181,17 @@ class ApiClient {
 
 		$project_id = array_key_first( $content_ids );
 		$url        = sprintf( '%s/projects/%d/content/batch_delete', Environment::get_api_url(), $project_id );
-		$body       = (string) wp_json_encode( array( 'ids' => $content_ids[ $project_id ] ) );
+		$body       = (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] );
 		$request    = new Request( 'POST', $url, $body );
 
-		$args = array(
+		$args = [
 			'blocking' => true,
 			'body'     => $request->get_body(),
 			'headers'  => $request->get_headers(),
 			'method'   => $request->get_method(),
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout'  => 30,
-		);
+		];
 
 		$response = wp_remote_request( $request->get_url(), $args );
 
@@ -204,7 +204,7 @@ class ApiClient {
 		// 2xx means the API accepted the batch — return the IDs we sent so the
 		// caller can clear local meta. Anything else: refuse to clear meta so
 		// the operator can retry.
-		return $response_code <= 299 ? $updated_post_ids : array();
+		return $response_code <= 299 ? $updated_post_ids : [];
 	}
 
 	/**
@@ -227,10 +227,10 @@ class ApiClient {
 		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', Environment::get_api_url(), $project_id, $post_id );
 		$request = new Request( 'GET', $url );
 		$request->add_headers(
-			array(
+			[
 				'X-Import'  => 'true',
 				'X-Referer' => esc_url( get_permalink( $post_id ) ),
-			)
+			]
 		);
 
 		$response = self::call_api( $request, $post_id );
@@ -467,14 +467,14 @@ class ApiClient {
 	 * @return array<string,mixed>
 	 */
 	public static function build_request_args( Request $request ): array {
-		return array(
+		return [
 			'blocking' => true,
 			'body'     => $request->get_body(),
 			'headers'  => $request->get_headers(),
 			'method'   => $request->get_method(),
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout'  => 30,
-		);
+		];
 	}
 
 	/**
@@ -489,7 +489,7 @@ class ApiClient {
 
 		if ( is_array( $body ) ) {
 			if ( array_key_exists( 'errors', $body ) ) {
-				$messages = array();
+				$messages = [];
 				foreach ( $body['errors'] as $error ) {
 					$messages[] = implode( ' ', array_values( $error ) );
 				}

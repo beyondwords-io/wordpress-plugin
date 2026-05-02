@@ -27,18 +27,18 @@ class Core {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'enqueue_block_editor_assets', array( self::class, 'enqueue_block_editor_assets' ), 1, 0 );
-		add_action( 'init', array( self::class, 'register_meta' ), 99, 3 );
+		add_action( 'enqueue_block_editor_assets', [ self::class, 'enqueue_block_editor_assets' ], 1, 0 );
+		add_action( 'init', [ self::class, 'register_meta' ], 99, 3 );
 
-		add_action( 'wp_after_insert_post', array( self::class, 'on_add_or_update_post' ), 99 );
-		add_action( 'wp_trash_post', array( self::class, 'on_trash_post' ) );
-		add_action( 'before_delete_post', array( self::class, 'on_delete_post' ) );
+		add_action( 'wp_after_insert_post', [ self::class, 'on_add_or_update_post' ], 99 );
+		add_action( 'wp_trash_post', [ self::class, 'on_trash_post' ] );
+		add_action( 'before_delete_post', [ self::class, 'on_delete_post' ] );
 
-		add_filter( 'is_protected_meta', array( self::class, 'is_protected_meta' ), 10, 2 );
+		add_filter( 'is_protected_meta', [ self::class, 'is_protected_meta' ], 10, 2 );
 
 		// Older posts may be missing `beyondwords_language_code`; back-fill from
 		// the legacy `beyondwords_language_id` mapping when read.
-		add_filter( 'get_post_metadata', array( self::class, 'get_lang_code_from_json_if_empty' ), 10, 3 );
+		add_filter( 'get_post_metadata', [ self::class, 'get_lang_code_from_json_if_empty' ], 10, 3 );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Core {
 	 * `beyondwords_settings_post_statuses`.
 	 */
 	public static function should_process_post_status( string $status ): bool {
-		$statuses = array( 'pending', 'publish', 'private', 'future' );
+		$statuses = [ 'pending', 'publish', 'private', 'future' ];
 
 		/**
 		 * Filters the post statuses BeyondWords processes audio for.
@@ -195,13 +195,13 @@ class Core {
 			update_post_meta( $post_id, 'beyondwords_project_id', $project_id );
 			update_post_meta( $post_id, 'beyondwords_content_id', $response['id'] );
 
-			$copy = array(
+			$copy = [
 				'preview_token'    => 'beyondwords_preview_token',
 				'language'         => 'beyondwords_language_code',
 				'title_voice_id'   => 'beyondwords_title_voice_id',
 				'summary_voice_id' => 'beyondwords_summary_voice_id',
 				'body_voice_id'    => 'beyondwords_body_voice_id',
-			);
+			];
 
 			foreach ( $copy as $api_key => $meta_key ) {
 				if ( ! empty( $response[ $api_key ] ) ) {
@@ -252,7 +252,7 @@ class Core {
 		$keys = CoreUtils::get_post_meta_keys( 'all' );
 
 		foreach ( $post_types as $post_type ) {
-			$options = array(
+			$options = [
 				'show_in_rest'      => true,
 				'single'            => true,
 				'type'              => 'string',
@@ -261,7 +261,7 @@ class Core {
 				'prepare_callback'  => 'sanitize_text_field',
 				'sanitize_callback' => 'sanitize_text_field',
 				'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
-			);
+			];
 
 			foreach ( $keys as $key ) {
 				register_meta( 'post', $key, $options );
@@ -371,7 +371,7 @@ class Core {
 		$lang_codes = json_decode( file_get_contents( BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json' ), true );
 
 		if ( is_array( $lang_codes ) && array_key_exists( $language_id, $lang_codes ) ) {
-			return array( $lang_codes[ $language_id ] );
+			return [ $lang_codes[ $language_id ] ];
 		}
 
 		return $value;

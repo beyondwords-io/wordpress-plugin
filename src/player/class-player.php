@@ -30,23 +30,23 @@ class Player {
 	 *
 	 * @var string[]
 	 */
-	protected static array $renderers = array(
+	protected static array $renderers = [
 		\BeyondWords\Player\Renderer\Amp::class,
 		\BeyondWords\Player\Renderer\Javascript::class,
-	);
+	];
 
 	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'init', array( self::class, 'register_shortcodes' ) );
+		add_action( 'init', [ self::class, 'register_shortcodes' ] );
 
 		// Replace legacy `<div data-beyondwords-player>` markup with the modern
 		// shortcode early, then auto-prepend the player at very late priority
 		// so other `the_content` filters can't strip it.
-		add_filter( 'the_content', array( self::class, 'replace_legacy_custom_player' ), 5 );
-		add_filter( 'the_content', array( self::class, 'auto_prepend_player' ), 1000000 );
-		add_filter( 'newsstand_the_content', array( self::class, 'auto_prepend_player' ) );
+		add_filter( 'the_content', [ self::class, 'replace_legacy_custom_player' ], 5 );
+		add_filter( 'the_content', [ self::class, 'auto_prepend_player' ], 1000000 );
+		add_filter( 'newsstand_the_content', [ self::class, 'auto_prepend_player' ] );
 	}
 
 	/**
@@ -118,9 +118,9 @@ class Player {
 
 		foreach ( self::$renderers as $renderer_class ) {
 			if (
-				is_callable( array( $renderer_class, 'check' ) )
+				is_callable( [ $renderer_class, 'check' ] )
 				&& $renderer_class::check( $post )
-				&& is_callable( array( $renderer_class, 'render' ) )
+				&& is_callable( [ $renderer_class, 'render' ] )
 			) {
 				$html = $renderer_class::render( $post, $context );
 				break;
@@ -163,7 +163,7 @@ class Player {
 
 		return in_array(
 			$player_ui,
-			array( \BeyondWords\Settings\Fields::PLAYER_UI_ENABLED, \BeyondWords\Settings\Fields::PLAYER_UI_HEADLESS ),
+			[ \BeyondWords\Settings\Fields::PLAYER_UI_ENABLED, \BeyondWords\Settings\Fields::PLAYER_UI_HEADLESS ],
 			true
 		);
 	}

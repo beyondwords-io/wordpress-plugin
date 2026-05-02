@@ -25,10 +25,10 @@ class BulkEditNotices {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'admin_notices', array( self::class, 'generated_notice' ) );
-		add_action( 'admin_notices', array( self::class, 'deleted_notice' ) );
-		add_action( 'admin_notices', array( self::class, 'failed_notice' ) );
-		add_action( 'admin_notices', array( self::class, 'error_notice' ) );
+		add_action( 'admin_notices', [ self::class, 'generated_notice' ] );
+		add_action( 'admin_notices', [ self::class, 'deleted_notice' ] );
+		add_action( 'admin_notices', [ self::class, 'failed_notice' ] );
+		add_action( 'admin_notices', [ self::class, 'error_notice' ] );
 	}
 
 	/**
