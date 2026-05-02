@@ -23,14 +23,14 @@ defined( 'ABSPATH' ) || exit;
  */
 class Request {
 
-	const AUTH_HEADER_NAME         = 'X-Api-Key';
-	const CONTENT_TYPE_HEADER_NAME = 'Content-Type';
+	const AUTH_HEADER_NAME          = 'X-Api-Key';
+	const CONTENT_TYPE_HEADER_NAME  = 'Content-Type';
 	const CONTENT_TYPE_HEADER_VALUE = 'application/json';
 
 	private string $method  = '';
 	private string $url     = '';
 	private string $body    = '';
-	private array $headers = [];
+	private array $headers  = [];
 
 	/**
 	 * Build a request, auto-attaching the API key and (for write methods) a JSON

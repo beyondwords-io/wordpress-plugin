@@ -164,7 +164,7 @@ When removing a setting:
 
 Source: `tests/phpunit/` — folder layout mirrors `src/` (e.g. `tests/phpunit/Core/`, `tests/phpunit/Component/Post/...`). When a class is deleted, delete its test.
 
-Run the suite (PHPUnit + clover coverage report + 80% coverage gate):
+Run the suite (PHPUnit + clover coverage report + 85% coverage gate):
 
 ```bash
 npm run composer:tests -- test
@@ -177,7 +177,7 @@ npm run composer:tests -- test
 - **Local**: copy [.wp-env.tests.override.json.example](.wp-env.tests.override.json.example) to `.wp-env.tests.override.json` and fill in. Read by the PHPUnit bootstrap directly — no env-var export needed.
 - **CI**: GitHub Actions secrets (`BEYONDWORDS_TESTS_API_KEY` etc.) exported as env vars before phpunit runs.
 
-**Coverage**: 80% gate enforced by `vendor/bin/coverage-check`. New code shouldn't lower it. HTML report lands in `tests/phpunit/_report/index.html`.
+**Coverage**: 85% gate enforced by `vendor/bin/coverage-check`. New code shouldn't lower it. HTML report lands in `tests/phpunit/_report/index.html`.
 
 ### Cypress
 

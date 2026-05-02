@@ -70,8 +70,8 @@
             "./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
         ],
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",
-        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80 --only-percentage | sed 's/[^0-9.]*//g'",
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 85",
+        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 85 --only-percentage | sed 's/[^0-9.]*//g'",
         "translate": [
             "@wp:i18n:make-pot",
             "cp ./languages/speechkit.pot ./languages/en_US.po",

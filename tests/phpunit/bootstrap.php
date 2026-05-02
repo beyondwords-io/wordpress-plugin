@@ -101,4 +101,4 @@ if ( defined( 'BEYONDWORDS_MOCK_API' ) && BEYONDWORDS_MOCK_API ) {
 }
 
 // Load base TestCase class
-require __DIR__ . '/TestCase.php';
+require __DIR__ . '/class-test-case.php';
