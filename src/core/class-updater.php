@@ -42,6 +42,7 @@ class Updater {
 
 		if ( version_compare( $version, '7.0.0', '<' ) ) {
 			self::flatten_preselect();
+			self::delete_deprecated_options();
 		}
 
 		// Record the activation timestamp the first time we run.
@@ -68,7 +69,7 @@ class Updater {
 			return;
 		}
 
-		$flattened = array();
+		$flattened = [];
 
 		foreach ( $preselect as $post_type => $value ) {
 			if ( '1' === $value ) {
@@ -85,22 +86,42 @@ class Updater {
 	}
 
 	/**
+	 * v7.0.0: remove every option marked deprecated in `CoreUtils::get_options()`.
+	 *
+	 * Targets the player styling, voice, and project options that v7.0.0 dropped
+	 * (audio/video output now sourced from the BeyondWords project, not WP), as
+	 * well as long-stale pre-v3 `speechkit_*` options. Multisite-aware because
+	 * legacy installs may have stored these as site options.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function delete_deprecated_options(): void {
+		foreach ( CoreUtils::get_options( 'deprecated' ) as $option ) {
+			if ( is_multisite() ) {
+				delete_site_option( $option );
+			} else {
+				delete_option( $option );
+			}
+		}
+	}
+
+	/**
 	 * v3.0.0: migrate `speechkit_settings.*` array values to top-level options.
 	 *
 	 * Skipped when `speechkit_settings` is empty (already migrated or never set).
 	 */
 	public static function migrate_settings(): void {
-		$old_settings = get_option( 'speechkit_settings', array() );
+		$old_settings = get_option( 'speechkit_settings', [] );
 
 		if ( ! is_array( $old_settings ) || empty( $old_settings ) ) {
 			return;
 		}
 
-		$settings_map = array(
+		$settings_map = [
 			'speechkit_api_key'       => 'speechkit_api_key',
 			'speechkit_id'            => 'speechkit_project_id',
 			'speechkit_merge_excerpt' => 'speechkit_prepend_excerpt',
-		);
+		];
 
 		foreach ( $settings_map as $old_key => $new_key ) {
 			if ( array_key_exists( $old_key, $old_settings ) && ! get_option( $new_key ) ) {
@@ -120,13 +141,13 @@ class Updater {
 	 * @return array<string,mixed>|false `false` when the legacy `speechkit_settings` option is missing.
 	 */
 	public static function construct_preselect_setting(): array|false {
-		$old_settings = get_option( 'speechkit_settings', array() );
+		$old_settings = get_option( 'speechkit_settings', [] );
 
 		if ( ! is_array( $old_settings ) || empty( $old_settings ) ) {
 			return false;
 		}
 
-		$preselect = array();
+		$preselect = [];
 
 		if (
 			array_key_exists( 'speechkit_select_post_types', $old_settings )
@@ -143,9 +164,9 @@ class Updater {
 
 			if ( $taxonomy && is_array( $taxonomy->object_type ) ) {
 				foreach ( $taxonomy->object_type as $post_type ) {
-					$preselect[ $post_type ] = array(
+					$preselect[ $post_type ] = [
 						'category' => $old_settings['speechkit_selected_categories'],
-					);
+					];
 				}
 			}
 		}
