@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Core\Uninstaller;
+use BeyondWords\Core\Uninstaller;
 
 class UninstallerTest extends TestCase
 {
@@ -31,7 +31,7 @@ class UninstallerTest extends TestCase
     {
         update_option($name, 'foo');
 
-        $count = Uninstaller::cleanupPluginOptions();
+        $count = Uninstaller::cleanup_plugin_options();
 
         $this->assertFalse(get_option($name));
     }
@@ -153,7 +153,7 @@ class UninstallerTest extends TestCase
             ]),
         ]);
 
-        $count = Uninstaller::cleanupCustomFields();
+        $count = Uninstaller::cleanup_custom_fields();
 
         $this->assertEquals($count, $numPosts * count($customFields));
 

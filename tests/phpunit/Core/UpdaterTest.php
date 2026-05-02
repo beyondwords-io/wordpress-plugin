@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Core\Updater;
+use BeyondWords\Core\Updater;
 
 class UpdaterTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Core\Updater
+     * @var \BeyondWords\Core\Updater
      */
     private $_instance;
 
@@ -38,7 +38,7 @@ class UpdaterTest extends TestCase
         delete_option('speechkit_preselect');
         delete_option('speechkit_merge_excerpt');
 
-        Updater::migrateSettings();
+        Updater::migrate_settings();
 
         $this->assertFalse(get_option('speechkit_api_key'));
         $this->assertFalse(get_option('speechkit_project_id'));
@@ -69,7 +69,7 @@ class UpdaterTest extends TestCase
 
         update_option('speechkit_settings', $oldSettings);
 
-        Updater::migrateSettings();
+        Updater::migrate_settings();
 
         $this->assertSame($apiKey, get_option('speechkit_api_key'));
         $this->assertSame($projectId, get_option('speechkit_project_id'));
@@ -115,7 +115,7 @@ class UpdaterTest extends TestCase
         update_option('speechkit_prepend_excerpt', $prependExcerpt);
         update_option('speechkit_preselect',       $preselect);
 
-        Updater::renamePluginSettings();
+        Updater::rename_plugin_settings();
 
         delete_option('speechkit_api_key');
         delete_option('speechkit_project_id');

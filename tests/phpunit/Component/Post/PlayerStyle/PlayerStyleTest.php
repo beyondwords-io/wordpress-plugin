@@ -10,7 +10,7 @@
  * @since   4.5.2
  */
 
-use Beyondwords\Wordpress\Component\Post\PlayerStyle\PlayerStyle;
+use BeyondWords\Post\PlayerStyle;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PostPlayerStyleTest extends TestCase
@@ -44,7 +44,7 @@ class PostPlayerStyleTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('rest_api_init', array(PlayerStyle::class, 'restApiInit')));
+        $this->assertEquals(10, has_action('rest_api_init', array(PlayerStyle::class, 'rest_api_init_callback')));
         $this->assertEquals(10, has_action('save_post_page', array(PlayerStyle::class, 'save')));
         $this->assertEquals(10, has_action('save_post_post', array(PlayerStyle::class, 'save')));
     }

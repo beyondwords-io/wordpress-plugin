@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Plugin;
+use BeyondWords\Core\Plugin;
 
 /**
  * @group plugin

@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\ErrorNotice\ErrorNotice;
+use BeyondWords\Post\ErrorNotice;
 
 class ErrorNoticeTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ErrorNoticeTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('enqueue_block_assets', array(ErrorNotice::class, 'enqueueBlockAssets')));
+        $this->assertEquals(10, has_action('enqueue_block_assets', array(ErrorNotice::class, 'enqueue_block_assets')));
     }
 
     /**
@@ -37,10 +37,16 @@ class ErrorNoticeTest extends TestCase
      */
     public function enqueueBlockAssets_does_nothing_on_non_gutenberg_page()
     {
-        // Simulate non-Gutenberg page (admin but not editor)
-        set_current_screen('edit-post');
+        // Reset stylesheet state so a previous test doesn't leak through.
+        wp_dequeue_style('beyondwords-ErrorNotice');
+        wp_deregister_style('beyondwords-ErrorNotice');
 
-        ErrorNotice::enqueueBlockAssets();
+        // Simulate a non-Gutenberg admin screen (the post list, not the editor).
+        global $current_screen;
+        $current_screen = \WP_Screen::get('edit-post');
+        $current_screen->is_block_editor(false);
+
+        ErrorNotice::enqueue_block_assets();
 
         $this->assertFalse(
             wp_style_is('beyondwords-ErrorNotice', 'enqueued'),
@@ -58,7 +64,7 @@ class ErrorNoticeTest extends TestCase
         $current_screen = \WP_Screen::get('post');
         $current_screen->is_block_editor(true);
 
-        ErrorNotice::enqueueBlockAssets();
+        ErrorNotice::enqueue_block_assets();
 
         // The style should be registered/enqueued
         $this->assertTrue(

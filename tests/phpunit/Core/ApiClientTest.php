@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Core\ApiClient;
-use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\Request;
+use BeyondWords\Core\ApiClient;
+use BeyondWords\Core\Environment;
+use BeyondWords\Core\Request;
 
 class ApiClientTest extends TestCase
 {
@@ -42,7 +42,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::createAudioWithoutProjectIdSetting',
         ]);
 
-        $response = ApiClient::createAudio($postId);
+        $response = ApiClient::create_audio($postId);
 
         $this->assertFalse($response);
 
@@ -64,7 +64,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::createAudio',
         ]);
 
-        $response = ApiClient::createAudio($postId);
+        $response = ApiClient::create_audio($postId);
 
         $this->assertIsArray($response);
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
@@ -92,7 +92,7 @@ class ApiClientTest extends TestCase
             ],
         ]);
 
-        $response = ApiClient::updateAudio($postId);
+        $response = ApiClient::update_audio($postId);
 
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
         $this->assertSame('processed',  $response['status']);
@@ -119,7 +119,7 @@ class ApiClientTest extends TestCase
             ],
         ]);
 
-        $response = ApiClient::deleteAudio($postId);
+        $response = ApiClient::delete_audio($postId);
 
         // Response body is empty for 201 Deleted responses
         $this->assertNull($response);
@@ -145,13 +145,13 @@ class ApiClientTest extends TestCase
             ],
         ]);
 
-        $deleted = ApiClient::batchDeleteAudio($postIds);
+        $deleted = ApiClient::batch_delete_audio($postIds);
         $this->assertEquals([], $deleted);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $deleted = ApiClient::batchDeleteAudio($postIds);
+        $deleted = ApiClient::batch_delete_audio($postIds);
 
         $this->assertEquals($deleted, array_values($postIds));
 
@@ -169,13 +169,13 @@ class ApiClientTest extends TestCase
      */
     public function getLanguages()
     {
-        $response = ApiClient::getLanguages();
+        $response = ApiClient::get_languages();
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getLanguages();
+        $response = ApiClient::get_languages();
 
         $this->assertSame('en_US', $response[32]['code']);
         $this->assertSame('en_GB', $response[34]['code']);
@@ -239,13 +239,13 @@ class ApiClientTest extends TestCase
      */
     public function getVoices()
     {
-        $response = ApiClient::getVoices('en_US');
+        $response = ApiClient::get_voices('en_US');
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getVoices('en_US');
+        $response = ApiClient::get_voices('en_US');
 
         $this->assertSame(3555, $response[0]['id']);
         $this->assertSame(2517, $response[1]['id']);
@@ -270,13 +270,13 @@ class ApiClientTest extends TestCase
      */
     public function getProject()
     {
-        $response = ApiClient::getProject();
+        $response = ApiClient::get_project();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getProject();
+        $response = ApiClient::get_project();
 
         $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('name', $response);
@@ -296,13 +296,13 @@ class ApiClientTest extends TestCase
      */
     public function getPlayerSettings()
     {
-        $response = ApiClient::getPlayerSettings();
+        $response = ApiClient::get_player_settings();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getPlayerSettings();
+        $response = ApiClient::get_player_settings();
 
         $this->assertArrayHasKey('enabled', $response);
         $this->assertArrayHasKey('player_version', $response);
@@ -323,13 +323,13 @@ class ApiClientTest extends TestCase
      */
     public function getVideoSettings()
     {
-        $response = ApiClient::getVideoSettings();
+        $response = ApiClient::get_video_settings();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::getVideoSettings();
+        $response = ApiClient::get_video_settings();
 
         $this->assertArrayHasKey('enabled', $response);
         $this->assertArrayHasKey('logo_image_url', $response);
@@ -356,15 +356,15 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithoutAuthHeader',
         ]);
 
-        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Unset Auth header
-        $headers = $request->getHeaders();
+        $headers = $request->get_headers();
         unset($headers['X-Api-Key']);
 
-        $request->setHeaders($headers);
+        $request->set_headers($headers);
 
-        $response = ApiClient::callApi($request, $postId);
+        $response = ApiClient::call_api($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
@@ -386,15 +386,15 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithEmptyAuthHeader',
         ]);
 
-        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Unset Auth header
-        $headers = $request->getHeaders();
+        $headers = $request->get_headers();
         $headers['X-Api-Key'] = 'AN INVALID API KEY';
 
-        $request->setHeaders($headers);
+        $request->set_headers($headers);
 
-        $response = ApiClient::callApi($request, $postId);
+        $response = ApiClient::call_api($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
@@ -416,15 +416,15 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithInvalidContentTypeHeader',
         ]);
 
-        $request = new Request('POST', Environment::getApiUrl() . '/projects/1234/content', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
 
         // Set an invalid Content-Type header
-        $headers = $request->getHeaders();
+        $headers = $request->get_headers();
         $headers['Content-Type'] = 'text/html';
 
-        $request->setHeaders($headers);
+        $request->set_headers($headers);
 
-        $response = ApiClient::callApi($request, $postId);
+        $response = ApiClient::call_api($request, $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
@@ -446,9 +446,9 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::callApiWithInvalidEndpoint',
         ]);
 
-        $request = new Request('POST', Environment::getApiUrl() . '/foo/1234/bar', '{"body":"Hello"}');
+        $request = new Request('POST', Environment::get_api_url() . '/foo/1234/bar', '{"body":"Hello"}');
 
-        $response = ApiClient::callApi($request, $postId);
+        $response = ApiClient::call_api($request, $postId);
 
         $this->assertSame(404, wp_remote_retrieve_response_code($response));
 
@@ -471,7 +471,7 @@ class ApiClientTest extends TestCase
 
         $request = new Request('POST', 'http://localhost:5678/foo', '{"body":"Hello"}');
 
-        $response = ApiClient::callApi($request, $postId);
+        $response = ApiClient::call_api($request, $postId);
 
         $this->assertTrue(is_a($response, 'WP_Error'));
 
@@ -493,7 +493,7 @@ class ApiClientTest extends TestCase
             'post_title' => 'ApiClientTest::error::' . $code,
         ]);
 
-        ApiClient::saveErrorMessage($postId, $message, $code);
+        ApiClient::save_error_message($postId, $message, $code);
 
         $this->assertEquals($expect, get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -541,7 +541,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+        ApiClient::save_error_message($postId, 'Not Found', 404);
 
         // The error SHOULD be saved because the post uses REST_API integration
         // (even though the global setting is CLIENT_SIDE)
@@ -571,7 +571,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+        ApiClient::save_error_message($postId, 'Not Found', 404);
 
         // The error should NOT be saved because the post uses CLIENT_SIDE integration
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -602,7 +602,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+        ApiClient::save_error_message($postId, 'Not Found', 404);
 
         // The error SHOULD be saved because legacy posts fall back to global (REST_API)
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -633,7 +633,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::saveErrorMessage($postId, 'Not Found', 404);
+        ApiClient::save_error_message($postId, 'Not Found', 404);
 
         // The error should NOT be saved because legacy posts fall back to global (CLIENT_SIDE)
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -652,7 +652,7 @@ class ApiClientTest extends TestCase
             'body' => wp_json_encode(['message' => 'Foo'])
         ];
 
-        $result = ApiClient::errorMessageFromResponse($response);
+        $result = ApiClient::error_message_from_response($response);
 
         $this->assertEquals('Foo', $result);
 
@@ -670,7 +670,7 @@ class ApiClientTest extends TestCase
             ]])
         ];
 
-        $result = ApiClient::errorMessageFromResponse($response);
+        $result = ApiClient::error_message_from_response($response);
 
         $this->assertEquals('500 Foo, 501 Bar', $result);
     }

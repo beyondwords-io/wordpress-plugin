@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Post\PostContentUtils;
+use BeyondWords\Post\PostContentUtils;
 
 class PostContentUtilsTest extends TestCase
 {
@@ -30,7 +30,7 @@ class PostContentUtilsTest extends TestCase
             'post_content' => '<p>Some test HTML.</p>',
         ]);
 
-        $content = PostContentUtils::getContentBody($post);
+        $content = PostContentUtils::get_content_body($post);
 
         $this->assertSame('<p>Some test HTML.</p>', $content);
 
@@ -50,7 +50,7 @@ class PostContentUtilsTest extends TestCase
 
         update_option('beyondwords_prepend_excerpt', '1');
 
-        $content = PostContentUtils::getContentBody($post);
+        $content = PostContentUtils::get_content_body($post);
 
         delete_option('beyondwords_prepend_excerpt');
 
@@ -75,7 +75,7 @@ class PostContentUtilsTest extends TestCase
 
         update_option('beyondwords_prepend_excerpt', '1');
 
-        $content = PostContentUtils::getContentBody($post);
+        $content = PostContentUtils::get_content_body($post);
 
         delete_option('beyondwords_prepend_excerpt');
 
@@ -91,7 +91,7 @@ class PostContentUtilsTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        PostContentUtils::getContentBody(-1);
+        PostContentUtils::get_content_body(-1);
     }
 
     /**
@@ -101,7 +101,7 @@ class PostContentUtilsTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        PostContentUtils::getPostSummary(-1);
+        PostContentUtils::get_post_summary(-1);
     }
 
     /**
@@ -111,7 +111,7 @@ class PostContentUtilsTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        PostContentUtils::getPostSummaryWrapperFormat(-1);
+        PostContentUtils::get_post_summary_wrapper_format(-1);
     }
 
     /**
@@ -125,7 +125,7 @@ class PostContentUtilsTest extends TestCase
             'post_content' => $content,
         ]);
 
-        $this->assertSame($expect, PostContentUtils::getContentWithoutExcludedBlocks($post));
+        $this->assertSame($expect, PostContentUtils::get_content_without_excluded_blocks($post));
 
         wp_delete_post($post->ID, true);
     }
@@ -162,7 +162,7 @@ class PostContentUtilsTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        PostContentUtils::getPostBody(-1);
+        PostContentUtils::get_post_body(-1);
     }
 
     /**
@@ -182,7 +182,7 @@ class PostContentUtilsTest extends TestCase
             'post_content' => $postContent,
         ]);
 
-        $content = PostContentUtils::getPostBody($postId);
+        $content = PostContentUtils::get_post_body($postId);
 
         $this->assertSame($expected, $content);
 
@@ -230,7 +230,7 @@ class PostContentUtilsTest extends TestCase
 
         update_option('beyondwords_prepend_excerpt', $prependExcerpt);
 
-        $content = PostContentUtils::getPostBody($postId);
+        $content = PostContentUtils::get_post_body($postId);
 
         delete_option('beyondwords_prepend_excerpt');
 
@@ -366,13 +366,11 @@ class PostContentUtilsTest extends TestCase
         set_post_thumbnail($postId, $attachmentId);
 
         update_option('beyondwords_prepend_excerpt', '1');
-        update_option('beyondwords_project_auto_publish_enabled', true);
 
-        $body = PostContentUtils::getContentParams($postId);
+        $body = PostContentUtils::get_content_params($postId);
         $body = json_decode($body, true);
 
         delete_option('beyondwords_prepend_excerpt');
-        delete_option('beyondwords_project_auto_publish_enabled');
 
         $this->assertSame($args['post_title'], $body['title']);
         $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
@@ -385,7 +383,7 @@ class PostContentUtilsTest extends TestCase
         $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body['metadata']));
         $this->assertSame($args['post_date'], $body['publish_date']);
 
-        // { published: true } should be sent because auto-publish is true
+        // { published: true } should be sent because the `beyondwords_auto_publish` filter defaults to true
         $this->assertArrayHasKey('published', $body);
         $this->assertTrue($body['published']);
 
@@ -394,14 +392,14 @@ class PostContentUtilsTest extends TestCase
         $this->assertSame(2517, $body['title_voice_id']);
         $this->assertSame(3558, $body['body_voice_id']);
 
-        update_option('beyondwords_project_auto_publish_enabled', false);
+        // Returning false from `beyondwords_auto_publish` should drop the key entirely.
+        add_filter('beyondwords_auto_publish', '__return_false');
 
-        $body = PostContentUtils::getContentParams($postId);
+        $body = PostContentUtils::get_content_params($postId);
         $body = json_decode($body, true);
 
-        delete_option('beyondwords_project_auto_publish_enabled');
+        remove_filter('beyondwords_auto_publish', '__return_false');
 
-        // { published: false } should not exist because auto-publish is false
         $this->assertArrayNotHasKey('published', $body);
 
         wp_delete_post($postId, true);
@@ -433,13 +431,13 @@ class PostContentUtilsTest extends TestCase
 
         update_option('beyondwords_project_auto_publish_enabled', true);
 
-        $body = PostContentUtils::getContentParams($postId);
+        $body = PostContentUtils::get_content_params($postId);
         $body = json_decode($body, true);
 
         delete_option('beyondwords_project_auto_publish_enabled');
 
         $this->assertSame($args['post_title'], $body['title']);
-        $this->assertSame(PostContentUtils::getPostBody($postId), $body['body']);
+        $this->assertSame(PostContentUtils::get_post_body($postId), $body['body']);
         $this->assertSame('Jane Smith', $body['author']);
         $this->assertSame(get_the_permalink($postId), $body['source_url']);
 
@@ -456,7 +454,7 @@ class PostContentUtilsTest extends TestCase
         // Set auto-publish to false
         update_option('beyondwords_project_auto_publish_enabled', false);
 
-        $body = PostContentUtils::getContentParams($postId);
+        $body = PostContentUtils::get_content_params($postId);
         $body = json_decode($body, true);
 
         delete_option('beyondwords_project_auto_publish_enabled');
@@ -493,7 +491,7 @@ class PostContentUtilsTest extends TestCase
 
         add_filter('beyondwords_content_params', $filter, 10, 2);
 
-        $params = PostContentUtils::getContentParams($postId);
+        $params = PostContentUtils::get_content_params($postId);
 
         remove_filter('beyondwords_content_params', $filter);
 
@@ -511,11 +509,11 @@ class PostContentUtilsTest extends TestCase
     public function getMetadataTest()
     {
         $postId = self::factory()->post->create([
-            'post_title' => 'Testing PostContentUtils::getMetadata()',
+            'post_title' => 'Testing PostContentUtils::get_metadata()',
             'post_status' => 'publish'
         ]);
 
-        $metadata = PostContentUtils::getMetadata($postId);
+        $metadata = PostContentUtils::get_metadata($postId);
 
         $this->assertIsObject($metadata);
 
@@ -559,7 +557,7 @@ class PostContentUtilsTest extends TestCase
 
         // Create a post with selected terms
         $postId = self::factory()->post->create([
-            'post_title' => 'Testing PostContentUtils::getAllTaxonomiesAndTerms()',
+            'post_title' => 'Testing PostContentUtils::get_all_taxonomies_and_terms()',
             'post_status' => 'publish',
             'tax_input' => [
                 $flatTaxonomy => 'flat1, flat2, flat3',
@@ -567,7 +565,7 @@ class PostContentUtilsTest extends TestCase
             ]
         ]);
 
-        $taxonomies = PostContentUtils::getAllTaxonomiesAndTerms($postId);
+        $taxonomies = PostContentUtils::get_all_taxonomies_and_terms($postId);
 
         $this->assertIsObject($taxonomies);
 
@@ -606,11 +604,11 @@ class PostContentUtilsTest extends TestCase
 
         // Create the post as the new user
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'Testing PostContentUtils::getAuthorName()',
+            'post_title' => 'Testing PostContentUtils::get_author_name()',
             'post_status' => 'publish',
         ]);
 
-        $this->assertSame($name, PostContentUtils::getAuthorName($post->ID));
+        $this->assertSame($name, PostContentUtils::get_author_name($post->ID));
 
         wp_delete_post($post->ID, true);
     }

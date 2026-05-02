@@ -14,7 +14,7 @@ The checks are:
 - `composer`: Validate `composer.json`
 - `composer_normalize`: Keep `composer.json` nice and tidy
 - `phpcs`: Run [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
-using the config at `phpcs.xml`, to *PSR-12* and *WordPress VIP* standards.
+using the config at [`.phpcs.xml`](../.phpcs.xml), to the *WordPress-VIP-Go* standard.
 - `phplint`: Check source files for syntax errors
 - `phpmd`: Check source files for bad coding standards
 - `rector`: Check source files for refactoring opportunities

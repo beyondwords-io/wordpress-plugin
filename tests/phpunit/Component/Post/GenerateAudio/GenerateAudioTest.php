@@ -1,11 +1,11 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio;
+use BeyondWords\Post\GenerateAudio;
 
 class GenerateAudioTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Post\GenerateAudio\GenerateAudio
+     * @var \BeyondWords\Post\GenerateAudio
      */
     private $_instance;
 
@@ -139,35 +139,35 @@ class GenerateAudioTest extends TestCase
     /**
      * @test
      */
-    public function shouldPreselectGenerateAudio()
+    public function should_preselect_generate_audio()
     {
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'GenerateAudioTest::shouldPreselectGenerateAudio::post',
+            'post_title' => 'GenerateAudioTest::should_preselect_generate_audio::post',
             'post_type' => 'post'
         ]);
 
         $page = self::factory()->post->create_and_get([
-            'post_title' => 'GenerateAudioTest::shouldPreselectGenerateAudio::page',
+            'post_title' => 'GenerateAudioTest::should_preselect_generate_audio::page',
             'post_type' => 'page'
         ]);
 
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio(null));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio(null));
 
         update_option('beyondwords_preselect', ['post' => '1']);
-        $this->assertTrue(GenerateAudio::shouldPreselectGenerateAudio($post));
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
+        $this->assertTrue(GenerateAudio::should_preselect_generate_audio($post));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($page));
 
         update_option('beyondwords_preselect', ['post' => ['category' => ['1']]]);
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($post));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($page));
 
         update_option('beyondwords_preselect', ['page' => '1']);
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
-        $this->assertTrue(GenerateAudio::shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($post));
+        $this->assertTrue(GenerateAudio::should_preselect_generate_audio($page));
 
         update_option('beyondwords_preselect', ['page' => ['category' => ['1']]]);
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($post));
-        $this->assertFalse(GenerateAudio::shouldPreselectGenerateAudio($page));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($post));
+        $this->assertFalse(GenerateAudio::should_preselect_generate_audio($page));
 
         delete_option('beyondwords_preselect');
 

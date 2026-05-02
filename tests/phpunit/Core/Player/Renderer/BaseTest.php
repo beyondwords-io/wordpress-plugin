@@ -1,8 +1,8 @@
 <?php
 
-use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\Player\Renderer\Amp;
-use Beyondwords\Wordpress\Core\Player\Renderer\Base;
+use BeyondWords\Core\Environment;
+use BeyondWords\Player\Renderer\Amp;
+use BeyondWords\Player\Renderer\Base;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**

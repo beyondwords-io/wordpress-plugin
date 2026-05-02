@@ -122,9 +122,9 @@ The bootstrap is [src/core/class-plugin.php](src/core/class-plugin.php) (`Beyond
 Run before commit:
 
 ```bash
-npm run phpcs       # WordPress-VIP-Go check
-npm run phpcbf      # auto-fix what can be fixed
-composer test:phpunit
+npm run phpcs              # WordPress-VIP-Go check
+npm run phpcbf             # auto-fix what can be fixed
+npm run composer -- test   # PHPUnit test suite + coverage check
 ```
 
 ## JavaScript standards
@@ -146,23 +146,42 @@ npm run format
 ## Package management
 
 - **Use npm.** The lockfile is `package-lock.json`. CI runs `npm ci`. Don't introduce `yarn.lock`, `pnpm-lock.yaml`, or `bun.lockb`.
-- For npm scripts that themselves accept arguments (notably the `composer` passthrough), forward args with `--`: `npm run composer -- test:phpunit`.
+- For npm scripts that themselves accept arguments (notably the `composer` passthrough), forward args with `--`: `npm run composer -- test`.
 
 ## Deprecating settings
 
 When removing a setting:
 
 1. Delete the field/tab classes and their tests.
-2. Move the option key from the `current` array to the `deprecated` array in [src/Core/CoreUtils.php](src/Core/CoreUtils.php) `getOptions()`. The uninstaller cleans up deprecated keys, so users upgrading lose stale data on plugin removal.
+2. Move the option key from the `current` array to the `deprecated` array in [src/core/class-core-utils.php](src/core/class-core-utils.php) `get_options()`. The uninstaller cleans up deprecated keys, so users upgrading lose stale data on plugin removal.
 3. Delete every `get_option()` call and any code paths gated on it.
 4. Replace runtime behaviour with one of: a hard-coded default, a `apply_filters()` hook, or per-post meta (whichever the spec calls for).
-5. Add a version-gated migration to [src/Core/Updater.php](src/Core/Updater.php) if existing data needs to be transformed.
+5. Add a version-gated migration to [src/core/class-updater.php](src/core/class-updater.php) if existing data needs to be transformed. To also strip deprecated options from the DB on update, call `Updater::delete_deprecated_options()` from inside the version block.
 
 ## Tests
 
-- **PHPUnit** under `tests/phpunit/` — keep the existing folder layout for now (`Settings/Fields/{Field}/Test.php`). When a class is deleted, delete its test.
-- **Cypress** under `tests/cypress/e2e/` — same rule. Delete tests for removed UI.
-- **Coverage:** targeted at 80% (`vendor/bin/coverage-check`). New code should not lower the bar.
+### PHPUnit
+
+Source: `tests/phpunit/` — folder layout mirrors `src/` (e.g. `tests/phpunit/Core/`, `tests/phpunit/Component/Post/...`). When a class is deleted, delete its test.
+
+Run the suite (PHPUnit + clover coverage report + 80% coverage gate):
+
+```bash
+npm run composer -- test
+```
+
+The test suite runs inside the dedicated tests environment ([.wp-env.tests.json](.wp-env.tests.json), port 8889), separate from the dev env, so it doesn't disturb whatever you're working on locally.
+
+**Test secrets** — three constants are needed (`BEYONDWORDS_TESTS_API_KEY`, `BEYONDWORDS_TESTS_PROJECT_ID`, `BEYONDWORDS_TESTS_CONTENT_ID`). Provide them via:
+
+- **Local**: copy [.wp-env.tests.override.json.example](.wp-env.tests.override.json.example) to `.wp-env.tests.override.json` and fill in. Read by the PHPUnit bootstrap directly — no env-var export needed.
+- **CI**: GitHub Actions secrets (`BEYONDWORDS_TESTS_API_KEY` etc.) exported as env vars before phpunit runs.
+
+**Coverage**: 80% gate enforced by `vendor/bin/coverage-check`. New code shouldn't lower it. HTML report lands in `tests/phpunit/_report/index.html`.
+
+### Cypress
+
+Source: `tests/cypress/e2e/` — same delete-when-the-UI-is-removed rule. (Detailed Cypress workflow is documented in [doc/running-tests.md](doc/running-tests.md); the suite is mid-rewrite for v7.0.0.)
 
 ## Versioning
 

@@ -39,15 +39,25 @@ need these for the automated PHPUnit and Cypress tests to pass.
 
 ###  3. Provide your test Project and Content IDs
 
-Now copy and edit the **wp-env** and **Cypress** config files:
+PHPUnit reads test secrets from `.wp-env.tests.override.json` (gitignored):
 
 ```bash
-cp .wp-env.override.json.example .wp-env.override.json
+cp .wp-env.tests.override.json.example .wp-env.tests.override.json
+```
+
+Cypress reads them from `cypress.env.json` (also gitignored):
+
+```bash
 cp cypress.env.json.example cypress.env.json
 ```
 
 Edit both files, providing the **API Key**, **Project ID** and **Content ID**
 you noted earlier.
+
+If you also want the dev environment to pick up the same constants (e.g. to
+hit the BeyondWords API from a local browser session), copy the override into
+`.wp-env.override.json` as well — it's a separate file applied only to the
+dev env.
 
 ##  Cypress e2e tests
 
@@ -69,23 +79,21 @@ npm run cypress:run
 
 `/tests/phpunit/`
 
+Run the test suite (PHPUnit + coverage HTML report + 80% coverage gate):
+
 ```bash
-npm run composer -- test:phpunit
+npm run composer -- test
 ```
 
-This will:
+This runs inside the **tests** wp-env (port 8889) — see the [Environments](#environments) section above. It does not disturb the dev env.
 
-1. Run the PHPUnit test suite
-2. Generate a code coverage HTML report.
-3. Output the code coverage % value to the terminal.
-
-To view the HTML report:
+To view the coverage HTML report:
 
 ```bash
 open tests/phpunit/_report/index.html
 ```
 
-To run code coverage independently:
+To run the coverage gate standalone (without re-running the suite):
 
 ```bash
 npm run composer -- test:coverage-check

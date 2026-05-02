@@ -1,13 +1,13 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Posts\BulkEdit\BulkEdit;
-use Beyondwords\Wordpress\Core\Core;
-use Beyondwords\Wordpress\Plugin;
+use BeyondWords\Posts\BulkEdit;
+use BeyondWords\Core\Core;
+use BeyondWords\Core\Plugin;
 
 final class BulkEditTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Posts\BulkEdit\BulkEdit
+     * @var \BeyondWords\Posts\BulkEdit
      */
     private $_instance;
 
@@ -38,28 +38,28 @@ final class BulkEditTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('bulk_edit_custom_box', array(BulkEdit::class, 'bulkEditCustomBox')));
-        $this->assertEquals(10, has_action('wp_ajax_save_bulk_edit_beyondwords', array(BulkEdit::class, 'saveBulkEdit')));
+        $this->assertEquals(10, has_action('bulk_edit_custom_box', array(BulkEdit::class, 'bulk_edit_custom_box')));
+        $this->assertEquals(10, has_action('wp_ajax_save_bulk_edit_beyondwords', array(BulkEdit::class, 'save_bulk_edit')));
 
         // Post type: post
-        $this->assertEquals(10, has_filter('bulk_actions-edit-post', array(BulkEdit::class, 'bulkActionsEdit')));
-        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handleBulkDeleteAction')));
-        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handleBulkGenerateAction')));
+        $this->assertEquals(10, has_filter('bulk_actions-edit-post', array(BulkEdit::class, 'bulk_actions_edit')));
+        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handle_bulk_delete_action')));
+        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handle_bulk_generate_action')));
 
         // Post type: page
-        $this->assertEquals(10, has_filter('bulk_actions-edit-page', array(BulkEdit::class, 'bulkActionsEdit')));
-        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handleBulkDeleteAction')));
-        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handleBulkGenerateAction')));
+        $this->assertEquals(10, has_filter('bulk_actions-edit-page', array(BulkEdit::class, 'bulk_actions_edit')));
+        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handle_bulk_delete_action')));
+        $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handle_bulk_generate_action')));
     }
 
     /**
      * @test
      * @dataProvider bulkEditCustomBoxprovider
      */
-    public function bulkEditCustomBox($columnName, $postType, $expectCustomBox)
+    public function bulk_edit_custom_box($columnName, $postType, $expectCustomBox)
     {
         $output = $this->captureOutput(function () use ($columnName, $postType) {
-            BulkEdit::bulkEditCustomBox($columnName, $postType);
+            BulkEdit::bulk_edit_custom_box($columnName, $postType);
         });
 
         if ($expectCustomBox) {
@@ -106,7 +106,7 @@ final class BulkEditTest extends TestCase
     {
         $this->expectException(\WPDieException::class);
 
-        BulkEdit::saveBulkEdit();
+        BulkEdit::save_bulk_edit();
     }
 
     /**
@@ -118,7 +118,7 @@ final class BulkEditTest extends TestCase
 
         $this->expectException(\WPDieException::class);
 
-        BulkEdit::saveBulkEdit();
+        BulkEdit::save_bulk_edit();
     }
 
     /**
@@ -142,7 +142,7 @@ final class BulkEditTest extends TestCase
         $_POST['post_type'] = 'post';
         $_POST['post_ids'] = $postIds;
 
-        $updatedPostIds = BulkEdit::saveBulkEdit();
+        $updatedPostIds = BulkEdit::save_bulk_edit();
 
         $this->assertSame([], $updatedPostIds);
 
@@ -173,7 +173,7 @@ final class BulkEditTest extends TestCase
         $_POST['post_type'] = 'post';
         $_POST['post_ids'] = $postIds;
 
-        $updatedPostIds = BulkEdit::saveBulkEdit();
+        $updatedPostIds = BulkEdit::save_bulk_edit();
 
         $this->assertSame([], $updatedPostIds);
 
@@ -191,7 +191,7 @@ final class BulkEditTest extends TestCase
         $_POST['beyondwords_bulk_edit'] = 'generate';
         $_POST['post_type'] = 'post';
 
-        $updatedPostIds = BulkEdit::saveBulkEdit();
+        $updatedPostIds = BulkEdit::save_bulk_edit();
 
         $this->assertSame([], $updatedPostIds);
     }
@@ -199,17 +199,17 @@ final class BulkEditTest extends TestCase
     /**
      * @test
      */
-    public function saveBulkEdit()
+    public function save_bulk_edit()
     {
         $postIds = [
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::saveBulkEdit::1',
+                'post_title' => 'BulkEditTest::save_bulk_edit::1',
             ]),
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::saveBulkEdit::2',
+                'post_title' => 'BulkEditTest::save_bulk_edit::2',
             ]),
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::saveBulkEdit::3',
+                'post_title' => 'BulkEditTest::save_bulk_edit::3',
             ]),
         ];
 
@@ -217,7 +217,7 @@ final class BulkEditTest extends TestCase
         $_POST['beyondwords_bulk_edit'] = 'generate';
         $_POST['post_ids'] = $postIds;
 
-        BulkEdit::saveBulkEdit();
+        BulkEdit::save_bulk_edit();
 
         foreach ($postIds as $postId) {
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
@@ -229,25 +229,25 @@ final class BulkEditTest extends TestCase
     /**
      * @test
      */
-    public function generateAudioForPosts()
+    public function generate_audio_for_posts()
     {
-        $updatedPostIds = BulkEdit::generateAudioForPosts(null);
+        $updatedPostIds = BulkEdit::generate_audio_for_posts(null);
 
         $this->assertSame([], $updatedPostIds);
 
         $postIds = [
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::generateAudioForPosts::1',
+                'post_title' => 'BulkEditTest::generate_audio_for_posts::1',
             ]),
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::generateAudioForPosts::2',
+                'post_title' => 'BulkEditTest::generate_audio_for_posts::2',
             ]),
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::generateAudioForPosts::3',
+                'post_title' => 'BulkEditTest::generate_audio_for_posts::3',
             ]),
         ];
 
-        $updatedPostIds = BulkEdit::generateAudioForPosts($postIds);
+        $updatedPostIds = BulkEdit::generate_audio_for_posts($postIds);
 
         $this->assertSame($postIds, $updatedPostIds);
 
@@ -259,11 +259,11 @@ final class BulkEditTest extends TestCase
     /**
      * @test
      */
-    public function bulkActionsEdit()
+    public function bulk_actions_edit()
     {
         $bulkArray = [];
 
-        $newBulkArray = BulkEdit::bulkActionsEdit($bulkArray);
+        $newBulkArray = BulkEdit::bulk_actions_edit($bulkArray);
 
         $this->assertContains('Generate audio', $newBulkArray);
         $this->assertContains('Delete audio', $newBulkArray);
@@ -276,7 +276,7 @@ final class BulkEditTest extends TestCase
      *
      * @backupGlobals disabled
      */
-    public function handleBulkGenerateAction()
+    public function handle_bulk_generate_action()
     {
         // Set up API credentials for integration test
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
@@ -285,32 +285,32 @@ final class BulkEditTest extends TestCase
         $postIds = [
             // Skip (because we slice array below)
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::skip-1',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::skip-1',
                 'post_content' => 'Test content for skip-1.',
             ]),
             // Create
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::create-1',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-1',
                 'post_content' => 'Test content for create-1.',
             ]),
             // Create
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::create-2',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-2',
                 'post_content' => 'Test content for create-2.',
             ]),
             // Create
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::create-3',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-3',
                 'post_content' => 'Test content for create-3.',
             ]),
             // Create
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::create-4',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-4',
                 'post_content' => 'Test content for create-4.',
             ]),
             // Skip (because we slice array below)
             self::factory()->post->create([
-                'post_title' => 'BulkEditTest::handleBulkGenerateAction::skip-2',
+                'post_title' => 'BulkEditTest::handle_bulk_generate_action::skip-2',
                 'post_content' => 'Test content for skip-2.',
             ]),
         ];
@@ -326,7 +326,7 @@ final class BulkEditTest extends TestCase
         // Add nonce into redirect
         $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
-        $redirect = BulkEdit::handleBulkGenerateAction($redirect, 'beyondwords_generate_audio', $selectedPostIds);
+        $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $selectedPostIds);
 
         $query = parse_url($redirect, PHP_URL_QUERY);
         parse_str($query, $args);
@@ -383,7 +383,7 @@ final class BulkEditTest extends TestCase
         $redirect = 'https://example.com/wp-admin/posts?beyondwords_bulk_generated=99';
         $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
-        $redirect = BulkEdit::handleBulkGenerateAction($redirect, 'beyondwords_generate_audio', $postIds);
+        $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $postIds);
 
         $query = parse_url($redirect, PHP_URL_QUERY);
         parse_str($query, $args);

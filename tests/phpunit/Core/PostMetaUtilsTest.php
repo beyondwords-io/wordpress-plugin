@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Post\PostMetaUtils;
-use Beyondwords\Wordpress\Core\CoreUtils;
+use BeyondWords\Post\PostMetaUtils;
+use BeyondWords\Core\CoreUtils;
 
 class PostMetaUtilsTest extends TestCase
 {
@@ -43,7 +43,7 @@ class PostMetaUtilsTest extends TestCase
 
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->assertEquals($expected, PostMetaUtils::getProjectId($postId));
+        $this->assertEquals($expected, PostMetaUtils::get_project_id($postId));
 
         delete_option('beyondwords_project_id');
 
@@ -79,7 +79,7 @@ class PostMetaUtilsTest extends TestCase
     {
         $postId = self::factory()->post->create($postArgs);
 
-        $this->assertEquals($expected, PostMetaUtils::getProjectId($postId));
+        $this->assertEquals($expected, PostMetaUtils::get_project_id($postId));
 
         wp_delete_post($postId, true);
     }
@@ -117,7 +117,7 @@ class PostMetaUtilsTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals(1234, PostMetaUtils::getProjectId($firstPostId));
+        $this->assertEquals(1234, PostMetaUtils::get_project_id($firstPostId));
 
         update_option('beyondwords_project_id', 5678);
 
@@ -126,10 +126,10 @@ class PostMetaUtilsTest extends TestCase
         ]);
 
         // The first Post should still have the original Project ID
-        $this->assertEquals(1234, PostMetaUtils::getProjectId($firstPostId));
+        $this->assertEquals(1234, PostMetaUtils::get_project_id($firstPostId));
 
         // The second Post should be using the updated plugin setting
-        $this->assertEquals(5678, PostMetaUtils::getProjectId($secondPostId));
+        $this->assertEquals(5678, PostMetaUtils::get_project_id($secondPostId));
 
         delete_option('beyondwords_project_id');
 
@@ -150,7 +150,7 @@ class PostMetaUtilsTest extends TestCase
     {
         $postId = self::factory()->post->create($postArgs);
 
-        $this->assertEquals($expected, PostMetaUtils::getContentId($postId));
+        $this->assertEquals($expected, PostMetaUtils::get_content_id($postId));
 
         wp_delete_post($postId, true);
     }
@@ -200,7 +200,7 @@ class PostMetaUtilsTest extends TestCase
 
         $postId = self::factory()->post->create($postArgs);
 
-        $this->assertSame($expected, PostMetaUtils::getHttpResponseBodyFromPostMeta($postId, 'speechkit_response'));
+        $this->assertSame($expected, PostMetaUtils::get_http_response_body_from_post_meta($postId, 'speechkit_response'));
 
         wp_delete_post($postId, true);
 
@@ -257,7 +257,7 @@ class PostMetaUtilsTest extends TestCase
     {
         $postId = self::factory()->post->create($postArgs);
 
-        $this->assertEquals($expected, PostMetaUtils::hasGenerateAudio($postId));
+        $this->assertEquals($expected, PostMetaUtils::has_generate_audio($postId));
 
         wp_delete_post($postId, true);
     }
@@ -295,7 +295,7 @@ class PostMetaUtilsTest extends TestCase
         ]);
 
         // Set all BeyondWords meta keys
-        $beyondwordsKeys = CoreUtils::getPostMetaKeys('all');
+        $beyondwordsKeys = CoreUtils::get_post_meta_keys('all');
 
         foreach ($beyondwordsKeys as $key) {
             update_post_meta($postId, $key, 'test_value');
@@ -315,7 +315,7 @@ class PostMetaUtilsTest extends TestCase
         $this->assertEquals('custom_value', get_post_meta($postId, $customKey, true));
 
         // Remove all BeyondWords metadata
-        PostMetaUtils::removeAllBeyondwordsMetadata($postId);
+        PostMetaUtils::remove_all_beyondwords_metadata($postId);
 
         // Verify all BeyondWords keys are removed
         foreach ($beyondwordsKeys as $key) {

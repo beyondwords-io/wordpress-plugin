@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\SiteHealth\SiteHealth;
-use Beyondwords\Wordpress\Core\Environment;
+use BeyondWords\SiteHealth\SiteHealth;
+use BeyondWords\Core\Environment;
 
 class SiteHealthTest extends TestCase
 {
@@ -39,17 +39,17 @@ class SiteHealthTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_filter('debug_information', array(SiteHealth::class, 'debugInformation')));
+        $this->assertEquals(10, has_filter('debug_information', array(SiteHealth::class, 'debug_information')));
     }
 
     /**
      * @test
      */
-    public function debugInformation()
+    public function debug_information()
     {
         $siteHealth = new SiteHealth();
 
-        $info = $siteHealth->debugInformation($this->info);
+        $info = $siteHealth->debug_information($this->info);
 
         $this->assertSame('BeyondWords - Text-to-Speech', $info['beyondwords']['label']);
 
@@ -64,7 +64,6 @@ class SiteHealthTest extends TestCase
         $this->assertArrayHasKey('beyondwords_preselect', $info['beyondwords']['fields']);
 
         $this->assertArrayHasKey('compatible-post-types', $info['beyondwords']['fields']);
-        $this->assertArrayHasKey('incompatible-post-types', $info['beyondwords']['fields']);
 
         $this->assertArrayHasKey('registered-filters', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('registered-deprecated-filters', $info['beyondwords']['fields']);
@@ -72,14 +71,13 @@ class SiteHealthTest extends TestCase
         $this->assertArrayHasKey('beyondwords_date_activated', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('beyondwords_notice_review_dismissed', $info['beyondwords']['fields']);
 
-        $this->assertArrayHasKey('BEYONDWORDS_AUTO_SYNC_SETTINGS', $info['beyondwords']['fields']);
         $this->assertArrayHasKey('BEYONDWORDS_AUTOREGENERATE', $info['beyondwords']['fields']);
     }
 
     /**
      * @test
      */
-    public function addPluginVersion()
+    public function add_plugin_version()
     {
         $siteHealth = new SiteHealth();
 
@@ -87,7 +85,7 @@ class SiteHealthTest extends TestCase
 
         update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
 
-        $siteHealth->addPluginVersion($this->info);
+        $siteHealth->add_plugin_version($this->info);
 
         $this->assertSame('Plugin version', $this->info['beyondwords']['fields']['plugin-version']['label']);
 
@@ -107,7 +105,7 @@ class SiteHealthTest extends TestCase
 
         update_option('beyondwords_version', '1.2.3');
 
-        $siteHealth->addPluginVersion($this->info);
+        $siteHealth->add_plugin_version($this->info);
 
         $this->assertSame('Plugin version', $this->info['beyondwords']['fields']['plugin-version']['label']);
 
@@ -121,14 +119,14 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      */
-    public function addRestApiConnection()
+    public function add_rest_api_connection()
     {
         $siteHealth = new SiteHealth();
 
-        $siteHealth->addRestApiConnection($this->info);
+        $siteHealth->add_rest_api_connection($this->info);
 
         $this->assertSame('REST API URL', $this->info['beyondwords']['fields']['api-url']['label']);
-        $this->assertSame(Environment::getApiUrl(), $this->info['beyondwords']['fields']['api-url']['value']);
+        $this->assertSame(Environment::get_api_url(), $this->info['beyondwords']['fields']['api-url']['value']);
 
         $this->assertSame('Communication with REST API', $this->info['beyondwords']['fields']['api-communication']['label']);
         $this->assertSame('BeyondWords API is reachable', $this->info['beyondwords']['fields']['api-communication']['value']);
@@ -138,13 +136,13 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      */
-    public function addConstant()
+    public function add_constant()
     {
         $siteHealth = new SiteHealth();
 
         $this->assertTrue(defined('BEYONDWORDS__PLUGIN_URI'));
 
-        $siteHealth->addConstant($this->info, 'BEYONDWORDS__PLUGIN_URI');
+        $siteHealth->add_constant($this->info, 'BEYONDWORDS__PLUGIN_URI');
 
         $this->assertSame('BEYONDWORDS__PLUGIN_URI', $this->info['beyondwords']['fields']['BEYONDWORDS__PLUGIN_URI']['label']);
         $this->assertSame(BEYONDWORDS__PLUGIN_URI, $this->info['beyondwords']['fields']['BEYONDWORDS__PLUGIN_URI']['value']);
@@ -152,7 +150,7 @@ class SiteHealthTest extends TestCase
 
         $this->assertFalse(defined('SOME_UNDEFINED_CONSTANT'));
 
-        $siteHealth->addConstant($this->info, 'SOME_UNDEFINED_CONSTANT');
+        $siteHealth->add_constant($this->info, 'SOME_UNDEFINED_CONSTANT');
 
         $this->assertSame('SOME_UNDEFINED_CONSTANT', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['label']);
         $this->assertSame('Undefined', $this->info['beyondwords']['fields']['SOME_UNDEFINED_CONSTANT']['value']);
@@ -162,14 +160,14 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      */
-    public function maskString()
+    public function mask_string()
     {
         $siteHealth = new SiteHealth();
 
-        $this->assertEquals('XXXXXXX',       $siteHealth->maskString('1234567'));
-        $this->assertEquals('XXXX5678',      $siteHealth->maskString('12345678'));
-        $this->assertEquals('XXXXXXXXXabcd', $siteHealth->maskString('123456789abcd'));
-        $this->assertEquals('XXXXXX78',      $siteHealth->maskString('12345678', 2));
-        $this->assertEquals('??????78',      $siteHealth->maskString('12345678', 2, '?'));
+        $this->assertEquals('XXXXXXX',       $siteHealth->mask_string('1234567'));
+        $this->assertEquals('XXXX5678',      $siteHealth->mask_string('12345678'));
+        $this->assertEquals('XXXXXXXXXabcd', $siteHealth->mask_string('123456789abcd'));
+        $this->assertEquals('XXXXXX78',      $siteHealth->mask_string('12345678', 2));
+        $this->assertEquals('??????78',      $siteHealth->mask_string('12345678', 2, '?'));
     }
 }

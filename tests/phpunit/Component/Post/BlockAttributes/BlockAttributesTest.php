@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\BlockAttributes\BlockAttributes;
+use BeyondWords\Post\BlockAttributes;
 
 class BlockAttributesTest extends TestCase
 {
@@ -29,17 +29,17 @@ class BlockAttributesTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerAudioAttribute')));
-        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'registerMarkerAttribute')));
+        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_audio_attribute')));
+        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_marker_attribute')));
     }
 
     /**
      * @test
      * @dataProvider registerAudioAttributeProvider
      */
-    public function registerAudioAttribute($args, $expect)
+    public function register_audio_attribute($args, $expect)
     {
-        $this->assertSame($expect, BlockAttributes::registerAudioAttribute($args));
+        $this->assertSame($expect, BlockAttributes::register_audio_attribute($args));
     }
 
     public function registerAudioAttributeProvider($args) {
@@ -110,9 +110,9 @@ class BlockAttributesTest extends TestCase
      * @test
      * @dataProvider registerMarkerAttributeProvider
      */
-    public function registerMarkerAttribute($args, $expect)
+    public function register_marker_attribute($args, $expect)
     {
-        $this->assertSame($expect, BlockAttributes::registerMarkerAttribute($args));
+        $this->assertSame($expect, BlockAttributes::register_marker_attribute($args));
     }
 
     public function registerMarkerAttributeProvider($args) {

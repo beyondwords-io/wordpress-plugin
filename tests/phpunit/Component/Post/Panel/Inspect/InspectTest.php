@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\Panel\Inspect\Inspect;
+use BeyondWords\Post\InspectPanel;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class InspectTest extends TestCase
@@ -11,7 +11,7 @@ class InspectTest extends TestCase
     protected $tester;
 
     /**
-     * @var \Beyondwords\Wordpress\Component\Post\Inspect\Inspect
+     * @var \BeyondWords\Post\InspectPanel
      */
     private $_instance;
 
@@ -38,11 +38,11 @@ class InspectTest extends TestCase
     /**
      * @test
      */
-    public function addMetaBox()
+    public function add_meta_box_callback()
     {
         global $wp_meta_boxes;
 
-        Inspect::addMetaBox('post');
+        InspectPanel::add_meta_box_callback('post');
 
         $this->assertArrayHasKey('beyondwords__inspect', $wp_meta_boxes['post']['advanced']['low']);
 
@@ -52,7 +52,7 @@ class InspectTest extends TestCase
     /**
      * @test
      */
-    public function renderMetaBoxContent()
+    public function render_meta_box_content()
     {
         $postMeta = [
             'beyondwords_project_id'       => BEYONDWORDS_TESTS_PROJECT_ID,
@@ -79,7 +79,7 @@ class InspectTest extends TestCase
         ]);
 
         $html = $this->captureOutput(function () use ($post) {
-            Inspect::renderMetaBoxContent($post);
+            InspectPanel::render_meta_box_content($post);
         });
 
         $crawler = new Crawler($html);
@@ -139,7 +139,7 @@ class InspectTest extends TestCase
         $_POST['beyondwords_delete_content_nonce'] = wp_create_nonce('beyondwords_delete_content');
         $_POST['beyondwords_delete_content'] = '1';
 
-        Inspect::save($postId);
+        InspectPanel::save($postId);
 
         unset($_POST['beyondwords_delete_content']);
 

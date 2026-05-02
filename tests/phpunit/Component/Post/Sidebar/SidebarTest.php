@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\Sidebar\Sidebar;
+use BeyondWords\Post\Sidebar;
 
 class SidebarTest extends TestCase
 {
@@ -29,6 +29,6 @@ class SidebarTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('enqueue_block_assets', array(Sidebar::class, 'enqueueBlockAssets')));
+        $this->assertEquals(10, has_action('enqueue_block_assets', array(Sidebar::class, 'enqueue_block_assets')));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\ContentId\ContentId;
+use BeyondWords\Post\ContentId;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ContentIdTest extends TestCase

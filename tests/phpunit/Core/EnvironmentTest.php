@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Core\Environment;
+use BeyondWords\Core\Environment;
 
 class EnvironmentTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Core\Environment
+     * @var \BeyondWords\Core\Environment
      */
     private $_instance;
 
@@ -33,9 +33,9 @@ class EnvironmentTest extends TestCase
     public function getApiUrl()
     {
         if (defined('BEYONDWORDS_API_URL') && strlen(BEYONDWORDS_API_URL)) {
-            $this->assertSame(BEYONDWORDS_API_URL, Environment::getApiUrl());
+            $this->assertSame(BEYONDWORDS_API_URL, Environment::get_api_url());
         } else {
-            $this->assertSame(Environment::BEYONDWORDS_API_URL, Environment::getApiUrl());
+            $this->assertSame(Environment::BEYONDWORDS_API_URL, Environment::get_api_url());
         }
     }
 
@@ -44,7 +44,7 @@ class EnvironmentTest extends TestCase
      */
     public function getBackendUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_BACKEND_URL, Environment::getBackendUrl());
+        $this->assertSame(Environment::BEYONDWORDS_BACKEND_URL, Environment::get_backend_url());
     }
 
     /**
@@ -52,7 +52,7 @@ class EnvironmentTest extends TestCase
      */
     public function getJsSdkUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_JS_SDK_URL, Environment::getJsSdkUrl());
+        $this->assertSame(Environment::BEYONDWORDS_JS_SDK_URL, Environment::get_js_sdk_url());
     }
 
     /**
@@ -60,7 +60,7 @@ class EnvironmentTest extends TestCase
      */
     public function getAmpPlayerUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_AMP_PLAYER_URL, Environment::getAmpPlayerUrl());
+        $this->assertSame(Environment::BEYONDWORDS_AMP_PLAYER_URL, Environment::get_amp_player_url());
     }
 
     /**
@@ -68,7 +68,7 @@ class EnvironmentTest extends TestCase
      */
     public function getAmpImgUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_AMP_IMG_URL, Environment::getAmpImgUrl());
+        $this->assertSame(Environment::BEYONDWORDS_AMP_IMG_URL, Environment::get_amp_img_url());
     }
 
     /**
@@ -76,6 +76,6 @@ class EnvironmentTest extends TestCase
      */
     public function getDashboardUrl()
     {
-        $this->assertSame(Environment::BEYONDWORDS_DASHBOARD_URL, Environment::getDashboardUrl());
+        $this->assertSame(Environment::BEYONDWORDS_DASHBOARD_URL, Environment::get_dashboard_url());
     }
 }

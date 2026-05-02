@@ -10,7 +10,7 @@
  * @since   4.5.2
  */
 
-use Beyondwords\Wordpress\Component\Post\SelectVoice\SelectVoice;
+use BeyondWords\Post\SelectVoice;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class SelectVoiceTest extends TestCase
@@ -44,8 +44,8 @@ class SelectVoiceTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('rest_api_init', array(SelectVoice::class, 'restApiInit')));
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(SelectVoice::class, 'adminEnqueueScripts')));
+        $this->assertEquals(10, has_action('rest_api_init', array(SelectVoice::class, 'rest_api_init_callback')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(SelectVoice::class, 'admin_enqueue_scripts_callback')));
         $this->assertEquals(10, has_action('save_post_page', array(SelectVoice::class, 'save')));
         $this->assertEquals(10, has_action('save_post_post', array(SelectVoice::class, 'save')));
     }

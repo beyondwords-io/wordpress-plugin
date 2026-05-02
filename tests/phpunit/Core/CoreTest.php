@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
-use Beyondwords\Wordpress\Core\Core;
+use BeyondWords\Settings\Fields;
+use BeyondWords\Core\Core;
 
 class CoreTest extends TestCase
 {
@@ -30,12 +30,13 @@ class CoreTest extends TestCase
     {
         Core::init();
 
-        $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array(Core::class, 'enqueueBlockEditorAssets')));
-        $this->assertEquals(99, has_action('init', array(Core::class, 'registerMeta')));
-        $this->assertEquals(99, has_action('wp_after_insert_post', array(Core::class, 'onAddOrUpdatePost')));
-        $this->assertEquals(10, has_action('before_delete_post', array(Core::class, 'onDeletePost')));
-        $this->assertEquals(10, has_action('is_protected_meta', array(Core::class, 'isProtectedMeta')));
-        $this->assertEquals(10, has_action('get_post_metadata', array(Core::class, 'getLangCodeFromJsonIfEmpty')));
+        $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array(Core::class, 'enqueue_block_editor_assets')));
+        $this->assertEquals(99, has_action('init', array(Core::class, 'register_meta')));
+        $this->assertEquals(99, has_action('wp_after_insert_post', array(Core::class, 'on_add_or_update_post')));
+        $this->assertEquals(10, has_action('wp_trash_post', array(Core::class, 'on_trash_post')));
+        $this->assertEquals(10, has_action('before_delete_post', array(Core::class, 'on_delete_post')));
+        $this->assertEquals(10, has_action('is_protected_meta', array(Core::class, 'is_protected_meta')));
+        $this->assertEquals(10, has_action('get_post_metadata', array(Core::class, 'get_lang_code_from_json_if_empty')));
     }
 
     /**
@@ -56,7 +57,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertNotFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -82,7 +83,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertNotFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -107,7 +108,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertNotFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -134,14 +135,14 @@ class CoreTest extends TestCase
         $current_screen->is_block_editor( true );
 
         // Script should not be enqueued without a valid API connection
-        Core::enqueueBlockEditorAssets();
+        Core::enqueue_block_editor_assets();
         $this->assertFalse(wp_script_is('beyondwords-block-js', 'enqueued'));
 
         // Set a valid API connection
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
         // Script should now be enqueued
-        Core::enqueueBlockEditorAssets();
+        Core::enqueue_block_editor_assets();
         $this->assertTrue(wp_script_is('beyondwords-block-js', 'enqueued'));
 
         wp_dequeue_script('beyondwords-block-js');
@@ -181,7 +182,7 @@ class CoreTest extends TestCase
             'post_title' => 'CoreTest::emptyPostMetaWillNotCreateAudio',
         ]);
 
-        $this->assertFalse(Core::generateAudioForPost($postId));
+        $this->assertFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -203,7 +204,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertFalse(Core::generateAudioForPost($postId));
+        $this->assertFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -227,7 +228,7 @@ class CoreTest extends TestCase
 
         $revisionId = wp_save_post_revision($postId);
 
-        $this->assertFalse(Core::generateAudioForPost($revisionId));
+        $this->assertFalse(Core::generate_audio_for_post($revisionId));
 
         wp_delete_post($postId, true);
 
@@ -254,7 +255,7 @@ class CoreTest extends TestCase
 
         add_filter('beyondwords_settings_post_statuses', $filter);
 
-        $this->assertEquals($expect, Core::shouldProcessPostStatus($status));
+        $this->assertEquals($expect, Core::should_process_post_status($status));
 
         remove_filter('beyondwords_settings_post_statuses', $filter);
 
@@ -316,7 +317,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertFalse(Core::generateAudioForPost($postId));
+        $this->assertFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -340,7 +341,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        Core::onDeletePost($postId);
+        Core::on_delete_post($postId);
 
         wp_delete_post($postId, true);
 
@@ -365,7 +366,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        Core::onTrashPost($postId);
+        Core::on_trash_post($postId);
 
         wp_trash_post($postId);
 
@@ -403,7 +404,7 @@ class CoreTest extends TestCase
 
         add_filter('beyondwords_settings_post_statuses', $filter);
 
-        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertNotFalse(Core::generate_audio_for_post($postId));
 
         remove_filter('beyondwords_settings_post_statuses', $filter);
 
@@ -438,7 +439,7 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertFalse(Core::generateAudioForPost($postId));
+        $this->assertFalse(Core::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -486,7 +487,7 @@ class CoreTest extends TestCase
             'meta_input' => $metaInput,
         ]);
 
-        $this->assertNotFalse(Core::generateAudioForPost($postId));
+        $this->assertNotFalse(Core::generate_audio_for_post($postId));
         $this->assertEquals($expect, get_post_meta($postId, 'beyondwords_integration_method', true));
 
         wp_delete_post($postId, true);
@@ -544,7 +545,7 @@ class CoreTest extends TestCase
             'post_title' => 'CoreTest::processResponse',
         ]);
 
-        Core::processResponse($response, BEYONDWORDS_TESTS_PROJECT_ID, $postId);
+        Core::process_response($response, BEYONDWORDS_TESTS_PROJECT_ID, $postId);
 
         $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
         $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
@@ -590,7 +591,7 @@ class CoreTest extends TestCase
      */
     public function registerMeta()
     {
-        Core::registerMeta();
+        Core::register_meta();
 
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::registerMeta',
@@ -666,7 +667,7 @@ class CoreTest extends TestCase
      */
     public function isProtectedMeta($expect, $protected, $metaKey)
     {
-        $this->assertSame($expect, Core::isProtectedMeta($protected, $metaKey));
+        $this->assertSame($expect, Core::is_protected_meta($protected, $metaKey));
     }
 
     public function isProtectedMetaProvider()
@@ -737,9 +738,9 @@ class CoreTest extends TestCase
             ],
         ]);
 
-        $this->assertSame('foo', Core::getLangCodeFromJsonIfEmpty('foo', $postId, 'beyondwords_language_foo', true));
-        $this->assertSame('bar', Core::getLangCodeFromJsonIfEmpty('bar', $postId, 'beyondwords_language_code', true));
-        $this->assertSame(["$language_code"], Core::getLangCodeFromJsonIfEmpty('', $postId, 'beyondwords_language_code', true));
+        $this->assertSame('foo', Core::get_lang_code_from_json_if_empty('foo', $postId, 'beyondwords_language_foo', true));
+        $this->assertSame('bar', Core::get_lang_code_from_json_if_empty('bar', $postId, 'beyondwords_language_code', true));
+        $this->assertSame(["$language_code"], Core::get_lang_code_from_json_if_empty('', $postId, 'beyondwords_language_code', true));
     }
 
     /**
@@ -755,9 +756,9 @@ class CoreTest extends TestCase
 
         // When meta_key is null (e.g. when get_post_meta is called without a key),
         // the function should return the value unchanged
-        $this->assertNull(Core::getLangCodeFromJsonIfEmpty(null, $postId, null));
-        $this->assertSame('foo', Core::getLangCodeFromJsonIfEmpty('foo', $postId, null));
-        $this->assertSame(['bar'], Core::getLangCodeFromJsonIfEmpty(['bar'], $postId, null));
+        $this->assertNull(Core::get_lang_code_from_json_if_empty(null, $postId, null));
+        $this->assertSame('foo', Core::get_lang_code_from_json_if_empty('foo', $postId, null));
+        $this->assertSame(['bar'], Core::get_lang_code_from_json_if_empty(['bar'], $postId, null));
 
         wp_delete_post($postId, true);
     }
@@ -807,7 +808,7 @@ class CoreTest extends TestCase
             'meta_input' => $meta_input,
         ]);
 
-        $this->assertSame($expect, Core::shouldGenerateAudioForPost($postId));
+        $this->assertSame($expect, Core::should_generate_audio_for_post($postId));
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -885,7 +886,7 @@ class CoreTest extends TestCase
             // Simulate Gutenberg's meta box compat request
             $_REQUEST['meta-box-loader'] = '1';
 
-            $result = Core::onAddOrUpdatePost($postId);
+            $result = Core::on_add_or_update_post($postId);
 
             // Should return false without making any API calls
             $this->assertFalse($result);
@@ -928,7 +929,7 @@ class CoreTest extends TestCase
             // Ensure meta-box-loader is not set
             unset($_REQUEST['meta-box-loader']);
 
-            $result = Core::onAddOrUpdatePost($postId);
+            $result = Core::on_add_or_update_post($postId);
 
             // Should not be false — the method should proceed to generateAudioForPost
             $this->assertTrue($result);
@@ -974,7 +975,7 @@ class CoreTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        Core::onDeletePost($revisionId);
+        Core::on_delete_post($revisionId);
 
         remove_filter('pre_http_request', $filter);
 
@@ -1008,7 +1009,7 @@ class CoreTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        Core::onDeletePost($postId);
+        Core::on_delete_post($postId);
 
         remove_filter('pre_http_request', $filter);
 
@@ -1046,7 +1047,7 @@ class CoreTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        Core::onTrashPost($revisionId);
+        Core::on_trash_post($revisionId);
 
         remove_filter('pre_http_request', $filter);
 
@@ -1079,7 +1080,7 @@ class CoreTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        Core::onTrashPost($postId);
+        Core::on_trash_post($postId);
 
         remove_filter('pre_http_request', $filter);
 
@@ -1114,7 +1115,7 @@ class CoreTest extends TestCase
 
         $filter = $this->addNotFoundFilter($staleContentId, ['PUT']);
 
-        $response = Core::generateAudioForPost($postId);
+        $response = Core::generate_audio_for_post($postId);
 
         remove_filter('pre_http_request', $filter);
 
@@ -1161,7 +1162,7 @@ class CoreTest extends TestCase
 
         $filter = $this->addNotFoundFilter($staleContentId, ['PUT']);
 
-        Core::generateAudioForPost($postId);
+        Core::generate_audio_for_post($postId);
 
         remove_filter('pre_http_request', $filter);
 

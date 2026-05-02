@@ -10,7 +10,7 @@
  * @since   3.0.0
  */
 
-use Beyondwords\Wordpress\Component\Post\DisplayPlayer\DisplayPlayer;
+use BeyondWords\Post\DisplayPlayer;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class DisplayPlayerTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\AddPlayer\AddPlayer;
+use BeyondWords\Post\AddPlayer;
 
 class AddPlayerTest extends TestCase
 {
@@ -29,90 +29,90 @@ class AddPlayerTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'registerBlock')));
-        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'addBlockEditorStylesheet')));
+        $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'register_block')));
+        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'add_block_editor_stylesheet')));
 
-        $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'addEditorStyles')));
-        $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filterTinyMceSettings')));
+        $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'add_editor_styles')));
+        $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filter_tiny_mce_settings')));
 
-        $this->assertEquals(10, has_filter('mce_external_plugins', array(AddPlayer::class, 'addPlugin')));
-        $this->assertEquals(10, has_filter('mce_buttons', array(AddPlayer::class, 'addButton')));
-        $this->assertEquals(10, has_filter('mce_css', array(AddPlayer::class, 'addStylesheet')));
+        $this->assertEquals(10, has_filter('mce_external_plugins', array(AddPlayer::class, 'add_plugin')));
+        $this->assertEquals(10, has_filter('mce_buttons', array(AddPlayer::class, 'add_button')));
+        $this->assertEquals(10, has_filter('mce_css', array(AddPlayer::class, 'add_stylesheet')));
     }
 
     /**
      * @test
      */
-    public function addPlugin()
+    public function add_plugin()
     {
-        $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/tinymce.js';
+        $url = BEYONDWORDS__PLUGIN_URI . 'src/post/add-player/tinymce.js';
 
-        $this->assertSame(['beyondwords_player' => $url], AddPlayer::addPlugin([]));
+        $this->assertSame(['beyondwords_player' => $url], AddPlayer::add_plugin([]));
 
-        $this->assertSame(['beyondwords_player' => $url], AddPlayer::addPlugin(['beyondwords_player' => 'foo']));
+        $this->assertSame(['beyondwords_player' => $url], AddPlayer::add_plugin(['beyondwords_player' => 'foo']));
 
-        $this->assertSame(['foo' => 'bar', 'beyondwords_player' => $url], AddPlayer::addPlugin(['foo' => 'bar']));
+        $this->assertSame(['foo' => 'bar', 'beyondwords_player' => $url], AddPlayer::add_plugin(['foo' => 'bar']));
     }
 
     /**
      * @test
      */
-    public function addButton()
+    public function add_button()
     {
-        $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/tinymce.js';
+        $url = BEYONDWORDS__PLUGIN_URI . 'src/post/add-player/tinymce.js';
 
-        $this->assertSame(['beyondwords_player'], AddPlayer::addButton([]));
+        $this->assertSame(['beyondwords_player'], AddPlayer::add_button([]));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player'], AddPlayer::addButton(['button-1', 'button-2']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player'], AddPlayer::add_button(['button-1', 'button-2']));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv'], AddPlayer::addButton(['button-1', 'button-2', 'wp_adv']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv'], AddPlayer::add_button(['button-1', 'button-2', 'wp_adv']));
 
-        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv', 'button-extra'], AddPlayer::addButton(['button-1', 'button-2', 'wp_adv', 'button-extra']));
+        $this->assertSame(['button-1', 'button-2', 'beyondwords_player', 'wp_adv', 'button-extra'], AddPlayer::add_button(['button-1', 'button-2', 'wp_adv', 'button-extra']));
     }
 
     /**
      * @test
      */
-    public function addStylesheet()
+    public function add_stylesheet()
     {
-        $url = BEYONDWORDS__PLUGIN_URI . 'src/Component/Post/AddPlayer/AddPlayer.css';
+        $url = BEYONDWORDS__PLUGIN_URI . 'src/post/add-player/AddPlayer.css';
 
-        $this->assertSame(sprintf('https://example.com/style.css,%s', $url), AddPlayer::addStylesheet('https://example.com/style.css'));
+        $this->assertSame(sprintf('https://example.com/style.css,%s', $url), AddPlayer::add_stylesheet('https://example.com/style.css'));
     }
 
     /**
      * @test
      */
-    public function playerPreviewI18nStyles()
+    public function player_preview_i18n_styles()
     {
         $expect = "iframe [data-beyondwords-player]:empty:after, .edit-post-visual-editor [data-beyondwords-player]:empty:after { content: 'Player placeholder: The position of the audio player.'; }";
 
-        $this->assertSame($expect, AddPlayer::playerPreviewI18nStyles());
+        $this->assertSame($expect, AddPlayer::player_preview_i18n_styles());
     }
 
     /**
      * @test
      */
-    public function filterTinyMceSettings()
+    public function filter_tiny_mce_settings()
     {
         // No existing styles
-        $settings = AddPlayer::filterTinyMceSettings([]);
-        $this->assertSame(AddPlayer::playerPreviewI18nStyles() . ' ', $settings['content_style']);
+        $settings = AddPlayer::filter_tiny_mce_settings([]);
+        $this->assertSame(AddPlayer::player_preview_i18n_styles() . ' ', $settings['content_style']);
 
         // Existing styles
-        $settings = AddPlayer::filterTinyMceSettings(['content_style' => 'p { color: red; }']);
-        $this->assertSame('p { color: red; } ' . AddPlayer::playerPreviewI18nStyles() . ' ', $settings['content_style']);
+        $settings = AddPlayer::filter_tiny_mce_settings(['content_style' => 'p { color: red; }']);
+        $this->assertSame('p { color: red; } ' . AddPlayer::player_preview_i18n_styles() . ' ', $settings['content_style']);
     }
 
     /**
      * @test
      */
-    public function addEditorStyles()
+    public function add_editor_styles()
     {
         $html = $this->captureOutput(function () {
-            AddPlayer::addEditorStyles();
+            AddPlayer::add_editor_styles();
         });
 
-        $this->assertSame('<style>' . AddPlayer::playerPreviewI18nStyles() . '</style>', $html);
+        $this->assertSame('<style>' . AddPlayer::player_preview_i18n_styles() . '</style>', $html);
     }
 }

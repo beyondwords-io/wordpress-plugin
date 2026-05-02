@@ -67,12 +67,12 @@
     },
     "scripts": {
         "lint:plugins": "./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",
-        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80 --only-percentage | sed 's/[^0-9.]*//g'",
-        "test:phpunit": [
+        "test": [
             "npx wp-env --config .wp-env.tests.json run cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
         ],
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",
+        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80 --only-percentage | sed 's/[^0-9.]*//g'",
         "translate": [
             "@wp:i18n:make-pot",
             "cp ./languages/speechkit.pot ./languages/en_US.po",

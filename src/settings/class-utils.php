@@ -29,7 +29,7 @@ class Utils {
 	 *
 	 * @var string[]
 	 */
-	const SKIP_POST_TYPES = array(
+	const SKIP_POST_TYPES = [
 		'attachment',
 		'custom_css',
 		'customize_changeset',
@@ -44,7 +44,7 @@ class Utils {
 		'wp_template_part',
 		'wp_global_styles',
 		'wp_navigation',
-	);
+	];
 
 	/**
 	 * Required `supports` features for a post type to be eligible.
@@ -54,7 +54,7 @@ class Utils {
 	 *
 	 * @var string[]
 	 */
-	const REQUIRED_FEATURES = array( 'title', 'editor', 'custom-fields' );
+	const REQUIRED_FEATURES = [ 'title', 'editor', 'custom-fields' ];
 
 	/**
 	 * Get the post types eligible for BeyondWords audio generation.
@@ -65,7 +65,9 @@ class Utils {
 	 * @return string[]
 	 */
 	public static function get_compatible_post_types(): array {
-		$post_types = array_diff( get_post_types(), self::SKIP_POST_TYPES );
+		// Reindex before passing to the filter — callers expect a 0-indexed list,
+		// not the associative `[name => name]` shape `get_post_types()` returns.
+		$post_types = array_values( array_diff( get_post_types(), self::SKIP_POST_TYPES ) );
 
 		/**
 		 * Filters the post types BeyondWords considers compatible.
@@ -80,7 +82,7 @@ class Utils {
 		 */
 		$post_types = apply_filters( 'beyondwords_settings_post_types', $post_types );
 
-		$post_types = array_filter( $post_types, array( self::class, 'post_type_supports_required_features' ) );
+		$post_types = array_filter( $post_types, [ self::class, 'post_type_supports_required_features' ] );
 
 		return array_values( $post_types );
 	}
@@ -88,9 +90,17 @@ class Utils {
 	/**
 	 * Whether a post type supports every feature BeyondWords requires.
 	 *
+	 * Unregistered post types pass through — they're slugs added by the
+	 * `beyondwords_settings_post_types` filter and we treat the filter as
+	 * authoritative. Registered types are checked against `REQUIRED_FEATURES`.
+	 *
 	 * @param string $post_type Post type slug.
 	 */
 	public static function post_type_supports_required_features( string $post_type ): bool {
+		if ( ! post_type_exists( $post_type ) ) {
+			return true;
+		}
+
 		foreach ( self::REQUIRED_FEATURES as $feature ) {
 			if ( ! post_type_supports( $post_type, $feature ) ) {
 				return false;
@@ -176,7 +186,7 @@ class Utils {
 		$errors = wp_cache_get( 'beyondwords_settings_errors', 'beyondwords' );
 
 		if ( empty( $errors ) ) {
-			$errors = array();
+			$errors = [];
 		}
 
 		if ( '' === $error_id ) {

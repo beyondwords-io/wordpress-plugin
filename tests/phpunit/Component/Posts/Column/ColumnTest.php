@@ -1,11 +1,11 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Posts\Column\Column;
+use BeyondWords\Posts\Column;
 
 class ColumnTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Posts\Column\Column
+     * @var \BeyondWords\Posts\Column
      */
     private $_instance;
 
@@ -35,24 +35,24 @@ class ColumnTest extends TestCase
         do_action('wp_loaded');
 
         // Post type: post
-        $this->assertEquals(10, has_filter('manage_post_posts_columns', array(Column::class, 'renderColumnsHead')));
-        $this->assertEquals(10, has_action('manage_post_posts_custom_column', array(Column::class, 'renderColumnsContent')));
-        $this->assertEquals(10, has_filter('manage_edit-post_sortable_columns', array(Column::class, 'makeColumnSortable')));
+        $this->assertEquals(10, has_filter('manage_post_posts_columns', array(Column::class, 'render_columns_head')));
+        $this->assertEquals(10, has_action('manage_post_posts_custom_column', array(Column::class, 'render_columns_content')));
+        $this->assertEquals(10, has_filter('manage_edit-post_sortable_columns', array(Column::class, 'make_column_sortable')));
 
         // Post type: page
-        $this->assertEquals(10, has_filter('manage_page_posts_columns', array(Column::class, 'renderColumnsHead')));
-        $this->assertEquals(10, has_action('manage_page_posts_custom_column', array(Column::class, 'renderColumnsContent')));
-        $this->assertEquals(10, has_filter('manage_edit-page_sortable_columns', array(Column::class, 'makeColumnSortable')));
+        $this->assertEquals(10, has_filter('manage_page_posts_columns', array(Column::class, 'render_columns_head')));
+        $this->assertEquals(10, has_action('manage_page_posts_custom_column', array(Column::class, 'render_columns_content')));
+        $this->assertEquals(10, has_filter('manage_edit-page_sortable_columns', array(Column::class, 'make_column_sortable')));
 
-        // @todo set CoreUtils::isEditScreen() to true for this assertion
-        // $this->assertEquals(10, has_filter('pre_get_posts', array($column, 'setSortQuery')));
+        // @todo set CoreUtils::is_edit_screen() to true for this assertion
+        // $this->assertEquals(10, has_filter('pre_get_posts', array($column, 'set_sort_query')));
     }
 
     public function testRenderColumnsHead()
     {
         $defaults = ['foo' => 'Bar'];
 
-        $columns = Column::renderColumnsHead($defaults);
+        $columns = Column::render_columns_head($defaults);
 
         $this->assertSame(['foo' => 'Bar', 'beyondwords' => 'BeyondWords'], $columns);
     }
@@ -66,7 +66,7 @@ class ColumnTest extends TestCase
 
         $postId = self::factory()->post->create($postArgs);
 
-        Column::renderColumnsContent('beyondwords', $postId);
+        Column::render_columns_content('beyondwords', $postId);
 
         wp_delete_post($postId, true);
     }
@@ -154,9 +154,9 @@ class ColumnTest extends TestCase
      *
      * @dataProvider makeColumnSortableProvider
      **/
-    public function makeColumnSortable($expect, $params)
+    public function make_column_sortable($expect, $params)
     {
-        $this->assertSame($expect, Column::makeColumnSortable($params));
+        $this->assertSame($expect, Column::make_column_sortable($params));
     }
 
     public function makeColumnSortableProvider()
@@ -183,7 +183,7 @@ class ColumnTest extends TestCase
     /**
      * @test
      */
-    public function setSortQuery()
+    public function set_sort_query()
     {
         global $wp_the_query;
 
@@ -194,27 +194,27 @@ class ColumnTest extends TestCase
         $this->assertEquals('', $query->get('orderby'));
 
         $query->set('orderby', 'date');
-        $query = Column::setSortQuery($query);
+        $query = Column::set_sort_query($query);
 	    $wp_the_query = $query;
 
         $this->assertEquals('', $query->get('meta_query'));
         $this->assertEquals('date', $query->get('orderby'));
 
         $query->set('orderby', 'beyondwords');
-        $query = Column::setSortQuery($query);
+        $query = Column::set_sort_query($query);
 	    $wp_the_query = $query;
 
         $this->assertIsArray($query->get('meta_query'));
-        $this->assertSame(Column::getSortQueryArgs(), $query->get('meta_query'));
+        $this->assertSame(Column::get_sort_query_args(), $query->get('meta_query'));
         $this->assertEquals('meta_value_num date', $query->get('orderby'));
     }
 
     /**
      * @test
      */
-    public function getSortQueryArgs()
+    public function get_sort_query_args()
     {
-        $args = Column::getSortQueryArgs();
+        $args = Column::get_sort_query_args();
 
         $this->assertEquals(['relation', 0, 1], array_keys($args));
 

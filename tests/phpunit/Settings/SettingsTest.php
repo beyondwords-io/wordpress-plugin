@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Settings;
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Settings;
+use BeyondWords\Settings\Utils;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class SettingsTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Settings\Settings
+     * @var \BeyondWords\Settings\Settings
      * @static
      */
     private $_instance;
@@ -40,23 +40,21 @@ class SettingsTest extends TestCase
 
         do_action('wp_loaded');
 
-        // Actions
-        $this->assertSame(1, has_action('admin_menu', array(Settings::class, 'addOptionsPage')));
-        $this->assertSame(100, has_action('admin_notices', array(Settings::class, 'printMissingApiCredsWarning')));
-        $this->assertSame(200, has_action('admin_notices', array(Settings::class, 'printSettingsErrors')));
-        $this->assertSame(10, has_action('admin_notices', array(Settings::class, 'maybePrintPluginReviewNotice')));
-        $this->assertSame(10, has_action('admin_enqueue_scripts', array(Settings::class, 'enqueueScripts')));
-        $this->assertSame(10, has_action('load-settings_page_beyondwords', array(Settings::class, 'maybeValidateApiCreds')));
+        $this->assertSame(1, has_action('admin_menu', array(Settings::class, 'add_options_page')));
+        $this->assertSame(100, has_action('admin_notices', array(Settings::class, 'maybe_print_missing_creds_warning')));
+        $this->assertSame(200, has_action('admin_notices', array(Settings::class, 'print_settings_errors')));
+        $this->assertSame(10, has_action('admin_notices', array(Settings::class, 'maybe_print_review_notice')));
+        $this->assertSame(10, has_action('load-settings_page_beyondwords', array(Settings::class, 'maybe_validate_api_creds')));
 
-        $this->assertSame(10, has_action('rest_api_init', array(Settings::class, 'restApiInit')));
+        $this->assertSame(10, has_action('rest_api_init', array(Settings::class, 'register_rest_routes')));
 
-        $this->assertSame(10, has_filter('plugin_action_links_speechkit/speechkit.php', array(Settings::class, 'addSettingsLinkToPluginPage')));
+        $this->assertSame(10, has_filter('plugin_action_links_speechkit/speechkit.php', array(Settings::class, 'add_plugin_action_link')));
     }
 
     /**
      * @test
      */
-    public function addSettingsLinkToPluginPage()
+    public function add_plugin_action_link()
     {
         $links = [
             '<a href="#">Deactivate</a>'
@@ -66,7 +64,7 @@ class SettingsTest extends TestCase
             esc_url(admin_url('options-general.php?page=beyondwords')) .
             '">' . __('Settings', 'speechkit') . '</a>';
 
-        $newLinks = Settings::addSettingsLinkToPluginPage($links);
+        $newLinks = Settings::add_plugin_action_link($links);
 
         $this->assertSame($newLinks[0], $expected);
         $this->assertSame($newLinks[1], $links[0]);
@@ -75,10 +73,10 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function createAdminInterface()
+    public function render_admin_page()
     {
         $html = $this->captureOutput(function () {
-            Settings::createAdminInterface();
+            Settings::render_admin_page();
         });
 
         $crawler = new Crawler($html);
@@ -100,7 +98,7 @@ class SettingsTest extends TestCase
     public function hasValidApiConnectionWithoutAnyField()
     {
         delete_option('beyondwords_valid_api_connection');
-        $this->assertFalse(SettingsUtils::hasValidApiConnection());
+        $this->assertFalse(Utils::has_valid_api_connection());
     }
 
     /**
@@ -111,7 +109,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->assertFalse(SettingsUtils::hasValidApiConnection());
+        $this->assertFalse(Utils::has_valid_api_connection());
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -126,7 +124,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
-        $this->assertTrue(SettingsUtils::hasValidApiConnection());
+        $this->assertTrue(Utils::has_valid_api_connection());
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -139,7 +137,7 @@ class SettingsTest extends TestCase
     public function printSettingsErrorsWithoutErrors()
     {
         $html = $this->captureOutput(function () {
-            Settings::printSettingsErrors();
+            Settings::print_settings_errors();
         });
 
         $this->assertSame('', $html);
@@ -158,7 +156,7 @@ class SettingsTest extends TestCase
         wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
         $html = $this->captureOutput(function () {
-            Settings::printSettingsErrors();
+            Settings::print_settings_errors();
         });
 
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
@@ -175,7 +173,7 @@ class SettingsTest extends TestCase
         delete_option('beyondwords_project_id');
 
         $html = $this->captureOutput(function () {
-            Settings::printMissingApiCredsWarning();
+            Settings::maybe_print_missing_creds_warning();
         });
 
         $this->assertNotEmpty($html);
@@ -197,7 +195,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $html = $this->captureOutput(function () {
-            Settings::printMissingApiCredsWarning();
+            Settings::maybe_print_missing_creds_warning();
         });
 
         $this->assertNotEmpty($html);
@@ -221,7 +219,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $html = $this->captureOutput(function () {
-            Settings::printMissingApiCredsWarning();
+            Settings::maybe_print_missing_creds_warning();
         });
 
         $this->assertNotEmpty($html);
@@ -246,7 +244,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $html = $this->captureOutput(function () {
-            Settings::printMissingApiCredsWarning();
+            Settings::maybe_print_missing_creds_warning();
         });
 
         $this->assertSame('', $html);
@@ -268,7 +266,7 @@ class SettingsTest extends TestCase
         wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
 
         $html = $this->captureOutput(function () {
-            Settings::printSettingsErrors();
+            Settings::print_settings_errors();
         });
 
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
@@ -279,38 +277,35 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function getTabs()
+    public function get_visible_tabs()
     {
         $tabs = array(
-            'credentials'    => 'Credentials',
-            'content'        => 'Content',
-            'voices'         => 'Voices',
-            'player'         => 'Player',
-            'summarization'  => 'Summarization',
-            'pronunciations' => 'Pronunciations',
+            'authentication' => 'Authentication',
+            'integration'    => 'Integration',
+            'preferences'    => 'Preferences',
         );
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
-        update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
+        update_option('beyondwords_preselect', ['post' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
-        $this->assertSame($tabs, Settings::getTabs());
+        $this->assertSame($tabs, \BeyondWords\Settings\Tabs::get_visible_tabs());
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_preselect');
         delete_option('beyondwords_valid_api_connection');
 
-        $firstTab = array(
-            'credentials' => 'Credentials',
+        // Without a valid API connection, only the Authentication tab is visible.
+        $this->assertSame(
+            array( 'authentication' => 'Authentication' ),
+            \BeyondWords\Settings\Tabs::get_visible_tabs()
         );
-
-        $this->assertSame($firstTab, Settings::getTabs());
     }
 
     /**
      * @test
      */
-    public function restApiInit()
+    public function rest_api_init_callback()
     {
         // Initiating the REST API.
         global $wp_rest_server;
@@ -322,7 +317,7 @@ class SettingsTest extends TestCase
         wp_set_current_user($userId);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'SettingsTest::restApiInit()',
+            'post_title' => 'SettingsTest::rest_api_init_callback()',
             'post_status' => 'publish',
             'post_author' => $userId
         ]);
@@ -331,7 +326,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
-        Settings::restApiInit();
+        Settings::register_rest_routes();
 
         $request  = new \WP_REST_Request('GET', '/beyondwords/v1/settings');
         $response = $server->dispatch($request);
@@ -353,13 +348,13 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function restApiResponse()
+    public function rest_api_response()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_preselect', ['post' => '1', 'page' => '1']);
         update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
 
-        $reponse = Settings::restApiResponse();
+        $reponse = Settings::rest_settings_response();
 
         $this->assertInstanceOf(\WP_REST_Response::class, $reponse);
 
@@ -379,7 +374,7 @@ class SettingsTest extends TestCase
     public function maybePrintPluginReviewNoticeWithNoOptions()
     {
         $html = $this->captureOutput(function () {
-            Settings::maybePrintPluginReviewNotice();
+            Settings::maybe_print_review_notice();
         });
 
         $this->assertSame('', $html);
@@ -393,7 +388,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-13 days')));
 
         $html = $this->captureOutput(function () {
-            Settings::maybePrintPluginReviewNotice();
+            Settings::maybe_print_review_notice();
         });
 
         $this->assertSame('', $html);
@@ -410,7 +405,7 @@ class SettingsTest extends TestCase
         update_option('beyondwords_notice_review_dismissed', gmdate(\DateTime::ATOM, strtotime('-1 second')));
 
         $html = $this->captureOutput(function () {
-            Settings::maybePrintPluginReviewNotice();
+            Settings::maybe_print_review_notice();
         });
 
         $this->assertSame('', $html);
@@ -426,8 +421,11 @@ class SettingsTest extends TestCase
     {
         update_option('beyondwords_date_activated', gmdate(\DateTime::ATOM, strtotime('-15 days')));
 
+        // The notice only renders on the BeyondWords settings page screen.
+        set_current_screen('settings_page_beyondwords');
+
         $html = $this->captureOutput(function () {
-            Settings::maybePrintPluginReviewNotice();
+            Settings::maybe_print_review_notice();
         });
 
         $crawler = new Crawler($html);

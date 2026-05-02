@@ -34,33 +34,54 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
 require_once "{$_tests_dir}/includes/functions.php";
 
 /*
- * Define plugin constants from system env vars (before WP boots)
+ * Define plugin constants for tests.
+ *
+ * Two sources, in priority order:
+ *   1. Environment variables (set by CI, e.g. via GitHub Actions secrets).
+ *   2. The `config` block of `.wp-env.tests.override.json` (used locally —
+ *      the WP test framework uses its own `wp-tests-config.php`, so the
+ *      `define()` calls wp-env injects into wp-config.php don't reach us).
  */
+$bw_constants = array(
+	'BEYONDWORDS_API_URL',
+	'BEYONDWORDS_MOCK_API',
+	'BEYONDWORDS_TESTS_API_KEY',
+	'BEYONDWORDS_TESTS_CONTENT_ID',
+	'BEYONDWORDS_TESTS_PROJECT_ID',
+);
 
-$apiUrl = getenv( 'BEYONDWORDS_API_URL' );
-if ( ! empty( $apiUrl ) ) {
-	define( 'BEYONDWORDS_API_URL', $apiUrl );
+$bw_override_config = array();
+$bw_override_path   = dirname( __DIR__, 2 ) . '/.wp-env.tests.override.json';
+if ( file_exists( $bw_override_path ) ) {
+	$bw_override_json   = json_decode( (string) file_get_contents( $bw_override_path ), true );
+	$bw_override_config = is_array( $bw_override_json['config'] ?? null ) ? $bw_override_json['config'] : array();
 }
 
-$mockApi = getenv( 'BEYONDWORDS_MOCK_API' );
-if ( ! empty( $mockApi ) && filter_var( $mockApi, FILTER_VALIDATE_BOOLEAN ) ) {
-	define( 'BEYONDWORDS_MOCK_API', true );
+foreach ( $bw_constants as $bw_const ) {
+	if ( defined( $bw_const ) ) {
+		continue;
+	}
+
+	$bw_value = getenv( $bw_const );
+	if ( '' === $bw_value || false === $bw_value ) {
+		$bw_value = $bw_override_config[ $bw_const ] ?? null;
+	}
+
+	if ( null === $bw_value || '' === $bw_value ) {
+		continue;
+	}
+
+	if ( 'BEYONDWORDS_MOCK_API' === $bw_const ) {
+		$bw_value = filter_var( $bw_value, FILTER_VALIDATE_BOOLEAN );
+		if ( ! $bw_value ) {
+			continue;
+		}
+	}
+
+	define( $bw_const, $bw_value );
 }
 
-$testsApiKey = getenv( 'BEYONDWORDS_TESTS_API_KEY' );
-if ( ! empty( $testsApiKey ) ) {
-	define( 'BEYONDWORDS_TESTS_API_KEY', $testsApiKey );
-}
-
-$testsContentId = getenv( 'BEYONDWORDS_TESTS_CONTENT_ID' );
-if ( ! empty( $testsContentId ) ) {
-	define( 'BEYONDWORDS_TESTS_CONTENT_ID', $testsContentId );
-}
-
-$testsProjectId = getenv( 'BEYONDWORDS_TESTS_PROJECT_ID' );
-if ( ! empty( $testsProjectId ) ) {
-	define( 'BEYONDWORDS_TESTS_PROJECT_ID', $testsProjectId );
-}
+unset( $bw_constants, $bw_override_config, $bw_override_path, $bw_override_json, $bw_const, $bw_value );
 
 /**
  * Manually load the plugin being tested.

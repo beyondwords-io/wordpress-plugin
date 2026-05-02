@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\SettingsUtils;
+use BeyondWords\Settings\Utils;
 
 class SettingsUtilsTest extends TestCase
 {
@@ -43,7 +43,7 @@ class SettingsUtilsTest extends TestCase
 
         add_filter('beyondwords_settings_post_types', $filter);
 
-        $postTypes = SettingsUtils::getCompatiblePostTypes();
+        $postTypes = Utils::get_compatible_post_types();
 
         remove_filter('beyondwords_settings_post_types', $filter);
 

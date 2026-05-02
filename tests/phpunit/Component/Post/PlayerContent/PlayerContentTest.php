@@ -10,7 +10,7 @@
  * @since   4.5.2
  */
 
-use Beyondwords\Wordpress\Component\Post\PlayerContent\PlayerContent;
+use BeyondWords\Post\PlayerContent;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class PostPlayerContentTest extends TestCase

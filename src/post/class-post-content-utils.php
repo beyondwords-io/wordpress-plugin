@@ -111,7 +111,7 @@ class PostContentUtils
      *
      * @return string The summary wrapper <div>.
      */
-    public static function get_post_summaryWrapperFormat(int|\WP_Post $post): string
+    public static function get_post_summary_wrapper_format(int|\WP_Post $post): string
     {
         $post = get_post($post);
 

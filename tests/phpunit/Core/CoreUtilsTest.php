@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Core\CoreUtils;
+use BeyondWords\Core\CoreUtils;
 
 class CoreUtilsTest extends TestCase
 {
@@ -33,7 +33,7 @@ class CoreUtilsTest extends TestCase
     {
         set_current_screen($screen);
 
-        $this->assertEquals($expected, CoreUtils::isGutenbergPage());
+        $this->assertEquals($expected, CoreUtils::is_gutenberg_page());
     }
 
     /**
@@ -76,8 +76,8 @@ class CoreUtilsTest extends TestCase
             'beyondwords_delete_content',
         ];
 
-        $this->assertEquals($keys, CoreUtils::getPostMetaKeys());
-        $this->assertEquals($keys, CoreUtils::getPostMetaKeys('current'));
+        $this->assertEquals($keys, CoreUtils::get_post_meta_keys());
+        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('current'));
     }
 
     /**
@@ -111,7 +111,7 @@ class CoreUtilsTest extends TestCase
             '_speechkit_text',
         ];
 
-        $this->assertEquals($keys, CoreUtils::getPostMetaKeys('deprecated'));
+        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('deprecated'));
     }
 
     /**
@@ -161,6 +161,6 @@ class CoreUtilsTest extends TestCase
             '_speechkit_text',
         ];
 
-        $this->assertEquals($keys, CoreUtils::getPostMetaKeys('all'));
+        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('all'));
     }
 }

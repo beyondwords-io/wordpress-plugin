@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\Player\Player;
+use BeyondWords\Settings\Fields;
+use BeyondWords\Core\Environment;
+use BeyondWords\Player\Player;
 use Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends TestCase
 {
-    public const PLAYER_HTML_FORMAT = '<script data-beyondwords-player-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e","playerStyle":"standard"}});\'></script>';
+    public const PLAYER_HTML_FORMAT = '<script data-beyondwords-player-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{"projectId":9969,"contentId":"9279c9e0-e0b5-4789-9040-f44478ed3e9e"}});\'></script>';
 
     /**
      * @test
@@ -22,23 +22,23 @@ class PlayerTest extends TestCase
         do_action('wp_loaded');
 
         // Actions
-        $this->assertEquals(10, has_action('init', array(Player::class, 'registerShortcodes')));
+        $this->assertEquals(10, has_action('init', array(Player::class, 'register_shortcodes')));
 
         // Filters
-        $this->assertEquals(1000000, has_filter('the_content', array(Player::class, 'autoPrependPlayer')));
-        $this->assertEquals(10, has_filter('newsstand_the_content', array(Player::class, 'autoPrependPlayer')));
+        $this->assertEquals(1000000, has_filter('the_content', array(Player::class, 'auto_prepend_player')));
+        $this->assertEquals(10, has_filter('newsstand_the_content', array(Player::class, 'auto_prepend_player')));
     }
 
     /**
      * @test
      * @group player
      */
-    public function addShortcode()
+    public function register_shortcodes()
     {
         global $post;
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::addShortcode',
+            'post_title' => 'PlayerTest::register_shortcodes',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -63,12 +63,12 @@ class PlayerTest extends TestCase
      * @test
      * @group player
      */
-    public function addLegacyPlayer()
+    public function replaces_legacy_div_in_the_content()
     {
         global $post;
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::addLegacyPlayer',
+            'post_title' => 'PlayerTest::replaces_legacy_div_in_the_content',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -95,12 +95,12 @@ class PlayerTest extends TestCase
      * @test
      * @group player
      */
-    public function autoPrependPlayer()
+    public function auto_prepend_player()
     {
         global $post;
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::autoPrependPlayer',
+            'post_title' => 'PlayerTest::auto_prepend_player',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
@@ -111,14 +111,14 @@ class PlayerTest extends TestCase
 
         $content = '<p>Test content.</p>';
 
-        $output = Player::autoPrependPlayer($content);
+        $output = Player::auto_prepend_player($content);
 
-        // autoPrependPlayer() should not affect $content unless is_singular()
+        // auto_prepend_player() should not affect $content unless is_singular()
         $this->assertSame($content, $output);
 
         $this->go_to("/?p={$post->ID}");
 
-        $output = Player::autoPrependPlayer($content);
+        $output = Player::auto_prepend_player($content);
 
         // We are now is_singular() so player should be prepended
         $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'auto') . $content, $output);
@@ -134,12 +134,12 @@ class PlayerTest extends TestCase
      *
      * @dataProvider replaceLegacyCustomPlayerProvider
      */
-    public function replaceLegacyCustomPlayer($content, $expected)
+    public function replace_legacy_custom_player($content, $expected)
     {
         global $post;
 
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::replaceLegacyCustomPlayer',
+            'post_title' => 'PlayerTest::replace_legacy_custom_player',
             'post_content' => $content,
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
@@ -149,14 +149,14 @@ class PlayerTest extends TestCase
 
         setup_postdata($post);
 
-        $output = Player::replaceLegacyCustomPlayer($content);
+        $output = Player::replace_legacy_custom_player($content);
 
         // Replacement only happens when is_singular()
         $this->assertSame($content, $output);
 
         $this->go_to("/?p={$post->ID}");
 
-        $output = Player::replaceLegacyCustomPlayer($content);
+        $output = Player::replace_legacy_custom_player($content);
 
         // We are now is_singular() so player div should be replaced with player shortcode
         $this->assertSame($expected, $output);
@@ -283,37 +283,37 @@ class PlayerTest extends TestCase
      * @test
      * @group player
      */
-    public function renderPlayer()
+    public function render_player()
     {
         global $post;
 
         // Case 1: No post set, should return empty string
-        $this->assertSame('', Player::renderPlayer());
+        $this->assertSame('', Player::render_player());
 
         // Case 2: Post is not a WP_Post instance, should return empty string
         $post = null;
-        $this->assertSame('', Player::renderPlayer());
+        $this->assertSame('', Player::render_player());
 
         // Case 3: Post exists but player is disabled via option
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'PlayerTest::renderPlayer',
+            'post_title' => 'PlayerTest::render_player',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_DISABLED);
         setup_postdata($post);
-        $this->assertSame('', Player::renderPlayer());
+        $this->assertSame('', Player::render_player());
 
         // Case 4: Post exists but player is disabled via post meta
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::ENABLED);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_ENABLED);
         update_post_meta($post->ID, 'beyondwords_disabled', '1');
-        $this->assertSame('', Player::renderPlayer());
+        $this->assertSame('', Player::render_player());
 
         // Case 5: Post exists, player enabled, should render player HTML
         delete_post_meta($post->ID, 'beyondwords_disabled');
-        $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'shortcode'), Player::renderPlayer());
+        $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'shortcode'), Player::render_player());
 
         wp_reset_postdata();
         wp_delete_post($post->ID, true);
@@ -349,7 +349,7 @@ class PlayerTest extends TestCase
 
         add_filter('beyondwords_player_html', $filter, 10, 5);
 
-        $html = Player::renderPlayer();
+        $html = Player::render_player();
 
         remove_filter('beyondwords_player_html', $filter, 10, 5);
 
@@ -365,7 +365,7 @@ class PlayerTest extends TestCase
 
         $script = $wrapper->filter('script[async][defer]');
         $this->assertCount(1, $script);
-        $this->assertSame(Environment::getJsSdkUrl(), $script->attr('src'));
+        $this->assertSame(Environment::get_js_sdk_url(), $script->attr('src'));
         $this->assertNotEmpty($script->attr('onload'));
         $this->assertSame('shortcode', $script->attr('data-beyondwords-player-context'));
 
@@ -377,21 +377,21 @@ class PlayerTest extends TestCase
      * @test
      * @group player
      */
-    public function isEnabled()
+    public function is_enabled()
     {
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::DISABLED);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_DISABLED);
 
         $post = self::factory()->post->create_and_get();
 
-        $this->assertFalse(Player::isEnabled($post));
+        $this->assertFalse(Player::is_enabled($post));
 
-        delete_option(PlayerUI::OPTION_NAME);
+        delete_option(Fields::OPTION_PLAYER_UI);
 
-        $this->assertTrue(Player::isEnabled($post));
+        $this->assertTrue(Player::is_enabled($post));
 
         update_post_meta($post->ID, 'beyondwords_disabled', '1');
 
-        $this->assertFalse(Player::isEnabled($post));
+        $this->assertFalse(Player::is_enabled($post));
 
         wp_delete_post($post->ID, true);
     }
@@ -403,9 +403,9 @@ class PlayerTest extends TestCase
      *
      * @dataProvider contentProvider
      */
-    public function hasCustomPlayer($expect, $content)
+    public function has_custom_player($expect, $content)
     {
-        $this->assertEquals($expect, Player::hasCustomPlayer($content));
+        $this->assertEquals($expect, Player::has_custom_player($content));
     }
 
     public function contentProvider()

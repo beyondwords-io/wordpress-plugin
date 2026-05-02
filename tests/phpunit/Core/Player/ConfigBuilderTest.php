@@ -1,9 +1,8 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Settings\Fields\IntegrationMethod\IntegrationMethod;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerStyle\PlayerStyle;
-use Beyondwords\Wordpress\Component\Settings\Fields\PlayerUI\PlayerUI;
-use Beyondwords\Wordpress\Core\Player\ConfigBuilder;
+use BeyondWords\Settings\Fields;
+use BeyondWords\Post\PlayerStyle;
+use BeyondWords\Player\ConfigBuilder;
 
 /**
  * Class ConfigBuilderTest
@@ -85,45 +84,13 @@ class ConfigBuilderTest extends TestCase
         wp_delete_post($post->ID, true);
     }
 
-    /**
-     * @test
-     */
-    public function mergePluginSettings()
-    {
-        update_option('beyondwords_player_style', 'A');
-        update_option('beyondwords_player_call_to_action', 'B');
-        update_option('beyondwords_player_highlight_sections', 'C');
-        update_option('beyondwords_player_widget_style', 'D');
-        update_option('beyondwords_player_widget_position', 'E');
-        update_option('beyondwords_player_skip_button_style', 'F');
-        update_option('beyondwords_player_clickable_sections', '1');
-
-        $params = ConfigBuilder::mergePluginSettings(['foo' => 'bar']);
-
-        $this->assertEquals($params['foo'], 'bar');
-        $this->assertEquals($params['playerStyle'], 'A');
-        $this->assertEquals($params['callToAction'], 'B');
-        $this->assertEquals($params['highlightSections'], 'C');
-        $this->assertEquals($params['widgetStyle'], 'D');
-        $this->assertEquals($params['widgetPosition'], 'E');
-        $this->assertEquals($params['skipButtonStyle'], 'F');
-        $this->assertEquals($params['clickableSections'], 'body');
-
-        delete_option('beyondwords_player_style');
-        delete_option('beyondwords_player_call_to_action');
-        delete_option('beyondwords_player_highlight_sections');
-        delete_option('beyondwords_player_widget_style');
-        delete_option('beyondwords_player_widget_position');
-        delete_option('beyondwords_player_skip_button_style');
-        delete_option('beyondwords_player_clickable_sections');
-    }
 
     /**
      * @test
      */
     public function mergePostSettingsIncludesHeadlessSetting()
     {
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
@@ -132,13 +99,13 @@ class ConfigBuilderTest extends TestCase
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertEquals($params['showUserInterface'], false);
 
         wp_delete_post($post->ID, true);
 
-        delete_option(PlayerUI::OPTION_NAME);
+        delete_option(Fields::OPTION_PLAYER_UI);
     }
 
     /**
@@ -146,23 +113,23 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsIncludesPlayerStyleCustomField()
     {
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_player_style' => PlayerStyle::VIDEO,
+                'beyondwords_player_style' => "video",
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
-        $this->assertEquals($params['playerStyle'], PlayerStyle::VIDEO);
+        $this->assertEquals($params['playerStyle'], "video");
 
         wp_delete_post($post->ID, true);
 
-        delete_option(PlayerUI::OPTION_NAME);
+        delete_option(Fields::OPTION_PLAYER_UI);
     }
 
     /**
@@ -170,7 +137,7 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsIncludesPlayerContentCustomField()
     {
-        update_option(PlayerUI::OPTION_NAME, PlayerUI::HEADLESS);
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
@@ -180,13 +147,13 @@ class ConfigBuilderTest extends TestCase
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertEquals($params['loadContentAs'], ['summary']);
 
         wp_delete_post($post->ID, true);
 
-        delete_option(PlayerUI::OPTION_NAME);
+        delete_option(Fields::OPTION_PLAYER_UI);
     }
 
     /**
@@ -194,7 +161,7 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsRestApiSetting()
     {
-        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::REST_API);
+        update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_REST_API);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
@@ -203,7 +170,7 @@ class ConfigBuilderTest extends TestCase
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertArrayNotHasKey('clientSideEnabled', $params);
         $this->assertArrayNotHasKey('sourceId', $params);
@@ -212,7 +179,7 @@ class ConfigBuilderTest extends TestCase
 
         wp_delete_post($post->ID, true);
 
-        delete_option(IntegrationMethod::OPTION_NAME);
+        delete_option(Fields::OPTION_INTEGRATION_METHOD);
     }
 
     /**
@@ -220,17 +187,17 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsRestApiCustomFieldOverridesSetting()
     {
-        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::CLIENT_SIDE);
+        update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_CLIENT_SIDE);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_integration_method' => IntegrationMethod::REST_API,
+                'beyondwords_integration_method' => Fields::INTEGRATION_REST_API,
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertArrayNotHasKey('clientSideEnabled', $params);
         $this->assertArrayNotHasKey('sourceId', $params);
@@ -239,7 +206,7 @@ class ConfigBuilderTest extends TestCase
 
         wp_delete_post($post->ID, true);
 
-        delete_option(IntegrationMethod::OPTION_NAME);
+        delete_option(Fields::OPTION_INTEGRATION_METHOD);
     }
 
     /**
@@ -247,7 +214,7 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsClientSideSettingUsesRestApiForLegacyPosts()
     {
-        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::CLIENT_SIDE);
+        update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_CLIENT_SIDE);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
@@ -256,7 +223,7 @@ class ConfigBuilderTest extends TestCase
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertArrayNotHasKey('clientSideEnabled', $params);
         $this->assertArrayNotHasKey('sourceId', $params);
@@ -265,7 +232,7 @@ class ConfigBuilderTest extends TestCase
 
         wp_delete_post($post->ID, true);
 
-        delete_option(IntegrationMethod::OPTION_NAME);
+        delete_option(Fields::OPTION_INTEGRATION_METHOD);
     }
 
     /**
@@ -273,26 +240,27 @@ class ConfigBuilderTest extends TestCase
      */
     public function mergePostSettingsClientSideCustomFieldOverridesSetting()
     {
-        update_option(IntegrationMethod::OPTION_NAME, IntegrationMethod::REST_API);
+        update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_REST_API);
 
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_integration_method' => IntegrationMethod::CLIENT_SIDE,
+                'beyondwords_integration_method' => Fields::INTEGRATION_CLIENT_SIDE,
             ],
         ]);
 
-        $params = ConfigBuilder::mergePostSettings($post, []);
+        $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertArrayNotHasKey('showUserInterface', $params);
         $this->assertArrayNotHasKey('contentId', $params);
 
-        $this->assertEquals($params['playerStyle'], PlayerStyle::STANDARD);
+        // playerStyle is only added when set as post meta — global default no longer applies.
+        $this->assertArrayNotHasKey('playerStyle', $params);
         $this->assertEquals($params['clientSideEnabled'], true);
         $this->assertEquals($params['sourceId'], (string) $post->ID);
 
         wp_delete_post($post->ID, true);
 
-        delete_option(IntegrationMethod::OPTION_NAME);
+        delete_option(Fields::OPTION_INTEGRATION_METHOD);
     }
 }

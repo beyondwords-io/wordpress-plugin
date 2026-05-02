@@ -1,7 +1,7 @@
 <?php
 
-use Beyondwords\Wordpress\Core\Environment;
-use Beyondwords\Wordpress\Core\Player\Renderer\Amp;
+use BeyondWords\Core\Environment;
+use BeyondWords\Player\Renderer\Amp;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -67,7 +67,7 @@ class AmpTest extends TestCase
         $this->assertSame('150', $img->attr('height'));
         $this->assertSame('responsive', $img->attr('layout'));
         $this->assertSame('', $img->attr('placeholder'));
-        $this->assertSame(Environment::getAmpImgUrl(), $img->attr('src'));
+        $this->assertSame(Environment::get_amp_img_url(), $img->attr('src'));
         $this->assertSame('643', $img->attr('width'));
 
         wp_delete_post($post->ID, true);

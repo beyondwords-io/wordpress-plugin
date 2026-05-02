@@ -1,12 +1,12 @@
 <?php
 
-use Beyondwords\Wordpress\Component\Post\Metabox\Metabox;
+use BeyondWords\Post\Metabox;
 use \Symfony\Component\DomCrawler\Crawler;
 
 class MetaboxTest extends TestCase
 {
     /**
-     * @var \Beyondwords\Wordpress\Component\Post\Metabox\Metabox
+     * @var \BeyondWords\Post\Metabox
      */
     private $_instance;
 
@@ -38,26 +38,26 @@ class MetaboxTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(Metabox::class, 'adminEnqueueScripts')));
-        $this->assertEquals(10, has_action('add_meta_boxes', array(Metabox::class, 'addMetaBox')));
+        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(Metabox::class, 'admin_enqueue_scripts_callback')));
+        $this->assertEquals(10, has_action('add_meta_boxes', array(Metabox::class, 'add_meta_box_callback')));
     }
 
     /**
      * @test
      */
-    public function adminEnqueueScripts()
+    public function admin_enqueue_scripts_callback()
     {
         $style = 'beyondwords-Metabox';
 
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        Metabox::adminEnqueueScripts(null);
+        Metabox::admin_enqueue_scripts_callback(null);
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        Metabox::adminEnqueueScripts('edit.php');
+        Metabox::admin_enqueue_scripts_callback('edit.php');
         $this->assertFalse(wp_style_is($style, 'enqueued'));
 
-        Metabox::adminEnqueueScripts('post.php');
+        Metabox::admin_enqueue_scripts_callback('post.php');
         $this->assertTrue(wp_style_is($style, 'enqueued'));
 
         wp_dequeue_style($style);
@@ -66,11 +66,11 @@ class MetaboxTest extends TestCase
     /**
      * @test
      */
-    public function addMetaBox()
+    public function add_meta_box_callback()
     {
         global $wp_meta_boxes;
 
-        Metabox::addMetaBox('post');
+        Metabox::add_meta_box_callback('post');
 
         $this->assertArrayHasKey('beyondwords', $wp_meta_boxes['post']['side']['default']);
 
@@ -82,7 +82,7 @@ class MetaboxTest extends TestCase
      * @group integration
      * @dataProvider renderMetaBoxContentProvider
      */
-    public function renderMetaBoxContent($expectPlayer, $postArgs)
+    public function render_meta_box_content($expectPlayer, $postArgs)
     {
         // Set up API credentials for metabox rendering
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
@@ -91,7 +91,7 @@ class MetaboxTest extends TestCase
         $postId = self::factory()->post->create($postArgs);
 
         $html = $this->captureOutput(function () use ($postId) {
-            Metabox::renderMetaBoxContent($postId);
+            Metabox::render_meta_box_content($postId);
         });
 
         $crawler = new Crawler($html);
@@ -115,34 +115,34 @@ class MetaboxTest extends TestCase
             'No Post Meta' => [
                 'expectPlayer' => false,
                 'postArgs' => [
-                    'post_title' => 'MetaboxTest::renderMetaBoxContent::1',
+                    'post_title' => 'MetaboxTest::render_meta_box_content::1',
                 ],
             ],
             'Empty beyondwords_content_id' => [
                 'expectPlayer' => false,
                 'postArgs' => [
-                    'post_title' => 'MetaboxTest::renderMetaBoxContent::2',
+                    'post_title' => 'MetaboxTest::render_meta_box_content::2',
                     'meta_input' => ['beyondwords_content_id' => '']
                 ],
             ],
             'Empty beyondwords_podcast_id' => [
                 'expectPlayer' => false,
                 'postArgs' => [
-                    'post_title' => 'MetaboxTest::renderMetaBoxContent::3',
+                    'post_title' => 'MetaboxTest::render_meta_box_content::3',
                     'meta_input' => ['beyondwords_podcast_id' => '']
                 ],
             ],
             'beyondwords_content_id' => [
                 'expectPlayer' => true,
                 'postArgs' => [
-                    'post_title' => 'MetaboxTest::renderMetaBoxContent::4',
+                    'post_title' => 'MetaboxTest::render_meta_box_content::4',
                     'meta_input' => ['beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID]
                 ],
             ],
             'beyondwords_podcast_id' => [
                 'expectPlayer' => true,
                 'postArgs' => [
-                    'post_title' => 'MetaboxTest::renderMetaBoxContent::5',
+                    'post_title' => 'MetaboxTest::render_meta_box_content::5',
                     'meta_input' => ['beyondwords_podcast_id' => BEYONDWORDS_TESTS_CONTENT_ID]
                 ],
             ],
@@ -161,7 +161,7 @@ class MetaboxTest extends TestCase
 
         // Pass an invalid post (array instead of WP_Post or int)
         $html = $this->captureOutput(function () {
-            Metabox::renderMetaBoxContent(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
+            Metabox::render_meta_box_content(['ID' => BEYONDWORDS_TESTS_PROJECT_ID]);
         });
 
         $this->assertEmpty($html);
@@ -221,10 +221,10 @@ class MetaboxTest extends TestCase
     /**
      * @test
      */
-    public function regenerateInstructions()
+    public function regenerate_instructions()
     {
         $html = $this->captureOutput(function () {
-            Metabox::regenerateInstructions();
+            Metabox::regenerate_instructions();
         });
 
         $crawler = new Crawler($html);
