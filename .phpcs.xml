@@ -29,6 +29,9 @@
 	<rule ref="WordPress-Extra"/>
 	<rule ref="WordPress-VIP-Go"/>
 
+	<!-- Catches unused / undefined / re-declared variables — orthogonal to WPCS formatting. -->
+	<rule ref="VariableAnalysis"/>
+
 	<!-- Always use short array syntax: [] not array(). WordPress-Core defaults
 	     to the opposite via Universal.Arrays.DisallowShortArraySyntax — we override. -->
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
