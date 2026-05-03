@@ -73,7 +73,7 @@ class Plugin {
 
 		// Block-editor JS bootstrap (registers every @wordpress/plugins slot
 		// under src/editor/).
-		\BeyondWords\Editor\Editor::init();
+		\BeyondWords\Editor\Block\Assets::init();
 
 		// Posts list screen (edit.php) — column, bulk-edit, admin notices.
 		\BeyondWords\AdminPosts\Column::init();
@@ -81,24 +81,24 @@ class Plugin {
 		\BeyondWords\AdminPosts\Notices::init();
 
 		// Post edit screen — top-level UI.
-		\BeyondWords\Post\AddPlayer::init();
-		\BeyondWords\Post\AddPlayer\Assets::init();
-		\BeyondWords\Post\BlockAttributes::init();
-		\BeyondWords\Post\ErrorNotice\Assets::init();
-		\BeyondWords\Post\InspectPanel::init();
-		\BeyondWords\Post\InspectPanel\Assets::init();
-		\BeyondWords\Post\Sidebar\Assets::init();
+		\BeyondWords\Editor\Components\AddPlayer::init();
+		\BeyondWords\Editor\Components\AddPlayer\Assets::init();
+		\BeyondWords\Editor\Components\BlockAttributes::init();
+		\BeyondWords\Editor\Components\ErrorNotice\Assets::init();
+		\BeyondWords\Editor\Components\InspectPanel::init();
+		\BeyondWords\Editor\Components\InspectPanel\Assets::init();
+		\BeyondWords\Editor\Components\Sidebar\Assets::init();
 
 		// Post edit screen — classic-editor metabox controls.
-		\BeyondWords\Post\ContentId::init();
-		\BeyondWords\Post\ContentId\Assets::init();
-		\BeyondWords\Post\GenerateAudio::init();
-		\BeyondWords\Post\DisplayPlayer::init();
-		\BeyondWords\Post\SelectVoice::init();
-		\BeyondWords\Post\SelectVoice\Assets::init();
-		\BeyondWords\Post\PlayerContent::init();
-		\BeyondWords\Post\PlayerStyle::init();
-		\BeyondWords\Post\Metabox::init();
-		\BeyondWords\Post\Metabox\Assets::init();
+		\BeyondWords\Editor\Components\ContentId::init();
+		\BeyondWords\Editor\Components\ContentId\Assets::init();
+		\BeyondWords\Editor\Components\GenerateAudio::init();
+		\BeyondWords\Editor\Components\DisplayPlayer::init();
+		\BeyondWords\Editor\Components\SelectVoice::init();
+		\BeyondWords\Editor\Components\SelectVoice\Assets::init();
+		\BeyondWords\Editor\Components\PlayerContent::init();
+		\BeyondWords\Editor\Components\PlayerStyle::init();
+		\BeyondWords\Editor\Classic\Metabox::init();
+		\BeyondWords\Editor\Classic\Assets::init();
 	}
 }

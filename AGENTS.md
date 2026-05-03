@@ -17,18 +17,31 @@ src/
   api/             class-client.php       — outbound BeyondWords HTTP API wrapper
   compatibility/   class-{name}.php       — third-party plugin compatibility shims
   core/            class-{name}.php       — bootstrap, env, updater, uninstaller (cross-cutting plumbing)
-  editor/          class-editor.php       — block-editor JS bootstrap (enqueue) + per-slot {feature}/index.js modules
+  editor/                                 — everything that lives inside an editor screen
+    block/         class-assets.php       — block editor JS bootstrap (PHP enqueue) + per-slot pages
+      {sidebar,document-setting,prepublish}/index.js — `registerPlugin()` slots
+      index.js                            — block editor JS entry, calls registerPlugin() per slot
+    classic/       class-{metabox,assets}.php + classic.css — classic editor metabox container + assets
+    components/    {feature}/             — reusable PHP+JS UI bits, consumed by both editor types
   player/          class-{name}.php       — front-end player + renderer/{base,amp,javascript}
-  post/            class-{name}.php       — per-post screen UI (each component in its own subfolder when JS/CSS travels with it)
+  post/            class-{name}.php       — pure post-domain utilities (Sync, Meta, Head, Content)
   settings/        class-{name}.php       — plugin settings page + REST endpoints
   site-health/     class-{name}.php       — Site Health debug panel
-  index.js         build entry that requires each component's `index.js`
+  index.js         build entry that requires each block-editor page + each component
 ```
 
 - **One class per file.** File name is `class-{kebab-case-name}.php` (e.g. `class-client.php` in `BeyondWords\Api` → `Client`).
-- **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-meta.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/post/add-player/{class-add-player.php,index.js,AddPlayer.css}`).
-- **JS folders use kebab-case** to match the PHP folder convention (`src/post/add-player/`, `src/editor/document-setting/`).
+- **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-meta.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/editor/components/add-player/{class-add-player.php,index.js,add-player.css}`).
+- **JS folders use kebab-case** to match the PHP folder convention (`src/editor/components/add-player/`, `src/editor/block/document-setting/`).
 - **Group by feature, not by class type.** `Fields` lives next to `Tabs` because they're both part of the settings feature, not in a separate `Fields/` folder.
+
+### Editor folder layout
+
+Everything that *renders inside an editor screen* lives under `src/editor/`. The split inside is:
+
+- **`block/`** — block-editor pages/slots. Each subfolder (`sidebar/`, `document-setting/`, `prepublish/`) registers a single `@wordpress/plugins` slot. `block/index.js` is the JS bootstrap that calls `registerPlugin()` for each slot; `block/class-assets.php` (`BeyondWords\Editor\Block\Assets`) registers the bundled JS via `enqueue_block_editor_assets`.
+- **`classic/`** — classic-editor pages. Currently just the `BeyondWords` metabox container (`class-metabox.php`) plus its asset enqueue (`class-assets.php`) and stylesheet (`classic.css`); both classes live in `BeyondWords\Editor\Classic`. The metabox renders all the inline components from `components/`. Classic-editor JS for individual components (e.g. `classic-metabox.js`) lives **inside the component folder** alongside its block-editor `index.js` — not here.
+- **`components/`** — reusable PHP+JS UI bits consumed by both editor types. Each subfolder has any subset of: a main `class-{feature}.php`, a sibling `class-assets.php`, an `index.js` (block-editor), a `classic-metabox.js` (classic-editor), CSS files. The main class exposes a static `element( $post )` method that the metabox renders inline; the `index.js` registers a block-editor component that mounts in one of the `block/` slots.
 
 ### Per-feature role files
 
@@ -39,13 +52,13 @@ Inside a feature folder, split distinct PHP responsibilities into role-named cla
 | `class-{feature}.php`        | `BeyondWords\…\{Feature}`                  | Main feature: REST routes, save handlers, render, etc.      |
 | `class-assets.php`           | `BeyondWords\…\{Feature}\Assets`           | `wp_enqueue_script` / `wp_enqueue_style` registrations      |
 
-The role classes live in a **nested namespace** named after the parent feature (`BeyondWords\Post\InspectPanel\Assets`), so each role gets its own short class name (`Assets`, …) without colliding with other features. The main feature class stays in the parent namespace (`BeyondWords\Post\InspectPanel`); the two coexist because PHP treats the namespace and the class identifier as distinct symbols.
+The role classes live in a **nested namespace** named after the parent feature (`BeyondWords\Editor\Components\InspectPanel\Assets`), so each role gets its own short class name (`Assets`, …) without colliding with other features. The main feature class stays in the parent namespace (`BeyondWords\Editor\Components\InspectPanel`); the two coexist because PHP treats the namespace and the class identifier as distinct symbols.
 
 Reserved top-level classes (don't reuse these names for per-feature files):
 
 - `BeyondWords\Post\Meta` — read-side accessors over BeyondWords post meta (`get_content_id`, `has_content`, `get_project_id`, etc.). Lives at [src/post/class-meta.php](src/post/class-meta.php).
 
-If a feature folder's only PHP responsibility is asset enqueue (e.g. `src/post/error-notice/`, `src/post/sidebar/`), skip the main `class-{feature}.php` entirely — only `class-assets.php` is needed.
+If a feature folder's only PHP responsibility is asset enqueue (e.g. `src/editor/components/error-notice/`, `src/editor/components/sidebar/`), skip the main `class-{feature}.php` entirely — only `class-assets.php` is needed.
 
 Every role class follows the same `init()`-as-entry-point convention as main feature classes; wire them into [src/core/class-plugin.php](src/core/class-plugin.php) explicitly.
 

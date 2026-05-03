@@ -4,7 +4,7 @@
  *
  * Owns the post-save / trash / delete handlers and the meta key registration —
  * the bridge between WordPress post lifecycle events and the BeyondWords API.
- * Block-editor JS bootstrap lives in [src/editor/class-editor.php](src/editor/class-editor.php).
+ * Block-editor JS bootstrap lives in [src/editor/block/class-assets.php](src/editor/block/class-assets.php).
  *
  * @package BeyondWords\Post
  * @since   3.0.0

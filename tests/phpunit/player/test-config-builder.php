@@ -1,7 +1,7 @@
 <?php
 
 use BeyondWords\Settings\Fields;
-use BeyondWords\Post\PlayerStyle;
+use BeyondWords\Editor\Components\PlayerStyle;
 use BeyondWords\Player\ConfigBuilder;
 
 /**

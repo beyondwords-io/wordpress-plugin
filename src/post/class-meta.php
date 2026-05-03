@@ -302,7 +302,7 @@ class Meta
             return false;
         }
 
-        return GenerateAudio::should_preselect_generate_audio($post_id);
+        return \BeyondWords\Editor\Components\GenerateAudio::should_preselect_generate_audio($post_id);
     }
 
     /**
