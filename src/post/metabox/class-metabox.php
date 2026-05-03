@@ -32,28 +32,7 @@ class Metabox
      */
     public static function init()
     {
-        add_action('admin_enqueue_scripts', [self::class, 'admin_enqueue_scripts_callback']);
         add_action("add_meta_boxes", [self::class, 'add_meta_box_callback']);
-    }
-
-    /**
-     * Enque JS for Bulk Edit feature.
-     *
-     * @since 6.0.0 Make static.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function admin_enqueue_scripts_callback($hook)
-    {
-        // Only enqueue for Post screens
-        if ($hook === 'post.php' || $hook === 'post-new.php') {
-            // Register the Classic Editor "Metabox" CSS
-            wp_enqueue_style(
-                'beyondwords-Metabox',
-                BEYONDWORDS__PLUGIN_URI . 'src/post/metabox/Metabox.css',
-                false,
-                BEYONDWORDS__PLUGIN_VERSION
-            );
-        }
     }
 
     /**

@@ -30,7 +30,6 @@ class AddPlayerTest extends TestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'register_block')));
-        $this->assertEquals(10, has_action('enqueue_block_editor_assets', array(AddPlayer::class, 'add_block_editor_stylesheet')));
 
         $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'add_editor_styles')));
         $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filter_tiny_mce_settings')));
@@ -132,26 +131,4 @@ class AddPlayerTest extends TestCase
         $this->assertTrue($registry->is_registered('beyondwords/player'));
     }
 
-    /**
-     * @test
-     */
-    public function add_block_editor_stylesheet_enqueues_on_post_screen()
-    {
-        AddPlayer::add_block_editor_stylesheet('post.php');
-
-        $this->assertTrue(wp_style_is('beyondwords-AddPlayer', 'enqueued'));
-
-        wp_dequeue_style('beyondwords-AddPlayer');
-        wp_deregister_style('beyondwords-AddPlayer');
-    }
-
-    /**
-     * @test
-     */
-    public function add_block_editor_stylesheet_skips_for_unrelated_hook()
-    {
-        AddPlayer::add_block_editor_stylesheet('plugins.php');
-
-        $this->assertFalse(wp_style_is('beyondwords-AddPlayer', 'enqueued'));
-    }
 }

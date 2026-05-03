@@ -30,7 +30,6 @@ class CoreTest extends TestCase
     {
         Core::init();
 
-        $this->assertEquals(1,  has_action('enqueue_block_editor_assets', array(Core::class, 'enqueue_block_editor_assets')));
         $this->assertEquals(99, has_action('init', array(Core::class, 'register_meta')));
         $this->assertEquals(99, has_action('wp_after_insert_post', array(Core::class, 'on_add_or_update_post')));
         $this->assertEquals(10, has_action('wp_trash_post', array(Core::class, 'on_trash_post')));
@@ -114,42 +113,6 @@ class CoreTest extends TestCase
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-    }
-
-    /**
-     * @test
-     */
-    public function enqueue_block_editor_assets()
-    {
-        global $post;
-
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'CoreTest::enqueueBlockEditorAssets',
-            'post_type' => 'post',
-        ]);
-
-        setup_postdata($post);
-
-        set_current_screen( 'edit-post' );
-        $current_screen = get_current_screen();
-        $current_screen->is_block_editor( true );
-
-        // Script should not be enqueued without a valid API connection
-        Core::enqueue_block_editor_assets();
-        $this->assertFalse(wp_script_is('beyondwords-block-js', 'enqueued'));
-
-        // Set a valid API connection
-        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
-
-        // Script should now be enqueued
-        Core::enqueue_block_editor_assets();
-        $this->assertTrue(wp_script_is('beyondwords-block-js', 'enqueued'));
-
-        wp_dequeue_script('beyondwords-block-js');
-
-        delete_option('beyondwords_valid_api_connection');
-
-        wp_delete_post($post->ID, true);
     }
 
     public function success_response()

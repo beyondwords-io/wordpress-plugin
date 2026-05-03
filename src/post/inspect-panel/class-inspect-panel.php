@@ -31,7 +31,6 @@ class InspectPanel
      */
     public static function init()
     {
-        add_action('admin_enqueue_scripts', [self::class, 'admin_enqueue_scripts_callback']);
         add_action('add_meta_boxes', [self::class, 'add_meta_box_callback']);
         add_action('rest_api_init', [self::class, 'rest_api_init_callback']);
 
@@ -46,26 +45,6 @@ class InspectPanel
                 }
             }
         });
-    }
-
-    /**
-     * Enqueue JS for Inspect feature.
-     *
-     * @since 6.0.0 Make static.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function admin_enqueue_scripts_callback($hook)
-    {
-        // Only enqueue for Post screens
-        if ($hook === 'post.php' || $hook === 'post-new.php') {
-            wp_enqueue_script(
-                'beyondwords-inspect',
-                BEYONDWORDS__PLUGIN_URI . 'src/post/inspect-panel/js/inspect.js',
-                ['jquery'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-        }
     }
 
     /**
@@ -392,7 +371,7 @@ class InspectPanel
             );
         }
 
-        $response = \BeyondWords\Core\ApiClient::get_content($beyondwords_id, $project_id);
+        $response = \BeyondWords\Api\Client::get_content($beyondwords_id, $project_id);
 
         // Check for REST API connection errors.
         if (is_wp_error($response)) {

@@ -148,7 +148,7 @@ class Utils {
 		}
 
 		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
-		$response = \BeyondWords\Core\ApiClient::call_api( new \BeyondWords\Core\Request( 'GET', $url ) );
+		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );

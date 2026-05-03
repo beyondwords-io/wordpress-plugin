@@ -38,29 +38,7 @@ class MetaboxTest extends TestCase
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(Metabox::class, 'admin_enqueue_scripts_callback')));
         $this->assertEquals(10, has_action('add_meta_boxes', array(Metabox::class, 'add_meta_box_callback')));
-    }
-
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback()
-    {
-        $style = 'beyondwords-Metabox';
-
-        $this->assertFalse(wp_style_is($style, 'enqueued'));
-
-        Metabox::admin_enqueue_scripts_callback(null);
-        $this->assertFalse(wp_style_is($style, 'enqueued'));
-
-        Metabox::admin_enqueue_scripts_callback('edit.php');
-        $this->assertFalse(wp_style_is($style, 'enqueued'));
-
-        Metabox::admin_enqueue_scripts_callback('post.php');
-        $this->assertTrue(wp_style_is($style, 'enqueued'));
-
-        wp_dequeue_style($style);
     }
 
     /**

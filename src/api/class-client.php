@@ -2,29 +2,34 @@
 /**
  * BeyondWords REST API client.
  *
- * Thin wrapper around `wp_remote_request()` that pre-fills auth headers,
- * normalises errors into post meta for the editor UI, and exposes one
- * method per endpoint we touch.
+ * Thin wrapper around `wp_remote_request()` that exposes one method per
+ * endpoint we touch and normalises errors into post meta for the editor UI.
  *
- * @package BeyondWords\Core
+ * Auth (`X-Api-Key`) and JSON `Content-Type` are injected automatically via
+ * the `http_request_args` filter registered in `init()` — but only for
+ * outbound requests targeting the BeyondWords API host, so other plugins'
+ * HTTP traffic is untouched.
+ *
+ * @package BeyondWords\Api
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+ *                Moved from BeyondWords\Core\ApiClient to BeyondWords\Api\Client.
+ *                Replaced the `Request` value object with a `http_request_args`
+ *                filter for header injection.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\Core;
+namespace BeyondWords\Api;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * BeyondWords API client.
  *
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-class ApiClient {
+class Client {
 
 	/**
 	 * Format used for the value stored in `beyondwords_error_message` post meta.
@@ -33,6 +38,61 @@ class ApiClient {
 	 * recognise 404s by string-matching `#404:` without parsing the body.
 	 */
 	const ERROR_FORMAT = '#%s: %s';
+
+	/**
+	 * Register WordPress hooks.
+	 *
+	 * Must run early in the plugin bootstrap so the `http_request_args` filter
+	 * is in place before any code makes a BeyondWords API call.
+	 */
+	public static function init(): void {
+		// The VIP "manual inspection" warning on this filter is for code that
+		// raises the request timeout — `filter_http_request_args()` only adds
+		// headers and never touches the timeout, so the warning is suppressed.
+		// phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
+		add_filter( 'http_request_args', [ self::class, 'filter_http_request_args' ], 10, 2 );
+	}
+
+	/**
+	 * Inject the BeyondWords `X-Api-Key` and `Content-Type: application/json`
+	 * headers, but only for outbound requests targeting the BeyondWords API.
+	 *
+	 * @param array<string,mixed> $args WordPress HTTP args.
+	 * @param string              $url  Outbound request URL.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function filter_http_request_args( $args, $url ) {
+		if ( ! is_array( $args ) || ! is_string( $url ) ) {
+			return $args;
+		}
+
+		$api_url = \BeyondWords\Core\Environment::get_api_url();
+
+		if ( '' === $api_url || ! str_starts_with( $url, $api_url ) ) {
+			return $args;
+		}
+
+		$headers = isset( $args['headers'] ) && is_array( $args['headers'] ) ? $args['headers'] : [];
+
+		// Caller-supplied X-Api-Key wins (lets tests inject deliberately bad keys).
+		if ( ! isset( $headers['X-Api-Key'] ) ) {
+			$headers['X-Api-Key'] = (string) get_option( 'beyondwords_api_key', '' );
+		}
+
+		$method = strtoupper( (string) ( $args['method'] ?? 'GET' ) );
+
+		if (
+			in_array( $method, [ 'POST', 'PUT', 'DELETE' ], true )
+			&& ! isset( $headers['Content-Type'] )
+		) {
+			$headers['Content-Type'] = 'application/json';
+		}
+
+		$args['headers'] = $headers;
+
+		return $args;
+	}
 
 	/**
 	 * GET /projects/:project/content/:content_id
@@ -54,10 +114,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url     = sprintf( '%s/projects/%d/content/%s', Environment::get_api_url(), $project_id, $content_id );
-		$request = new Request( 'GET', $url );
+		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
 
-		return self::call_api( $request );
+		return self::call_api( 'GET', $url );
 	}
 
 	/**
@@ -75,10 +134,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content', Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Environment::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\PostContentUtils::get_content_params( $post_id );
-		$request  = new Request( 'POST', $url, $body );
-		$response = self::call_api( $request, $post_id );
+		$response = self::call_api( 'POST', $url, $body, $post_id );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -101,10 +159,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', Environment::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
 		$body     = \BeyondWords\Post\PostContentUtils::get_content_params( $post_id );
-		$request  = new Request( 'PUT', $url, $body );
-		$response = self::call_api( $request, $post_id );
+		$response = self::call_api( 'PUT', $url, $body, $post_id );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -124,9 +181,8 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', Environment::get_api_url(), $project_id, $content_id );
-		$request  = new Request( 'DELETE', $url );
-		$response = self::call_api( $request, $post_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
+		$response = self::call_api( 'DELETE', $url, '', $post_id );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
@@ -180,20 +236,10 @@ class ApiClient {
 		}
 
 		$project_id = array_key_first( $content_ids );
-		$url        = sprintf( '%s/projects/%d/content/batch_delete', Environment::get_api_url(), $project_id );
+		$url        = sprintf( '%s/projects/%d/content/batch_delete', \BeyondWords\Core\Environment::get_api_url(), $project_id );
 		$body       = (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] );
-		$request    = new Request( 'POST', $url, $body );
 
-		$args = [
-			'blocking' => true,
-			'body'     => $request->get_body(),
-			'headers'  => $request->get_headers(),
-			'method'   => $request->get_method(),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
-		];
-
-		$response = wp_remote_request( $request->get_url(), $args );
+		$response = wp_remote_request( $url, self::build_args( 'POST', $body ) );
 
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( esc_html( $response->get_error_message() ) );
@@ -224,16 +270,13 @@ class ApiClient {
 			return false;
 		}
 
-		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', Environment::get_api_url(), $project_id, $post_id );
-		$request = new Request( 'GET', $url );
-		$request->add_headers(
-			[
-				'X-Import'  => 'true',
-				'X-Referer' => esc_url( get_permalink( $post_id ) ),
-			]
-		);
+		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id, $post_id );
+		$headers = [
+			'X-Import'  => 'true',
+			'X-Referer' => esc_url( get_permalink( $post_id ) ),
+		];
 
-		$response = self::call_api( $request, $post_id );
+		$response = self::call_api( 'GET', $url, '', $post_id, $headers );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -244,9 +287,8 @@ class ApiClient {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_languages(): array|null|false {
-		$url      = sprintf( '%s/organization/languages', Environment::get_api_url() );
-		$request  = new Request( 'GET', $url );
-		$response = self::call_api( $request );
+		$url      = sprintf( '%s/organization/languages', \BeyondWords\Core\Environment::get_api_url() );
+		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -261,12 +303,11 @@ class ApiClient {
 	public static function get_voices( int|string $language_code ): array|null|false {
 		$url = sprintf(
 			'%s/organization/voices?filter[language.code]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
-			Environment::get_api_url(),
+			\BeyondWords\Core\Environment::get_api_url(),
 			rawurlencode( strval( $language_code ) )
 		);
 
-		$request  = new Request( 'GET', $url );
-		$response = self::call_api( $request );
+		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -308,10 +349,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/organization/voices/%d', Environment::get_api_url(), $voice_id );
+		$url      = sprintf( '%s/organization/voices/%d', \BeyondWords\Core\Environment::get_api_url(), $voice_id );
 		$body     = (string) wp_json_encode( $settings );
-		$request  = new Request( 'PUT', $url, $body );
-		$response = self::call_api( $request );
+		$response = self::call_api( 'PUT', $url, $body );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -328,9 +368,8 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', Environment::get_api_url(), $project_id );
-		$request  = new Request( 'GET', $url );
-		$response = self::call_api( $request );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -349,10 +388,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
 		$body     = (string) wp_json_encode( $settings );
-		$request  = new Request( 'PUT', $url, $body );
-		$response = self::call_api( $request );
+		$response = self::call_api( 'PUT', $url, $body );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -369,9 +407,8 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/player_settings', Environment::get_api_url(), $project_id );
-		$request  = new Request( 'GET', $url );
-		$response = self::call_api( $request );
+		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -390,10 +427,9 @@ class ApiClient {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/player_settings', Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Environment::get_api_url(), $project_id );
 		$body     = (string) wp_json_encode( $settings );
-		$request  = new Request( 'PUT', $url, $body );
-		$response = self::call_api( $request );
+		$response = self::call_api( 'PUT', $url, $body );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -414,9 +450,8 @@ class ApiClient {
 			}
 		}
 
-		$url      = sprintf( '%s/projects/%d/video_settings', Environment::get_api_url(), (int) $project_id );
-		$request  = new Request( 'GET', $url );
-		$response = self::call_api( $request );
+		$url      = sprintf( '%s/projects/%d/video_settings', \BeyondWords\Core\Environment::get_api_url(), (int) $project_id );
+		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -432,16 +467,22 @@ class ApiClient {
 	 * regenerates content lazily — surfacing those errors in the editor would
 	 * be misleading.
 	 *
-	 * @param Request   $request BeyondWords request object.
-	 * @param int|false $post_id WordPress post ID for error attribution; false to suppress.
+	 * Headers `X-Api-Key` and `Content-Type` are injected automatically by the
+	 * `http_request_args` filter registered in `init()` — pass `$headers`
+	 * here for any *additional* per-request headers.
+	 *
+	 * @param string               $method  HTTP method.
+	 * @param string               $url     Absolute URL.
+	 * @param string               $body    Request body (already JSON-encoded for write methods).
+	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
+	 * @param array<string,string> $headers Extra per-request headers.
 	 */
-	public static function call_api( Request $request, int|false $post_id = false ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [] ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
 
-		$args     = self::build_request_args( $request );
-		$response = wp_remote_request( $request->get_url(), $args );
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers ) );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
@@ -462,16 +503,24 @@ class ApiClient {
 	}
 
 	/**
-	 * Build the WordPress HTTP args from a `Request`.
+	 * Build the WordPress HTTP args for a BeyondWords API call.
+	 *
+	 * Auth and Content-Type headers are *not* added here — they're injected
+	 * by `filter_http_request_args()` so the same logic applies to any other
+	 * code that calls `wp_remote_request()` against the BeyondWords API.
+	 *
+	 * @param string               $method  HTTP method.
+	 * @param string               $body    Request body.
+	 * @param array<string,string> $headers Extra per-request headers.
 	 *
 	 * @return array<string,mixed>
 	 */
-	public static function build_request_args( Request $request ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [] ): array {
 		return [
 			'blocking' => true,
-			'body'     => $request->get_body(),
-			'headers'  => $request->get_headers(),
-			'method'   => $request->get_method(),
+			'body'     => $body,
+			'headers'  => $headers,
+			'method'   => strtoupper( $method ),
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout'  => 30,
 		];

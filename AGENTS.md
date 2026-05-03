@@ -13,9 +13,10 @@ All PHP under `src/` follows the same WordPress-style layout:
 
 ```
 src/
+  api/             class-client.php       — outbound BeyondWords HTTP API wrapper
   compatibility/   class-{name}.php       — third-party plugin compatibility shims
-  core/            class-{name}.php       — bootstrap, post-lifecycle, API client, env, request, updater, uninstaller
-  editor/          {feature}/index.js     — block-editor `@wordpress/plugins` slot registrations (JS-only)
+  core/            class-{name}.php       — bootstrap, post-lifecycle, env, updater, uninstaller
+  editor/          class-editor.php       — block-editor JS bootstrap (enqueue) + per-slot {feature}/index.js modules
   player/          class-{name}.php       — front-end player + renderer/{base,amp,javascript}
   post/            class-{name}.php       — per-post screen UI (each component in its own subfolder when JS/CSS travels with it)
   posts/           class-{name}.php       — posts list-screen UI
@@ -24,10 +25,26 @@ src/
   index.js         build entry that requires each component's `index.js`
 ```
 
-- **One class per file.** File name is `class-{kebab-case-name}.php` (e.g. `class-api-client.php` → `ApiClient`).
+- **One class per file.** File name is `class-{kebab-case-name}.php` (e.g. `class-client.php` in `BeyondWords\Api` → `Client`).
 - **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-post-meta-utils.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/post/add-player/{class-add-player.php,index.js,AddPlayer.css}`).
 - **JS folders use kebab-case** to match the PHP folder convention (`src/post/add-player/`, `src/editor/document-setting/`).
 - **Group by feature, not by class type.** `Fields` lives next to `Tabs` because they're both part of the settings feature, not in a separate `Fields/` folder.
+
+### Per-feature role files
+
+Inside a feature folder, split distinct PHP responsibilities into role-named classes. A folder may contain any subset of:
+
+| File                         | Class FQN                                  | Responsibility                                              |
+|------------------------------|--------------------------------------------|-------------------------------------------------------------|
+| `class-{feature}.php`        | `BeyondWords\…\{Feature}`                  | Main feature: REST routes, save handlers, render, etc.      |
+| `class-assets.php`           | `BeyondWords\…\{Feature}\Assets`           | `wp_enqueue_script` / `wp_enqueue_style` registrations      |
+| `class-meta.php` *(future)*  | `BeyondWords\…\{Feature}\Meta`             | `register_meta` calls and meta authorization callbacks      |
+
+The role classes live in a **nested namespace** named after the parent feature (`BeyondWords\Post\InspectPanel\Assets`), so each role gets its own short class name (`Assets`, `Meta`, …) without colliding with other features. The main feature class stays in the parent namespace (`BeyondWords\Post\InspectPanel`); the two coexist because PHP treats the namespace and the class identifier as distinct symbols.
+
+If a feature folder's only PHP responsibility is asset enqueue (e.g. `src/post/error-notice/`, `src/post/sidebar/`), skip the main `class-{feature}.php` entirely — only `class-assets.php` is needed.
+
+Every role class follows the same `init()`-as-entry-point convention as main feature classes; wire them into [src/core/class-plugin.php](src/core/class-plugin.php) explicitly.
 
 ## Class structure
 
@@ -200,3 +217,27 @@ Plugin version lives in two places — keep them in sync:
 - `version` in [package.json](package.json) (informational; npm publish is not used)
 
 Bump on any release. Pre-release versions use `7.0.0-dev-1.0` style (matches existing convention).
+
+## Known issues
+
+Outstanding items surfaced by the 2026-02-02 REST API debug log analysis. Resolved items have been deleted — the regression tests that cover them are the source of truth (e.g. `CoreTest::on_add_or_update_post_skips_meta_box_loader_request`, `CoreTest::generate_audio_for_post_recovers_from404`).
+
+### Inspect panel REST endpoint accepts garbage content IDs
+
+**Where:** [src/post/inspect-panel/class-inspect-panel.php](src/post/inspect-panel/class-inspect-panel.php) — `InspectPanel::rest_api_response()`
+
+The endpoint validates that `project_id` is numeric and `beyondwords_id` is non-empty, but does **not** validate the format of `beyondwords_id`. Garbage values (e.g. `nofewngoowg`) flow through to `BeyondWords\Api\Client::get_content()` and trigger an avoidable 404. Add a UUID-format check before the API call.
+
+Reproducer:
+
+```bash
+curl -X GET 'https://api.beyondwords.io/v1/projects/53391/content/nofewngoowg' \
+  -H 'X-Api-Key: YOUR_API_KEY'
+# → {"code": 404, "message": "Not Found"}
+```
+
+### Languages and voices REST responses are uncached
+
+**Where:** [src/post/select-voice/class-select-voice.php](src/post/select-voice/class-select-voice.php) — `SelectVoice::languages_rest_api_response()`, `SelectVoice::voices_rest_api_response()`
+
+`/v1/organization/languages` and `/v1/organization/voices` are fetched on every editor load and again on save (observed: identical responses, twice within 2 minutes). Wrap the API calls in WordPress transients with a 5–15 minute TTL.

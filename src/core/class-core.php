@@ -2,12 +2,13 @@
 /**
  * BeyondWords core post-lifecycle hooks.
  *
- * Owns the post-save / trash / delete handlers, the meta key registration,
- * and the block-editor JS bootstrap.
+ * Owns the post-save / trash / delete handlers and the meta key registration.
+ * Block-editor JS bootstrap lives in [src/editor/class-editor.php](src/editor/class-editor.php).
  *
  * @package BeyondWords\Core
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+ *               Editor enqueue moved to BeyondWords\Editor\Editor.
  */
 
 declare( strict_types = 1 );
@@ -17,7 +18,7 @@ namespace BeyondWords\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Post-lifecycle and editor-bootstrap hooks.
+ * Post-lifecycle hooks.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -27,7 +28,6 @@ class Core {
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
-		add_action( 'enqueue_block_editor_assets', [ self::class, 'enqueue_block_editor_assets' ], 1, 0 );
 		add_action( 'init', [ self::class, 'register_meta' ], 99, 3 );
 
 		add_action( 'wp_after_insert_post', [ self::class, 'on_add_or_update_post' ], 99 );
@@ -113,7 +113,7 @@ class Core {
 			update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE );
 			update_post_meta( $post_id, 'beyondwords_project_id', get_option( 'beyondwords_project_id' ) );
 
-			return ApiClient::get_player_by_source_id( $post_id );
+			return \BeyondWords\Api\Client::get_player_by_source_id( $post_id );
 		}
 
 		// REST API integration: update or create.
@@ -128,7 +128,7 @@ class Core {
 
 			$response = self::update_or_recreate_audio( $post_id );
 		} else {
-			$response = ApiClient::create_audio( $post_id );
+			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 		}
 
 		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
@@ -141,12 +141,12 @@ class Core {
 	 * Update audio for a post, recovering from a stale content ID.
 	 *
 	 * When BeyondWords returns 404 (content no longer exists in their database),
-	 * `ApiClient::update_audio()` writes `#404:…` into the error meta. We
+	 * `\BeyondWords\Api\Client::update_audio()` writes `#404:…` into the error meta. We
 	 * detect that prefix, clear the stale ID, and create fresh content via
 	 * POST so the post recovers automatically.
 	 */
 	private static function update_or_recreate_audio( int $post_id ): array|null|false {
-		$response = ApiClient::update_audio( $post_id );
+		$response = \BeyondWords\Api\Client::update_audio( $post_id );
 
 		$error_message = (string) get_post_meta( $post_id, 'beyondwords_error_message', true );
 
@@ -155,7 +155,7 @@ class Core {
 			delete_post_meta( $post_id, 'beyondwords_podcast_id' );
 			delete_post_meta( $post_id, 'speechkit_podcast_id' );
 
-			$response = ApiClient::create_audio( $post_id );
+			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 		}
 
 		return $response;
@@ -165,7 +165,7 @@ class Core {
 	 * Delete audio for a single post (DELETE /content/:id).
 	 */
 	public static function delete_audio_for_post( int $post_id ): array|false|null {
-		return ApiClient::delete_audio( $post_id );
+		return \BeyondWords\Api\Client::delete_audio( $post_id );
 	}
 
 	/**
@@ -174,7 +174,7 @@ class Core {
 	 * @param int[] $post_ids
 	 */
 	public static function batch_delete_audio_for_posts( array $post_ids ): array|false|null {
-		return ApiClient::batch_delete_audio( $post_ids );
+		return \BeyondWords\Api\Client::batch_delete_audio( $post_ids );
 	}
 
 	/**
@@ -211,29 +211,6 @@ class Core {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Enqueue the bundled block-editor JS on compatible post-type screens.
-	 */
-	public static function enqueue_block_editor_assets(): void {
-		if ( ! \BeyondWords\Settings\Utils::has_valid_api_connection() ) {
-			return;
-		}
-
-		if ( ! in_array( get_post_type(), \BeyondWords\Settings\Utils::get_compatible_post_types(), true ) ) {
-			return;
-		}
-
-		$asset_file = include BEYONDWORDS__PLUGIN_DIR . 'build/index.asset.php';
-
-		wp_enqueue_script(
-			'beyondwords-block-js',
-			BEYONDWORDS__PLUGIN_URI . 'build/index.js',
-			$asset_file['dependencies'],
-			$asset_file['version'],
-			true
-		);
 	}
 
 	/**
@@ -302,7 +279,7 @@ class Core {
 			return;
 		}
 
-		ApiClient::delete_audio( $post_id );
+		\BeyondWords\Api\Client::delete_audio( $post_id );
 		\BeyondWords\Post\PostMetaUtils::remove_all_beyondwords_metadata( $post_id );
 	}
 
@@ -317,7 +294,7 @@ class Core {
 			return;
 		}
 
-		ApiClient::delete_audio( $post_id );
+		\BeyondWords\Api\Client::delete_audio( $post_id );
 	}
 
 	/**
@@ -331,7 +308,7 @@ class Core {
 		$post_id = (int) $post_id;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_REQUEST['meta-box-loader'] ) ) {
+		if ( isset( $_REQUEST['meta-box-loader'] ) && '' !== sanitize_key( wp_unslash( $_REQUEST['meta-box-loader'] ) ) ) {
 			return false;
 		}
 

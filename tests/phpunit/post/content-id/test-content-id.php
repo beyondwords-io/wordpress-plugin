@@ -28,6 +28,7 @@ class ContentIdTest extends TestCase
 
         $this->assertEquals(10, has_action('save_post_post', array(ContentId::class, 'save')));
         $this->assertEquals(10, has_action('save_post_page', array(ContentId::class, 'save')));
+        $this->assertFalse(has_action('admin_enqueue_scripts', array(ContentId::class, 'admin_enqueue_scripts_callback')));
     }
 
     /**
@@ -169,37 +170,4 @@ class ContentIdTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback_enqueues_on_classic_post_screen()
-    {
-        global $current_screen;
-        $current_screen = \WP_Screen::get('post');
-        $current_screen->is_block_editor = false;
-
-        ContentId::admin_enqueue_scripts_callback('post.php');
-
-        $this->assertTrue(wp_script_is('beyondwords-metabox--content-id', 'enqueued'));
-
-        wp_dequeue_script('beyondwords-metabox--content-id');
-        wp_deregister_script('beyondwords-metabox--content-id');
-        $current_screen = null;
-    }
-
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback_skips_for_unrelated_hook()
-    {
-        global $current_screen;
-        $current_screen = \WP_Screen::get('post');
-        $current_screen->is_block_editor = false;
-
-        ContentId::admin_enqueue_scripts_callback('plugins.php');
-
-        $this->assertFalse(wp_script_is('beyondwords-metabox--content-id', 'enqueued'));
-
-        $current_screen = null;
-    }
 }

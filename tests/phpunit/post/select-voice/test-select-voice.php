@@ -45,7 +45,7 @@ class SelectVoiceTest extends TestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('rest_api_init', array(SelectVoice::class, 'rest_api_init_callback')));
-        $this->assertEquals(10, has_action('admin_enqueue_scripts', array(SelectVoice::class, 'admin_enqueue_scripts_callback')));
+        $this->assertFalse(has_action('admin_enqueue_scripts', array(SelectVoice::class, 'admin_enqueue_scripts_callback')));
         $this->assertEquals(10, has_action('save_post_page', array(SelectVoice::class, 'save')));
         $this->assertEquals(10, has_action('save_post_post', array(SelectVoice::class, 'save')));
     }
@@ -182,38 +182,4 @@ class SelectVoiceTest extends TestCase
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
     }
 
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback_registers_classic_metabox_script()
-    {
-        global $current_screen;
-        $current_screen = \WP_Screen::get('post');
-        $current_screen->is_block_editor = false;
-
-        SelectVoice::admin_enqueue_scripts_callback('post.php');
-
-        $this->assertTrue(wp_script_is('beyondwords-metabox--select-voice', 'enqueued'));
-
-        wp_dequeue_script('beyondwords-metabox--select-voice');
-        wp_deregister_script('beyondwords-metabox--select-voice');
-        $current_screen = null;
-    }
-
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback_skips_for_unrelated_hook()
-    {
-        global $current_screen;
-        $current_screen = \WP_Screen::get('post');
-        $current_screen->is_block_editor = false;
-
-        SelectVoice::admin_enqueue_scripts_callback('plugins.php');
-
-        $this->assertFalse(wp_script_is('beyondwords-metabox--select-voice', 'enqueued'));
-        $this->assertFalse(wp_script_is('beyondwords-metabox--select-voice', 'registered'));
-
-        $current_screen = null;
-    }
 }

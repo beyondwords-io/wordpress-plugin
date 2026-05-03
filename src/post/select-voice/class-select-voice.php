@@ -33,7 +33,6 @@ class SelectVoice
     public static function init()
     {
         add_action('rest_api_init', [self::class, 'rest_api_init_callback']);
-        add_action('admin_enqueue_scripts', [self::class, 'admin_enqueue_scripts_callback']);
 
         add_action('wp_loaded', function (): void {
             $post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
@@ -63,7 +62,7 @@ class SelectVoice
     {
         $language_code = self::get_language_code($post->ID);
         $voice_id = self::get_voice_id($post->ID);
-        $languages = \BeyondWords\Core\ApiClient::get_languages();
+        $languages = \BeyondWords\Api\Client::get_languages();
         $voices = self::get_voices_for_language($language_code);
 
         wp_nonce_field('beyondwords_select_voice', 'beyondwords_select_voice_nonce');
@@ -118,7 +117,7 @@ class SelectVoice
             return [];
         }
 
-        $voices = \BeyondWords\Core\ApiClient::get_voices($language_code);
+        $voices = \BeyondWords\Api\Client::get_voices($language_code);
         return is_array($voices) ? $voices : [];
     }
 
@@ -139,7 +138,7 @@ class SelectVoice
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
             <label class="post-attributes-label" for="beyondwords_language_code">
-                Language
+                <?php esc_html_e('Language', 'speechkit'); ?>
             </label>
         </p>
         <select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
@@ -180,7 +179,7 @@ class SelectVoice
             class="post-attributes-label-wrapper page-template-label-wrapper"
         >
             <label class="post-attributes-label" for="beyondwords_voice_id">
-                Voice
+                <?php esc_html_e('Voice', 'speechkit'); ?>
             </label>
         </p>
         <select
@@ -315,7 +314,7 @@ class SelectVoice
      */
     public static function languages_rest_api_response()
     {
-        $languages = \BeyondWords\Core\ApiClient::get_languages();
+        $languages = \BeyondWords\Api\Client::get_languages();
 
         return new \WP_REST_Response($languages);
     }
@@ -334,46 +333,9 @@ class SelectVoice
     {
         $params = $data->get_url_params();
 
-        $voices = \BeyondWords\Core\ApiClient::get_voices($params['languageCode']);
+        $voices = \BeyondWords\Api\Client::get_voices($params['languageCode']);
 
         return new \WP_REST_Response($voices);
     }
 
-    /**
-     * Register the component scripts.
-     *
-     * @since 4.0.0
-     * @since 6.0.0 Make static.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     *
-     * @param string $hook Page hook
-     *
-     * @return void
-     */
-    public static function admin_enqueue_scripts_callback($hook)
-    {
-        if (! \BeyondWords\Core\CoreUtils::is_gutenberg_page() && ( $hook === 'post.php' || $hook === 'post-new.php')) {
-            wp_register_script(
-                'beyondwords-metabox--select-voice',
-                BEYONDWORDS__PLUGIN_URI . 'src/post/select-voice/classic-metabox.js',
-                ['jquery', 'underscore'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-
-            /**
-             * Localize the script to handle ajax requests
-             */
-            wp_localize_script(
-                'beyondwords-metabox--select-voice',
-                'beyondwordsData',
-                [
-                    'nonce' => wp_create_nonce('wp_rest'),
-                    'root' => esc_url_raw(rest_url()),
-                ]
-            );
-
-            wp_enqueue_script('beyondwords-metabox--select-voice');
-        }
-    }
 }

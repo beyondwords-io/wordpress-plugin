@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-use BeyondWords\Core\ApiClient;
+use BeyondWords\Api\Client;
 use BeyondWords\Core\Environment;
-use BeyondWords\Core\Request;
 
-class ApiClientTest extends TestCase
+class ClientTest extends TestCase
 {
     public function setUp(): void
     {
         // Before...
         parent::setUp();
 
-        // Your set up methods here.
+        // Register the http_request_args filter that production runs from
+        // Plugin::init() — without it API calls go out without an auth header.
+        Client::init();
 
         // Clear existing admin notices, so we can test notices in isolation
         remove_all_actions('admin_notices');
@@ -23,6 +24,8 @@ class ApiClientTest extends TestCase
     public function tearDown(): void
     {
         // Your tear down methods here.
+        remove_filter('http_request_args', [Client::class, 'filter_http_request_args'], 10);
+
         // Clear existing admin notices, so we can test notices in isolation
         remove_all_actions('admin_notices');
         remove_all_actions('all_admin_notices');
@@ -34,15 +37,102 @@ class ApiClientTest extends TestCase
     /**
      * @test
      */
+    public function init_registers_http_request_args_filter()
+    {
+        $this->assertEquals(10, has_filter('http_request_args', [Client::class, 'filter_http_request_args']));
+    }
+
+    /**
+     * @test
+     */
+    public function filter_http_request_args_skips_non_beyondwords_urls()
+    {
+        update_option('beyondwords_api_key', 'SECRET-API-KEY');
+
+        $args = Client::filter_http_request_args(
+            ['method' => 'GET', 'headers' => ['Existing' => 'value']],
+            'https://example.com/some/other/api'
+        );
+
+        $this->assertSame(['Existing' => 'value'], $args['headers']);
+        $this->assertArrayNotHasKey('X-Api-Key', $args['headers']);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
+    public function filter_http_request_args_injects_api_key_for_beyondwords_urls()
+    {
+        update_option('beyondwords_api_key', 'SECRET-API-KEY');
+
+        $args = Client::filter_http_request_args(
+            ['method' => 'GET', 'headers' => []],
+            Environment::get_api_url() . '/projects/1234'
+        );
+
+        $this->assertSame('SECRET-API-KEY', $args['headers']['X-Api-Key']);
+        $this->assertArrayNotHasKey('Content-Type', $args['headers']);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
+    public function filter_http_request_args_injects_content_type_for_write_methods()
+    {
+        update_option('beyondwords_api_key', 'SECRET-API-KEY');
+
+        foreach (['POST', 'PUT', 'DELETE'] as $method) {
+            $args = Client::filter_http_request_args(
+                ['method' => $method, 'headers' => []],
+                Environment::get_api_url() . '/projects/1234/content'
+            );
+
+            $this->assertSame('application/json', $args['headers']['Content-Type'], "Content-Type should be set for {$method}");
+        }
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
+    public function filter_http_request_args_respects_caller_supplied_headers()
+    {
+        update_option('beyondwords_api_key', 'SECRET-API-KEY');
+
+        $args = Client::filter_http_request_args(
+            [
+                'method'  => 'POST',
+                'headers' => [
+                    'X-Api-Key'    => 'CALLER-OVERRIDE',
+                    'Content-Type' => 'text/html',
+                ],
+            ],
+            Environment::get_api_url() . '/projects/1234/content'
+        );
+
+        $this->assertSame('CALLER-OVERRIDE', $args['headers']['X-Api-Key']);
+        $this->assertSame('text/html', $args['headers']['Content-Type']);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
     public function create_audio_without_project_id_setting()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::createAudioWithoutProjectIdSetting',
+            'post_title' => 'ClientTest::createAudioWithoutProjectIdSetting',
         ]);
 
-        $response = ApiClient::create_audio($postId);
+        $response = Client::create_audio($postId);
 
         $this->assertFalse($response);
 
@@ -61,10 +151,10 @@ class ApiClientTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::createAudio',
+            'post_title' => 'ClientTest::createAudio',
         ]);
 
-        $response = ApiClient::create_audio($postId);
+        $response = Client::create_audio($postId);
 
         $this->assertIsArray($response);
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
@@ -85,14 +175,14 @@ class ApiClientTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::updateAudio',
+            'post_title' => 'ClientTest::updateAudio',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 
-        $response = ApiClient::update_audio($postId);
+        $response = Client::update_audio($postId);
 
         $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID,  $response['id']);
         $this->assertSame('processed',  $response['status']);
@@ -112,14 +202,14 @@ class ApiClientTest extends TestCase
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::deleteAudio',
+            'post_title' => 'ClientTest::deleteAudio',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 
-        $response = ApiClient::delete_audio($postId);
+        $response = Client::delete_audio($postId);
 
         // Response body is empty for 201 Deleted responses
         $this->assertNull($response);
@@ -138,20 +228,20 @@ class ApiClientTest extends TestCase
         $numPosts = 20;
 
         $postIds = self::factory()->post->create_many($numPosts, [
-            'post_title' => 'ApiClientTest::batchDeleteAudio %d',
+            'post_title' => 'ClientTest::batchDeleteAudio %d',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
             ],
         ]);
 
-        $deleted = ApiClient::batch_delete_audio($postIds);
+        $deleted = Client::batch_delete_audio($postIds);
         $this->assertEquals([], $deleted);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $deleted = ApiClient::batch_delete_audio($postIds);
+        $deleted = Client::batch_delete_audio($postIds);
 
         $this->assertEquals($deleted, array_values($postIds));
 
@@ -169,13 +259,13 @@ class ApiClientTest extends TestCase
      */
     public function get_languages()
     {
-        $response = ApiClient::get_languages();
+        $response = Client::get_languages();
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::get_languages();
+        $response = Client::get_languages();
 
         $this->assertSame('en_US', $response[32]['code']);
         $this->assertSame('en_GB', $response[34]['code']);
@@ -239,13 +329,13 @@ class ApiClientTest extends TestCase
      */
     public function get_voices()
     {
-        $response = ApiClient::get_voices('en_US');
+        $response = Client::get_voices('en_US');
         $this->assertSame('Authentication token was not recognized.', $response['message']);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::get_voices('en_US');
+        $response = Client::get_voices('en_US');
 
         $this->assertSame(3555, $response[0]['id']);
         $this->assertSame(2517, $response[1]['id']);
@@ -270,13 +360,13 @@ class ApiClientTest extends TestCase
      */
     public function get_project()
     {
-        $response = ApiClient::get_project();
+        $response = Client::get_project();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::get_project();
+        $response = Client::get_project();
 
         $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('name', $response);
@@ -296,13 +386,13 @@ class ApiClientTest extends TestCase
      */
     public function get_player_settings()
     {
-        $response = ApiClient::get_player_settings();
+        $response = Client::get_player_settings();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::get_player_settings();
+        $response = Client::get_player_settings();
 
         $this->assertArrayHasKey('enabled', $response);
         $this->assertArrayHasKey('player_version', $response);
@@ -323,13 +413,13 @@ class ApiClientTest extends TestCase
      */
     public function get_video_settings()
     {
-        $response = ApiClient::get_video_settings();
+        $response = Client::get_video_settings();
         $this->assertFalse($response);
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $response = ApiClient::get_video_settings();
+        $response = Client::get_video_settings();
 
         $this->assertArrayHasKey('enabled', $response);
         $this->assertArrayHasKey('logo_image_url', $response);
@@ -348,91 +438,55 @@ class ApiClientTest extends TestCase
     /**
      * @test
      *
-     * 401 Invalid authentication token
+     * 401 when the option-supplied API key is invalid (covers both the
+     * "missing" and "wrong" cases — the BeyondWords API treats them the same).
      */
-    public function call_api_without_auth_header()
+    public function call_api_with_invalid_api_key()
     {
+        update_option('beyondwords_api_key', 'AN INVALID API KEY');
+
         $postId = $this->factory->post->create([
-            'post_title' => 'ApiClientTest::callApiWithoutAuthHeader',
+            'post_title' => 'ClientTest::callApiWithInvalidApiKey',
         ]);
 
-        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
+        $url = Environment::get_api_url() . '/projects/1234/content';
 
-        // Unset Auth header
-        $headers = $request->get_headers();
-        unset($headers['X-Api-Key']);
-
-        $request->set_headers($headers);
-
-        $response = ApiClient::call_api($request, $postId);
+        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
         // We should find the error code & message in the post_meta table
-        $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
+        $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
     }
 
     /**
      * @test
      *
-     * 401 Invalid authentication token
-     */
-    public function call_api_with_empty_auth_header()
-    {
-        $postId = $this->factory->post->create([
-            'post_title' => 'ApiClientTest::callApiWithEmptyAuthHeader',
-        ]);
-
-        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
-
-        // Unset Auth header
-        $headers = $request->get_headers();
-        $headers['X-Api-Key'] = 'AN INVALID API KEY';
-
-        $request->set_headers($headers);
-
-        $response = ApiClient::call_api($request, $postId);
-
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
-
-        // We should find the error code & message in the post_meta table
-        $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
-        $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     *
-     * 401 Invalid authentication token
+     * Caller-supplied Content-Type wins over the filter-injected default.
      */
     public function call_api_with_invalid_content_type()
     {
+        update_option('beyondwords_api_key', 'AN INVALID API KEY');
+
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidContentTypeHeader',
+            'post_title' => 'ClientTest::callApiWithInvalidContentTypeHeader',
         ]);
 
-        $request = new Request('POST', Environment::get_api_url() . '/projects/1234/content', '{"body":"Hello"}');
+        $url = Environment::get_api_url() . '/projects/1234/content';
 
-        // Set an invalid Content-Type header
-        $headers = $request->get_headers();
-        $headers['Content-Type'] = 'text/html';
-
-        $request->set_headers($headers);
-
-        $response = ApiClient::call_api($request, $postId);
+        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId, ['Content-Type' => 'text/html']);
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
-        // We should find the error code & message in the post_meta table
-        $error = sprintf(ApiClient::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
+        $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
     }
 
     /**
@@ -442,13 +496,15 @@ class ApiClientTest extends TestCase
      */
     public function call_api_with_invalid_endpoint()
     {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidEndpoint',
+            'post_title' => 'ClientTest::callApiWithInvalidEndpoint',
         ]);
 
-        $request = new Request('POST', Environment::get_api_url() . '/foo/1234/bar', '{"body":"Hello"}');
+        $url = Environment::get_api_url() . '/foo/1234/bar';
 
-        $response = ApiClient::call_api($request, $postId);
+        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
 
         $this->assertSame(404, wp_remote_retrieve_response_code($response));
 
@@ -456,6 +512,7 @@ class ApiClientTest extends TestCase
         $this->assertSame('#404: Not Found', get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
     }
 
     /**
@@ -466,12 +523,10 @@ class ApiClientTest extends TestCase
     public function call_api_with_invalid_domain()
     {
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::callApiWithInvalidDomain',
+            'post_title' => 'ClientTest::callApiWithInvalidDomain',
         ]);
 
-        $request = new Request('POST', 'http://localhost:5678/foo', '{"body":"Hello"}');
-
-        $response = ApiClient::call_api($request, $postId);
+        $response = Client::call_api('POST', 'http://localhost:5678/foo', '{"body":"Hello"}', $postId);
 
         $this->assertTrue(is_a($response, 'WP_Error'));
 
@@ -490,10 +545,10 @@ class ApiClientTest extends TestCase
     public function save_error_message(string $message, int $code, string $expect)
     {
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::error::' . $code,
+            'post_title' => 'ClientTest::error::' . $code,
         ]);
 
-        ApiClient::save_error_message($postId, $message, $code);
+        Client::save_error_message($postId, $message, $code);
 
         $this->assertEquals($expect, get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -534,14 +589,14 @@ class ApiClientTest extends TestCase
 
         // Create a post with REST_API integration method in post meta
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::saveErrorMessage404ForRestApiPostWhenGlobalIsClientSide',
+            'post_title' => 'ClientTest::saveErrorMessage404ForRestApiPostWhenGlobalIsClientSide',
             'meta_input' => [
                 'beyondwords_integration_method' => 'rest-api',
             ],
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::save_error_message($postId, 'Not Found', 404);
+        Client::save_error_message($postId, 'Not Found', 404);
 
         // The error SHOULD be saved because the post uses REST_API integration
         // (even though the global setting is CLIENT_SIDE)
@@ -564,14 +619,14 @@ class ApiClientTest extends TestCase
 
         // Create a post with CLIENT_SIDE integration method in post meta
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::saveErrorMessage404NotSavedForClientSidePost',
+            'post_title' => 'ClientTest::saveErrorMessage404NotSavedForClientSidePost',
             'meta_input' => [
                 'beyondwords_integration_method' => 'client-side',
             ],
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::save_error_message($postId, 'Not Found', 404);
+        Client::save_error_message($postId, 'Not Found', 404);
 
         // The error should NOT be saved because the post uses CLIENT_SIDE integration
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -594,7 +649,7 @@ class ApiClientTest extends TestCase
 
         // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsRestApi',
+            'post_title' => 'ClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsRestApi',
             'meta_input' => [
                 'beyondwords_content_id' => 'legacy-content-123', // Has content from REST API
                 // Note: NO beyondwords_integration_method meta
@@ -602,7 +657,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::save_error_message($postId, 'Not Found', 404);
+        Client::save_error_message($postId, 'Not Found', 404);
 
         // The error SHOULD be saved because legacy posts fall back to global (REST_API)
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -625,7 +680,7 @@ class ApiClientTest extends TestCase
 
         // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
         $postId = self::factory()->post->create([
-            'post_title' => 'ApiClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsClientSide',
+            'post_title' => 'ClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsClientSide',
             'meta_input' => [
                 'beyondwords_content_id' => 'legacy-content-123', // Has content from REST API
                 // Note: NO beyondwords_integration_method meta
@@ -633,7 +688,7 @@ class ApiClientTest extends TestCase
         ]);
 
         // Call saveErrorMessage with a 404 error
-        ApiClient::save_error_message($postId, 'Not Found', 404);
+        Client::save_error_message($postId, 'Not Found', 404);
 
         // The error should NOT be saved because legacy posts fall back to global (CLIENT_SIDE)
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
@@ -652,7 +707,7 @@ class ApiClientTest extends TestCase
             'body' => wp_json_encode(['message' => 'Foo'])
         ];
 
-        $result = ApiClient::error_message_from_response($response);
+        $result = Client::error_message_from_response($response);
 
         $this->assertEquals('Foo', $result);
 
@@ -670,7 +725,7 @@ class ApiClientTest extends TestCase
             ]])
         ];
 
-        $result = ApiClient::error_message_from_response($response);
+        $result = Client::error_message_from_response($response);
 
         $this->assertEquals('500 Foo, 501 Bar', $result);
     }
@@ -682,7 +737,7 @@ class ApiClientTest extends TestCase
     {
         delete_option('beyondwords_project_id');
 
-        $this->assertFalse(ApiClient::get_content('abc-123'));
+        $this->assertFalse(Client::get_content('abc-123'));
     }
 
     /**
@@ -692,7 +747,7 @@ class ApiClientTest extends TestCase
     {
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->assertFalse(ApiClient::get_content(''));
+        $this->assertFalse(Client::get_content(''));
 
         delete_option('beyondwords_project_id');
     }
@@ -713,7 +768,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        $result = ApiClient::get_content(BEYONDWORDS_TESTS_CONTENT_ID);
+        $result = Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);
 
         remove_filter('pre_http_request', $filter, 1);
 
@@ -732,7 +787,7 @@ class ApiClientTest extends TestCase
      */
     public function get_voice_returns_false_without_language_code()
     {
-        $this->assertFalse(ApiClient::get_voice(123, false));
+        $this->assertFalse(Client::get_voice(123, false));
     }
 
     /**
@@ -753,7 +808,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 10, 3);
 
-        $this->assertFalse(ApiClient::get_voice(123, 'en'));
+        $this->assertFalse(Client::get_voice(123, 'en'));
 
         remove_filter('pre_http_request', $filter, 10);
     }
@@ -779,7 +834,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 10, 3);
 
-        $voice = ApiClient::get_voice(200, 'en');
+        $voice = Client::get_voice(200, 'en');
 
         remove_filter('pre_http_request', $filter, 10);
 
@@ -792,7 +847,7 @@ class ApiClientTest extends TestCase
      */
     public function update_voice_returns_false_without_voice_id()
     {
-        $this->assertFalse(ApiClient::update_voice(0, ['name' => 'Test']));
+        $this->assertFalse(Client::update_voice(0, ['name' => 'Test']));
     }
 
     /**
@@ -812,7 +867,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 10, 3);
 
-        $response = ApiClient::update_voice(42, ['name' => 'Updated']);
+        $response = Client::update_voice(42, ['name' => 'Updated']);
 
         remove_filter('pre_http_request', $filter, 10);
 
@@ -827,7 +882,7 @@ class ApiClientTest extends TestCase
     {
         delete_option('beyondwords_project_id');
 
-        $this->assertFalse(ApiClient::update_project(['title' => 'Test']));
+        $this->assertFalse(Client::update_project(['title' => 'Test']));
     }
 
     /**
@@ -851,7 +906,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 10, 3);
 
-        $response = ApiClient::update_project(['title' => 'Updated']);
+        $response = Client::update_project(['title' => 'Updated']);
 
         remove_filter('pre_http_request', $filter, 10);
 
@@ -871,7 +926,7 @@ class ApiClientTest extends TestCase
     {
         delete_option('beyondwords_project_id');
 
-        $this->assertFalse(ApiClient::update_player_settings(['theme' => 'dark']));
+        $this->assertFalse(Client::update_player_settings(['theme' => 'dark']));
     }
 
     /**
@@ -894,7 +949,7 @@ class ApiClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 10, 3);
 
-        $response = ApiClient::update_player_settings(['theme' => 'dark']);
+        $response = Client::update_player_settings(['theme' => 'dark']);
 
         remove_filter('pre_http_request', $filter, 10);
 

@@ -154,29 +154,6 @@ class InspectTest extends TestCase
     /**
      * @test
      */
-    public function admin_enqueue_scripts_callback_enqueues_on_post_screen()
-    {
-        InspectPanel::admin_enqueue_scripts_callback('post.php');
-
-        $this->assertTrue(wp_script_is('beyondwords-inspect', 'enqueued'));
-
-        wp_dequeue_script('beyondwords-inspect');
-        wp_deregister_script('beyondwords-inspect');
-    }
-
-    /**
-     * @test
-     */
-    public function admin_enqueue_scripts_callback_skips_for_unrelated_hook()
-    {
-        InspectPanel::admin_enqueue_scripts_callback('plugins.php');
-
-        $this->assertFalse(wp_script_is('beyondwords-inspect', 'enqueued'));
-    }
-
-    /**
-     * @test
-     */
     public function hide_meta_box_adds_inspect_id_to_hidden_list()
     {
         $hidden = ['some_other_metabox'];

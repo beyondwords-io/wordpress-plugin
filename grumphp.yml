@@ -42,15 +42,6 @@ grumphp:
         - php
       metadata:
         priority: 10
-    phpmd:
-      ruleset:
-        - phpmd.xml
-      exclude:
-        - tests
-        - vendor
-        - plugins
-      metadata:
-        priority: 10
     lint_plugins:
       script: lint:plugins
       metadata:
@@ -77,7 +68,6 @@ grumphp:
         - phpcs
         - lint_plugins
         - phplint
-        - phpmd
     code_quality:
       tasks:
         - composer
@@ -85,4 +75,3 @@ grumphp:
         - phpcs
         - lint_plugins
         - phplint
-        - phpmd

@@ -36,7 +36,6 @@ class AddPlayer
     public static function init()
     {
         add_action('init', [self::class, 'register_block']);
-        add_action('enqueue_block_editor_assets', [self::class, 'add_block_editor_stylesheet']);
 
         add_action('admin_head', [self::class, 'add_editor_styles']);
         add_filter('tiny_mce_before_init', [self::class, 'filter_tiny_mce_settings']);
@@ -172,23 +171,4 @@ class AddPlayer
         );
     }
 
-    /**
-     * Add Block Editor Stylesheet.
-     *
-     * @since 6.0.0 Make static.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function add_block_editor_stylesheet($hook)
-    {
-        // Only enqueue for Gutenberg/Post screens
-        if (\BeyondWords\Core\CoreUtils::is_gutenberg_page() || $hook === 'post.php' || $hook === 'post-new.php') {
-            // Register the Classic/Block Editor "Add Player" CSS
-            wp_enqueue_style(
-                'beyondwords-AddPlayer',
-                BEYONDWORDS__PLUGIN_URI . 'src/post/add-player/AddPlayer.css',
-                [],
-                BEYONDWORDS__PLUGIN_VERSION
-            );
-        }
-    }
 }

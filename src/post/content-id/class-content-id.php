@@ -31,8 +31,6 @@ class ContentId
      */
     public static function init()
     {
-        add_action('admin_enqueue_scripts', [self::class, 'admin_enqueue_scripts_callback']);
-
         add_action('wp_loaded', function (): void {
             $post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
 
@@ -88,38 +86,6 @@ class ContentId
             </div>
         </div>
         <?php
-    }
-
-    /**
-     * Register the component scripts.
-     *
-     * @since 6.3.0
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     *
-     * @param string $hook Page hook
-     */
-    public static function admin_enqueue_scripts_callback($hook)
-    {
-        if (! \BeyondWords\Core\CoreUtils::is_gutenberg_page() && ($hook === 'post.php' || $hook === 'post-new.php')) {
-            wp_register_script(
-                'beyondwords-metabox--content-id',
-                BEYONDWORDS__PLUGIN_URI . 'src/post/content-id/classic-metabox.js',
-                ['wp-i18n'],
-                BEYONDWORDS__PLUGIN_VERSION,
-                true
-            );
-
-            wp_localize_script(
-                'beyondwords-metabox--content-id',
-                'beyondwordsData',
-                [
-                    'nonce' => wp_create_nonce('wp_rest'),
-                    'root' => esc_url_raw(rest_url()),
-                ]
-            );
-
-            wp_enqueue_script('beyondwords-metabox--content-id');
-        }
     }
 
     /**

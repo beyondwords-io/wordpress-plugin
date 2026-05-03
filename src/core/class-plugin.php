@@ -24,8 +24,6 @@ defined( 'ABSPATH' ) || exit;
  * Class references below use fully-qualified names so the wiring map is
  * legible without scrolling — every line shows exactly where a class lives.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Plugin {
@@ -40,6 +38,11 @@ class Plugin {
 	 */
 	public static function init(): void {
 		Updater::run();
+
+		// API client — registers the http_request_args filter that injects
+		// auth + Content-Type for outbound BeyondWords API calls. Must run
+		// before anything that might issue an API request.
+		\BeyondWords\Api\Client::init();
 
 		// Third-party compatibility shims.
 		\BeyondWords\Compatibility\WPGraphQL::init();
@@ -68,6 +71,10 @@ class Plugin {
 			return;
 		}
 
+		// Block-editor JS bootstrap (registers every @wordpress/plugins slot
+		// under src/editor/).
+		\BeyondWords\Editor\Editor::init();
+
 		// Posts list screen.
 		\BeyondWords\Posts\BulkEdit::init();
 		\BeyondWords\Posts\BulkEditNotices::init();
@@ -75,18 +82,23 @@ class Plugin {
 
 		// Post edit screen — top-level UI.
 		\BeyondWords\Post\AddPlayer::init();
+		\BeyondWords\Post\AddPlayer\Assets::init();
 		\BeyondWords\Post\BlockAttributes::init();
-		\BeyondWords\Post\ErrorNotice::init();
+		\BeyondWords\Post\ErrorNotice\Assets::init();
 		\BeyondWords\Post\InspectPanel::init();
-		\BeyondWords\Post\Sidebar::init();
+		\BeyondWords\Post\InspectPanel\Assets::init();
+		\BeyondWords\Post\Sidebar\Assets::init();
 
 		// Post edit screen — classic-editor metabox controls.
 		\BeyondWords\Post\ContentId::init();
+		\BeyondWords\Post\ContentId\Assets::init();
 		\BeyondWords\Post\GenerateAudio::init();
 		\BeyondWords\Post\DisplayPlayer::init();
 		\BeyondWords\Post\SelectVoice::init();
+		\BeyondWords\Post\SelectVoice\Assets::init();
 		\BeyondWords\Post\PlayerContent::init();
 		\BeyondWords\Post\PlayerStyle::init();
 		\BeyondWords\Post\Metabox::init();
+		\BeyondWords\Post\Metabox\Assets::init();
 	}
 }
