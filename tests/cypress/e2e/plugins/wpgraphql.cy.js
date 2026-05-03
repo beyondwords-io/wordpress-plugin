@@ -67,15 +67,15 @@ context( 'Plugins: WPGraphQL', () => {
 						expect(
 							json.data[ postType.graphQLName ].nodes[ 0 ]
 								.beyondwords.projectId
-						).to.eq( parseInt( Cypress.env( 'projectId' ) ) );
+						).to.eq( parseInt( Cypress.expose('projectId') ) );
 						expect(
 							json.data[ postType.graphQLName ].nodes[ 0 ]
 								.beyondwords.contentId
-						).to.eq( Cypress.env( 'contentId' ) );
+						).to.eq( Cypress.expose('contentId') );
 						expect(
 							json.data[ postType.graphQLName ].nodes[ 0 ]
 								.beyondwords.podcastId
-						).to.eq( Cypress.env( 'contentId' ) );
+						).to.eq( Cypress.expose('contentId') );
 					} );
 			} );
 		} );

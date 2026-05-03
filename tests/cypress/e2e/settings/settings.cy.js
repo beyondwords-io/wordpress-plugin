@@ -1,179 +1,39 @@
-/* global Cypress, cy, before, beforeEach, context, it */
+/* global cy, beforeEach, context, it */
 
 context( 'Settings', () => {
 	beforeEach( () => {
 		cy.login();
 	} );
 
-	it( 'shows the tab headings', () => {
+	it( 'renders the three v7 settings tabs', () => {
 		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=credentials'
+			'/wp-admin/options-general.php?page=beyondwords&tab=authentication'
 		);
-		cy.get( '#beyondwords-plugin-settings > h2' )
-			.eq( 0 )
-			.should( 'have.text', 'Credentials' );
+		cy.get( '.nav-tab-active' ).contains( 'Authentication' );
+		cy.get( 'input[name="beyondwords_api_key"]' ).should( 'exist' );
+		cy.get( 'input[name="beyondwords_project_id"]' ).should( 'exist' );
 
 		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=content'
+			'/wp-admin/options-general.php?page=beyondwords&tab=integration'
 		);
-		cy.get( '#beyondwords-plugin-settings > h2' )
-			.eq( 0 )
-			.should( 'have.text', 'Content' );
-
-		cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
-		cy.get( '#beyondwords-plugin-settings > h2' )
-			.eq( 0 )
-			.should( 'have.text', 'Voices' );
+		cy.get( '.nav-tab-active' ).contains( 'Integration' );
+		cy.get( 'select[name="beyondwords_integration_method"]' ).should(
+			'exist'
+		);
 
 		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=summarization'
+			'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
 		);
-		cy.get( '#beyondwords-plugin-settings > h2' )
-			.eq( 0 )
-			.should( 'have.text', 'Summarization' );
-
-		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=pronunciations'
-		);
-		cy.get( '#beyondwords-plugin-settings > h2' )
-			.eq( 0 )
-			.should( 'have.text', 'Pronunciations' );
+		cy.get( '.nav-tab-active' ).contains( 'Preferences' );
+		cy.get( 'select[name="beyondwords_player_ui"]' ).should( 'exist' );
+		cy.get( 'input[name="beyondwords_prepend_excerpt"]' ).should( 'exist' );
+		cy.get( 'input[name^="beyondwords_preselect"]' ).should( 'exist' );
 	} );
 
-	// These tests require a fresh database WITHOUT credentials
-	context( 'Fresh Install', () => {
-		before( () => {
-			cy.task( 'setupFreshDatabase' );
-		} );
-
-		it( 'syncs settings when valid creds are entered', () => {
-			cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
-
-			// Enter only a valid API Key & Project ID
-			cy.get( 'input#beyondwords_api_key' )
-				.clear()
-				.type( Cypress.env( 'apiKey' ) );
-			cy.get( 'input#beyondwords_project_id' )
-				.clear()
-				.type( Cypress.env( 'projectId' ) );
-			cy.get( 'input[type="submit"]' ).click();
-
-			cy.visit( '/wp-admin/options.php' );
-
-			// These should be populated using the Mock API response data.
-			cy.get( '#beyondwords_player_call_to_action' ).should(
-				'have.value',
-				'Listen to this article'
-			);
-			cy.get( '#beyondwords_player_clickable_sections' ).should(
-				'have.value',
-				'1'
-			);
-			cy.get( '#beyondwords_player_skip_button_style' ).should(
-				'have.value',
-				'auto'
-			);
-			cy.get( '#beyondwords_player_style' ).should(
-				'have.value',
-				'standard'
-			);
-			cy.get( '#beyondwords_player_theme' ).should(
-				'have.value',
-				'light'
-			);
-			cy.get( '#beyondwords_player_widget_position' ).should(
-				'have.value',
-				'auto'
-			);
-			cy.get( '#beyondwords_player_widget_style' ).should(
-				'have.value',
-				'standard'
-			);
-			cy.get( '#beyondwords_project_body_voice_id' ).should(
-				'have.value',
-				'2517'
-			);
-			cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should(
-				'have.value',
-				'95'
-			);
-			cy.get( '#beyondwords_project_language_code' ).should(
-				'have.value',
-				'en_US'
-			);
-			cy.get( '#beyondwords_project_title_enabled' ).should(
-				'have.value',
-				'1'
-			);
-			cy.get( '#beyondwords_project_title_voice_id' ).should(
-				'have.value',
-				'2517'
-			);
-			cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should(
-				'have.value',
-				'90'
-			);
-
-			// @todo improve how tests are writtem, so we can check serialized arrays
-			// for now just check that these settings exist
-			cy.get( '#beyondwords_player_theme_dark' ).should( 'exist' );
-			cy.get( '#beyondwords_player_theme_light' ).should( 'exist' );
-			cy.get( '#beyondwords_player_theme_video' ).should( 'exist' );
-		} );
-
-		// @todo unskip test after replacing mock API with http intercepts
-		it( 'removes the plugin settings when uninstalled', () => {
-			// The plugin files will not be deleted. Only the uninstall procedure will be run.
-			cy.uninstallPlugin( '--skip-delete speechkit' );
-
-			cy.visit( '/wp-admin/options.php' );
-
-			cy.get( '#beyondwords_api_key' ).should( 'not.exist' );
-			cy.get( '#beyondwords_project_body_voice_speaking_rate' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_project_title_enabled' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_call_to_action' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_clickable_sections' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_theme_dark' ).should( 'not.exist' );
-			cy.get( '#beyondwords_player_highlight_sections' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_theme_light' ).should( 'not.exist' );
-			cy.get( '#beyondwords_player_skip_button_style' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_style' ).should( 'not.exist' );
-			cy.get( '#beyondwords_player_theme' ).should( 'not.exist' );
-			cy.get( '#beyondwords_player_theme_video' ).should( 'not.exist' );
-			cy.get( '#beyondwords_player_widget_position' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_player_widget_style' ).should( 'not.exist' );
-			cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.exist' );
-			cy.get( '#beyondwords_preselect' ).should( 'not.exist' );
-			cy.get( '#beyondwords_project_body_voice_id' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_project_id' ).should( 'not.exist' );
-			cy.get( '#beyondwords_project_language_code' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_project_language_id' ).should( 'not.exist' );
-			cy.get( '#beyondwords_project_title_voice_id' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_project_title_voice_speaking_rate' ).should(
-				'not.exist'
-			);
-			cy.get( '#beyondwords_valid_api_connection' ).should( 'not.exist' );
-			cy.get( '#beyondwords_version' ).should( 'not.exist' );
-		} );
+	it( 'falls back to Authentication when an unknown tab is requested', () => {
+		cy.visit(
+			'/wp-admin/options-general.php?page=beyondwords&tab=does-not-exist'
+		);
+		cy.get( '.nav-tab-active' ).contains( 'Authentication' );
 	} );
 } );

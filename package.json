@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "6.3.0",
+  "version": "7.0.0-dev-1.0",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -29,7 +29,6 @@
     "@wordpress/notices": "^5.44.0",
     "@wordpress/plugins": "^7.44.0",
     "@wordpress/scripts": "^32.0.0",
-    "badge-maker": "^5.0.2",
     "cypress": "^15.14.0",
     "cypress-fail-fast": "^8.1.0",
     "cypress-map": "^1.56.0",
@@ -37,16 +36,16 @@
     "cypress-terminal-report": "^7.3.3",
     "dotenv": "^17.4.2",
     "lodash": "^4.18.1",
-    "mochawesome": "^7.1.4",
-    "uuid": "^14.0.0"
+    "mochawesome": "^7.1.4"
   },
   "scripts": {
     "build": "wp-scripts build",
     "check-engines": "wp-scripts check-engines",
     "check-licenses": "wp-scripts check-licenses",
     "composer": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
-    "cypress:open": "yarn cypress open --e2e --browser chrome",
-    "cypress:run": "ELECTRON_RUN_AS_NODE= yarn cypress run",
+    "composer:tests": "wp-env --config .wp-env.tests.json run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
+    "cypress:open": "cypress open --e2e --browser chrome",
+    "cypress:run": "ELECTRON_RUN_AS_NODE= cypress run",
     "cypress:setup": "node tests/cypress/scripts/setup-ci.js",
     "format": "wp-scripts format",
     "format:src": "wp-scripts format ./src",
@@ -60,15 +59,11 @@
     "phpcs": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcs -d memory_limit=512M",
     "phpcs:plugins": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
     "phpcbf": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcbf -d memory_limit=512M",
-    "rector": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process --dry-run",
-    "rector:fix": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process",
-    "rector:fix:diff": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/rector process --debug",
     "start": "wp-scripts start",
-    "test:e2e": "wp-scripts test-e2e",
-    "test:unit": "wp-scripts test-unit-js",
-    "test:phpunit": "wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
-    "wp-env": "wp-env",
-    "wp-env:start": "wp-env start --xdebug=debug,coverage --update"
+    "env": "wp-env",
+    "env:start": "wp-env start --xdebug=debug,coverage --update && wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update",
+    "env:tests": "wp-env --config .wp-env.tests.json",
+    "env:tests:start": "wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update"
   }
 }

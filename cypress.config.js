@@ -23,20 +23,36 @@ async function execWp( commands, options = {} ) {
 	for ( const command of commandArray ) {
 		const fullCommand = isCI
 			? `wp ${ command }`
-			: `yarn wp-env run tests-cli wp ${ command }`;
+			: `npx wp-env --config .wp-env.tests.json run cli wp ${ command }`;
 		lastResult = await exec( fullCommand );
 	}
 
 	return returnResult ? lastResult : undefined;
 }
 
+// Sensitive values use env (read-only via cy.env() at runtime).
+// Public values use expose (sync via Cypress.expose() at runtime).
+// See https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv
+const BW_API_KEY = process.env.BEYONDWORDS_TESTS_API_KEY || '';
+const BW_PROJECT_ID = process.env.BEYONDWORDS_TESTS_PROJECT_ID || '';
+const BW_CONTENT_ID = process.env.BEYONDWORDS_TESTS_CONTENT_ID || '';
+const BW_API_URL =
+	process.env.BEYONDWORDS_API_URL || 'https://api.beyondwords.io/v1';
+
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
 	downloadsFolder: 'tests/cypress/downloads',
+	allowCypressEnv: false,
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
+		apiKey: BW_API_KEY,
+	},
+	expose: {
+		projectId: BW_PROJECT_ID,
+		contentId: BW_CONTENT_ID,
+		apiUrl: BW_API_URL,
 	},
 	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
@@ -61,9 +77,9 @@ function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
 	require( 'cypress-fail-fast/plugin' )( on, config );
 
-	// Get credentials from config for use in tasks
+	// API key is sensitive (env); project ID is public (expose).
 	const apiKey = config.env.apiKey || '';
-	const projectId = config.env.projectId || '';
+	const projectId = ( config.expose && config.expose.projectId ) || '';
 
 	// implement node event listeners here
 	on( 'task', {

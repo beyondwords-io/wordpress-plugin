@@ -1,30 +1,7 @@
-/* global cy, Cypress, DataTransfer, expect, ClipboardEvent */
+/* global cy, Cypress, expect */
 
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add( 'login', (email, password) => { ... } )
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add( 'drag', { prevSubject: 'element'}, (subject, options) => { ... } )
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add( 'dismiss', { prevSubject: 'optional'}, (subject, options) => { ... } )
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite( 'visit', (originalFn, url, options) => { ... } )
+// Custom Cypress commands for the BeyondWords test suite.
+// See https://on.cypress.io/custom-commands
 
 import _ from 'lodash';
 
@@ -78,16 +55,18 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 } );
 
 Cypress.Commands.add( 'login', () => {
-	const username = Cypress.env( 'wpUsername' );
-	const password = Cypress.env( 'wpPassword' );
 	const baseUrl = Cypress.config().baseUrl;
 
-	cy.visit( '/wp-login.php' ).wait( 250 );
+	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
+		( { wpUsername, wpPassword } ) => {
+			cy.visit( '/wp-login.php' ).wait( 250 );
 
-	cy.get( '#user_login' ).clear().type( username ).wait( 250 );
-	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` );
+			cy.get( '#user_login' ).clear().type( wpUsername ).wait( 250 );
+			cy.get( '#user_pass' ).clear().type( `${ wpPassword }{enter}` );
 
-	cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+			cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+		}
+	);
 } );
 
 Cypress.Commands.add( 'createPost', ( options = {} ) => {
@@ -137,22 +116,16 @@ Cypress.Commands.add( 'disableWelcomeGuides', () => {
 	} );
 } );
 
-Cypress.Commands.add( 'showsOnlyCredentialsSettingsTab', () => {
-	cy.get( '.nav-tab' ).contains( 'Credentials' );
-	cy.get( '.nav-tab' ).contains( 'Content' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Voices' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Player' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Summarization' ).should( 'not.exist' );
-	cy.get( '.nav-tab' ).contains( 'Pronunciations' ).should( 'not.exist' );
+Cypress.Commands.add( 'showsOnlyAuthenticationSettingsTab', () => {
+	cy.get( '.nav-tab' ).contains( 'Authentication' );
+	cy.get( '.nav-tab' ).contains( 'Integration' ).should( 'not.exist' );
+	cy.get( '.nav-tab' ).contains( 'Preferences' ).should( 'not.exist' );
 } );
 
 Cypress.Commands.add( 'showsAllSettingsTabs', () => {
-	cy.get( '.nav-tab' ).contains( 'Credentials' );
-	cy.get( '.nav-tab' ).contains( 'Content' );
-	cy.get( '.nav-tab' ).contains( 'Voices' );
-	cy.get( '.nav-tab' ).contains( 'Player' );
-	cy.get( '.nav-tab' ).contains( 'Summarization' );
-	cy.get( '.nav-tab' ).contains( 'Pronunciations' );
+	cy.get( '.nav-tab' ).contains( 'Authentication' );
+	cy.get( '.nav-tab' ).contains( 'Integration' );
+	cy.get( '.nav-tab' ).contains( 'Preferences' );
 } );
 
 Cypress.Commands.add( 'showsPluginSettingsNotice', () => {
@@ -204,53 +177,6 @@ Cypress.Commands.add( 'dismissPointers', () => {
 	} );
 } );
 
-Cypress.Commands.add( 'saveAllPluginSettings', () => {
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
-
-	// Dismiss any WordPress pointers/tooltips that may be covering form fields
-	cy.dismissPointers();
-
-	cy.get( 'input[name="beyondwords_api_key"]' )
-		.clear()
-		.type( Cypress.env( 'apiKey' ) );
-	cy.get( 'input[name="beyondwords_project_id"]' )
-		.clear()
-		.type( Cypress.env( 'projectId' ) );
-
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
-
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=content' );
-
-	cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
-	cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
-	cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).uncheck();
-	cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should(
-		'not.exist'
-	);
-
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
-
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=voices' );
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
-
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
-} );
-
-Cypress.Commands.add( 'setPlayerStyleInPluginSettings', ( value ) => {
-	cy.visit( '/wp-admin/options-general.php?page=beyondwords&tab=player' );
-
-	cy.get( 'select[name="beyondwords_player_style"]' ).select( value );
-	cy.get( 'input[type=submit]' ).click();
-	cy.get( '.notice-success' );
-} );
-
 Cypress.Commands.add( 'visitPluginSiteHealth', () => {
 	cy.visit( '/wp-admin/site-health.php?tab=debug' );
 	cy.get(
@@ -264,56 +190,6 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.parent( 'tr' )
 		.find( 'td' )
 		.then( ( $el ) => cy.wrap( $el, args ) );
-} );
-
-Cypress.Commands.add( 'activatePlugin', ( ...args ) => {
-	args.flat().forEach( ( plugin ) => {
-		cy.task( 'activatePlugin', plugin );
-	} );
-} );
-
-/**
- * Deactivate one or more plugins.
- */
-Cypress.Commands.add( 'deactivatePlugin', ( ...args ) => {
-	args.flat().forEach( ( plugin ) => {
-		cy.task( 'deactivatePlugin', plugin );
-	} );
-} );
-
-/**
- * Uninstall one or more plugins.
- */
-Cypress.Commands.add( 'uninstallPlugin', ( ...args ) => {
-	args.flat().forEach( ( plugin ) => {
-		cy.task( 'uninstallPlugin', plugin );
-	} );
-} );
-
-/**
- * "Save as draft" for block editor.
- */
-Cypress.Commands.add( 'saveAsDraft', () => {
-	cy.contains( 'button', 'Save draft' ).click().wait( 100 );
-} );
-
-/**
- * "Save as pending" for block editor.
- */
-Cypress.Commands.add( 'saveAsPending', () => {
-	cy.contains( 'button', 'Save as pending' ).click().wait( 100 );
-} );
-
-Cypress.Commands.add( 'createBlockProgramatically', ( name, params = {} ) => {
-	cy.window().then( ( win ) => {
-		win.eval( `
-      var block = wp.blocks.createBlock( '${ name }', ${ JSON.stringify(
-			params
-		) } );
-      wp.data.dispatch( 'core/block-editor' ).insertBlocks( block );
-    ` );
-	} );
-	cy.wait( 200 );
 } );
 
 Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
@@ -438,13 +314,6 @@ Cypress.Commands.add( 'getBlockEditorSelect', ( text, ...args ) => {
 		.closest( '.components-select-control' )
 		.find( 'select' )
 		.then( ( $el ) => cy.wrap( $el ) );
-} );
-
-Cypress.Commands.add( 'assertDisplayPlayerIs', ( displayPlayer ) => {
-	cy.contains( 'label', 'Display player' )
-		.closest( 'div' )
-		.find( 'svg' ) // Block editor uses a funky SVG instead of a checkbox
-		.should( displayPlayer ? 'exist' : 'not.exist' );
 } );
 
 Cypress.Commands.add( 'setPostStatus', ( status ) => {
@@ -636,16 +505,6 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
 } );
 
 /**
- * Update a WordPress option.
- *
- * @param {string} name  - The name of the option to update
- * @param {string} value - The new value for the option
- */
-Cypress.Commands.add( 'updateOption', ( name, value ) => {
-	cy.task( 'updateOption', { name, value } );
-} );
-
-/**
  * Reset BeyondWords plugin settings to defaults.
  * This ensures tests start with a clean slate for plugin configuration.
  * Preserves infrastructure options set by setupDatabase: API credentials
@@ -658,6 +517,10 @@ Cypress.Commands.add( 'resetPluginSettings', () => {
 			'beyondwords_api_key',
 			'beyondwords_project_id',
 			'beyondwords_preselect',
+			// Keep the validation flag so Integration/Preferences tabs stay
+			// visible between tests — Tabs::get_visible_tabs() hides them
+			// when this option is missing.
+			'beyondwords_valid_api_connection',
 		],
 	} );
 } );
@@ -697,12 +560,12 @@ Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 			.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_project_id',
-				metaValue: Cypress.env( 'projectId' ),
+				metaValue: Cypress.expose('projectId'),
 			} )
 			.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_content_id',
-				metaValue: Cypress.env( 'contentId' ),
+				metaValue: Cypress.expose('contentId'),
 			} )
 			.then( () => postId );
 	} );

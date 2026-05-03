@@ -57,9 +57,9 @@ describe( 'WordPress Filters', () => {
 					const { projectId, contentId } = args[ 1 ];
 
 					expect( projectId ).to.equal(
-						parseInt( Cypress.env( 'projectId' ) )
+						parseInt( Cypress.expose('projectId') )
 					);
-					expect( contentId ).to.equal( Cypress.env( 'contentId' ) );
+					expect( contentId ).to.equal( Cypress.expose('contentId') );
 				} );
 
 				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-script-onload' );

@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 6.4.0
+Stable tag: 7.0.0-dev-1.0
 Requires PHP: 8.0
 Tested up to: 6.9
 License: GPLv2 or later
@@ -19,7 +19,7 @@ Choose from a variety of ElevenLabs and Azure voices to power your narration, or
 
 == GET STARTED WITH BEYONDWORDS ==
 
-To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team. 
+To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team.
 
 We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio and/or video.
 
@@ -76,7 +76,9 @@ Keep on top of performance with BeyondWords Analytics or by forwarding events to
 
 == Changelog ==
 
-= 6.4.0 =
+= 7.0.0 =
+
+Release date: tbc
 
 **Compatibility**
 

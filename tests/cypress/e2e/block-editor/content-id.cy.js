@@ -40,7 +40,7 @@ context( 'Block Editor: Content ID', () => {
 
 			cy.get( '.beyondwords-sidebar__status input[type="text"]' )
 				.filter(
-					( _i, el ) => el.value === Cypress.env( 'contentId' )
+					( _i, el ) => el.value === Cypress.expose('contentId')
 				)
 				.should( 'exist' );
 		} );

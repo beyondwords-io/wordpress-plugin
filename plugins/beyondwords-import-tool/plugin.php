@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types=1 );
+declare( strict_types = 1 );
 
 /**
  *
@@ -21,9 +21,7 @@ declare( strict_types=1 );
  * Domain Path:       /languages
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 require_once plugin_dir_path( __FILE__ ) . 'src/class-ajax.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-assets.php';

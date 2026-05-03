@@ -1,0 +1,36 @@
+{
+    "core": null,
+    "port": 8889,
+    "phpVersion": "8.5",
+    "plugins": [
+        "./",
+        "WP-API/Basic-Auth",
+        "https://downloads.wordpress.org/plugin/wordpress-importer.zip"
+    ],
+    "config": {
+        "AUTOMATIC_UPDATER_DISABLED": true,
+        "WP_AUTO_UPDATE_CORE": false,
+        "WP_DEBUG": true,
+        "WP_DEBUG_LOG": true,
+        "SCRIPT_DEBUG": true,
+        "WP_DEBUG_DISPLAY": true,
+        "WP_PHP_BINARY": "php",
+        "BEYONDWORDS_MOCK_API": true,
+        "BEYONDWORDS_AUTO_SYNC_SETTINGS": false
+    },
+    "mappings": {
+        "wp-content/debug.log": "./log/debug.log",
+        "wp-content/plugins": "./tests/fixtures/wp-content/plugins",
+        "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
+        "wp-content/plugins/classic-editor": "https://downloads.wordpress.org/plugin/classic-editor.zip",
+        "wp-content/plugins/query-monitor": "https://downloads.wordpress.org/plugin/query-monitor.zip",
+        "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.zip",
+        "wp-content/plugins/wp-reset": "https://downloads.wordpress.org/plugin/wp-reset.zip",
+        "wp-content/plugins/wp-graphql": "https://downloads.wordpress.org/plugin/wp-graphql.zip",
+        "wp-content/plugins/beyondwords-debug-tool": "./plugins/beyondwords-debug-tool",
+        "wp-content/plugins/beyondwords-import-tool": "./plugins/beyondwords-import-tool",
+        "wp-content/plugins/beyondwords-remove-auto-player": "./plugins/beyondwords-remove-auto-player",
+        "wp-content/plugins/speechkit-export-tool": "./plugins/speechkit-export-tool"
+    },
+    "testsEnvironment": false
+}
