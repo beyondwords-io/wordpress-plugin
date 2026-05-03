@@ -294,7 +294,9 @@ class Content {
 			 * @param bool $auto_publish Whether to mark generated content as published.
 			 * @param int  $post_id       WordPress post ID.
 			 */
-			if ( apply_filters( 'beyondwords_auto_publish', true, $post_id ) ) {
+			$auto_publish = apply_filters( 'beyondwords_auto_publish', true, $post_id );
+
+			if ( $auto_publish ) {
 				$body['published'] = true;
 			}
 		}

@@ -227,17 +227,12 @@ class Meta {
 		 *       I cannot write unit tests for this to pass, they always fail for me,
 		 *       so there are currently no tests for it.
 		 */
+		// Mirrors the if/else at Speechkit_Public::iframe_player_embed_html();
+		// only the share_url branch produces a usable Podcast ID for us.
 		$article = get_post_meta( $post_id, 'speechkit_info', true );
-		if ( empty( $article ) || ! isset( $article['share_url'] ) ) {
-			// This is exactly the same if/else statement that we have at
-			// Speechkit_Public::iframe_player_embed_html(), but there is
-			// nothing for us to to do here.
-		} else {
-			// This is the part that we need...
-			$url = $article['share_url'];
-
+		if ( ! empty( $article ) && isset( $article['share_url'] ) ) {
 			// Player URL can be either /a/[ID] or /e/[ID] or /m/[ID]
-			preg_match( '/\/[aem]\/(\d+)/', (string) $url, $matches );
+			preg_match( '/\/[aem]\/(\d+)/', (string) $article['share_url'], $matches );
 			if ( $matches ) {
 				return intval( $matches[1] );
 			}

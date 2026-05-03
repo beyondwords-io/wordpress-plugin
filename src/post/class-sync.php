@@ -255,19 +255,19 @@ class Sync {
 	 * shown alongside the auto-rendered controls — see
 	 * https://github.com/WordPress/gutenberg/issues/23078.
 	 *
-	 * @param bool|null   $protected Whether the meta is currently flagged protected.
-	 * @param string|null $meta_key  Meta key being checked. Null is passed by some core paths.
+	 * @param bool|null   $is_protected Whether the meta is currently flagged protected.
+	 * @param string|null $meta_key     Meta key being checked. Null is passed by some core paths.
 	 */
-	public static function is_protected_meta( $protected, $meta_key ): bool {
+	public static function is_protected_meta( $is_protected, $meta_key ): bool {
 		if ( null === $meta_key ) {
-			return (bool) $protected;
+			return (bool) $is_protected;
 		}
 
 		if ( in_array( $meta_key, \BeyondWords\Core\Utils::get_post_meta_keys( 'all' ), true ) ) {
 			return true;
 		}
 
-		return (bool) $protected;
+		return (bool) $is_protected;
 	}
 
 	/**

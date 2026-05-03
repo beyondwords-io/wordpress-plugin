@@ -126,20 +126,6 @@
 		<severity>0</severity>
 	</rule>
 
-	<!--
-	Code-quality nudges that fire on a single line each — flagged so the team can
-	revisit but not blocking. Re-enable per-class once addressed.
-	-->
-	<rule ref="Universal.ControlStructures.DisallowLonelyIf.Found">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedIf">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.protectedFound">
-		<severity>0</severity>
-	</rule>
-
 	<!-- BeyondWords text domain -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
