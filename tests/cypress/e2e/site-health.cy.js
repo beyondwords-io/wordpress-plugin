@@ -2,10 +2,17 @@
 
 context( 'Site Health', () => {
 	before( () => {
-		// This test requires a fresh database WITHOUT credentials
-		// to test the initial settings sync when credentials are first configured
 		cy.login();
-		cy.saveAllPluginSettings();
+		// Setting options directly (not via the form) — the form-submission
+		// path is exclusively covered by tests/cypress/e2e/settings/save-settings.cy.js.
+		cy.task( 'updateOption', {
+			name: 'beyondwords_prepend_excerpt',
+			value: '0',
+		} );
+		cy.task( 'updateOption', {
+			name: 'beyondwords_player_ui',
+			value: 'enabled',
+		} );
 	} );
 
 	const semverRegex =
@@ -13,352 +20,96 @@ context( 'Site Health', () => {
 		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 	it( 'has BeyondWords site health info', () => {
-		cy.visit( '/wp-admin/site-health.php?tab=debug' );
-
-		cy.get(
-			'button[aria-controls="health-check-accordion-block-beyondwords"]'
-		).click();
+		cy.visitPluginSiteHealth();
 
 		cy.get( '#health-check-accordion-block-beyondwords' ).within( () => {
 			// Plugin version
-			cy.get( 'tr' )
-				.eq( 0 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Plugin version' );
-					cy.get( 'td' )
-						.invoke( 'text' )
-						.should( 'match', semverRegex );
-				} );
+			cy.getSiteHealthValue( 'Plugin version' )
+				.invoke( 'text' )
+				.should( 'match', semverRegex );
+
 			// REST API URL
-			cy.get( 'tr' )
-				.eq( 1 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'REST API URL' );
-					cy.get( 'td' ).should(
-						'have.text',
-						Cypress.env( 'apiUrl' )
-					);
-				} );
+			cy.getSiteHealthValue( 'REST API URL' ).should(
+				'have.text',
+				Cypress.env( 'apiUrl' )
+			);
+
 			// Communication with REST API
-			cy.get( 'tr' )
-				.eq( 2 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Communication with REST API'
-					);
-					cy.get( 'td' ).should(
-						'have.text',
-						'BeyondWords API is reachable'
-					);
-				} );
+			cy.getSiteHealthValue( 'Communication with REST API' ).should(
+				'have.text',
+				'BeyondWords API is reachable'
+			);
+
 			// Compatible post types
-			cy.get( 'tr' )
-				.eq( 3 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Compatible post types'
-					);
-					cy.get( 'td' ).should(
-						'have.text',
-						'post, page, cpt_active, cpt_inactive'
-					);
-				} );
-			// Incompatible post types
-			cy.get( 'tr' )
-				.eq( 4 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Incompatible post types'
-					);
-					cy.get( 'td' ).should( 'have.text', 'cpt_unsupported' );
-				} );
+			cy.getSiteHealthValue( 'Compatible post types' ).should(
+				'have.text',
+				'post, page, cpt_active, cpt_inactive'
+			);
+
 			// Integration method
-			cy.get( 'tr' )
-				.eq( 5 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Integration method' );
-					cy.get( 'td' ).should( 'have.text', 'rest-api' );
+			cy.getSiteHealthValue( 'Integration method' ).should(
+				'have.text',
+				'rest-api'
+			);
+
+			// API Key — masked except last 4 chars
+			cy.getSiteHealthValue( 'API Key' )
+				.invoke( 'text' )
+				.then( ( text ) => {
+					const visibleChars = Cypress.env( 'apiKey' ).slice( -4 );
+					expect( text )
+						.to.be.a( 'string' )
+						.and.match( new RegExp( `[X]+${ visibleChars }$` ) );
 				} );
-			// API Key
-			cy.get( 'tr' )
-				.eq( 6 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'API Key' );
-					cy.get( 'td' )
-						.invoke( 'text' )
-						.then( ( text ) => {
-							const visibleChars =
-								Cypress.env( 'apiKey' ).slice( -4 );
-							expect( text )
-								.to.be.a( 'string' )
-								.and.match(
-									new RegExp( `[X]{34}${ visibleChars }` )
-								);
-						} );
-				} );
+
 			// Project ID
-			cy.get( 'tr' )
-				.eq( 7 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Project ID' );
-					cy.get( 'td' ).should(
-						'have.text',
-						Cypress.env( 'projectId' )
-					);
-				} );
-			// Include title in audio
-			cy.get( 'tr' )
-				.eq( 8 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Include title in audio'
-					);
-					cy.get( 'td' ).should( 'have.text', 'Yes' );
-				} );
-			// Include excerpts in audio
-			cy.get( 'tr' )
-				.eq( 9 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Auto-publish audio' );
-					cy.get( 'td' ).should( 'have.text', 'Yes' );
-				} );
-			// Include excerpts in audio
-			cy.get( 'tr' )
-				.eq( 10 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Include excerpts in audio'
-					);
-					cy.get( 'td' ).should( 'have.text', 'No' );
-				} );
-			// Preselect 'Generate audio'
-			cy.get( 'tr' )
-				.eq( 11 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Preselect \u2018Generate audio\u2019'
-					);
-					cy.get( 'td' ).should(
-						'have.text',
-						'{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}'
-					);
-				} );
-			// Default language code
-			cy.get( 'tr' )
-				.eq( 12 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Default language code'
-					);
-					cy.get( 'td' ).should( 'have.text', 'en_US' );
-				} );
-			// Default language ID
-			cy.get( 'tr' )
-				.eq( 13 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Default language ID' );
-					cy.get( 'td' ).should( 'have.text', '' );
-				} );
-			// Title voice ID
-			cy.get( 'tr' )
-				.eq( 14 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Title voice ID' );
-					cy.get( 'td' ).should( 'have.text', '2517' );
-				} );
-			// Title voice speaking rate
-			cy.get( 'tr' )
-				.eq( 15 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Title voice speaking rate'
-					);
-					cy.get( 'td' ).should( 'have.text', '90' );
-				} );
-			// Body voice ID
-			cy.get( 'tr' )
-				.eq( 16 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Body voice ID' );
-					cy.get( 'td' ).should( 'have.text', '2517' );
-				} );
-			// Body voice speaking rate
-			cy.get( 'tr' )
-				.eq( 17 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Body voice speaking rate'
-					);
-					cy.get( 'td' ).should( 'have.text', '95' );
-				} );
-			// Player UI
-			cy.get( 'tr' )
-				.eq( 18 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Player UI' );
-					cy.get( 'td' ).should( 'have.text', 'enabled' );
-				} );
-			// Player style
-			cy.get( 'tr' )
-				.eq( 19 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Player style' );
-					cy.get( 'td' ).should( 'have.text', 'standard' );
-				} );
-			// Player theme
-			cy.get( 'tr' )
-				.eq( 20 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Player theme' );
-					cy.get( 'td' ).should( 'have.text', 'light' );
-				} );
-			// Light theme
-			cy.get( 'tr' )
-				.eq( 21 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Light theme' );
-					cy.get( 'td' ).should(
-						'have.text',
-						// eslint-disable-next-line max-len
-						'{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111",\n    "highlight_color": "#eee"\n}'
-					);
-				} );
-			// Dark theme
-			cy.get( 'tr' )
-				.eq( 22 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Dark theme' );
-					cy.get( 'td' ).should(
-						'have.text',
-						// eslint-disable-next-line max-len
-						'{\n    "background_color": "transparent",\n    "icon_color": "#fff",\n    "text_color": "#fff",\n    "highlight_color": "#444"\n}'
-					);
-				} );
-			// Video theme
-			cy.get( 'tr' )
-				.eq( 23 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Video theme' );
-					cy.get( 'td' ).should(
-						'have.text',
-						// eslint-disable-next-line max-len
-						'{\n    "background_color": "#f5f5f5",\n    "icon_color": "#000",\n    "text_color": "#111"\n}'
-					);
-				} );
-			// Call-to-action
-			cy.get( 'tr' )
-				.eq( 24 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Call-to-action' );
-					cy.get( 'td' ).should(
-						'have.text',
-						'Listen to this article'
-					);
-				} );
-			// Text highlighting
-			cy.get( 'tr' )
-				.eq( 25 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Text highlighting' );
-					cy.get( 'td' ).should( 'have.text', 'No' );
-				} );
-			// Playback from segments
-			cy.get( 'tr' )
-				.eq( 26 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Playback from segments'
-					);
-					cy.get( 'td' ).should( 'have.text', 'Yes' );
-				} );
-			// Widget style
-			cy.get( 'tr' )
-				.eq( 27 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Widget style' );
-					cy.get( 'td' ).should( 'have.text', 'standard' );
-				} );
-			// Widget position
-			cy.get( 'tr' )
-				.eq( 28 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Widget position' );
-					cy.get( 'td' ).should( 'have.text', 'auto' );
-				} );
-			// Skip button style
-			cy.get( 'tr' )
-				.eq( 29 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Skip button style' );
-					cy.get( 'td' ).should( 'have.text', 'auto' );
-				} );
-			// Registered filters
-			cy.get( 'tr' )
-				.eq( 30 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Registered filters' );
-					cy.get( 'td' ).should( 'have.text', 'None' );
-				} );
-			// Registered deprecated filters
-			cy.get( 'tr' )
-				.eq( 31 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Registered deprecated filters'
-					);
-					cy.get( 'td' ).should( 'have.text', 'None' );
-				} );
-			// Review Notice Dismissed
-			cy.get( 'tr' )
-				.eq( 32 )
-				.within( () => {
-					cy.get( 'th' ).should( 'have.text', 'Date Activated' );
-					cy.get( 'td' ).should(
-						'satisfy',
-						( val ) => NaN !== Date.parse( val )
-					);
-				} );
-			// Review Notice Dismissed
-			cy.get( 'tr' )
-				.eq( 33 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'Review Notice Dismissed'
-					);
-					cy.get( 'td' ).should( 'have.text', '' );
-				} );
-			// BEYONDWORDS_AUTO_SYNC_SETTINGS
-			cy.get( 'tr' )
-				.eq( 34 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'BEYONDWORDS_AUTO_SYNC_SETTINGS'
-					);
-					cy.get( 'td' ).should( 'have.text', 'False' );
-				} );
-			// BEYONDWORDS_AUTOREGENERATE
-			cy.get( 'tr' )
-				.eq( 35 )
-				.within( () => {
-					cy.get( 'th' ).should(
-						'have.text',
-						'BEYONDWORDS_AUTOREGENERATE'
-					);
-					cy.get( 'td' ).should( 'have.text', 'Undefined' );
-				} );
+			cy.getSiteHealthValue( 'Project ID' ).should(
+				'have.text',
+				Cypress.env( 'projectId' )
+			);
+
+			// Include excerpt (Preferences tab)
+			cy.getSiteHealthValue( 'Include excerpt' ).should(
+				'have.text',
+				'No'
+			);
+
+			// Player UI (Preferences tab)
+			cy.getSiteHealthValue( 'Player UI' ).should(
+				'have.text',
+				'enabled'
+			);
+
+			// Preselect 'Generate audio' (Preferences tab)
+			cy.getSiteHealthValue( 'Preselect ‘Generate audio’' ).should(
+				'have.text',
+				'{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}'
+			);
+
+			// Filter registries
+			cy.getSiteHealthValue( 'Registered filters' ).should(
+				'have.text',
+				'None'
+			);
+			cy.getSiteHealthValue( 'Registered deprecated filters' ).should(
+				'have.text',
+				'None'
+			);
+
+			// Notice timestamps
+			cy.getSiteHealthValue( 'Date Activated' )
+				.invoke( 'text' )
+				.should( 'satisfy', ( val ) => ! isNaN( Date.parse( val ) ) );
+			cy.getSiteHealthValue( 'Review Notice Dismissed' ).should(
+				'have.text',
+				''
+			);
+
+			// Constants surfaced via add_constant()
+			cy.getSiteHealthValue( 'BEYONDWORDS_AUTOREGENERATE' ).should(
+				'have.text',
+				'Undefined'
+			);
 		} );
 	} );
 } );

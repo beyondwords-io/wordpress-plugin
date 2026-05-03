@@ -1,6 +1,6 @@
 /* global Cypress, cy, before, beforeEach, context, it */
 
-context( 'Settings > Credentials', () => {
+context( 'Settings > Authentication', () => {
 	before( () => {
 		// This test file requires a fresh database WITHOUT credentials
 		// to properly test the credential entry flow
@@ -16,7 +16,7 @@ context( 'Settings > Credentials', () => {
 
 		cy.showsPluginSettingsNotice();
 		cy.getPluginSettingsNoticeLink().click();
-		cy.showsOnlyCredentialsSettingsTab();
+		cy.showsOnlyAuthenticationSettingsTab();
 
 		// Empty API Key & Project ID
 		cy.get( 'input[name="beyondwords_api_key"]' ).should(
@@ -29,7 +29,7 @@ context( 'Settings > Credentials', () => {
 		);
 		cy.get( 'input[type="submit"]' ).click();
 		cy.showsPluginSettingsNotice();
-		cy.showsOnlyCredentialsSettingsTab();
+		cy.showsOnlyAuthenticationSettingsTab();
 
 		// Empty API Key
 		cy.get( 'input[name="beyondwords_api_key"]' ).clear();
@@ -38,7 +38,7 @@ context( 'Settings > Credentials', () => {
 			.type( Cypress.env( 'projectId' ) );
 		cy.get( 'input[type="submit"]' ).click();
 		cy.showsPluginSettingsNotice();
-		cy.showsOnlyCredentialsSettingsTab();
+		cy.showsOnlyAuthenticationSettingsTab();
 
 		// Empty Project ID
 		cy.get( 'input[name="beyondwords_api_key"]' )
@@ -47,7 +47,7 @@ context( 'Settings > Credentials', () => {
 		cy.get( 'input[name="beyondwords_project_id"]' ).clear();
 		cy.get( 'input[type="submit"]' ).click();
 		cy.showsPluginSettingsNotice();
-		cy.showsOnlyCredentialsSettingsTab();
+		cy.showsOnlyAuthenticationSettingsTab();
 
 		// Invalid creds
 		cy.get( 'input[name="beyondwords_api_key"]' )
@@ -58,7 +58,7 @@ context( 'Settings > Credentials', () => {
 		cy.get( 'input[name="beyondwords_project_id"]' ).clear().type( '401' );
 		cy.get( 'input[type="submit"]' ).click();
 		cy.showsInvalidApiCredsNotice();
-		cy.showsOnlyCredentialsSettingsTab();
+		cy.showsOnlyAuthenticationSettingsTab();
 
 		// Valid API Key & Project ID
 		cy.get( 'input[name="beyondwords_api_key"]' )
