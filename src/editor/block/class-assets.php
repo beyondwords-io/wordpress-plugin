@@ -32,14 +32,12 @@ class Assets {
 	/**
 	 * Enqueue the bundled block-editor JS on compatible post-type screens.
 	 *
-	 * Skipped when the API connection isn't valid yet (fresh installs) or
-	 * the current screen isn't editing a compatible post type.
+	 * The API-valid gate is handled at bootstrap time in
+	 * [src/core/class-plugin.php](src/core/class-plugin.php) — `init()`
+	 * isn't called without a valid API connection — so we only need the
+	 * per-request post-type check here.
 	 */
 	public static function enqueue_block_editor_assets(): void {
-		if ( ! \BeyondWords\Settings\Utils::has_valid_api_connection() ) {
-			return;
-		}
-
 		if ( ! in_array( get_post_type(), \BeyondWords\Settings\Utils::get_compatible_post_types(), true ) ) {
 			return;
 		}

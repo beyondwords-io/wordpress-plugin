@@ -69,7 +69,7 @@ class Metabox
      *
      * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
-     * @param int|WP_Post $post The WordPress post ID, or post object.
+     * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 3.0.0
      * @since 3.7.0 Show "Pending review" notice for posts with status of "pending"
@@ -169,7 +169,7 @@ class Metabox
      *
      * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
      *
-     * @param int|WP_Post (Optional) Post ID or WP_Post object. Default is global $post.
+     * @param int|\WP_Post|null $post (Optional) Post ID, or WP_Post object, or null.
      *
      * @since 3.x   Introduced
      * @since 4.0.1 Admin player init is now all in this one function.

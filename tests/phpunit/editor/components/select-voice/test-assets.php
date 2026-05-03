@@ -35,13 +35,18 @@ class SelectVoiceAssetsTest extends TestCase
      */
     public function admin_enqueue_scripts_registers_classic_metabox_script()
     {
-        global $current_screen;
+        global $current_screen, $post;
         $current_screen = \WP_Screen::get('post');
         $current_screen->is_block_editor = false;
+
+        $post = self::factory()->post->create_and_get(['post_type' => 'post']);
+        setup_postdata($post);
 
         Assets::admin_enqueue_scripts('post.php');
 
         $this->assertTrue(wp_script_is('beyondwords-metabox--select-voice', 'enqueued'));
+
+        wp_delete_post($post->ID, true);
     }
 
     /**

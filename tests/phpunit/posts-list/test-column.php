@@ -1,11 +1,11 @@
 <?php
 
-use BeyondWords\AdminPosts\Column;
+use BeyondWords\PostsList\Column;
 
 class ColumnTest extends TestCase
 {
     /**
-     * @var \BeyondWords\AdminPosts\Column
+     * @var \BeyondWords\PostsList\Column
      */
     private $_instance;
 

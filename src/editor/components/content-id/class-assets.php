@@ -43,6 +43,10 @@ class Assets {
 			return;
 		}
 
+		if ( ! in_array( get_post_type(), \BeyondWords\Settings\Utils::get_compatible_post_types(), true ) ) {
+			return;
+		}
+
 		wp_register_script(
 			'beyondwords-metabox--content-id',
 			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/content-id/classic-metabox.js',

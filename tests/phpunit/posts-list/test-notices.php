@@ -1,12 +1,12 @@
 <?php
 
-use BeyondWords\AdminPosts\Notices;
+use BeyondWords\PostsList\Notices;
 use \Symfony\Component\DomCrawler\Crawler;
 
 final class NoticesTest extends TestCase
 {
     /**
-     * @var \BeyondWords\AdminPosts\Notices
+     * @var \BeyondWords\PostsList\Notices
      */
     private $_instance;
 

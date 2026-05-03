@@ -15,12 +15,12 @@ registerPlugin( 'beyondwords-document-sidebar', {
 	render: DocumentSettingPanel,
 } );
 
-registerPlugin( 'beyondwords-plugin-sidebar', {
-	icon: 'controls-volumeon',
-	render: Sidebar,
-} );
-
 registerPlugin( 'beyondwords-prepublish-sidebar', {
 	icon: 'controls-volumeon',
 	render: PrepublishPanel,
+} );
+
+registerPlugin( 'beyondwords-plugin-sidebar', {
+	icon: 'controls-volumeon',
+	render: Sidebar,
 } );

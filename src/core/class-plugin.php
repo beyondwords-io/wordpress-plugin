@@ -76,9 +76,9 @@ class Plugin {
 		\BeyondWords\Editor\Block\Assets::init();
 
 		// Posts list screen (edit.php) — column, bulk-edit, admin notices.
-		\BeyondWords\AdminPosts\Column::init();
-		\BeyondWords\AdminPosts\BulkEdit::init();
-		\BeyondWords\AdminPosts\Notices::init();
+		\BeyondWords\PostsList\Column::init();
+		\BeyondWords\PostsList\BulkEdit::init();
+		\BeyondWords\PostsList\Notices::init();
 
 		// Post edit screen — top-level UI.
 		\BeyondWords\Editor\Components\AddPlayer::init();

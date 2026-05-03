@@ -13,7 +13,7 @@ All PHP under `src/` follows the same WordPress-style layout:
 
 ```
 src/
-  admin-posts/     class-{name}.php       — `edit.php` posts list-screen UI (column, bulk-edit, notices)
+  posts-list/     class-{name}.php       — `edit.php` posts list-screen UI (column, bulk-edit, notices)
   api/             class-client.php       — outbound BeyondWords HTTP API wrapper
   compatibility/   class-{name}.php       — third-party plugin compatibility shims
   core/            class-{name}.php       — bootstrap, env, updater, uninstaller (cross-cutting plumbing)

@@ -2,14 +2,14 @@
 /**
  * BeyondWords column on the posts list screen.
  *
- * @package BeyondWords\AdminPosts
+ * @package BeyondWords\PostsList
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\AdminPosts;
+namespace BeyondWords\PostsList;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -31,12 +31,21 @@ class Assets {
 	}
 
 	/**
-	 * Enqueue Metabox CSS on classic-editor post screens.
+	 * Enqueue Metabox CSS on classic-editor post screens for compatible post types.
+	 *
+	 * The API-valid gate is handled at bootstrap time in
+	 * [src/core/class-plugin.php](src/core/class-plugin.php) — `init()`
+	 * isn't called without a valid API connection — so we only need the
+	 * per-request hook + post-type checks here.
 	 *
 	 * @param string $hook Current admin page hook.
 	 */
 	public static function admin_enqueue_scripts( $hook ): void {
 		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+			return;
+		}
+
+		if ( ! in_array( get_post_type(), \BeyondWords\Settings\Utils::get_compatible_post_types(), true ) ) {
 			return;
 		}
 
