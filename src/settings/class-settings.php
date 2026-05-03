@@ -297,5 +297,4 @@ class Settings {
 			$saved ? 200 : 500
 		);
 	}
-
 }

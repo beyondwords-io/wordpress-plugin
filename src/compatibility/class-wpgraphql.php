@@ -59,9 +59,9 @@ class WPGraphQL {
 			]
 		);
 
-		$bw_post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
-		$graphql_post_types     = \WPGraphQL::get_allowed_post_types();
-		$post_types             = array_intersect( $bw_post_types, $graphql_post_types );
+		$bw_post_types      = \BeyondWords\Settings\Utils::get_compatible_post_types();
+		$graphql_post_types = \WPGraphQL::get_allowed_post_types();
+		$post_types         = array_intersect( $bw_post_types, $graphql_post_types );
 
 		foreach ( $post_types as $post_type ) {
 			$post_type_object = get_post_type_object( $post_type );

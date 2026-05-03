@@ -163,7 +163,6 @@ class Fields {
 	/**
 	 * Sanitisers
 	 * ------------------------------------------------------------------ */
-
 	public static function sanitize_api_key( $value ) {
 		$value = sanitize_text_field( (string) $value );
 
@@ -207,7 +206,6 @@ class Fields {
 	/**
 	 * Renderers
 	 * ------------------------------------------------------------------ */
-
 	public static function render_api_key(): void {
 		$value = (string) get_option( self::OPTION_API_KEY, '' );
 		?>

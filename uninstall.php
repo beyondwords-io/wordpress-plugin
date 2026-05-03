@@ -15,26 +15,25 @@ use Beyondwords\Wordpress\Core\Uninstaller;
  *
  * @SuppressWarnings(PHPMD.ExitExpression)
  */
-function beyondwords_uninstall()
-{
-    if (
-        ! defined('WP_UNINSTALL_PLUGIN') ||
-        ! WP_UNINSTALL_PLUGIN ||
-        dirname(WP_UNINSTALL_PLUGIN) !== dirname(plugin_basename(__FILE__))
-    ) {
-        status_header(404);
+function beyondwords_uninstall() {
+	if (
+		! defined( 'WP_UNINSTALL_PLUGIN' ) ||
+		! WP_UNINSTALL_PLUGIN ||
+		dirname( WP_UNINSTALL_PLUGIN ) !== dirname( plugin_basename( __FILE__ ) )
+	) {
+		status_header( 404 );
         exit; // phpcs:ignore
-    }
+	}
 
-    if (! defined('BEYONDWORDS__PLUGIN_DIR')) {
-        define('BEYONDWORDS__PLUGIN_DIR', plugin_dir_path(__FILE__));
-    }
+	if ( ! defined( 'BEYONDWORDS__PLUGIN_DIR' ) ) {
+		define( 'BEYONDWORDS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+	}
 
-    require BEYONDWORDS__PLUGIN_DIR . 'vendor/autoload.php';
+	require BEYONDWORDS__PLUGIN_DIR . 'vendor/autoload.php';
 
-    Uninstaller::cleanupPluginTransients();
-    Uninstaller::cleanupPluginOptions();
-    Uninstaller::cleanupCustomFields();
+	Uninstaller::cleanupPluginTransients();
+	Uninstaller::cleanupPluginOptions();
+	Uninstaller::cleanupCustomFields();
 }
 
 // phpcs:disable

@@ -28,7 +28,7 @@ declare( strict_types = 1 );
 defined( 'ABSPATH' ) || exit;
 
 // Composer autoload
-require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // Define constants
 // phpcs:disable

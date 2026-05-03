@@ -147,7 +147,7 @@ class Preselect {
 	/**
 	 * Whether a post type is currently preselected.
 	 *
-	 * @param string                $post_type Post type slug.
+	 * @param string                   $post_type Post type slug.
 	 * @param array<string,mixed>|null $preselect Pre-loaded option, to avoid an extra `get_option()`.
 	 */
 	public static function is_post_type_selected( string $post_type, ?array $preselect = null ): bool {

@@ -49,8 +49,8 @@ class ConfigBuilder {
 	 * For Magic Embed (client-side) integration without a content ID we flip
 	 * to source-ID mode so the SDK fetches by source post ID instead.
 	 *
-	 * @param \WP_Post             $post   Post object.
-	 * @param array<string,mixed>  $params Existing params.
+	 * @param \WP_Post            $post   Post object.
+	 * @param array<string,mixed> $params Existing params.
 	 *
 	 * @return array<string,mixed>
 	 */

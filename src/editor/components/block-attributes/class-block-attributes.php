@@ -24,67 +24,64 @@ namespace BeyondWords\Editor\Components;
  */
 defined( 'ABSPATH' ) || exit;
 
-class BlockAttributes
-{
-    /**
-     * Init.
-     *
-     * @since 4.0.0
-     * @since 6.0.0 Make static and remove renderBlock registration.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function init()
-    {
-        add_filter('register_block_type_args', [self::class, 'register_audio_attribute']);
-        add_filter('register_block_type_args', [self::class, 'register_marker_attribute']);
-    }
+class BlockAttributes {
 
-    /**
-     * Register "Audio" attribute for Gutenberg blocks.
-     *
-     * @since 6.0.0 Make static.
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function register_audio_attribute($args)
-    {
-        // Setup attributes if needed.
-        if (! isset($args['attributes'])) {
-            $args['attributes'] = [];
-        }
+	/**
+	 * Init.
+	 *
+	 * @since 4.0.0
+	 * @since 6.0.0 Make static and remove renderBlock registration.
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 */
+	public static function init() {
+		add_filter( 'register_block_type_args', [ self::class, 'register_audio_attribute'] );
+		add_filter( 'register_block_type_args', [ self::class, 'register_marker_attribute'] );
+	}
 
-        if (! array_key_exists('beyondwordsAudio', $args['attributes'])) {
-            $args['attributes']['beyondwordsAudio'] = [
-                'type' => 'boolean',
-                'default' => true,
-            ];
-        }
+	/**
+	 * Register "Audio" attribute for Gutenberg blocks.
+	 *
+	 * @since 6.0.0 Make static.
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 */
+	public static function register_audio_attribute( $args ) {
+		// Setup attributes if needed.
+		if ( ! isset( $args['attributes'] ) ) {
+			$args['attributes'] = [];
+		}
 
-        return $args;
-    }
+		if ( ! array_key_exists( 'beyondwordsAudio', $args['attributes'] ) ) {
+			$args['attributes']['beyondwordsAudio'] = [
+				'type'    => 'boolean',
+				'default' => true,
+			];
+		}
 
-    /**
-     * Register "Segment marker" attribute for Gutenberg blocks.
-     *
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     *
-     * @deprecated This attribute is no longer used as of 6.0.0, but kept for backward compatibility.
-     *
-     * @since 6.0.0 Make static.
-     */
-    public static function register_marker_attribute($args)
-    {
-        // Setup attributes if needed.
-        if (! isset($args['attributes'])) {
-            $args['attributes'] = [];
-        }
+		return $args;
+	}
 
-        if (! array_key_exists('beyondwordsMarker', $args['attributes'])) {
-            $args['attributes']['beyondwordsMarker'] = [
-                'type' => 'string',
-                'default' => '',
-            ];
-        }
+	/**
+	 * Register "Segment marker" attribute for Gutenberg blocks.
+	 *
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 *
+	 * @deprecated This attribute is no longer used as of 6.0.0, but kept for backward compatibility.
+	 *
+	 * @since 6.0.0 Make static.
+	 */
+	public static function register_marker_attribute( $args ) {
+		// Setup attributes if needed.
+		if ( ! isset( $args['attributes'] ) ) {
+			$args['attributes'] = [];
+		}
 
-        return $args;
-    }
+		if ( ! array_key_exists( 'beyondwordsMarker', $args['attributes'] ) ) {
+			$args['attributes']['beyondwordsMarker'] = [
+				'type'    => 'string',
+				'default' => '',
+			];
+		}
+
+		return $args;
+	}
 }

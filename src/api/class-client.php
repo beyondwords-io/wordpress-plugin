@@ -317,8 +317,8 @@ class Client {
 	 *
 	 * The API doesn't expose `/voices/:id`, so we fetch the list and filter.
 	 *
-	 * @param int               $voice_id      Voice ID.
-	 * @param int|string|false  $language_code Language code (required — no global fallback as of 7.0.0).
+	 * @param int              $voice_id      Voice ID.
+	 * @param int|string|false $language_code Language code (required — no global fallback as of 7.0.0).
 	 *
 	 * @return object|array<mixed>|false Voice record, or false when missing.
 	 */
@@ -339,8 +339,8 @@ class Client {
 	/**
 	 * PUT /organization/voices/:id
 	 *
-	 * @param int                  $voice_id Voice ID.
-	 * @param array<string,mixed>  $settings Voice settings to apply.
+	 * @param int                 $voice_id Voice ID.
+	 * @param array<string,mixed> $settings Voice settings to apply.
 	 *
 	 * @return array<mixed>|null|false
 	 */

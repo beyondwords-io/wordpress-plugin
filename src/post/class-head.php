@@ -15,108 +15,106 @@ namespace BeyondWords\Post;
  */
 defined( 'ABSPATH' ) || exit;
 
-class Head
-{
-    /**
-     * Init.
-     *
-     * @since 6.0.0
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     */
-    public static function init()
-    {
-        add_action('wp_head', [self::class, 'add_meta_tags']);
-    }
+class Head {
 
-    /**
-     * Sets meta[beyondwords-*] tags in the head tag of singular pages.
-     * We set both the [content] attribute and a custom data attribute for compatibility.
-     *
-     * @since 6.0.0
-     * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-     *
-     * @return void
-     */
-    public static function add_meta_tags()
-    {
-        if (! is_singular()) {
-            return;
-        }
+	/**
+	 * Init.
+	 *
+	 * @since 6.0.0
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 */
+	public static function init() {
+		add_action( 'wp_head', [ self::class, 'add_meta_tags'] );
+	}
 
-        $post_id = get_queried_object_id();
+	/**
+	 * Sets meta[beyondwords-*] tags in the head tag of singular pages.
+	 * We set both the [content] attribute and a custom data attribute for compatibility.
+	 *
+	 * @since 6.0.0
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 *
+	 * @return void
+	 */
+	public static function add_meta_tags() {
+		if ( ! is_singular() ) {
+			return;
+		}
 
-        if (! $post_id) {
-            return;
-        }
+		$post_id = get_queried_object_id();
 
-        $project_id = Meta::get_project_id($post_id, true);
+		if ( ! $post_id ) {
+			return;
+		}
 
-        if (! $project_id) {
-            return;
-        }
+		$project_id = Meta::get_project_id( $post_id, true );
 
-        $title = get_the_title($post_id);
+		if ( ! $project_id ) {
+			return;
+		}
 
-        printf(
-            '<meta name="beyondwords-title" content="%s" data-beyondwords-title="%s" />' . "\n",
-            esc_attr($title),
-            esc_attr($title)
-        );
+		$title = get_the_title( $post_id );
 
-        $author_name = get_the_author_meta('display_name', get_post_field('post_author', $post_id));
+		printf(
+			'<meta name="beyondwords-title" content="%s" data-beyondwords-title="%s" />' . "\n",
+			esc_attr( $title ),
+			esc_attr( $title )
+		);
 
-        printf(
-            '<meta name="beyondwords-author" content="%s" data-beyondwords-author="%s" />' . "\n",
-            esc_attr($author_name),
-            esc_attr($author_name)
-        );
+		$author_name = get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) );
 
-        $publish_date = get_the_date('c', $post_id);
+		printf(
+			'<meta name="beyondwords-author" content="%s" data-beyondwords-author="%s" />' . "\n",
+			esc_attr( $author_name ),
+			esc_attr( $author_name )
+		);
 
-        printf(
-            '<meta name="beyondwords-publish-date" content="%s" data-beyondwords-publish-date="%s" />' . "\n",
-            esc_attr($publish_date),
-            esc_attr($publish_date)
-        );
+		$publish_date = get_the_date( 'c', $post_id );
 
-        $title_voice_id = get_post_meta($post_id, 'beyondwords_title_voice_id', true);
+		printf(
+			'<meta name="beyondwords-publish-date" content="%s" data-beyondwords-publish-date="%s" />' . "\n",
+			esc_attr( $publish_date ),
+			esc_attr( $publish_date )
+		);
 
-        if ($title_voice_id) {
-            printf(
-                '<meta name="beyondwords-title-voice-id" content="%d" data-beyondwords-title-voice-id="%d" />' . "\n",
-                esc_attr($title_voice_id),
-                esc_attr($title_voice_id)
-            );
-        }
+		$title_voice_id = get_post_meta( $post_id, 'beyondwords_title_voice_id', true );
 
-        $body_voice_id = get_post_meta($post_id, 'beyondwords_body_voice_id', true);
+		if ( $title_voice_id ) {
+			printf(
+				'<meta name="beyondwords-title-voice-id" content="%d" data-beyondwords-title-voice-id="%d" />' . "\n",
+				esc_attr( $title_voice_id ),
+				esc_attr( $title_voice_id )
+			);
+		}
 
-        if ($body_voice_id) {
-            printf(
-                '<meta name="beyondwords-body-voice-id" content="%d" data-beyondwords-body-voice-id="%d" />' . "\n",
-                esc_attr($body_voice_id),
-                esc_attr($body_voice_id)
-            );
-        }
+		$body_voice_id = get_post_meta( $post_id, 'beyondwords_body_voice_id', true );
 
-        $summary_voice_id = get_post_meta($post_id, 'beyondwords_summary_voice_id', true);
+		if ( $body_voice_id ) {
+			printf(
+				'<meta name="beyondwords-body-voice-id" content="%d" data-beyondwords-body-voice-id="%d" />' . "\n",
+				esc_attr( $body_voice_id ),
+				esc_attr( $body_voice_id )
+			);
+		}
 
-        if ($summary_voice_id) {
-            printf(
-                '<meta name="beyondwords-summary-voice-id" content="%d" data-beyondwords-summary-voice-id="%d" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
-                esc_attr($summary_voice_id),
-                esc_attr($summary_voice_id)
-            );
-        }
+		$summary_voice_id = get_post_meta( $post_id, 'beyondwords_summary_voice_id', true );
 
-        $language_code = get_post_meta($post_id, 'beyondwords_language_code', true);
+		if ( $summary_voice_id ) {
+			printf(
+				'<meta name="beyondwords-summary-voice-id" content="%d" data-beyondwords-summary-voice-id="%d" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
+				esc_attr( $summary_voice_id ),
+				esc_attr( $summary_voice_id )
+			);
+		}
 
-        if ($language_code) {
-            printf(
-                '<meta name="beyondwords-article-language" content="%s" data-beyondwords-article-language="%s" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
-                esc_attr($language_code),
-                esc_attr($language_code)
-            );
-        }
-    }
+		$language_code = get_post_meta( $post_id, 'beyondwords_language_code', true );
+
+		if ( $language_code ) {
+			printf(
+				'<meta name="beyondwords-article-language" content="%s" data-beyondwords-article-language="%s" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
+				esc_attr( $language_code ),
+				esc_attr( $language_code )
+			);
+		}
+	}
 }
