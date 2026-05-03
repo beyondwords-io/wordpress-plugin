@@ -46,7 +46,7 @@ class Javascript extends Base {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			'<script data-beyondwords-player-context="%s" async defer src="%s" onload=\'%s\'></script>',
 			esc_attr( $context ),
-			\BeyondWords\Core\Environment::get_js_sdk_url(),
+			\BeyondWords\Core\Urls::get_js_sdk_url(),
 			$onload
 		);
 	}

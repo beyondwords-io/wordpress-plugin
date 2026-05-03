@@ -9,8 +9,8 @@
  * @package BeyondWords\Post
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
- *               Editor enqueue moved to BeyondWords\Editor\Editor.
- *               Renamed from BeyondWords\Core\Core to BeyondWords\Post\Sync.
+ *                Editor enqueue moved to BeyondWords\Editor\Editor.
+ *                Renamed from BeyondWords\Core\Core to BeyondWords\Post\Sync.
  */
 
 declare( strict_types = 1 );

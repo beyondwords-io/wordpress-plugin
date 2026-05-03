@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use BeyondWords\Api\Client;
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 
 class ClientTest extends TestCase
 {
@@ -69,7 +69,7 @@ class ClientTest extends TestCase
 
         $args = Client::filter_http_request_args(
             ['method' => 'GET', 'headers' => []],
-            Environment::get_api_url() . '/projects/1234'
+            Urls::get_api_url() . '/projects/1234'
         );
 
         $this->assertSame('SECRET-API-KEY', $args['headers']['X-Api-Key']);
@@ -88,7 +88,7 @@ class ClientTest extends TestCase
         foreach (['POST', 'PUT', 'DELETE'] as $method) {
             $args = Client::filter_http_request_args(
                 ['method' => $method, 'headers' => []],
-                Environment::get_api_url() . '/projects/1234/content'
+                Urls::get_api_url() . '/projects/1234/content'
             );
 
             $this->assertSame('application/json', $args['headers']['Content-Type'], "Content-Type should be set for {$method}");
@@ -112,7 +112,7 @@ class ClientTest extends TestCase
                     'Content-Type' => 'text/html',
                 ],
             ],
-            Environment::get_api_url() . '/projects/1234/content'
+            Urls::get_api_url() . '/projects/1234/content'
         );
 
         $this->assertSame('CALLER-OVERRIDE', $args['headers']['X-Api-Key']);
@@ -449,7 +449,7 @@ class ClientTest extends TestCase
             'post_title' => 'ClientTest::callApiWithInvalidApiKey',
         ]);
 
-        $url = Environment::get_api_url() . '/projects/1234/content';
+        $url = Urls::get_api_url() . '/projects/1234/content';
 
         $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
 
@@ -476,7 +476,7 @@ class ClientTest extends TestCase
             'post_title' => 'ClientTest::callApiWithInvalidContentTypeHeader',
         ]);
 
-        $url = Environment::get_api_url() . '/projects/1234/content';
+        $url = Urls::get_api_url() . '/projects/1234/content';
 
         $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId, ['Content-Type' => 'text/html']);
 
@@ -502,7 +502,7 @@ class ClientTest extends TestCase
             'post_title' => 'ClientTest::callApiWithInvalidEndpoint',
         ]);
 
-        $url = Environment::get_api_url() . '/foo/1234/bar';
+        $url = Urls::get_api_url() . '/foo/1234/bar';
 
         $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
 

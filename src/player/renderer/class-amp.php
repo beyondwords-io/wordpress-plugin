@@ -46,7 +46,7 @@ class Amp extends Base {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID, true );
 
-		$src = sprintf( \BeyondWords\Core\Environment::get_amp_player_url(), $project_id, $content_id );
+		$src = sprintf( \BeyondWords\Core\Urls::get_amp_player_url(), $project_id, $content_id );
 
 		ob_start();
 		?>
@@ -64,7 +64,7 @@ class Amp extends Base {
 				height="150"
 				layout="responsive"
 				placeholder
-				src="<?php echo esc_url( \BeyondWords\Core\Environment::get_amp_img_url() ); ?>"
+				src="<?php echo esc_url( \BeyondWords\Core\Urls::get_amp_img_url() ); ?>"
 				width="643"
 			></amp-img>
 		</amp-iframe>

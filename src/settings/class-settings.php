@@ -155,7 +155,7 @@ class Settings {
 			<p>
 				<a
 					class="button button-secondary"
-					href="<?php echo esc_url( sprintf( '%s/auth/signup', \BeyondWords\Core\Environment::get_dashboard_url() ) ); ?>"
+					href="<?php echo esc_url( sprintf( '%s/auth/signup', \BeyondWords\Core\Urls::get_dashboard_url() ) ); ?>"
 					target="_blank"
 				>
 					<?php esc_html_e( 'Sign up free', 'speechkit' ); ?>

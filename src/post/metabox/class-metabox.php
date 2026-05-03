@@ -143,7 +143,7 @@ class Metabox
 
         $project_url = sprintf(
             '%s/dashboard/project/%d/content',
-            \BeyondWords\Core\Environment::get_dashboard_url(),
+            \BeyondWords\Core\Urls::get_dashboard_url(),
             Meta::get_project_id($post->ID)
         );
 
@@ -197,7 +197,7 @@ class Metabox
         ?>
         <div id="beyondwords-metabox-player" style="margin: 13px 0;">
         <script defer
-            src='<?php echo esc_url(\BeyondWords\Core\Environment::get_js_sdk_url()); ?>'
+            src='<?php echo esc_url(\BeyondWords\Core\Urls::get_js_sdk_url()); ?>'
             onload='const player = new BeyondWords.Player({
                 target: this.parentElement,
                 projectId: <?php echo esc_attr($project_id); ?>,

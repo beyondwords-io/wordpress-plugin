@@ -96,11 +96,11 @@ Rules:
 
 ```php
 // preferred — FQN inline.
-$result = \BeyondWords\Core\Environment::get_api_url();
+$result = \BeyondWords\Core\Urls::get_api_url();
 $post   = \WPGraphQL\Model\Post::class;
 
 // avoid — top-of-file use imports.
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 use WPGraphQL\Model\Post;
 ```
 

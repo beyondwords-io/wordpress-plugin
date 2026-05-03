@@ -67,7 +67,7 @@ class Client {
 			return $args;
 		}
 
-		$api_url = \BeyondWords\Core\Environment::get_api_url();
+		$api_url = \BeyondWords\Core\Urls::get_api_url();
 
 		if ( '' === $api_url || ! str_starts_with( $url, $api_url ) ) {
 			return $args;
@@ -114,7 +114,7 @@ class Client {
 			return false;
 		}
 
-		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
+		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
 
 		return self::call_api( 'GET', $url );
 	}
@@ -134,7 +134,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'POST', $url, $body, $post_id );
 
@@ -159,7 +159,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'PUT', $url, $body, $post_id );
 
@@ -181,7 +181,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
 		$response = self::call_api( 'DELETE', $url, '', $post_id );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
@@ -236,7 +236,7 @@ class Client {
 		}
 
 		$project_id = array_key_first( $content_ids );
-		$url        = sprintf( '%s/projects/%d/content/batch_delete', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url        = sprintf( '%s/projects/%d/content/batch_delete', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body       = (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] );
 
 		$response = wp_remote_request( $url, self::build_args( 'POST', $body ) );
@@ -270,7 +270,7 @@ class Client {
 			return false;
 		}
 
-		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id, $post_id );
+		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id, $post_id );
 		$headers = [
 			'X-Import'  => 'true',
 			'X-Referer' => esc_url( get_permalink( $post_id ) ),
@@ -287,7 +287,7 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_languages(): array|null|false {
-		$url      = sprintf( '%s/organization/languages', \BeyondWords\Core\Environment::get_api_url() );
+		$url      = sprintf( '%s/organization/languages', \BeyondWords\Core\Urls::get_api_url() );
 		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -303,7 +303,7 @@ class Client {
 	public static function get_voices( int|string $language_code ): array|null|false {
 		$url = sprintf(
 			'%s/organization/voices?filter[language.code]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
-			\BeyondWords\Core\Environment::get_api_url(),
+			\BeyondWords\Core\Urls::get_api_url(),
 			rawurlencode( strval( $language_code ) )
 		);
 
@@ -349,7 +349,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/organization/voices/%d', \BeyondWords\Core\Environment::get_api_url(), $voice_id );
+		$url      = sprintf( '%s/organization/voices/%d', \BeyondWords\Core\Urls::get_api_url(), $voice_id );
 		$body     = (string) wp_json_encode( $settings );
 		$response = self::call_api( 'PUT', $url, $body );
 
@@ -368,7 +368,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -388,7 +388,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = (string) wp_json_encode( $settings );
 		$response = self::call_api( 'PUT', $url, $body );
 
@@ -407,7 +407,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -427,7 +427,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = (string) wp_json_encode( $settings );
 		$response = self::call_api( 'PUT', $url, $body );
 
@@ -450,7 +450,7 @@ class Client {
 			}
 		}
 
-		$url      = sprintf( '%s/projects/%d/video_settings', \BeyondWords\Core\Environment::get_api_url(), (int) $project_id );
+		$url      = sprintf( '%s/projects/%d/video_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
 		$response = self::call_api( 'GET', $url );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );

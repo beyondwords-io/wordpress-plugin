@@ -5,7 +5,7 @@
  * @package BeyondWords\Core
  * @since   3.5.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
- *               Renamed from CoreUtils to Utils.
+ *                Renamed from CoreUtils to Utils.
  */
 
 declare( strict_types = 1 );

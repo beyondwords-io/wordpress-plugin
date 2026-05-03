@@ -179,7 +179,7 @@ class SiteHealth {
 	 * @param array $info Debug array, modified in place.
 	 */
 	public static function add_rest_api_connection( array &$info ): void {
-		$api_url = \BeyondWords\Core\Environment::get_api_url();
+		$api_url = \BeyondWords\Core\Urls::get_api_url();
 
 		$info['beyondwords']['fields']['api-url'] = [
 			'label' => __( 'REST API URL', 'speechkit' ),

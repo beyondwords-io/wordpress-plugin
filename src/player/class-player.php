@@ -180,7 +180,7 @@ class Player {
 
 		$crawler = new \Symfony\Component\DomCrawler\Crawler( $content );
 
-		$script_xpath = sprintf( '//script[@async][@defer][contains(@src, "%s")]', \BeyondWords\Core\Environment::get_js_sdk_url() );
+		$script_xpath = sprintf( '//script[@async][@defer][contains(@src, "%s")]', \BeyondWords\Core\Urls::get_js_sdk_url() );
 		if ( $crawler->filterXPath( $script_xpath )->count() > 0 ) {
 			return true;
 		}

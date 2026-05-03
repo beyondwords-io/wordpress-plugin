@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use BeyondWords\Settings\Fields;
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 use BeyondWords\Player\Player;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -365,7 +365,7 @@ class PlayerTest extends TestCase
 
         $script = $wrapper->filter('script[async][defer]');
         $this->assertCount(1, $script);
-        $this->assertSame(Environment::get_js_sdk_url(), $script->attr('src'));
+        $this->assertSame(Urls::get_js_sdk_url(), $script->attr('src'));
         $this->assertNotEmpty($script->attr('onload'));
         $this->assertSame('shortcode', $script->attr('data-beyondwords-player-context'));
 

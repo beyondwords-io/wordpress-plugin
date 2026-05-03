@@ -1,6 +1,6 @@
 <?php
 
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 use BeyondWords\Player\Renderer\Javascript;
 use \Symfony\Component\DomCrawler\Crawler;
 
@@ -48,7 +48,7 @@ class JavascriptTest extends TestCase
 
         $script = $crawler->filter('script[async][defer]');
         $this->assertCount(1, $script);
-        $this->assertSame(Environment::get_js_sdk_url(), $script->attr('src'));
+        $this->assertSame(Urls::get_js_sdk_url(), $script->attr('src'));
         $this->assertNotEmpty($script->attr('onload'));
 
         // wp_reset_postdata();

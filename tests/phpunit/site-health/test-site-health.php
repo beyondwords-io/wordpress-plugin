@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use BeyondWords\SiteHealth\SiteHealth;
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 
 class SiteHealthTest extends TestCase
 {
@@ -126,7 +126,7 @@ class SiteHealthTest extends TestCase
         $siteHealth->add_rest_api_connection($this->info);
 
         $this->assertSame('REST API URL', $this->info['beyondwords']['fields']['api-url']['label']);
-        $this->assertSame(Environment::get_api_url(), $this->info['beyondwords']['fields']['api-url']['value']);
+        $this->assertSame(Urls::get_api_url(), $this->info['beyondwords']['fields']['api-url']['value']);
 
         $this->assertSame('Communication with REST API', $this->info['beyondwords']['fields']['api-communication']['label']);
         $this->assertSame('BeyondWords API is reachable', $this->info['beyondwords']['fields']['api-communication']['value']);

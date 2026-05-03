@@ -1,6 +1,6 @@
 <?php
 /**
- * Environment-driven URLs and overrides.
+ * BeyondWords URL registry.
  *
  * Each accessor returns the override defined in `wp-config.php` if present,
  * falling back to the production constant baked into the class.
@@ -8,6 +8,7 @@
  * @package BeyondWords\Core
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+ *                Renamed from BeyondWords\Core\Environment to BeyondWords\Core\Urls.
  */
 
 declare( strict_types = 1 );
@@ -17,11 +18,11 @@ namespace BeyondWords\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Environment URL provider.
+ * URL registry — production defaults with optional `wp-config.php` overrides.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-class Environment {
+class Urls {
 
 	const BEYONDWORDS_API_URL        = 'https://api.beyondwords.io/v1';
 	const BEYONDWORDS_BACKEND_URL    = '';
@@ -34,8 +35,8 @@ class Environment {
 	 * BeyondWords REST API base URL.
 	 */
 	public static function get_api_url(): string {
-		if ( defined( 'BEYONDWORDS_API_URL' ) && strlen( BEYONDWORDS_API_URL ) ) {
-			return BEYONDWORDS_API_URL;
+		if ( defined( 'BEYONDWORDS_API_URL' ) && strlen( \BEYONDWORDS_API_URL ) ) {
+			return \BEYONDWORDS_API_URL;
 		}
 
 		return static::BEYONDWORDS_API_URL;
@@ -45,8 +46,8 @@ class Environment {
 	 * BeyondWords backend URL (legacy; usually empty).
 	 */
 	public static function get_backend_url(): string {
-		if ( defined( 'BEYONDWORDS_BACKEND_URL' ) && strlen( BEYONDWORDS_BACKEND_URL ) ) {
-			return BEYONDWORDS_BACKEND_URL;
+		if ( defined( 'BEYONDWORDS_BACKEND_URL' ) && strlen( \BEYONDWORDS_BACKEND_URL ) ) {
+			return \BEYONDWORDS_BACKEND_URL;
 		}
 
 		return static::BEYONDWORDS_BACKEND_URL;
@@ -56,8 +57,8 @@ class Environment {
 	 * Front-end JS SDK script URL.
 	 */
 	public static function get_js_sdk_url(): string {
-		if ( defined( 'BEYONDWORDS_JS_SDK_URL' ) && strlen( BEYONDWORDS_JS_SDK_URL ) ) {
-			return BEYONDWORDS_JS_SDK_URL;
+		if ( defined( 'BEYONDWORDS_JS_SDK_URL' ) && strlen( \BEYONDWORDS_JS_SDK_URL ) ) {
+			return \BEYONDWORDS_JS_SDK_URL;
 		}
 
 		return static::BEYONDWORDS_JS_SDK_URL;
@@ -67,8 +68,8 @@ class Environment {
 	 * AMP iframe player URL pattern (`%d` for project ID, `%s` for content ID).
 	 */
 	public static function get_amp_player_url(): string {
-		if ( defined( 'BEYONDWORDS_AMP_PLAYER_URL' ) && strlen( BEYONDWORDS_AMP_PLAYER_URL ) ) {
-			return BEYONDWORDS_AMP_PLAYER_URL;
+		if ( defined( 'BEYONDWORDS_AMP_PLAYER_URL' ) && strlen( \BEYONDWORDS_AMP_PLAYER_URL ) ) {
+			return \BEYONDWORDS_AMP_PLAYER_URL;
 		}
 
 		return static::BEYONDWORDS_AMP_PLAYER_URL;
@@ -78,8 +79,8 @@ class Environment {
 	 * Placeholder image URL for AMP players.
 	 */
 	public static function get_amp_img_url(): string {
-		if ( defined( 'BEYONDWORDS_AMP_IMG_URL' ) && strlen( BEYONDWORDS_AMP_IMG_URL ) ) {
-			return BEYONDWORDS_AMP_IMG_URL;
+		if ( defined( 'BEYONDWORDS_AMP_IMG_URL' ) && strlen( \BEYONDWORDS_AMP_IMG_URL ) ) {
+			return \BEYONDWORDS_AMP_IMG_URL;
 		}
 
 		return static::BEYONDWORDS_AMP_IMG_URL;
@@ -89,8 +90,8 @@ class Environment {
 	 * BeyondWords dashboard URL.
 	 */
 	public static function get_dashboard_url(): string {
-		if ( defined( 'BEYONDWORDS_DASHBOARD_URL' ) && strlen( BEYONDWORDS_DASHBOARD_URL ) ) {
-			return BEYONDWORDS_DASHBOARD_URL;
+		if ( defined( 'BEYONDWORDS_DASHBOARD_URL' ) && strlen( \BEYONDWORDS_DASHBOARD_URL ) ) {
+			return \BEYONDWORDS_DASHBOARD_URL;
 		}
 
 		return static::BEYONDWORDS_DASHBOARD_URL;

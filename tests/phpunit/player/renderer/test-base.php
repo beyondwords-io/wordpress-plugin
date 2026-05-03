@@ -1,6 +1,6 @@
 <?php
 
-use BeyondWords\Core\Environment;
+use BeyondWords\Core\Urls;
 use BeyondWords\Player\Renderer\Amp;
 use BeyondWords\Player\Renderer\Base;
 use \Symfony\Component\DomCrawler\Crawler;

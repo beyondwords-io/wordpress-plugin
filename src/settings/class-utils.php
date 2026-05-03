@@ -147,7 +147,7 @@ class Utils {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Environment::get_api_url(), $project_id );
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
