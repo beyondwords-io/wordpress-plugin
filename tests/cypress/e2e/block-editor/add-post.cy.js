@@ -237,7 +237,7 @@ context( 'Block Editor: Add Post', () => {
 					.invoke( 'attr', 'href' )
 					.should(
 						'eq',
-						`https://dash.beyondwords.io/dashboard/project/${ Cypress.env(
+						`https://dash.beyondwords.io/dashboard/project/${ Cypress.expose(
 							'projectId'
 						) }/content`
 					);

@@ -601,8 +601,14 @@ jobs:
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
-          # Set env vars like this, otherwise numeric project IDs become ints
-          env: apiKey="${{ secrets.BEYONDWORDS_TESTS_API_KEY }}",projectId="${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}",contentId="${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}",apiUrl="https://api.beyondwords.io/v1"
+        # cypress.config.js reads these from process.env. Sensitive values
+        # land in `env: { apiKey }` (read via cy.env()); public values land
+        # in `expose: { ... }` (read via Cypress.expose()).
+        env:
+          BEYONDWORDS_TESTS_API_KEY: ${{ secrets.BEYONDWORDS_TESTS_API_KEY }}
+          BEYONDWORDS_TESTS_PROJECT_ID: ${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}
+          BEYONDWORDS_TESTS_CONTENT_ID: ${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}
+          BEYONDWORDS_API_URL: https://api.beyondwords.io/v1
           # ######################################
           # Run an individual spec file like this:
           # ######################################

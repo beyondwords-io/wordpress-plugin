@@ -15,61 +15,67 @@ context( 'Settings: form submission', () => {
 	} );
 
 	it( 'persists Authentication and Preferences via the settings form', () => {
-		// Authentication tab — API key + project ID.
-		cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
-		cy.dismissPointers();
+		cy.env( [ 'apiKey' ] ).then( ( { apiKey } ) => {
+			// Authentication tab — API key + project ID.
+			cy.visit( '/wp-admin/options-general.php?page=beyondwords' );
+			cy.dismissPointers();
 
-		cy.get( 'input[name="beyondwords_api_key"]' )
-			.clear()
-			.type( Cypress.env( 'apiKey' ) );
-		cy.get( 'input[name="beyondwords_project_id"]' )
-			.clear()
-			.type( Cypress.env( 'projectId' ) );
-		cy.get( 'input[type=submit]' ).click();
-		cy.get( '.notice-success' );
+			cy.get( 'input[name="beyondwords_api_key"]' )
+				.clear()
+				.type( apiKey );
+			cy.get( 'input[name="beyondwords_project_id"]' )
+				.clear()
+				.type( Cypress.expose( 'projectId' ) );
+			cy.get( 'input[type=submit]' ).click();
+			cy.get( '.notice-success' );
 
-		// Verify written values are reflected back into the form.
-		cy.get( 'input[name="beyondwords_api_key"]' ).should(
-			'have.value',
-			Cypress.env( 'apiKey' )
-		);
-		cy.get( 'input[name="beyondwords_project_id"]' ).should(
-			'have.value',
-			Cypress.env( 'projectId' )
-		);
+			// Verify written values are reflected back into the form.
+			cy.get( 'input[name="beyondwords_api_key"]' ).should(
+				'have.value',
+				apiKey
+			);
+			cy.get( 'input[name="beyondwords_project_id"]' ).should(
+				'have.value',
+				Cypress.expose( 'projectId' )
+			);
 
-		// Preferences tab — preselect + excerpt + player UI.
-		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
-		);
+			// Preferences tab — preselect + excerpt + player UI.
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
+			);
 
-		cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
-		cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
-		cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
-		cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
-		cy.get( 'input[name="beyondwords_preselect[cpt_inactive]"]' ).uncheck();
-		cy.get( 'input[name="beyondwords_preselect[cpt_unsupported]"]' ).should(
-			'not.exist'
-		);
-		cy.get( 'select[name="beyondwords_player_ui"]' ).select( 'Enabled' );
+			cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
+			cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
+			cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
+			cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_inactive]"]'
+			).uncheck();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_unsupported]"]'
+			).should( 'not.exist' );
+			cy.get( 'select[name="beyondwords_player_ui"]' ).select(
+				'Enabled'
+			);
 
-		cy.get( 'input[type=submit]' ).click();
-		cy.get( '.notice-success' );
+			cy.get( 'input[type=submit]' ).click();
+			cy.get( '.notice-success' );
 
-		// Re-load and verify Preferences persisted.
-		cy.visit(
-			'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
-		);
-		cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.be.checked' );
-		cy.get( 'input[name="beyondwords_preselect[post]"]' ).should(
-			'be.checked'
-		);
-		cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).should(
-			'be.checked'
-		);
-		cy.get( 'select[name="beyondwords_player_ui"]' ).should(
-			'have.value',
-			'enabled'
-		);
+			// Re-load and verify Preferences persisted.
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
+			);
+			cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.be.checked' );
+			cy.get( 'input[name="beyondwords_preselect[post]"]' ).should(
+				'be.checked'
+			);
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_active]"]'
+			).should( 'be.checked' );
+			cy.get( 'select[name="beyondwords_player_ui"]' ).should(
+				'have.value',
+				'enabled'
+			);
+		} );
 	} );
 } );

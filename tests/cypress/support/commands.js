@@ -55,16 +55,18 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 } );
 
 Cypress.Commands.add( 'login', () => {
-	const username = Cypress.env( 'wpUsername' );
-	const password = Cypress.env( 'wpPassword' );
 	const baseUrl = Cypress.config().baseUrl;
 
-	cy.visit( '/wp-login.php' ).wait( 250 );
+	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
+		( { wpUsername, wpPassword } ) => {
+			cy.visit( '/wp-login.php' ).wait( 250 );
 
-	cy.get( '#user_login' ).clear().type( username ).wait( 250 );
-	cy.get( '#user_pass' ).clear().type( `${ password }{enter}` );
+			cy.get( '#user_login' ).clear().type( wpUsername ).wait( 250 );
+			cy.get( '#user_pass' ).clear().type( `${ wpPassword }{enter}` );
 
-	cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+			cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+		}
+	);
 } );
 
 Cypress.Commands.add( 'createPost', ( options = {} ) => {
@@ -558,12 +560,12 @@ Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 			.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_project_id',
-				metaValue: Cypress.env( 'projectId' ),
+				metaValue: Cypress.expose('projectId'),
 			} )
 			.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_content_id',
-				metaValue: Cypress.env( 'contentId' ),
+				metaValue: Cypress.expose('contentId'),
 			} )
 			.then( () => postId );
 	} );

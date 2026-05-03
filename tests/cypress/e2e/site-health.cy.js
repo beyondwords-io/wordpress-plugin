@@ -31,7 +31,7 @@ context( 'Site Health', () => {
 			// REST API URL
 			cy.getSiteHealthValue( 'REST API URL' ).should(
 				'have.text',
-				Cypress.env( 'apiUrl' )
+				Cypress.expose('apiUrl')
 			);
 
 			// Communication with REST API
@@ -53,19 +53,16 @@ context( 'Site Health', () => {
 			);
 
 			// API Key — masked except last 4 chars
-			cy.getSiteHealthValue( 'API Key' )
-				.invoke( 'text' )
-				.then( ( text ) => {
-					const visibleChars = Cypress.env( 'apiKey' ).slice( -4 );
-					expect( text )
-						.to.be.a( 'string' )
-						.and.match( new RegExp( `[X]+${ visibleChars }$` ) );
-				} );
+			cy.env( [ 'apiKey' ] ).then( ( { apiKey } ) => {
+				cy.getSiteHealthValue( 'API Key' )
+					.invoke( 'text' )
+					.should( 'match', new RegExp( `[X]+${ apiKey.slice( -4 ) }$` ) );
+			} );
 
 			// Project ID
 			cy.getSiteHealthValue( 'Project ID' ).should(
 				'have.text',
-				Cypress.env( 'projectId' )
+				Cypress.expose('projectId')
 			);
 
 			// Include excerpt (Preferences tab)
