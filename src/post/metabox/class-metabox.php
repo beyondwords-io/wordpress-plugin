@@ -88,7 +88,7 @@ class Metabox
         // Show errors for posts with/without audio
         self::errors($post);
 
-        $has_content = PostMetaUtils::has_content($post->ID);
+        $has_content = Meta::has_content($post->ID);
 
         if ($has_content) {
             // Enable these components for posts with audio
@@ -144,7 +144,7 @@ class Metabox
         $project_url = sprintf(
             '%s/dashboard/project/%d/content',
             \BeyondWords\Core\Environment::get_dashboard_url(),
-            PostMetaUtils::get_project_id($post->ID)
+            Meta::get_project_id($post->ID)
         );
 
         ?>
@@ -183,15 +183,15 @@ class Metabox
             return;
         }
 
-        $project_id  = PostMetaUtils::get_project_id($post->ID);
-        $has_content = PostMetaUtils::has_content($post->ID);
+        $project_id  = Meta::get_project_id($post->ID);
+        $has_content = Meta::has_content($post->ID);
 
         if (! $project_id || ! $has_content) {
             return;
         }
 
-        $content_id    = PostMetaUtils::get_content_id($post->ID);
-        $preview_token = PostMetaUtils::get_preview_token($post->ID);
+        $content_id    = Meta::get_content_id($post->ID);
+        $preview_token = Meta::get_preview_token($post->ID);
 
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         ?>
@@ -228,7 +228,7 @@ class Metabox
      */
     public static function errors($post)
     {
-        $error = PostMetaUtils::get_error_message($post->ID);
+        $error = Meta::get_error_message($post->ID);
 
         if ($error) :
             ?>

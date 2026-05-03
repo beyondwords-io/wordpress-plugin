@@ -34,7 +34,7 @@ class Client {
 	/**
 	 * Format used for the value stored in `beyondwords_error_message` post meta.
 	 *
-	 * Keeping the HTTP status as the prefix lets `Core::update_or_recreate_audio()`
+	 * Keeping the HTTP status as the prefix lets `Sync::update_or_recreate_audio()`
 	 * recognise 404s by string-matching `#404:` without parsing the body.
 	 */
 	const ERROR_FORMAT = '#%s: %s';
@@ -128,14 +128,14 @@ class Client {
 	 *                                 post has no project ID.
 	 */
 	public static function create_audio( int $post_id ): array|null|false {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 
 		if ( ! $project_id ) {
 			return false;
 		}
 
 		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Environment::get_api_url(), $project_id );
-		$body     = \BeyondWords\Post\PostContentUtils::get_content_params( $post_id );
+		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'POST', $url, $body, $post_id );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -152,15 +152,15 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function update_audio( int $post_id ): array|null|false {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post_id, true );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
 		if ( ! $project_id || ! $content_id ) {
 			return false;
 		}
 
 		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Environment::get_api_url(), $project_id, $content_id );
-		$body     = \BeyondWords\Post\PostContentUtils::get_content_params( $post_id );
+		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'PUT', $url, $body, $post_id );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -174,8 +174,8 @@ class Client {
 	 * @return array<mixed>|null|false `false` when the request didn't return 204.
 	 */
 	public static function delete_audio( int $post_id ): array|null|false {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post_id, true );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
 		if ( ! $project_id || ! $content_id ) {
 			return false;
@@ -209,12 +209,12 @@ class Client {
 		$updated_post_ids = [];
 
 		foreach ( $post_ids as $post_id ) {
-			$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
+			$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 			if ( ! $project_id ) {
 				continue;
 			}
 
-			$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post_id );
+			$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id );
 			if ( ! $content_id ) {
 				continue;
 			}
@@ -264,7 +264,7 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_player_by_source_id( int $post_id ): array|null|false {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 
 		if ( ! $project_id ) {
 			return false;

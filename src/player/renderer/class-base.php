@@ -37,17 +37,17 @@ class Base {
 			return false;
 		}
 
-		if ( \BeyondWords\Core\CoreUtils::is_gutenberg_page() || \BeyondWords\Core\CoreUtils::is_edit_screen() ) {
+		if ( \BeyondWords\Core\Utils::is_gutenberg_page() || \BeyondWords\Core\Utils::is_edit_screen() ) {
 			return false;
 		}
 
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
 
 		if ( ! $project_id ) {
 			return false;
 		}
 
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post->ID );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 		$method     = \BeyondWords\Settings\Fields::get_integration_method( $post );
 
 		return \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE === $method

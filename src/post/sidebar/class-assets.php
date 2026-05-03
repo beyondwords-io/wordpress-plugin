@@ -32,7 +32,7 @@ class Assets {
 	 * Enqueue the post sidebar CSS on Gutenberg screens for compatible post types.
 	 */
 	public static function enqueue_block_assets(): void {
-		if ( ! \BeyondWords\Core\CoreUtils::is_gutenberg_page() ) {
+		if ( ! \BeyondWords\Core\Utils::is_gutenberg_page() ) {
 			return;
 		}
 

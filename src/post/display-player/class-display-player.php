@@ -93,7 +93,7 @@ class DisplayPlayer
 
         wp_nonce_field('beyondwords_display_player', 'beyondwords_display_player_nonce');
 
-        $display_player = ! PostMetaUtils::get_disabled($post->ID);
+        $display_player = ! Meta::get_disabled($post->ID);
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-display-player">

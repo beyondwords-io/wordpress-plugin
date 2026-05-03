@@ -86,7 +86,7 @@ class GenerateAudio
     {
         wp_nonce_field('beyondwords_generate_audio', 'beyondwords_generate_audio_nonce');
 
-        $generate_audio = PostMetaUtils::has_generate_audio($post->ID);
+        $generate_audio = Meta::has_generate_audio($post->ID);
         ?>
         <!--  checkbox -->
         <p id="beyondwords-metabox-generate-audio">

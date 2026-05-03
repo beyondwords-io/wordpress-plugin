@@ -15,7 +15,7 @@ namespace BeyondWords\Post;
  */
 defined( 'ABSPATH' ) || exit;
 
-class PostMetaUtils
+class Meta
 {
     public const WP_ERROR_FORMAT = 'WP_Error [%s] %s';
 
@@ -63,7 +63,7 @@ class PostMetaUtils
     {
         global $wp_version;
 
-        $keys_to_check = \BeyondWords\Core\CoreUtils::get_post_meta_keys('all');
+        $keys_to_check = \BeyondWords\Core\Utils::get_post_meta_keys('all');
 
         $metadata = has_meta($post_id);
 
@@ -102,11 +102,11 @@ class PostMetaUtils
      * @param int $post_id Post ID.
      *
      * @since 4.x   Introduced.
-     * @since 6.0.1 Use \BeyondWords\Core\CoreUtils::get_post_meta_keys() to get all keys.
+     * @since 6.0.1 Use \BeyondWords\Core\Utils::get_post_meta_keys() to get all keys.
      */
     public static function remove_all_beyondwords_metadata(int $post_id): void
     {
-        $keys = \BeyondWords\Core\CoreUtils::get_post_meta_keys('all');
+        $keys = \BeyondWords\Core\Utils::get_post_meta_keys('all');
 
         foreach ($keys as $key) {
             delete_post_meta($post_id, $key, null);
@@ -125,7 +125,7 @@ class PostMetaUtils
      */
     public static function has_content(int $post_id): bool
     {
-        $content_id         = PostMetaUtils::get_content_id($post_id);
+        $content_id         = Meta::get_content_id($post_id);
         $integration_method = get_post_meta($post_id, 'beyondwords_integration_method', true);
 
         // If the integration method is not set, we assume REST API for legacy compatibility.
@@ -138,7 +138,7 @@ class PostMetaUtils
         }
 
         // Get the project ID for the post (do not use the plugin setting).
-        $project_id = PostMetaUtils::get_project_id($post_id, true);
+        $project_id = Meta::get_project_id($post_id, true);
 
         if (\BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE === $integration_method && ! empty($project_id)) {
             return true;
@@ -172,7 +172,7 @@ class PostMetaUtils
             return $content_id;
         }
 
-        $podcast_id = PostMetaUtils::get_podcast_id($post_id);
+        $podcast_id = Meta::get_podcast_id($post_id);
         if (! empty($podcast_id)) {
             return $podcast_id;
         }
@@ -202,7 +202,7 @@ class PostMetaUtils
     public static function get_podcast_id(int $post_id): string|int|false
     {
         // Check for "Podcast ID" custom field (number, or string for > 4.x)
-        $podcast_id = PostMetaUtils::get_renamed_post_meta($post_id, 'podcast_id');
+        $podcast_id = Meta::get_renamed_post_meta($post_id, 'podcast_id');
 
         if ($podcast_id) {
             return $podcast_id;
@@ -290,7 +290,7 @@ class PostMetaUtils
      */
     public static function has_generate_audio(int $post_id): bool
     {
-        $generate_audio = PostMetaUtils::get_renamed_post_meta($post_id, 'generate_audio');
+        $generate_audio = Meta::get_renamed_post_meta($post_id, 'generate_audio');
 
         // Checkbox was checked.
         if ($generate_audio === '1') {
@@ -329,11 +329,11 @@ class PostMetaUtils
     {
         // If strict is true, we only check the custom field and do not fall back to the plugin setting.
         if ($strict) {
-            return PostMetaUtils::get_renamed_post_meta($post_id, 'project_id');
+            return Meta::get_renamed_post_meta($post_id, 'project_id');
         }
 
         // Check the post custom field.
-        $post_meta = intval(PostMetaUtils::get_renamed_post_meta($post_id, 'project_id'));
+        $post_meta = intval(Meta::get_renamed_post_meta($post_id, 'project_id'));
 
         if (! empty($post_meta)) {
             return $post_meta;
@@ -454,7 +454,7 @@ class PostMetaUtils
      */
     public static function get_error_message(int $post_id): string|false
     {
-        return PostMetaUtils::get_renamed_post_meta($post_id, 'error_message');
+        return Meta::get_renamed_post_meta($post_id, 'error_message');
     }
 
     /**
@@ -469,7 +469,7 @@ class PostMetaUtils
      */
     public static function get_disabled(int $post_id): bool
     {
-        return (bool) PostMetaUtils::get_renamed_post_meta($post_id, 'disabled');
+        return (bool) Meta::get_renamed_post_meta($post_id, 'disabled');
     }
 
     /**
@@ -500,7 +500,7 @@ class PostMetaUtils
         }
 
         if (is_wp_error($post_meta)) {
-            return sprintf(PostMetaUtils::WP_ERROR_FORMAT, $post_meta::get_error_code(), $post_meta::get_error_message());
+            return sprintf(Meta::WP_ERROR_FORMAT, $post_meta::get_error_code(), $post_meta::get_error_message());
         }
 
         return (string)$post_meta;

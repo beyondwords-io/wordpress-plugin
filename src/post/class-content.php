@@ -15,7 +15,7 @@ namespace BeyondWords\Post;
  */
 defined( 'ABSPATH' ) || exit;
 
-class PostContentUtils
+class Content
 {
     public const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
 
@@ -42,11 +42,11 @@ class PostContentUtils
             throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
-        $summary = PostContentUtils::get_post_summary($post);
-        $body    = PostContentUtils::get_post_body($post);
+        $summary = Content::get_post_summary($post);
+        $body    = Content::get_post_body($post);
 
         if ($summary) {
-            $format = PostContentUtils::get_post_summary_wrapper_format($post);
+            $format = Content::get_post_summary_wrapper_format($post);
 
             $body = sprintf($format, $summary) . $body;
         }
@@ -60,8 +60,8 @@ class PostContentUtils
      * @since 3.0.0
      * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
      * @since 3.8.0 Exclude Gutenberg blocks with attribute { beyondwordsAudio: false }
-     * @since 4.0.0 Renamed from PostContentUtils::getSourceTextForAudio() to PostContentUtils::getBody()
-     * @since 4.6.0 Renamed from PostContentUtils::getBody() to PostContentUtils::get_post_body()
+     * @since 4.0.0 Renamed from Content::getSourceTextForAudio() to Content::getBody()
+     * @since 4.6.0 Renamed from Content::getBody() to Content::get_post_body()
      * @since 4.7.0 Remove wpautop filter for block editor API requests.
      * @since 5.0.0 Remove SpeechKit-Start shortcode.
      * @since 5.0.0 Remove beyondwords_content filter.
@@ -79,7 +79,7 @@ class PostContentUtils
             throw new \Exception(esc_html__('Post Not Found', 'speechkit'));
         }
 
-        $content = PostContentUtils::get_content_without_excluded_blocks($post);
+        $content = Content::get_content_without_excluded_blocks($post);
 
         if (has_blocks($post)) {
             // wpautop breaks our HTML markup when block editor paragraphs are empty
@@ -136,7 +136,7 @@ class PostContentUtils
      * @param int|\WP_Post $post The WordPress post ID, or post object.
      *
      * @since 4.0.0
-     * @since 4.6.0 Renamed from PostContentUtils::getSummary() to PostContentUtils::get_post_summary()
+     * @since 4.6.0 Renamed from Content::getSummary() to Content::get_post_summary()
      *
      * @return string The summary.
      */
@@ -193,7 +193,7 @@ class PostContentUtils
         $blocks = parse_blocks($post->post_content);
         $output = '';
 
-        $blocks = PostContentUtils::get_audio_enabled_blocks($post);
+        $blocks = Content::get_audio_enabled_blocks($post);
 
         foreach ($blocks as $block) {
             $output .= render_block($block);
@@ -263,13 +263,13 @@ class PostContentUtils
         $body = [
             'type'         => 'auto_segment',
             'title'        => get_the_title($post_id),
-            'body'         => PostContentUtils::get_content_body($post_id),
+            'body'         => Content::get_content_body($post_id),
             'source_url'   => get_the_permalink($post_id),
             'source_id'    => strval($post_id),
-            'author'       => PostContentUtils::get_author_name($post_id),
+            'author'       => Content::get_author_name($post_id),
             'image_url'    => strval(wp_get_original_image_url(get_post_thumbnail_id($post_id))),
-            'metadata'     => PostContentUtils::get_metadata($post_id),
-            'publish_date' => get_post_time(PostContentUtils::DATE_FORMAT, true, $post_id),
+            'metadata'     => Content::get_metadata($post_id),
+            'publish_date' => get_post_time(Content::DATE_FORMAT, true, $post_id),
         ];
 
         $status = get_post_status($post_id);
@@ -366,7 +366,7 @@ class PostContentUtils
     {
         $metadata = new \stdClass();
 
-        $taxonomy = PostContentUtils::get_all_taxonomies_and_terms($post_id);
+        $taxonomy = Content::get_all_taxonomies_and_terms($post_id);
 
         if (count((array)$taxonomy)) {
             $metadata->taxonomy = $taxonomy;

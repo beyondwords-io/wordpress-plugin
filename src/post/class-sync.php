@@ -1,28 +1,30 @@
 <?php
 /**
- * BeyondWords core post-lifecycle hooks.
+ * WordPress ↔ BeyondWords post sync.
  *
- * Owns the post-save / trash / delete handlers and the meta key registration.
+ * Owns the post-save / trash / delete handlers and the meta key registration —
+ * the bridge between WordPress post lifecycle events and the BeyondWords API.
  * Block-editor JS bootstrap lives in [src/editor/class-editor.php](src/editor/class-editor.php).
  *
- * @package BeyondWords\Core
+ * @package BeyondWords\Post
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  *               Editor enqueue moved to BeyondWords\Editor\Editor.
+ *               Renamed from BeyondWords\Core\Core to BeyondWords\Post\Sync.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\Core;
+namespace BeyondWords\Post;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Post-lifecycle hooks.
+ * WordPress post → BeyondWords API sync.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-class Core {
+class Sync {
 
 	/**
 	 * Register WordPress hooks.
@@ -79,7 +81,7 @@ class Core {
 			return false;
 		}
 
-		if ( \BeyondWords\Post\PostMetaUtils::has_generate_audio( $post_id ) ) {
+		if ( \BeyondWords\Post\Meta::has_generate_audio( $post_id ) ) {
 			return (bool) get_post_meta( $post_id, 'beyondwords_generate_audio', true );
 		}
 
@@ -119,7 +121,7 @@ class Core {
 		// REST API integration: update or create.
 		update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_REST_API );
 
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post_id );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id );
 
 		if ( $content_id ) {
 			if ( defined( 'BEYONDWORDS_AUTOREGENERATE' ) && ! BEYONDWORDS_AUTOREGENERATE ) {
@@ -131,7 +133,7 @@ class Core {
 			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 		}
 
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post_id );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		self::process_response( $response, $project_id, $post_id );
 
 		return $response;
@@ -226,7 +228,7 @@ class Core {
 			return;
 		}
 
-		$keys = CoreUtils::get_post_meta_keys( 'all' );
+		$keys = \BeyondWords\Core\Utils::get_post_meta_keys( 'all' );
 
 		foreach ( $post_types as $post_type ) {
 			$options = [
@@ -261,7 +263,7 @@ class Core {
 			return (bool) $protected;
 		}
 
-		if ( in_array( $meta_key, CoreUtils::get_post_meta_keys( 'all' ), true ) ) {
+		if ( in_array( $meta_key, \BeyondWords\Core\Utils::get_post_meta_keys( 'all' ), true ) ) {
 			return true;
 		}
 
@@ -275,12 +277,12 @@ class Core {
 	public static function on_trash_post( $post_id ): void {
 		$post_id = (int) $post_id;
 
-		if ( ! \BeyondWords\Post\PostMetaUtils::has_content( $post_id ) ) {
+		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
 		}
 
 		\BeyondWords\Api\Client::delete_audio( $post_id );
-		\BeyondWords\Post\PostMetaUtils::remove_all_beyondwords_metadata( $post_id );
+		\BeyondWords\Post\Meta::remove_all_beyondwords_metadata( $post_id );
 	}
 
 	/**
@@ -290,7 +292,7 @@ class Core {
 	public static function on_delete_post( $post_id ): void {
 		$post_id = (int) $post_id;
 
-		if ( ! \BeyondWords\Post\PostMetaUtils::has_content( $post_id ) ) {
+		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
 		}
 
@@ -314,7 +316,7 @@ class Core {
 
 		if ( '1' === get_post_meta( $post_id, 'beyondwords_delete_content', true ) ) {
 			self::delete_audio_for_post( $post_id );
-			\BeyondWords\Post\PostMetaUtils::remove_all_beyondwords_metadata( $post_id );
+			\BeyondWords\Post\Meta::remove_all_beyondwords_metadata( $post_id );
 			return false;
 		}
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use BeyondWords\Post\Post;
+use BeyondWords\Post\Head;
 
 /**
  * @group post
  */
-class PostTest extends TestCase
+class HeadTest extends TestCase
 {
     private int $postId;
 
@@ -35,11 +35,11 @@ class PostTest extends TestCase
      */
     public function init_registers_wp_head_hook(): void
     {
-        Post::init();
+        Head::init();
 
         $this->assertEquals(
             10,
-            has_action('wp_head', [Post::class, 'add_meta_tags']),
+            has_action('wp_head', [Head::class, 'add_meta_tags']),
             'Should register add_meta_tags on wp_head'
         );
     }
@@ -53,7 +53,7 @@ class PostTest extends TestCase
         $this->go_to('/');
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertEmpty($html, 'Should not output meta tags on non-singular pages');
@@ -72,7 +72,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertEmpty($html, 'Should not output meta tags without project ID');
@@ -88,7 +88,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-title"', $html);
@@ -106,7 +106,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-author"', $html);
@@ -125,7 +125,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-publish-date"', $html);
@@ -145,7 +145,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-title-voice-id"', $html);
@@ -164,7 +164,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringNotContainsString('beyondwords-title-voice-id', $html);
@@ -181,7 +181,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-body-voice-id"', $html);
@@ -200,7 +200,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringNotContainsString('beyondwords-body-voice-id', $html);
@@ -217,7 +217,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-summary-voice-id"', $html);
@@ -236,7 +236,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringNotContainsString('beyondwords-summary-voice-id', $html);
@@ -253,7 +253,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringContainsString('name="beyondwords-article-language"', $html);
@@ -272,7 +272,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         $this->assertStringNotContainsString('beyondwords-article-language', $html);
@@ -294,7 +294,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         // Should escape HTML entities (WordPress may use smart quotes &#8220; instead of literal quotes)
@@ -318,7 +318,7 @@ class PostTest extends TestCase
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
-            Post::add_meta_tags();
+            Head::add_meta_tags();
         });
 
         // Should contain all meta tags

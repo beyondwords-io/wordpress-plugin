@@ -2,14 +2,14 @@
 /**
  * Admin notices for the BeyondWords bulk-edit actions.
  *
- * @package BeyondWords\Posts
+ * @package BeyondWords\AdminPosts
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\Posts;
+namespace BeyondWords\AdminPosts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-class BulkEditNotices {
+class Notices {
 
 	/**
 	 * Register WordPress hooks.

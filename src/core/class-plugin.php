@@ -47,8 +47,8 @@ class Plugin {
 		// Third-party compatibility shims.
 		\BeyondWords\Compatibility\WPGraphQL::init();
 
-		// Core post-lifecycle hooks + meta registration.
-		Core::init();
+		// WordPress ↔ BeyondWords post sync (save/trash/delete + meta registration).
+		\BeyondWords\Post\Sync::init();
 
 		// Site Health debug panel.
 		\BeyondWords\SiteHealth\SiteHealth::init();
@@ -57,7 +57,7 @@ class Plugin {
 		\BeyondWords\Player\Player::init();
 
 		// Post screen entry point — head meta tags for singular pages.
-		\BeyondWords\Post\Post::init();
+		\BeyondWords\Post\Head::init();
 
 		// Settings page + REST endpoints.
 		\BeyondWords\Settings\Tabs::init();
@@ -75,10 +75,10 @@ class Plugin {
 		// under src/editor/).
 		\BeyondWords\Editor\Editor::init();
 
-		// Posts list screen.
-		\BeyondWords\Posts\BulkEdit::init();
-		\BeyondWords\Posts\BulkEditNotices::init();
-		\BeyondWords\Posts\Column::init();
+		// Posts list screen (edit.php) — column, bulk-edit, admin notices.
+		\BeyondWords\AdminPosts\Column::init();
+		\BeyondWords\AdminPosts\BulkEdit::init();
+		\BeyondWords\AdminPosts\Notices::init();
 
 		// Post edit screen — top-level UI.
 		\BeyondWords\Post\AddPlayer::init();

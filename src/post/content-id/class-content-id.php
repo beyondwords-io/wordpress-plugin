@@ -52,8 +52,8 @@ class ContentId
      */
     public static function element($post)
     {
-        $content_id = PostMetaUtils::get_content_id($post->ID) ?: '';
-        $project_id = PostMetaUtils::get_project_id($post->ID) ?: get_option('beyondwords_project_id', '');
+        $content_id = Meta::get_content_id($post->ID) ?: '';
+        $project_id = Meta::get_project_id($post->ID) ?: get_option('beyondwords_project_id', '');
         $post_type = get_post_type($post);
         $post_type_object = $post_type ? get_post_type_object($post_type) : null;
         $rest_base = ($post_type_object && ! empty($post_type_object->rest_base)) ? $post_type_object->rest_base : $post_type;

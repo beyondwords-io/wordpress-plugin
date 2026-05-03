@@ -5,14 +5,14 @@
  * Adds a "BeyondWords" column to the bulk-edit dropdown so multiple posts can
  * have audio generated or deleted in one action.
  *
- * @package BeyondWords\Posts
+ * @package BeyondWords\AdminPosts
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\Posts;
+namespace BeyondWords\AdminPosts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -156,7 +156,7 @@ class BulkEdit {
 			return [];
 		}
 
-		$response = \BeyondWords\Core\Core::batch_delete_audio_for_posts( $post_ids );
+		$response = \BeyondWords\Post\Sync::batch_delete_audio_for_posts( $post_ids );
 
 		if ( ! $response ) {
 			throw new \Exception(
@@ -164,7 +164,7 @@ class BulkEdit {
 			);
 		}
 
-		$keys             = \BeyondWords\Core\CoreUtils::get_post_meta_keys( 'all' );
+		$keys             = \BeyondWords\Core\Utils::get_post_meta_keys( 'all' );
 		$updated_post_ids = [];
 
 		foreach ( $response as $post_id ) {
@@ -224,7 +224,7 @@ class BulkEdit {
 			}
 
 			foreach ( $object_ids as $post_id ) {
-				if ( \BeyondWords\Core\Core::generate_audio_for_post( $post_id ) ) {
+				if ( \BeyondWords\Post\Sync::generate_audio_for_post( $post_id ) ) {
 					++$generated;
 				} else {
 					++$failed;

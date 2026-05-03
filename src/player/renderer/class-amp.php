@@ -3,7 +3,7 @@
  * AMP-compatible BeyondWords player renderer.
  *
  * Used when the request is being served through an AMP plugin
- * (`\BeyondWords\Core\CoreUtils::is_amp()`).
+ * (`\BeyondWords\Core\Utils::is_amp()`).
  *
  * @package BeyondWords\Player\Renderer
  * @since   6.0.0
@@ -29,7 +29,7 @@ class Amp extends Base {
 	 * @param \WP_Post $post Post object.
 	 */
 	public static function check( \WP_Post $post ): bool {
-		if ( ! \BeyondWords\Core\CoreUtils::is_amp() ) {
+		if ( ! \BeyondWords\Core\Utils::is_amp() ) {
 			return false;
 		}
 
@@ -43,8 +43,8 @@ class Amp extends Base {
 	 * @param string   $context Rendering context: 'auto' or 'shortcode'.
 	 */
 	public static function render( \WP_Post $post, string $context = 'shortcode' ): string {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post->ID, true );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID, true );
 
 		$src = sprintf( \BeyondWords\Core\Environment::get_amp_player_url(), $project_id, $content_id );
 

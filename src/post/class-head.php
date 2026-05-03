@@ -15,7 +15,7 @@ namespace BeyondWords\Post;
  */
 defined( 'ABSPATH' ) || exit;
 
-class Post
+class Head
 {
     /**
      * Init.
@@ -49,7 +49,7 @@ class Post
             return;
         }
 
-        $project_id = PostMetaUtils::get_project_id($post_id, true);
+        $project_id = Meta::get_project_id($post_id, true);
 
         if (! $project_id) {
             return;

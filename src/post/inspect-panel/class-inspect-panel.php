@@ -102,7 +102,7 @@ class InspectPanel
      */
     public static function render_meta_box_content($post)
     {
-        $metadata = PostMetaUtils::get_all_beyondwords_metadata($post->ID);
+        $metadata = Meta::get_all_beyondwords_metadata($post->ID);
 
         self::post_meta_table($metadata);
         ?>

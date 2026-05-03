@@ -1,11 +1,11 @@
 <?php
 
-use BeyondWords\Posts\Column;
+use BeyondWords\AdminPosts\Column;
 
 class ColumnTest extends TestCase
 {
     /**
-     * @var \BeyondWords\Posts\Column
+     * @var \BeyondWords\AdminPosts\Column
      */
     private $_instance;
 
@@ -44,7 +44,7 @@ class ColumnTest extends TestCase
         $this->assertEquals(10, has_action('manage_page_posts_custom_column', array(Column::class, 'render_columns_content')));
         $this->assertEquals(10, has_filter('manage_edit-page_sortable_columns', array(Column::class, 'make_column_sortable')));
 
-        // @todo set CoreUtils::is_edit_screen() to true for this assertion
+        // @todo set Utils::is_edit_screen() to true for this assertion
         // $this->assertEquals(10, has_filter('pre_get_posts', array($column, 'set_sort_query')));
     }
 

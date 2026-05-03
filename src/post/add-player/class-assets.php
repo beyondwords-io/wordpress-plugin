@@ -38,7 +38,7 @@ class Assets {
 	 */
 	public static function enqueue_block_editor_assets( $hook = null ): void {
 		if (
-			\BeyondWords\Core\CoreUtils::is_gutenberg_page()
+			\BeyondWords\Core\Utils::is_gutenberg_page()
 			|| 'post.php' === $hook
 			|| 'post-new.php' === $hook
 		) {

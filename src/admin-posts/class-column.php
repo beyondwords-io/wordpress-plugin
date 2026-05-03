@@ -2,14 +2,14 @@
 /**
  * BeyondWords column on the posts list screen.
  *
- * @package BeyondWords\Posts
+ * @package BeyondWords\AdminPosts
  * @since   3.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 
 declare( strict_types = 1 );
 
-namespace BeyondWords\Posts;
+namespace BeyondWords\AdminPosts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,7 +53,7 @@ class Column {
 			}
 		);
 
-		if ( \BeyondWords\Core\CoreUtils::is_edit_screen() ) {
+		if ( \BeyondWords\Core\Utils::is_edit_screen() ) {
 			add_action( 'pre_get_posts', [ self::class, 'set_sort_query' ] );
 		}
 	}
@@ -91,9 +91,9 @@ class Column {
 			return;
 		}
 
-		$error_message = \BeyondWords\Post\PostMetaUtils::get_error_message( $post_id );
-		$has_content   = \BeyondWords\Post\PostMetaUtils::has_content( $post_id );
-		$disabled      = \BeyondWords\Post\PostMetaUtils::get_disabled( $post_id );
+		$error_message = \BeyondWords\Post\Meta::get_error_message( $post_id );
+		$has_content   = \BeyondWords\Post\Meta::has_content( $post_id );
+		$disabled      = \BeyondWords\Post\Meta::get_disabled( $post_id );
 
 		if ( ! empty( $error_message ) ) {
 			echo wp_kses( self::OUTPUT_ERROR_PREFIX . $error_message, self::ALLOWED_HTML );

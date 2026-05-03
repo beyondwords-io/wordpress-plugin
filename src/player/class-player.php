@@ -127,8 +127,8 @@ class Player {
 			}
 		}
 
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post->ID, true );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID, true );
 
 		/**
 		 * Filters the HTML of the BeyondWords Player.
@@ -155,7 +155,7 @@ class Player {
 	 * @param \WP_Post $post Post object.
 	 */
 	public static function is_enabled( \WP_Post $post ): bool {
-		if ( \BeyondWords\Post\PostMetaUtils::get_disabled( $post->ID ) ) {
+		if ( \BeyondWords\Post\Meta::get_disabled( $post->ID ) ) {
 			return false;
 		}
 

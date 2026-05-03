@@ -35,7 +35,7 @@ class Assets {
 	 * @param string $hook Current admin page hook.
 	 */
 	public static function admin_enqueue_scripts( $hook ): void {
-		if ( \BeyondWords\Core\CoreUtils::is_gutenberg_page() ) {
+		if ( \BeyondWords\Core\Utils::is_gutenberg_page() ) {
 			return;
 		}
 

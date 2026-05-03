@@ -3,7 +3,7 @@
  * Uninstall cleanup.
  *
  * Invoked from `uninstall.php` when WordPress removes the plugin. Deletes
- * every option, transient, and post-meta key recorded in `CoreUtils`.
+ * every option, transient, and post-meta key recorded in `Utils`.
  *
  * @package BeyondWords\Core
  * @since   3.7.0
@@ -40,13 +40,13 @@ class Uninstaller {
 	/**
 	 * Delete every BeyondWords plugin option (current + deprecated).
 	 *
-	 * Iterates the list from `CoreUtils::get_options( 'all' )` so this stays
+	 * Iterates the list from `Utils::get_options( 'all' )` so this stays
 	 * in sync with new keys without uninstall code changes.
 	 *
 	 * @return int Options deleted.
 	 */
 	public static function cleanup_plugin_options(): int {
-		$options = CoreUtils::get_options( 'all' );
+		$options = Utils::get_options( 'all' );
 		$total   = 0;
 
 		foreach ( $options as $option ) {
@@ -72,7 +72,7 @@ class Uninstaller {
 	public static function cleanup_custom_fields(): int {
 		global $wpdb;
 
-		$fields = CoreUtils::get_post_meta_keys( 'all' );
+		$fields = Utils::get_post_meta_keys( 'all' );
 		$total  = 0;
 
 		foreach ( $fields as $field ) {

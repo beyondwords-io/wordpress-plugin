@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use BeyondWords\Core\CoreUtils;
+use BeyondWords\Core\Utils;
 
-class CoreUtilsTest extends TestCase
+class UtilsTest extends TestCase
 {
     public function setUp(): void
     {
@@ -33,7 +33,7 @@ class CoreUtilsTest extends TestCase
     {
         set_current_screen($screen);
 
-        $this->assertEquals($expected, CoreUtils::is_gutenberg_page());
+        $this->assertEquals($expected, Utils::is_gutenberg_page());
     }
 
     /**
@@ -76,8 +76,8 @@ class CoreUtilsTest extends TestCase
             'beyondwords_delete_content',
         ];
 
-        $this->assertEquals($keys, CoreUtils::get_post_meta_keys());
-        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('current'));
+        $this->assertEquals($keys, Utils::get_post_meta_keys());
+        $this->assertEquals($keys, Utils::get_post_meta_keys('current'));
     }
 
     /**
@@ -111,7 +111,7 @@ class CoreUtilsTest extends TestCase
             '_speechkit_text',
         ];
 
-        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('deprecated'));
+        $this->assertEquals($keys, Utils::get_post_meta_keys('deprecated'));
     }
 
     /**
@@ -161,6 +161,6 @@ class CoreUtilsTest extends TestCase
             '_speechkit_text',
         ];
 
-        $this->assertEquals($keys, CoreUtils::get_post_meta_keys('all'));
+        $this->assertEquals($keys, Utils::get_post_meta_keys('all'));
     }
 }

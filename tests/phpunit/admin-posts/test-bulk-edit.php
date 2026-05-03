@@ -1,13 +1,12 @@
 <?php
 
-use BeyondWords\Posts\BulkEdit;
-use BeyondWords\Core\Core;
+use BeyondWords\AdminPosts\BulkEdit;
 use BeyondWords\Core\Plugin;
 
 final class BulkEditTest extends TestCase
 {
     /**
-     * @var \BeyondWords\Posts\BulkEdit
+     * @var \BeyondWords\AdminPosts\BulkEdit
      */
     private $_instance;
 

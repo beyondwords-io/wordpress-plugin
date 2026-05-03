@@ -81,12 +81,12 @@ class WPGraphQL {
 							'sourceId' => (string) $post->ID,
 						];
 
-						$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
+						$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
 						if ( ! empty( $project_id ) ) {
 							$fields['projectId'] = $project_id;
 						}
 
-						$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post->ID );
+						$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 						if ( ! empty( $content_id ) ) {
 							$fields['contentId'] = $content_id;
 							$fields['podcastId'] = $content_id;

@@ -5,6 +5,7 @@
  * @package BeyondWords\Core
  * @since   3.5.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+ *               Renamed from CoreUtils to Utils.
  */
 
 declare( strict_types = 1 );
@@ -19,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
-class CoreUtils {
+class Utils {
 
 	/**
 	 * Whether the current admin page is the Gutenberg/Block Editor.
@@ -131,7 +132,7 @@ class CoreUtils {
 			'current'    => $current,
 			'deprecated' => $deprecated,
 			'all'        => array_merge( $current, $deprecated ),
-			default      => throw new \Exception( 'Unexpected $type param for CoreUtils::get_post_meta_keys()' ),
+			default      => throw new \Exception( 'Unexpected $type param for Utils::get_post_meta_keys()' ),
 		};
 	}
 
@@ -217,7 +218,7 @@ class CoreUtils {
 			'current'    => $current,
 			'deprecated' => $deprecated,
 			'all'        => array_merge( $current, $deprecated ),
-			default      => throw new \Exception( 'Unexpected $type param for CoreUtils::get_options()' ),
+			default      => throw new \Exception( 'Unexpected $type param for Utils::get_options()' ),
 		};
 	}
 }

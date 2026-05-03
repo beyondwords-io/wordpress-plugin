@@ -1,12 +1,12 @@
 <?php
 
-use BeyondWords\Posts\BulkEditNotices;
+use BeyondWords\AdminPosts\Notices;
 use \Symfony\Component\DomCrawler\Crawler;
 
-final class BulkEditNoticesTest extends TestCase
+final class NoticesTest extends TestCase
 {
     /**
-     * @var \BeyondWords\Posts\BulkEditNotices
+     * @var \BeyondWords\AdminPosts\Notices
      */
     private $_instance;
 
@@ -33,14 +33,14 @@ final class BulkEditNoticesTest extends TestCase
      */
     public function init()
     {
-        BulkEditNotices::init();
+        Notices::init();
 
         do_action('wp_loaded');
 
-        $this->assertEquals(10, has_action('admin_notices', array(BulkEditNotices::class, 'generated_notice')));
-        $this->assertEquals(10, has_action('admin_notices', array(BulkEditNotices::class, 'deleted_notice')));
-        $this->assertEquals(10, has_action('admin_notices', array(BulkEditNotices::class, 'failed_notice')));
-        $this->assertEquals(10, has_action('admin_notices', array(BulkEditNotices::class, 'error_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'generated_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'deleted_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'failed_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'error_notice')));
     }
 
     /**
@@ -53,7 +53,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_generated'] = '1';
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::generated_notice();
+            Notices::generated_notice();
         });
 
         $this->assertEmpty($html);
@@ -69,7 +69,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::generated_notice();
+            Notices::generated_notice();
         });
 
         $this->assertEmpty($html);
@@ -87,7 +87,7 @@ final class BulkEditNoticesTest extends TestCase
 
         $this->expectException(\WPDieException::class);
 
-        BulkEditNotices::deleted_notice();
+        Notices::deleted_notice();
     }
 
     /**
@@ -102,7 +102,7 @@ final class BulkEditNoticesTest extends TestCase
 
         $this->expectException(\WPDieException::class);
 
-        BulkEditNotices::generated_notice();
+        Notices::generated_notice();
     }
 
     /**
@@ -117,7 +117,7 @@ final class BulkEditNoticesTest extends TestCase
 
         $this->expectException(\WPDieException::class);
 
-        BulkEditNotices::failed_notice();
+        Notices::failed_notice();
     }
 
     /**
@@ -132,7 +132,7 @@ final class BulkEditNoticesTest extends TestCase
 
         $this->expectException(\WPDieException::class);
 
-        BulkEditNotices::error_notice();
+        Notices::error_notice();
     }
 
     /**
@@ -148,7 +148,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_generated'] = $numGenerated;
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::generated_notice();
+            Notices::generated_notice();
         });
 
         $crawler = new Crawler($html);
@@ -190,7 +190,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_deleted'] = $numDeleted;
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::deleted_notice();
+            Notices::deleted_notice();
         });
 
         $crawler = new Crawler($html);
@@ -232,7 +232,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_failed'] = $numFailed;
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::failed_notice();
+            Notices::failed_notice();
         });
 
         $crawler = new Crawler($html);
@@ -274,7 +274,7 @@ final class BulkEditNoticesTest extends TestCase
         $_GET['beyondwords_bulk_error'] = $errorMessage;
 
         $html = $this->capture_output(function () {
-            BulkEditNotices::error_notice();
+            Notices::error_notice();
         });
 
         $crawler = new Crawler($html);

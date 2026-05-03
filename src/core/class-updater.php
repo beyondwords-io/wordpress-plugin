@@ -86,7 +86,7 @@ class Updater {
 	}
 
 	/**
-	 * v7.0.0: remove every option marked deprecated in `CoreUtils::get_options()`.
+	 * v7.0.0: remove every option marked deprecated in `Utils::get_options()`.
 	 *
 	 * Targets the player styling, voice, and project options that v7.0.0 dropped
 	 * (audio/video output now sourced from the BeyondWords project, not WP), as
@@ -96,7 +96,7 @@ class Updater {
 	 * @since 7.0.0
 	 */
 	public static function delete_deprecated_options(): void {
-		foreach ( CoreUtils::get_options( 'deprecated' ) as $option ) {
+		foreach ( Utils::get_options( 'deprecated' ) as $option ) {
 			if ( is_multisite() ) {
 				delete_site_option( $option );
 			} else {

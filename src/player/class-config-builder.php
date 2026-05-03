@@ -32,7 +32,7 @@ class ConfigBuilder {
 	 * @return object Parameters for the JS SDK.
 	 */
 	public static function build( \WP_Post $post ): object {
-		$project_id = \BeyondWords\Post\PostMetaUtils::get_project_id( $post->ID );
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
 
 		$params = [
 			'projectId' => is_numeric( $project_id ) ? (int) $project_id : $project_id,
@@ -55,7 +55,7 @@ class ConfigBuilder {
 	 * @return array<string,mixed>
 	 */
 	public static function merge_post_settings( \WP_Post $post, array $params ): array {
-		$content_id = \BeyondWords\Post\PostMetaUtils::get_content_id( $post->ID );
+		$content_id = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 
 		if ( ! empty( $content_id ) ) {
 			$params['contentId'] = (string) $content_id;
@@ -65,7 +65,7 @@ class ConfigBuilder {
 			$params['showUserInterface'] = false;
 		}
 
-		$style = \BeyondWords\Post\PostMetaUtils::get_player_style( $post->ID );
+		$style = \BeyondWords\Post\Meta::get_player_style( $post->ID );
 		if ( ! empty( $style ) ) {
 			$params['playerStyle'] = $style;
 		}

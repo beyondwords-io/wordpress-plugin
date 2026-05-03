@@ -13,20 +13,20 @@ All PHP under `src/` follows the same WordPress-style layout:
 
 ```
 src/
+  admin-posts/     class-{name}.php       — `edit.php` posts list-screen UI (column, bulk-edit, notices)
   api/             class-client.php       — outbound BeyondWords HTTP API wrapper
   compatibility/   class-{name}.php       — third-party plugin compatibility shims
-  core/            class-{name}.php       — bootstrap, post-lifecycle, env, updater, uninstaller
+  core/            class-{name}.php       — bootstrap, env, updater, uninstaller (cross-cutting plumbing)
   editor/          class-editor.php       — block-editor JS bootstrap (enqueue) + per-slot {feature}/index.js modules
   player/          class-{name}.php       — front-end player + renderer/{base,amp,javascript}
   post/            class-{name}.php       — per-post screen UI (each component in its own subfolder when JS/CSS travels with it)
-  posts/           class-{name}.php       — posts list-screen UI
   settings/        class-{name}.php       — plugin settings page + REST endpoints
   site-health/     class-{name}.php       — Site Health debug panel
   index.js         build entry that requires each component's `index.js`
 ```
 
 - **One class per file.** File name is `class-{kebab-case-name}.php` (e.g. `class-client.php` in `BeyondWords\Api` → `Client`).
-- **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-post-meta-utils.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/post/add-player/{class-add-player.php,index.js,AddPlayer.css}`).
+- **1–2 levels of nesting.** Pure-PHP utilities sit at the feature root (`src/post/class-meta.php`). Components that bundle JS/CSS get their own subfolder so assets travel with the PHP (`src/post/add-player/{class-add-player.php,index.js,AddPlayer.css}`).
 - **JS folders use kebab-case** to match the PHP folder convention (`src/post/add-player/`, `src/editor/document-setting/`).
 - **Group by feature, not by class type.** `Fields` lives next to `Tabs` because they're both part of the settings feature, not in a separate `Fields/` folder.
 
@@ -38,9 +38,12 @@ Inside a feature folder, split distinct PHP responsibilities into role-named cla
 |------------------------------|--------------------------------------------|-------------------------------------------------------------|
 | `class-{feature}.php`        | `BeyondWords\…\{Feature}`                  | Main feature: REST routes, save handlers, render, etc.      |
 | `class-assets.php`           | `BeyondWords\…\{Feature}\Assets`           | `wp_enqueue_script` / `wp_enqueue_style` registrations      |
-| `class-meta.php` *(future)*  | `BeyondWords\…\{Feature}\Meta`             | `register_meta` calls and meta authorization callbacks      |
 
-The role classes live in a **nested namespace** named after the parent feature (`BeyondWords\Post\InspectPanel\Assets`), so each role gets its own short class name (`Assets`, `Meta`, …) without colliding with other features. The main feature class stays in the parent namespace (`BeyondWords\Post\InspectPanel`); the two coexist because PHP treats the namespace and the class identifier as distinct symbols.
+The role classes live in a **nested namespace** named after the parent feature (`BeyondWords\Post\InspectPanel\Assets`), so each role gets its own short class name (`Assets`, …) without colliding with other features. The main feature class stays in the parent namespace (`BeyondWords\Post\InspectPanel`); the two coexist because PHP treats the namespace and the class identifier as distinct symbols.
+
+Reserved top-level classes (don't reuse these names for per-feature files):
+
+- `BeyondWords\Post\Meta` — read-side accessors over BeyondWords post meta (`get_content_id`, `has_content`, `get_project_id`, etc.). Lives at [src/post/class-meta.php](src/post/class-meta.php).
 
 If a feature folder's only PHP responsibility is asset enqueue (e.g. `src/post/error-notice/`, `src/post/sidebar/`), skip the main `class-{feature}.php` entirely — only `class-assets.php` is needed.
 
@@ -70,7 +73,7 @@ class Tabs {
 
 	public static function register(): void {
 		// Cross-namespace references use FQN — see "Class references" below.
-		\BeyondWords\Core\CoreUtils::is_edit_screen();
+		\BeyondWords\Core\Utils::is_edit_screen();
 	}
 }
 ```
@@ -178,7 +181,7 @@ npm run format
 When removing a setting:
 
 1. Delete the field/tab classes and their tests.
-2. Move the option key from the `current` array to the `deprecated` array in [src/core/class-core-utils.php](src/core/class-core-utils.php) `get_options()`. The uninstaller cleans up deprecated keys, so users upgrading lose stale data on plugin removal.
+2. Move the option key from the `current` array to the `deprecated` array in [src/core/class-utils.php](src/core/class-utils.php) `get_options()`. The uninstaller cleans up deprecated keys, so users upgrading lose stale data on plugin removal.
 3. Delete every `get_option()` call and any code paths gated on it.
 4. Replace runtime behaviour with one of: a hard-coded default, a `apply_filters()` hook, or per-post meta (whichever the spec calls for).
 5. Add a version-gated migration to [src/core/class-updater.php](src/core/class-updater.php) if existing data needs to be transformed. To also strip deprecated options from the DB on update, call `Updater::delete_deprecated_options()` from inside the version block.

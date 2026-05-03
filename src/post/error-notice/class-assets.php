@@ -34,7 +34,7 @@ class Assets {
 	 * Enqueue the error-notice CSS on Gutenberg screens.
 	 */
 	public static function enqueue_block_assets(): void {
-		if ( ! \BeyondWords\Core\CoreUtils::is_gutenberg_page() ) {
+		if ( ! \BeyondWords\Core\Utils::is_gutenberg_page() ) {
 			return;
 		}
 
