@@ -10,11 +10,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import {
-	getSourceOptions,
-	sourceIncludesScript,
-	SOURCE_POST,
-} from './helpers';
+import { getSourceOptions, sourceIncludesScript, SOURCE_POST } from './helpers';
 
 export function ContentSection() {
 	const postType = useSelect(

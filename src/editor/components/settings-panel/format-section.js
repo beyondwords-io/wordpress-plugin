@@ -41,8 +41,7 @@ export function FormatSection() {
 
 	const output = meta.beyondwords_output || OUTPUT_AUDIO;
 	const videoTemplateId =
-		meta.beyondwords_video_template_id ||
-		VIDEO_TEMPLATE_OPTIONS[ 0 ].value;
+		meta.beyondwords_video_template_id || VIDEO_TEMPLATE_OPTIONS[ 0 ].value;
 	const videoSize = meta.beyondwords_video_size || '';
 
 	const setOutput = ( value ) => {

@@ -33,7 +33,10 @@ export function getSourceOptions() {
 	return [
 		{ label: __( 'Post', 'speechkit' ), value: SOURCE_POST },
 		{ label: __( 'Script', 'speechkit' ), value: SOURCE_SCRIPT },
-		{ label: __( 'Post + script', 'speechkit' ), value: SOURCE_POST_AND_SCRIPT },
+		{
+			label: __( 'Post + script', 'speechkit' ),
+			value: SOURCE_POST_AND_SCRIPT,
+		},
 	];
 }
 
@@ -41,7 +44,10 @@ export function getOutputOptions() {
 	return [
 		{ label: __( 'Audio', 'speechkit' ), value: OUTPUT_AUDIO },
 		{ label: __( 'Video', 'speechkit' ), value: OUTPUT_VIDEO },
-		{ label: __( 'Audio + video', 'speechkit' ), value: OUTPUT_AUDIO_AND_VIDEO },
+		{
+			label: __( 'Audio + video', 'speechkit' ),
+			value: OUTPUT_AUDIO_AND_VIDEO,
+		},
 	];
 }
 

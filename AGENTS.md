@@ -172,7 +172,7 @@ Other rules:
 
 - **ESLint config:** `@wordpress/eslint-plugin` (already in `package.json`). Configured for WordPress JS Coding Standards.
 - **Build tooling:** `@wordpress/scripts` (`wp-scripts`). Use `npm run build` / `npm start`.
-- **Formatting:** `wp-scripts format` — Prettier with WordPress config.
+- **Formatting:** `wp-scripts format` — Prettier with the WordPress config. The repo pins `prettier` to the `wp-prettier` alias (`"prettier": "npm:wp-prettier@3.0.3"` in `package.json`); without this the `@wordpress/prettier-config` setting `parenSpacing: true` is silently no-op'd and the WP-style spacing (`__( 'foo' )`) fails lint. The active config is declared in `package.json` (`"prettier": "@wordpress/prettier-config"`) so any IDE with a Prettier plugin picks it up automatically — no editor-specific settings file needed. If your IDE doesn't honour the project's prettier, install/enable a Prettier plugin and point its "use prettier from node_modules" option at this repo.
 - **i18n:** `@wordpress/i18n` (`__`, `_x`, `sprintf`) with the `'speechkit'` text domain.
 - **No jQuery in new code.** Use vanilla DOM or `@wordpress/element` (React).
 

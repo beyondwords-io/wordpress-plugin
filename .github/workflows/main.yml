@@ -208,6 +208,33 @@ jobs:
         run: ./vendor/bin/grumphp run --testsuite code_quality
 
   # ######################################
+  # JS lint
+  # ######################################
+  lint-js:
+    name: ESLint (wp-prettier)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Verify prettier resolves to wp-prettier
+        run: |
+          name=$(node -p "require('prettier/package.json').name")
+          if [ "$name" != "wp-prettier" ]; then
+            echo "Expected wp-prettier, got $name" >&2
+            exit 1
+          fi
+
+      - name: Lint JS
+        run: npm run lint:js
+
+  # ######################################
   # Plugin Check
   # ######################################
   plugin-check:
