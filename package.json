@@ -45,7 +45,7 @@
     "composer": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
     "composer:tests": "wp-env --config .wp-env.tests.json run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit composer",
     "cypress:open": "cypress open --e2e --browser chrome",
-    "cypress:run": "ELECTRON_RUN_AS_NODE= cypress run",
+    "cypress:run": "ELECTRON_RUN_AS_NODE= cypress run --browser chrome",
     "cypress:setup": "node tests/cypress/scripts/setup-ci.js",
     "format": "wp-scripts format",
     "format:src": "wp-scripts format ./src",

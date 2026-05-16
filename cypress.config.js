@@ -17,14 +17,25 @@ let hasSetupDatabase = false;
 async function execWp( commands, options = {} ) {
 	const commandArray = Array.isArray( commands ) ? commands : [ commands ];
 	const isCI = process.env.CI;
-	const { returnResult = false } = options;
-	let lastResult;
+	const { returnResult = false, chain = false } = options;
 
+	const wrap = ( cmd ) =>
+		isCI
+			? `wp ${ cmd }`
+			: `npx wp-env --config .wp-env.tests.json run cli wp ${ cmd }`;
+
+	// Chain mode: join with && and run as a single exec. Saves the per-call
+	// wp-env / docker boot overhead — significant for setup batches with many
+	// CLI invocations. Not compatible with returnResult.
+	if ( chain && commandArray.length > 1 ) {
+		const joined = commandArray.map( wrap ).join( ' && ' );
+		await exec( joined );
+		return undefined;
+	}
+
+	let lastResult;
 	for ( const command of commandArray ) {
-		const fullCommand = isCI
-			? `wp ${ command }`
-			: `npx wp-env --config .wp-env.tests.json run cli wp ${ command }`;
-		lastResult = await exec( fullCommand );
+		lastResult = await exec( wrap( command ) );
 	}
 
 	return returnResult ? lastResult : undefined;
@@ -56,7 +67,6 @@ module.exports = defineConfig( {
 	},
 	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
-	includeShadowDom: true,
 	screenshotsFolder: 'tests/cypress/screenshots',
 	screenshotOnRunFailure: true,
 	reporter: 'cypress-multi-reporters',
@@ -97,22 +107,38 @@ function setupNodeEvents( on, config ) {
 			// eslint-disable-next-line no-console
 			console.log( '  - Running database setup...' );
 
-			// Reset database and activate plugins
-			await execWp( [
-				'plugin activate wp-reset',
-				'reset reset --yes',
-				'plugin deactivate --all',
-				// eslint-disable-next-line max-len
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses/mock-rest-api-responses.php',
-				// Configure plugin credentials for most tests
-				`option update beyondwords_api_key '${ apiKey }'`,
-				`option update beyondwords_project_id '${ projectId }'`,
-				`option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`,
-				// Set defaults for options NOT synced from API
-				'option add beyondwords_player_ui enabled',
-				// eslint-disable-next-line max-len
-				'option add beyondwords_preselect \'{"post":"1","page":"1","cpt_active":"1"}\' --format=json',
-			] );
+			// Persisted-preferences blob to suppress block-editor welcome modals
+			// for admin (user_id=1). Avoids a per-test cy.wait() + click dance.
+			const welcomePrefs = JSON.stringify( {
+				'core/edit-post': {
+					welcomeGuide: false,
+					welcomeGuideTemplate: false,
+				},
+				core: { enableChoosePatternModal: false },
+			} ).replace( /'/g, "'\\''" );
+
+			// Reset database and activate plugins. Chained into a single exec
+			// to avoid paying the wp-env / docker boot cost per command.
+			await execWp(
+				[
+					'plugin activate wp-reset',
+					'reset reset --yes',
+					'plugin deactivate --all',
+					// eslint-disable-next-line max-len
+					'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses/mock-rest-api-responses.php',
+					// Configure plugin credentials for most tests
+					`option update beyondwords_api_key '${ apiKey }'`,
+					`option update beyondwords_project_id '${ projectId }'`,
+					`option add beyondwords_valid_api_connection '2025-01-01T00:00:00+00:00'`,
+					// Set defaults for options NOT synced from API
+					'option add beyondwords_player_ui enabled',
+					// eslint-disable-next-line max-len
+					'option add beyondwords_preselect \'{"post":"1","page":"1","cpt_active":"1"}\' --format=json',
+					// Pre-seed welcome-guide dismissal for admin
+					`user meta update 1 wp_persisted_preferences '${ welcomePrefs }'`,
+				],
+				{ chain: true }
+			);
 
 			hasSetupDatabase = true;
 			// eslint-disable-next-line no-console
@@ -131,13 +157,16 @@ function setupNodeEvents( on, config ) {
 				'\n  🔄 Resetting to FRESH database (no credentials)...'
 			);
 
-			await execWp( [
-				'plugin activate wp-reset',
-				'reset reset --yes',
-				'plugin deactivate --all',
-				// eslint-disable-next-line max-len
-				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
-			] );
+			await execWp(
+				[
+					'plugin activate wp-reset',
+					'reset reset --yes',
+					'plugin deactivate --all',
+					// eslint-disable-next-line max-len
+					'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
+				],
+				{ chain: true }
+			);
 
 			// Reset the flag so next test file will run setupDatabase again
 			// This ensures subsequent tests get credentials configured
@@ -261,24 +290,22 @@ function setupNodeEvents( on, config ) {
 		async deleteOptionsByPattern( options ) {
 			const { pattern, exclude = [] } = options;
 
+			// Collapse into a single `wp db query` exec — the previous
+			// implementation ran `option list` plus one `option delete` per
+			// matching key (N+1 wp-env round-trips per beforeEach).
+			// `_` is left unescaped (used as LIKE wildcard) — fine here
+			// because no other option keys start with `beyondwordsX`.
+			const excludeSql = exclude.length
+				? ` AND option_name NOT IN (${ exclude
+						.map( ( name ) => `'${ name.replace( /'/g, "''" ) }'` )
+						.join( ',' ) })`
+				: '';
+			const sql = `DELETE FROM wp_options WHERE option_name LIKE '${ pattern }%'${ excludeSql };`;
+
 			try {
-				// Get all options matching pattern
-				const listCmd = `option list --search='${ pattern }' --field=option_name`;
-				const result = await execWp( listCmd, { returnResult: true } );
-
-				const optionNames = result.stdout
-					.trim()
-					.split( '\n' )
-					.filter( Boolean );
-
-				// Delete each option (except excluded ones)
-				for ( const optionName of optionNames ) {
-					if ( ! exclude.includes( optionName ) ) {
-						await execWp( `option delete ${ optionName }` );
-					}
-				}
+				await execWp( `db query "${ sql }"` );
 			} catch ( error ) {
-				// Ignore errors if no options found
+				// Ignore errors (e.g. table missing during fresh setup races).
 			}
 
 			return null;

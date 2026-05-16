@@ -7,15 +7,6 @@ import _ from 'lodash';
 
 const postTypes = require( '../../fixtures/post-types.json' );
 
-// Set keystroke delay
-Cypress.Commands.overwrite(
-	'type',
-	( originalFn, subject, text, options = {} ) => {
-		options.delay = 20;
-		return originalFn( subject, text, options );
-	}
-);
-
 /**
  * Get the block editor canvas body.
  *
@@ -24,17 +15,28 @@ Cypress.Commands.overwrite(
  * for older versions.
  */
 Cypress.Commands.add( 'getEditorCanvasBody', () => {
-	return cy.get( 'body' ).then( ( $body ) => {
-		const $iframe = $body.find( 'iframe[name="editor-canvas"]' );
-		if ( $iframe.length ) {
-			return cy
-				.wrap( $iframe )
-				.its( '0.contentDocument.body' )
-				.should( 'not.be.empty' )
-				.then( cy.wrap );
-		}
-		return cy.wrap( $body );
-	} );
+	// Wait until the editor surface is ready in either form before deciding
+	// which body to return. Without this, the helper races the iframe mount
+	// and falls back to the outer <body> too eagerly on WP 6.8+.
+	return cy
+		.get(
+			'iframe[name="editor-canvas"], .editor-styles-wrapper',
+			{ timeout: 30000 }
+		)
+		.should( 'exist' )
+		.then( () => {
+			return cy.get( 'body' ).then( ( $body ) => {
+				const $iframe = $body.find( 'iframe[name="editor-canvas"]' );
+				if ( $iframe.length ) {
+					return cy
+						.wrap( $iframe )
+						.its( '0.contentDocument.body' )
+						.should( 'not.be.empty' )
+						.then( cy.wrap );
+				}
+				return cy.wrap( $body );
+			} );
+		} );
 } );
 
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {
@@ -54,17 +56,43 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 	);
 } );
 
+// Cache the admin login across tests via cy.session(). The session id is keyed
+// on the credentials so a change to either invalidates the cached cookies.
 Cypress.Commands.add( 'login', () => {
-	const baseUrl = Cypress.config().baseUrl;
-
 	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
 		( { wpUsername, wpPassword } ) => {
-			cy.visit( '/wp-login.php' ).wait( 250 );
-
-			cy.get( '#user_login' ).clear().type( wpUsername ).wait( 250 );
-			cy.get( '#user_pass' ).clear().type( `${ wpPassword }{enter}` );
-
-			cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+			cy.session(
+				[ 'wp-admin', wpUsername ],
+				() => {
+					cy.request( {
+						method: 'POST',
+						url: '/wp-login.php',
+						form: true,
+						body: {
+							log: wpUsername,
+							pwd: wpPassword,
+							'wp-submit': 'Log In',
+							redirect_to: '/wp-admin/',
+							testcookie: '1',
+						},
+					} );
+				},
+				{
+					validate: () => {
+						// Hit a privileged endpoint to confirm the cached
+						// cookie is still valid server-side — setupFreshDatabase
+						// can invalidate the DB between specs while the
+						// browser-side cookie persists.
+						cy.request( {
+							url: '/wp-json/wp/v2/users/me',
+							failOnStatusCode: false,
+						} )
+							.its( 'status' )
+							.should( 'eq', 200 );
+					},
+					cacheAcrossSpecs: true,
+				}
+			);
 		}
 	);
 } );
@@ -96,7 +124,8 @@ Cypress.Commands.add( 'visitPostEditorById', ( postId ) => {
 } );
 
 Cypress.Commands.add( 'disableWelcomeGuides', () => {
-	// Wait for editor and dismiss welcome modal if it appears
+	// User-meta preference is pre-seeded once in setupDatabase, so the welcome
+	// modal should not render. Set the in-memory store as a defence in depth.
 	cy.window()
 		.its( 'wp.data' )
 		.then( ( data ) => {
@@ -105,15 +134,6 @@ Cypress.Commands.add( 'disableWelcomeGuides', () => {
 			prefs.set( 'core/edit-post', 'welcomeGuideTemplate', false );
 			prefs.set( 'core', 'enableChoosePatternModal', false );
 		} );
-
-	// Wait briefly for any modal to render, then dismiss it
-	cy.wait( 500 ); // eslint-disable-line
-	cy.get( 'body' ).then( ( $body ) => {
-		const closeBtn = $body.find( '.components-modal__header button' );
-		if ( closeBtn.length ) {
-			cy.wrap( closeBtn ).first().click();
-		}
-	} );
 } );
 
 Cypress.Commands.add( 'showsOnlyAuthenticationSettingsTab', () => {
