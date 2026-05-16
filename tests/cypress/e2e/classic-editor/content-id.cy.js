@@ -37,7 +37,7 @@ context( 'Classic Editor: Content ID', () => {
 
 			cy.get( '#beyondwords_content_id' ).should(
 				'have.value',
-				Cypress.env( 'contentId' )
+				Cypress.expose('contentId')
 			);
 		} );
 	} );

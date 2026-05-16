@@ -1,3 +1,3 @@
 #!/bin/bash
-npm run wp-env run tests-wordpress "chmod -c ugo+w /var/www/html"
-npm run wp-env run tests-cli "wp rewrite structure '/%postname%/' --hard"
+npx wp-env --config .wp-env.tests.json run wordpress "chmod -c ugo+w /var/www/html"
+npx wp-env --config .wp-env.tests.json run cli "wp rewrite structure '/%postname%/' --hard"

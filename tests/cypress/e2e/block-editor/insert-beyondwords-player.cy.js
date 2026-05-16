@@ -7,108 +7,58 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			/**
-			 * *****************************************************
-			 * Skipping because we see this error in GitHub Actions:
-			 * *****************************************************
-			 *
-			 * We detected that the Chrome Renderer process just crashed.
-			 *
-			 * We have failed the current spec but will continue running the next spec.
-			 *
-			 * This can happen for a number of different reasons.
-			 *
-			 * If you're running lots of tests on a memory intense application.
-			 * - Try increasing the CPU/memory on the machine you're running on.
-			 * - Try enabling experimentalMemoryManagement in your config file.
-			 * - Try lowering numTestsKeptInMemory in your config file during 'cypress open'.
-			 *
-			 * You can learn more here:
-			 *
-			 * https://on.cypress.io/renderer-process-crashed
-			 */
-			// @todo test fails, no '.block-editor-default-block-appender button'
-			it.skip( `can add a player block into a ${ postType.name }`, () => {
+			it( `inserts a BeyondWords Player block into a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can add a player block into a ${ postType.name }`,
+					title: `BeyondWords Player block — ${ postType.name }`,
 				} );
 
 				cy.openBeyondwordsEditorPanel();
-
 				cy.checkGenerateAudio( postType );
 
-				cy.addParagraphBlock( 'Before.' );
+				// Insert via @wordpress/data — avoids the brittle inserter UI.
+				cy.window().then( ( win ) => {
+					const block = win.wp.blocks.createBlock(
+						'beyondwords/player'
+					);
+					win.wp.data
+						.dispatch( 'core/block-editor' )
+						.insertBlocks( block );
+				} );
 
-				// Click title to lose focus
-				cy.clickTitleBlock();
-
-				// Add player block
-				cy.get( '.block-editor-default-block-appender button' )
-					.click()
-					.wait( 200 );
-				cy.get( '.block-editor-inserter__quick-inserter input' )
-					.type( 'bey' )
-					.wait( 200 );
-				cy.get( '.block-editor-block-types-list__item-title' )
-					.contains( 'BeyondWords' )
-					.click()
-					.wait( 200 );
-
-				cy.addParagraphBlock( 'After.' );
-
-				// Count 1x player in editor iframe
-				cy.get(
-					'div[data-beyondwords-player="true"][contenteditable="false"]'
-				).should( 'have.length', 1 );
+				cy.getEditorCanvasBody()
+					.find( 'div[data-beyondwords-player="true"]' )
+					.should( 'have.length', 1 );
 
 				cy.publishWithConfirmation();
-
-				// "View post"
 				cy.viewPostViaSnackbar();
 
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 			} );
 
-			// @todo test fails, no '.block-editor-default-block-appender button'
-			it.skip( `can add a shortcode into a ${ postType.name }`, () => {
+			it( `inserts a [beyondwords_player] shortcode into a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can add a shortcode into a ${ postType.name }`,
+					title: `BeyondWords shortcode — ${ postType.name }`,
 				} );
 
 				cy.openBeyondwordsEditorPanel();
-
 				cy.checkGenerateAudio( postType );
 
-				cy.addParagraphBlock( 'Before.' );
-
-				// Click title to lose focus
-				cy.clickTitleBlock();
-
-				// Add shortcode
-				cy.get( '.block-editor-default-block-appender button' )
-					.click()
-					.wait( 200 );
-				cy.get( '.block-editor-inserter__quick-inserter input' )
-					.type( 'sho' )
-					.wait( 200 );
-				cy.get( '.block-editor-block-types-list__item-title' )
-					.contains( 'Shortcode' )
-					.click()
-					.wait( 200 );
-				cy.get( 'body' ).type( '[beyondwords_player]' );
-
-				cy.addParagraphBlock( 'After.' );
+				cy.window().then( ( win ) => {
+					const block = win.wp.blocks.createBlock( 'core/shortcode', {
+						text: '[beyondwords_player]',
+					} );
+					win.wp.data
+						.dispatch( 'core/block-editor' )
+						.insertBlocks( block );
+				} );
 
 				cy.publishWithConfirmation();
-
-				// "View post"
 				cy.viewPostViaSnackbar();
 
 				cy.getPlayerScriptTag().should( 'exist' );

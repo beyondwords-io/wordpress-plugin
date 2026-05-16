@@ -53,17 +53,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       # ######################################
-      # yarn build (could add caching here)
+      # npm build (could add caching here)
       # ######################################
-      - run: yarn build
+      - run: npm run build
 
       # ######################################
       # i18n
@@ -229,7 +229,7 @@ jobs:
         working-directory: /tmp
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -310,17 +310,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       # ######################################
-      # yarn build (could add caching here)
+      # npm build (could add caching here)
       # ######################################
-      - run: yarn build
+      - run: npm run build
 
       - name: Install SVN
         run: sudo apt-get install subversion
@@ -459,12 +459,12 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'npm'
 
       # ######################################
-      # yarn install
+      # npm install
       # ######################################
-      - run: yarn install --immutable --immutable-cache
+      - run: npm ci
 
       - name: Copy .github/.wp-cli directory
         run: cp -r .github/.wp-cli ~/
@@ -601,8 +601,14 @@ jobs:
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
-          # Set env vars like this, otherwise numeric project IDs become ints
-          env: apiKey="${{ secrets.BEYONDWORDS_TESTS_API_KEY }}",projectId="${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}",contentId="${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}",apiUrl="https://api.beyondwords.io/v1"
+        # cypress.config.js reads these from process.env. Sensitive values
+        # land in `env: { apiKey }` (read via cy.env()); public values land
+        # in `expose: { ... }` (read via Cypress.expose()).
+        env:
+          BEYONDWORDS_TESTS_API_KEY: ${{ secrets.BEYONDWORDS_TESTS_API_KEY }}
+          BEYONDWORDS_TESTS_PROJECT_ID: ${{ secrets.BEYONDWORDS_TESTS_PROJECT_ID }}
+          BEYONDWORDS_TESTS_CONTENT_ID: ${{ secrets.BEYONDWORDS_TESTS_CONTENT_ID }}
+          BEYONDWORDS_API_URL: https://api.beyondwords.io/v1
           # ######################################
           # Run an individual spec file like this:
           # ######################################

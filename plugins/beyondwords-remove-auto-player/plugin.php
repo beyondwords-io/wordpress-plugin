@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types=1 );
+declare( strict_types = 1 );
 
 /**
  * BeyondWords: Remove Auto Player
@@ -17,6 +17,9 @@ declare( strict_types=1 );
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
+
+defined( 'ABSPATH' ) || exit;
+
 function beyondwords_remove_auto_player( $html, $post_id, $project_id, $content_id, $context ) {
 	if ( $context === 'auto' ) {
 		return '';

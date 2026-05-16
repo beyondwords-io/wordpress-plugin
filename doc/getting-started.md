@@ -31,34 +31,43 @@ nvm use
 
 ##  4. Install Node dependencies
 
-[Get Yarn](https://classic.yarnpkg.com/lang/en/docs/install/).
-
 ```bash
-yarn install
-yarn build
+npm install
+npm run build
 ```
 
 ##  5. Install PHP dependencies
 
 ```bash
-yarn composer install
+npm run composer -- install
 ```
 
-##  6. Start wp-env development server
+##  6. Start wp-env
 
-Ensure that Docker is running, then:
+Ensure that Docker is running, then start both environments:
 
 ```bash
-yarn wp-env:start
+npm run env:start
 ```
 
-After a few minutes, you should see something like:
+This boots two separate `wp-env` environments side by side:
+
+| Environment | Port  | Config                | Used for                       |
+|-------------|-------|------------------------|--------------------------------|
+| Development | 8888  | `.wp-env.json`         | day-to-day development         |
+| Tests       | 8889  | `.wp-env.tests.json`   | PHPUnit + Cypress test suites  |
+
+If you only need the tests environment (e.g. while iterating on a single test):
+
+```bash
+npm run env:tests:start
+```
+
+After some time you should see something like:
 
 ```
 WordPress development site started at http://localhost:8888/
-WordPress test site started at http://localhost:8889/
-MySQL is listening on port 60920
-MySQL for automated testing is listening on port 60931
+WordPress development site started at http://localhost:8889/
 ```
 
 ##  That's it!

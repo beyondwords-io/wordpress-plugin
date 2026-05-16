@@ -5,7 +5,7 @@
         "graphQLName": "posts",
         "supported": true,
         "preselect": true,
-        "priority": false
+        "priority": true
     },
     {
         "name": "Page",
@@ -13,7 +13,7 @@
         "graphQLName": "pages",
         "supported": true,
         "preselect": true,
-        "priority": false
+        "priority": true
     },
     {
         "name": "CPT Active",

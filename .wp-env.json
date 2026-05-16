@@ -1,7 +1,6 @@
 {
     "core": null,
     "port": 8888,
-    "testsPort": 8889,
     "phpVersion": "8.5",
     "plugins": [
         "./",
@@ -31,12 +30,5 @@
         "wp-content/plugins/beyondwords-remove-auto-player": "./plugins/beyondwords-remove-auto-player",
         "wp-content/plugins/speechkit-export-tool": "./plugins/speechkit-export-tool"
     },
-    "env": {
-        "tests": {
-            "config": {
-                "BEYONDWORDS_MOCK_API": true,
-                "BEYONDWORDS_AUTO_SYNC_SETTINGS": false
-            }
-        }
-    }
+    "testsEnvironment": false
 }

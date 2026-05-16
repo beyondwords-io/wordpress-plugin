@@ -10,6 +10,7 @@
 /.phpunit.cache
 /.phpunit.result.cache
 /.wp-env.override.json
+/.wp-env.tests.override.json
 /build
 /CLAUDE.md
 /cypress.env.json

@@ -6,8 +6,7 @@
     "homepage": "https://beyondwords.io",
     "require": {
         "php": ">=8.0",
-        "symfony/dom-crawler": "^5.4",
-        "symfony/property-access": "^5.4"
+        "symfony/dom-crawler": "^5.4"
     },
     "require-dev": {
         "automattic/vipwpcs": "^3.0.1",
@@ -17,10 +16,8 @@
         "doctrine/instantiator": "^1.5",
         "ergebnis/composer-normalize": "^2.48.2",
         "php-parallel-lint/php-parallel-lint": "^1.4",
-        "phpmd/phpmd": "^2.15",
         "phpro/grumphp": "^1.16",
         "phpunit/phpunit": "^9.6",
-        "rector/rector": "^2.2",
         "rregeer/phpunit-coverage-check": "^0.3.1",
         "squizlabs/php_codesniffer": "^3.9.2",
         "symfony/css-selector": "^5.4",
@@ -39,9 +36,9 @@
     },
     "prefer-stable": true,
     "autoload": {
-        "psr-4": {
-            "Beyondwords\\Wordpress\\": "src/"
-        }
+        "classmap": [
+            "src/"
+        ]
     },
     "config": {
         "allow-plugins": {
@@ -51,7 +48,6 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
             "php-parallel-lint/php-parallel-lint": false,
-            "phpmd/phpmd": true,
             "phpro/grumphp": true,
             "rregeer/phpunit-coverage-check": true,
             "squizlabs/php_codesniffer": true,
@@ -68,12 +64,12 @@
     },
     "scripts": {
         "lint:plugins": "./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
-        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80",
-        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 80 --only-percentage | sed 's/[^0-9.]*//g'",
-        "test:phpunit": [
-            "yarn wp-env run tests-cli --env-cwd=wp-content/plugins/speechkit ./vendor/bin/phpunit -c phpunit.xml",
+        "test": [
+            "./vendor/bin/phpunit -c phpunit.xml",
             "@test:coverage-check"
         ],
+        "test:coverage-check": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 85",
+        "test:coverage-check-percentage": "./vendor/bin/coverage-check ./tests/phpunit/_report/clover.xml 85 --only-percentage | sed 's/[^0-9.]*//g'",
         "translate": [
             "@wp:i18n:make-pot",
             "cp ./languages/speechkit.pot ./languages/en_US.po",

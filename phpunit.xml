@@ -25,7 +25,7 @@
     </php>
     <testsuites>
         <testsuite name="default">
-            <directory suffix="Test.php">tests/phpunit</directory>
+            <directory prefix="test-" suffix=".php">tests/phpunit</directory>
         </testsuite>
     </testsuites>
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
@@ -42,7 +42,7 @@
         </exclude>
         <report>
             <clover outputFile="tests/phpunit/_report/clover.xml" />
-            <html outputDirectory="tests/phpunit/_report" lowUpperBound="60" highLowerBound="80" />
+            <html outputDirectory="tests/phpunit/_report" lowUpperBound="60" highLowerBound="85" />
             <text outputFile="tests/phpunit/_report/coverage.txt" showUncoveredFiles="false" showOnlySummary="true"/>
         </report>
     </coverage>

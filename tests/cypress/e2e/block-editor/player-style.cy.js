@@ -4,30 +4,24 @@ context( 'Block Editor: Player Style', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
 	beforeEach( () => {
-		cy.updateOption( 'beyondwords_video_enabled', '1' );
-		cy.updateOption( 'beyondwords_player_style', 'standard' );
 		cy.login();
 	} );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `uses the plugin setting as the default for a ${ postType.name }`, () => {
-				cy.createPost( {
-					postType,
-				} );
+			it( `lists the per-post Player Style options for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
 
 				cy.openBeyondwordsEditorPanel();
 
-				// Assert we have the expected Voices
 				cy.getBlockEditorSelect( 'Player style' )
 					.find( 'option' )
 					.should( ( $els ) => {
-						const values = [ ...$els ].map( ( el ) =>
+						const labels = [ ...$els ].map( ( el ) =>
 							el.innerText.trim()
 						);
-						expect( values ).to.deep.eq( [
+						expect( labels ).to.deep.eq( [
 							'',
 							'Standard',
 							'Small',
@@ -36,83 +30,28 @@ context( 'Block Editor: Player Style', () => {
 						] );
 					} );
 
-				// Check "Standard" is preselected
+				// No plugin-level default in v7 — the dropdown starts unset.
 				cy.getBlockEditorSelect( 'Player style' )
 					.find( 'option:selected' )
-					.contains( 'Standard' );
-
-				// Update the plugin settings to "Small"
-				cy.setPlayerStyleInPluginSettings( 'Small' );
-
-				// Check "Small" is preselected
-				cy.createPost( {
-					postType,
-				} );
-
-				cy.openBeyondwordsEditorPanel();
-				cy.getBlockEditorSelect( 'Player style' )
-					.find( 'option:selected' )
-					.contains( 'Small' );
-
-				// Update the plugin settings to "Large"
-				cy.setPlayerStyleInPluginSettings( 'Large' );
-
-				// Check "Large" is preselected
-				cy.createPost( {
-					postType,
-				} );
-
-				// cy.closeWelcomeToBlockEditorTips()
-				cy.openBeyondwordsEditorPanel();
-				cy.getBlockEditorSelect( 'Player style' )
-					.find( 'option:selected' )
-					.contains( 'Large' );
-
-				// Update the plugin settings to "Video"
-				cy.setPlayerStyleInPluginSettings( 'Video' );
-
-				// Check "Video" is preselected
-				cy.createPost( {
-					postType,
-				} );
-
-				// cy.closeWelcomeToBlockEditorTips()
-				cy.openBeyondwordsEditorPanel();
-				cy.getBlockEditorSelect( 'Player style' )
-					.find( 'option:selected' )
-					.contains( 'Video' );
-
-				// Reset the plugin settings to "Standard"
-				cy.setPlayerStyleInPluginSettings( 'Standard' );
+					.should( 'have.value', '' );
 			} );
 
-			it( `can set "Large" Player style for a ${ postType.name }`, () => {
+			it( `persists "Large" Player style for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can set "Large" Player style for a ${ postType.name }`,
+					title: `Large player style — ${ postType.name }`,
 				} );
-
-				// cy.closeWelcomeToBlockEditorTips()
 
 				cy.openBeyondwordsEditorPanel();
-
-				// Select a Player style
 				cy.getBlockEditorSelect( 'Player style' ).select( 'Large' );
-
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
-
 				cy.publishWithConfirmation();
 
-				// "View post"
 				cy.viewPostViaSnackbar();
-
-				// Check Player has video player in frontend
 				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1, {
-					playerStyle: 'large',
-				} );
+				cy.hasPlayerInstances( 1, { playerStyle: 'large' } );
 
-				// Check Player style has also been saved in admin
+				// Re-open the editor and confirm the meta survived.
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsEditorPanel();
 				cy.getBlockEditorSelect( 'Player style' )
@@ -120,33 +59,21 @@ context( 'Block Editor: Player Style', () => {
 					.contains( 'Large' );
 			} );
 
-			it( `can set "Video" Player style for a ${ postType.name }`, () => {
+			it( `persists "Video" Player style for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
-					title: `I can set "Video" Player style for a ${ postType.name }`,
+					title: `Video player style — ${ postType.name }`,
 				} );
-
-				// cy.closeWelcomeToBlockEditorTips()
 
 				cy.openBeyondwordsEditorPanel();
-
-				// Select a Player style
 				cy.getBlockEditorSelect( 'Player style' ).select( 'Video' );
-
 				cy.getBlockEditorCheckbox( 'Generate audio' ).check();
-
 				cy.publishWithConfirmation();
 
-				// "View post"
 				cy.viewPostViaSnackbar();
-
-				// Check Player has video player in frontend
 				cy.getPlayerScriptTag().should( 'exist' );
-				cy.hasPlayerInstances( 1, {
-					playerStyle: 'video',
-				} );
+				cy.hasPlayerInstances( 1, { playerStyle: 'video' } );
 
-				// Check Player style has also been saved in admin
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsEditorPanel();
 				cy.getBlockEditorSelect( 'Player style' )

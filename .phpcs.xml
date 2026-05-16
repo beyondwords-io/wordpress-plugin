@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="BeyondWords WordPress Plugin">
-	<description>PSR-12 coding standards for the BeyondWords WordPress plugin.</description>
+	<description>WordPress VIP coding standards for the BeyondWords WordPress plugin.</description>
 
 	<!-- What to scan -->
 	<file>src</file>
@@ -16,10 +16,125 @@
 	<arg name="parallel" value="8"/>
 	<ini name="error_reporting" value="E_ALL &#38; ~E_DEPRECATED"/>
 
-	<!-- PSR-12 -->
-	<rule ref="PSR12">
-		<exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
-		<exclude name="PSR12.Files.FileHeader.IncorrectOrder"/>
-		<exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
+	<!--
+	Rulesets, in order of strictness:
+	  1. WordPress-Core   — whitespace, braces, naming (the "code looks like WP core" rules).
+	  2. WordPress-Docs   — PHPDoc requirements.
+	  3. WordPress-Extra  — subjective best practices (escaping, sanitisation discipline).
+	  4. WordPress-VIP-Go — VIP hosting + security/performance constraints.
+	The ordering matters: later rulesets can override earlier ones.
+	-->
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-VIP-Go"/>
+
+	<!-- Catches unused / undefined / re-declared variables — orthogonal to WPCS formatting. -->
+	<rule ref="VariableAnalysis"/>
+
+	<!-- Always use short array syntax: [] not array(). WordPress-Core defaults
+	     to the opposite via Universal.Arrays.DisallowShortArraySyntax — we override. -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound">
+		<severity>0</severity>
+	</rule>
+	<rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing.SpaceBeforeArrayCloserSingleLine">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Brace placement: K&R (opening brace on same line) for functions, methods, and classes. -->
+	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+	<rule ref="Generic.Classes.OpeningBraceSameLine"/>
+
+	<!-- Pre-existing relaxations (legacy code under src/ predates the strict ruleset). -->
+	<rule ref="WordPress.WP.CapitalPDangit.MisspelledNamespaceName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FileComment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+	PHPDoc strictness — relaxed because retroactively documenting every legacy
+	method/class/param would be a sprint of mechanical typing without functional
+	value. These can be re-enabled per-class as the codebase matures.
+	-->
+	<rule ref="Squiz.Commenting.ClassComment.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamName">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.ParamNameNoMatch">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.IncorrectTypeHint">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionCommentThrowTag.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.ShortNotCapital">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+	WordPress.Files.FileName.InvalidClassFileName fires false positives on PSR-style
+	PascalCase class names — it expects `class-configbuilder.php` for `class ConfigBuilder`
+	but the project (and AGENTS.md) uses kebab-case (`class-config-builder.php`), which
+	matches WordPress core's own convention for snake_case class names.
+	-->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+	PSR12.Files.FileHeader.IncorrectOrder requires the file-level docblock to come
+	immediately after the opening PHP tag, before any `declare()` / `namespace`. WPCS
+	conventions allow either order — we keep the existing arrangement.
+	-->
+	<rule ref="PSR12.Files.FileHeader.IncorrectOrder">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+	Short ternary `$x ?: 'foo'` is idiomatic in this codebase; the universal sniff
+	bans it but WPCS itself doesn't.
+	-->
+	<rule ref="Universal.Operators.DisallowShortTernary.Found">
+		<severity>0</severity>
+	</rule>
+
+	<!-- BeyondWords text domain -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="speechkit"/>
+			</property>
+		</properties>
 	</rule>
 </ruleset>

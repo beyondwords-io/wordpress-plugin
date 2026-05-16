@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare( strict_types = 1 );
 
 // phpcs:disable
 /**
@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Description:       The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player.
  * Author:            BeyondWords
  * Author URI:        https://beyondwords.io
- * Version:           6.4.0
+ * Version:           7.0.0-dev-1.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
@@ -25,20 +25,17 @@ declare(strict_types=1);
  */
 // phpcs:enable
 
-// If this file is called directly, abort.
-if (! defined('WPINC')) {
-    die;
-}
+defined( 'ABSPATH' ) || exit;
 
 // Composer autoload
-require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // Define constants
 // phpcs:disable
-define('BEYONDWORDS__PLUGIN_VERSION', '6.4.0');
+define('BEYONDWORDS__PLUGIN_VERSION', '7.0.0-dev-1.0');
 define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable
 
-// Follow WordPress convention by using snakecase for variable name
-Beyondwords\Wordpress\Plugin::init();
+// Bootstrap.
+BeyondWords\Core\Plugin::init();
