@@ -28,3 +28,4 @@ require( './editor/components/open-sidebar' );
 require( './editor/components/pending-notice' );
 require( './editor/components/play-audio' );
 require( './editor/components/prepublish-panel' );
+require( './editor/components/settings-panel' );
