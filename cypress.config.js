@@ -89,9 +89,8 @@ function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
 	require( 'cypress-fail-fast/plugin' )( on, config );
 
-	// cypress.env.json merges into config.env at setup, not config.expose.
 	const apiKey = config.env.apiKey || '';
-	const projectId = config.env.projectId || '';
+	const projectId = ( config.expose && config.expose.projectId ) || '';
 
 	// implement node event listeners here
 	on( 'task', {

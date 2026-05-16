@@ -256,7 +256,7 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'exist' );
 
 	cy.hasAdminPlayerInstances( 0 );
 } );
