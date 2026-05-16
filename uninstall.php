@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 defined( 'ABSPATH' ) || exit;
 
-use Beyondwords\Wordpress\Core\Uninstaller;
+use BeyondWords\Core\Uninstaller;
 
 /**
  * Uninstall script for BeyondWords.
@@ -31,9 +31,9 @@ function beyondwords_uninstall() {
 
 	require BEYONDWORDS__PLUGIN_DIR . 'vendor/autoload.php';
 
-	Uninstaller::cleanupPluginTransients();
-	Uninstaller::cleanupPluginOptions();
-	Uninstaller::cleanupCustomFields();
+	Uninstaller::cleanup_plugin_transients();
+	Uninstaller::cleanup_plugin_options();
+	Uninstaller::cleanup_custom_fields();
 }
 
 // phpcs:disable
