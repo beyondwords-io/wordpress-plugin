@@ -30,20 +30,14 @@ async function execWp( commands, options = {} ) {
 	return returnResult ? lastResult : undefined;
 }
 
-// Sensitive values use env (read-only via cy.env() at runtime).
-// Public values use expose (sync via Cypress.expose() at runtime).
-// See https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv
-//
-// process.env.* covers CI (GitHub Actions secrets). Locally these vars
-// usually aren't exported — `allowCypressEnv: true` lets cypress.env.json
-// fill in the gaps via Cypress's normal merge (cypress.env.json values
-// override these defaults at config-resolution time).
+// CI sets these via env vars; locally cypress.env.json fills in the gaps
+// (allowCypressEnv: true below enables the merge into config.env).
 const BW_API_KEY = process.env.BEYONDWORDS_TESTS_API_KEY || '';
 const BW_PROJECT_ID = process.env.BEYONDWORDS_TESTS_PROJECT_ID || '';
 const BW_CONTENT_ID = process.env.BEYONDWORDS_TESTS_CONTENT_ID || '';
-// API URL is intentionally NOT read from cypress.env.json — the WP plugin
-// uses the default unless BEYONDWORDS_API_URL is set in .wp-env.tests.json,
-// and a mismatch makes Site Health assertions fail.
+
+// Skip the cypress.env.json fallback — must match what WP reports via
+// .wp-env.tests.json, else Site Health assertions diverge.
 const BW_API_URL =
 	process.env.BEYONDWORDS_API_URL || 'https://api.beyondwords.io/v1';
 
@@ -85,17 +79,14 @@ function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
 	require( 'cypress-fail-fast/plugin' )( on, config );
 
-	// cypress.env.json values merge into config.env (and Cypress.env() at
-	// runtime), but not into config.expose. Pull both from config.env at
-	// setup time so local devs don't need shell exports.
+	// cypress.env.json merges into config.env at setup, not config.expose.
 	const apiKey = config.env.apiKey || '';
 	const projectId = config.env.projectId || '';
 
 	// implement node event listeners here
 	on( 'task', {
 		async setupDatabase() {
-			// Run database setup only once per test suite
-			// This sets up a clean database WITH credentials configured
+			// One-shot per test run; bails if already set up.
 			if ( hasSetupDatabase ) {
 				// eslint-disable-next-line no-console
 				console.log(
@@ -131,11 +122,8 @@ function setupNodeEvents( on, config ) {
 		},
 
 		async setupFreshDatabase() {
-			// Setup a fresh database WITHOUT credentials
-			// Use this for tests that need to test fresh install behavior
-			// Note: This always resets, even if setupDatabase was called before
-			// After this runs, we reset the flag so the next test file will
-			// trigger setupDatabase again to restore credentials
+			// Reset without credentials for fresh-install tests. Always runs,
+			// and clears hasSetupDatabase so the next spec re-runs setupDatabase.
 			// eslint-disable-next-line no-console
 			console.log(
 				'\n  🔄 Resetting to FRESH database (no credentials)...'
@@ -149,8 +137,6 @@ function setupNodeEvents( on, config ) {
 				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
 			] );
 
-			// Reset the flag so next test file will run setupDatabase again
-			// This ensures subsequent tests get credentials configured
 			hasSetupDatabase = false;
 
 			// eslint-disable-next-line no-console
