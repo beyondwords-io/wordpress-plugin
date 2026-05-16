@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/display-player/,src/editor/components/preview-panel/
+ */
+
 /* global cy, beforeEach, context, it */
 
 context( 'Block Editor: Display Player', () => {

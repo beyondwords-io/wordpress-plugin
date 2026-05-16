@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/classic/class-metabox.php,src/post/class-sync.php,src/editor/components/generate-audio/,src/editor/components/play-audio/
+ */
+
 /* global Cypress, cy, before, beforeEach, after, context, it */
 
 context( 'Classic Editor: Add Post', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/player-content/
+ */
+
 /* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Player Content', () => {

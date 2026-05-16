@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/generate-audio/,src/post/class-sync.php
+ */
+
 /* global Cypress, cy, beforeEach, context, it, describe */
 
 /**

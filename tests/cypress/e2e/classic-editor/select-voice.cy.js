@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/components/select-voice/
+ */
+
 /* global cy, before, beforeEach, after, context, expect, it */
 
 context( 'Classic Editor: Select Voice', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/select-voice/,src/editor/components/settings-panel/,src/settings/store/
+ */
+
 /* global cy, beforeEach, context, expect, it */
 
 context( 'Block Editor: Select Voice', () => {

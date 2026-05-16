@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/components/add-player/
+ */
+
 /* global cy, before, beforeEach, after, context, it */
 
 context( 'Classic Editor: Insert BeyondWords Player', () => {

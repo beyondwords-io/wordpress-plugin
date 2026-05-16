@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/components/display-player/
+ */
+
 /* global cy, before, beforeEach, after, context, it */
 
 context( 'Classic Editor: Display Player', () => {

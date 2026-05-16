@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/content-id/,src/editor/components/data-panel/,src/editor/block/sidebar/
+ */
+
 /* global Cypress, cy, beforeEach, context, it, expect */
 
 context( 'Block Editor: Content ID', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/post/class-sync.php,src/post/class-meta.php,src/editor/block/sidebar/,src/editor/block/document-setting/,src/editor/components/preview-panel/,src/editor/components/play-audio/,src/editor/components/generate-audio/,src/editor/components/settings-panel/,src/posts-list/class-column.php,src/player/class-player.php,src/player/renderer/class-javascript.php
+ */
+
 /* global Cypress, cy, beforeEach, context, it */
 
 context( 'Block Editor: Add Post', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group posts-list
+ * @covers src/player/class-player.php,src/player/class-config-builder.php,src/post/class-content.php,src/posts-list/class-column.php
+ */
+
 /* global Cypress, cy, beforeEach, describe, expect, it */
 
 describe( 'WordPress Filters', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/components/content-id/,src/editor/classic/class-metabox.php
+ */
+
 /* global Cypress, cy, before, beforeEach, after, context, it */
 
 context( 'Classic Editor: Content ID', () => {

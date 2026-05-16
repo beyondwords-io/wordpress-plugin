@@ -1,3 +1,8 @@
+/**
+ * @group settings
+ * @covers src/settings/class-settings.php
+ */
+
 /* global Cypress, cy, beforeEach, context, it */
 
 /**

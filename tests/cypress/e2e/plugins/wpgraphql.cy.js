@@ -1,3 +1,8 @@
+/**
+ * @group plugins
+ * @covers src/compatibility/class-wpgraphql.php
+ */
+
 /* global Cypress, cy, before, beforeEach, after, context, expect, it */
 
 context( 'Plugins: WPGraphQL', () => {
