@@ -31,8 +31,8 @@ async function execWp( commands, options = {} ) {
 }
 
 // CI sets these via env vars; locally cypress.env.json fills in the gaps.
-// allowCypressEnv:true below merges cypress.env.json into config.env, but
-// NOT into config.expose — so the expose values need an explicit fallback.
+// We read cypress.env.json explicitly so we can keep allowCypressEnv:false
+// (Cypress 15 deprecates auto-merging cypress.env.json into Cypress.env()).
 const localEnv = ( () => {
 	try {
 		return require( './cypress.env.json' );
@@ -40,7 +40,8 @@ const localEnv = ( () => {
 		return {};
 	}
 } )();
-const BW_API_KEY = process.env.BEYONDWORDS_TESTS_API_KEY || '';
+const BW_API_KEY =
+	process.env.BEYONDWORDS_TESTS_API_KEY || localEnv.apiKey || '';
 const BW_PROJECT_ID =
 	process.env.BEYONDWORDS_TESTS_PROJECT_ID || localEnv.projectId || '';
 const BW_CONTENT_ID =
@@ -55,7 +56,7 @@ module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
 	downloadsFolder: 'tests/cypress/downloads',
-	allowCypressEnv: true,
+	allowCypressEnv: false,
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
