@@ -410,6 +410,100 @@ class ContentTest extends TestCase
      *
      * @group getContentParams
      **/
+    public function get_content_params_omits_summarization_and_video_settings_by_default()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::omitsSummarizationAndVideoByDefault',
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('summarization_settings', $body);
+        $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_enables_summarization_when_source_includes_script()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::summarizationEnabled',
+            'meta_input' => [
+                'beyondwords_source'             => 'script',
+                'beyondwords_script_template_id' => '42',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('summarization_settings', $body);
+        $this->assertTrue($body['summarization_settings']['enabled']);
+        $this->assertSame(42, $body['summarization_settings']['template']['id']);
+
+        // Source = post_and_script enables it too.
+        update_post_meta($postId, 'beyondwords_source', 'post_and_script');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertTrue($body['summarization_settings']['enabled']);
+
+        // Source = post does not.
+        update_post_meta($postId, 'beyondwords_source', 'post');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('summarization_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_enables_video_when_output_includes_video()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoEnabled',
+            'meta_input' => [
+                'beyondwords_output'     => 'video',
+                'beyondwords_video_size' => 'landscape',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertTrue($body['video_settings']['enabled']);
+        $this->assertSame(
+            [['name' => 'landscape', 'enabled' => true]],
+            $body['video_settings']['sizes']
+        );
+
+        // Output = audio_and_video enables it too.
+        update_post_meta($postId, 'beyondwords_output', 'audio_and_video');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertTrue($body['video_settings']['enabled']);
+
+        // Output = audio does not.
+        update_post_meta($postId, 'beyondwords_output', 'audio');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
     public function get_content_params_for_pending_review_status()
     {
         // Create the user

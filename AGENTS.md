@@ -281,7 +281,7 @@ Plugin version lives in two places — keep them in sync:
 - `BEYONDWORDS__PLUGIN_VERSION` constant in the same file
 - `version` in [package.json](package.json) (informational; npm publish is not used)
 
-Bump on any release. Pre-release versions use `7.0.0-dev-1.0` style (matches existing convention).
+Bump on any release. Pre-release versions use `7.0.0-dev-2.0` style (matches existing convention).
 
 ## Known issues
 

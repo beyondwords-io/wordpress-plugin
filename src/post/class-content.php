@@ -325,6 +325,44 @@ class Content {
 			$body['summary_voice_id'] = $summary_voice_id;
 		}
 
+		// Source = Script or Post + script → enable summarization so the API
+		// generates a script segment alongside the post body. Omitted when
+		// Source is Post (or unset) so the project default applies.
+		$source = get_post_meta( $post_id, 'beyondwords_source', true );
+
+		if ( in_array( $source, [ 'script', 'post_and_script' ], true ) ) {
+			$body['summarization_settings'] = [ 'enabled' => true ];
+
+			$script_template_id = intval(
+				get_post_meta( $post_id, 'beyondwords_script_template_id', true )
+			);
+
+			if ( $script_template_id > 0 ) {
+				$body['summarization_settings']['template'] = [
+					'id' => $script_template_id,
+				];
+			}
+		}
+
+		// Output = Video or Audio + video → enable video generation. Video
+		// size filters the project's `sizes` array down to the user's pick.
+		$output = get_post_meta( $post_id, 'beyondwords_output', true );
+
+		if ( in_array( $output, [ 'video', 'audio_and_video' ], true ) ) {
+			$body['video_settings'] = [ 'enabled' => true ];
+
+			$video_size = get_post_meta( $post_id, 'beyondwords_video_size', true );
+
+			if ( $video_size ) {
+				$body['video_settings']['sizes'] = [
+					[
+						'name'    => (string) $video_size,
+						'enabled' => true,
+					],
+				];
+			}
+		}
+
 		/**
 		 * Filters the params we send to the BeyondWords API 'content' endpoint.
 		 *
