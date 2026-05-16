@@ -14,9 +14,7 @@ import GenerateAudio from '../../components/generate-audio';
 import OpenSidebar from '../../components/open-sidebar';
 import PendingNotice from '../../components/pending-notice';
 import PlayAudio from '../../components/play-audio';
-import SelectVoice from '../../components/select-voice';
-import PlayerContent from '../../components/player-content';
-import PlayerStyle from '../../components/player-style';
+import { PlayerSection, VoiceSection } from '../../components/settings-panel';
 
 export default class DocumentSettingPanel extends Component {
 	render() {
@@ -31,9 +29,8 @@ export default class DocumentSettingPanel extends Component {
 				<PlayAudio wrapper={ PanelRow } />
 				<GenerateAudio wrapper={ PanelRow } />
 				<hr />
-				<PlayerStyle wrapper={ PanelRow } />
-				<PlayerContent wrapper={ PanelRow } />
-				<SelectVoice wrapper={ PanelRow } />
+				<VoiceSection />
+				<PlayerSection />
 				<OpenSidebar wrapper={ PanelRow } />
 			</PluginDocumentSettingPanel>
 		);
