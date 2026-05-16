@@ -95,13 +95,9 @@ class Utils {
 			'beyondwords_project_id',
 			'beyondwords_content_id',
 			'beyondwords_preview_token',
-			'beyondwords_player_content',
-			'beyondwords_player_style',
 			'beyondwords_language_code',
 			'beyondwords_language_id',
-			'beyondwords_title_voice_id',
 			'beyondwords_body_voice_id',
-			'beyondwords_summary_voice_id',
 			'beyondwords_error_message',
 			'beyondwords_disabled',
 			'beyondwords_delete_content',
@@ -114,7 +110,16 @@ class Utils {
 			'beyondwords_embed',
 		];
 
+		// Deprecated in v7.x — replaced by the new Content / Format / Voice
+		// sections. Still registered in the deprecated bucket so the
+		// uninstaller cleans them up; PHP `get_post_meta()` keeps working for
+		// the classic editor + downgrade safety, but they no longer appear in
+		// the REST API so the block editor stops reading/writing them.
 		$deprecated = [
+			'beyondwords_player_content',
+			'beyondwords_player_style',
+			'beyondwords_title_voice_id',
+			'beyondwords_summary_voice_id',
 			'beyondwords_podcast_id',
 			'beyondwords_hash',
 			'publish_post_to_speechkit',
