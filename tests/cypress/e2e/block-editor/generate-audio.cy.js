@@ -29,7 +29,7 @@ context( 'Block Editor: Generate Audio', () => {
 			cy.openBeyondwordsEditorPanel();
 
 			// Sidebar checkbox should be checked via preselect
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+			cy.getBlockEditorCheckbox( 'Create' ).should(
 				'be.checked'
 			);
 
@@ -51,8 +51,8 @@ context( 'Block Editor: Generate Audio', () => {
 			cy.openBeyondwordsEditorPanel();
 
 			// Uncheck in sidebar
-			cy.getLabel( 'Generate audio' ).click();
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+			cy.getLabel( 'Create' ).click();
+			cy.getBlockEditorCheckbox( 'Create' ).should(
 				'not.be.checked'
 			);
 
@@ -78,7 +78,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Sidebar checkbox should be checked via preselect
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				cy.getBlockEditorCheckbox( 'Create' ).should(
 					'be.checked'
 				);
 
@@ -91,7 +91,7 @@ context( 'Block Editor: Generate Audio', () => {
 				).should( 'be.checked' );
 
 				cy.get( '.editor-post-publish-panel' )
-					.contains( 'label', 'Generate audio' )
+					.contains( 'label', 'Create' )
 					.click();
 
 				cy.get(
@@ -143,7 +143,7 @@ context( 'Block Editor: Generate Audio', () => {
 
 			cy.openBeyondwordsEditorPanel();
 
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+			cy.getBlockEditorCheckbox( 'Create' ).should(
 				'not.be.checked'
 			);
 		} );
@@ -166,7 +166,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Sidebar should respect saved '0' despite preselect
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				cy.getBlockEditorCheckbox( 'Create' ).should(
 					'not.be.checked'
 				);
 
@@ -203,7 +203,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// beyondwords_generate_audio=0 should take precedence
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				cy.getBlockEditorCheckbox( 'Create' ).should(
 					'not.be.checked'
 				);
 			} );
@@ -226,7 +226,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Should fall back to speechkit_generate_audio=1
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				cy.getBlockEditorCheckbox( 'Create' ).should(
 					'be.checked'
 				);
 			} );
