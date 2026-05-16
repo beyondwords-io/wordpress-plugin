@@ -8,9 +8,11 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import DataPanel from '../../components/data-panel';
 import HelpPanel from '../../components/help-panel';
 import InspectPanel from '../../components/inspect-panel';
-import PlayerPanel from '../../components/player-panel';
+import PreviewPanel from '../../components/preview-panel';
+import SettingsPanel from '../../components/settings-panel';
 
 export default class Sidebar extends Component {
 	render() {
@@ -23,7 +25,9 @@ export default class Sidebar extends Component {
 					name="plugin-sidebar"
 					title={ __( 'BeyondWords', 'speechkit' ) }
 				>
-					<PlayerPanel />
+					<PreviewPanel />
+					<SettingsPanel />
+					<DataPanel />
 					<HelpPanel />
 					<InspectPanel />
 				</PluginSidebar>

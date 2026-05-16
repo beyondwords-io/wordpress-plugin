@@ -19,6 +19,7 @@ require( './editor/block' );
 // self-registers any block-editor filters or sidebar mounts it owns.
 require( './editor/components/add-player' );
 require( './editor/components/block-attributes' );
+require( './editor/components/data-panel' );
 require( './editor/components/display-player' );
 require( './editor/components/error-notice' );
 require( './editor/components/generate-audio' );
@@ -28,4 +29,5 @@ require( './editor/components/open-sidebar' );
 require( './editor/components/pending-notice' );
 require( './editor/components/play-audio' );
 require( './editor/components/prepublish-panel' );
+require( './editor/components/preview-panel' );
 require( './editor/components/settings-panel' );

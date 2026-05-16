@@ -295,7 +295,9 @@ Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
 	cy.get( '.beyondwords-sidebar' )
 		.contains( 'a', 'BeyondWords sidebar' )
 		.click();
-	cy.get( '.beyondwords-sidebar__status' ).should( 'be.visible' );
+	cy.get( '.beyondwords-sidebar__data' )
+		.scrollIntoView()
+		.should( 'be.visible' );
 } );
 
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {

@@ -38,7 +38,7 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsPluginSidebar();
 
-			cy.get( '.beyondwords-sidebar__status input[type="text"]' )
+			cy.get( '.beyondwords-sidebar__data input[type="text"]' )
 				.filter(
 					( _i, el ) => el.value === Cypress.expose('contentId')
 				)
@@ -73,7 +73,7 @@ context( 'Block Editor: Content ID', () => {
 				.type( testContentId, { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
@@ -154,7 +154,7 @@ context( 'Block Editor: Content ID', () => {
 				.type( 'not-found-content-id', { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
@@ -206,7 +206,7 @@ context( 'Block Editor: Content ID', () => {
 				.clear( { force: true } )
 				.type( testContentId, { force: true } );
 
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
