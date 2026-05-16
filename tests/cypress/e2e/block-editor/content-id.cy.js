@@ -3,6 +3,7 @@
 context( 'Block Editor: Content ID', () => {
 	beforeEach( () => {
 		cy.login();
+		cy.cleanupTestPosts();
 	} );
 
 	it( 'displays the Content ID field in the sidebar panel', () => {

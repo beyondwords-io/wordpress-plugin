@@ -7,6 +7,7 @@ context( 'Classic Editor: Content ID', () => {
 
 	beforeEach( () => {
 		cy.login();
+		cy.cleanupTestPosts();
 	} );
 
 	after( () => {

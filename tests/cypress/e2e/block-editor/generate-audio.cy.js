@@ -12,6 +12,7 @@
 context( 'Block Editor: Generate Audio', () => {
 	beforeEach( () => {
 		cy.login();
+		cy.cleanupTestPosts();
 	} );
 
 	describe( 'Pre-publish panel sync', () => {

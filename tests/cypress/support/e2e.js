@@ -58,8 +58,7 @@ before( () => {
 
 beforeEach( () => {
 	cy.resetPluginSettings();
-	// Clean up test posts from previous test (fast - 100-500ms)
-	cy.cleanupTestPosts();
+
 	// disable Cypress's default behavior of logging all XMLHttpRequests and fetches
 	cy.intercept( { resourceType: /xhr|fetch/ }, { log: false } );
 } );
