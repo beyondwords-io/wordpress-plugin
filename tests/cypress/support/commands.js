@@ -192,6 +192,13 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.then( ( $el ) => cy.wrap( $el, args ) );
 } );
 
+// Use the className selector instead of the label text — the GenerateAudio
+// label flips between "Create" and "Update" based on whether the post
+// already has a beyondwords_content_id.
+const GENERATE_AUDIO_CHECKBOX =
+	'.beyondwords--generate-audio input[type="checkbox"]';
+const GENERATE_AUDIO_LABEL = '.beyondwords--generate-audio label';
+
 Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 	if ( ! postType ) {
 		postType = postTypes[ 0 ];
@@ -199,15 +206,15 @@ Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( ! postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'be.checked' );
 } );
 
 Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
@@ -217,15 +224,15 @@ Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'not.be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'not.be.checked' );
 } );
 
 Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
