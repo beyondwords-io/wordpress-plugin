@@ -1,22 +1,6 @@
 const { defineConfig } = require( 'cypress' );
-const fs = require( 'fs' );
-const path = require( 'path' );
 const util = require( 'util' );
 const exec = util.promisify( require( 'child_process' ).exec );
-
-// `allowCypressEnv: false` opts out of auto-loading cypress.env.json, so values
-// must come from BEYONDWORDS_TESTS_* env vars (set as GitHub secrets in CI).
-// Locally those vars usually aren't exported — fall back to cypress.env.json
-// so a developer with the file populated can run tests without shell setup.
-function readLocalEnvFile() {
-	const envPath = path.join( __dirname, 'cypress.env.json' );
-	try {
-		return JSON.parse( fs.readFileSync( envPath, 'utf8' ) );
-	} catch ( error ) {
-		return {};
-	}
-}
-const LOCAL_ENV = readLocalEnvFile();
 
 // Track if we've done the one-time setup for this test run
 let hasSetupDatabase = false;
@@ -49,12 +33,14 @@ async function execWp( commands, options = {} ) {
 // Sensitive values use env (read-only via cy.env() at runtime).
 // Public values use expose (sync via Cypress.expose() at runtime).
 // See https://docs.cypress.io/app/references/migration-guide#Migrating-away-from-Cypressenv
-const BW_API_KEY =
-	process.env.BEYONDWORDS_TESTS_API_KEY || LOCAL_ENV.apiKey || '';
-const BW_PROJECT_ID =
-	process.env.BEYONDWORDS_TESTS_PROJECT_ID || LOCAL_ENV.projectId || '';
-const BW_CONTENT_ID =
-	process.env.BEYONDWORDS_TESTS_CONTENT_ID || LOCAL_ENV.contentId || '';
+//
+// process.env.* covers CI (GitHub Actions secrets). Locally these vars
+// usually aren't exported — `allowCypressEnv: true` lets cypress.env.json
+// fill in the gaps via Cypress's normal merge (cypress.env.json values
+// override these defaults at config-resolution time).
+const BW_API_KEY = process.env.BEYONDWORDS_TESTS_API_KEY || '';
+const BW_PROJECT_ID = process.env.BEYONDWORDS_TESTS_PROJECT_ID || '';
+const BW_CONTENT_ID = process.env.BEYONDWORDS_TESTS_CONTENT_ID || '';
 // API URL is intentionally NOT read from cypress.env.json — the WP plugin
 // uses the default unless BEYONDWORDS_API_URL is set in .wp-env.tests.json,
 // and a mismatch makes Site Health assertions fail.
@@ -65,7 +51,7 @@ module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
 	downloadsFolder: 'tests/cypress/downloads',
-	allowCypressEnv: false,
+	allowCypressEnv: true,
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
@@ -99,9 +85,11 @@ function setupNodeEvents( on, config ) {
 	require( 'cypress-terminal-report/src/installLogsPrinter' )( on );
 	require( 'cypress-fail-fast/plugin' )( on, config );
 
-	// API key is sensitive (env); project ID is public (expose).
+	// cypress.env.json values merge into config.env (and Cypress.env() at
+	// runtime), but not into config.expose. Pull both from config.env at
+	// setup time so local devs don't need shell exports.
 	const apiKey = config.env.apiKey || '';
-	const projectId = ( config.expose && config.expose.projectId ) || '';
+	const projectId = config.env.projectId || '';
 
 	// implement node event listeners here
 	on( 'task', {
