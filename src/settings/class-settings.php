@@ -275,7 +275,6 @@ class Settings {
 
 		return new \WP_REST_Response(
 			[
-				'apiKey'            => (string) get_option( Fields::OPTION_API_KEY, '' ),
 				'integrationMethod' => Fields::get_integration_method(),
 				'pluginVersion'     => BEYONDWORDS__PLUGIN_VERSION,
 				'projectId'         => (string) get_option( Fields::OPTION_PROJECT_ID, '' ),

@@ -334,7 +334,7 @@ class SettingsTest extends TestCase
 
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
 
-        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
+        $this->assertArrayNotHasKey('apiKey', $data);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');
@@ -360,7 +360,7 @@ class SettingsTest extends TestCase
 
         $data = $reponse->get_data();
 
-        $this->assertSame(BEYONDWORDS_TESTS_API_KEY, $data['apiKey']);
+        $this->assertArrayNotHasKey('apiKey', $data);
         $this->assertSame(['post' => '1', 'page' => '1'], $data['preselect']);
 
         delete_option('beyondwords_api_key');
