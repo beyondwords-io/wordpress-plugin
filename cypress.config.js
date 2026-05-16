@@ -30,11 +30,21 @@ async function execWp( commands, options = {} ) {
 	return returnResult ? lastResult : undefined;
 }
 
-// CI sets these via env vars; locally cypress.env.json fills in the gaps
-// (allowCypressEnv: true below enables the merge into config.env).
+// CI sets these via env vars; locally cypress.env.json fills in the gaps.
+// allowCypressEnv:true below merges cypress.env.json into config.env, but
+// NOT into config.expose — so the expose values need an explicit fallback.
+const localEnv = ( () => {
+	try {
+		return require( './cypress.env.json' );
+	} catch {
+		return {};
+	}
+} )();
 const BW_API_KEY = process.env.BEYONDWORDS_TESTS_API_KEY || '';
-const BW_PROJECT_ID = process.env.BEYONDWORDS_TESTS_PROJECT_ID || '';
-const BW_CONTENT_ID = process.env.BEYONDWORDS_TESTS_CONTENT_ID || '';
+const BW_PROJECT_ID =
+	process.env.BEYONDWORDS_TESTS_PROJECT_ID || localEnv.projectId || '';
+const BW_CONTENT_ID =
+	process.env.BEYONDWORDS_TESTS_CONTENT_ID || localEnv.contentId || '';
 
 // Skip the cypress.env.json fallback — must match what WP reports via
 // .wp-env.tests.json, else Site Health assertions diverge.

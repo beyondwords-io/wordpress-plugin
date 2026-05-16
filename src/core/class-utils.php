@@ -110,11 +110,6 @@ class Utils {
 			'beyondwords_embed',
 		];
 
-		// Deprecated in v7.x — replaced by the new Content / Format / Voice
-		// sections. Still registered in the deprecated bucket so the
-		// uninstaller cleans them up; PHP `get_post_meta()` keeps working for
-		// the classic editor + downgrade safety, but they no longer appear in
-		// the REST API so the block editor stops reading/writing them.
 		$deprecated = [
 			'beyondwords_player_content',
 			'beyondwords_player_style',

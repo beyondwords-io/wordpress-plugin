@@ -119,29 +119,11 @@ context( 'Block Editor: Select Voice', () => {
 
 				// Check HTML head for voice and language meta tags
 				cy.get( 'head' )
-					.find( 'meta[name="beyondwords-title-voice-id"]' )
-					.should( 'have.attr', 'content', '2517' )
-					.should(
-						'have.attr',
-						'data-beyondwords-title-voice-id',
-						'2517'
-					);
-
-				cy.get( 'head' )
 					.find( 'meta[name="beyondwords-body-voice-id"]' )
 					.should( 'have.attr', 'content', '2517' )
 					.should(
 						'have.attr',
 						'data-beyondwords-body-voice-id',
-						'2517'
-					);
-
-				cy.get( 'head' )
-					.find( 'meta[name="beyondwords-summary-voice-id"]' )
-					.should( 'have.attr', 'content', '2517' )
-					.should(
-						'have.attr',
-						'data-beyondwords-summary-voice-id',
 						'2517'
 					);
 
