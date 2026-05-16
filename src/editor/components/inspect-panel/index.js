@@ -26,6 +26,13 @@ export function PostInspectPanel( {
 	beyondwordsBodyVoiceId,
 	beyondwordsProjectId,
 	beyondwordsErrorMessage,
+	beyondwordsSource,
+	beyondwordsOutput,
+	beyondwordsScriptTemplateId,
+	beyondwordsVideoTemplateId,
+	beyondwordsVideoSize,
+	beyondwordsVoiceModelId,
+	beyondwordsEmbed,
 	// Deprecated custom fields
 	beyondwordsPodcastId,
 	publishPostToSpeechkit,
@@ -90,6 +97,13 @@ export function PostInspectPanel( {
 			beyondwords_error_message: beyondwordsErrorMessage,
 			beyondwords_disabled: beyondwordsDisabled,
 			beyondwords_delete_content: beyondwordsDeleteContent,
+			beyondwords_source: beyondwordsSource,
+			beyondwords_output: beyondwordsOutput,
+			beyondwords_script_template_id: beyondwordsScriptTemplateId,
+			beyondwords_video_template_id: beyondwordsVideoTemplateId,
+			beyondwords_video_size: beyondwordsVideoSize,
+			beyondwords_voice_model_id: beyondwordsVoiceModelId,
+			beyondwords_embed: beyondwordsEmbed,
 			// Deprecated
 			beyondwords_podcast_id: beyondwordsPodcastId,
 			publish_post_to_speechkit: publishPostToSpeechkit,
@@ -142,6 +156,13 @@ export function PostInspectPanel( {
 			`beyondwords_error_message\r\n${ beyondwordsErrorMessage }`,
 			`beyondwords_disabled\r\n${ beyondwordsDisabled }`,
 			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
+			`beyondwords_source\r\n${ beyondwordsSource }`,
+			`beyondwords_output\r\n${ beyondwordsOutput }`,
+			`beyondwords_script_template_id\r\n${ beyondwordsScriptTemplateId }`,
+			`beyondwords_video_template_id\r\n${ beyondwordsVideoTemplateId }`,
+			`beyondwords_video_size\r\n${ beyondwordsVideoSize }`,
+			`beyondwords_voice_model_id\r\n${ beyondwordsVoiceModelId }`,
+			`beyondwords_embed\r\n${ beyondwordsEmbed }`,
 			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
 			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
 			`publish_post_to_speechkit\r\n${ publishPostToSpeechkit }`,
@@ -256,6 +277,55 @@ export function PostInspectPanel( {
 				__next40pxDefaultSize
 			/>
 
+			<TextControl
+				label="beyondwords_source"
+				readOnly
+				value={ beyondwordsSource }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_output"
+				readOnly
+				value={ beyondwordsOutput }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_script_template_id"
+				readOnly
+				value={ beyondwordsScriptTemplateId }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_video_template_id"
+				readOnly
+				value={ beyondwordsVideoTemplateId }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_video_size"
+				readOnly
+				value={ beyondwordsVideoSize }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_voice_model_id"
+				readOnly
+				value={ beyondwordsVoiceModelId }
+				__next40pxDefaultSize
+			/>
+
+			<TextControl
+				label="beyondwords_embed"
+				readOnly
+				value={ beyondwordsEmbed }
+				__next40pxDefaultSize
+			/>
+
 			<hr />
 
 			<Button
@@ -321,6 +391,20 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_project_id,
 			beyondwordsErrorMessage:
 				getEditedPostAttribute( 'meta' ).beyondwords_error_message,
+			beyondwordsSource:
+				getEditedPostAttribute( 'meta' ).beyondwords_source,
+			beyondwordsOutput:
+				getEditedPostAttribute( 'meta' ).beyondwords_output,
+			beyondwordsScriptTemplateId:
+				getEditedPostAttribute( 'meta' ).beyondwords_script_template_id,
+			beyondwordsVideoTemplateId:
+				getEditedPostAttribute( 'meta' ).beyondwords_video_template_id,
+			beyondwordsVideoSize:
+				getEditedPostAttribute( 'meta' ).beyondwords_video_size,
+			beyondwordsVoiceModelId:
+				getEditedPostAttribute( 'meta' ).beyondwords_voice_model_id,
+			beyondwordsEmbed:
+				getEditedPostAttribute( 'meta' ).beyondwords_embed,
 			// Deprecated custom fields
 			beyondwordsPodcastId:
 				getEditedPostAttribute( 'meta' ).beyondwords_podcast_id,
