@@ -271,12 +271,6 @@
 					beyondwords_content_id: data.id || '',
 					beyondwords_preview_token: data.preview_token || '',
 					beyondwords_language_code: data.language || '',
-					beyondwords_title_voice_id: String(
-						data.title_voice_id || ''
-					),
-					beyondwords_summary_voice_id: String(
-						data.summary_voice_id || ''
-					),
 					beyondwords_body_voice_id: String(
 						data.body_voice_id || ''
 					),

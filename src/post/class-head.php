@@ -77,16 +77,6 @@ class Head {
 			esc_attr( $publish_date )
 		);
 
-		$title_voice_id = get_post_meta( $post_id, 'beyondwords_title_voice_id', true );
-
-		if ( $title_voice_id ) {
-			printf(
-				'<meta name="beyondwords-title-voice-id" content="%d" data-beyondwords-title-voice-id="%d" />' . "\n",
-				esc_attr( $title_voice_id ),
-				esc_attr( $title_voice_id )
-			);
-		}
-
 		$body_voice_id = get_post_meta( $post_id, 'beyondwords_body_voice_id', true );
 
 		if ( $body_voice_id ) {
@@ -94,16 +84,6 @@ class Head {
 				'<meta name="beyondwords-body-voice-id" content="%d" data-beyondwords-body-voice-id="%d" />' . "\n",
 				esc_attr( $body_voice_id ),
 				esc_attr( $body_voice_id )
-			);
-		}
-
-		$summary_voice_id = get_post_meta( $post_id, 'beyondwords_summary_voice_id', true );
-
-		if ( $summary_voice_id ) {
-			printf(
-				'<meta name="beyondwords-summary-voice-id" content="%d" data-beyondwords-summary-voice-id="%d" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
-				esc_attr( $summary_voice_id ),
-				esc_attr( $summary_voice_id )
 			);
 		}
 

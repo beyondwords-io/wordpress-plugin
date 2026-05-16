@@ -198,11 +198,9 @@ class Sync {
 			update_post_meta( $post_id, 'beyondwords_content_id', $response['id'] );
 
 			$copy = [
-				'preview_token'    => 'beyondwords_preview_token',
-				'language'         => 'beyondwords_language_code',
-				'title_voice_id'   => 'beyondwords_title_voice_id',
-				'summary_voice_id' => 'beyondwords_summary_voice_id',
-				'body_voice_id'    => 'beyondwords_body_voice_id',
+				'preview_token' => 'beyondwords_preview_token',
+				'language'      => 'beyondwords_language_code',
+				'body_voice_id' => 'beyondwords_body_voice_id',
 			];
 
 			foreach ( $copy as $api_key => $meta_key ) {

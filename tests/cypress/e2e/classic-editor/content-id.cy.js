@@ -89,11 +89,6 @@ context( 'Classic Editor: Content ID', () => {
 
 			cy.task( 'getPostMeta', {
 				postId,
-				metaKey: 'beyondwords_title_voice_id',
-			} ).should( 'equal', '2517' );
-
-			cy.task( 'getPostMeta', {
-				postId,
 				metaKey: 'beyondwords_body_voice_id',
 			} ).should( 'equal', '2517' );
 

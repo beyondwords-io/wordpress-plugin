@@ -259,12 +259,8 @@ class SelectVoice {
 
 		if ( ! empty( $voice_id ) ) {
 			update_post_meta( $post_id, 'beyondwords_body_voice_id', $voice_id );
-			update_post_meta( $post_id, 'beyondwords_title_voice_id', $voice_id );
-			update_post_meta( $post_id, 'beyondwords_summary_voice_id', $voice_id );
 		} else {
 			delete_post_meta( $post_id, 'beyondwords_body_voice_id' );
-			delete_post_meta( $post_id, 'beyondwords_title_voice_id' );
-			delete_post_meta( $post_id, 'beyondwords_summary_voice_id' );
 		}
 
 		return $post_id;

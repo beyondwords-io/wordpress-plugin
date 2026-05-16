@@ -102,15 +102,8 @@ export function ContentId( { wrapper } ) {
 			const data = await response.json();
 
 			/* eslint-disable camelcase */
-			const {
-				body_voice_id,
-				id,
-				language,
-				preview_token,
-				title_voice_id,
-				summary_voice_id,
-				project_id,
-			} = data;
+			const { body_voice_id, id, language, preview_token, project_id } =
+				data;
 
 			const meta = {
 				beyondwords_generate_audio: '0',
@@ -118,8 +111,6 @@ export function ContentId( { wrapper } ) {
 				beyondwords_content_id: id || '',
 				beyondwords_preview_token: preview_token || '',
 				beyondwords_language_code: language || '',
-				beyondwords_title_voice_id: String( title_voice_id || '' ),
-				beyondwords_summary_voice_id: String( summary_voice_id || '' ),
 				beyondwords_body_voice_id: String( body_voice_id || '' ),
 				beyondwords_delete_content: '',
 				beyondwords_disabled: '',

@@ -116,12 +116,6 @@ class Content {
 			throw new \Exception( esc_html__( 'Post Not Found', 'speechkit' ) );
 		}
 
-		$summary_voice_id = intval( get_post_meta( $post->ID, 'beyondwords_summary_voice_id', true ) );
-
-		if ( $summary_voice_id > 0 ) {
-			return '<div data-beyondwords-summary="true" data-beyondwords-voice-id="' . $summary_voice_id . '">%s</div>';
-		}
-
 		return '<div data-beyondwords-summary="true">%s</div>';
 	}
 
@@ -311,18 +305,6 @@ class Content {
 
 		if ( $body_voice_id > 0 ) {
 			$body['body_voice_id'] = $body_voice_id;
-		}
-
-		$title_voice_id = intval( get_post_meta( $post_id, 'beyondwords_title_voice_id', true ) );
-
-		if ( $title_voice_id > 0 ) {
-			$body['title_voice_id'] = $title_voice_id;
-		}
-
-		$summary_voice_id = intval( get_post_meta( $post_id, 'beyondwords_summary_voice_id', true ) );
-
-		if ( $summary_voice_id > 0 ) {
-			$body['summary_voice_id'] = $summary_voice_id;
 		}
 
 		// Source = Script or Post + script → enable summarization so the API

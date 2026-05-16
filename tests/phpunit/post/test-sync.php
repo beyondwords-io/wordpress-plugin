@@ -503,7 +503,7 @@ class SyncTest extends TestCase
      * @test
      * @dataProvider process_response_provider
      */
-    public function process_response($response, $projectId, $contentId, $language, $summaryVoiceId, $titleVoiceId, $bodyVoiceId) {
+    public function process_response($response, $projectId, $contentId, $language, $bodyVoiceId) {
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::processResponse',
         ]);
@@ -513,9 +513,11 @@ class SyncTest extends TestCase
         $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
         $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
         $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
-        $this->assertSame($summaryVoiceId, get_post_meta($postId, 'beyondwords_summary_voice_id', true));
-        $this->assertSame($titleVoiceId, get_post_meta($postId, 'beyondwords_title_voice_id', true));
         $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
+
+        // Deprecated keys are no longer copied from the API response.
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_summary_voice_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_title_voice_id', true));
 
         wp_delete_post($postId, true);
     }
@@ -530,21 +532,17 @@ class SyncTest extends TestCase
                     'title_voice_id'   => '2517',
                     'body_voice_id'    => '3558',
                 ],
-                'projectId'      => BEYONDWORDS_TESTS_PROJECT_ID,
-                'contentId'      => BEYONDWORDS_TESTS_CONTENT_ID,
-                'language'       => 'en_US',
-                'summaryVoiceId' => '3555',
-                'titleVoiceId'   => '2517',
-                'bodyVoiceId'    => '3558',
+                'projectId'    => BEYONDWORDS_TESTS_PROJECT_ID,
+                'contentId'    => BEYONDWORDS_TESTS_CONTENT_ID,
+                'language'     => 'en_US',
+                'bodyVoiceId'  => '3558',
             ],
             'Response is not an array' => [
-                'response'       => new StdClass(),
-                'projectId'      => '',
-                'contentId'      => '',
-                'language'       => '',
-                'summaryVoiceId' => '',
-                'titleVoiceId'   => '',
-                'bodyVoiceId'    => '',
+                'response'    => new StdClass(),
+                'projectId'   => '',
+                'contentId'   => '',
+                'language'    => '',
+                'bodyVoiceId' => '',
             ],
         ];
     }

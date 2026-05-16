@@ -101,9 +101,6 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_preview_token ).to.equal(
 						'd9ce36ea-ddc4-4611-b60c-4f90ed0fc082'
 					);
-					expect( meta.beyondwords_title_voice_id ).to.equal(
-						'2517'
-					);
 					expect( meta.beyondwords_body_voice_id ).to.equal(
 						'2517'
 					);

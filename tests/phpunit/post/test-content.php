@@ -62,31 +62,6 @@ class ContentTest extends TestCase
     /**
      * @test
      */
-    public function get_content_body_with_summary_voice_id()
-    {
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'ContentTest:getContentBodyWithSummaryVoiceId',
-            'post_excerpt' => 'The excerpt.',
-            'post_content' => '<p>Some test HTML.</p>',
-            'meta_input'    => [
-                'beyondwords_summary_voice_id' => '3555',
-            ],
-        ]);
-
-        update_option('beyondwords_prepend_excerpt', '1');
-
-        $content = Content::get_content_body($post);
-
-        delete_option('beyondwords_prepend_excerpt');
-
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
     public function get_content_body_with_invalid_post_id()
     {
         $this->expectException(\Exception::class);
@@ -353,10 +328,8 @@ class ContentTest extends TestCase
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
             'meta_input'   => [
-                'beyondwords_language_code'    => 'en_US',
-                'beyondwords_summary_voice_id' => '3555',
-                'beyondwords_title_voice_id'   => '2517',
-                'beyondwords_body_voice_id'    => '3558',
+                'beyondwords_language_code' => 'en_US',
+                'beyondwords_body_voice_id' => '3558',
             ],
         ];
 
@@ -373,7 +346,7 @@ class ContentTest extends TestCase
         delete_option('beyondwords_prepend_excerpt');
 
         $this->assertSame($args['post_title'], $body['title']);
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
+        $this->assertSame('<div data-beyondwords-summary="true"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
         $this->assertSame(get_the_permalink($postId), $body['source_url']);
         $this->assertSame(strval($postId), $body['source_id']);
         $this->assertSame('Jane Smith', $body['author']);
@@ -388,8 +361,8 @@ class ContentTest extends TestCase
         $this->assertTrue($body['published']);
 
         $this->assertSame('en_US', $body['language']);
-        $this->assertSame(3555, $body['summary_voice_id']);
-        $this->assertSame(2517, $body['title_voice_id']);
+        $this->assertArrayNotHasKey('summary_voice_id', $body);
+        $this->assertArrayNotHasKey('title_voice_id', $body);
         $this->assertSame(3558, $body['body_voice_id']);
 
         // Returning false from `beyondwords_auto_publish` should drop the key entirely.

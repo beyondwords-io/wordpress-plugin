@@ -109,8 +109,6 @@ class Metabox {
 
 		// Enable these components for posts with/without audio
 		( new \BeyondWords\Editor\Components\SelectVoice() )::element( $post );
-		( new \BeyondWords\Editor\Components\PlayerStyle() )::element( $post );
-		( new \BeyondWords\Editor\Components\PlayerContent() )::element( $post );
 
 		echo '<hr />';
 		self::help();

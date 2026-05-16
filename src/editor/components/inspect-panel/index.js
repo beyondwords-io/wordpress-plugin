@@ -21,13 +21,9 @@ export function PostInspectPanel( {
 	beyondwordsIntegrationMethod,
 	beyondwordsContentId,
 	beyondwordsPreviewToken,
-	beyondwordsPlayerContent,
-	beyondwordsPlayerStyle,
 	beyondwordsLanguageCode,
 	beyondwordsLanguageId,
 	beyondwordsBodyVoiceId,
-	beyondwordsTitleVoiceId,
-	beyondwordsSummaryVoiceId,
 	beyondwordsProjectId,
 	beyondwordsErrorMessage,
 	// Deprecated custom fields
@@ -95,10 +91,6 @@ export function PostInspectPanel( {
 			beyondwords_disabled: beyondwordsDisabled,
 			beyondwords_delete_content: beyondwordsDeleteContent,
 			// Deprecated
-			beyondwords_player_content: beyondwordsPlayerContent,
-			beyondwords_player_style: beyondwordsPlayerStyle,
-			beyondwords_title_voice_id: beyondwordsTitleVoiceId,
-			beyondwords_summary_voice_id: beyondwordsSummaryVoiceId,
 			beyondwords_podcast_id: beyondwordsPodcastId,
 			publish_post_to_speechkit: publishPostToSpeechkit,
 			speechkit_generate_audio: speechkitGenerateAudio,
@@ -151,10 +143,6 @@ export function PostInspectPanel( {
 			`beyondwords_disabled\r\n${ beyondwordsDisabled }`,
 			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
 			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
-			`beyondwords_player_content\r\n${ beyondwordsPlayerContent }`,
-			`beyondwords_player_style\r\n${ beyondwordsPlayerStyle }`,
-			`beyondwords_title_voice_id\r\n${ beyondwordsTitleVoiceId }`,
-			`beyondwords_summary_voice_id\r\n${ beyondwordsSummaryVoiceId }`,
 			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
 			`publish_post_to_speechkit\r\n${ publishPostToSpeechkit }`,
 			`speechkit_generate_audio\r\n${ speechkitGenerateAudio }`,
@@ -323,20 +311,12 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_content_id,
 			beyondwordsPreviewToken:
 				getEditedPostAttribute( 'meta' ).beyondwords_preview_token,
-			beyondwordsPlayerContent:
-				getEditedPostAttribute( 'meta' ).beyondwords_player_content,
-			beyondwordsPlayerStyle:
-				getEditedPostAttribute( 'meta' ).beyondwords_player_style,
 			beyondwordsLanguageCode:
 				getEditedPostAttribute( 'meta' ).beyondwords_language_code,
 			beyondwordsLanguageId:
 				getEditedPostAttribute( 'meta' ).beyondwords_language_id,
 			beyondwordsBodyVoiceId:
 				getEditedPostAttribute( 'meta' ).beyondwords_body_voice_id,
-			beyondwordsTitleVoiceId:
-				getEditedPostAttribute( 'meta' ).beyondwords_title_voice_id,
-			beyondwordsSummaryVoiceId:
-				getEditedPostAttribute( 'meta' ).beyondwords_summary_voice_id,
 			beyondwordsProjectId:
 				getEditedPostAttribute( 'meta' ).beyondwords_project_id,
 			beyondwordsErrorMessage:
