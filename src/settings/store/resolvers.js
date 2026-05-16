@@ -1,44 +1,56 @@
-import actions from './actions';
+/**
+ * WordPress dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
 
 const resolvers = {
-	*getSettings() {
-		const path = '/beyondwords/v1/settings';
-		const settings = yield actions.fetchFromAPI( path );
-		return actions.setSettings( settings );
+	async getSettings() {
+		const settings = await apiFetch( {
+			path: '/beyondwords/v1/settings',
+		} );
+		return { type: 'SET_SETTINGS', value: settings };
 	},
-	*getPlayerStyles( projectId ) {
+	async getPlayerStyles( projectId ) {
 		if ( ! projectId ) {
-			return [];
+			return { type: 'SET_PLAYER_STYLES', value: [] };
 		}
-		const path = `/beyondwords/v1/projects/${ projectId }/player-styles`;
-		const playerStyles = yield actions.fetchFromAPI( path );
-		return actions.setPlayerStyles( playerStyles );
+		const playerStyles = await apiFetch( {
+			path: `/beyondwords/v1/projects/${ projectId }/player-styles`,
+		} );
+		return { type: 'SET_PLAYER_STYLES', value: playerStyles };
 	},
-	*getLanguages() {
-		const path = '/beyondwords/v1/languages';
-		const languages = yield actions.fetchFromAPI( path );
-		return actions.setLanguages( languages );
+	async getLanguages() {
+		const languages = await apiFetch( {
+			path: '/beyondwords/v1/languages',
+		} );
+		return { type: 'SET_LANGUAGES', value: languages };
 	},
-	*getVoices( languageCode ) {
-		const path = `/beyondwords/v1/languages/${ languageCode }/voices`;
-		const voices = yield actions.fetchFromAPI( path );
-		return actions.setVoices( voices );
+	async getVoices( languageCode ) {
+		const voices = await apiFetch( {
+			path: `/beyondwords/v1/languages/${ languageCode }/voices`,
+		} );
+		return { type: 'SET_VOICES', value: voices };
 	},
-	*getScriptTemplates( projectId ) {
+	async getScriptTemplates( projectId ) {
 		if ( ! projectId ) {
-			return actions.setScriptTemplates( [] );
+			return { type: 'SET_SCRIPT_TEMPLATES', value: [] };
 		}
-		const path = `/beyondwords/v1/projects/${ projectId }/summarization-settings`;
-		const response = yield actions.fetchFromAPI( path );
-		return actions.setScriptTemplates( response?.template ?? [] );
+		const response = await apiFetch( {
+			path: `/beyondwords/v1/projects/${ projectId }/summarization-settings`,
+		} );
+		return {
+			type: 'SET_SCRIPT_TEMPLATES',
+			value: response?.template ?? [],
+		};
 	},
-	*getVideoSizes( projectId ) {
+	async getVideoSizes( projectId ) {
 		if ( ! projectId ) {
-			return actions.setVideoSizes( [] );
+			return { type: 'SET_VIDEO_SIZES', value: [] };
 		}
-		const path = `/beyondwords/v1/projects/${ projectId }/video-settings`;
-		const response = yield actions.fetchFromAPI( path );
-		return actions.setVideoSizes( response?.sizes ?? [] );
+		const response = await apiFetch( {
+			path: `/beyondwords/v1/projects/${ projectId }/video-settings`,
+		} );
+		return { type: 'SET_VIDEO_SIZES', value: response?.sizes ?? [] };
 	},
 };
 

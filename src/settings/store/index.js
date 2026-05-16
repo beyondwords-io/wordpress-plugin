@@ -6,8 +6,6 @@ import { createReduxStore } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import actions from './actions';
-import controls from './controls';
 import reducer from './reducer';
 import resolvers from './resolvers';
 import selectors from './selectors';
@@ -22,12 +20,8 @@ export const DEFAULT_STATE = {
 	videoSizes: [],
 };
 
-const store = {
+export default createReduxStore( 'beyondwords/settings', {
 	reducer,
-	actions,
 	selectors,
-	controls,
 	resolvers,
-};
-
-export default createReduxStore( 'beyondwords/settings', store );
+} );
