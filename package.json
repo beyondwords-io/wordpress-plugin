@@ -28,7 +28,7 @@
     "@wordpress/i18n": "^6.17.0",
     "@wordpress/notices": "^5.44.0",
     "@wordpress/plugins": "^7.44.0",
-    "@wordpress/scripts": "^32.0.0",
+    "@wordpress/scripts": "^32.2.0",
     "cypress": "^15.14.0",
     "cypress-fail-fast": "^8.1.0",
     "cypress-map": "^1.56.0",
