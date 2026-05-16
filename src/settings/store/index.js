@@ -18,6 +18,8 @@ export const DEFAULT_STATE = {
 	languages: [],
 	settings: {},
 	voices: [],
+	scriptTemplates: [],
+	videoSizes: [],
 };
 
 const store = {

@@ -35,6 +35,18 @@ const actions = {
 			value,
 		};
 	},
+	setScriptTemplates( value ) {
+		return {
+			type: 'SET_SCRIPT_TEMPLATES',
+			value,
+		};
+	},
+	setVideoSizes( value ) {
+		return {
+			type: 'SET_VIDEO_SIZES',
+			value,
+		};
+	},
 };
 
 export default actions;

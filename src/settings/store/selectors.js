@@ -14,6 +14,12 @@ const selectors = {
 	getVoices( state ) {
 		return state.voices;
 	},
+	getScriptTemplates( state ) {
+		return state.scriptTemplates;
+	},
+	getVideoSizes( state ) {
+		return state.videoSizes;
+	},
 };
 
 export default selectors;

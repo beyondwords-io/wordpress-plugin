@@ -30,6 +30,16 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 				...state,
 				voices: action.value || [],
 			};
+		case 'SET_SCRIPT_TEMPLATES':
+			return {
+				...state,
+				scriptTemplates: action.value || [],
+			};
+		case 'SET_VIDEO_SIZES':
+			return {
+				...state,
+				videoSizes: action.value || [],
+			};
 	}
 
 	return state;

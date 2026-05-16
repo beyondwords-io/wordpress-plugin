@@ -24,6 +24,22 @@ const resolvers = {
 		const voices = yield actions.fetchFromAPI( path );
 		return actions.setVoices( voices );
 	},
+	*getScriptTemplates( projectId ) {
+		if ( ! projectId ) {
+			return actions.setScriptTemplates( [] );
+		}
+		const path = `/beyondwords/v1/projects/${ projectId }/summarization-settings`;
+		const response = yield actions.fetchFromAPI( path );
+		return actions.setScriptTemplates( response?.template ?? [] );
+	},
+	*getVideoSizes( projectId ) {
+		if ( ! projectId ) {
+			return actions.setVideoSizes( [] );
+		}
+		const path = `/beyondwords/v1/projects/${ projectId }/video-settings`;
+		const response = yield actions.fetchFromAPI( path );
+		return actions.setVideoSizes( response?.sizes ?? [] );
+	},
 };
 
 export default resolvers;
