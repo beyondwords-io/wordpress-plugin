@@ -437,6 +437,30 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     * @group settings
+     */
+    public function get_summarization_settings()
+    {
+        $response = Client::get_summarization_settings();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = Client::get_summarization_settings();
+
+        $this->assertArrayHasKey('enabled', $response);
+        $this->assertArrayHasKey('prompt', $response);
+        $this->assertArrayHasKey('model', $response);
+        $this->assertArrayHasKey('template', $response);
+        $this->assertIsArray($response['template']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
      *
      * 401 when the option-supplied API key is invalid (covers both the
      * "missing" and "wrong" cases — the BeyondWords API treats them the same).

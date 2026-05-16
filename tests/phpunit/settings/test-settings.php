@@ -370,6 +370,81 @@ class SettingsTest extends TestCase
 
     /**
      * @test
+     * @group settings
+     */
+    public function rest_summarization_settings_route()
+    {
+        global $wp_rest_server;
+        $server = $wp_rest_server = new \WP_REST_Server;
+        do_action('rest_api_init');
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        Settings::register_rest_routes();
+
+        $path = sprintf('/beyondwords/v1/projects/%d/summarization-settings', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Unauthenticated request is rejected by the permission callback.
+        wp_set_current_user(0);
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $this->assertSame(401, $response->get_status());
+
+        // Editor sees the proxied summarization_settings payload.
+        $userId = self::factory()->user->create(['role' => 'editor']);
+        wp_set_current_user($userId);
+
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $data     = $response->get_data();
+
+        $this->assertSame(200, $response->get_status());
+        $this->assertArrayHasKey('enabled', $data);
+        $this->assertArrayHasKey('template', $data);
+        $this->assertIsArray($data['template']);
+
+        delete_option('beyondwords_api_key');
+        wp_delete_user($userId);
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function rest_video_settings_route()
+    {
+        global $wp_rest_server;
+        $server = $wp_rest_server = new \WP_REST_Server;
+        do_action('rest_api_init');
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        Settings::register_rest_routes();
+
+        $path = sprintf('/beyondwords/v1/projects/%d/video-settings', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Unauthenticated request is rejected by the permission callback.
+        wp_set_current_user(0);
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $this->assertSame(401, $response->get_status());
+
+        // Editor sees the proxied video_settings payload, including the
+        // `sizes` array the editor uses for the "Video size" dropdown.
+        $userId = self::factory()->user->create(['role' => 'editor']);
+        wp_set_current_user($userId);
+
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $data     = $response->get_data();
+
+        $this->assertSame(200, $response->get_status());
+        $this->assertArrayHasKey('enabled', $data);
+        $this->assertArrayHasKey('sizes', $data);
+        $this->assertIsArray($data['sizes']);
+
+        delete_option('beyondwords_api_key');
+        wp_delete_user($userId);
+    }
+
+    /**
+     * @test
      */
     public function maybe_print_plugin_review_notice_with_no_options()
     {

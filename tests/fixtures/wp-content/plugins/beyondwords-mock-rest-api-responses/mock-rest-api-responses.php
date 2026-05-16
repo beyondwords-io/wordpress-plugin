@@ -162,6 +162,7 @@ function beyondwords_endpoint_exists( $endpoint, $method ) {
 		'GET:projects/:projectId/player_settings',
 		'PUT:projects/:projectId/player_settings',
 		'GET:projects/:projectId/video_settings',
+		'GET:projects/:projectId/summarization_settings',
 		'GET:organization/languages',
 		'GET:organization/voices',
 		'PUT:organization/voices/:voiceId',
@@ -216,6 +217,9 @@ function beyondwords_get_mock_response( $endpoint, $method, $parsed_args ) {
 
 		case 'GET:projects/:projectId/video_settings':
 			return beyondwords_mock_get_video_settings( $params );
+
+		case 'GET:projects/:projectId/summarization_settings':
+			return beyondwords_mock_get_summarization_settings( $params );
 
 		case 'GET:organization/languages':
 			return beyondwords_mock_get_languages();
@@ -288,6 +292,13 @@ function beyondwords_parse_endpoint_params( $endpoint ) {
 	// Match projects/:projectId/video_settings.
 	if ( preg_match( '#^projects/([^/]+)/video_settings$#', $endpoint, $matches ) ) {
 		$params['route']     = 'projects/:projectId/video_settings';
+		$params['projectId'] = $matches[1];
+		return $params;
+	}
+
+	// Match projects/:projectId/summarization_settings.
+	if ( preg_match( '#^projects/([^/]+)/summarization_settings$#', $endpoint, $matches ) ) {
+		$params['route']     = 'projects/:projectId/summarization_settings';
 		$params['projectId'] = $matches[1];
 		return $params;
 	}
@@ -813,6 +824,67 @@ function beyondwords_mock_get_video_settings( $params ) {
 			'content_image_enabled'    => true,
 			'image_extraction_enabled' => true,
 			'pan_and_zoom_enabled'     => true,
+			'sizes'                    => array(
+				array(
+					'name'        => 'landscape',
+					'description' => '16:9',
+					'width'       => 1920,
+					'height'      => 1080,
+					'enabled'     => true,
+				),
+				array(
+					'name'        => 'square',
+					'description' => '1:1',
+					'width'       => 1080,
+					'height'      => 1080,
+					'enabled'     => true,
+				),
+				array(
+					'name'        => 'portrait',
+					'description' => '9:16',
+					'width'       => 1080,
+					'height'      => 1920,
+					'enabled'     => true,
+				),
+			),
+		)
+	);
+}
+
+/**
+ * Mock: GET projects/:projectId/summarization_settings
+ *
+ * The `template` array is what the editor's "Script template" dropdown is
+ * populated from.
+ */
+function beyondwords_mock_get_summarization_settings( $params ) {
+	return beyondwords_mock_response(
+		array(
+			'enabled'           => true,
+			'prompt'            => 'Summarize the following article.',
+			'model'             => 'gpt-4o-mini',
+			'temperature'       => 0.5,
+			'limit_token_usage' => 1000,
+			'template'          => array(
+				array(
+					'id'                => 1,
+					'slug'              => 'default',
+					'name'              => 'Default',
+					'model'             => 'gpt-4o-mini',
+					'prompt'            => 'Summarize the following article.',
+					'temperature'       => 0.5,
+					'limit_token_usage' => 1000,
+				),
+				array(
+					'id'                => 2,
+					'slug'              => 'headline-first-paragraph',
+					'name'              => 'Headline + first paragraph',
+					'model'             => 'gpt-4o-mini',
+					'prompt'            => 'Return the headline followed by the first paragraph.',
+					'temperature'       => 0.2,
+					'limit_token_usage' => 500,
+				),
+			),
 		)
 	);
 }

@@ -457,6 +457,31 @@ class Client {
 	}
 
 	/**
+	 * GET /projects/:id/summarization_settings
+	 *
+	 * Response includes a `template` array that the editor's "Script template"
+	 * dropdown is populated from.
+	 *
+	 * @param int|null $project_id Optional override; falls back to the global option.
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	public static function get_summarization_settings( ?int $project_id = null ): array|null|false {
+		if ( ! $project_id ) {
+			$project_id = get_option( 'beyondwords_project_id' );
+
+			if ( ! $project_id ) {
+				return false;
+			}
+		}
+
+		$url      = sprintf( '%s/projects/%d/summarization_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
+		$response = self::call_api( 'GET', $url );
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
 	 * Make the API call, normalising errors into post meta when a post is
 	 * supplied.
 	 *

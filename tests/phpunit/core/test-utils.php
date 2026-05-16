@@ -74,6 +74,13 @@ class UtilsTest extends TestCase
             'beyondwords_error_message',
             'beyondwords_disabled',
             'beyondwords_delete_content',
+            'beyondwords_source',
+            'beyondwords_output',
+            'beyondwords_script_template_id',
+            'beyondwords_video_template_id',
+            'beyondwords_video_size',
+            'beyondwords_voice_model_id',
+            'beyondwords_embed',
         ];
 
         $this->assertEquals($keys, Utils::get_post_meta_keys());
@@ -140,6 +147,13 @@ class UtilsTest extends TestCase
             'beyondwords_error_message',
             'beyondwords_disabled',
             'beyondwords_delete_content',
+            'beyondwords_source',
+            'beyondwords_output',
+            'beyondwords_script_template_id',
+            'beyondwords_video_template_id',
+            'beyondwords_video_size',
+            'beyondwords_voice_model_id',
+            'beyondwords_embed',
             // Deprecated
             'beyondwords_podcast_id',
             'beyondwords_hash',
