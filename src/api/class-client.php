@@ -40,6 +40,13 @@ class Client {
 	const ERROR_FORMAT = '#%s: %s';
 
 	/**
+	 * How long to cache editor dropdown data (languages, voices, templates,
+	 * project settings). These change rarely, so a short TTL keeps the editor
+	 * render off the network on the hot path while self-healing quickly.
+	 */
+	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -287,10 +294,9 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_languages(): array|null|false {
-		$url      = sprintf( '%s/organization/languages', \BeyondWords\Core\Urls::get_api_url() );
-		$response = self::call_api( 'GET', $url );
+		$url = sprintf( '%s/organization/languages', \BeyondWords\Core\Urls::get_api_url() );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'languages', $url );
 	}
 
 	/**
@@ -307,9 +313,7 @@ class Client {
 			rawurlencode( strval( $language_code ) )
 		);
 
-		$response = self::call_api( 'GET', $url );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'voices_' . $language_code, $url );
 	}
 
 	/**
@@ -450,10 +454,9 @@ class Client {
 			}
 		}
 
-		$url      = sprintf( '%s/projects/%d/video_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
-		$response = self::call_api( 'GET', $url );
+		$url = sprintf( '%s/projects/%d/video_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'video_settings_' . (int) $project_id, $url );
 	}
 
 	/**
@@ -477,10 +480,9 @@ class Client {
 			}
 		}
 
-		$url      = sprintf( '%s/projects/%d/summarization_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
-		$response = self::call_api( 'GET', $url );
+		$url = sprintf( '%s/projects/%d/summarization_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'summarization_settings_' . (int) $project_id, $url );
 	}
 
 	/**
@@ -496,10 +498,9 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_summarization_settings_templates(): array|null|false {
-		$url      = sprintf( '%s/summarization_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
-		$response = self::call_api( 'GET', $url );
+		$url = sprintf( '%s/summarization_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'summarization_settings_templates', $url );
 	}
 
 	/**
@@ -513,10 +514,9 @@ class Client {
 	 * @return array<mixed>|null|false
 	 */
 	public static function get_video_settings_templates(): array|null|false {
-		$url      = sprintf( '%s/video_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
-		$response = self::call_api( 'GET', $url );
+		$url = sprintf( '%s/video_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::cached_get( 'video_settings_templates', $url );
 	}
 
 	/**
@@ -587,6 +587,62 @@ class Client {
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'timeout'  => 30,
 		];
+	}
+
+	/**
+	 * Build a transient key for a cached GET.
+	 *
+	 * Salted with the project ID + API key so changing either invalidates the
+	 * cache implicitly — no explicit flush needed, which matters on object-cache
+	 * hosts (e.g. VIP) where `_transient_*` rows can't be enumerated.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $suffix Endpoint-specific key suffix.
+	 */
+	private static function cache_key( string $suffix ): string {
+		$salt = substr(
+			md5( (string) get_option( 'beyondwords_project_id', '' ) . '|' . (string) get_option( 'beyondwords_api_key', '' ) ),
+			0,
+			12
+		);
+
+		return 'beyondwords_api_' . $suffix . '_' . $salt;
+	}
+
+	/**
+	 * GET an endpoint, caching successful list/object responses.
+	 *
+	 * Only 2xx array responses are cached, so a transient API error retries on
+	 * the next call rather than caching an empty/error payload for the full TTL.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $suffix Cache-key suffix (include any project/language id).
+	 * @param string $url    Absolute endpoint URL.
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	private static function cached_get( string $suffix, string $url ): array|null|false {
+		$key    = self::cache_key( $suffix );
+		$cached = get_transient( $key );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$response = self::call_api( 'GET', $url );
+		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if (
+			! is_wp_error( $response )
+			&& wp_remote_retrieve_response_code( $response ) < 300
+			&& is_array( $decoded )
+		) {
+			set_transient( $key, $decoded, self::CACHE_TTL );
+		}
+
+		return $decoded;
 	}
 
 	/**
