@@ -22,10 +22,12 @@ export default class PrepublishPanel extends Component {
 				initialOpen={ true }
 				className="beyondwords-sidebar"
 			>
-				<GenerateAudio wrapper={ PanelRow } />
-				<VoiceSection />
-				<PlayerSection />
 				<ErrorNotice wrapper={ PanelRow } />
+				<GenerateAudio wrapper={ PanelRow } />
+				<hr />
+				<VoiceSection withPanel={ false } />
+				<hr />
+				<PlayerSection withPanel={ false } />
 			</PluginPrePublishPanel>
 		);
 	}

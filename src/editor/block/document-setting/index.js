@@ -29,8 +29,10 @@ export default class DocumentSettingPanel extends Component {
 				<PlayAudio wrapper={ PanelRow } />
 				<GenerateAudio wrapper={ PanelRow } />
 				<hr />
-				<VoiceSection />
-				<PlayerSection />
+				<VoiceSection withPanel={ false } />
+				<hr />
+				<PlayerSection withPanel={ false } />
+				<hr />
 				<OpenSidebar wrapper={ PanelRow } />
 			</PluginDocumentSettingPanel>
 		);

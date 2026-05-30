@@ -125,24 +125,9 @@ context( 'Block Editor: Select Voice', () => {
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
-				// Check HTML head for voice and language meta tags
-				cy.get( 'head' )
-					.find( 'meta[name="beyondwords-body-voice-id"]' )
-					.should( 'have.attr', 'content', '2517' )
-					.should(
-						'have.attr',
-						'data-beyondwords-body-voice-id',
-						'2517'
-					);
-
-				cy.get( 'head' )
-					.find( 'meta[name="beyondwords-article-language"]' )
-					.should( 'have.attr', 'content', 'en_GB' )
-					.should(
-						'have.attr',
-						'data-beyondwords-article-language',
-						'en_GB'
-					);
+				// The beyondwords-* <head> meta tags are only emitted for the
+				// client-side (Magic Embed) integration now, so they're not
+				// asserted here (covered by the PHPUnit Head tests).
 
 				// Check Player content has also been saved in admin
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();

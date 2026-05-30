@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -19,7 +19,7 @@ import {
 	SOURCE_POST,
 } from './helpers';
 
-export function PlayerSection() {
+export function PlayerSection( { withPanel = true } ) {
 	const postType = useSelect(
 		( select ) => select( 'core/editor' ).getCurrentPostType(),
 		[]
@@ -43,33 +43,45 @@ export function PlayerSection() {
 		setMeta( { ...meta, beyondwords_embed: value } );
 	};
 
-	// Persist a concrete value (so the choice is explicit in the payload), and
-	// when Source × Output narrows the option list past the current embed, fall
-	// back to None.
+	// When Source × Output narrows the option list and the *stored* embed is no
+	// longer offered, fall back to None.
+	//
+	// We never write meta on mount: an unset value already means "show the first
+	// asset" (Player::is_enabled() treats it that way), and a mount-time write
+	// races the other panels' preselect writes — e.g. it would clobber the
+	// Generate audio preselect back to off.
 	useEffect( () => {
-		if ( ! isEmbedValid( embed, source, output ) ) {
+		if ( stored && ! isEmbedValid( stored, source, output ) ) {
 			setEmbed( EMBED_NONE );
-		} else if ( ! stored ) {
-			setEmbed( embed );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ source, output ] );
 
+	const field = (
+		<SelectControl
+			className="beyondwords--embed"
+			label={ __( 'Embed', 'speechkit' ) }
+			help={ __(
+				'Pick which generated asset is shown on this post. All other generated assets stay available in BeyondWords.',
+				'speechkit'
+			) }
+			options={ embedOptions }
+			value={ embed }
+			onChange={ setEmbed }
+			__nextHasNoMarginBottom
+			__next40pxDefaultSize
+		/>
+	);
+
+	// In the document/pre-publish panels we render the field directly inside the
+	// existing "BeyondWords" panel rather than nesting another panel.
+	if ( ! withPanel ) {
+		return <Fragment>{ field }</Fragment>;
+	}
+
 	return (
 		<PanelBody title={ __( 'Player', 'speechkit' ) } initialOpen={ true }>
-			<SelectControl
-				className="beyondwords--embed"
-				label={ __( 'Embed', 'speechkit' ) }
-				help={ __(
-					'Pick which generated asset is shown on this post. All other generated assets stay available in BeyondWords.',
-					'speechkit'
-				) }
-				options={ embedOptions }
-				value={ embed }
-				onChange={ setEmbed }
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
-			/>
+			{ field }
 		</PanelBody>
 	);
 }

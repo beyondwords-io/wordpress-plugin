@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
 /**
@@ -16,7 +17,7 @@ import {
 	voiceModelLabel,
 } from './helpers';
 
-export function VoiceSection() {
+export function VoiceSection( { withPanel = true } ) {
 	const postType = useSelect(
 		( select ) => select( 'core/editor' ).getCurrentPostType(),
 		[]
@@ -117,8 +118,8 @@ export function VoiceSection() {
 		value: String( variant.id ),
 	} ) );
 
-	return (
-		<PanelBody title={ __( 'Voice', 'speechkit' ) } initialOpen={ true }>
+	const fields = (
+		<Fragment>
 			{ hasLanguages && (
 				<SelectControl
 					className="beyondwords--language"
@@ -152,6 +153,18 @@ export function VoiceSection() {
 					__next40pxDefaultSize
 				/>
 			) }
+		</Fragment>
+	);
+
+	// In the document/pre-publish panels we render the fields directly inside
+	// the existing "BeyondWords" panel rather than nesting another panel.
+	if ( ! withPanel ) {
+		return fields;
+	}
+
+	return (
+		<PanelBody title={ __( 'Voice', 'speechkit' ) } initialOpen={ true }>
+			{ fields }
 		</PanelBody>
 	);
 }
