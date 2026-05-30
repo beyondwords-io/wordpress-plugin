@@ -33,7 +33,9 @@ context( 'Block Editor: Select Voice', () => {
 						const values = [ ...$els ].map( ( el ) =>
 							el.innerText.trim()
 						);
-						expect( values ).to.have.length( 148 );
+						// 148 languages + the "Project default" option.
+						expect( values ).to.have.length( 149 );
+						expect( values[ 0 ] ).to.eq( 'Project default' );
 						expect( values ).to.include( 'English (American)' );
 						expect( values ).to.include( 'English (British)' );
 						expect( values ).to.include( 'Welsh (Welsh)' );
@@ -52,9 +54,12 @@ context( 'Block Editor: Select Voice', () => {
 							el.innerText.trim()
 						);
 						expect( values ).to.deep.eq( [
+							'Project default',
 							'Ada (Multilingual)',
 							'Ava (Multilingual)',
 							'Ollie (Multilingual)',
+							'Bridget',
+							'Caleb',
 						] );
 					} );
 
@@ -81,9 +86,12 @@ context( 'Block Editor: Select Voice', () => {
 							el.innerText.trim()
 						);
 						expect( values ).to.deep.eq( [
+							'Project default',
 							'Ada (Multilingual)',
 							'Ava (Multilingual)',
 							'Ollie (Multilingual)',
+							'Bridget',
+							'Caleb',
 						] );
 					} );
 

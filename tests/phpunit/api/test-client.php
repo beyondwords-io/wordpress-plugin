@@ -461,6 +461,42 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     * @group settings
+     */
+    public function get_summarization_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_summarization_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function get_video_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_video_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
      *
      * 401 when the option-supplied API key is invalid (covers both the
      * "missing" and "wrong" cases — the BeyondWords API treats them the same).

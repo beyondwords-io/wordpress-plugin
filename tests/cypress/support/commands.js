@@ -55,16 +55,34 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 } );
 
 Cypress.Commands.add( 'login', () => {
-	const baseUrl = Cypress.config().baseUrl;
-
 	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
 		( { wpUsername, wpPassword } ) => {
-			cy.visit( '/wp-login.php' ).wait( 250 );
+			// Visiting from a dirty editor (a prior test that opened the
+			// pre-publish panel) can otherwise trip the unsaved-changes
+			// prompt; auto-confirm so navigation isn't blocked.
+			cy.window().then( ( win ) => {
+				win.onbeforeunload = null;
+			} );
 
-			cy.get( '#user_login' ).clear().type( wpUsername ).wait( 250 );
-			cy.get( '#user_pass' ).clear().type( `${ wpPassword }{enter}` );
+			cy.visit( '/wp-login.php', { onBeforeLoad: ( win ) => {
+				win.onbeforeunload = null;
+			} } ).wait( 250 );
 
-			cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+			// If we're already authenticated WordPress redirects away from the
+			// login form — only fill it in when the form is actually present.
+			cy.get( 'body' ).then( ( $body ) => {
+				if ( $body.find( '#user_login' ).length ) {
+					cy.get( '#user_login' )
+						.clear()
+						.type( wpUsername )
+						.wait( 250 );
+					cy.get( '#user_pass' )
+						.clear()
+						.type( `${ wpPassword }{enter}` );
+				}
+			} );
+
+			cy.location( 'pathname' ).should( 'eq', '/wp-admin/' );
 		}
 	);
 } );

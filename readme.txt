@@ -5,7 +5,7 @@ Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 7.0.0-dev-2.0
 Requires PHP: 8.0
-Tested up to: 6.9
+Tested up to: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -82,6 +82,7 @@ Release date: tbc
 
 **Compatibility**
 
+* Tested up to WordPress 7.0.
 * PHP 8.5 support.
     * Run unit and e2e tests against PHP 8.0 and PHP 8.5 in GitHub Actions.
     * Bumped `phpVersion` in wp-env to 8.5.

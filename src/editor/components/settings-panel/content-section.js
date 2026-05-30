@@ -10,7 +10,12 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { getSourceOptions, sourceIncludesScript, SOURCE_POST } from './helpers';
+import {
+	getSourceOptions,
+	sourceIncludesScript,
+	SOURCE_POST,
+	projectDefaultOption,
+} from './helpers';
 
 export function ContentSection() {
 	const postType = useSelect(
@@ -18,18 +23,9 @@ export function ContentSection() {
 		[]
 	);
 
-	const projectId = useSelect(
-		( select ) =>
-			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
-				?.beyondwords_project_id ||
-			select( 'beyondwords/settings' ).getSettings()?.projectId,
-		[]
-	);
-
 	const scriptTemplates = useSelect(
-		( select ) =>
-			select( 'beyondwords/settings' ).getScriptTemplates( projectId ),
-		[ projectId ]
+		( select ) => select( 'beyondwords/settings' ).getScriptTemplates(),
+		[]
 	);
 
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
@@ -45,12 +41,15 @@ export function ContentSection() {
 		setMeta( { ...meta, beyondwords_script_template_id: value } );
 	};
 
-	const scriptTemplateOptions = ( scriptTemplates ?? [] ).map(
-		( template ) => ( {
+	const hasScriptTemplates = ( scriptTemplates ?? [] ).length > 0;
+
+	const scriptTemplateOptions = [
+		projectDefaultOption(),
+		...( scriptTemplates ?? [] ).map( ( template ) => ( {
 			label: decodeEntities( template.name ?? template.slug ?? '' ),
 			value: String( template.id ),
-		} )
-	);
+		} ) ),
+	];
 
 	return (
 		<PanelBody title={ __( 'Content', 'speechkit' ) } initialOpen={ true }>
@@ -63,18 +62,17 @@ export function ContentSection() {
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize
 			/>
-			{ sourceIncludesScript( source ) &&
-				scriptTemplateOptions.length > 0 && (
-					<SelectControl
-						className="beyondwords--script-template"
-						label={ __( 'Script template', 'speechkit' ) }
-						options={ scriptTemplateOptions }
-						value={ scriptTemplateId }
-						onChange={ setScriptTemplateId }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-				) }
+			{ sourceIncludesScript( source ) && hasScriptTemplates && (
+				<SelectControl
+					className="beyondwords--script-template"
+					label={ __( 'Script template', 'speechkit' ) }
+					options={ scriptTemplateOptions }
+					value={ scriptTemplateId }
+					onChange={ setScriptTemplateId }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			) }
 		</PanelBody>
 	);
 }

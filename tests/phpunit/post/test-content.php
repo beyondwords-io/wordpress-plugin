@@ -100,7 +100,12 @@ class ContentTest extends TestCase
             'post_content' => $content,
         ]);
 
-        $this->assertSame($expect, Content::get_content_without_excluded_blocks($post));
+        // Newer Gutenberg adds class="wp-block-paragraph" to rendered
+        // paragraphs; strip it so the assertion tracks block-exclusion logic,
+        // not core markup churn.
+        $actual = str_replace(' class="wp-block-paragraph"', '', Content::get_content_without_excluded_blocks($post));
+
+        $this->assertSame($expect, $actual);
 
         wp_delete_post($post->ID, true);
     }
@@ -468,6 +473,36 @@ class ContentTest extends TestCase
         $body = json_decode(Content::get_content_params($postId), true);
 
         $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_sends_video_template_when_set()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoTemplate',
+            'meta_input' => [
+                'beyondwords_output'             => 'video',
+                'beyondwords_video_template_id'  => '2',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertSame(2, $body['video_settings']['template']['id']);
+
+        // Empty template id (project default) omits the template key.
+        update_post_meta($postId, 'beyondwords_video_template_id', '');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertArrayNotHasKey('template', $body['video_settings']);
 
         wp_delete_post($postId, true);
     }

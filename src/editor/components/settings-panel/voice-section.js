@@ -10,7 +10,11 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { MODEL_OPTIONS } from './helpers';
+import {
+	projectDefaultOption,
+	getVoiceModelVariants,
+	voiceModelLabel,
+} from './helpers';
 
 export function VoiceSection() {
 	const postType = useSelect(
@@ -33,8 +37,6 @@ export function VoiceSection() {
 	const languageCode =
 		meta.beyondwords_language_code || settings.projectLanguageCode || '';
 	const voiceId = meta.beyondwords_body_voice_id || '';
-	const voiceModelId =
-		meta.beyondwords_voice_model_id || MODEL_OPTIONS[ 0 ].value;
 
 	const voices = useSelect(
 		( select ) =>
@@ -52,25 +54,72 @@ export function VoiceSection() {
 		setMeta( { ...meta, beyondwords_body_voice_id: value } );
 	};
 
-	const setVoiceModelId = ( value ) => {
-		setMeta( { ...meta, beyondwords_voice_model_id: value } );
+	const hasLanguages = ( languages ?? [] ).length > 0;
+	const hasVoices = ( voices ?? [] ).length > 0;
+
+	const languageOptions = [
+		projectDefaultOption(),
+		...( languages ?? [] ).map( ( language ) => ( {
+			label: `${ decodeEntities( language.name ) } (${ decodeEntities(
+				language.accent
+			) })`,
+			value: decodeEntities( language.code ),
+		} ) ),
+	];
+
+	// Voice dropdown lists distinct voice names. ElevenLabs voices repeat a name
+	// once per model, so deduping by name keeps the list clean; the Model
+	// dropdown then selects the actual variant (voice id) within a name.
+	const voicesByName = {};
+	const voiceNames = [];
+	( voices ?? [] ).forEach( ( voice ) => {
+		if ( ! voicesByName[ voice.name ] ) {
+			voicesByName[ voice.name ] = [];
+			voiceNames.push( voice.name );
+		}
+		voicesByName[ voice.name ].push( voice );
+	} );
+
+	const selectedVoice = ( voices ?? [] ).find(
+		( voice ) => String( voice.id ) === String( voiceId )
+	);
+	const selectedVoiceName = selectedVoice?.name || '';
+
+	const voiceOptions = [
+		projectDefaultOption(),
+		...voiceNames.map( ( name ) => ( {
+			label: decodeEntities( name ),
+			value: name,
+		} ) ),
+	];
+
+	// Picking a name selects that name's default model variant.
+	const setVoiceName = ( name ) => {
+		if ( ! name ) {
+			setVoiceId( '' );
+			return;
+		}
+		const variants = getVoiceModelVariants(
+			voicesByName[ name ][ 0 ],
+			voices
+		);
+		const defaultVariant = variants[ 0 ] ?? voicesByName[ name ][ 0 ];
+		setVoiceId( String( defaultVariant.id ) );
 	};
 
-	const languageOptions = ( languages ?? [] ).map( ( language ) => ( {
-		label: `${ decodeEntities( language.name ) } (${ decodeEntities(
-			language.accent
-		) })`,
-		value: decodeEntities( language.code ),
-	} ) );
+	const modelVariants = selectedVoice
+		? getVoiceModelVariants( selectedVoice, voices )
+		: [];
+	const showModel = modelVariants.length > 1;
 
-	const voiceOptions = ( voices ?? [] ).map( ( voice ) => ( {
-		label: decodeEntities( voice.name ),
-		value: String( voice.id ),
+	const modelOptions = modelVariants.map( ( variant ) => ( {
+		label: voiceModelLabel( variant.model_id ),
+		value: String( variant.id ),
 	} ) );
 
 	return (
 		<PanelBody title={ __( 'Voice', 'speechkit' ) } initialOpen={ true }>
-			{ languageOptions.length > 0 && (
+			{ hasLanguages && (
 				<SelectControl
 					className="beyondwords--language"
 					label={ __( 'Language', 'speechkit' ) }
@@ -81,26 +130,28 @@ export function VoiceSection() {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ voiceOptions.length > 0 && (
+			{ hasVoices && (
 				<SelectControl
 					className="beyondwords--voice"
 					label={ __( 'Voice', 'speechkit' ) }
 					options={ voiceOptions }
-					value={ voiceId }
+					value={ selectedVoiceName }
+					onChange={ setVoiceName }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			) }
+			{ showModel && (
+				<SelectControl
+					className="beyondwords--model"
+					label={ __( 'Model', 'speechkit' ) }
+					options={ modelOptions }
+					value={ String( voiceId ) }
 					onChange={ setVoiceId }
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
 			) }
-			<SelectControl
-				className="beyondwords--model"
-				label={ __( 'Model', 'speechkit' ) }
-				options={ MODEL_OPTIONS }
-				value={ voiceModelId }
-				onChange={ setVoiceModelId }
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
-			/>
 		</PanelBody>
 	);
 }

@@ -482,6 +482,42 @@ class Client {
 	}
 
 	/**
+	 * GET /summarization_settings_templates
+	 *
+	 * The list of script templates available to the organization. Editor
+	 * scripts use this to populate the "Script template" dropdown — distinct
+	 * from `get_summarization_settings()`, which returns a project's currently
+	 * configured template.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	public static function get_summarization_settings_templates(): array|null|false {
+		$url      = sprintf( '%s/summarization_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
+		$response = self::call_api( 'GET', $url );
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * GET /video_settings_templates
+	 *
+	 * The list of video templates available to the organization. Editor
+	 * scripts use this to populate the "Video template" dropdown.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	public static function get_video_settings_templates(): array|null|false {
+		$url      = sprintf( '%s/video_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
+		$response = self::call_api( 'GET', $url );
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
 	 * Make the API call, normalising errors into post meta when a post is
 	 * supplied.
 	 *

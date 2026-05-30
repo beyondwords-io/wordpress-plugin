@@ -62,6 +62,8 @@
     "phpcs:plugins": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
     "phpcbf": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcbf -d memory_limit=512M",
     "start": "wp-scripts start",
+    "test:unit": "wp-scripts test-unit-js",
+    "test:unit:watch": "wp-scripts test-unit-js --watch",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
     "env": "wp-env",
     "env:start": "wp-env start --xdebug=debug,coverage --update && wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update",

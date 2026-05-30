@@ -10,8 +10,8 @@ export const DEFAULT_STATE = {
 	settings: {},
 	languages: [],
 	voices: [],
-	playerStyles: [],
 	scriptTemplates: [],
+	videoTemplates: [],
 	videoSizes: [],
 };
 
@@ -47,23 +47,17 @@ const resolvers = {
 		} );
 		return set( 'voices', value );
 	},
-	async getPlayerStyles( projectId ) {
-		if ( ! projectId ) {
-			return set( 'playerStyles', [] );
-		}
+	async getScriptTemplates() {
 		const value = await apiFetch( {
-			path: `/beyondwords/v1/projects/${ projectId }/player-styles`,
+			path: '/beyondwords/v1/summarization-settings-templates',
 		} );
-		return set( 'playerStyles', value );
+		return set( 'scriptTemplates', value );
 	},
-	async getScriptTemplates( projectId ) {
-		if ( ! projectId ) {
-			return set( 'scriptTemplates', [] );
-		}
-		const r = await apiFetch( {
-			path: `/beyondwords/v1/projects/${ projectId }/summarization-settings`,
+	async getVideoTemplates() {
+		const value = await apiFetch( {
+			path: '/beyondwords/v1/video-settings-templates',
 		} );
-		return set( 'scriptTemplates', r?.template ?? [] );
+		return set( 'videoTemplates', value );
 	},
 	async getVideoSizes( projectId ) {
 		if ( ! projectId ) {

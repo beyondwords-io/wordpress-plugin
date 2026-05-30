@@ -504,7 +504,7 @@ jobs:
           wp --info
 
       - name: Download WordPress
-        run: wp core download --version=6.9
+        run: wp core download --version=7.0
 
       - name: Create `wp-config.php` file
         run: wp config create

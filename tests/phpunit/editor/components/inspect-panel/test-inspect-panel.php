@@ -71,7 +71,6 @@ class InspectTest extends TestCase
             'beyondwords_script_template_id'  => '42',
             'beyondwords_video_template_id'   => 'default',
             'beyondwords_video_size'          => 'landscape',
-            'beyondwords_voice_model_id'      => 'standard',
             'beyondwords_embed'               => 'audio_post',
             'speechkit_info'               => ["foo" => ["bar" => "baz"]],
             'speechkit_response'           => 'Value 7',

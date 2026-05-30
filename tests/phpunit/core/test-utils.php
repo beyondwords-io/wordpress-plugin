@@ -75,7 +75,6 @@ class UtilsTest extends TestCase
             'beyondwords_script_template_id',
             'beyondwords_video_template_id',
             'beyondwords_video_size',
-            'beyondwords_voice_model_id',
             'beyondwords_embed',
         ];
 
@@ -148,7 +147,6 @@ class UtilsTest extends TestCase
             'beyondwords_script_template_id',
             'beyondwords_video_template_id',
             'beyondwords_video_size',
-            'beyondwords_voice_model_id',
             'beyondwords_embed',
             // Deprecated
             'beyondwords_player_content',

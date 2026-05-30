@@ -50,8 +50,14 @@ context( 'Block Editor: Generate Audio', () => {
 
 			cy.openBeyondwordsEditorPanel();
 
-			// Uncheck in sidebar
-			cy.getLabel( 'Create' ).click();
+			// Preselect is applied via a useEffect, so the box starts unchecked
+			// for a tick before flipping on. Wait for it to settle, otherwise an
+			// uncheck races the effect and is undone.
+			cy.getBlockEditorCheckbox( 'Create' ).should( 'be.checked' );
+
+			// Toggle the input directly — clicking the CheckboxControl label
+			// double-fires the change event and lands back on checked.
+			cy.getBlockEditorCheckbox( 'Create' ).uncheck( { force: true } );
 			cy.getBlockEditorCheckbox( 'Create' ).should(
 				'not.be.checked'
 			);
@@ -90,9 +96,9 @@ context( 'Block Editor: Generate Audio', () => {
 					'.editor-post-publish-panel .beyondwords--generate-audio input[type="checkbox"]'
 				).should( 'be.checked' );
 
-				cy.get( '.editor-post-publish-panel' )
-					.contains( 'label', 'Create' )
-					.click();
+				cy.get(
+					'.editor-post-publish-panel .beyondwords--generate-audio input[type="checkbox"]'
+				).uncheck( { force: true } );
 
 				cy.get(
 					'.editor-post-publish-panel .beyondwords--generate-audio input[type="checkbox"]'

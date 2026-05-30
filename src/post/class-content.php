@@ -333,6 +333,16 @@ class Content {
 		if ( in_array( $output, [ 'video', 'audio_and_video' ], true ) ) {
 			$body['video_settings'] = [ 'enabled' => true ];
 
+			$video_template_id = intval(
+				get_post_meta( $post_id, 'beyondwords_video_template_id', true )
+			);
+
+			if ( $video_template_id > 0 ) {
+				$body['video_settings']['template'] = [
+					'id' => $video_template_id,
+				];
+			}
+
 			$video_size = get_post_meta( $post_id, 'beyondwords_video_size', true );
 
 			if ( $video_size ) {

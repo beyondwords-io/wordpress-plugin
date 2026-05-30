@@ -163,6 +163,8 @@ function beyondwords_endpoint_exists( $endpoint, $method ) {
 		'PUT:projects/:projectId/player_settings',
 		'GET:projects/:projectId/video_settings',
 		'GET:projects/:projectId/summarization_settings',
+		'GET:summarization_settings_templates',
+		'GET:video_settings_templates',
 		'GET:organization/languages',
 		'GET:organization/voices',
 		'PUT:organization/voices/:voiceId',
@@ -220,6 +222,12 @@ function beyondwords_get_mock_response( $endpoint, $method, $parsed_args ) {
 
 		case 'GET:projects/:projectId/summarization_settings':
 			return beyondwords_mock_get_summarization_settings( $params );
+
+		case 'GET:summarization_settings_templates':
+			return beyondwords_mock_get_summarization_settings_templates();
+
+		case 'GET:video_settings_templates':
+			return beyondwords_mock_get_video_settings_templates();
 
 		case 'GET:organization/languages':
 			return beyondwords_mock_get_languages();
@@ -890,6 +898,52 @@ function beyondwords_mock_get_summarization_settings( $params ) {
 }
 
 /**
+ * Mock: GET summarization_settings_templates
+ *
+ * The organization's available script templates. Populates the editor's
+ * "Script template" dropdown.
+ */
+function beyondwords_mock_get_summarization_settings_templates() {
+	return beyondwords_mock_response(
+		array(
+			array(
+				'id'   => 1,
+				'slug' => 'default',
+				'name' => 'Default',
+			),
+			array(
+				'id'   => 2,
+				'slug' => 'headline-first-paragraph',
+				'name' => 'Headline + first paragraph',
+			),
+		)
+	);
+}
+
+/**
+ * Mock: GET video_settings_templates
+ *
+ * The organization's available video templates. Populates the editor's
+ * "Video template" dropdown.
+ */
+function beyondwords_mock_get_video_settings_templates() {
+	return beyondwords_mock_response(
+		array(
+			array(
+				'id'   => 1,
+				'slug' => 'default',
+				'name' => 'Default',
+			),
+			array(
+				'id'   => 2,
+				'slug' => 'social',
+				'name' => 'Social',
+			),
+		)
+	);
+}
+
+/**
  * Mock: GET organization/languages
  *
  * Returns an array of 148 languages loaded from the languages.json fixture file.
@@ -1011,6 +1065,65 @@ function beyondwords_mock_get_voices() {
 				'created'             => '2023-03-01T08:31:11Z',
 				'updated'             => '2023-03-01T08:31:12Z',
 				'secondary_languages' => array( 'en_US', 'en_GB', 'cy_GB' ),
+			),
+			// ElevenLabs voice with three models — exercises the Model dropdown.
+			// Each (name, model_id) pair is a distinct voice id.
+			array(
+				'id'        => 9001,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_multilingual_v2',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			array(
+				'id'        => 9002,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_v3',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			array(
+				'id'        => 9003,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_flash_v2_5',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			// Single-model ElevenLabs voice — Model dropdown stays hidden.
+			array(
+				'id'        => 9010,
+				'name'      => 'Caleb',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_v3',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
 			),
 		)
 	);

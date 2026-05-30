@@ -31,7 +31,6 @@ export function PostInspectPanel( {
 	beyondwordsScriptTemplateId,
 	beyondwordsVideoTemplateId,
 	beyondwordsVideoSize,
-	beyondwordsVoiceModelId,
 	beyondwordsEmbed,
 	// Deprecated custom fields
 	beyondwordsPodcastId,
@@ -102,7 +101,6 @@ export function PostInspectPanel( {
 			beyondwords_script_template_id: beyondwordsScriptTemplateId,
 			beyondwords_video_template_id: beyondwordsVideoTemplateId,
 			beyondwords_video_size: beyondwordsVideoSize,
-			beyondwords_voice_model_id: beyondwordsVoiceModelId,
 			beyondwords_embed: beyondwordsEmbed,
 			// Deprecated
 			beyondwords_podcast_id: beyondwordsPodcastId,
@@ -161,7 +159,6 @@ export function PostInspectPanel( {
 			`beyondwords_script_template_id\r\n${ beyondwordsScriptTemplateId }`,
 			`beyondwords_video_template_id\r\n${ beyondwordsVideoTemplateId }`,
 			`beyondwords_video_size\r\n${ beyondwordsVideoSize }`,
-			`beyondwords_voice_model_id\r\n${ beyondwordsVoiceModelId }`,
 			`beyondwords_embed\r\n${ beyondwordsEmbed }`,
 			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
 			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
@@ -313,13 +310,6 @@ export function PostInspectPanel( {
 			/>
 
 			<TextControl
-				label="beyondwords_voice_model_id"
-				readOnly
-				value={ beyondwordsVoiceModelId }
-				__next40pxDefaultSize
-			/>
-
-			<TextControl
 				label="beyondwords_embed"
 				readOnly
 				value={ beyondwordsEmbed }
@@ -401,8 +391,6 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_video_template_id,
 			beyondwordsVideoSize:
 				getEditedPostAttribute( 'meta' ).beyondwords_video_size,
-			beyondwordsVoiceModelId:
-				getEditedPostAttribute( 'meta' ).beyondwords_voice_model_id,
 			beyondwordsEmbed:
 				getEditedPostAttribute( 'meta' ).beyondwords_embed,
 			// Deprecated custom fields

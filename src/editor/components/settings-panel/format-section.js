@@ -14,7 +14,7 @@ import {
 	getOutputOptions,
 	outputIncludesVideo,
 	OUTPUT_AUDIO,
-	VIDEO_TEMPLATE_OPTIONS,
+	projectDefaultOption,
 } from './helpers';
 
 export function FormatSection() {
@@ -31,6 +31,11 @@ export function FormatSection() {
 		[]
 	);
 
+	const videoTemplates = useSelect(
+		( select ) => select( 'beyondwords/settings' ).getVideoTemplates(),
+		[]
+	);
+
 	const videoSizes = useSelect(
 		( select ) =>
 			select( 'beyondwords/settings' ).getVideoSizes( projectId ),
@@ -40,8 +45,7 @@ export function FormatSection() {
 	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const output = meta.beyondwords_output || OUTPUT_AUDIO;
-	const videoTemplateId =
-		meta.beyondwords_video_template_id || VIDEO_TEMPLATE_OPTIONS[ 0 ].value;
+	const videoTemplateId = meta.beyondwords_video_template_id || '';
 	const videoSize = meta.beyondwords_video_size || '';
 
 	const setOutput = ( value ) => {
@@ -56,16 +60,27 @@ export function FormatSection() {
 		setMeta( { ...meta, beyondwords_video_size: value } );
 	};
 
-	const videoSizeOptions = ( videoSizes ?? [] )
-		.filter( ( size ) => size.enabled !== false )
-		.map( ( size ) => ( {
-			label: decodeEntities(
-				size.description
-					? `${ size.name } (${ size.description })`
-					: size.name
-			),
-			value: size.name,
-		} ) );
+	const videoTemplateOptions = [
+		projectDefaultOption(),
+		...( videoTemplates ?? [] ).map( ( template ) => ( {
+			label: decodeEntities( template.name ?? template.slug ?? '' ),
+			value: String( template.id ),
+		} ) ),
+	];
+
+	const videoSizeOptions = [
+		projectDefaultOption(),
+		...( videoSizes ?? [] )
+			.filter( ( size ) => size.enabled !== false )
+			.map( ( size ) => ( {
+				label: decodeEntities(
+					size.description
+						? `${ size.name } (${ size.description })`
+						: size.name
+				),
+				value: size.name,
+			} ) ),
+	];
 
 	return (
 		<PanelBody title={ __( 'Format', 'speechkit' ) } initialOpen={ true }>
@@ -83,23 +98,21 @@ export function FormatSection() {
 					<SelectControl
 						className="beyondwords--video-template"
 						label={ __( 'Video template', 'speechkit' ) }
-						options={ VIDEO_TEMPLATE_OPTIONS }
+						options={ videoTemplateOptions }
 						value={ videoTemplateId }
 						onChange={ setVideoTemplateId }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
-					{ videoSizeOptions.length > 0 && (
-						<SelectControl
-							className="beyondwords--video-size"
-							label={ __( 'Video size', 'speechkit' ) }
-							options={ videoSizeOptions }
-							value={ videoSize }
-							onChange={ setVideoSize }
-							__nextHasNoMarginBottom
-							__next40pxDefaultSize
-						/>
-					) }
+					<SelectControl
+						className="beyondwords--video-size"
+						label={ __( 'Video size', 'speechkit' ) }
+						options={ videoSizeOptions }
+						value={ videoSize }
+						onChange={ setVideoSize }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
 				</>
 			) }
 		</PanelBody>

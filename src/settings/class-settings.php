@@ -282,6 +282,26 @@ class Settings {
 				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
 			]
 		);
+
+		register_rest_route(
+			'beyondwords/v1',
+			'/summarization-settings-templates',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'rest_summarization_settings_templates_response' ],
+				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
+			]
+		);
+
+		register_rest_route(
+			'beyondwords/v1',
+			'/video-settings-templates',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'rest_video_settings_templates_response' ],
+				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
+			]
+		);
 	}
 
 	/**
@@ -339,6 +359,28 @@ class Settings {
 	public static function rest_video_settings_response( \WP_REST_Request $request ): \WP_REST_Response {
 		$project_id = (int) $request->get_param( 'projectId' );
 		$response   = \BeyondWords\Api\Client::get_video_settings( $project_id );
+
+		return new \WP_REST_Response( $response );
+	}
+
+	/**
+	 * Proxy for the BeyondWords summarization settings templates endpoint.
+	 *
+	 * Editor scripts use this list to populate the "Script template" dropdown.
+	 */
+	public static function rest_summarization_settings_templates_response(): \WP_REST_Response {
+		$response = \BeyondWords\Api\Client::get_summarization_settings_templates();
+
+		return new \WP_REST_Response( $response );
+	}
+
+	/**
+	 * Proxy for the BeyondWords video settings templates endpoint.
+	 *
+	 * Editor scripts use this list to populate the "Video template" dropdown.
+	 */
+	public static function rest_video_settings_templates_response(): \WP_REST_Response {
+		$response = \BeyondWords\Api\Client::get_video_settings_templates();
 
 		return new \WP_REST_Response( $response );
 	}
