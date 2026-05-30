@@ -59,8 +59,17 @@ class Assets {
 			'beyondwords-metabox--select-voice',
 			'beyondwordsData',
 			[
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-				'root'  => esc_url_raw( rest_url() ),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'root'             => esc_url_raw( rest_url() ),
+				'projectDefault'   => __( 'Project default', 'speechkit' ),
+				'elevenLabs'       => \BeyondWords\Editor\Components\SelectVoice::ELEVENLABS_SERVICE,
+				'defaultModelId'   => \BeyondWords\Editor\Components\SelectVoice::DEFAULT_ELEVENLABS_VOICE_MODEL_ID,
+				'voiceModelLabels' => [
+					'eleven_v3'              => __( 'v3', 'speechkit' ),
+					'eleven_multilingual_v2' => __( 'Multilingual v2', 'speechkit' ),
+					'eleven_flash_v2_5'      => __( 'Flash v2.5', 'speechkit' ),
+					'eleven_turbo_v2_5'      => __( 'Turbo v2.5', 'speechkit' ),
+				],
 			]
 		);
 

@@ -87,19 +87,105 @@ class SelectVoiceTest extends TestCase
         $voiceLabel = $crawler->filter('p#beyondwords-metabox-select-voice--voice-id');
         $this->assertEquals('Voice', $voiceLabel->text());
 
-        $voiceSelect = $crawler->filter('#beyondwords_voice_id');
+        // The Voice dropdown lists distinct names, "Project default" first.
+        $voiceSelect = $crawler->filter('#beyondwords_voice');
         $this->assertCount(1, $voiceSelect);
 
-        $this->assertSame('3555', $voiceSelect->filter('option:nth-child(1)')->attr('value'));
-        $this->assertSame('Ada (Multilingual)', $voiceSelect->filter('option:nth-child(1)')->text());
+        $this->assertSame('', $voiceSelect->filter('option:nth-child(1)')->attr('value'));
+        $this->assertSame('Project default', $voiceSelect->filter('option:nth-child(1)')->text());
 
-        $this->assertSame('2517', $voiceSelect->filter('option:nth-child(2)')->attr('value'));
-        $this->assertSame('Ava (Multilingual)', $voiceSelect->filter('option:nth-child(2)')->text());
+        $this->assertSame('Ada (Multilingual)', $voiceSelect->filter('option:nth-child(2)')->attr('value'));
+        $this->assertSame('Ava (Multilingual)', $voiceSelect->filter('option:nth-child(3)')->attr('value'));
+        $this->assertSame('Ollie (Multilingual)', $voiceSelect->filter('option:nth-child(4)')->attr('value'));
 
-        $this->assertSame('3558', $voiceSelect->filter('option:nth-child(3)')->attr('value'));
-        $this->assertSame('Ollie (Multilingual)', $voiceSelect->filter('option:nth-child(3)')->text());
+        // ElevenLabs "Bridget" appears once despite having three models.
+        $names = $voiceSelect->filter('option')->each(fn ($node) => $node->text());
+        $this->assertSame(1, count(array_keys($names, 'Bridget', true)));
+
+        // With no voice selected the Model dropdown is hidden and empty.
+        $modelWrapper = $crawler->filter('#beyondwords-metabox-select-voice--model');
+        $this->assertStringContainsString('display: none', (string) $modelWrapper->attr('style'));
+        $this->assertCount(0, $crawler->filter('#beyondwords_voice_id option'));
 
         wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function element_shows_model_dropdown_for_multi_model_voice()
+    {
+        // Bridget (id 9001) is an ElevenLabs voice with three models.
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_model',
+            'meta_input' => [
+                'beyondwords_language_code' => 'en_US',
+                'beyondwords_body_voice_id' => '9001',
+            ],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        $crawler = new Crawler($html);
+
+        // Voice name dropdown shows "Bridget" selected.
+        $this->assertSame(
+            'Bridget',
+            $crawler->filter('#beyondwords_voice option[selected]')->attr('value')
+        );
+
+        // Model dropdown is visible with the three variants, default first.
+        $modelWrapper = $crawler->filter('#beyondwords-metabox-select-voice--model');
+        $this->assertStringNotContainsString('display: none', (string) $modelWrapper->attr('style'));
+
+        $modelOptions = $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text());
+        $this->assertSame(['Multilingual v2', 'v3', 'Flash v2.5'], $modelOptions);
+
+        // The persisted variant id stays selected.
+        $this->assertSame(
+            '9001',
+            $crawler->filter('#beyondwords_voice_id option[selected]')->attr('value')
+        );
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function voice_model_variants()
+    {
+        $bridget1 = ['id' => 9001, 'name' => 'Bridget', 'service' => 'ElevenLabs', 'model_id' => 'eleven_flash_v2_5'];
+        $bridget2 = ['id' => 9002, 'name' => 'Bridget', 'service' => 'ElevenLabs', 'model_id' => 'eleven_multilingual_v2'];
+        $bridget3 = ['id' => 9003, 'name' => 'Bridget', 'service' => 'ElevenLabs', 'model_id' => 'eleven_v3'];
+        $ada      = ['id' => 3555, 'name' => 'Ada (Multilingual)'];
+
+        $voices = [$bridget1, $bridget2, $bridget3, $ada];
+
+        // Non-ElevenLabs voices have no variants — they stand alone.
+        $this->assertSame([$ada], SelectVoice::voice_model_variants($ada, $voices));
+
+        // ElevenLabs variants are grouped by name, default model first.
+        $variants = SelectVoice::voice_model_variants($bridget1, $voices);
+        $this->assertSame(
+            ['eleven_multilingual_v2', 'eleven_flash_v2_5', 'eleven_v3'],
+            array_column($variants, 'model_id')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function voice_model_label()
+    {
+        $this->assertSame('Multilingual v2', SelectVoice::voice_model_label('eleven_multilingual_v2'));
+        $this->assertSame('v3', SelectVoice::voice_model_label('eleven_v3'));
+        $this->assertSame('Flash v2.5', SelectVoice::voice_model_label('eleven_flash_v2_5'));
+
+        // Unknown slugs fall back to a title-cased label without the prefix.
+        $this->assertSame('Custom Model', SelectVoice::voice_model_label('eleven_custom_model'));
     }
 
     /**
