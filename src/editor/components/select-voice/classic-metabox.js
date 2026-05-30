@@ -1,26 +1,28 @@
-/* global jQuery, beyondwordsData */
+/* global beyondwordsData */
 
 /*
  * Classic-editor Voice + Model behaviour.
  *
- * The Language dropdown drives an AJAX voices fetch; the Voice dropdown lists
+ * The Language dropdown drives a voices fetch; the Voice dropdown lists
  * distinct voice names; the Model dropdown selects the variant (voice id) within
  * a name and is hidden for single-model voices. Mirrors the block editor's
  * voice-section.js + helpers.js.
+ *
+ * Vanilla JS — no jQuery dependency. The selects live in the post <form>, so
+ * their values submit on save; no autosave/Heartbeat hook is needed.
  */
-( function ( $ ) {
+( function () {
 	'use strict';
 
-	const ELEVENLABS =
-		( beyondwordsData && beyondwordsData.elevenLabs ) || 'ElevenLabs';
+	const data =
+		typeof beyondwordsData !== 'undefined' ? beyondwordsData : null;
+
+	const ELEVENLABS = ( data && data.elevenLabs ) || 'ElevenLabs';
 	const DEFAULT_MODEL_ID =
-		( beyondwordsData && beyondwordsData.defaultModelId ) ||
-		'eleven_multilingual_v2';
+		( data && data.defaultModelId ) || 'eleven_multilingual_v2';
 	const PROJECT_DEFAULT =
-		( beyondwordsData && beyondwordsData.projectDefault ) ||
-		'Project default';
-	const MODEL_LABELS =
-		( beyondwordsData && beyondwordsData.voiceModelLabels ) || {};
+		( data && data.projectDefault ) || 'Project default';
+	const MODEL_LABELS = ( data && data.voiceModelLabels ) || {};
 
 	/**
 	 * Human label for a model_id slug.
@@ -74,66 +76,48 @@
 			} );
 	};
 
+	const option = ( value, text ) => {
+		const el = document.createElement( 'option' );
+		el.value = value;
+		el.textContent = text;
+		return el;
+	};
+
+	const toggleLoader = ( show ) => {
+		const loader = document.querySelector(
+			'.beyondwords-settings__loader'
+		);
+		if ( loader ) {
+			loader.style.display = show ? '' : 'none';
+		}
+	};
+
 	const selectVoice = {
 		voices: [],
 
 		init() {
-			if ( ! beyondwordsData ) {
+			if ( ! data ) {
 				// eslint-disable-next-line no-console
 				console.log( '🔊 Unable to retrive WP REST API settings' );
 				return;
 			}
 
-			this.setupClickEvents();
-			this.setupAutosaveVariables();
-		},
-
-		setupClickEvents() {
-			$( document ).on(
-				'change',
-				'select#beyondwords_language_code',
-				function () {
-					selectVoice.getVoices( this.value );
-				}
+			const language = document.getElementById(
+				'beyondwords_language_code'
 			);
+			const voice = document.getElementById( 'beyondwords_voice' );
 
-			$( document ).on(
-				'change',
-				'select#beyondwords_voice',
-				function () {
-					selectVoice.setVoiceName( this.value );
-				}
-			);
-		},
+			if ( language ) {
+				language.addEventListener( 'change', ( event ) => {
+					this.getVoices( event.target.value );
+				} );
+			}
 
-		/**
-		 * Add our select values to the autosave POST vars.
-		 */
-		setupAutosaveVariables() {
-			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageCode = $( '#beyondwords_language_code' )
-					.find( ':selected' )
-					.val();
-				const voiceId = $( '#beyondwords_voice_id' )
-					.find( ':selected' )
-					.val();
-
-				if ( languageCode ) {
-					settings.data +=
-						'&' +
-						$.param( {
-							beyondwords_language_code: languageCode,
-						} );
-				}
-
-				if ( voiceId ) {
-					settings.data +=
-						'&' +
-						$.param( {
-							beyondwords_voice_id: voiceId,
-						} );
-				}
-			} );
+			if ( voice ) {
+				voice.addEventListener( 'change', ( event ) => {
+					this.setVoiceName( event.target.value );
+				} );
+			}
 		},
 
 		/**
@@ -142,40 +126,45 @@
 		 * @param {string} languageCode The language code.
 		 */
 		getVoices( languageCode ) {
-			const $voicesSelect = $( '#beyondwords_voice' );
+			const voiceSelect = document.getElementById( 'beyondwords_voice' );
 
-			$voicesSelect.empty().attr( 'disabled', true ).hide();
+			if ( voiceSelect ) {
+				voiceSelect.replaceChildren();
+				voiceSelect.disabled = true;
+				voiceSelect.style.display = 'none';
+			}
+
 			this.setModelOptions( [] );
-			$( '.beyondwords-settings__loader' ).show();
+			toggleLoader( true );
 
 			if ( ! languageCode ) {
-				$( '.beyondwords-settings__loader' ).hide();
+				toggleLoader( false );
 				return;
 			}
 
-			const { root, nonce } = beyondwordsData;
-			const endpoint = `${ root }beyondwords/v1/languages/${ languageCode }/voices`;
+			const endpoint = `${ data.root }beyondwords/v1/languages/${ languageCode }/voices`;
 
-			jQuery
-				.ajax( {
-					url: endpoint,
+			window
+				.fetch( endpoint, {
 					method: 'GET',
-					beforeSend( xhr ) {
-						xhr.setRequestHeader( 'X-WP-Nonce', nonce );
-					},
+					headers: { 'X-WP-Nonce': data.nonce },
 				} )
-				.done( function ( voices ) {
-					selectVoice.voices = voices || [];
-					selectVoice.renderVoiceNames();
+				.then( ( response ) => response.json() )
+				.then( ( voices ) => {
+					this.voices = voices || [];
+					this.renderVoiceNames();
 				} )
-				.fail( function ( xhr ) {
+				.catch( ( error ) => {
 					// eslint-disable-next-line no-console
-					console.log( '🔊 Unable to load voices', xhr );
-					selectVoice.voices = [];
-					$voicesSelect.empty().attr( 'disabled', true );
+					console.log( '🔊 Unable to load voices', error );
+					this.voices = [];
+					if ( voiceSelect ) {
+						voiceSelect.replaceChildren();
+						voiceSelect.disabled = true;
+					}
 				} )
-				.always( function () {
-					$( '.beyondwords-settings__loader' ).hide();
+				.finally( () => {
+					toggleLoader( false );
 				} );
 		},
 
@@ -184,27 +173,25 @@
 		 * to Project default, and clear the Model dropdown.
 		 */
 		renderVoiceNames() {
-			const $voicesSelect = $( '#beyondwords_voice' );
-			const names = [];
+			const voiceSelect = document.getElementById( 'beyondwords_voice' );
 
+			if ( ! voiceSelect ) {
+				return;
+			}
+
+			const names = [];
 			this.voices.forEach( ( voice ) => {
 				if ( voice.name && ! names.includes( voice.name ) ) {
 					names.push( voice.name );
 				}
 			} );
 
-			$voicesSelect
-				.empty()
-				.show()
-				.append(
-					$( '<option></option>' ).val( '' ).text( PROJECT_DEFAULT )
-				)
-				.append(
-					names.map( ( name ) =>
-						$( '<option></option>' ).val( name ).text( name )
-					)
-				)
-				.attr( 'disabled', false );
+			voiceSelect.replaceChildren(
+				option( '', PROJECT_DEFAULT ),
+				...names.map( ( name ) => option( name, name ) )
+			);
+			voiceSelect.disabled = false;
+			voiceSelect.style.display = '';
 
 			this.setModelOptions( [] );
 		},
@@ -221,9 +208,7 @@
 			}
 
 			const first = this.voices.find( ( voice ) => voice.name === name );
-			const variants = voiceModelVariants( first, this.voices );
-
-			this.setModelOptions( variants );
+			this.setModelOptions( voiceModelVariants( first, this.voices ) );
 		},
 
 		/**
@@ -232,24 +217,34 @@
 		 * @param {Array<Object>} variants The voice's model variants.
 		 */
 		setModelOptions( variants ) {
-			const $modelSelect = $( '#beyondwords_voice_id' );
-			const $wrapper = $( '#beyondwords-metabox-select-voice--model' );
+			const modelSelect = document.getElementById(
+				'beyondwords_voice_id'
+			);
+			const wrapper = document.getElementById(
+				'beyondwords-metabox-select-voice--model'
+			);
 
-			$modelSelect
-				.empty()
-				.append(
-					( variants || [] ).map( ( variant ) =>
-						$( '<option></option>' )
-							.val( variant.id )
-							.text( modelLabel( variant.model_id ) )
+			const list = variants || [];
+
+			if ( modelSelect ) {
+				modelSelect.replaceChildren(
+					...list.map( ( variant ) =>
+						option( variant.id, modelLabel( variant.model_id ) )
 					)
 				);
+			}
 
-			$wrapper.toggle( ( variants || [] ).length > 1 );
+			if ( wrapper ) {
+				wrapper.style.display = list.length > 1 ? '' : 'none';
+			}
 		},
 	};
 
-	$( document ).ready( function () {
+	if ( document.readyState !== 'loading' ) {
 		selectVoice.init();
-	} );
-} )( jQuery );
+	} else {
+		document.addEventListener( 'DOMContentLoaded', () =>
+			selectVoice.init()
+		);
+	}
+} )();

@@ -50,7 +50,7 @@ class Assets {
 		wp_register_script(
 			'beyondwords-metabox--select-voice',
 			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/select-voice/classic-metabox.js',
-			[ 'jquery', 'underscore' ],
+			[],
 			BEYONDWORDS__PLUGIN_VERSION,
 			true
 		);

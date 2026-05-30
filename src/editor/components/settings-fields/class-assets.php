@@ -51,7 +51,7 @@ class Assets {
 		wp_register_script(
 			'beyondwords-metabox--settings-fields',
 			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/settings-fields/classic-metabox.js',
-			[ 'jquery' ],
+			[],
 			BEYONDWORDS__PLUGIN_VERSION,
 			true
 		);

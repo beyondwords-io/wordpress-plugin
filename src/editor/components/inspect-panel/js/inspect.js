@@ -1,24 +1,68 @@
-/* global jQuery, ClipboardJS */
+/* global ClipboardJS */
 
-jQuery( document ).ready( function ( $ ) {
-	const clipboard = new ClipboardJS( '#beyondwords__inspect--copy' );
+/*
+ * Classic-editor Inspect panel: copy-to-clipboard confirmation + "Remove all
+ * BeyondWords data" toggle. Vanilla JS — no jQuery dependency. ClipboardJS is a
+ * standalone library (not jQuery).
+ */
+( function () {
+	'use strict';
 
-	clipboard.on( 'success', function () {
-		$( '#beyondwords__inspect--copy-confirm' ).show();
-	} );
+	const onReady = ( fn ) => {
+		if ( document.readyState !== 'loading' ) {
+			fn();
+		} else {
+			document.addEventListener( 'DOMContentLoaded', fn );
+		}
+	};
 
-	$( 'body' ).on( 'click', '#beyondwords__inspect--remove', function () {
-		/* eslint-disable-next-line no-alert */
-		const confirm = window.confirm(
-			wp.i18n.__(
-				'Remove all BeyondWords data when the post is saved?',
-				'speechkit'
-			)
+	onReady( function () {
+		const copyButton = document.getElementById(
+			'beyondwords__inspect--copy'
 		);
 
-		if ( confirm ) {
-			$( '#beyondwords_delete_content' ).removeAttr( 'disabled' );
-			$( '[data-beyondwords-metavalue]' ).val( '' );
+		if ( copyButton && typeof ClipboardJS !== 'undefined' ) {
+			const clipboard = new ClipboardJS( '#beyondwords__inspect--copy' );
+
+			clipboard.on( 'success', function () {
+				const confirm = document.getElementById(
+					'beyondwords__inspect--copy-confirm'
+				);
+				if ( confirm ) {
+					confirm.style.display = '';
+				}
+			} );
 		}
+
+		document.addEventListener( 'click', function ( event ) {
+			if ( ! event.target.closest( '#beyondwords__inspect--remove' ) ) {
+				return;
+			}
+
+			/* eslint-disable-next-line no-alert */
+			const confirmed = window.confirm(
+				wp.i18n.__(
+					'Remove all BeyondWords data when the post is saved?',
+					'speechkit'
+				)
+			);
+
+			if ( ! confirmed ) {
+				return;
+			}
+
+			const deleteInput = document.getElementById(
+				'beyondwords_delete_content'
+			);
+			if ( deleteInput ) {
+				deleteInput.removeAttribute( 'disabled' );
+			}
+
+			document
+				.querySelectorAll( '[data-beyondwords-metavalue]' )
+				.forEach( ( el ) => {
+					el.value = '';
+				} );
+		} );
 	} );
-} );
+} )();

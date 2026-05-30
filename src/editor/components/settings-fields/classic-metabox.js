@@ -1,4 +1,4 @@
-/* global jQuery, beyondwordsSettingsFields */
+/* global beyondwordsSettingsFields */
 
 /*
  * Classic-editor dynamic behaviour for the Content/Format/Player settings
@@ -8,8 +8,10 @@
  * - Source toggles the Script template field.
  * - Output toggles the Video template + Video size fields.
  * - Embed options are derived from Source × Output and recomputed live.
+ *
+ * Vanilla JS — no jQuery dependency.
  */
-( function ( $ ) {
+( function () {
 	'use strict';
 
 	const SOURCE_POST = 'post';
@@ -23,7 +25,7 @@
 	const EMBED_NONE = 'none';
 
 	const labels =
-		( beyondwordsSettingsFields &&
+		( typeof beyondwordsSettingsFields !== 'undefined' &&
 			beyondwordsSettingsFields.embedLabels ) ||
 		{};
 
@@ -38,6 +40,19 @@
 
 	const outputIncludesVideo = ( output ) =>
 		output === OUTPUT_VIDEO || output === OUTPUT_AUDIO_AND_VIDEO;
+
+	/**
+	 * Toggle an element's visibility by id.
+	 *
+	 * @param {string}  id   The element id.
+	 * @param {boolean} show Whether the element should be visible.
+	 */
+	const toggle = ( id, show ) => {
+		const el = document.getElementById( id );
+		if ( el ) {
+			el.style.display = show ? '' : 'none';
+		}
+	};
 
 	/**
 	 * Derive the valid Embed options from the current Source × Output.
@@ -85,23 +100,27 @@
 
 	const settingsFields = {
 		init() {
-			this.$source = $( '#beyondwords_source' );
-			this.$output = $( '#beyondwords_output' );
-			this.$embed = $( '#beyondwords_embed' );
+			this.source = document.getElementById( 'beyondwords_source' );
+			this.output = document.getElementById( 'beyondwords_output' );
+			this.embed = document.getElementById( 'beyondwords_embed' );
 
-			if ( ! this.$source.length && ! this.$output.length ) {
+			if ( ! this.source && ! this.output ) {
 				return;
 			}
 
-			this.$source.on( 'change', () => {
-				this.toggleScriptTemplate();
-				this.recomputeEmbed();
-			} );
+			if ( this.source ) {
+				this.source.addEventListener( 'change', () => {
+					this.toggleScriptTemplate();
+					this.recomputeEmbed();
+				} );
+			}
 
-			this.$output.on( 'change', () => {
-				this.toggleVideoFields();
-				this.recomputeEmbed();
-			} );
+			if ( this.output ) {
+				this.output.addEventListener( 'change', () => {
+					this.toggleVideoFields();
+					this.recomputeEmbed();
+				} );
+			}
 
 			// Sync initial visibility in case meta and markup drift.
 			this.toggleScriptTemplate();
@@ -109,46 +128,58 @@
 		},
 
 		toggleScriptTemplate() {
-			const show = sourceIncludesScript( this.$source.val() );
-			$(
-				'#beyondwords-metabox-settings--beyondwords-script-template-id'
-			).toggle( show );
+			const show = this.source
+				? sourceIncludesScript( this.source.value )
+				: false;
+			toggle(
+				'beyondwords-metabox-settings--beyondwords-script-template-id',
+				show
+			);
 		},
 
 		toggleVideoFields() {
-			const show = outputIncludesVideo( this.$output.val() );
-			$(
-				'#beyondwords-metabox-settings--beyondwords-video-template-id'
-			).toggle( show );
-			$( '#beyondwords-metabox-settings--beyondwords-video-size' ).toggle(
+			const show = this.output
+				? outputIncludesVideo( this.output.value )
+				: false;
+			toggle(
+				'beyondwords-metabox-settings--beyondwords-video-template-id',
+				show
+			);
+			toggle(
+				'beyondwords-metabox-settings--beyondwords-video-size',
 				show
 			);
 		},
 
 		recomputeEmbed() {
-			if ( ! this.$embed.length ) {
+			if ( ! this.embed ) {
 				return;
 			}
 
-			const source = this.$source.val();
-			const output = this.$output.val();
+			const source = this.source ? this.source.value : SOURCE_POST;
+			const output = this.output ? this.output.value : OUTPUT_AUDIO;
 			const options = getEmbedOptions( source, output );
-			const previous = this.$embed.val();
+			const previous = this.embed.value;
 			const stillValid = options.some( ( o ) => o.value === previous );
 			const selected = stillValid ? previous : EMBED_NONE;
 
-			this.$embed.empty().append(
-				options.map( ( option ) =>
-					$( '<option></option>' )
-						.val( option.value )
-						.text( option.label )
-						.prop( 'selected', option.value === selected )
-				)
+			this.embed.replaceChildren(
+				...options.map( ( option ) => {
+					const el = document.createElement( 'option' );
+					el.value = option.value;
+					el.textContent = option.label;
+					el.selected = option.value === selected;
+					return el;
+				} )
 			);
 		},
 	};
 
-	$( document ).ready( function () {
+	if ( document.readyState !== 'loading' ) {
 		settingsFields.init();
-	} );
-} )( jQuery );
+	} else {
+		document.addEventListener( 'DOMContentLoaded', () =>
+			settingsFields.init()
+		);
+	}
+} )();
