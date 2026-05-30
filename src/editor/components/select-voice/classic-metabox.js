@@ -1,135 +1,250 @@
-/* global jQuery, beyondwordsData */
+/* global beyondwordsData */
 
-( function ( $ ) {
+/*
+ * Classic-editor Voice + Model behaviour.
+ *
+ * The Language dropdown drives a voices fetch; the Voice dropdown lists
+ * distinct voice names; the Model dropdown selects the variant (voice id) within
+ * a name and is hidden for single-model voices. Mirrors the block editor's
+ * voice-section.js + helpers.js.
+ *
+ * Vanilla JS — no jQuery dependency. The selects live in the post <form>, so
+ * their values submit on save; no autosave/Heartbeat hook is needed.
+ */
+( function () {
 	'use strict';
 
+	const data =
+		typeof beyondwordsData !== 'undefined' ? beyondwordsData : null;
+
+	const ELEVENLABS = ( data && data.elevenLabs ) || 'ElevenLabs';
+	const DEFAULT_MODEL_ID =
+		( data && data.defaultModelId ) || 'eleven_multilingual_v2';
+	const PROJECT_DEFAULT =
+		( data && data.projectDefault ) || 'Project default';
+	const MODEL_LABELS = ( data && data.voiceModelLabels ) || {};
+
+	/**
+	 * Human label for a model_id slug.
+	 *
+	 * @param {string} modelId The model_id slug.
+	 *
+	 * @return {string} A display label.
+	 */
+	const modelLabel = ( modelId ) => {
+		if ( MODEL_LABELS[ modelId ] ) {
+			return MODEL_LABELS[ modelId ];
+		}
+		return String( modelId )
+			.replace( /^eleven_/, '' )
+			.replace( /_/g, ' ' )
+			.replace( /\b\w/g, ( c ) => c.toUpperCase() );
+	};
+
+	/**
+	 * The model variants for a voice, the default model first.
+	 *
+	 * @param {Object}        voice  The selected voice record.
+	 * @param {Array<Object>} voices All voices for the current language.
+	 *
+	 * @return {Array<Object>} The voice's model variants.
+	 */
+	const voiceModelVariants = ( voice, voices ) => {
+		if (
+			! voice ||
+			voice.service !== ELEVENLABS ||
+			typeof voice.model_id !== 'string'
+		) {
+			return voice ? [ voice ] : [];
+		}
+
+		return ( voices || [] )
+			.filter(
+				( candidate ) =>
+					candidate.name === voice.name &&
+					candidate.service === ELEVENLABS &&
+					typeof candidate.model_id === 'string'
+			)
+			.sort( ( a, b ) => {
+				if ( a.model_id === DEFAULT_MODEL_ID ) {
+					return -1;
+				}
+				if ( b.model_id === DEFAULT_MODEL_ID ) {
+					return 1;
+				}
+				return 0;
+			} );
+	};
+
+	const option = ( value, text ) => {
+		const el = document.createElement( 'option' );
+		el.value = value;
+		el.textContent = text;
+		return el;
+	};
+
+	const toggleLoader = ( show ) => {
+		const loader = document.querySelector(
+			'.beyondwords-settings__loader'
+		);
+		if ( loader ) {
+			loader.style.display = show ? '' : 'none';
+		}
+	};
+
 	const selectVoice = {
-		/**
-		 * Init.
-		 *
-		 * @since 4.0.0
-		 */
+		voices: [],
+
 		init() {
-			if ( ! beyondwordsData ) {
+			if ( ! data ) {
 				// eslint-disable-next-line no-console
 				console.log( '🔊 Unable to retrive WP REST API settings' );
 				return;
 			}
 
-			this.setupClickEvents();
-			this.setupAutosaveVariables();
-		},
-
-		/**
-		 * Setup click events.
-		 *
-		 * @since 5.4.0
-		 */
-		setupClickEvents() {
-			$( document ).on(
-				'change',
-				'select#beyondwords_language_code',
-				function () {
-					const defaultVoiceId = $( this )
-						.find( ':selected' )
-						.attr( 'data-default-voice-id' );
-
-					selectVoice.getVoices( this.value, `${ defaultVoiceId }` );
-				}
+			const language = document.getElementById(
+				'beyondwords_language_code'
 			);
+			const voice = document.getElementById( 'beyondwords_voice' );
+
+			if ( language ) {
+				language.addEventListener( 'change', ( event ) => {
+					this.getVoices( event.target.value );
+				} );
+			}
+
+			if ( voice ) {
+				voice.addEventListener( 'change', ( event ) => {
+					this.setVoiceName( event.target.value );
+				} );
+			}
 		},
 
 		/**
-		 * Add our checkbox value to the autosave POST vars (if it's checked).
+		 * Get voices for a language, then rebuild the Voice + Model dropdowns.
 		 *
-		 * @since 4.0.0
+		 * @param {string} languageCode The language code.
 		 */
-		setupAutosaveVariables() {
-			$( document ).ajaxSend( function ( event, request, settings ) {
-				const languageCode = $( '#beyondwords_language_code' )
-					.find( ':selected' )
-					.val();
-				const voiceId = $( '#beyondwords_voice_id' )
-					.find( ':selected' )
-					.val();
+		getVoices( languageCode ) {
+			const voiceSelect = document.getElementById( 'beyondwords_voice' );
 
-				if ( languageCode ) {
-					settings.data +=
-						'&' +
-						$.param( {
-							beyondwords_language_code: languageCode,
-						} );
-				}
+			if ( voiceSelect ) {
+				voiceSelect.replaceChildren();
+				voiceSelect.disabled = true;
+				voiceSelect.style.display = 'none';
+			}
 
-				if ( voiceId ) {
-					settings.data +=
-						'&' +
-						$.param( {
-							beyondwords_voice_id: voiceId,
-						} );
-				}
-			} );
-		},
-
-		/**
-		 * Get voices for a language.
-		 *
-		 * @since 5.4.0
-		 *
-		 * @param {string} languageCode
-		 * @param {string} defaultVoiceId
-		 */
-		getVoices( languageCode, defaultVoiceId ) {
-			const $voicesSelect = $( '#beyondwords_voice_id' );
-
-			$voicesSelect.empty().attr( 'disabled', true ).hide();
-			$( '.beyondwords-settings__loader' ).show();
+			this.setModelOptions( [] );
+			toggleLoader( true );
 
 			if ( ! languageCode ) {
+				toggleLoader( false );
 				return;
 			}
 
-			const { root, nonce } = beyondwordsData;
+			const endpoint = `${ data.root }beyondwords/v1/languages/${ languageCode }/voices`;
 
-			const endpoint = `${ root }beyondwords/v1/languages/${ languageCode }/voices`;
-
-			jQuery
-				.ajax( {
-					url: endpoint,
+			window
+				.fetch( endpoint, {
 					method: 'GET',
-					beforeSend( xhr ) {
-						xhr.setRequestHeader( 'X-WP-Nonce', nonce );
-					},
+					headers: { 'X-WP-Nonce': data.nonce },
 				} )
-				.done( function ( voices ) {
-					$voicesSelect
-						.empty()
-						.show()
-						.append(
-							voices.map( ( voice ) => {
-								return $( '<option></option>' )
-									.val( voice.id )
-									.text( voice.name )
-									.attr(
-										'selected',
-										defaultVoiceId === `${ voice.id }`
-									);
-							} )
-						)
-						.attr( 'disabled', false );
+				.then( ( response ) => response.json() )
+				.then( ( voices ) => {
+					this.voices = voices || [];
+					this.renderVoiceNames();
 				} )
-				.fail( function ( xhr ) {
+				.catch( ( error ) => {
 					// eslint-disable-next-line no-console
-					console.log( '🔊 Unable to load voices', xhr );
-					$voicesSelect.empty().attr( 'disabled', true );
+					console.log( '🔊 Unable to load voices', error );
+					this.voices = [];
+					if ( voiceSelect ) {
+						voiceSelect.replaceChildren();
+						voiceSelect.disabled = true;
+					}
 				} )
-				.always( function () {
-					$( '.beyondwords-settings__loader' ).hide();
+				.finally( () => {
+					toggleLoader( false );
 				} );
+		},
+
+		/**
+		 * Rebuild the Voice (name) dropdown from the current voices list, reset
+		 * to Project default, and clear the Model dropdown.
+		 */
+		renderVoiceNames() {
+			const voiceSelect = document.getElementById( 'beyondwords_voice' );
+
+			if ( ! voiceSelect ) {
+				return;
+			}
+
+			const names = [];
+			this.voices.forEach( ( voice ) => {
+				if ( voice.name && ! names.includes( voice.name ) ) {
+					names.push( voice.name );
+				}
+			} );
+
+			voiceSelect.replaceChildren(
+				option( '', PROJECT_DEFAULT ),
+				...names.map( ( name ) => option( name, name ) )
+			);
+			voiceSelect.disabled = false;
+			voiceSelect.style.display = '';
+
+			this.setModelOptions( [] );
+		},
+
+		/**
+		 * Pick a voice name → select that name's default model variant.
+		 *
+		 * @param {string} name The selected voice name.
+		 */
+		setVoiceName( name ) {
+			if ( ! name ) {
+				this.setModelOptions( [] );
+				return;
+			}
+
+			const first = this.voices.find( ( voice ) => voice.name === name );
+			this.setModelOptions( voiceModelVariants( first, this.voices ) );
+		},
+
+		/**
+		 * Replace the Model dropdown options and toggle its visibility.
+		 *
+		 * @param {Array<Object>} variants The voice's model variants.
+		 */
+		setModelOptions( variants ) {
+			const modelSelect = document.getElementById(
+				'beyondwords_voice_id'
+			);
+			const wrapper = document.getElementById(
+				'beyondwords-metabox-select-voice--model'
+			);
+
+			const list = variants || [];
+
+			if ( modelSelect ) {
+				modelSelect.replaceChildren(
+					...list.map( ( variant ) =>
+						option( variant.id, modelLabel( variant.model_id ) )
+					)
+				);
+			}
+
+			if ( wrapper ) {
+				wrapper.style.display = list.length > 1 ? '' : 'none';
+			}
 		},
 	};
 
-	$( document ).ready( function () {
+	if ( document.readyState !== 'loading' ) {
 		selectVoice.init();
-	} );
-} )( jQuery );
+	} else {
+		document.addEventListener( 'DOMContentLoaded', () =>
+			selectVoice.init()
+		);
+	}
+} )();

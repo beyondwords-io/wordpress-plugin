@@ -24,6 +24,21 @@ defined( 'ABSPATH' ) || exit;
 class SelectVoice {
 
 	/**
+	 * Voice "service" that exposes selectable models. Only ElevenLabs voices
+	 * carry a `model_id`; every (name, model_id) pair is a distinct voice id.
+	 *
+	 * @since 7.0.0
+	 */
+	public const ELEVENLABS_SERVICE = 'ElevenLabs';
+
+	/**
+	 * The variant listed first in the Model dropdown when a voice has several.
+	 *
+	 * @since 7.0.0
+	 */
+	public const DEFAULT_ELEVENLABS_VOICE_MODEL_ID = 'eleven_multilingual_v2';
+
+	/**
 	 * Init.
 	 *
 	 * @since 4.0.0
@@ -159,43 +174,180 @@ class SelectVoice {
 	}
 
 	/**
-	 * Render the voice select dropdown.
+	 * Render the voice select dropdowns: Voice (name) + Model (variant).
+	 *
+	 * ElevenLabs voices repeat a name once per model, each a distinct voice id.
+	 * The Voice dropdown lists distinct names; the Model dropdown then selects
+	 * the variant (voice id) within a name and is hidden when a voice has a
+	 * single model. The Model dropdown is always present in the DOM so its value
+	 * (`beyondwords_voice_id`) is submitted even while hidden.
 	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Split into Voice (name) + Model (variant) dropdowns.
 	 *
 	 * @param array        $voices The voices array.
 	 * @param string|false $selected_voice_id The selected voice ID.
 	 * @param string|false $language_code The language code.
 	 */
 	private static function render_voice_select( array $voices, $selected_voice_id, $language_code ): void {
+		$selected_voice = null;
+		foreach ( $voices as $voice ) {
+			if ( strval( $voice['id'] ?? '' ) === strval( $selected_voice_id ) ) {
+				$selected_voice = $voice;
+				break;
+			}
+		}
+
+		$selected_name = $selected_voice['name'] ?? '';
+
+		// Distinct voice names, preserving the API order.
+		$names = [];
+		foreach ( $voices as $voice ) {
+			$name = $voice['name'] ?? '';
+			if ( '' !== $name && ! in_array( $name, $names, true ) ) {
+				$names[] = $name;
+			}
+		}
+
+		$variants   = $selected_voice ? self::voice_model_variants( $selected_voice, $voices ) : [];
+		$show_model = count( $variants ) > 1;
 		?>
 		<p
 			id="beyondwords-metabox-select-voice--voice-id"
 			class="post-attributes-label-wrapper page-template-label-wrapper"
 		>
-			<label class="post-attributes-label" for="beyondwords_voice_id">
+			<label class="post-attributes-label" for="beyondwords_voice">
 				<?php esc_html_e( 'Voice', 'speechkit' ); ?>
 			</label>
 		</p>
 		<select
-			id="beyondwords_voice_id"
-			name="beyondwords_voice_id"
+			id="beyondwords_voice"
+			name="beyondwords_voice"
 			style="width: 100%;"
 			<?php echo disabled( ! strval( $language_code ) ); ?>
 		>
 			<?php
-			foreach ( $voices as $voice ) {
+			printf(
+				'<option value="" %s>%s</option>',
+				selected( '', strval( $selected_name ), false ),
+				esc_html__( 'Project default', 'speechkit' )
+			);
+			foreach ( $names as $name ) {
 				printf(
 					'<option value="%s" %s>%s</option>',
-					esc_attr( $voice['id'] ),
-					selected( strval( $voice['id'] ), strval( $selected_voice_id ) ),
-					esc_html( $voice['name'] )
+					esc_attr( $name ),
+					selected( strval( $name ), strval( $selected_name ), false ),
+					esc_html( $name )
 				);
 			}
 			?>
 		</select>
+		<div
+			id="beyondwords-metabox-select-voice--model"
+			class="beyondwords-metabox-settings__field"
+			<?php echo $show_model ? '' : 'style="display: none;"'; ?>
+		>
+			<p class="post-attributes-label-wrapper page-template-label-wrapper">
+				<label class="post-attributes-label" for="beyondwords_voice_id">
+					<?php esc_html_e( 'Model', 'speechkit' ); ?>
+				</label>
+			</p>
+			<select id="beyondwords_voice_id" name="beyondwords_voice_id" style="width: 100%;">
+				<?php
+				foreach ( $variants as $variant ) {
+					printf(
+						'<option value="%s" %s>%s</option>',
+						esc_attr( $variant['id'] ),
+						selected( strval( $variant['id'] ), strval( $selected_voice_id ), false ),
+						esc_html( self::voice_model_label( $variant['model_id'] ?? '' ) )
+					);
+				}
+				?>
+			</select>
+		</div>
 		<?php
+	}
+
+	/**
+	 * The model variants for a voice.
+	 *
+	 * For ElevenLabs voices, returns every voice record sharing the same name
+	 * (each a distinct model), the default model first. For any other service,
+	 * returns the voice on its own. Mirrors `getVoiceModelVariants()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array $voice  The selected voice record.
+	 * @param array $voices All voices for the current language.
+	 *
+	 * @return array The voice's model variants.
+	 */
+	public static function voice_model_variants( array $voice, array $voices ): array {
+		if (
+			( $voice['service'] ?? '' ) !== self::ELEVENLABS_SERVICE ||
+			! isset( $voice['model_id'] ) ||
+			! is_string( $voice['model_id'] )
+		) {
+			return [ $voice ];
+		}
+
+		$variants = array_values(
+			array_filter(
+				$voices,
+				static function ( $candidate ) use ( $voice ) {
+					return ( $candidate['name'] ?? null ) === $voice['name']
+						&& ( $candidate['service'] ?? '' ) === self::ELEVENLABS_SERVICE
+						&& isset( $candidate['model_id'] )
+						&& is_string( $candidate['model_id'] );
+				}
+			)
+		);
+
+		usort(
+			$variants,
+			static function ( $a, $b ) {
+				if ( $a['model_id'] === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+					return -1;
+				}
+				if ( $b['model_id'] === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+					return 1;
+				}
+				return 0;
+			}
+		);
+
+		return $variants;
+	}
+
+	/**
+	 * Human label for a voice model_id slug. Unknown slugs fall back to a
+	 * title-cased version of the slug minus the `eleven_` prefix. Mirrors
+	 * `voiceModelLabel()` in src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $model_id The model_id slug (e.g. `eleven_flash_v2_5`).
+	 *
+	 * @return string A display label.
+	 */
+	public static function voice_model_label( string $model_id ): string {
+		$labels = [
+			'eleven_v3'              => __( 'v3', 'speechkit' ),
+			'eleven_multilingual_v2' => __( 'Multilingual v2', 'speechkit' ),
+			'eleven_flash_v2_5'      => __( 'Flash v2.5', 'speechkit' ),
+			'eleven_turbo_v2_5'      => __( 'Turbo v2.5', 'speechkit' ),
+		];
+
+		if ( isset( $labels[ $model_id ] ) ) {
+			return $labels[ $model_id ];
+		}
+
+		$slug = preg_replace( '/^eleven_/', '', $model_id );
+		$slug = str_replace( '_', ' ', (string) $slug );
+
+		return ucwords( $slug );
 	}
 
 	/**

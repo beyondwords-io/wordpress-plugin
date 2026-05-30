@@ -96,6 +96,8 @@ class Plugin {
 		\BeyondWords\Editor\Components\DisplayPlayer::init();
 		\BeyondWords\Editor\Components\SelectVoice::init();
 		\BeyondWords\Editor\Components\SelectVoice\Assets::init();
+		\BeyondWords\Editor\Components\SettingsFields::init();
+		\BeyondWords\Editor\Components\SettingsFields\Assets::init();
 		\BeyondWords\Editor\Classic\Metabox::init();
 		\BeyondWords\Editor\Classic\Assets::init();
 	}
