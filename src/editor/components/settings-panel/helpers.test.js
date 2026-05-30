@@ -1,3 +1,5 @@
+/* global describe, it, expect */
+
 /**
  * Internal dependencies
  */

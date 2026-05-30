@@ -237,10 +237,17 @@ jobs:
   # ######################################
   # Plugin Check
   # ######################################
+  # TODO: remove continue-on-error once WordPress/plugin-check-action#579 is
+  # fixed upstream. The action auto-generates a .wp-env.json that pulls
+  # plugin-check.zip via a URL; on Node 24.16 runners that download path trips
+  # a latent @wordpress/env bug, so `wp-env start` silently exits 0 and the
+  # check reports "Environment not initialized". Not caused by this repo.
+  # https://github.com/WordPress/plugin-check-action/issues/579
   plugin-check:
     name: Plugin Check
     runs-on: ubuntu-22.04
     needs: [build]
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v6
