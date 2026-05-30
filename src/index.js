@@ -20,7 +20,6 @@ require( './editor/block' );
 require( './editor/components/add-player' );
 require( './editor/components/block-attributes' );
 require( './editor/components/data-panel' );
-require( './editor/components/display-player' );
 require( './editor/components/error-notice' );
 require( './editor/components/generate-audio' );
 require( './editor/components/help-panel' );

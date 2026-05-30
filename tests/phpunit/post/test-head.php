@@ -21,11 +21,16 @@ class HeadTest extends TestCase
             'post_author' => 1,
             'post_status' => 'publish',
         ]);
+
+        // The meta tags are only emitted for the client-side (Magic Embed)
+        // integration, so default the suite to it.
+        update_option('beyondwords_integration_method', 'client-side');
     }
 
     public function tearDown(): void
     {
         wp_delete_post($this->postId, true);
+        delete_option('beyondwords_integration_method');
 
         parent::tearDown();
     }
@@ -76,6 +81,26 @@ class HeadTest extends TestCase
         });
 
         $this->assertEmpty($html, 'Should not output meta tags without project ID');
+    }
+
+    /**
+     * @test
+     */
+    public function add_meta_tags_does_nothing_for_rest_api_integration(): void
+    {
+        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // REST API integration: the platform already has the metadata from the
+        // content payload, so nothing should be emitted on the page.
+        update_option('beyondwords_integration_method', 'rest-api');
+
+        $this->go_to(get_permalink($this->postId));
+
+        $html = $this->capture_output(function () {
+            Head::add_meta_tags();
+        });
+
+        $this->assertEmpty($html, 'Should not output meta tags for the REST API integration');
     }
 
     /**

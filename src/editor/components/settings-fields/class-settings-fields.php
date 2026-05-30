@@ -259,6 +259,52 @@ class SettingsFields {
 		return false;
 	}
 
+	/**
+	 * The default Embed value for a post that hasn't chosen one yet: the first
+	 * asset the current Source × Output produces (e.g. Post × Audio → "Audio
+	 * (post)"). This keeps the player visible by default — "None" is the
+	 * deliberate opt-out. Mirrors `getDefaultEmbed()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $source One of the SOURCE_* constants.
+	 * @param string $output One of the OUTPUT_* constants.
+	 *
+	 * @return string The default embed value.
+	 */
+	public static function default_embed( string $source, string $output ): string {
+		foreach ( self::embed_options( $source, $output ) as $option ) {
+			if ( self::EMBED_NONE !== $option['value'] ) {
+				return $option['value'];
+			}
+		}
+
+		return self::EMBED_NONE;
+	}
+
+	/**
+	 * Whether the player is suppressed on a post.
+	 *
+	 * The Embed dropdown's "None" replaces the pre-v7 "Display player" opt-out.
+	 * An explicit Embed value is authoritative; only when none is set do we fall
+	 * back to the legacy `beyondwords_disabled` flag (for posts saved before the
+	 * v7.0.0 migration ran).
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public static function is_player_disabled_for_post( int $post_id ): bool {
+		$embed = get_post_meta( $post_id, 'beyondwords_embed', true );
+
+		if ( is_string( $embed ) && '' !== $embed ) {
+			return self::EMBED_NONE === $embed;
+		}
+
+		return (bool) \BeyondWords\Post\Meta::get_disabled( $post_id );
+	}
+
 	// Renderers.
 
 	/**
@@ -356,7 +402,16 @@ class SettingsFields {
 	public static function render_player_section( $post ): void {
 		$source = self::get_meta( $post->ID, 'beyondwords_source', self::SOURCE_POST );
 		$output = self::get_meta( $post->ID, 'beyondwords_output', self::OUTPUT_AUDIO );
-		$embed  = self::get_meta( $post->ID, 'beyondwords_embed', self::EMBED_NONE );
+		$embed  = get_post_meta( $post->ID, 'beyondwords_embed', true );
+
+		// No explicit choice yet: hide if a legacy "Display player" opt-out is set
+		// (pre-v7 posts not yet migrated), otherwise default to the first asset so
+		// the player stays visible.
+		if ( ! is_string( $embed ) || '' === $embed ) {
+			$embed = \BeyondWords\Post\Meta::get_disabled( $post->ID )
+				? self::EMBED_NONE
+				: self::default_embed( $source, $output );
+		}
 
 		// Fall back to None if the persisted value no longer fits Source × Output.
 		if ( ! self::is_embed_valid( $embed, $source, $output ) ) {
@@ -522,6 +577,12 @@ class SettingsFields {
 			return $post_id;
 		}
 
+		// The nonce proves intent, not authorisation — confirm this user may
+		// edit this specific post before writing its meta.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
 		$keys = [
 			'beyondwords_source',
 			'beyondwords_script_template_id',
@@ -538,13 +599,56 @@ class SettingsFields {
 
 			$value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 
-			if ( '' !== $value ) {
-				update_post_meta( $post_id, $key, $value );
-			} else {
+			if ( '' === $value ) {
 				delete_post_meta( $post_id, $key );
+				continue;
+			}
+
+			// Reject anything outside the known option set rather than persist
+			// arbitrary values.
+			if ( self::is_valid_meta_value( $key, $value ) ) {
+				update_post_meta( $post_id, $key, $value );
 			}
 		}
 
 		return $post_id;
+	}
+
+	/**
+	 * Whether a submitted value is allowed for the given Settings Fields key.
+	 *
+	 * Enum fields are checked against their option sets; the template-id fields
+	 * must be numeric; the free-form video size (an API-supplied name) only needs
+	 * the sanitisation already applied by the caller.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $key   The meta key.
+	 * @param string $value The sanitised, non-empty submitted value.
+	 */
+	private static function is_valid_meta_value( string $key, string $value ): bool {
+		switch ( $key ) {
+			case 'beyondwords_source':
+				return in_array( $value, array_column( self::source_options(), 'value' ), true );
+			case 'beyondwords_output':
+				return in_array( $value, array_column( self::output_options(), 'value' ), true );
+			case 'beyondwords_embed':
+				return in_array(
+					$value,
+					[
+						self::EMBED_NONE,
+						self::EMBED_AUDIO_POST,
+						self::EMBED_AUDIO_SCRIPT,
+						self::EMBED_VIDEO_POST,
+						self::EMBED_VIDEO_SCRIPT,
+					],
+					true
+				);
+			case 'beyondwords_script_template_id':
+			case 'beyondwords_video_template_id':
+				return ctype_digit( $value );
+			default:
+				return true;
+		}
 	}
 }

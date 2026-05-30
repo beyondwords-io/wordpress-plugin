@@ -18,6 +18,9 @@ class SettingsFieldsTest extends TestCase
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // save() requires a user who can edit the post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
     }
 
     public function tearDown(): void
@@ -269,6 +272,13 @@ class SettingsFieldsTest extends TestCase
         $labels = $crawler->filter('select#beyondwords_embed option')->each(fn ($node) => $node->text());
         $this->assertSame(['None', 'Audio (post)'], $labels);
 
+        // With no stored value the first asset is selected (player shows) rather
+        // than None.
+        $this->assertSame(
+            'audio_post',
+            $crawler->filter('select#beyondwords_embed option[selected]')->attr('value')
+        );
+
         wp_delete_post($post->ID, true);
     }
 
@@ -365,6 +375,75 @@ class SettingsFieldsTest extends TestCase
         $_POST['beyondwords_script_template_id'] = '';
         SettingsFields::save($postId);
         $this->assertSame('', get_post_meta($postId, 'beyondwords_script_template_id', true));
+
+        // Values outside the option set are rejected, leaving the prior value.
+        $_POST['beyondwords_source']            = 'not-a-real-source';
+        $_POST['beyondwords_video_template_id'] = 'not-numeric';
+        SettingsFields::save($postId);
+        $this->assertSame('post_and_script', get_post_meta($postId, 'beyondwords_source', true));
+        $this->assertSame('3', get_post_meta($postId, 'beyondwords_video_template_id', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function save_requires_edit_capability()
+    {
+        $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::save_cap']);
+
+        // A subscriber cannot edit the post, so nothing is written even with a
+        // valid nonce.
+        wp_set_current_user(self::factory()->user->create(['role' => 'subscriber']));
+
+        $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');
+        $_POST['beyondwords_source']                = 'script';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_source', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function default_embed_returns_first_asset()
+    {
+        $this->assertSame(
+            SettingsFields::EMBED_AUDIO_POST,
+            SettingsFields::default_embed(SettingsFields::SOURCE_POST, SettingsFields::OUTPUT_AUDIO)
+        );
+
+        $this->assertSame(
+            SettingsFields::EMBED_VIDEO_POST,
+            SettingsFields::default_embed(SettingsFields::SOURCE_POST, SettingsFields::OUTPUT_VIDEO)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function is_player_disabled_for_post_prefers_embed_then_legacy_flag()
+    {
+        $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::disabled']);
+
+        // No embed + no legacy flag → not disabled (player shows by default).
+        $this->assertFalse(SettingsFields::is_player_disabled_for_post($postId));
+
+        // Legacy opt-out, no embed → disabled.
+        update_post_meta($postId, 'beyondwords_disabled', '1');
+        $this->assertTrue(SettingsFields::is_player_disabled_for_post($postId));
+
+        // An explicit non-None embed wins over the legacy flag.
+        update_post_meta($postId, 'beyondwords_embed', SettingsFields::EMBED_AUDIO_POST);
+        $this->assertFalse(SettingsFields::is_player_disabled_for_post($postId));
+
+        // Embed = None disables.
+        update_post_meta($postId, 'beyondwords_embed', SettingsFields::EMBED_NONE);
+        $this->assertTrue(SettingsFields::is_player_disabled_for_post($postId));
 
         wp_delete_post($postId, true);
     }

@@ -28,6 +28,7 @@ import {
 	outputIncludesVideo,
 	getEmbedOptions,
 	isEmbedValid,
+	getDefaultEmbed,
 } from './helpers';
 
 describe( 'projectDefaultOption', () => {
@@ -212,6 +213,34 @@ describe( 'isEmbedValid', () => {
 	it( 'always accepts None', () => {
 		expect( isEmbedValid( EMBED_NONE, SOURCE_POST, OUTPUT_AUDIO ) ).toBe(
 			true
+		);
+	} );
+} );
+
+describe( 'getDefaultEmbed', () => {
+	it( 'returns the first asset for Post + Audio', () => {
+		expect( getDefaultEmbed( SOURCE_POST, OUTPUT_AUDIO ) ).toBe(
+			EMBED_AUDIO_POST
+		);
+	} );
+
+	it( 'returns the first video asset for Post + Video', () => {
+		expect( getDefaultEmbed( SOURCE_POST, OUTPUT_VIDEO ) ).toBe(
+			EMBED_VIDEO_POST
+		);
+	} );
+
+	it( 'returns a non-None value for every source/output combination', () => {
+		[ SOURCE_POST, SOURCE_SCRIPT, SOURCE_POST_AND_SCRIPT ].forEach(
+			( source ) => {
+				[ OUTPUT_AUDIO, OUTPUT_VIDEO, OUTPUT_AUDIO_AND_VIDEO ].forEach(
+					( output ) => {
+						expect( getDefaultEmbed( source, output ) ).not.toBe(
+							EMBED_NONE
+						);
+					}
+				);
+			}
 		);
 	} );
 } );

@@ -199,3 +199,21 @@ export function isEmbedValid( embed, source, output ) {
 		( option ) => option.value === embed
 	);
 }
+
+/**
+ * The default Embed value for a post that hasn't chosen one yet: the first asset
+ * the current Source × Output produces (e.g. Post × Audio → "Audio (post)").
+ * This keeps the player visible by default — "None" is the deliberate opt-out.
+ *
+ * @param {string} source One of SOURCE_*.
+ * @param {string} output One of OUTPUT_*.
+ *
+ * @return {string} The default embed value.
+ */
+export function getDefaultEmbed( source, output ) {
+	const asset = getEmbedOptions( source, output ).find(
+		( option ) => option.value !== EMBED_NONE
+	);
+
+	return asset ? asset.value : EMBED_NONE;
+}

@@ -112,6 +112,10 @@ class ContentId {
 			return $post_id;
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
 		if ( isset( $_POST['beyondwords_content_id'] ) ) {
 			update_post_meta(
 				$post_id,

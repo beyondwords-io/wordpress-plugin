@@ -29,7 +29,6 @@ context( 'Block Editor: Inspect Panel', () => {
 			'beyondwords_language_id',
 			'beyondwords_body_voice_id',
 			'beyondwords_error_message',
-			'beyondwords_disabled',
 			'beyondwords_delete_content',
 			// v7 additions
 			'beyondwords_source',

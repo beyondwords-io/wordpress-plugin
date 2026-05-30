@@ -43,6 +43,7 @@ class Updater {
 		if ( version_compare( $version, '7.0.0', '<' ) ) {
 			self::flatten_preselect();
 			self::delete_deprecated_options();
+			self::migrate_disabled_to_embed_none();
 		}
 
 		// Record the activation timestamp the first time we run.
@@ -103,6 +104,53 @@ class Updater {
 				delete_option( $option );
 			}
 		}
+	}
+
+	/**
+	 * v7.0.0: the per-post "Display player" opt-out (`beyondwords_disabled`) is
+	 * replaced by the Embed dropdown's "None" option.
+	 *
+	 * Carry the flag forward so previously-hidden players stay hidden, then drop
+	 * the legacy key. Only posts that explicitly disabled the player carry the
+	 * flag, so the set is small; we still batch to keep memory bounded. We never
+	 * overwrite an Embed value the post already has.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function migrate_disabled_to_embed_none(): void {
+		$batch = 100;
+
+		do {
+			$post_ids = get_posts(
+				[
+					'post_type'   => 'any',
+					'post_status' => 'any',
+					'numberposts' => $batch,
+					'fields'      => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'meta_query'  => [
+						[
+							'key'   => 'beyondwords_disabled',
+							'value' => '1',
+						],
+					],
+				]
+			);
+
+			foreach ( $post_ids as $post_id ) {
+				if ( '' === (string) get_post_meta( $post_id, 'beyondwords_embed', true ) ) {
+					update_post_meta(
+						$post_id,
+						'beyondwords_embed',
+						\BeyondWords\Editor\Components\SettingsFields::EMBED_NONE
+					);
+				}
+
+				delete_post_meta( $post_id, 'beyondwords_disabled' );
+			}
+
+			$found = count( $post_ids );
+		} while ( $found === $batch );
 	}
 
 	/**

@@ -275,7 +275,6 @@
 						data.body_voice_id || ''
 					),
 					beyondwords_delete_content: '',
-					beyondwords_disabled: '',
 					beyondwords_error_message: '',
 				};
 

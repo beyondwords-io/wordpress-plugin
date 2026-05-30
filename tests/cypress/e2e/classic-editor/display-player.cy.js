@@ -1,11 +1,16 @@
 /**
  * @group classic-editor
- * @covers src/editor/components/display-player/
+ * @covers src/editor/components/settings-fields/
  */
 
 /* global cy, before, beforeEach, after, context, it */
 
-context( 'Classic Editor: Display Player', () => {
+/*
+ * The "Display player" checkbox was removed in v7 — the Player "Embed" dropdown
+ * now controls front-end visibility, where "None" hides the player (equivalent
+ * to the old unchecked box). This spec exercises that visibility behaviour.
+ */
+context( 'Classic Editor: Player visibility (Embed)', () => {
 	before( () => {
 		cy.task( 'activatePlugin', 'classic-editor' );
 	} );
@@ -24,7 +29,7 @@ context( 'Classic Editor: Display Player', () => {
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `${ postType.name } can hide and reshow the player`, () => {
+			it( `${ postType.name } can hide and reshow the player via Embed`, () => {
 				cy.createPost( {
 					postType,
 				} );
@@ -37,10 +42,23 @@ context( 'Classic Editor: Display Player', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				cy.get( 'input#beyondwords_display_player' ).should(
-					'be.checked'
+				cy.get( '#sample-permalink' ).click();
+
+				// Player shows by default (Embed defaults to the first asset).
+				cy.hasPlayerInstances( 1 );
+
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
-				cy.get( 'input#beyondwords_display_player' ).uncheck();
+
+				cy.get( 'tbody tr' )
+					.eq( 0 )
+					.within( () => {
+						cy.get( 'a.row-title' ).click();
+					} );
+
+				// Set Embed = None to hide the player.
+				cy.get( 'select#beyondwords_embed' ).select( 'None' );
 
 				cy.get( '#publish' ).click(); // Click "Update" Button
 
@@ -69,10 +87,8 @@ context( 'Classic Editor: Display Player', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.get( 'input#beyondwords_display_player' ).should(
-					'not.be.checked'
-				);
-				cy.get( 'input#beyondwords_display_player' ).check();
+				// Pick an asset again to reshow the player.
+				cy.get( 'select#beyondwords_embed' ).select( 'Audio (post)' );
 
 				cy.get( '#publish' ).click(); // Click "Update" Button
 

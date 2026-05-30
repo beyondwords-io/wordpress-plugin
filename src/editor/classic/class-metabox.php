@@ -87,7 +87,7 @@ class Metabox {
 		// Single nonce guarding the Content/Format/Player <select> fields.
 		\BeyondWords\Editor\Components\SettingsFields::nonce();
 
-		// Player section: player/errors, Embed, Generate audio, Display player.
+		// Player section: player/errors, Embed, Generate audio.
 		self::heading( __( 'Player', 'speechkit' ) );
 
 		self::errors( $post );
@@ -100,12 +100,10 @@ class Metabox {
 			}
 		}
 
+		// The Embed dropdown ("None" = no player) replaces the old Display
+		// player checkbox.
 		\BeyondWords\Editor\Components\SettingsFields::render_player_section( $post );
 		( new \BeyondWords\Editor\Components\GenerateAudio() )::element( $post );
-
-		if ( $has_content ) {
-			( new \BeyondWords\Editor\Components\DisplayPlayer() )::element( $post );
-		}
 
 		// Content section: Source + Script template.
 		echo '<hr />';

@@ -31,8 +31,16 @@ class Head {
 	 * Sets meta[beyondwords-*] tags in the head tag of singular pages.
 	 * We set both the [content] attribute and a custom data attribute for compatibility.
 	 *
+	 * Only emitted for the client-side ("Magic Embed") integration: those tags
+	 * are hints for the BeyondWords crawler/SDK, which reads them off the page to
+	 * detect content. With the REST API integration the platform already has the
+	 * title, author, voice and language from the content payload, so emitting
+	 * them — and exposing internal voice IDs in the page source — serves no
+	 * purpose.
+	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Only emitted for the client-side (Magic Embed) integration.
 	 *
 	 * @return void
 	 */
@@ -50,6 +58,15 @@ class Head {
 		$project_id = Meta::get_project_id( $post_id, true );
 
 		if ( ! $project_id ) {
+			return;
+		}
+
+		$post = get_post( $post_id );
+
+		if (
+			\BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE
+			!== \BeyondWords\Settings\Fields::get_integration_method( $post )
+		) {
 			return;
 		}
 

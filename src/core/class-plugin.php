@@ -93,7 +93,6 @@ class Plugin {
 		\BeyondWords\Editor\Components\ContentId::init();
 		\BeyondWords\Editor\Components\ContentId\Assets::init();
 		\BeyondWords\Editor\Components\GenerateAudio::init();
-		\BeyondWords\Editor\Components\DisplayPlayer::init();
 		\BeyondWords\Editor\Components\SelectVoice::init();
 		\BeyondWords\Editor\Components\SelectVoice\Assets::init();
 		\BeyondWords\Editor\Components\SettingsFields::init();

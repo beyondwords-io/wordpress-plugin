@@ -399,6 +399,10 @@ class SelectVoice {
 			return $post_id;
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
 		$language_code = sanitize_text_field( wp_unslash( $_POST['beyondwords_language_code'] ) );
 
 		if ( ! empty( $language_code ) ) {

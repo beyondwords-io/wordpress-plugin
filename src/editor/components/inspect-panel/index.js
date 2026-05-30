@@ -16,7 +16,6 @@ import { store as noticesStore } from '@wordpress/notices';
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
-	beyondwordsDisabled,
 	beyondwordsGenerateAudio,
 	beyondwordsIntegrationMethod,
 	beyondwordsContentId,
@@ -94,7 +93,6 @@ export function PostInspectPanel( {
 			beyondwords_language_id: beyondwordsLanguageId,
 			beyondwords_body_voice_id: beyondwordsBodyVoiceId,
 			beyondwords_error_message: beyondwordsErrorMessage,
-			beyondwords_disabled: beyondwordsDisabled,
 			beyondwords_delete_content: beyondwordsDeleteContent,
 			beyondwords_source: beyondwordsSource,
 			beyondwords_output: beyondwordsOutput,
@@ -152,7 +150,6 @@ export function PostInspectPanel( {
 			`beyondwords_language_id\r\n${ beyondwordsLanguageId }`,
 			`beyondwords_body_voice_id\r\n${ beyondwordsBodyVoiceId }`,
 			`beyondwords_error_message\r\n${ beyondwordsErrorMessage }`,
-			`beyondwords_disabled\r\n${ beyondwordsDisabled }`,
 			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
 			`beyondwords_source\r\n${ beyondwordsSource }`,
 			`beyondwords_output\r\n${ beyondwordsOutput }`,
@@ -261,13 +258,6 @@ export function PostInspectPanel( {
 			/>
 
 			<TextControl
-				label="beyondwords_disabled"
-				readOnly
-				value={ beyondwordsDisabled }
-				__next40pxDefaultSize
-			/>
-
-			<TextControl
 				label="beyondwords_delete_content"
 				readOnly
 				value={ beyondwordsDeleteContent }
@@ -361,8 +351,6 @@ export default compose( [
 			// Current custom fields
 			beyondwordsDeleteContent:
 				getEditedPostAttribute( 'meta' ).beyondwords_delete_content,
-			beyondwordsDisabled:
-				getEditedPostAttribute( 'meta' ).beyondwords_disabled,
 			beyondwordsGenerateAudio:
 				getEditedPostAttribute( 'meta' ).beyondwords_generate_audio,
 			beyondwordsIntegrationMethod:

@@ -20,6 +20,9 @@ class SelectVoiceTest extends TestCase
         // Before...
         parent::setUp();
 
+        // save() requires a user who can edit the post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         // Your set up methods here.
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);

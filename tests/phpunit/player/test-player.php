@@ -393,6 +393,18 @@ class PlayerTest extends TestCase
 
         $this->assertFalse(Player::is_enabled($post));
 
+        // v7: "Embed: None" hides the player without the legacy flag.
+        delete_post_meta($post->ID, 'beyondwords_disabled');
+        update_post_meta($post->ID, 'beyondwords_embed', 'none');
+
+        $this->assertFalse(Player::is_enabled($post));
+
+        // An explicit asset re-enables it (and overrides a stale legacy flag).
+        update_post_meta($post->ID, 'beyondwords_disabled', '1');
+        update_post_meta($post->ID, 'beyondwords_embed', 'audio_post');
+
+        $this->assertTrue(Player::is_enabled($post));
+
         wp_delete_post($post->ID, true);
     }
 

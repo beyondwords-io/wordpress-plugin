@@ -55,7 +55,6 @@ export function useBeyondWordsPlayer( {
 	projectId,
 	sourceId,
 	contentId,
-	loadContentAs,
 	previewToken,
 } ) {
 	const BeyondWords = useBeyondWordsNamespace();
@@ -81,7 +80,7 @@ export function useBeyondWordsPlayer( {
 					projectId,
 					sourceId,
 					contentId,
-					loadContentAs: loadContentAs ?? [ 'article' ],
+					loadContentAs: [ 'article' ],
 					previewToken: previewToken || '',
 					analyticsConsent: 'none',
 					playerStyle: 'small',
@@ -131,7 +130,6 @@ export function useBeyondWordsPlayer( {
 		projectId,
 		sourceId,
 		contentId,
-		loadContentAs,
 		previewToken,
 	] );
 

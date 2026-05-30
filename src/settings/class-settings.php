@@ -342,6 +342,10 @@ class Settings {
 	 *
 	 * Editor scripts use the `template` array in the response to populate the
 	 * "Script template" dropdown.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Request $request The REST request.
 	 */
 	public static function rest_summarization_settings_response( \WP_REST_Request $request ): \WP_REST_Response {
 		$project_id = (int) $request->get_param( 'projectId' );
@@ -355,6 +359,10 @@ class Settings {
 	 *
 	 * Editor scripts use the `sizes` array in the response to populate the
 	 * "Video size" dropdown.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Request $request The REST request.
 	 */
 	public static function rest_video_settings_response( \WP_REST_Request $request ): \WP_REST_Response {
 		$project_id = (int) $request->get_param( 'projectId' );
@@ -367,6 +375,8 @@ class Settings {
 	 * Proxy for the BeyondWords summarization settings templates endpoint.
 	 *
 	 * Editor scripts use this list to populate the "Script template" dropdown.
+	 *
+	 * @since 7.0.0
 	 */
 	public static function rest_summarization_settings_templates_response(): \WP_REST_Response {
 		$response = \BeyondWords\Api\Client::get_summarization_settings_templates();
@@ -378,6 +388,8 @@ class Settings {
 	 * Proxy for the BeyondWords video settings templates endpoint.
 	 *
 	 * Editor scripts use this list to populate the "Video template" dropdown.
+	 *
+	 * @since 7.0.0
 	 */
 	public static function rest_video_settings_templates_response(): \WP_REST_Response {
 		$response = \BeyondWords\Api\Client::get_video_settings_templates();

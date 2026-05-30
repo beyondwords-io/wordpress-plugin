@@ -15,7 +15,8 @@ class GenerateAudioTest extends TestCase
         parent::setUp();
         unset($_POST, $_REQUEST);
 
-        // Your set up methods here.
+        // save() requires a user who can edit the post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
     }
 
     public function tearDown(): void

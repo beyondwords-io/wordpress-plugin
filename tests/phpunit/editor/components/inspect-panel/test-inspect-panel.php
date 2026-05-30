@@ -23,6 +23,9 @@ class InspectTest extends TestCase
         // Your set up methods here.
         set_current_screen('index.php');
 
+        // save() requires a user who can edit the post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
     }

@@ -113,7 +113,6 @@ export function ContentId( { wrapper } ) {
 				beyondwords_language_code: language || '',
 				beyondwords_body_voice_id: String( body_voice_id || '' ),
 				beyondwords_delete_content: '',
-				beyondwords_disabled: '',
 				beyondwords_error_message: '',
 			};
 			/* eslint-enable camelcase */

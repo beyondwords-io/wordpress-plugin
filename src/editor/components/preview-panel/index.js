@@ -8,16 +8,15 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import DisplayPlayer from '../display-player';
 import PlayAudio from '../play-audio';
 
 /**
  * Whether the post has audio/video ready to preview.
  *
- * Matches PlayAudioCheck / DisplayPlayerCheck so the panel hides itself when
- * either of those would also have nothing to render — i.e. before the first
- * successful generation. Legacy `podcast_id` keys are recognised so existing
- * posts upgraded from older plugin versions still preview correctly.
+ * Matches PlayAudioCheck so the panel hides itself when PlayAudio would also
+ * have nothing to render — i.e. before the first successful generation. Legacy
+ * `podcast_id` keys are recognised so existing posts upgraded from older plugin
+ * versions still preview correctly.
  *
  * @param {Function} select Redux-style select() from `@wordpress/data`.
  *
@@ -46,7 +45,6 @@ export function PreviewPanel() {
 			className="beyondwords beyondwords-sidebar__preview"
 		>
 			<PlayAudio wrapper={ PanelRow } />
-			<DisplayPlayer wrapper={ PanelRow } />
 		</PanelBody>
 	);
 }

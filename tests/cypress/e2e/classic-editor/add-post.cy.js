@@ -51,9 +51,6 @@ context( 'Classic Editor: Add Post', () => {
 
 				// "Generate Audio" is still on page
 				cy.get( 'input#beyondwords_generate_audio' );
-				cy.get( 'input#beyondwords_display_player' ).should(
-					'not.exist'
-				);
 
 				cy.get( '#sample-permalink' ).click();
 
@@ -162,9 +159,6 @@ context( 'Classic Editor: Add Post', () => {
 
 				// "Generate Audio" checkbox is now always visible
 				cy.get( 'input#beyondwords_generate_audio' ).should( 'exist' );
-				cy.get( 'input#beyondwords_display_player' ).should(
-					'be.checked'
-				);
 
 				cy.get( '#sample-permalink' ).click();
 
