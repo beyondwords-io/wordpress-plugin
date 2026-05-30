@@ -214,7 +214,7 @@
 		return null;
 	}
 
-	document.body.addEventListener( 'click', function ( event ) {
+	function handleFetchClick( event ) {
 		const button = event.target.closest(
 			'#beyondwords__content-id--fetch'
 		);
@@ -330,5 +330,15 @@
 			.finally( function () {
 				spinner = setLoading( button, input, false, spinner );
 			} );
-	} );
+	}
+
+	function init() {
+		document.body.addEventListener( 'click', handleFetchClick );
+	}
+
+	if ( document.readyState !== 'loading' ) {
+		init();
+	} else {
+		document.addEventListener( 'DOMContentLoaded', init );
+	}
 } )();

@@ -8,15 +8,7 @@
 ( function () {
 	'use strict';
 
-	const onReady = ( fn ) => {
-		if ( document.readyState !== 'loading' ) {
-			fn();
-		} else {
-			document.addEventListener( 'DOMContentLoaded', fn );
-		}
-	};
-
-	onReady( function () {
+	function init() {
 		const copyButton = document.getElementById(
 			'beyondwords__inspect--copy'
 		);
@@ -64,5 +56,11 @@
 					el.value = '';
 				} );
 		} );
-	} );
+	}
+
+	if ( document.readyState !== 'loading' ) {
+		init();
+	} else {
+		document.addEventListener( 'DOMContentLoaded', init );
+	}
 } )();
