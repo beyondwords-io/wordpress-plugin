@@ -16,6 +16,7 @@ import {
 	OUTPUT_AUDIO,
 	projectDefaultOption,
 } from './helpers';
+import Stack from '../stack';
 
 export function FormatSection() {
 	const postType = useSelect(
@@ -84,37 +85,39 @@ export function FormatSection() {
 
 	return (
 		<PanelBody title={ __( 'Format', 'speechkit' ) } initialOpen={ true }>
-			<SelectControl
-				className="beyondwords--output"
-				label={ __( 'Output', 'speechkit' ) }
-				options={ getOutputOptions() }
-				value={ output }
-				onChange={ setOutput }
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
-			/>
-			{ outputIncludesVideo( output ) && (
-				<>
-					<SelectControl
-						className="beyondwords--video-template"
-						label={ __( 'Video template', 'speechkit' ) }
-						options={ videoTemplateOptions }
-						value={ videoTemplateId }
-						onChange={ setVideoTemplateId }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-					<SelectControl
-						className="beyondwords--video-size"
-						label={ __( 'Video size', 'speechkit' ) }
-						options={ videoSizeOptions }
-						value={ videoSize }
-						onChange={ setVideoSize }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-				</>
-			) }
+			<Stack>
+				<SelectControl
+					className="beyondwords--output"
+					label={ __( 'Output', 'speechkit' ) }
+					options={ getOutputOptions() }
+					value={ output }
+					onChange={ setOutput }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+				{ outputIncludesVideo( output ) && (
+					<>
+						<SelectControl
+							className="beyondwords--video-template"
+							label={ __( 'Video template', 'speechkit' ) }
+							options={ videoTemplateOptions }
+							value={ videoTemplateId }
+							onChange={ setVideoTemplateId }
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+						/>
+						<SelectControl
+							className="beyondwords--video-size"
+							label={ __( 'Video size', 'speechkit' ) }
+							options={ videoSizeOptions }
+							value={ videoSize }
+							onChange={ setVideoSize }
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+						/>
+					</>
+				) }
+			</Stack>
 		</PanelBody>
 	);
 }

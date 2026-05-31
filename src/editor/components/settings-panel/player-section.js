@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -18,6 +18,7 @@ import {
 	OUTPUT_AUDIO,
 	SOURCE_POST,
 } from './helpers';
+import Stack from '../stack';
 
 export function PlayerSection( { withPanel = true } ) {
 	const postType = useSelect(
@@ -76,12 +77,12 @@ export function PlayerSection( { withPanel = true } ) {
 	// In the document/pre-publish panels we render the field directly inside the
 	// existing "BeyondWords" panel rather than nesting another panel.
 	if ( ! withPanel ) {
-		return <Fragment>{ field }</Fragment>;
+		return <Stack>{ field }</Stack>;
 	}
 
 	return (
 		<PanelBody title={ __( 'Player', 'speechkit' ) } initialOpen={ true }>
-			{ field }
+			<Stack>{ field }</Stack>
 		</PanelBody>
 	);
 }

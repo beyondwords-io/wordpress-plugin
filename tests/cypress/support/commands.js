@@ -329,7 +329,7 @@ Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 	return cy
 		.get( 'label', ...args )
 		.contains( text )
-		.closest( '.components-checkbox-control' )
+		.closest( '.beyondwords-toggle' )
 		.find( 'input[type="checkbox"]' )
 		.then( ( $el ) => cy.wrap( $el ) );
 } );

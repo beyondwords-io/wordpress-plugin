@@ -12,6 +12,7 @@ import { Component } from '@wordpress/element';
 import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
 import { PlayerSection, VoiceSection } from '../../components/settings-panel';
+import Stack from '../../components/stack';
 
 export default class PrepublishPanel extends Component {
 	render() {
@@ -22,12 +23,14 @@ export default class PrepublishPanel extends Component {
 				initialOpen={ true }
 				className="beyondwords-sidebar"
 			>
-				<ErrorNotice wrapper={ PanelRow } />
-				<GenerateAudio wrapper={ PanelRow } />
-				<hr />
-				<VoiceSection withPanel={ false } />
-				<hr />
-				<PlayerSection withPanel={ false } />
+				<Stack>
+					<ErrorNotice wrapper={ PanelRow } />
+					<GenerateAudio wrapper={ PanelRow } />
+					<hr />
+					<VoiceSection withPanel={ false } />
+					<hr />
+					<PlayerSection withPanel={ false } />
+				</Stack>
 			</PluginPrePublishPanel>
 		);
 	}

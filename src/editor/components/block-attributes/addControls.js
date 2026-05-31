@@ -6,7 +6,6 @@ import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	PanelRow,
-	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
@@ -17,6 +16,8 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
+import Toggle from '../toggle';
+import { BeyondwordsIcon } from '../icon';
 
 /**
  * Add BeyondWords controls to Gutenberg Blocks.
@@ -63,16 +64,15 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 
 					<InspectorControls>
 						<PanelBody
-							icon="controls-volumeon"
+							icon={ <BeyondwordsIcon /> }
 							title={ __( 'BeyondWords', 'speechkit' ) }
 							initialOpen={ true }
 						>
 							<PanelRow>
-								<ToggleControl
+								<Toggle
 									label={ toggleLabel }
 									checked={ !! beyondwordsAudio }
 									onChange={ toggleBeyondwordsAudio }
-									__nextHasNoMarginBottom
 								/>
 							</PanelRow>
 						</PanelBody>

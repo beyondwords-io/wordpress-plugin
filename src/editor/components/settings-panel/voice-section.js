@@ -2,10 +2,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
 /**
@@ -16,6 +15,7 @@ import {
 	getVoiceModelVariants,
 	voiceModelLabel,
 } from './helpers';
+import Stack from '../stack';
 
 export function VoiceSection( { withPanel = true } ) {
 	const postType = useSelect(
@@ -44,6 +44,17 @@ export function VoiceSection( { withPanel = true } ) {
 			languageCode
 				? select( 'beyondwords/settings' ).getVoices( languageCode )
 				: [],
+		[ languageCode ]
+	);
+
+	// Changing the Language re-fetches its voices; show a Spinner in place of
+	// the Voice/Model dropdowns until that resolves.
+	const isResolvingVoices = useSelect(
+		( select ) =>
+			!! languageCode &&
+			select( 'beyondwords/settings' ).isResolving( 'getVoices', [
+				languageCode,
+			] ),
 		[ languageCode ]
 	);
 
@@ -119,7 +130,7 @@ export function VoiceSection( { withPanel = true } ) {
 	} ) );
 
 	const fields = (
-		<Fragment>
+		<Stack>
 			{ hasLanguages && (
 				<SelectControl
 					className="beyondwords--language"
@@ -131,6 +142,7 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
+			{ isResolvingVoices && <Spinner /> }
 			{ hasVoices && (
 				<SelectControl
 					className="beyondwords--voice"
@@ -153,7 +165,7 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-		</Fragment>
+		</Stack>
 	);
 
 	// In the document/pre-publish panels we render the fields directly inside
