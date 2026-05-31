@@ -1,3 +1,8 @@
+/**
+ * @group settings
+ * @covers src/settings/class-fields.php,src/settings/class-tabs.php
+ */
+
 /* global cy, beforeEach, context, it */
 
 context( 'Settings > Integration', () => {

@@ -1,3 +1,8 @@
+/**
+ * @group posts-list
+ * @covers src/posts-list/class-bulk-edit.php,src/posts-list/class-notices.php,src/posts-list/class-column.php,src/api/class-client.php
+ */
+
 /* global cy, beforeEach, context, it */
 
 context( 'Bulk Actions', () => {

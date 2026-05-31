@@ -1,6 +1,6 @@
 {
   "name": "beyondwords-wordpress-plugin",
-  "version": "7.0.0-dev-1.0",
+  "version": "7.0.0-dev-2.0",
   "private": true,
   "description": "BeyondWords WordPress Plugin",
   "repository": {
@@ -28,8 +28,10 @@
     "@wordpress/i18n": "^6.17.0",
     "@wordpress/notices": "^5.44.0",
     "@wordpress/plugins": "^7.44.0",
+    "@wordpress/prettier-config": "^4.45.0",
     "@wordpress/scripts": "^32.2.0",
     "cypress": "^15.14.0",
+    "prettier": "npm:wp-prettier@3.0.3",
     "cypress-fail-fast": "^8.1.0",
     "cypress-map": "^1.56.0",
     "cypress-multi-reporters": "^2.0.5",
@@ -60,10 +62,13 @@
     "phpcs:plugins": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcs --standard=plugins/.phpcs.xml plugins/",
     "phpcbf": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/speechkit ./vendor/bin/phpcbf -d memory_limit=512M",
     "start": "wp-scripts start",
+    "test:unit": "wp-scripts test-unit-js",
+    "test:unit:watch": "wp-scripts test-unit-js --watch",
     "wp-cli:plugin-check": "wp-env run cli wp plugin check speechkit",
     "env": "wp-env",
     "env:start": "wp-env start --xdebug=debug,coverage --update && wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update",
     "env:tests": "wp-env --config .wp-env.tests.json",
     "env:tests:start": "wp-env --config .wp-env.tests.json start --xdebug=debug,coverage --update"
-  }
+  },
+  "prettier": "@wordpress/prettier-config"
 }

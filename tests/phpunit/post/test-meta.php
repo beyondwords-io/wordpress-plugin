@@ -350,33 +350,4 @@ class MetaTest extends TestCase
         wp_delete_post($postId, true);
     }
 
-    /**
-     * @test
-     */
-    public function get_title_voice_id()
-    {
-        $postId = self::factory()->post->create();
-
-        $this->assertFalse(Meta::get_title_voice_id($postId));
-
-        update_post_meta($postId, 'beyondwords_title_voice_id', '456');
-        $this->assertSame('456', Meta::get_title_voice_id($postId));
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     */
-    public function get_summary_voice_id()
-    {
-        $postId = self::factory()->post->create();
-
-        $this->assertFalse(Meta::get_summary_voice_id($postId));
-
-        update_post_meta($postId, 'beyondwords_summary_voice_id', '789');
-        $this->assertSame('789', Meta::get_summary_voice_id($postId));
-
-        wp_delete_post($postId, true);
-    }
 }

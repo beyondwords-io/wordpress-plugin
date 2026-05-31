@@ -77,6 +77,17 @@ class MetaboxTest extends TestCase
         // Generate audio checkbox is always rendered.
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-generate-audio'));
 
+        // The sections render as headings in the required order.
+        $headings = $crawler->filter('h4.beyondwords-metabox__heading')
+            ->each(fn ($node) => $node->text());
+        $this->assertSame(['Player', 'Content', 'Format', 'Voice', 'Data'], $headings);
+
+        // Each section's primary control is present.
+        $this->assertCount(1, $crawler->filter('select#beyondwords_embed'));
+        $this->assertCount(1, $crawler->filter('select#beyondwords_source'));
+        $this->assertCount(1, $crawler->filter('select#beyondwords_output'));
+        $this->assertCount(1, $crawler->filter('select#beyondwords_language_code'));
+
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-help'));
         $this->assertCount(0, $crawler->filter('div#beyondwords-metabox-errors'));
 

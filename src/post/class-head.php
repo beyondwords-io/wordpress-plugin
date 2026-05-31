@@ -31,8 +31,16 @@ class Head {
 	 * Sets meta[beyondwords-*] tags in the head tag of singular pages.
 	 * We set both the [content] attribute and a custom data attribute for compatibility.
 	 *
+	 * Only emitted for the client-side ("Magic Embed") integration: those tags
+	 * are hints for the BeyondWords crawler/SDK, which reads them off the page to
+	 * detect content. With the REST API integration the platform already has the
+	 * title, author, voice and language from the content payload, so emitting
+	 * them — and exposing internal voice IDs in the page source — serves no
+	 * purpose.
+	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Only emitted for the client-side (Magic Embed) integration.
 	 *
 	 * @return void
 	 */
@@ -50,6 +58,15 @@ class Head {
 		$project_id = Meta::get_project_id( $post_id, true );
 
 		if ( ! $project_id ) {
+			return;
+		}
+
+		$post = get_post( $post_id );
+
+		if (
+			\BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE
+			!== \BeyondWords\Settings\Fields::get_integration_method( $post )
+		) {
 			return;
 		}
 
@@ -77,16 +94,6 @@ class Head {
 			esc_attr( $publish_date )
 		);
 
-		$title_voice_id = get_post_meta( $post_id, 'beyondwords_title_voice_id', true );
-
-		if ( $title_voice_id ) {
-			printf(
-				'<meta name="beyondwords-title-voice-id" content="%d" data-beyondwords-title-voice-id="%d" />' . "\n",
-				esc_attr( $title_voice_id ),
-				esc_attr( $title_voice_id )
-			);
-		}
-
 		$body_voice_id = get_post_meta( $post_id, 'beyondwords_body_voice_id', true );
 
 		if ( $body_voice_id ) {
@@ -94,16 +101,6 @@ class Head {
 				'<meta name="beyondwords-body-voice-id" content="%d" data-beyondwords-body-voice-id="%d" />' . "\n",
 				esc_attr( $body_voice_id ),
 				esc_attr( $body_voice_id )
-			);
-		}
-
-		$summary_voice_id = get_post_meta( $post_id, 'beyondwords_summary_voice_id', true );
-
-		if ( $summary_voice_id ) {
-			printf(
-				'<meta name="beyondwords-summary-voice-id" content="%d" data-beyondwords-summary-voice-id="%d" />' . "\n", // phpcs:ignore Generic.Files.LineLength.TooLong
-				esc_attr( $summary_voice_id ),
-				esc_attr( $summary_voice_id )
 			);
 		}
 

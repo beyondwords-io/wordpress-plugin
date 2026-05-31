@@ -437,6 +437,66 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     * @group settings
+     */
+    public function get_summarization_settings()
+    {
+        $response = Client::get_summarization_settings();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = Client::get_summarization_settings();
+
+        $this->assertArrayHasKey('enabled', $response);
+        $this->assertArrayHasKey('prompt', $response);
+        $this->assertArrayHasKey('model', $response);
+        $this->assertArrayHasKey('template', $response);
+        $this->assertIsArray($response['template']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function get_summarization_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_summarization_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function get_video_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_video_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
      *
      * 401 when the option-supplied API key is invalid (covers both the
      * "missing" and "wrong" cases — the BeyondWords API treats them the same).

@@ -1,3 +1,8 @@
+/**
+ * @group classic-editor
+ * @covers src/editor/components/content-id/,src/editor/classic/class-metabox.php
+ */
+
 /* global Cypress, cy, before, beforeEach, after, context, it */
 
 context( 'Classic Editor: Content ID', () => {
@@ -81,11 +86,6 @@ context( 'Classic Editor: Content ID', () => {
 				postId,
 				metaKey: 'beyondwords_preview_token',
 			} ).should( 'equal', 'd9ce36ea-ddc4-4611-b60c-4f90ed0fc082' );
-
-			cy.task( 'getPostMeta', {
-				postId,
-				metaKey: 'beyondwords_title_voice_id',
-			} ).should( 'equal', '2517' );
 
 			cy.task( 'getPostMeta', {
 				postId,

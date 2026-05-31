@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/content-id/,src/editor/components/data-panel/,src/editor/block/sidebar/
+ */
+
 /* global Cypress, cy, beforeEach, context, it, expect */
 
 context( 'Block Editor: Content ID', () => {
@@ -38,7 +43,7 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsPluginSidebar();
 
-			cy.get( '.beyondwords-sidebar__status input[type="text"]' )
+			cy.get( '.beyondwords-sidebar__data input[type="text"]' )
 				.filter(
 					( _i, el ) => el.value === Cypress.expose('contentId')
 				)
@@ -73,7 +78,7 @@ context( 'Block Editor: Content ID', () => {
 				.type( testContentId, { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
@@ -95,9 +100,6 @@ context( 'Block Editor: Content ID', () => {
 					);
 					expect( meta.beyondwords_preview_token ).to.equal(
 						'd9ce36ea-ddc4-4611-b60c-4f90ed0fc082'
-					);
-					expect( meta.beyondwords_title_voice_id ).to.equal(
-						'2517'
 					);
 					expect( meta.beyondwords_body_voice_id ).to.equal(
 						'2517'
@@ -154,7 +156,7 @@ context( 'Block Editor: Content ID', () => {
 				.type( 'not-found-content-id', { force: true } );
 
 			// Click Fetch
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
@@ -206,7 +208,7 @@ context( 'Block Editor: Content ID', () => {
 				.clear( { force: true } )
 				.type( testContentId, { force: true } );
 
-			cy.get( '.beyondwords-sidebar__status' )
+			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 

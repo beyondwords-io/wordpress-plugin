@@ -55,16 +55,34 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 } );
 
 Cypress.Commands.add( 'login', () => {
-	const baseUrl = Cypress.config().baseUrl;
-
 	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
 		( { wpUsername, wpPassword } ) => {
-			cy.visit( '/wp-login.php' ).wait( 250 );
+			// Visiting from a dirty editor (a prior test that opened the
+			// pre-publish panel) can otherwise trip the unsaved-changes
+			// prompt; auto-confirm so navigation isn't blocked.
+			cy.window().then( ( win ) => {
+				win.onbeforeunload = null;
+			} );
 
-			cy.get( '#user_login' ).clear().type( wpUsername ).wait( 250 );
-			cy.get( '#user_pass' ).clear().type( `${ wpPassword }{enter}` );
+			cy.visit( '/wp-login.php', { onBeforeLoad: ( win ) => {
+				win.onbeforeunload = null;
+			} } ).wait( 250 );
 
-			cy.url().should( 'eq', `${ baseUrl }/wp-admin/` );
+			// If we're already authenticated WordPress redirects away from the
+			// login form — only fill it in when the form is actually present.
+			cy.get( 'body' ).then( ( $body ) => {
+				if ( $body.find( '#user_login' ).length ) {
+					cy.get( '#user_login' )
+						.clear()
+						.type( wpUsername )
+						.wait( 250 );
+					cy.get( '#user_pass' )
+						.clear()
+						.type( `${ wpPassword }{enter}` );
+				}
+			} );
+
+			cy.location( 'pathname' ).should( 'eq', '/wp-admin/' );
 		}
 	);
 } );
@@ -192,6 +210,13 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.then( ( $el ) => cy.wrap( $el, args ) );
 } );
 
+// Use the className selector instead of the label text — the GenerateAudio
+// label flips between "Create" and "Update" based on whether the post
+// already has a beyondwords_content_id.
+const GENERATE_AUDIO_CHECKBOX =
+	'.beyondwords--generate-audio input[type="checkbox"]';
+const GENERATE_AUDIO_LABEL = '.beyondwords--generate-audio label';
+
 Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 	if ( ! postType ) {
 		postType = postTypes[ 0 ];
@@ -199,15 +224,15 @@ Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( ! postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'be.checked' );
 } );
 
 Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
@@ -217,15 +242,15 @@ Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'not.be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'not.be.checked' );
 } );
 
 Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
@@ -249,7 +274,7 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'exist' );
 
 	cy.hasAdminPlayerInstances( 0 );
 } );
@@ -295,14 +320,16 @@ Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
 	cy.get( '.beyondwords-sidebar' )
 		.contains( 'a', 'BeyondWords sidebar' )
 		.click();
-	cy.get( '.beyondwords-sidebar__status' ).should( 'be.visible' );
+	cy.get( '.beyondwords-sidebar__data' )
+		.scrollIntoView()
+		.should( 'be.visible' );
 } );
 
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 	return cy
 		.get( 'label', ...args )
 		.contains( text )
-		.closest( '.components-checkbox-control' )
+		.closest( '.beyondwords-toggle' )
 		.find( 'input[type="checkbox"]' )
 		.then( ( $el ) => cy.wrap( $el ) );
 } );

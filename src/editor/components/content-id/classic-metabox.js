@@ -214,7 +214,7 @@
 		return null;
 	}
 
-	document.body.addEventListener( 'click', function ( event ) {
+	function handleFetchClick( event ) {
 		const button = event.target.closest(
 			'#beyondwords__content-id--fetch'
 		);
@@ -271,17 +271,10 @@
 					beyondwords_content_id: data.id || '',
 					beyondwords_preview_token: data.preview_token || '',
 					beyondwords_language_code: data.language || '',
-					beyondwords_title_voice_id: String(
-						data.title_voice_id || ''
-					),
-					beyondwords_summary_voice_id: String(
-						data.summary_voice_id || ''
-					),
 					beyondwords_body_voice_id: String(
 						data.body_voice_id || ''
 					),
 					beyondwords_delete_content: '',
-					beyondwords_disabled: '',
 					beyondwords_error_message: '',
 				};
 
@@ -336,5 +329,15 @@
 			.finally( function () {
 				spinner = setLoading( button, input, false, spinner );
 			} );
-	} );
+	}
+
+	function init() {
+		document.body.addEventListener( 'click', handleFetchClick );
+	}
+
+	if ( document.readyState !== 'loading' ) {
+		init();
+	} else {
+		document.addEventListener( 'DOMContentLoaded', init );
+	}
 } )();

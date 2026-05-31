@@ -23,6 +23,9 @@ class InspectTest extends TestCase
         // Your set up methods here.
         set_current_screen('index.php');
 
+        // save() requires a user who can edit the post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
     }
@@ -55,16 +58,23 @@ class InspectTest extends TestCase
     public function render_meta_box_content()
     {
         $postMeta = [
-            'beyondwords_project_id'       => BEYONDWORDS_TESTS_PROJECT_ID,
-            'beyondwords_content_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
-            'beyondwords_podcast_id'       => BEYONDWORDS_TESTS_CONTENT_ID,
-            'beyondwords_preview_token'    => 'my-preview-token',
-            'beyondwords_language_code'    => 'en_US',
-            'beyondwords_title_voice_id'   => '101',
-            'beyondwords_body_voice_id'    => '2517',
-            'beyondwords_summary_voice_id' => '303',
-            'beyondwords_disabled'         => '0',
-            'beyondwords_error_message'    => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'beyondwords_project_id'          => BEYONDWORDS_TESTS_PROJECT_ID,
+            'beyondwords_content_id'          => BEYONDWORDS_TESTS_CONTENT_ID,
+            'beyondwords_podcast_id'          => BEYONDWORDS_TESTS_CONTENT_ID,
+            'beyondwords_preview_token'       => 'my-preview-token',
+            'beyondwords_language_code'       => 'en_US',
+            'beyondwords_title_voice_id'      => '101',
+            'beyondwords_body_voice_id'       => '2517',
+            'beyondwords_summary_voice_id'    => '303',
+            'beyondwords_disabled'            => '0',
+            'beyondwords_error_message'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            // v7 fields — exercise get_all_beyondwords_metadata picks them up.
+            'beyondwords_source'              => 'post_and_script',
+            'beyondwords_output'              => 'audio_and_video',
+            'beyondwords_script_template_id'  => '42',
+            'beyondwords_video_template_id'   => 'default',
+            'beyondwords_video_size'          => 'landscape',
+            'beyondwords_embed'               => 'audio_post',
             'speechkit_info'               => ["foo" => ["bar" => "baz"]],
             'speechkit_response'           => 'Value 7',
             'speechkit_retries'            => '1',

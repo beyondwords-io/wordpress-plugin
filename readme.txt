@@ -3,9 +3,9 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 7.0.0-dev-1.0
+Stable tag: 7.0.0-dev-2.0
 Requires PHP: 8.0
-Tested up to: 6.9
+Tested up to: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
@@ -80,8 +80,22 @@ Keep on top of performance with BeyondWords Analytics or by forwarding events to
 
 Release date: tbc
 
+**Enhancements**
+
+* [#527](https://github.com/beyondwords-io/wordpress-plugin/pull/527) BeyondWords editor redesign for the block and classic editors.
+    * New Content (Source, Script template), Format (Output, Video template, Video size), Voice (Language, Voice, Model) and Player (Embed) settings, available in both editors.
+    * The Player "Embed" setting replaces the "Display player" checkbox — choose "None" to hide the player on a post.
+* [#520](https://github.com/beyondwords-io/wordpress-plugin/pull/520) Settings page updates for WordPress v7.
+
+**Deprecations**
+
+* Removed the `beyondwords_player_style`, `beyondwords_player_content`, `beyondwords_title_voice_id`, `beyondwords_summary_voice_id` and `beyondwords_disabled` post meta keys.
+    * Existing values are preserved in the database and only removed on full uninstall; `beyondwords_disabled` is migrated to the new "Embed" setting on upgrade.
+* The `beyondwords-*` `<head>` meta tags are now only emitted for the client-side (Magic Embed) integration.
+
 **Compatibility**
 
+* Tested up to WordPress 7.0.
 * PHP 8.5 support.
     * Run unit and e2e tests against PHP 8.0 and PHP 8.5 in GitHub Actions.
     * Bumped `phpVersion` in wp-env to 8.5.

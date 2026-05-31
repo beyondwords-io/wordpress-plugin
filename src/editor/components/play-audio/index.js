@@ -13,7 +13,6 @@ import { useBeyondWordsPlayer } from './hooks';
 
 function PlayAudio( {
 	contentId,
-	loadContentAs,
 	previewToken,
 	projectId,
 	sourceId,
@@ -29,7 +28,6 @@ function PlayAudio( {
 		sourceId,
 		contentId,
 		previewToken,
-		loadContentAs,
 	} );
 
 	return (
@@ -63,8 +61,6 @@ export default compose( [
 			getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
 
 		// Other attributes.
-		const beyondwordsPlayerContent =
-			getEditedPostAttribute( 'meta' ).beyondwords_player_content;
 		const beyondwordsPreviewToken =
 			getEditedPostAttribute( 'meta' ).beyondwords_preview_token;
 
@@ -73,9 +69,6 @@ export default compose( [
 				beyondwordsContentId ||
 				beyondwordsPodcastId ||
 				speechkitPodcastId,
-			loadContentAs: beyondwordsPlayerContent
-				? [ beyondwordsPlayerContent ]
-				: [ 'article' ],
 			previewToken: beyondwordsPreviewToken,
 			projectId: beyondwordsProjectId || speechkitProjectId,
 			sourceId: getCurrentPostId(),

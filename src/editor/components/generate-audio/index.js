@@ -2,17 +2,21 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import Toggle from '../toggle';
 
 export function GenerateAudio( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { generateAudio, shouldPreselect, hasExplicitValue } = useSelect(
-		( select ) => {
+	const { generateAudio, shouldPreselect, hasExplicitValue, hasContent } =
+		useSelect( ( select ) => {
 			const {
 				getCurrentPostAttribute,
 				getCurrentPostType,
@@ -124,16 +128,20 @@ export function GenerateAudio( { wrapper } ) {
 
 			const currentValue = getGenerateAudio();
 			const shouldPreselectValue = getShouldPreselect();
+			const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
 
 			return {
 				generateAudio:
 					currentValue === null ? shouldPreselectValue : currentValue,
 				shouldPreselect: shouldPreselectValue,
 				hasExplicitValue: currentValue !== null,
+				hasContent: Boolean(
+					savedMeta.beyondwords_content_id ||
+						savedMeta.beyondwords_podcast_id ||
+						savedMeta.speechkit_podcast_id
+				),
 			};
-		},
-		[]
-	);
+		}, [] );
 
 	// Set "Generate audio" meta when preselected, but only if the value
 	// is truly unset (null) — neither in post edits nor saved meta.
@@ -159,14 +167,17 @@ export function GenerateAudio( { wrapper } ) {
 		} );
 	};
 
+	const label = hasContent
+		? __( 'Update', 'speechkit' )
+		: __( 'Create', 'speechkit' );
+
 	return (
 		<Wrapper>
-			<CheckboxControl
+			<Toggle
 				className="beyondwords--generate-audio"
-				label={ __( 'Generate audio', 'speechkit' ) }
+				label={ label }
 				checked={ generateAudio }
 				onChange={ handleChange }
-				__nextHasNoMarginBottom
 			/>
 		</Wrapper>
 	);

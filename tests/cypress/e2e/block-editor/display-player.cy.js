@@ -1,17 +1,29 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/settings-panel/,src/editor/components/preview-panel/
+ */
+
 /* global cy, beforeEach, context, it */
 
-context( 'Block Editor: Display Player', () => {
+/*
+ * The "Display player" checkbox was removed in v7 — the Player "Embed" dropdown
+ * now controls front-end visibility, where "None" hides the player (equivalent
+ * to the old unchecked box). This spec exercises that visibility behaviour.
+ */
+context( 'Block Editor: Player visibility (Embed)', () => {
 	beforeEach( () => {
 		cy.login();
 	} );
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
+	const embedSelect = () => cy.get( '.beyondwords--embed select' );
+
 	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `hides and reshows the player for post type: ${ postType.name }`, () => {
+			it( `hides and reshows the player via Embed for post type: ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
 					title: `I can toggle player visibility for a ${ postType.name }`,
@@ -23,7 +35,8 @@ context( 'Block Editor: Display Player', () => {
 
 				cy.publishWithConfirmation();
 
-				// "View post"
+				// "View post" — player shows by default (Embed defaults to the
+				// first asset).
 				cy.viewPostViaSnackbar();
 
 				cy.getPlayerScriptTag().should( 'exist' );
@@ -33,7 +46,7 @@ context( 'Block Editor: Display Player', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] in the BeyondWords column
+				// See a [tick] and no "Disabled" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -46,15 +59,13 @@ context( 'Block Editor: Display Player', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click();
+				// Open the plugin sidebar (not just the document panel) so a
+				// single Player section is mounted — otherwise `.beyondwords--embed`
+				// matches both panels.
+				cy.openBeyondwordsPluginSidebar();
 
-				cy.getBlockEditorCheckbox( 'Display player' ).should(
-					'be.checked'
-				);
-				cy.getLabel( 'Display player' ).click();
-				cy.getBlockEditorCheckbox( 'Display player' ).should(
-					'not.be.checked'
-				);
+				// Set Embed = None to hide the player.
+				embedSelect().select( 'None', { force: true } );
 
 				cy.savePost();
 
@@ -81,15 +92,10 @@ context( 'Block Editor: Display Player', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click();
+				cy.openBeyondwordsPluginSidebar();
 
-				cy.getBlockEditorCheckbox( 'Display player' ).should(
-					'not.be.checked'
-				);
-				cy.getLabel( 'Display player' ).click();
-				cy.getBlockEditorCheckbox( 'Display player' ).should(
-					'be.checked'
-				);
+				// Pick an asset again to reshow the player.
+				embedSelect().select( 'Audio (post)', { force: true } );
 
 				cy.savePost();
 

@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/editor/components/add-player/,src/player/class-player.php
+ */
+
 /* global cy, beforeEach, context, it */
 
 context( 'Block Editor: Insert BeyondWords Player', () => {

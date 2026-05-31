@@ -1,5 +1,3 @@
 import wordpress from '@wordpress/eslint-plugin';
 
-export default [
-	...wordpress.configs.recommended,
-];
+export default [ ...wordpress.configs.recommended ];

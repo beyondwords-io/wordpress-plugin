@@ -62,31 +62,6 @@ class ContentTest extends TestCase
     /**
      * @test
      */
-    public function get_content_body_with_summary_voice_id()
-    {
-        $post = self::factory()->post->create_and_get([
-            'post_title' => 'ContentTest:getContentBodyWithSummaryVoiceId',
-            'post_excerpt' => 'The excerpt.',
-            'post_content' => '<p>Some test HTML.</p>',
-            'meta_input'    => [
-                'beyondwords_summary_voice_id' => '3555',
-            ],
-        ]);
-
-        update_option('beyondwords_prepend_excerpt', '1');
-
-        $content = Content::get_content_body($post);
-
-        delete_option('beyondwords_prepend_excerpt');
-
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
-
-        wp_delete_post($post->ID, true);
-    }
-
-    /**
-     * @test
-     */
     public function get_content_body_with_invalid_post_id()
     {
         $this->expectException(\Exception::class);
@@ -125,7 +100,12 @@ class ContentTest extends TestCase
             'post_content' => $content,
         ]);
 
-        $this->assertSame($expect, Content::get_content_without_excluded_blocks($post));
+        // Newer Gutenberg adds class="wp-block-paragraph" to rendered
+        // paragraphs; strip it so the assertion tracks block-exclusion logic,
+        // not core markup churn.
+        $actual = str_replace(' class="wp-block-paragraph"', '', Content::get_content_without_excluded_blocks($post));
+
+        $this->assertSame($expect, $actual);
 
         wp_delete_post($post->ID, true);
     }
@@ -353,10 +333,8 @@ class ContentTest extends TestCase
             'post_content' => '<p>Some test HTML.</p>',
             'post_date'    => '2012-12-25T01:02:03Z',
             'meta_input'   => [
-                'beyondwords_language_code'    => 'en_US',
-                'beyondwords_summary_voice_id' => '3555',
-                'beyondwords_title_voice_id'   => '2517',
-                'beyondwords_body_voice_id'    => '3558',
+                'beyondwords_language_code' => 'en_US',
+                'beyondwords_body_voice_id' => '3558',
             ],
         ];
 
@@ -373,7 +351,7 @@ class ContentTest extends TestCase
         delete_option('beyondwords_prepend_excerpt');
 
         $this->assertSame($args['post_title'], $body['title']);
-        $this->assertSame('<div data-beyondwords-summary="true" data-beyondwords-voice-id="3555"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
+        $this->assertSame('<div data-beyondwords-summary="true"><p>The excerpt.</p></div><p>Some test HTML.</p>', $body['body']);
         $this->assertSame(get_the_permalink($postId), $body['source_url']);
         $this->assertSame(strval($postId), $body['source_id']);
         $this->assertSame('Jane Smith', $body['author']);
@@ -388,8 +366,8 @@ class ContentTest extends TestCase
         $this->assertTrue($body['published']);
 
         $this->assertSame('en_US', $body['language']);
-        $this->assertSame(3555, $body['summary_voice_id']);
-        $this->assertSame(2517, $body['title_voice_id']);
+        $this->assertArrayNotHasKey('summary_voice_id', $body);
+        $this->assertArrayNotHasKey('title_voice_id', $body);
         $this->assertSame(3558, $body['body_voice_id']);
 
         // Returning false from `beyondwords_auto_publish` should drop the key entirely.
@@ -401,6 +379,130 @@ class ContentTest extends TestCase
         remove_filter('beyondwords_auto_publish', '__return_false');
 
         $this->assertArrayNotHasKey('published', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_omits_summarization_and_video_settings_by_default()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::omitsSummarizationAndVideoByDefault',
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('summarization_settings', $body);
+        $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_enables_summarization_when_source_includes_script()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::summarizationEnabled',
+            'meta_input' => [
+                'beyondwords_source'             => 'script',
+                'beyondwords_script_template_id' => '42',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('summarization_settings', $body);
+        $this->assertTrue($body['summarization_settings']['enabled']);
+        $this->assertSame(42, $body['summarization_settings']['template']['id']);
+
+        // Source = post_and_script enables it too.
+        update_post_meta($postId, 'beyondwords_source', 'post_and_script');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertTrue($body['summarization_settings']['enabled']);
+
+        // Source = post does not.
+        update_post_meta($postId, 'beyondwords_source', 'post');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('summarization_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_enables_video_when_output_includes_video()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoEnabled',
+            'meta_input' => [
+                'beyondwords_output'     => 'video',
+                'beyondwords_video_size' => 'landscape',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertTrue($body['video_settings']['enabled']);
+        $this->assertSame(
+            [['name' => 'landscape', 'enabled' => true]],
+            $body['video_settings']['sizes']
+        );
+
+        // Output = audio_and_video enables it too.
+        update_post_meta($postId, 'beyondwords_output', 'audio_and_video');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertTrue($body['video_settings']['enabled']);
+
+        // Output = audio does not.
+        update_post_meta($postId, 'beyondwords_output', 'audio');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_sends_video_template_when_set()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoTemplate',
+            'meta_input' => [
+                'beyondwords_output'             => 'video',
+                'beyondwords_video_template_id'  => '2',
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertSame(2, $body['video_settings']['template']['id']);
+
+        // Empty template id (project default) omits the template key.
+        update_post_meta($postId, 'beyondwords_video_template_id', '');
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertArrayNotHasKey('template', $body['video_settings']);
 
         wp_delete_post($postId, true);
     }

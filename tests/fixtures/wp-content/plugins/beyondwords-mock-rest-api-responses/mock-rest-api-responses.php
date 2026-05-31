@@ -162,6 +162,9 @@ function beyondwords_endpoint_exists( $endpoint, $method ) {
 		'GET:projects/:projectId/player_settings',
 		'PUT:projects/:projectId/player_settings',
 		'GET:projects/:projectId/video_settings',
+		'GET:projects/:projectId/summarization_settings',
+		'GET:summarization_settings_templates',
+		'GET:video_settings_templates',
 		'GET:organization/languages',
 		'GET:organization/voices',
 		'PUT:organization/voices/:voiceId',
@@ -216,6 +219,15 @@ function beyondwords_get_mock_response( $endpoint, $method, $parsed_args ) {
 
 		case 'GET:projects/:projectId/video_settings':
 			return beyondwords_mock_get_video_settings( $params );
+
+		case 'GET:projects/:projectId/summarization_settings':
+			return beyondwords_mock_get_summarization_settings( $params );
+
+		case 'GET:summarization_settings_templates':
+			return beyondwords_mock_get_summarization_settings_templates();
+
+		case 'GET:video_settings_templates':
+			return beyondwords_mock_get_video_settings_templates();
 
 		case 'GET:organization/languages':
 			return beyondwords_mock_get_languages();
@@ -288,6 +300,13 @@ function beyondwords_parse_endpoint_params( $endpoint ) {
 	// Match projects/:projectId/video_settings.
 	if ( preg_match( '#^projects/([^/]+)/video_settings$#', $endpoint, $matches ) ) {
 		$params['route']     = 'projects/:projectId/video_settings';
+		$params['projectId'] = $matches[1];
+		return $params;
+	}
+
+	// Match projects/:projectId/summarization_settings.
+	if ( preg_match( '#^projects/([^/]+)/summarization_settings$#', $endpoint, $matches ) ) {
+		$params['route']     = 'projects/:projectId/summarization_settings';
 		$params['projectId'] = $matches[1];
 		return $params;
 	}
@@ -813,6 +832,113 @@ function beyondwords_mock_get_video_settings( $params ) {
 			'content_image_enabled'    => true,
 			'image_extraction_enabled' => true,
 			'pan_and_zoom_enabled'     => true,
+			'sizes'                    => array(
+				array(
+					'name'        => 'landscape',
+					'description' => '16:9',
+					'width'       => 1920,
+					'height'      => 1080,
+					'enabled'     => true,
+				),
+				array(
+					'name'        => 'square',
+					'description' => '1:1',
+					'width'       => 1080,
+					'height'      => 1080,
+					'enabled'     => true,
+				),
+				array(
+					'name'        => 'portrait',
+					'description' => '9:16',
+					'width'       => 1080,
+					'height'      => 1920,
+					'enabled'     => true,
+				),
+			),
+		)
+	);
+}
+
+/**
+ * Mock: GET projects/:projectId/summarization_settings
+ *
+ * The `template` array is what the editor's "Script template" dropdown is
+ * populated from.
+ */
+function beyondwords_mock_get_summarization_settings( $params ) {
+	return beyondwords_mock_response(
+		array(
+			'enabled'           => true,
+			'prompt'            => 'Summarize the following article.',
+			'model'             => 'gpt-4o-mini',
+			'temperature'       => 0.5,
+			'limit_token_usage' => 1000,
+			'template'          => array(
+				array(
+					'id'                => 1,
+					'slug'              => 'default',
+					'name'              => 'Default',
+					'model'             => 'gpt-4o-mini',
+					'prompt'            => 'Summarize the following article.',
+					'temperature'       => 0.5,
+					'limit_token_usage' => 1000,
+				),
+				array(
+					'id'                => 2,
+					'slug'              => 'headline-first-paragraph',
+					'name'              => 'Headline + first paragraph',
+					'model'             => 'gpt-4o-mini',
+					'prompt'            => 'Return the headline followed by the first paragraph.',
+					'temperature'       => 0.2,
+					'limit_token_usage' => 500,
+				),
+			),
+		)
+	);
+}
+
+/**
+ * Mock: GET summarization_settings_templates
+ *
+ * The organization's available script templates. Populates the editor's
+ * "Script template" dropdown.
+ */
+function beyondwords_mock_get_summarization_settings_templates() {
+	return beyondwords_mock_response(
+		array(
+			array(
+				'id'   => 1,
+				'slug' => 'default',
+				'name' => 'Default',
+			),
+			array(
+				'id'   => 2,
+				'slug' => 'headline-first-paragraph',
+				'name' => 'Headline + first paragraph',
+			),
+		)
+	);
+}
+
+/**
+ * Mock: GET video_settings_templates
+ *
+ * The organization's available video templates. Populates the editor's
+ * "Video template" dropdown.
+ */
+function beyondwords_mock_get_video_settings_templates() {
+	return beyondwords_mock_response(
+		array(
+			array(
+				'id'   => 1,
+				'slug' => 'default',
+				'name' => 'Default',
+			),
+			array(
+				'id'   => 2,
+				'slug' => 'social',
+				'name' => 'Social',
+			),
 		)
 	);
 }
@@ -939,6 +1065,65 @@ function beyondwords_mock_get_voices() {
 				'created'             => '2023-03-01T08:31:11Z',
 				'updated'             => '2023-03-01T08:31:12Z',
 				'secondary_languages' => array( 'en_US', 'en_GB', 'cy_GB' ),
+			),
+			// ElevenLabs voice with three models — exercises the Model dropdown.
+			// Each (name, model_id) pair is a distinct voice id.
+			array(
+				'id'        => 9001,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_multilingual_v2',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			array(
+				'id'        => 9002,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_v3',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			array(
+				'id'        => 9003,
+				'name'      => 'Bridget',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_flash_v2_5',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+			),
+			// Single-model ElevenLabs voice — Model dropdown stays hidden.
+			array(
+				'id'        => 9010,
+				'name'      => 'Caleb',
+				'service'   => 'ElevenLabs',
+				'model_id'  => 'eleven_v3',
+				'language'  => array( 'code' => 'en_US' ),
+				'languages' => array(
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
 			),
 		)
 	);

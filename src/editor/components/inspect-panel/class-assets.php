@@ -43,7 +43,7 @@ class Assets {
 		wp_enqueue_script(
 			'beyondwords-inspect',
 			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/inspect-panel/js/inspect.js',
-			[ 'jquery' ],
+			[ 'wp-i18n' ],
 			BEYONDWORDS__PLUGIN_VERSION,
 			true
 		);
