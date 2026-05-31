@@ -13,6 +13,11 @@ import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
+/**
+ * Internal dependencies
+ */
+import Stack from '../stack';
+
 export function PostInspectPanel( {
 	// Current custom fields
 	beyondwordsDeleteContent,
@@ -193,118 +198,120 @@ export function PostInspectPanel( {
 			initialOpen={ false }
 			className={ 'beyondwords beyondwords-sidebar__inspect' }
 		>
-			<TextControl
-				label="beyondwords_generate_audio"
-				readOnly
-				value={ beyondwordsGenerateAudio }
-				__next40pxDefaultSize
-			/>
+			<Stack>
+				<TextControl
+					label="beyondwords_generate_audio"
+					readOnly
+					value={ beyondwordsGenerateAudio }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_integration_method"
-				readOnly
-				value={ beyondwordsIntegrationMethod }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_integration_method"
+					readOnly
+					value={ beyondwordsIntegrationMethod }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_project_id"
-				readOnly
-				value={ beyondwordsProjectId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_project_id"
+					readOnly
+					value={ beyondwordsProjectId }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_preview_token"
-				readOnly
-				value={ beyondwordsPreviewToken }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_preview_token"
+					readOnly
+					value={ beyondwordsPreviewToken }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_content_id"
-				readOnly
-				value={ beyondwordsContentId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_content_id"
+					readOnly
+					value={ beyondwordsContentId }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_language_code"
-				readOnly
-				value={ beyondwordsLanguageCode }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_language_code"
+					readOnly
+					value={ beyondwordsLanguageCode }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_language_id"
-				readOnly
-				value={ beyondwordsLanguageId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_language_id"
+					readOnly
+					value={ beyondwordsLanguageId }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_body_voice_id"
-				readOnly
-				value={ beyondwordsBodyVoiceId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_body_voice_id"
+					readOnly
+					value={ beyondwordsBodyVoiceId }
+					__next40pxDefaultSize
+				/>
 
-			<TextareaControl
-				label="beyondwords_error_message"
-				readOnly
-				rows="3"
-				value={ beyondwordsErrorMessage }
-				__next40pxDefaultSize
-			/>
+				<TextareaControl
+					label="beyondwords_error_message"
+					readOnly
+					rows="3"
+					value={ beyondwordsErrorMessage }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_delete_content"
-				readOnly
-				value={ beyondwordsDeleteContent }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_delete_content"
+					readOnly
+					value={ beyondwordsDeleteContent }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_source"
-				readOnly
-				value={ beyondwordsSource }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_source"
+					readOnly
+					value={ beyondwordsSource }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_output"
-				readOnly
-				value={ beyondwordsOutput }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_output"
+					readOnly
+					value={ beyondwordsOutput }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_script_template_id"
-				readOnly
-				value={ beyondwordsScriptTemplateId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_script_template_id"
+					readOnly
+					value={ beyondwordsScriptTemplateId }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_video_template_id"
-				readOnly
-				value={ beyondwordsVideoTemplateId }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_video_template_id"
+					readOnly
+					value={ beyondwordsVideoTemplateId }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_video_size"
-				readOnly
-				value={ beyondwordsVideoSize }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_video_size"
+					readOnly
+					value={ beyondwordsVideoSize }
+					__next40pxDefaultSize
+				/>
 
-			<TextControl
-				label="beyondwords_embed"
-				readOnly
-				value={ beyondwordsEmbed }
-				__next40pxDefaultSize
-			/>
+				<TextControl
+					label="beyondwords_embed"
+					readOnly
+					value={ beyondwordsEmbed }
+					__next40pxDefaultSize
+				/>
+			</Stack>
 
 			<hr />
 

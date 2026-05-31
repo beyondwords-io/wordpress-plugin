@@ -2,9 +2,13 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import Toggle from '../toggle';
 
 export function GenerateAudio( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
@@ -169,12 +173,11 @@ export function GenerateAudio( { wrapper } ) {
 
 	return (
 		<Wrapper>
-			<CheckboxControl
+			<Toggle
 				className="beyondwords--generate-audio"
 				label={ label }
 				checked={ generateAudio }
 				onChange={ handleChange }
-				__nextHasNoMarginBottom
 			/>
 		</Wrapper>
 	);

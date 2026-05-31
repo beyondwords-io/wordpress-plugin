@@ -59,7 +59,10 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click();
+				// Open the plugin sidebar (not just the document panel) so a
+				// single Player section is mounted — otherwise `.beyondwords--embed`
+				// matches both panels.
+				cy.openBeyondwordsPluginSidebar();
 
 				// Set Embed = None to hide the player.
 				embedSelect().select( 'None', { force: true } );
@@ -89,7 +92,7 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.contains( 'a', 'BeyondWords sidebar' ).click();
+				cy.openBeyondwordsPluginSidebar();
 
 				// Pick an asset again to reshow the player.
 				embedSelect().select( 'Audio (post)', { force: true } );

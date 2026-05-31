@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -15,8 +15,9 @@ import {
 	getVoiceModelVariants,
 	voiceModelLabel,
 } from './helpers';
+import Stack from '../stack';
 
-export function VoiceSection() {
+export function VoiceSection( { withPanel = true } ) {
 	const postType = useSelect(
 		( select ) => select( 'core/editor' ).getCurrentPostType(),
 		[]
@@ -43,6 +44,17 @@ export function VoiceSection() {
 			languageCode
 				? select( 'beyondwords/settings' ).getVoices( languageCode )
 				: [],
+		[ languageCode ]
+	);
+
+	// Changing the Language re-fetches its voices; show a Spinner in place of
+	// the Voice/Model dropdowns until that resolves.
+	const isResolvingVoices = useSelect(
+		( select ) =>
+			!! languageCode &&
+			select( 'beyondwords/settings' ).isResolving( 'getVoices', [
+				languageCode,
+			] ),
 		[ languageCode ]
 	);
 
@@ -117,8 +129,8 @@ export function VoiceSection() {
 		value: String( variant.id ),
 	} ) );
 
-	return (
-		<PanelBody title={ __( 'Voice', 'speechkit' ) } initialOpen={ true }>
+	const fields = (
+		<Stack>
 			{ hasLanguages && (
 				<SelectControl
 					className="beyondwords--language"
@@ -130,6 +142,7 @@ export function VoiceSection() {
 					__next40pxDefaultSize
 				/>
 			) }
+			{ isResolvingVoices && <Spinner /> }
 			{ hasVoices && (
 				<SelectControl
 					className="beyondwords--voice"
@@ -152,6 +165,18 @@ export function VoiceSection() {
 					__next40pxDefaultSize
 				/>
 			) }
+		</Stack>
+	);
+
+	// In the document/pre-publish panels we render the fields directly inside
+	// the existing "BeyondWords" panel rather than nesting another panel.
+	if ( ! withPanel ) {
+		return fields;
+	}
+
+	return (
+		<PanelBody title={ __( 'Voice', 'speechkit' ) } initialOpen={ true }>
+			{ fields }
 		</PanelBody>
 	);
 }

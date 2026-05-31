@@ -16,6 +16,7 @@ import {
 	SOURCE_POST,
 	projectDefaultOption,
 } from './helpers';
+import Stack from '../stack';
 
 export function ContentSection() {
 	const postType = useSelect(
@@ -53,26 +54,28 @@ export function ContentSection() {
 
 	return (
 		<PanelBody title={ __( 'Content', 'speechkit' ) } initialOpen={ true }>
-			<SelectControl
-				className="beyondwords--source"
-				label={ __( 'Source', 'speechkit' ) }
-				options={ getSourceOptions() }
-				value={ source }
-				onChange={ setSource }
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
-			/>
-			{ sourceIncludesScript( source ) && hasScriptTemplates && (
+			<Stack>
 				<SelectControl
-					className="beyondwords--script-template"
-					label={ __( 'Script template', 'speechkit' ) }
-					options={ scriptTemplateOptions }
-					value={ scriptTemplateId }
-					onChange={ setScriptTemplateId }
+					className="beyondwords--source"
+					label={ __( 'Source', 'speechkit' ) }
+					options={ getSourceOptions() }
+					value={ source }
+					onChange={ setSource }
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
-			) }
+				{ sourceIncludesScript( source ) && hasScriptTemplates && (
+					<SelectControl
+						className="beyondwords--script-template"
+						label={ __( 'Script template', 'speechkit' ) }
+						options={ scriptTemplateOptions }
+						value={ scriptTemplateId }
+						onChange={ setScriptTemplateId }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+				) }
+			</Stack>
 		</PanelBody>
 	);
 }
