@@ -27,6 +27,15 @@ defined( 'ABSPATH' ) || exit;
 class Sync {
 
 	/**
+	 * Cron hook that runs deferred audio (re)generation.
+	 *
+	 * Only scheduled on WordPress VIP (see `is_async_generation_enabled()`).
+	 *
+	 * @since 7.0.0
+	 */
+	const GENERATE_AUDIO_CRON_HOOK = 'beyondwords_generate_audio';
+
+	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
@@ -35,6 +44,11 @@ class Sync {
 		add_action( 'wp_after_insert_post', [ self::class, 'on_add_or_update_post' ], 99 );
 		add_action( 'wp_trash_post', [ self::class, 'on_trash_post' ] );
 		add_action( 'before_delete_post', [ self::class, 'on_delete_post' ] );
+
+		// Background audio (re)generation — only used when async is enabled (VIP);
+		// the hook is always registered so a queued event still runs after a
+		// config change.
+		add_action( self::GENERATE_AUDIO_CRON_HOOK, [ self::class, 'generate_audio_for_post' ] );
 
 		add_filter( 'is_protected_meta', [ self::class, 'is_protected_meta' ], 10, 2 );
 
@@ -86,6 +100,42 @@ class Sync {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether audio (re)generation should run in the background rather than
+	 * blocking the save request.
+	 *
+	 * Enabled only on WordPress VIP, whose Cron Control infrastructure runs
+	 * scheduled events from a real system cron — so a deferred job fires
+	 * promptly and reliably. Off-VIP, WP-Cron is traffic-triggered and
+	 * unreliable, so we keep the synchronous call and accept the slower save.
+	 *
+	 * Detection is by VIP-only symbols (`function_exists`/`class_exists`/
+	 * `defined`), so non-VIP installs always take the synchronous path.
+	 * Overridable via the `beyondwords_async_generate_audio` filter for hosts
+	 * with reliable cron, and for tests.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function is_async_generation_enabled(): bool {
+		// VIP runs WP-Cron via its Cron Control plugin; these symbols only exist
+		// in that environment.
+		$enabled = class_exists( '\Automattic\WP\Cron_Control\Main' )
+			|| function_exists( 'wpcom_vip_schedule_single_event' )
+			|| defined( 'VIP_GO_APP_ENVIRONMENT' );
+
+		/**
+		 * Filters whether BeyondWords audio (re)generation runs in the background.
+		 *
+		 * Defaults to true only on WordPress VIP. Return true to force background
+		 * generation on another host with reliable WP-Cron.
+		 *
+		 * @since 7.0.0
+		 *
+		 * @param bool $enabled Whether background (cron) generation is enabled.
+		 */
+		return (bool) apply_filters( 'beyondwords_async_generate_audio', $enabled );
 	}
 
 	/**
@@ -316,6 +366,17 @@ class Sync {
 			self::delete_audio_for_post( $post_id );
 			\BeyondWords\Post\Meta::remove_all_beyondwords_metadata( $post_id );
 			return false;
+		}
+
+		// On VIP, defer the blocking create/update API call to a background cron
+		// job so the save request returns immediately. The eligibility check is
+		// repeated inside generate_audio_for_post() when the job runs.
+		if ( self::is_async_generation_enabled() && self::should_generate_audio_for_post( $post_id ) ) {
+			if ( ! wp_next_scheduled( self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] ) ) {
+				wp_schedule_single_event( time(), self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
+			}
+
+			return true;
 		}
 
 		return (bool) self::generate_audio_for_post( $post_id );
