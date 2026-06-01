@@ -24,17 +24,24 @@ Cypress.Commands.overwrite(
  * for older versions.
  */
 Cypress.Commands.add( 'getEditorCanvasBody', () => {
-	return cy.get( 'body' ).then( ( $body ) => {
-		const $iframe = $body.find( 'iframe[name="editor-canvas"]' );
-		if ( $iframe.length ) {
-			return cy
-				.wrap( $iframe )
-				.its( '0.contentDocument.body' )
-				.should( 'not.be.empty' )
-				.then( cy.wrap );
-		}
-		return cy.wrap( $body );
-	} );
+	// WordPress 6.8+ renders the editor inside an iframe. Whether that iframe
+	// exists is stable for a given WP version, so detect it once synchronously
+	// and return a *retryable query chain* for the canvas <body> — note there is
+	// no `.then( cy.wrap )` boundary at the end.
+	//
+	// That boundary matters: it would pin the resolved <body> as a static
+	// subject, so a caller's chained `.find()`/`.type()` could not re-query. The
+	// block editor re-renders its iframe during hydration, which detaches that
+	// pinned <body> and fails the chain ("subject is no longer attached to the
+	// DOM") — flaky on slower PHP/CI (seen on PHP 8.0). Keeping it a pure query
+	// chain lets Cypress re-read a fresh canvas <body> on every retry.
+	if ( Cypress.$( 'iframe[name="editor-canvas"]' ).length ) {
+		return cy
+			.get( 'iframe[name="editor-canvas"]' )
+			.its( '0.contentDocument.body' )
+			.should( 'not.be.empty' );
+	}
+	return cy.get( 'body' );
 } );
 
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {

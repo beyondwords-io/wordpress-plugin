@@ -17,7 +17,11 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	const embedSelect = () => cy.get( '.beyondwords--embed select' );
+	// The plugin sidebar and the document-settings panel each render a Player
+	// section, so `.beyondwords--embed` matches both. Scope to the document
+	// panel (`.beyondwords-sidebar`) to target a single select.
+	const embedSelect = () =>
+		cy.get( '.beyondwords-sidebar .beyondwords--embed select' );
 
 	// Only test priority post types
 	postTypes
@@ -59,10 +63,8 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				// Open the plugin sidebar (not just the document panel) so a
-				// single Player section is mounted — otherwise `.beyondwords--embed`
-				// matches both panels.
-				cy.openBeyondwordsPluginSidebar();
+				// Open the document panel (the Embed dropdown lives here).
+				cy.openBeyondwordsEditorPanel();
 
 				// Set Embed = None to hide the player.
 				embedSelect().select( 'None', { force: true } );
@@ -92,7 +94,7 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				cy.openBeyondwordsPluginSidebar();
+				cy.openBeyondwordsEditorPanel();
 
 				// Pick an asset again to reshow the player.
 				embedSelect().select( 'Audio (post)', { force: true } );
