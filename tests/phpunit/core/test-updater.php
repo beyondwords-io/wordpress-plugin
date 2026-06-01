@@ -132,4 +132,39 @@ class UpdaterTest extends TestCase
         delete_option('beyondwords_prepend_excerpt');
         delete_option('beyondwords_preselect');
     }
+
+    /**
+     * @test
+     */
+    public function migrate_disabled_to_embed_none()
+    {
+        // A post that opted out of the player via the legacy flag.
+        $disabledPost = self::factory()->post->create();
+        update_post_meta($disabledPost, 'beyondwords_disabled', '1');
+
+        // A post that already has an Embed choice — must not be overwritten.
+        $embedPost = self::factory()->post->create();
+        update_post_meta($embedPost, 'beyondwords_disabled', '1');
+        update_post_meta($embedPost, 'beyondwords_embed', 'audio_post');
+
+        // A post with no legacy flag — must be left untouched.
+        $untouchedPost = self::factory()->post->create();
+
+        Updater::migrate_disabled_to_embed_none();
+
+        // Legacy opt-out → Embed = None, flag removed.
+        $this->assertSame('none', get_post_meta($disabledPost, 'beyondwords_embed', true));
+        $this->assertSame('', get_post_meta($disabledPost, 'beyondwords_disabled', true));
+
+        // Existing Embed preserved, flag still removed.
+        $this->assertSame('audio_post', get_post_meta($embedPost, 'beyondwords_embed', true));
+        $this->assertSame('', get_post_meta($embedPost, 'beyondwords_disabled', true));
+
+        // Post without the flag is unaffected.
+        $this->assertSame('', get_post_meta($untouchedPost, 'beyondwords_embed', true));
+
+        wp_delete_post($disabledPost, true);
+        wp_delete_post($embedPost, true);
+        wp_delete_post($untouchedPost, true);
+    }
 }

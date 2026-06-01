@@ -437,6 +437,127 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     * @group settings
+     */
+    public function get_summarization_settings()
+    {
+        $response = Client::get_summarization_settings();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = Client::get_summarization_settings();
+
+        $this->assertArrayHasKey('enabled', $response);
+        $this->assertArrayHasKey('prompt', $response);
+        $this->assertArrayHasKey('model', $response);
+        $this->assertArrayHasKey('template', $response);
+        $this->assertIsArray($response['template']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function get_summarization_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_summarization_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function get_video_settings_templates()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $response = Client::get_video_settings_templates();
+
+        $this->assertIsArray($response);
+        $this->assertNotEmpty($response);
+        $this->assertArrayHasKey('id', $response[0]);
+        $this->assertArrayHasKey('name', $response[0]);
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * A successful editor-dropdown response is cached, so a second call within
+     * the TTL is served from the transient and makes no HTTP request.
+     */
+    public function editor_dropdown_responses_are_cached()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_contains((string) $url, '/summarization_settings_templates')) {
+                $calls++;
+            }
+            return $preempt; // Pass through — let the mock supply the response.
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        $first  = Client::get_summarization_settings_templates();
+        $second = Client::get_summarization_settings_templates();
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertIsArray($first);
+        $this->assertSame($first, $second);
+        $this->assertSame(1, $calls, 'Second call should be served from the transient cache');
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * A non-2xx response is not cached, so the next call retries the API rather
+     * than serving a cached error for the full TTL.
+     */
+    public function failed_responses_are_not_cached()
+    {
+        // No API key → the mock returns a 401, which must not be cached.
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_contains((string) $url, '/summarization_settings_templates')) {
+                $calls++;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        Client::get_summarization_settings_templates();
+        Client::get_summarization_settings_templates();
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertSame(2, $calls, 'Errors should not be cached');
+    }
+
+    /**
+     * @test
      *
      * 401 when the option-supplied API key is invalid (covers both the
      * "missing" and "wrong" cases — the BeyondWords API treats them the same).

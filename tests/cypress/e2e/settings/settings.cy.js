@@ -1,3 +1,8 @@
+/**
+ * @group settings
+ * @covers src/settings/class-settings.php
+ */
+
 /* global cy, beforeEach, context, it */
 
 context( 'Settings', () => {

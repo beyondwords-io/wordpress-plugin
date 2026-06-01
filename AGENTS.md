@@ -172,7 +172,7 @@ Other rules:
 
 - **ESLint config:** `@wordpress/eslint-plugin` (already in `package.json`). Configured for WordPress JS Coding Standards.
 - **Build tooling:** `@wordpress/scripts` (`wp-scripts`). Use `npm run build` / `npm start`.
-- **Formatting:** `wp-scripts format` — Prettier with WordPress config.
+- **Formatting:** `wp-scripts format` — Prettier with the WordPress config. The repo pins `prettier` to the `wp-prettier` alias (`"prettier": "npm:wp-prettier@3.0.3"` in `package.json`); without this the `@wordpress/prettier-config` setting `parenSpacing: true` is silently no-op'd and the WP-style spacing (`__( 'foo' )`) fails lint. The active config is declared in `package.json` (`"prettier": "@wordpress/prettier-config"`) so any IDE with a Prettier plugin picks it up automatically — no editor-specific settings file needed. If your IDE doesn't honour the project's prettier, install/enable a Prettier plugin and point its "use prettier from node_modules" option at this repo.
 - **i18n:** `@wordpress/i18n` (`__`, `_x`, `sprintf`) with the `'speechkit'` text domain.
 - **No jQuery in new code.** Use vanilla DOM or `@wordpress/element` (React).
 
@@ -183,6 +183,55 @@ npm run lint:js
 npm run lint:css
 npm run format
 ```
+
+## Cypress test groups
+
+**Never run the full Cypress suite blind** — it takes 20+ minutes and most specs will be unrelated to your change. Run only the specs that exercise the source you touched.
+
+Each spec starts with a `@group` and one or more `@covers` header tags. To find the right specs:
+
+```bash
+# Specs that cover a file or directory
+grep -rl '@covers .*content-id' tests/cypress/e2e/
+
+# All specs in a group
+grep -rl '@group block-editor' tests/cypress/e2e/
+```
+
+Then run only those:
+
+```bash
+npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/block-editor/content-id.cy.js'
+
+# Multiple (comma-separated, no spaces):
+npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/block-editor/content-id.cy.js,tests/cypress/e2e/classic-editor/content-id.cy.js'
+
+# Whole group via glob:
+npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/settings/*.cy.js'
+```
+
+Groups in use:
+
+| Group | Folder | Covers |
+|---|---|---|
+| `block-editor` | `tests/cypress/e2e/block-editor/` | Block (Gutenberg) editor — sidebar panels, document-setting, prepublish |
+| `classic-editor` | `tests/cypress/e2e/classic-editor/` | Classic editor metabox + per-component classic JS |
+| `settings` | `tests/cypress/e2e/settings/` | Settings page (Authentication / Integration / Preferences tabs) |
+| `plugins` | `tests/cypress/e2e/plugins/` | Third-party plugin compatibility (AMP, WPGraphQL) |
+| `posts-list` | `tests/cypress/e2e/bulk-actions.cy.js`, `tests/cypress/e2e/filters.cy.js` | `edit.php` posts list-screen UI |
+| `site-health` | `tests/cypress/e2e/site-health.cy.js` | Site Health debug panel |
+
+**Convention for new specs:** every new `.cy.js` file must start with a header listing its group and the source paths it exercises:
+
+```js
+/**
+ * @group block-editor
+ * @covers src/editor/components/<feature>/
+ * @covers src/post/class-sync.php
+ */
+```
+
+`@covers` paths are relative to repo root, can be files or directories, and must be greppable — keep them up to date when scope changes.
 
 ## Package management
 
@@ -232,7 +281,7 @@ Plugin version lives in two places — keep them in sync:
 - `BEYONDWORDS__PLUGIN_VERSION` constant in the same file
 - `version` in [package.json](package.json) (informational; npm publish is not used)
 
-Bump on any release. Pre-release versions use `7.0.0-dev-1.0` style (matches existing convention).
+Bump on any release. Pre-release versions use `7.0.0-dev-2.0` style (matches existing convention).
 
 ## Known issues
 

@@ -39,3 +39,14 @@ table tr th#speechkit_status{
   padding: 1px 12px;
   border-left-color: #00a32a;
 }
+
+.beyondwords-metabox__heading {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  padding: 0;
+}
+
+.beyondwords-metabox-settings__field {
+  margin: 0 0 8px;
+}

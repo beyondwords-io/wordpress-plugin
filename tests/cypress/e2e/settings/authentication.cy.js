@@ -1,3 +1,8 @@
+/**
+ * @group settings
+ * @covers src/settings/class-settings.php,src/settings/class-tabs.php,src/settings/class-fields.php,src/settings/class-utils.php
+ */
+
 /* global Cypress, cy, before, beforeEach, context, it */
 
 context( 'Settings > Authentication', () => {

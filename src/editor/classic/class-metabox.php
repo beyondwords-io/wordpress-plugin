@@ -82,13 +82,17 @@ class Metabox {
 			return;
 		}
 
-		// Show errors for posts with/without audio
-		self::errors( $post );
-
 		$has_content = \BeyondWords\Post\Meta::has_content( $post->ID );
 
+		// Single nonce guarding the Content/Format/Player <select> fields.
+		\BeyondWords\Editor\Components\SettingsFields::nonce();
+
+		// Player section: player/errors, Embed, Generate audio.
+		self::heading( __( 'Player', 'speechkit' ) );
+
+		self::errors( $post );
+
 		if ( $has_content ) {
-			// Enable these components for posts with audio
 			if ( get_post_status( $post ) === 'pending' ) {
 				self::pending_review_notice( $post );
 			} else {
@@ -96,24 +100,51 @@ class Metabox {
 			}
 		}
 
-		// Content ID field with Fetch button
-		\BeyondWords\Editor\Components\ContentId::element( $post );
-
+		// The Embed dropdown ("None" = no player) replaces the old Display
+		// player checkbox.
+		\BeyondWords\Editor\Components\SettingsFields::render_player_section( $post );
 		( new \BeyondWords\Editor\Components\GenerateAudio() )::element( $post );
 
-		if ( $has_content ) {
-			( new \BeyondWords\Editor\Components\DisplayPlayer() )::element( $post );
-		}
-
+		// Content section: Source + Script template.
 		echo '<hr />';
+		self::heading( __( 'Content', 'speechkit' ) );
+		\BeyondWords\Editor\Components\SettingsFields::render_content_section( $post );
 
-		// Enable these components for posts with/without audio
+		// Format section: Output + Video template + Video size.
+		echo '<hr />';
+		self::heading( __( 'Format', 'speechkit' ) );
+		\BeyondWords\Editor\Components\SettingsFields::render_format_section( $post );
+
+		// Voice section: Language + Voice + Model.
+		echo '<hr />';
+		self::heading( __( 'Voice', 'speechkit' ) );
 		( new \BeyondWords\Editor\Components\SelectVoice() )::element( $post );
-		( new \BeyondWords\Editor\Components\PlayerStyle() )::element( $post );
-		( new \BeyondWords\Editor\Components\PlayerContent() )::element( $post );
+
+		// Data section: Content ID + Fetch button.
+		echo '<hr />';
+		self::heading( __( 'Data', 'speechkit' ) );
+		\BeyondWords\Editor\Components\ContentId::element( $post );
 
 		echo '<hr />';
 		self::help();
+	}
+
+	/**
+	 * Print a settings-section heading.
+	 *
+	 * The sections mirror the block editor's Player/Content/Format/Voice panels.
+	 * A heading gives each group a label because the individual field labels
+	 * (Source, Output, Embed…) aren't self-explanatory on their own.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $title The section heading.
+	 */
+	public static function heading( $title ) {
+		printf(
+			'<h4 class="beyondwords-metabox__heading">%s</h4>',
+			esc_html( $title )
+		);
 	}
 
 	/**

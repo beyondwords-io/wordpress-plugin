@@ -1,3 +1,8 @@
+/**
+ * @group site-health
+ * @covers src/site-health/class-site-health.php
+ */
+
 /* global Cypress, cy, before, context, expect, it */
 
 context( 'Site Health', () => {

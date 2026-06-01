@@ -152,10 +152,15 @@ class Player {
 	 * Headless mode counts as enabled — we still emit the SDK script so the
 	 * publisher's own UI can drive it.
 	 *
+	 * @since 7.0.0 "Embed: None" hides the player; the legacy `beyondwords_disabled`
+	 *              flag is still honoured for posts saved before v7.
+	 *
 	 * @param \WP_Post $post Post object.
 	 */
 	public static function is_enabled( \WP_Post $post ): bool {
-		if ( \BeyondWords\Post\Meta::get_disabled( $post->ID ) ) {
+		// "Embed: None" hides the player; the legacy `beyondwords_disabled` flag
+		// is honoured for pre-v7 posts the migration hasn't reached.
+		if ( \BeyondWords\Editor\Components\SettingsFields::is_player_disabled_for_post( $post->ID ) ) {
 			return false;
 		}
 

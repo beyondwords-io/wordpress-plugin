@@ -14,9 +14,8 @@ import GenerateAudio from '../../components/generate-audio';
 import OpenSidebar from '../../components/open-sidebar';
 import PendingNotice from '../../components/pending-notice';
 import PlayAudio from '../../components/play-audio';
-import SelectVoice from '../../components/select-voice';
-import PlayerContent from '../../components/player-content';
-import PlayerStyle from '../../components/player-style';
+import { PlayerSection, VoiceSection } from '../../components/settings-panel';
+import Stack from '../../components/stack';
 
 export default class DocumentSettingPanel extends Component {
 	render() {
@@ -26,15 +25,18 @@ export default class DocumentSettingPanel extends Component {
 				title={ __( 'BeyondWords', 'speechkit' ) }
 				className="beyondwords-sidebar"
 			>
-				<ErrorNotice wrapper={ PanelRow } />
-				<PendingNotice wrapper={ PanelRow } />
-				<PlayAudio wrapper={ PanelRow } />
-				<GenerateAudio wrapper={ PanelRow } />
-				<hr />
-				<PlayerStyle wrapper={ PanelRow } />
-				<PlayerContent wrapper={ PanelRow } />
-				<SelectVoice wrapper={ PanelRow } />
-				<OpenSidebar wrapper={ PanelRow } />
+				<Stack>
+					<ErrorNotice wrapper={ PanelRow } />
+					<PendingNotice wrapper={ PanelRow } />
+					<PlayAudio wrapper={ PanelRow } />
+					<GenerateAudio wrapper={ PanelRow } />
+					<hr />
+					<VoiceSection withPanel={ false } />
+					<hr />
+					<PlayerSection withPanel={ false } />
+					<hr />
+					<OpenSidebar wrapper={ PanelRow } />
+				</Stack>
 			</PluginDocumentSettingPanel>
 		);
 	}

@@ -34,6 +34,7 @@ class SyncTest extends TestCase
         $this->assertEquals(99, has_action('wp_after_insert_post', array(Sync::class, 'on_add_or_update_post')));
         $this->assertEquals(10, has_action('wp_trash_post', array(Sync::class, 'on_trash_post')));
         $this->assertEquals(10, has_action('before_delete_post', array(Sync::class, 'on_delete_post')));
+        $this->assertEquals(10, has_action(Sync::GENERATE_AUDIO_CRON_HOOK, array(Sync::class, 'generate_audio_for_post')));
         $this->assertEquals(10, has_action('is_protected_meta', array(Sync::class, 'is_protected_meta')));
         $this->assertEquals(10, has_action('get_post_metadata', array(Sync::class, 'get_lang_code_from_json_if_empty')));
     }
@@ -503,7 +504,7 @@ class SyncTest extends TestCase
      * @test
      * @dataProvider process_response_provider
      */
-    public function process_response($response, $projectId, $contentId, $language, $summaryVoiceId, $titleVoiceId, $bodyVoiceId) {
+    public function process_response($response, $projectId, $contentId, $language, $bodyVoiceId) {
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::processResponse',
         ]);
@@ -513,9 +514,11 @@ class SyncTest extends TestCase
         $this->assertSame($projectId, get_post_meta($postId, 'beyondwords_project_id', true));
         $this->assertSame($contentId, get_post_meta($postId, 'beyondwords_content_id', true));
         $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
-        $this->assertSame($summaryVoiceId, get_post_meta($postId, 'beyondwords_summary_voice_id', true));
-        $this->assertSame($titleVoiceId, get_post_meta($postId, 'beyondwords_title_voice_id', true));
         $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
+
+        // Deprecated keys are no longer copied from the API response.
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_summary_voice_id', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_title_voice_id', true));
 
         wp_delete_post($postId, true);
     }
@@ -530,21 +533,17 @@ class SyncTest extends TestCase
                     'title_voice_id'   => '2517',
                     'body_voice_id'    => '3558',
                 ],
-                'projectId'      => BEYONDWORDS_TESTS_PROJECT_ID,
-                'contentId'      => BEYONDWORDS_TESTS_CONTENT_ID,
-                'language'       => 'en_US',
-                'summaryVoiceId' => '3555',
-                'titleVoiceId'   => '2517',
-                'bodyVoiceId'    => '3558',
+                'projectId'    => BEYONDWORDS_TESTS_PROJECT_ID,
+                'contentId'    => BEYONDWORDS_TESTS_CONTENT_ID,
+                'language'     => 'en_US',
+                'bodyVoiceId'  => '3558',
             ],
             'Response is not an array' => [
-                'response'       => new StdClass(),
-                'projectId'      => '',
-                'contentId'      => '',
-                'language'       => '',
-                'summaryVoiceId' => '',
-                'titleVoiceId'   => '',
-                'bodyVoiceId'    => '',
+                'response'    => new StdClass(),
+                'projectId'   => '',
+                'contentId'   => '',
+                'language'    => '',
+                'bodyVoiceId' => '',
             ],
         ];
     }
@@ -1229,6 +1228,78 @@ class SyncTest extends TestCase
             wp_delete_post($id, true);
         }
 
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function is_async_generation_enabled_defaults_to_false_off_vip()
+    {
+        // The test environment has none of the VIP cron symbols.
+        $this->assertFalse(Sync::is_async_generation_enabled());
+
+        // …but the filter can force it on.
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+        $this->assertTrue(Sync::is_async_generation_enabled());
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+    }
+
+    /**
+     * @test
+     */
+    public function on_add_or_update_post_runs_synchronously_off_vip()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        // No async → the API runs inline and the content ID lands immediately.
+        Sync::on_add_or_update_post($postId);
+
+        $this->assertFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function on_add_or_update_post_defers_to_cron_when_async_enabled()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        $result = Sync::on_add_or_update_post($postId);
+
+        // The save returns immediately: the job is queued and no content ID is
+        // written yet.
+        $this->assertTrue($result);
+        $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
+
+        // Running the queued job performs the API call and writes the content ID.
+        Sync::generate_audio_for_post($postId);
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
+
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+        wp_unschedule_event(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+        wp_delete_post($postId, true);
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }

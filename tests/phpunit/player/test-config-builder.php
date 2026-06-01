@@ -111,54 +111,6 @@ class ConfigBuilderTest extends TestCase
     /**
      * @test
      */
-    public function merge_post_settings_includes_player_style_custom_field()
-    {
-        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
-
-        $post = self::factory()->post->create_and_get([
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_player_style' => "video",
-            ],
-        ]);
-
-        $params = ConfigBuilder::merge_post_settings($post, []);
-
-        $this->assertEquals($params['playerStyle'], "video");
-
-        wp_delete_post($post->ID, true);
-
-        delete_option(Fields::OPTION_PLAYER_UI);
-    }
-
-    /**
-     * @test
-     */
-    public function merge_post_settings_includes_player_content_custom_field()
-    {
-        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
-
-        $post = self::factory()->post->create_and_get([
-            'meta_input' => [
-                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
-                'beyondwords_player_content' => 'summary',
-            ],
-        ]);
-
-        $params = ConfigBuilder::merge_post_settings($post, []);
-
-        $this->assertEquals($params['loadContentAs'], ['summary']);
-
-        wp_delete_post($post->ID, true);
-
-        delete_option(Fields::OPTION_PLAYER_UI);
-    }
-
-    /**
-     * @test
-     */
     public function merge_post_settings_rest_api_setting()
     {
         update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_REST_API);

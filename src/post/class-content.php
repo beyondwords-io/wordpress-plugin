@@ -116,12 +116,6 @@ class Content {
 			throw new \Exception( esc_html__( 'Post Not Found', 'speechkit' ) );
 		}
 
-		$summary_voice_id = intval( get_post_meta( $post->ID, 'beyondwords_summary_voice_id', true ) );
-
-		if ( $summary_voice_id > 0 ) {
-			return '<div data-beyondwords-summary="true" data-beyondwords-voice-id="' . $summary_voice_id . '">%s</div>';
-		}
-
 		return '<div data-beyondwords-summary="true">%s</div>';
 	}
 
@@ -313,16 +307,52 @@ class Content {
 			$body['body_voice_id'] = $body_voice_id;
 		}
 
-		$title_voice_id = intval( get_post_meta( $post_id, 'beyondwords_title_voice_id', true ) );
+		// Source = Script or Post + script → enable summarization so the API
+		// generates a script segment alongside the post body. Omitted when
+		// Source is Post (or unset) so the project default applies.
+		$source = get_post_meta( $post_id, 'beyondwords_source', true );
 
-		if ( $title_voice_id > 0 ) {
-			$body['title_voice_id'] = $title_voice_id;
+		if ( in_array( $source, [ 'script', 'post_and_script' ], true ) ) {
+			$body['summarization_settings'] = [ 'enabled' => true ];
+
+			$script_template_id = intval(
+				get_post_meta( $post_id, 'beyondwords_script_template_id', true )
+			);
+
+			if ( $script_template_id > 0 ) {
+				$body['summarization_settings']['template'] = [
+					'id' => $script_template_id,
+				];
+			}
 		}
 
-		$summary_voice_id = intval( get_post_meta( $post_id, 'beyondwords_summary_voice_id', true ) );
+		// Output = Video or Audio + video → enable video generation. Video
+		// size filters the project's `sizes` array down to the user's pick.
+		$output = get_post_meta( $post_id, 'beyondwords_output', true );
 
-		if ( $summary_voice_id > 0 ) {
-			$body['summary_voice_id'] = $summary_voice_id;
+		if ( in_array( $output, [ 'video', 'audio_and_video' ], true ) ) {
+			$body['video_settings'] = [ 'enabled' => true ];
+
+			$video_template_id = intval(
+				get_post_meta( $post_id, 'beyondwords_video_template_id', true )
+			);
+
+			if ( $video_template_id > 0 ) {
+				$body['video_settings']['template'] = [
+					'id' => $video_template_id,
+				];
+			}
+
+			$video_size = get_post_meta( $post_id, 'beyondwords_video_size', true );
+
+			if ( $video_size ) {
+				$body['video_settings']['sizes'] = [
+					[
+						'name'    => (string) $video_size,
+						'enabled' => true,
+					],
+				];
+			}
 		}
 
 		/**

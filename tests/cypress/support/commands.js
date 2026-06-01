@@ -15,28 +15,24 @@ const postTypes = require( '../../fixtures/post-types.json' );
  * for older versions.
  */
 Cypress.Commands.add( 'getEditorCanvasBody', () => {
-	// Wait until the editor surface is ready in either form before deciding
-	// which body to return. Without this, the helper races the iframe mount
-	// and falls back to the outer <body> too eagerly on WP 6.8+.
-	return cy
-		.get(
-			'iframe[name="editor-canvas"], .editor-styles-wrapper',
-			{ timeout: 30000 }
-		)
-		.should( 'exist' )
-		.then( () => {
-			return cy.get( 'body' ).then( ( $body ) => {
-				const $iframe = $body.find( 'iframe[name="editor-canvas"]' );
-				if ( $iframe.length ) {
-					return cy
-						.wrap( $iframe )
-						.its( '0.contentDocument.body' )
-						.should( 'not.be.empty' )
-						.then( cy.wrap );
-				}
-				return cy.wrap( $body );
-			} );
-		} );
+	// WordPress 6.8+ renders the editor inside an iframe. Whether that iframe
+	// exists is stable for a given WP version, so detect it once synchronously
+	// and return a *retryable query chain* for the canvas <body> — note there is
+	// no `.then( cy.wrap )` boundary at the end.
+	//
+	// That boundary matters: it would pin the resolved <body> as a static
+	// subject, so a caller's chained `.find()`/`.type()` could not re-query. The
+	// block editor re-renders its iframe during hydration, which detaches that
+	// pinned <body> and fails the chain ("subject is no longer attached to the
+	// DOM") — flaky on slower PHP/CI (seen on PHP 8.0). Keeping it a pure query
+	// chain lets Cypress re-read a fresh canvas <body> on every retry.
+	if ( Cypress.$( 'iframe[name="editor-canvas"]' ).length ) {
+		return cy
+			.get( 'iframe[name="editor-canvas"]' )
+			.its( '0.contentDocument.body' )
+			.should( 'not.be.empty' );
+	}
+	return cy.get( 'body' );
 } );
 
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {
@@ -212,6 +208,13 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.then( ( $el ) => cy.wrap( $el, args ) );
 } );
 
+// Use the className selector instead of the label text — the GenerateAudio
+// label flips between "Create" and "Update" based on whether the post
+// already has a beyondwords_content_id.
+const GENERATE_AUDIO_CHECKBOX =
+	'.beyondwords--generate-audio input[type="checkbox"]';
+const GENERATE_AUDIO_LABEL = '.beyondwords--generate-audio label';
+
 Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 	if ( ! postType ) {
 		postType = postTypes[ 0 ];
@@ -219,15 +222,15 @@ Cypress.Commands.add( 'checkGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( ! postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'be.checked' );
 } );
 
 Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
@@ -237,15 +240,15 @@ Cypress.Commands.add( 'uncheckGenerateAudio', ( postType ) => {
 
 	cy.openBeyondwordsEditorPanel();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should(
 		postType.preselect ? 'be.checked' : 'not.be.checked'
 	);
 
 	if ( postType.preselect ) {
-		cy.getLabel( 'Generate audio' ).click();
+		cy.get( GENERATE_AUDIO_LABEL ).click();
 	}
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'not.be.checked' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'not.be.checked' );
 } );
 
 Cypress.Commands.add( 'publishPostWithAudio', ( options = {} ) => {
@@ -269,7 +272,7 @@ Cypress.Commands.add( 'publishPostWithoutAudio', ( options = {} ) => {
 
 	cy.publishWithConfirmation();
 
-	cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'exist' );
+	cy.get( GENERATE_AUDIO_CHECKBOX ).should( 'exist' );
 
 	cy.hasAdminPlayerInstances( 0 );
 } );
@@ -315,14 +318,16 @@ Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
 	cy.get( '.beyondwords-sidebar' )
 		.contains( 'a', 'BeyondWords sidebar' )
 		.click();
-	cy.get( '.beyondwords-sidebar__status' ).should( 'be.visible' );
+	cy.get( '.beyondwords-sidebar__data' )
+		.scrollIntoView()
+		.should( 'be.visible' );
 } );
 
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 	return cy
 		.get( 'label', ...args )
 		.contains( text )
-		.closest( '.components-checkbox-control' )
+		.closest( '.beyondwords-toggle' )
 		.find( 'input[type="checkbox"]' )
 		.then( ( $el ) => cy.wrap( $el ) );
 } );

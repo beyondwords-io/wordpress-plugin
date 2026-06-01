@@ -126,6 +126,10 @@ class GenerateAudio {
 			return $post_id;
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
 		if ( isset( $_POST['beyondwords_generate_audio'] ) ) {
 			update_post_meta( $post_id, 'beyondwords_generate_audio', '1' );
 		} else {

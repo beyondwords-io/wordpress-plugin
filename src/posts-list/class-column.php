@@ -93,7 +93,10 @@ class Column {
 
 		$error_message = \BeyondWords\Post\Meta::get_error_message( $post_id );
 		$has_content   = \BeyondWords\Post\Meta::has_content( $post_id );
-		$disabled      = \BeyondWords\Post\Meta::get_disabled( $post_id );
+
+		// "Disabled" = no player on this post: the v7 "Embed: None" choice, or the
+		// legacy `beyondwords_disabled` flag for posts not yet migrated.
+		$disabled = \BeyondWords\Editor\Components\SettingsFields::is_player_disabled_for_post( $post_id );
 
 		if ( ! empty( $error_message ) ) {
 			echo wp_kses( self::OUTPUT_ERROR_PREFIX . $error_message, self::ALLOWED_HTML );

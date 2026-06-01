@@ -306,6 +306,10 @@ class InspectPanel {
 			return $post_id;
 		}
 
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
 		if ( isset( $_POST['beyondwords_delete_content'] ) ) {
 			// Set the flag - the DELETE request is performed at a later priority
 			update_post_meta( $post_id, 'beyondwords_delete_content', '1' );

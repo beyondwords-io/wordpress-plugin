@@ -1,3 +1,8 @@
+/**
+ * @group block-editor
+ * @covers src/post/class-sync.php,src/post/class-meta.php,src/editor/block/sidebar/,src/editor/block/document-setting/,src/editor/components/preview-panel/,src/editor/components/play-audio/,src/editor/components/generate-audio/,src/editor/components/settings-panel/,src/posts-list/class-column.php,src/player/class-player.php,src/player/renderer/class-javascript.php
+ */
+
 /* global Cypress, cy, beforeEach, context, it */
 
 context( 'Block Editor: Add Post', () => {
@@ -141,7 +146,7 @@ context( 'Block Editor: Add Post', () => {
 							cy.openBeyondwordsEditorPanel();
 
 							// Checkbox must stay unchecked despite preselect being enabled
-							cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+							cy.getBlockEditorCheckbox( 'Create' ).should(
 								'not.be.checked'
 							);
 
@@ -172,7 +177,7 @@ context( 'Block Editor: Add Post', () => {
 
 						cy.openBeyondwordsEditorPanel();
 
-						cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+						cy.getBlockEditorCheckbox( 'Update' ).should(
 							'be.checked'
 						);
 

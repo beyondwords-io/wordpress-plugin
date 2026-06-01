@@ -21,11 +21,16 @@ class HeadTest extends TestCase
             'post_author' => 1,
             'post_status' => 'publish',
         ]);
+
+        // The meta tags are only emitted for the client-side (Magic Embed)
+        // integration, so default the suite to it.
+        update_option('beyondwords_integration_method', 'client-side');
     }
 
     public function tearDown(): void
     {
         wp_delete_post($this->postId, true);
+        delete_option('beyondwords_integration_method');
 
         parent::tearDown();
     }
@@ -76,6 +81,26 @@ class HeadTest extends TestCase
         });
 
         $this->assertEmpty($html, 'Should not output meta tags without project ID');
+    }
+
+    /**
+     * @test
+     */
+    public function add_meta_tags_does_nothing_for_rest_api_integration(): void
+    {
+        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // REST API integration: the platform already has the metadata from the
+        // content payload, so nothing should be emitted on the page.
+        update_option('beyondwords_integration_method', 'rest-api');
+
+        $this->go_to(get_permalink($this->postId));
+
+        $html = $this->capture_output(function () {
+            Head::add_meta_tags();
+        });
+
+        $this->assertEmpty($html, 'Should not output meta tags for the REST API integration');
     }
 
     /**
@@ -137,42 +162,6 @@ class HeadTest extends TestCase
     /**
      * @test
      */
-    public function add_meta_tags_outputs_title_voice_id_when_set(): void
-    {
-        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_post_meta($this->postId, 'beyondwords_title_voice_id', 123);
-
-        $this->go_to(get_permalink($this->postId));
-
-        $html = $this->capture_output(function () {
-            Head::add_meta_tags();
-        });
-
-        $this->assertStringContainsString('name="beyondwords-title-voice-id"', $html);
-        $this->assertStringContainsString('data-beyondwords-title-voice-id=', $html);
-        $this->assertStringContainsString('content="123"', $html);
-    }
-
-    /**
-     * @test
-     */
-    public function add_meta_tags_omits_title_voice_id_when_not_set(): void
-    {
-        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        delete_post_meta($this->postId, 'beyondwords_title_voice_id');
-
-        $this->go_to(get_permalink($this->postId));
-
-        $html = $this->capture_output(function () {
-            Head::add_meta_tags();
-        });
-
-        $this->assertStringNotContainsString('beyondwords-title-voice-id', $html);
-    }
-
-    /**
-     * @test
-     */
     public function add_meta_tags_outputs_body_voice_id_when_set(): void
     {
         update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -204,42 +193,6 @@ class HeadTest extends TestCase
         });
 
         $this->assertStringNotContainsString('beyondwords-body-voice-id', $html);
-    }
-
-    /**
-     * @test
-     */
-    public function add_meta_tags_outputs_summary_voice_id_when_set(): void
-    {
-        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_post_meta($this->postId, 'beyondwords_summary_voice_id', 789);
-
-        $this->go_to(get_permalink($this->postId));
-
-        $html = $this->capture_output(function () {
-            Head::add_meta_tags();
-        });
-
-        $this->assertStringContainsString('name="beyondwords-summary-voice-id"', $html);
-        $this->assertStringContainsString('data-beyondwords-summary-voice-id=', $html);
-        $this->assertStringContainsString('content="789"', $html);
-    }
-
-    /**
-     * @test
-     */
-    public function add_meta_tags_omits_summary_voice_id_when_not_set(): void
-    {
-        update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        delete_post_meta($this->postId, 'beyondwords_summary_voice_id');
-
-        $this->go_to(get_permalink($this->postId));
-
-        $html = $this->capture_output(function () {
-            Head::add_meta_tags();
-        });
-
-        $this->assertStringNotContainsString('beyondwords-summary-voice-id', $html);
     }
 
     /**
@@ -310,9 +263,7 @@ class HeadTest extends TestCase
     {
         // Set up all possible meta values
         update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        update_post_meta($this->postId, 'beyondwords_title_voice_id', 111);
         update_post_meta($this->postId, 'beyondwords_body_voice_id', 222);
-        update_post_meta($this->postId, 'beyondwords_summary_voice_id', 333);
         update_post_meta($this->postId, 'beyondwords_language_code', 'en');
 
         $this->go_to(get_permalink($this->postId));
@@ -325,14 +276,10 @@ class HeadTest extends TestCase
         $this->assertStringContainsString('beyondwords-title', $html);
         $this->assertStringContainsString('beyondwords-author', $html);
         $this->assertStringContainsString('beyondwords-publish-date', $html);
-        $this->assertStringContainsString('beyondwords-title-voice-id', $html);
         $this->assertStringContainsString('beyondwords-body-voice-id', $html);
-        $this->assertStringContainsString('beyondwords-summary-voice-id', $html);
         $this->assertStringContainsString('beyondwords-article-language', $html);
 
-        // Should have all values
-        $this->assertStringContainsString('111', $html);
+        // Should have the body voice value
         $this->assertStringContainsString('222', $html);
-        $this->assertStringContainsString('333', $html);
     }
 }

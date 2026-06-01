@@ -1,3 +1,8 @@
+/**
+ * @group plugins
+ * @covers src/player/renderer/class-amp.php
+ */
+
 /* global cy, before, beforeEach, after, context, it */
 
 context( 'Plugins: AMP', () => {

@@ -9,18 +9,19 @@ import { registerPlugin } from '@wordpress/plugins';
 import DocumentSettingPanel from './document-setting';
 import PrepublishPanel from './prepublish';
 import Sidebar from './sidebar';
+import { BeyondwordsIcon } from '../components/icon';
 
 registerPlugin( 'beyondwords-document-sidebar', {
-	icon: 'controls-volumeon',
+	icon: <BeyondwordsIcon />,
 	render: DocumentSettingPanel,
 } );
 
 registerPlugin( 'beyondwords-prepublish-sidebar', {
-	icon: 'controls-volumeon',
+	icon: <BeyondwordsIcon />,
 	render: PrepublishPanel,
 } );
 
 registerPlugin( 'beyondwords-plugin-sidebar', {
-	icon: 'controls-volumeon',
+	icon: <BeyondwordsIcon />,
 	render: Sidebar,
 } );

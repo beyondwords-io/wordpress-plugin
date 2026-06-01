@@ -65,16 +65,6 @@ class ConfigBuilder {
 			$params['showUserInterface'] = false;
 		}
 
-		$style = \BeyondWords\Post\Meta::get_player_style( $post->ID );
-		if ( ! empty( $style ) ) {
-			$params['playerStyle'] = $style;
-		}
-
-		$content = get_post_meta( $post->ID, 'beyondwords_player_content', true );
-		if ( ! empty( $content ) ) {
-			$params['loadContentAs'] = [ $content ];
-		}
-
 		$method = \BeyondWords\Settings\Fields::get_integration_method( $post );
 
 		if ( \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE === $method && empty( $params['contentId'] ) ) {

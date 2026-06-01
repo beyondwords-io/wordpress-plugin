@@ -367,62 +367,6 @@ class Meta {
 	}
 
 	/**
-	 * Get the Title Voice ID for a WordPress Post.
-	 *
-	 * We do not filter this, because the Block Editor directly accesses this
-	 * custom field, bypassing any filters we add here.
-	 *
-	 * @since 4.0.0
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return int|false Title Voice ID, or false
-	 */
-	public static function get_title_voice_id( int $post_id ): int|string|false {
-		$voice_id = get_post_meta( $post_id, 'beyondwords_title_voice_id', true );
-
-		return $voice_id ?: false;
-	}
-
-	/**
-	 * Get the Summary Voice ID for a WordPress Post.
-	 *
-	 * We do not filter this, because the Block Editor directly accesses this
-	 * custom field, bypassing any filters we add here.
-	 *
-	 * @since 4.0.0
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return int|false Summary Voice ID, or false
-	 */
-	public static function get_summary_voice_id( int $post_id ): int|string|false {
-		$voice_id = get_post_meta( $post_id, 'beyondwords_summary_voice_id', true );
-
-		return $voice_id ?: false;
-	}
-
-	/**
-	 * Get the player style for a post.
-	 *
-	 * Defaults to the plugin setting if the custom field doesn't exist.
-	 *
-	 * @since 4.1.0
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return string Player style.
-	 */
-	public static function get_player_style( int $post_id ): string {
-		$player_style = get_post_meta( $post_id, 'beyondwords_player_style', true );
-
-		return is_string( $player_style ) ? $player_style : '';
-	}
-
-	/**
 	 * Get the "Error Message" value for a WordPress Post.
 	 *
 	 * Supports data saved with the `beyondwords_*` prefix and the legacy `speechkit_*` prefix.
