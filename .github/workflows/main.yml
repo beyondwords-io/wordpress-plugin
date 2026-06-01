@@ -237,43 +237,65 @@ jobs:
   # ######################################
   # Plugin Check
   # ######################################
-  # TODO: remove continue-on-error once WordPress/plugin-check-action#579 is
-  # fixed upstream. The action auto-generates a .wp-env.json that pulls
-  # plugin-check.zip via a URL; on Node 24.16 runners that download path trips
-  # a latent @wordpress/env bug, so `wp-env start` silently exits 0 and the
-  # check reports "Environment not initialized". Not caused by this repo.
+  # TEMPORARILY DISABLED — this job is a green no-op placeholder. The real
+  # plugin-check steps are commented out below (not deleted) so the job keeps
+  # its place in the pipeline and downstream `needs: [plugin-check]` stays
+  # satisfied; restore them in one edit once the upstream bug is fixed.
+  #
+  # `continue-on-error: true` was not enough: a failing-but-tolerated job still
+  # renders as a red ✗ in the GitHub UI. An early `exit 0` keeps it green while
+  # surfacing a warning annotation so the skip stays visible.
+  #
+  # TODO: re-enable the "Run plugin check" step (and delete the notice step)
+  # once WordPress/plugin-check-action#579 is fixed upstream. The action
+  # auto-generates a .wp-env.json that pulls plugin-check.zip via a URL; on
+  # Node 24.16 runners that download path trips a latent @wordpress/env bug, so
+  # `wp-env start` silently exits 0 and the check reports "Environment not
+  # initialized". Not caused by this repo.
   # https://github.com/WordPress/plugin-check-action/issues/579
   plugin-check:
     name: Plugin Check
     runs-on: ubuntu-22.04
     needs: [build]
-    continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Plugin Check temporarily skipped
+        run: |
+          echo "::warning title=Plugin Check skipped::Temporarily disabled pending WordPress/plugin-check-action#579. See the TODO in .github/workflows/main.yml."
+          {
+            echo "### ⚠️ Plugin Check temporarily skipped"
+            echo ""
+            echo "This job is a green no-op placeholder while [plugin-check-action#579](https://github.com/WordPress/plugin-check-action/issues/579) is fixed upstream."
+            echo "Re-enable the real step in \`.github/workflows/main.yml\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
 
-      - name: Download artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
-          path: /tmp
-
-      - name: Unzip plugin ZIP
-        run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
-        working-directory: /tmp
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run plugin check
-        uses: wordpress/plugin-check-action@v1
-        with:
-          build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
-          exclude-directories: 'vendor'
+      # TODO: restore the steps below (and remove the notice step above) once
+      # WordPress/plugin-check-action#579 is fixed upstream.
+      # - uses: actions/checkout@v6
+      #
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v8
+      #   with:
+      #     name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+      #     path: /tmp
+      #
+      # - name: Unzip plugin ZIP
+      #   run: unzip ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
+      #   working-directory: /tmp
+      #
+      # - name: Login to GitHub Container Registry
+      #   uses: docker/login-action@v4
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+      #
+      # - name: Run plugin check
+      #   uses: wordpress/plugin-check-action@v1
+      #   with:
+      #     build-dir: /tmp/${{ vars.WP_ORG_PLUGIN_NAME }}
+      #     exclude-directories: 'vendor'
 
   # ######################################
   # PHPUnit Tests
