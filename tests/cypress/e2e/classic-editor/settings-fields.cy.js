@@ -1,6 +1,7 @@
 /**
  * @group classic-editor
  * @covers src/editor/components/settings-fields/
+ * @covers src/player/class-config-builder.php
  */
 
 /* global cy, before, beforeEach, after, context, expect, it */
@@ -170,6 +171,33 @@ context( 'Classic Editor: Settings fields', () => {
 				cy.get( 'select#beyondwords_embed' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Audio (script)' );
+			} );
+
+			it( `Embed choice maps to player SDK params for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+
+				// Video (script) → the front-end player loads the AI summary as
+				// video (SDK `video: true`, `summary: true`).
+				cy.get( 'select#beyondwords_source' ).select( 'Post + script' );
+				cy.get( 'select#beyondwords_output' ).select( 'Audio + video' );
+				cy.get( 'select#beyondwords_embed' ).select( 'Video (script)' );
+
+				cy.classicSetPostTitle(
+					`Embed maps to SDK params for a ${ postType.name }`
+				);
+
+				if ( ! postType.preselect ) {
+					cy.get( 'input#beyondwords_generate_audio' ).check();
+				}
+
+				cy.contains( 'input[type="submit"]', 'Publish' ).click();
+
+				cy.get( '#sample-permalink' ).click();
+
+				cy.hasPlayerInstances( 1, {
+					video: true,
+					summary: true,
+				} );
 			} );
 		} );
 } );
