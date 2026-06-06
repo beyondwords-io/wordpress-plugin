@@ -435,16 +435,16 @@ jobs:
           path: .
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload results
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: .
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # ######################################
   # Cypress Tests
@@ -650,7 +650,7 @@ jobs:
         run: sudo php -S localhost:8889 -t /usr/share/nginx/html &
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           browser: chrome
           headed: true # Temporarily set to headed to help with debugging
@@ -799,7 +799,7 @@ jobs:
           path: /tmp
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           body: |
