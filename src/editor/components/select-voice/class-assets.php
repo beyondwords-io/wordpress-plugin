@@ -61,7 +61,7 @@ class Assets {
 			[
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'root'             => esc_url_raw( rest_url() ),
-				'projectDefault'   => __( 'Project default', 'speechkit' ),
+				'selectVoice'      => __( 'Select a voice', 'speechkit' ),
 				'elevenLabs'       => \BeyondWords\Editor\Components\SelectVoice::ELEVENLABS_SERVICE,
 				'defaultModelId'   => \BeyondWords\Editor\Components\SelectVoice::DEFAULT_ELEVENLABS_VOICE_MODEL_ID,
 				'voiceModelLabels' => [

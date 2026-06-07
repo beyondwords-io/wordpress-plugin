@@ -99,6 +99,11 @@ context( 'Block Editor: Settings panel', () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
+				// "Customize" is opt-in; enable it to reveal the Language/Voice fields.
+				cy.get( '.beyondwords--customize input[type="checkbox"]' ).check( {
+					force: true,
+				} );
+
 				select( 'beyondwords--language' ).select( 'English (American)', { force: true } );
 
 				// Bridget is an ElevenLabs voice with three models.

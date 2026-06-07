@@ -26,16 +26,27 @@ context( 'Block Editor: Select Voice', () => {
 
 				cy.openBeyondwordsEditorPanel();
 
-				// Assert we have the expected Voices
+				// "Customize" is opt-in and off by default, so the Language/Voice
+				// fields are hidden until it is enabled.
+				cy.get(
+					'.beyondwords--customize input[type="checkbox"]'
+				).should( 'not.be.checked' );
+				cy.contains( '.components-select-control label', 'Language' ).should(
+					'not.exist'
+				);
+
+				cy.get( '.beyondwords--customize label' ).click();
+
+				// Assert we have the expected Languages
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = [ ...$els ].map( ( el ) =>
 							el.innerText.trim()
 						);
-						// 148 languages + the "Project default" option.
+						// 148 languages + the "Select a language…" placeholder.
 						expect( values ).to.have.length( 149 );
-						expect( values[ 0 ] ).to.eq( 'Project default' );
+						expect( values[ 0 ] ).to.eq( 'Select a language…' );
 						expect( values ).to.include( 'English (American)' );
 						expect( values ).to.include( 'English (British)' );
 						expect( values ).to.include( 'Welsh (Welsh)' );
@@ -54,7 +65,7 @@ context( 'Block Editor: Select Voice', () => {
 							el.innerText.trim()
 						);
 						expect( values ).to.deep.eq( [
-							'Project default',
+							'Select a voice',
 							'Ada (Multilingual)',
 							'Ava (Multilingual)',
 							'Ollie (Multilingual)',
@@ -86,7 +97,7 @@ context( 'Block Editor: Select Voice', () => {
 							el.innerText.trim()
 						);
 						expect( values ).to.deep.eq( [
-							'Project default',
+							'Select a voice',
 							'Ada (Multilingual)',
 							'Ava (Multilingual)',
 							'Ollie (Multilingual)',
@@ -110,6 +121,9 @@ context( 'Block Editor: Select Voice', () => {
 								.getEditedPostAttribute( 'meta' );
 							// eslint-disable-next-line no-unused-expressions
 							expect( meta?.beyondwords_language_code ).to.not.be
+								.empty;
+							// eslint-disable-next-line no-unused-expressions
+							expect( meta?.beyondwords_body_voice_id ).to.not.be
 								.empty;
 						} );
 					} );
@@ -146,6 +160,12 @@ context( 'Block Editor: Select Voice', () => {
 								.empty;
 						} );
 					} );
+
+				// A post with an explicit language/voice opens with Customize on,
+				// so the fields are already visible after reload.
+				cy.get(
+					'.beyondwords--customize input[type="checkbox"]'
+				).should( 'be.checked' );
 
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )

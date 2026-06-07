@@ -295,12 +295,11 @@ class Content {
 			}
 		}
 
-		$language_code = get_post_meta( $post_id, 'beyondwords_language_code', true );
-
-		if ( $language_code ) {
-			$body['language'] = $language_code;
-		}
-
+		// The post language is never sent to the API. A chosen voice already
+		// implies its language, so sending the voice id is sufficient; when no
+		// voice is chosen ("Customize" off) we send nothing and the BeyondWords
+		// project default applies. `beyondwords_language_code` is retained only as
+		// editor state, used to fetch the per-language voice list.
 		$body_voice_id = intval( get_post_meta( $post_id, 'beyondwords_body_voice_id', true ) );
 
 		if ( $body_voice_id > 0 ) {
