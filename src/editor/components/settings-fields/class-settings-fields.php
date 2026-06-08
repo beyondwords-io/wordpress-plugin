@@ -284,6 +284,43 @@ class SettingsFields {
 	}
 
 	/**
+	 * Resolve the effective Embed value for a post.
+	 *
+	 * Centralises the source×output→asset resolution so the dropdown's shown
+	 * default ({@see render_player_section()}) and the rendered player
+	 * ({@see \BeyondWords\Player\ConfigBuilder}) can never diverge:
+	 *
+	 * - No explicit choice yet: a legacy "Display player" opt-out (pre-v7 posts
+	 *   not yet migrated) resolves to None, otherwise the first asset the current
+	 *   Source × Output produces so the player stays visible.
+	 * - A persisted value that no longer fits the current Source × Output falls
+	 *   back to None.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return string One of the EMBED_* constants.
+	 */
+	public static function get_effective_embed( int $post_id ): string {
+		$source = self::get_meta( $post_id, 'beyondwords_source', self::SOURCE_POST );
+		$output = self::get_meta( $post_id, 'beyondwords_output', self::OUTPUT_AUDIO );
+		$embed  = get_post_meta( $post_id, 'beyondwords_embed', true );
+
+		if ( ! is_string( $embed ) || '' === $embed ) {
+			$embed = \BeyondWords\Post\Meta::get_disabled( $post_id )
+				? self::EMBED_NONE
+				: self::default_embed( $source, $output );
+		}
+
+		if ( ! self::is_embed_valid( $embed, $source, $output ) ) {
+			$embed = self::EMBED_NONE;
+		}
+
+		return $embed;
+	}
+
+	/**
 	 * Whether the player is suppressed on a post.
 	 *
 	 * The Embed dropdown's "None" replaces the pre-v7 "Display player" opt-out.
@@ -402,21 +439,7 @@ class SettingsFields {
 	public static function render_player_section( $post ): void {
 		$source = self::get_meta( $post->ID, 'beyondwords_source', self::SOURCE_POST );
 		$output = self::get_meta( $post->ID, 'beyondwords_output', self::OUTPUT_AUDIO );
-		$embed  = get_post_meta( $post->ID, 'beyondwords_embed', true );
-
-		// No explicit choice yet: hide if a legacy "Display player" opt-out is set
-		// (pre-v7 posts not yet migrated), otherwise default to the first asset so
-		// the player stays visible.
-		if ( ! is_string( $embed ) || '' === $embed ) {
-			$embed = \BeyondWords\Post\Meta::get_disabled( $post->ID )
-				? self::EMBED_NONE
-				: self::default_embed( $source, $output );
-		}
-
-		// Fall back to None if the persisted value no longer fits Source × Output.
-		if ( ! self::is_embed_valid( $embed, $source, $output ) ) {
-			$embed = self::EMBED_NONE;
-		}
+		$embed  = self::get_effective_embed( $post->ID );
 
 		self::render_select(
 			'beyondwords_embed',

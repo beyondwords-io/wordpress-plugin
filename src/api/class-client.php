@@ -341,104 +341,6 @@ class Client {
 	}
 
 	/**
-	 * PUT /organization/voices/:id
-	 *
-	 * @param int                 $voice_id Voice ID.
-	 * @param array<string,mixed> $settings Voice settings to apply.
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function update_voice( int $voice_id, array $settings ): array|null|false {
-		if ( empty( $voice_id ) ) {
-			return false;
-		}
-
-		$url      = sprintf( '%s/organization/voices/%d', \BeyondWords\Core\Urls::get_api_url(), $voice_id );
-		$body     = (string) wp_json_encode( $settings );
-		$response = self::call_api( 'PUT', $url, $body );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
-	 * GET /projects/:id
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function get_project(): array|null|false {
-		$project_id = get_option( 'beyondwords_project_id' );
-
-		if ( ! $project_id ) {
-			return false;
-		}
-
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = self::call_api( 'GET', $url );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
-	 * PUT /projects/:id
-	 *
-	 * @param array<string,mixed> $settings Project settings to apply.
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function update_project( array $settings ): array|null|false {
-		$project_id = get_option( 'beyondwords_project_id' );
-
-		if ( ! $project_id ) {
-			return false;
-		}
-
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$body     = (string) wp_json_encode( $settings );
-		$response = self::call_api( 'PUT', $url, $body );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
-	 * GET /projects/:id/player_settings
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function get_player_settings(): array|null|false {
-		$project_id = get_option( 'beyondwords_project_id' );
-
-		if ( ! $project_id ) {
-			return false;
-		}
-
-		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = self::call_api( 'GET', $url );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
-	 * PUT /projects/:id/player_settings
-	 *
-	 * @param array<string,mixed> $settings Player settings to apply.
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function update_player_settings( array $settings ): array|null|false {
-		$project_id = get_option( 'beyondwords_project_id' );
-
-		if ( ! $project_id ) {
-			return false;
-		}
-
-		$url      = sprintf( '%s/projects/%d/player_settings', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$body     = (string) wp_json_encode( $settings );
-		$response = self::call_api( 'PUT', $url, $body );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
 	 * GET /projects/:id/video_settings
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
@@ -460,38 +362,10 @@ class Client {
 	}
 
 	/**
-	 * GET /projects/:id/summarization_settings
-	 *
-	 * Response includes a `template` array that the editor's "Script template"
-	 * dropdown is populated from.
-	 *
-	 * @since 7.0.0
-	 *
-	 * @param int|null $project_id Optional override; falls back to the global option.
-	 *
-	 * @return array<mixed>|null|false
-	 */
-	public static function get_summarization_settings( ?int $project_id = null ): array|null|false {
-		if ( ! $project_id ) {
-			$project_id = get_option( 'beyondwords_project_id' );
-
-			if ( ! $project_id ) {
-				return false;
-			}
-		}
-
-		$url = sprintf( '%s/projects/%d/summarization_settings', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
-
-		return self::cached_get( 'summarization_settings_' . (int) $project_id, $url );
-	}
-
-	/**
 	 * GET /summarization_settings_templates
 	 *
 	 * The list of script templates available to the organization. Editor
-	 * scripts use this to populate the "Script template" dropdown — distinct
-	 * from `get_summarization_settings()`, which returns a project's currently
-	 * configured template.
+	 * scripts use this to populate the "Script template" dropdown.
 	 *
 	 * @since 7.0.0
 	 *

@@ -65,6 +65,26 @@ class ConfigBuilder {
 			$params['showUserInterface'] = false;
 		}
 
+		// Map the resolved Embed choice to the SDK's video/summary params so the
+		// on-page player shows the chosen asset. "script" === the AI summarization
+		// output, so script → summary:true. None/audio_post add nothing (the SDK
+		// defaults to audio + body); a None post normally never reaches here as the
+		// renderer short-circuits via Player::is_enabled(), but stay defensive.
+		$embed = \BeyondWords\Editor\Components\SettingsFields::get_effective_embed( $post->ID );
+
+		switch ( $embed ) {
+			case \BeyondWords\Editor\Components\SettingsFields::EMBED_AUDIO_SCRIPT:
+				$params['summary'] = true;
+				break;
+			case \BeyondWords\Editor\Components\SettingsFields::EMBED_VIDEO_POST:
+				$params['video'] = true;
+				break;
+			case \BeyondWords\Editor\Components\SettingsFields::EMBED_VIDEO_SCRIPT:
+				$params['video']   = true;
+				$params['summary'] = true;
+				break;
+		}
+
 		$method = \BeyondWords\Settings\Fields::get_integration_method( $post );
 
 		if ( \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE === $method && empty( $params['contentId'] ) ) {
