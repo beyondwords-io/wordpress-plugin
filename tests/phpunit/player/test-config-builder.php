@@ -215,4 +215,235 @@ class ConfigBuilderTest extends TestCase
 
         delete_option(Fields::OPTION_INTEGRATION_METHOD);
     }
+
+    /**
+     * Create a post with the given Settings Fields meta.
+     *
+     * @param array $meta Extra post meta to merge in.
+     */
+    private function createEmbedPost(array $meta)
+    {
+        return self::factory()->post->create_and_get([
+            'meta_input' => array_merge([
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ], $meta),
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function merge_post_settings_embed_audio_post_adds_no_asset_params()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'audio',
+            'beyondwords_embed'  => 'audio_post',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertArrayNotHasKey('video', $params);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function merge_post_settings_embed_audio_script_sets_summary()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'audio',
+            'beyondwords_embed'  => 'audio_script',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['summary']);
+        $this->assertArrayNotHasKey('video', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function merge_post_settings_embed_video_post_sets_video()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'video_post',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['video']);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function merge_post_settings_embed_video_script_sets_video_and_summary()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'video_script',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['video']);
+        $this->assertTrue($params['summary']);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function merge_post_settings_embed_none_adds_no_asset_params()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'audio',
+            'beyondwords_embed'  => 'none',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertArrayNotHasKey('video', $params);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * With no Embed chosen, the default for Source=Post × Output=Audio is
+     * "audio_post", which adds no asset params.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_empty_defaults_to_audio_post()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'audio',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertArrayNotHasKey('video', $params);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * With no Embed chosen, the default for Output=Video is "video_post", which
+     * sets video:true.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_empty_defaults_to_first_asset()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'video',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['video']);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * A stored Embed value that no longer fits the current Source × Output falls
+     * back to None — no asset params are emitted.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_none()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'post',
+            'beyondwords_output' => 'audio',
+            'beyondwords_embed'  => 'video_script',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertArrayNotHasKey('video', $params);
+        $this->assertArrayNotHasKey('summary', $params);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Embed asset params compose with headless mode.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_composes_with_headless()
+    {
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
+
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'video_script',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertFalse($params['showUserInterface']);
+        $this->assertTrue($params['video']);
+        $this->assertTrue($params['summary']);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(Fields::OPTION_PLAYER_UI);
+    }
+
+    /**
+     * Embed asset params compose with Magic Embed (client-side) mode, where the
+     * post has no content ID so the SDK fetches by source ID.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_composes_with_client_side()
+    {
+        update_option(Fields::OPTION_INTEGRATION_METHOD, Fields::INTEGRATION_CLIENT_SIDE);
+
+        $post = self::factory()->post->create_and_get([
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_source'     => 'script',
+                'beyondwords_output'     => 'audio',
+                'beyondwords_embed'      => 'audio_script',
+            ],
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['clientSideEnabled']);
+        $this->assertEquals($params['sourceId'], (string) $post->ID);
+        $this->assertArrayNotHasKey('contentId', $params);
+        $this->assertTrue($params['summary']);
+
+        wp_delete_post($post->ID, true);
+
+        delete_option(Fields::OPTION_INTEGRATION_METHOD);
+    }
 }
