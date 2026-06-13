@@ -27,6 +27,10 @@ class SettingsTest extends TestCase
     {
         // Your tear down methods here.
         delete_transient('beyondwords_settings_errors');
+        // print_settings_errors() is now screen-gated; reset the screen so a
+        // test that sets it does not leak into the review-notice tests, which
+        // rely on no settings screen being active.
+        unset($GLOBALS['current_screen']);
 
         // Then...
         parent::tearDown();
@@ -137,6 +141,8 @@ class SettingsTest extends TestCase
      */
     public function print_settings_errors_without_errors()
     {
+        set_current_screen('settings_page_beyondwords');
+
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
         });
@@ -155,6 +161,7 @@ class SettingsTest extends TestCase
         $errors['Settings/Test3'] = 'Errors test 3';
 
         set_transient('beyondwords_settings_errors', $errors, 30);
+        set_current_screen('settings_page_beyondwords');
 
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
@@ -265,6 +272,7 @@ class SettingsTest extends TestCase
         $errors['Settings/Test3'] = 'Errors test 3';
 
         set_transient('beyondwords_settings_errors', $errors, 30);
+        set_current_screen('settings_page_beyondwords');
 
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
@@ -294,6 +302,8 @@ class SettingsTest extends TestCase
 
         wp_cache_flush();
 
+        set_current_screen('settings_page_beyondwords');
+
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
         });
@@ -318,6 +328,7 @@ class SettingsTest extends TestCase
     public function print_settings_errors_drains_transient_after_render()
     {
         set_transient('beyondwords_settings_errors', ['Settings/Once' => 'Shown once'], 30);
+        set_current_screen('settings_page_beyondwords');
 
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
@@ -326,6 +337,30 @@ class SettingsTest extends TestCase
 
         // Drained: a fresh request's get_transient() has nothing left to render.
         $this->assertFalse(get_transient('beyondwords_settings_errors'));
+    }
+
+    /**
+     * The notice handler is hooked to `admin_notices` (every admin screen) but
+     * must only act on the BeyondWords settings page — the only screen these
+     * errors are queued for. On any other screen it early-returns without even
+     * reading the transient, so a queued error never paints elsewhere and is
+     * left intact to render once the user reaches the settings page.
+     *
+     * @test
+     */
+    public function print_settings_errors_only_renders_on_settings_screen()
+    {
+        set_transient('beyondwords_settings_errors', ['Settings/X' => 'Should not show here'], 30);
+
+        set_current_screen('edit-post');
+
+        $html = $this->capture_output(function () {
+            Settings::print_settings_errors();
+        });
+
+        $this->assertSame('', $html);
+        // Not drained off-screen — it must survive to render on the settings page.
+        $this->assertIsArray(get_transient('beyondwords_settings_errors'));
     }
 
     /**
