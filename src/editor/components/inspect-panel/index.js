@@ -10,13 +10,14 @@ import {
 } from '@wordpress/components';
 import { compose, useCopyToClipboard } from '@wordpress/compose';
 import { useDispatch, withDispatch, withSelect } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 
 /**
  * Internal dependencies
  */
 import Stack from '../stack';
+import { getTextToCopy, hasBeyondwordsData } from './helpers';
 
 export function PostInspectPanel( {
 	// Current custom fields
@@ -85,50 +86,51 @@ export function PostInspectPanel( {
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
 
-	const memoizedMeta = useMemo(
-		() => ( {
-			plugin_version: pluginVersion,
-			wp_version: wpVersion,
-			beyondwords_generate_audio: beyondwordsGenerateAudio,
-			beyondwords_project_id: beyondwordsProjectId,
-			beyondwords_content_id: beyondwordsContentId,
-			beyondwords_integration_method: beyondwordsIntegrationMethod,
-			beyondwords_preview_token: beyondwordsPreviewToken,
-			beyondwords_language_code: beyondwordsLanguageCode,
-			beyondwords_language_id: beyondwordsLanguageId,
-			beyondwords_body_voice_id: beyondwordsBodyVoiceId,
-			beyondwords_error_message: beyondwordsErrorMessage,
-			beyondwords_delete_content: beyondwordsDeleteContent,
-			beyondwords_source: beyondwordsSource,
-			beyondwords_output: beyondwordsOutput,
-			beyondwords_script_template_id: beyondwordsScriptTemplateId,
-			beyondwords_video_template_id: beyondwordsVideoTemplateId,
-			beyondwords_video_size: beyondwordsVideoSize,
-			beyondwords_embed: beyondwordsEmbed,
-			// Deprecated
-			beyondwords_podcast_id: beyondwordsPodcastId,
-			publish_post_to_speechkit: publishPostToSpeechkit,
-			speechkit_generate_audio: speechkitGenerateAudio,
-			speechkit_project_id: speechkitProjectId,
-			speechkit_podcast_id: speechkitPodcastId,
-			speechkit_error_message: speechkitErrorMessage,
-			speechkit_disabled: speechkitDisabled,
-			speechkit_access_key: speechkitAccessKey,
-			speechkit_error: speechkitError,
-			speechkit_info: speechkitInfo,
-			speechkit_response: speechkitResponse,
-			speechkit_retries: speechkitRetries,
-			speechkit_status: speechkitStatus,
-			_speechkit_link: speechkitLink,
-			_speechkit_text: speechkitText,
-		} ),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[]
-	);
+	// Single live source of truth for the panel: the post's current custom-field
+	// values keyed by field name. Rebuilt every render from the withSelect props
+	// (getEditedPostAttribute('meta')) so both the Copy and Remove controls track
+	// edits made after mount — e.g. audio being generated — instead of a snapshot.
+	const meta = {
+		// Current
+		beyondwords_generate_audio: beyondwordsGenerateAudio,
+		beyondwords_project_id: beyondwordsProjectId,
+		beyondwords_content_id: beyondwordsContentId,
+		beyondwords_integration_method: beyondwordsIntegrationMethod,
+		beyondwords_preview_token: beyondwordsPreviewToken,
+		beyondwords_language_code: beyondwordsLanguageCode,
+		beyondwords_language_id: beyondwordsLanguageId,
+		beyondwords_body_voice_id: beyondwordsBodyVoiceId,
+		beyondwords_error_message: beyondwordsErrorMessage,
+		beyondwords_delete_content: beyondwordsDeleteContent,
+		beyondwords_source: beyondwordsSource,
+		beyondwords_output: beyondwordsOutput,
+		beyondwords_script_template_id: beyondwordsScriptTemplateId,
+		beyondwords_video_template_id: beyondwordsVideoTemplateId,
+		beyondwords_video_size: beyondwordsVideoSize,
+		beyondwords_embed: beyondwordsEmbed,
+		// Deprecated
+		beyondwords_podcast_id: beyondwordsPodcastId,
+		publish_post_to_speechkit: publishPostToSpeechkit,
+		speechkit_generate_audio: speechkitGenerateAudio,
+		speechkit_project_id: speechkitProjectId,
+		speechkit_podcast_id: speechkitPodcastId,
+		speechkit_error_message: speechkitErrorMessage,
+		speechkit_disabled: speechkitDisabled,
+		speechkit_access_key: speechkitAccessKey,
+		speechkit_error: speechkitError,
+		speechkit_info: speechkitInfo,
+		speechkit_response: speechkitResponse,
+		speechkit_retries: speechkitRetries,
+		speechkit_status: speechkitStatus,
+		_speechkit_link: speechkitLink,
+		_speechkit_text: speechkitText,
+		// System (diagnostics only — copied, never counted as removable data)
+		plugin_version: pluginVersion,
+		wp_version: wpVersion,
+		wp_post_id: wpPostId,
+	};
 
-	const hasBeyondwordsData = Object.values( memoizedMeta ).some(
-		( x ) => !! x?.length
-	);
+	const hasData = hasBeyondwordsData( meta );
 
 	const handleRemoveButtonClick = ( e ) => {
 		e.stopPropagation();
@@ -144,53 +146,19 @@ export function PostInspectPanel( {
 		}
 	};
 
-	const getTextToCopy = () =>
-		[
-			`beyondwords_generate_audio\r\n${ beyondwordsGenerateAudio }`,
-			`beyondwords_project_id\r\n${ beyondwordsProjectId }`,
-			`beyondwords_content_id\r\n${ beyondwordsContentId }`,
-			`beyondwords_integration_method\r\n${ beyondwordsIntegrationMethod }`,
-			`beyondwords_preview_token\r\n${ beyondwordsPreviewToken }`,
-			`beyondwords_language_code\r\n${ beyondwordsLanguageCode }`,
-			`beyondwords_language_id\r\n${ beyondwordsLanguageId }`,
-			`beyondwords_body_voice_id\r\n${ beyondwordsBodyVoiceId }`,
-			`beyondwords_error_message\r\n${ beyondwordsErrorMessage }`,
-			`beyondwords_delete_content\r\n${ beyondwordsDeleteContent }`,
-			`beyondwords_source\r\n${ beyondwordsSource }`,
-			`beyondwords_output\r\n${ beyondwordsOutput }`,
-			`beyondwords_script_template_id\r\n${ beyondwordsScriptTemplateId }`,
-			`beyondwords_video_template_id\r\n${ beyondwordsVideoTemplateId }`,
-			`beyondwords_video_size\r\n${ beyondwordsVideoSize }`,
-			`beyondwords_embed\r\n${ beyondwordsEmbed }`,
-			`=== ${ __( 'Deprecated', 'speechkit' ) } ===`,
-			`beyondwords_podcast_id\r\n${ beyondwordsPodcastId }`,
-			`publish_post_to_speechkit\r\n${ publishPostToSpeechkit }`,
-			`speechkit_generate_audio\r\n${ speechkitGenerateAudio }`,
-			`speechkit_project_id\r\n${ speechkitProjectId }`,
-			`speechkit_podcast_id\r\n${ speechkitPodcastId }`,
-			`speechkit_error_message\r\n${ speechkitErrorMessage }`,
-			`speechkit_disabled\r\n${ speechkitDisabled }`,
-			`speechkit_access_key\r\n${ speechkitAccessKey }`,
-			`speechkit_error\r\n${ speechkitError }`,
-			`speechkit_info\r\n${ speechkitInfo }`,
-			`speechkit_response\r\n${ speechkitResponse }`,
-			`speechkit_retries\r\n${ speechkitRetries }`,
-			`speechkit_status\r\n${ speechkitStatus }`,
-			`_speechkit_link\r\n${ speechkitLink }`,
-			`_speechkit_text\r\n${ speechkitText }`,
-			`=== ${ __( 'System', 'speechkit' ) } ===`,
-			`plugin_version\r\n${ pluginVersion }`,
-			`wp_version\r\n${ wpVersion }`,
-			`wp_post_id\r\n${ wpPostId }`,
-			`=== ${ __( 'Copied using the Block Editor', 'speechkit' ) } ===`,
-		].join( '\r\n\r\n' ) + '\r\n\r\n';
-
-	const copyToClipboardRef = useCopyToClipboard( getTextToCopy(), () => {
-		createNotice( 'info', __( 'Copied data to clipboard.', 'speechkit' ), {
-			isDismissible: true,
-			type: 'snackbar',
-		} );
-	} );
+	const copyToClipboardRef = useCopyToClipboard(
+		getTextToCopy( meta ),
+		() => {
+			createNotice(
+				'info',
+				__( 'Copied data to clipboard.', 'speechkit' ),
+				{
+					isDismissible: true,
+					type: 'snackbar',
+				}
+			);
+		}
+	);
 
 	return (
 		<PanelBody
@@ -329,7 +297,7 @@ export function PostInspectPanel( {
 				style={ { float: 'right' } }
 				id="beyondwords-inspect-remove"
 				onClick={ handleRemoveButtonClick }
-				disabled={ ! hasBeyondwordsData }
+				disabled={ ! hasData }
 			>
 				{ removed
 					? __( 'Restore', 'speechkit' )
