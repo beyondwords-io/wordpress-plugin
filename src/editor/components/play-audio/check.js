@@ -1,15 +1,11 @@
 /**
- * WordPress dependencies
- */
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-
-/**
  * Internal dependencies
  */
-import { canPlayAudio } from './helpers';
+import { useCanPlayAudio } from './hooks';
 
-export function PlayAudioCheck( { hasPlayAudioAction, children } ) {
+export function PlayAudioCheck( { children } ) {
+	const hasPlayAudioAction = useCanPlayAudio();
+
 	if ( ! hasPlayAudioAction ) {
 		return null;
 	}
@@ -17,8 +13,4 @@ export function PlayAudioCheck( { hasPlayAudioAction, children } ) {
 	return children;
 }
 
-export default compose( [
-	withSelect( ( select ) => ( {
-		hasPlayAudioAction: canPlayAudio( select ),
-	} ) ),
-] )( PlayAudioCheck );
+export default PlayAudioCheck;

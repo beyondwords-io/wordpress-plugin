@@ -4,6 +4,12 @@
  * WordPress dependencies
  */
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+import { canPlayAudio } from './helpers';
 
 const PLAYER_SCRIPT_SRC =
 	'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
@@ -134,4 +140,18 @@ export function useBeyondWordsPlayer( {
 	] );
 
 	return player;
+}
+
+/**
+ * Whether PlayAudio will render a player for the current post.
+ *
+ * Reactive wrapper over `canPlayAudio` for function components: it re-renders
+ * the caller when the post status or BeyondWords meta change. PlayAudioCheck
+ * gates the player on it; PreviewPanel uses it to hide the panel when the player
+ * would render nothing.
+ *
+ * @return {boolean} True when PlayAudio has a player to render.
+ */
+export function useCanPlayAudio() {
+	return useSelect( canPlayAudio, [] );
 }
