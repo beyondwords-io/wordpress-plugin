@@ -35,8 +35,20 @@ class Javascript extends Base {
 			return '';
 		}
 
-		$params      = \BeyondWords\Player\ConfigBuilder::build( $post );
-		$json_params = wp_json_encode( $params, JSON_UNESCAPED_SLASHES );
+		$params = \BeyondWords\Player\ConfigBuilder::build( $post );
+
+		/*
+		 * Encode the SDK params for safe embedding inside the inline `onload` handler.
+		 * The HEX flags escape ', ", <, >, & within any string value, so attacker- or
+		 * filter-controlled params (e.g. the Content ID post meta, or values injected
+		 * via the beyondwords_player_sdk_params filter) cannot break out of the
+		 * single-quoted attribute or the surrounding markup. The structural JSON quotes
+		 * are left intact, so the spread object literal remains valid JavaScript.
+		 */
+		$json_params = wp_json_encode(
+			$params,
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+		);
 		$json_params = sprintf( '{target:this, ...%s}', $json_params );
 
 		$onload = sprintf( 'new BeyondWords.Player(%s);', $json_params );
@@ -46,8 +58,8 @@ class Javascript extends Base {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			'<script data-beyondwords-player-context="%s" async defer src="%s" onload=\'%s\'></script>',
 			esc_attr( $context ),
-			\BeyondWords\Core\Urls::get_js_sdk_url(),
-			$onload
+			esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ),
+			esc_attr( $onload )
 		);
 	}
 }
