@@ -86,8 +86,15 @@ class BulkEdit {
 	 * AJAX handler for the inline bulk-edit submission.
 	 *
 	 * Wired via `wp_ajax_save_bulk_edit_beyondwords`. Verifies the nonce that
-	 * was emitted by `bulk_edit_custom_box()` before delegating to the
-	 * generate/delete helpers.
+	 * was emitted by `bulk_edit_custom_box()` and the current user's capability
+	 * before delegating to the generate/delete helpers.
+	 *
+	 * The nonce only proves the request was intentional (CSRF protection); it
+	 * does not authorise the action. Because every `wp_ajax_*` callback is
+	 * reachable by any logged-in user, we additionally gate on capabilities —
+	 * mirroring the core bulk-action capability checks the redirect-based
+	 * handlers rely on — so a Subscriber/Contributor cannot mutate or delete
+	 * audio on posts they are not allowed to edit.
 	 *
 	 * @return int[] IDs of posts that were updated.
 	 */
@@ -100,13 +107,34 @@ class BulkEdit {
 			wp_nonce_ays( '' );
 		}
 
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die(
+				esc_html__( 'Sorry, you are not allowed to bulk edit BeyondWords audio.', 'speechkit' ),
+				'',
+				[ 'response' => 403 ]
+			);
+		}
+
 		if ( ! isset( $_POST['beyondwords_bulk_edit'] ) || ! isset( $_POST['post_ids'] ) || ! is_array( $_POST['post_ids'] ) ) {
 			return [];
 		}
 
-		$post_ids = array_filter( array_map( 'intval', wp_unslash( $_POST['post_ids'] ) ) );
+		$post_ids = array_filter( array_map( 'absint', wp_unslash( $_POST['post_ids'] ) ) );
 		$action   = sanitize_text_field( wp_unslash( $_POST['beyondwords_bulk_edit'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		// Only operate on posts the current user is actually allowed to edit, so a
+		// crafted request cannot mutate or delete audio on out-of-reach posts.
+		$post_ids = array_values(
+			array_filter(
+				$post_ids,
+				static fn( $post_id ): bool => current_user_can( 'edit_post', $post_id )
+			)
+		);
+
+		if ( empty( $post_ids ) ) {
+			return [];
+		}
 
 		switch ( $action ) {
 			case 'generate':
