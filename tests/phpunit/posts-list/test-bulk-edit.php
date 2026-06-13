@@ -253,15 +253,22 @@ final class BulkEditTest extends TestCase
         $_POST['beyondwords_bulk_edit'] = 'generate';
         $_POST['post_ids'] = [$postId];
 
-        $blocked = false;
+        // The nonce is valid for this user, so the *only* thing that can stop the
+        // request is the capability gate — not the nonce check (which throws the
+        // same WPDieException type).
+        $this->assertNotFalse(wp_verify_nonce($_POST['beyondwords_bulk_edit_nonce'], 'beyondwords_bulk_edit'));
+
+        $message = null;
 
         try {
             BulkEdit::save_bulk_edit();
         } catch (\WPDieException $e) {
-            $blocked = true;
+            $message = $e->getMessage();
         }
 
-        $this->assertTrue($blocked, 'A Subscriber should be blocked with wp_die() before any mutation.');
+        $this->assertNotNull($message, 'A Subscriber should be blocked with wp_die() before any mutation.');
+        // Bind to the capability gate specifically (distinct from the nonce-failure message).
+        $this->assertStringContainsString('not allowed to bulk edit', $message);
         $this->assertEmpty(get_post_meta($postId, 'beyondwords_generate_audio', true));
 
         wp_delete_post($postId, true);
@@ -311,6 +318,48 @@ final class BulkEditTest extends TestCase
     }
 
     /**
+     * The per-post gate is `edit_post`, not mere ownership. A Contributor holds
+     * `edit_posts` (so they clear the coarse gate) but lacks `edit_published_posts`,
+     * so they cannot edit a *published* post even when they own it. Such a post
+     * must still be filtered out, leaving a clean no-op.
+     *
+     * @test
+     */
+    public function save_bulk_edit_blocks_contributor_on_own_published_post()
+    {
+        $contributorId = self::factory()->user->create(['role' => 'contributor']);
+
+        wp_set_current_user($contributorId);
+
+        // Sanity-check the role assumption this test depends on.
+        $this->assertTrue(current_user_can('edit_posts'), 'Contributor should clear the coarse edit_posts gate.');
+
+        // Owned by the contributor, but published — contributors cannot edit published posts.
+        $ownPublishedPostId = self::factory()->post->create([
+            'post_author' => $contributorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_blocks_contributor_on_own_published_post',
+        ]);
+
+        $this->assertFalse(
+            current_user_can('edit_post', $ownPublishedPostId),
+            'Contributor should not be able to edit their own published post.'
+        );
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'generate';
+        $_POST['post_ids'] = [$ownPublishedPostId];
+
+        $updatedPostIds = BulkEdit::save_bulk_edit();
+
+        // The post is filtered out by the per-post capability check — no mutation.
+        $this->assertSame([], $updatedPostIds);
+        $this->assertEmpty(get_post_meta($ownPublishedPostId, 'beyondwords_generate_audio', true));
+
+        wp_delete_post($ownPublishedPostId, true);
+    }
+
+    /**
      * The `delete` branch is the most destructive path (live API delete + clearing
      * all BeyondWords meta). A Subscriber must be rejected with a 403 before
      * delete_audio_for_posts() — and therefore any API request — is reached.
@@ -339,16 +388,20 @@ final class BulkEditTest extends TestCase
         $_POST['beyondwords_bulk_edit'] = 'delete';
         $_POST['post_ids'] = [$postId];
 
-        $blocked = false;
+        // Valid nonce for this user — only the capability gate can stop the request.
+        $this->assertNotFalse(wp_verify_nonce($_POST['beyondwords_bulk_edit_nonce'], 'beyondwords_bulk_edit'));
+
+        $message = null;
         try {
             BulkEdit::save_bulk_edit();
         } catch (\WPDieException $e) {
-            $blocked = true;
+            $message = $e->getMessage();
         }
 
         remove_filter('pre_http_request', $filter, 10);
 
-        $this->assertTrue($blocked, 'A Subscriber should be blocked before the delete branch runs.');
+        $this->assertNotNull($message, 'A Subscriber should be blocked before the delete branch runs.');
+        $this->assertStringContainsString('not allowed to bulk edit', $message);
         $this->assertFalse($httpAttempted, 'No API delete should be attempted for an unauthorized user.');
         // The content id must survive — nothing was deleted.
         $this->assertSame('delete-subscriber-content-id', get_post_meta($postId, 'beyondwords_content_id', true));
