@@ -57,22 +57,21 @@ class JavascriptTest extends TestCase
     }
 
     /**
-     * A Content ID containing a single quote must not break out of the
-     * single-quoted onload='...' attribute (stored XSS regression).
+     * Stored-XSS regression: dangerous characters in a param value must never
+     * break out of the single-quoted onload='...' attribute, whatever the payload.
      *
-     * Prior to the fix, an editor-supplied `beyondwords_content_id` such as
-     * `123'); alert(document.cookie);//` closed the onload attribute and injected
-     * executable markup on the public front end. The renderer now esc_attr()s the
-     * onload value and encodes ', ", <, >, & via the wp_json_encode() HEX flags.
+     * Asserts the security *property* — one intact <script> and the value survives
+     * as inert JSON data — rather than a specific escaping mechanism, so it stays
+     * valid if the escaping strategy is ever refactored. The injected value reaches
+     * the renderer via `beyondwords_content_id`, the documented editor/REST sink.
      *
      * @test
+     * @dataProvider dangerousContentIdProvider
      */
-    public function render_does_not_allow_content_id_to_break_out_of_onload()
+    public function render_neutralises_a_dangerous_content_id($payload)
     {
-        $payload = "123'); alert(document.cookie);//";
-
         $post = self::factory()->post->create_and_get([
-            'post_title' => 'JavascriptTest::render_does_not_allow_content_id_to_break_out_of_onload',
+            'post_title' => 'JavascriptTest::render_neutralises_a_dangerous_content_id',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
                 'beyondwords_content_id' => $payload,
@@ -81,22 +80,135 @@ class JavascriptTest extends TestCase
 
         $html = Javascript::render($post);
 
-        // A real HTML parser must see exactly one <script> with an intact onload —
-        // a breakout would truncate the attribute and/or spawn sibling markup.
+        // A real HTML parser must see exactly one <script> — a breakout would
+        // truncate the attribute and/or inject sibling elements.
         $crawler = new Crawler($html);
-        $script  = $crawler->filter('script');
-        $this->assertCount(1, $script);
+        $this->assertCount(1, $crawler->filter('script'));
 
-        $onload = $script->attr('onload');
+        // The browser-decoded onload is the JS the engine actually runs.
+        $onload = $crawler->filter('script')->attr('onload');
         $this->assertStringStartsWith('new BeyondWords.Player(', $onload);
-        // If the attribute had broken out, the parsed value would be truncated
-        // mid-string and would not contain the constructor's closing `}});`.
         $this->assertStringEndsWith('}});', $onload);
 
-        // The raw markup must not contain an unescaped apostrophe able to close the
-        // attribute; the JSON encoder emits it as the unicode escape \\u0027 instead.
-        $this->assertStringNotContainsString("'); alert", $html);
-        $this->assertStringContainsString('\\u0027', $html);
+        // The spread params are valid JSON and the payload survived verbatim as a
+        // string value (inert data) — proving it can't execute and isn't corrupted.
+        $this->assertSame(1, preg_match('/\.\.\.(\{.*\})\}\);$/', $onload, $matches));
+        $params = json_decode($matches[1]);
+        $this->assertSame(JSON_ERROR_NONE, json_last_error());
+        $this->assertSame($payload, $params->contentId);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Payloads that survive sanitize_text_field() (the meta sanitiser registered
+     * for beyondwords_content_id) — quotes, ampersands and Unicode. It strips
+     * < > tags, so tag-based payloads can only reach the renderer via a filter;
+     * those are covered by render_neutralises_dangerous_sdk_params_from_filter().
+     */
+    public function dangerousContentIdProvider()
+    {
+        return [
+            'single quote (attribute breakout)' => ["123'); alert(document.cookie);//"],
+            'double quote'                      => ['123"); alert(document.cookie);//'],
+            'both quote styles'                 => ["o'brien " . '"quote"'],
+            'ampersand and dashes'              => ['a&b-c&d'],
+            'unicode'                           => ['café-naïve-señor'],
+        ];
+    }
+
+    /**
+     * The `beyondwords_player_script_onload` filter output is escaped too, so a
+     * third-party filter that injects raw single quotes cannot break out of the
+     * attribute. This isolates the esc_attr() defense: the filter result bypasses
+     * wp_json_encode(), so the HEX flags do not protect it — only esc_attr() does.
+     *
+     * @test
+     */
+    public function render_escapes_an_onload_value_injected_via_filter()
+    {
+        $injected = "new BeyondWords.Player({}); alert('xss'); //";
+        $filter   = static function () use ($injected) {
+            return $injected;
+        };
+        add_filter('beyondwords_player_script_onload', $filter);
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'JavascriptTest::render_escapes_an_onload_value_injected_via_filter',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $html = Javascript::render($post);
+
+        remove_filter('beyondwords_player_script_onload', $filter);
+
+        // esc_attr() + the browser's attribute decoding round-trip to the exact
+        // filter output; a raw-apostrophe breakout would instead truncate it.
+        $crawler = new Crawler($html);
+        $this->assertCount(1, $crawler->filter('script'));
+        $this->assertSame($injected, $crawler->filter('script')->attr('onload'));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Defense-in-depth via the beyondwords_player_sdk_params filter — the other
+     * injection vector named in the advisory. Third-party code can put *arbitrary*
+     * unsanitised values into a param (here bypassing the sanitize_text_field()
+     * that strips tags on meta save), so the renderer must neutralise ', ", <, >, &
+     * in the JSON layer (JSON_HEX_APOS|QUOT|TAG|AMP) and still emit one intact
+     * <script> whose params round-trip to the original value.
+     *
+     * @test
+     */
+    public function render_neutralises_dangerous_sdk_params_from_filter()
+    {
+        // contentId containing ' " < > & — the quote-style juggling keeps both
+        // quote characters in the value without any backslash escaping.
+        $dangerous = "a'b" . '"c<d>e&f';
+        $filter    = static function ($params) use ($dangerous) {
+            $params['contentId'] = $dangerous;
+            return $params;
+        };
+        add_filter('beyondwords_player_sdk_params', $filter);
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'JavascriptTest::render_neutralises_dangerous_sdk_params_from_filter',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $html = Javascript::render($post);
+
+        remove_filter('beyondwords_player_sdk_params', $filter);
+
+        // Still exactly one intact script, and the value round-trips as inert JSON
+        // (including the < > tags that the meta sanitiser would otherwise strip).
+        $crawler = new Crawler($html);
+        $this->assertCount(1, $crawler->filter('script'));
+        $onload = $crawler->filter('script')->attr('onload');
+        $this->assertSame(1, preg_match('/\.\.\.(\{.*\})\}\);$/', $onload, $matches));
+        $params = json_decode($matches[1]);
+        $this->assertSame(JSON_ERROR_NONE, json_last_error());
+        $this->assertSame($dangerous, $params->contentId);
+
+        // Each dangerous character is HEX-encoded in the raw markup; a dropped flag
+        // would surface it in another form (e.g. &#039; or \") and fail the match.
+        // The needle is built from the same encoder so no literal backslashes are
+        // embedded in the test source.
+        $hex = static function ($char) {
+            return trim(wp_json_encode($char, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP), '"');
+        };
+        $this->assertStringContainsString($hex("'"), $html); // JSON_HEX_APOS
+        $this->assertStringContainsString($hex('"'), $html); // JSON_HEX_QUOT
+        $this->assertStringContainsString($hex('<'), $html); // JSON_HEX_TAG
+        $this->assertStringContainsString($hex('>'), $html); // JSON_HEX_TAG
+        $this->assertStringContainsString($hex('&'), $html); // JSON_HEX_AMP
 
         wp_delete_post($post->ID, true);
     }
