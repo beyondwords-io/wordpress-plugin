@@ -9,12 +9,12 @@ class SettingsUtilsTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
+        delete_transient('beyondwords_settings_errors');
     }
 
     public function tearDown(): void
     {
-        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
+        delete_transient('beyondwords_settings_errors');
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
         delete_option('beyondwords_valid_api_connection');
@@ -233,7 +233,7 @@ class SettingsUtilsTest extends TestCase
         $this->assertFalse(Utils::validate_api_connection());
         $this->assertFalse(Utils::has_valid_api_connection());
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertIsArray($errors);
         $this->assertArrayHasKey('Settings/ValidApiConnection', $errors);
 
@@ -247,7 +247,7 @@ class SettingsUtilsTest extends TestCase
     {
         Utils::add_settings_error_message('First error', 'Settings/Test');
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertIsArray($errors);
         $this->assertSame(['Settings/Test' => 'First error'], $errors);
     }
@@ -260,7 +260,7 @@ class SettingsUtilsTest extends TestCase
         Utils::add_settings_error_message('A', 'Settings/A');
         Utils::add_settings_error_message('B', 'Settings/B');
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertCount(2, $errors);
         $this->assertSame('A', $errors['Settings/A']);
         $this->assertSame('B', $errors['Settings/B']);
@@ -273,11 +273,33 @@ class SettingsUtilsTest extends TestCase
     {
         Utils::add_settings_error_message('Anonymous error');
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertCount(1, $errors);
 
         $key = array_key_first($errors);
         $this->assertNotSame('', $key);
         $this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', (string) $key);
+    }
+
+    /**
+     * Regression: queued errors must survive a non-persistent object cache.
+     *
+     * The default WordPress object cache is request-scoped, so the queue lives
+     * in a transient (which falls back to the options table), not `wp_cache_*`,
+     * to survive the redirect after a settings save. Flushing the object cache
+     * models the fresh request the redirect triggers on a host with no
+     * persistent cache drop-in; the error must still be readable afterwards.
+     *
+     * @test
+     */
+    public function add_settings_error_message_survives_object_cache_flush()
+    {
+        Utils::add_settings_error_message('Survives the redirect', 'Settings/Redirect');
+
+        wp_cache_flush();
+
+        $errors = get_transient('beyondwords_settings_errors');
+        $this->assertIsArray($errors);
+        $this->assertSame('Survives the redirect', $errors['Settings/Redirect'] ?? null);
     }
 }

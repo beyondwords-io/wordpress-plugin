@@ -208,16 +208,30 @@ class Settings {
 	/**
 	 * Drain queued settings errors into a notice.
 	 *
-	 * Errors are queued via `Utils::add_settings_error_message()`, then
-	 * popped here and rendered as a single `notice notice-error`.
+	 * Hooked to `admin_notices`, which fires on every admin screen, so this
+	 * early-returns unless we are on the BeyondWords settings page — the only
+	 * screen these errors are ever queued for (the sanitizers redirect back
+	 * here, and the connection check runs on this page's load hook). Gating it
+	 * this way avoids a transient read on every unrelated admin page and stops
+	 * a queued error from painting on another screen before it is drained.
+	 *
+	 * Errors are queued via `Utils::add_settings_error_message()` into a
+	 * transient that survives the post-save redirect, then drained here and
+	 * rendered as a single `notice notice-error`.
 	 */
 	public static function print_settings_errors(): void {
-		$errors = wp_cache_get( 'beyondwords_settings_errors', 'beyondwords' );
-		wp_cache_delete( 'beyondwords_settings_errors', 'beyondwords' );
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'settings_page_' . self::PAGE_SLUG !== $screen->id ) {
+			return;
+		}
+
+		$errors = get_transient( 'beyondwords_settings_errors' );
 
 		if ( ! is_array( $errors ) || empty( $errors ) ) {
 			return;
 		}
+
+		delete_transient( 'beyondwords_settings_errors' );
 
 		$allowed = [
 			'a'      => [ 'href' => [], 'target' => [] ],
