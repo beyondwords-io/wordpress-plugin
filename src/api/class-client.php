@@ -110,9 +110,13 @@ class Client {
 	 * @param string          $content_id BeyondWords content ID.
 	 * @param int|string|null $project_id Optional project ID override.
 	 *
-	 * @return array<mixed>|false Response array, or false when project/content ID is missing.
+	 * @return array<mixed>|\WP_Error|false Raw HTTP response array, a `\WP_Error`
+	 *                                      on transport-level failure (unreachable
+	 *                                      host, timeout) which the caller surfaces
+	 *                                      as a connection error, or false when the
+	 *                                      project/content ID is missing.
 	 */
-	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|false {
+	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|\WP_Error|false {
 		if ( ! $project_id ) {
 			$project_id = get_option( 'beyondwords_project_id' );
 		}
