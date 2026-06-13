@@ -137,6 +137,42 @@ class ContentTest extends TestCase
 
     /**
      * @test
+     *
+     * Passing a post ID (int) must behave identically to passing the WP_Post
+     * object — the method resolves the argument internally like its siblings.
+     *
+     * Regression test: previously an int argument fell straight through to
+     * `$post->post_content`, emitting a PHP warning ("Attempt to read property
+     * on int") and returning an empty string instead of the post content.
+     */
+    public function get_content_without_excluded_blocks_accepts_post_id()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:getContentWithoutExcludedBlocksAcceptsPostId',
+            'post_content' => '<p>Plain content.</p>',
+        ]);
+
+        $byId     = Content::get_content_without_excluded_blocks($post->ID);
+        $byObject = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertSame('<p>Plain content.</p>', $byId);
+        $this->assertSame($byObject, $byId);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_content_without_excluded_blocks_with_invalid_post_id()
+    {
+        $this->expectException(\Exception::class);
+
+        Content::get_content_without_excluded_blocks(-1);
+    }
+
+    /**
+     * @test
      */
     public function get_post_body_with_invalid_post_id()
     {
