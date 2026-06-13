@@ -156,6 +156,53 @@ class SelectVoiceTest extends TestCase
     }
 
     /**
+     * Regression: a failed languages API call returns null (network error,
+     * WP_Error, non-2xx, empty body or invalid JSON). Passed unguarded into
+     * render_language_select()'s array-typed parameter under strict_types this
+     * threw an uncatchable TypeError, crashing the classic-editor metabox. The
+     * language dropdown must now render empty instead of fataling.
+     *
+     * @test
+     */
+    public function element_degrades_gracefully_when_languages_api_fails()
+    {
+        // Simulate the languages API being unreachable. Priority 1 short-circuits
+        // before the mock API filter, which respects an earlier preempt.
+        $filter = function ($preempt, $args, $url) {
+            if (str_contains($url, '/organization/languages')) {
+                return new \WP_Error('http_request_failed', 'Connection refused');
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        // No language code, so no voices API call is made — the languages call
+        // is the only one exercised here.
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_languages_api_fails',
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $crawler = new Crawler($html);
+
+        // The language dropdown still renders, with no options.
+        $languageSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $languageSelect);
+        $this->assertCount(0, $languageSelect->filter('option'));
+
+        // Render continued past the language select to the voice select, proving
+        // no TypeError was thrown.
+        $this->assertCount(1, $crawler->filter('#beyondwords_voice'));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
      * @test
      */
     public function voice_model_variants()
