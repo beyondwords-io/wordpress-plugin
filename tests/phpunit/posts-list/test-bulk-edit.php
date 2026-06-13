@@ -23,6 +23,7 @@ final class BulkEditTest extends TestCase
     {
         // Your tear down methods here.
         unset($_POST, $_REQUEST);
+        wp_set_current_user(0);
 
         // Then...
         parent::tearDown();
@@ -125,6 +126,8 @@ final class BulkEditTest extends TestCase
      */
     public function save_bulk_edit_without_bulk_edit_action()
     {
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         $postIds = [
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::saveBulkEditWithoutGenerateAudio::1',
@@ -155,6 +158,8 @@ final class BulkEditTest extends TestCase
      */
     public function save_bulk_edit_with_invalid_bulk_edit_action()
     {
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         $postIds = [
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::saveBulkEditWithInvalidGenerateAudio::1',
@@ -186,6 +191,8 @@ final class BulkEditTest extends TestCase
      */
     public function save_bulk_edit_without_post_ids()
     {
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
         $_POST['beyondwords_bulk_edit'] = 'generate';
         $_POST['post_type'] = 'post';
@@ -200,6 +207,8 @@ final class BulkEditTest extends TestCase
      */
     public function save_bulk_edit()
     {
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         $postIds = [
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::save_bulk_edit::1',
@@ -223,6 +232,295 @@ final class BulkEditTest extends TestCase
 
             wp_delete_post($postId, true);
         }
+    }
+
+    /**
+     * A nonce proves intent, not authorisation. A logged-in user without the
+     * `edit_posts` capability (e.g. a Subscriber) must be rejected with a 403
+     * before any post meta is touched.
+     *
+     * @test
+     */
+    public function save_bulk_edit_rejects_users_without_edit_posts_capability()
+    {
+        wp_set_current_user(self::factory()->user->create(['role' => 'subscriber']));
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'BulkEditTest::save_bulk_edit_rejects_users_without_edit_posts_capability',
+        ]);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'generate';
+        $_POST['post_ids'] = [$postId];
+
+        // The nonce is valid for this user, so the *only* thing that can stop the
+        // request is the capability gate — not the nonce check (which throws the
+        // same WPDieException type).
+        $this->assertNotFalse(wp_verify_nonce($_POST['beyondwords_bulk_edit_nonce'], 'beyondwords_bulk_edit'));
+
+        $message = null;
+
+        try {
+            BulkEdit::save_bulk_edit();
+        } catch (\WPDieException $e) {
+            $message = $e->getMessage();
+        }
+
+        $this->assertNotNull($message, 'A Subscriber should be blocked with wp_die() before any mutation.');
+        // Bind to the capability gate specifically (distinct from the nonce-failure message).
+        $this->assertStringContainsString('not allowed to bulk edit', $message);
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_generate_audio', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * A user with the `edit_posts` capability may still lack `edit_post` for an
+     * individual post they do not own. Those posts must be skipped, while posts
+     * the user can edit are still processed.
+     *
+     * @test
+     */
+    public function save_bulk_edit_skips_posts_the_user_cannot_edit()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        // The author owns this post, so they may edit it.
+        $ownPostId = self::factory()->post->create([
+            'post_author' => $authorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_skips_posts_the_user_cannot_edit::own',
+        ]);
+
+        // Owned by another author — this author lacks `edit_others_posts`.
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_skips_posts_the_user_cannot_edit::other',
+        ]);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'generate';
+        $_POST['post_ids'] = [$ownPostId, $otherPostId];
+
+        $updatedPostIds = BulkEdit::save_bulk_edit();
+
+        // Only the author's own post is processed; the other is filtered out.
+        $this->assertSame([$ownPostId], $updatedPostIds);
+        $this->assertEquals('1', get_post_meta($ownPostId, 'beyondwords_generate_audio', true));
+        $this->assertEmpty(get_post_meta($otherPostId, 'beyondwords_generate_audio', true));
+
+        wp_delete_post($ownPostId, true);
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * The per-post gate is `edit_post`, not mere ownership. A Contributor holds
+     * `edit_posts` (so they clear the coarse gate) but lacks `edit_published_posts`,
+     * so they cannot edit a *published* post even when they own it. Such a post
+     * must still be filtered out, leaving a clean no-op.
+     *
+     * @test
+     */
+    public function save_bulk_edit_blocks_contributor_on_own_published_post()
+    {
+        $contributorId = self::factory()->user->create(['role' => 'contributor']);
+
+        wp_set_current_user($contributorId);
+
+        // Sanity-check the role assumption this test depends on.
+        $this->assertTrue(current_user_can('edit_posts'), 'Contributor should clear the coarse edit_posts gate.');
+
+        // Owned by the contributor, but published — contributors cannot edit published posts.
+        $ownPublishedPostId = self::factory()->post->create([
+            'post_author' => $contributorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_blocks_contributor_on_own_published_post',
+        ]);
+
+        $this->assertFalse(
+            current_user_can('edit_post', $ownPublishedPostId),
+            'Contributor should not be able to edit their own published post.'
+        );
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'generate';
+        $_POST['post_ids'] = [$ownPublishedPostId];
+
+        $updatedPostIds = BulkEdit::save_bulk_edit();
+
+        // The post is filtered out by the per-post capability check — no mutation.
+        $this->assertSame([], $updatedPostIds);
+        $this->assertEmpty(get_post_meta($ownPublishedPostId, 'beyondwords_generate_audio', true));
+
+        wp_delete_post($ownPublishedPostId, true);
+    }
+
+    /**
+     * The `delete` branch is the most destructive path (live API delete + clearing
+     * all BeyondWords meta). A Subscriber must be rejected with a 403 before
+     * delete_audio_for_posts() — and therefore any API request — is reached.
+     *
+     * @test
+     */
+    public function save_bulk_edit_delete_rejects_users_without_edit_posts_capability()
+    {
+        wp_set_current_user(self::factory()->user->create(['role' => 'subscriber']));
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'BulkEditTest::save_bulk_edit_delete_rejects_subscriber',
+        ]);
+        update_post_meta($postId, 'beyondwords_project_id', 1);
+        update_post_meta($postId, 'beyondwords_content_id', 'delete-subscriber-content-id');
+
+        // Fail the test loudly if any HTTP request is attempted.
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'delete';
+        $_POST['post_ids'] = [$postId];
+
+        // Valid nonce for this user — only the capability gate can stop the request.
+        $this->assertNotFalse(wp_verify_nonce($_POST['beyondwords_bulk_edit_nonce'], 'beyondwords_bulk_edit'));
+
+        $message = null;
+        try {
+            BulkEdit::save_bulk_edit();
+        } catch (\WPDieException $e) {
+            $message = $e->getMessage();
+        }
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertNotNull($message, 'A Subscriber should be blocked before the delete branch runs.');
+        $this->assertStringContainsString('not allowed to bulk edit', $message);
+        $this->assertFalse($httpAttempted, 'No API delete should be attempted for an unauthorized user.');
+        // The content id must survive — nothing was deleted.
+        $this->assertSame('delete-subscriber-content-id', get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * On the `delete` branch the per-post `edit_post` filter must drop posts the
+     * user cannot edit, so the API batch-delete request only ever carries the
+     * editable post's content — and only that post's meta is cleared.
+     *
+     * @test
+     */
+    public function save_bulk_edit_delete_skips_posts_the_user_cannot_edit()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        // The author owns this post (editable), with audio data to delete.
+        $ownPostId = self::factory()->post->create([
+            'post_author' => $authorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_delete_skips::own',
+        ]);
+        update_post_meta($ownPostId, 'beyondwords_project_id', 1);
+        update_post_meta($ownPostId, 'beyondwords_content_id', 'own-content-aaa');
+
+        // Owned by another author — this author lacks `edit_others_posts`.
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_delete_skips::other',
+        ]);
+        update_post_meta($otherPostId, 'beyondwords_project_id', 1);
+        update_post_meta($otherPostId, 'beyondwords_content_id', 'other-content-bbb');
+
+        // Capture every batch-delete request and return a 200 so the helper
+        // reports the sent IDs as deleted.
+        $requests = [];
+        $filter = function ($preempt, $args, $url) use (&$requests) {
+            $requests[] = ['url' => $url, 'body' => $args['body'] ?? ''];
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'delete';
+        $_POST['post_ids'] = [$ownPostId, $otherPostId];
+
+        $updatedPostIds = BulkEdit::save_bulk_edit();
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        // Only the editable post is processed.
+        $this->assertSame([$ownPostId], $updatedPostIds);
+
+        // Exactly one batch-delete request, carrying only the editable post's content.
+        $this->assertCount(1, $requests);
+        $this->assertStringContainsString('own-content-aaa', $requests[0]['body']);
+        $this->assertStringNotContainsString('other-content-bbb', $requests[0]['body']);
+
+        // The editable post's meta is cleared; the other post is untouched.
+        $this->assertEmpty(get_post_meta($ownPostId, 'beyondwords_content_id', true));
+        $this->assertSame('other-content-bbb', get_post_meta($otherPostId, 'beyondwords_content_id', true));
+
+        wp_delete_post($ownPostId, true);
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * When the per-post filter removes every selected post (an author who picked
+     * only posts they cannot edit), the handler must be a clean no-op — no API
+     * request, no exception — rather than reaching the throwing empty-batch path.
+     *
+     * @test
+     */
+    public function save_bulk_edit_delete_is_a_noop_when_no_editable_posts_remain()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::save_bulk_edit_delete_noop::other',
+        ]);
+        update_post_meta($otherPostId, 'beyondwords_project_id', 1);
+        update_post_meta($otherPostId, 'beyondwords_content_id', 'noop-content-id');
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'delete';
+        $_POST['post_ids'] = [$otherPostId];
+
+        $updatedPostIds = BulkEdit::save_bulk_edit();
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertSame([], $updatedPostIds);
+        $this->assertFalse($httpAttempted, 'No API delete should be attempted when no editable posts remain.');
+        $this->assertSame('noop-content-id', get_post_meta($otherPostId, 'beyondwords_content_id', true));
+
+        wp_delete_post($otherPostId, true);
     }
 
     /**
