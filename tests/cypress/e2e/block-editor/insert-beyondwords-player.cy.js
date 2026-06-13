@@ -35,7 +35,7 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 				} );
 
 				cy.getEditorCanvasBody()
-					.find( 'div[data-beyondwords-player="true"]' )
+					.find( '.wp-block-beyondwords-player' )
 					.should( 'have.length', 1 );
 
 				cy.publishWithConfirmation();
