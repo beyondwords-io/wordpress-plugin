@@ -95,6 +95,11 @@
 	const selectVoice = {
 		voices: [],
 
+		// Monotonic id of the most recent getVoices() request. Out-of-order
+		// responses compare against this and bail, so a slow earlier request
+		// can never overwrite a faster later one ( "latest request wins" ).
+		latestRequestId: 0,
+
 		init() {
 			if ( ! data ) {
 				// eslint-disable-next-line no-console
@@ -126,6 +131,12 @@
 		 * @param {string} languageCode The language code.
 		 */
 		getVoices( languageCode ) {
+			// Claim the latest-request slot up front so that every call —
+			// including the empty-languageCode early return below — invalidates
+			// any still-in-flight request and stops its response clobbering the
+			// dropdowns the user is now looking at.
+			const requestId = ++this.latestRequestId;
+
 			const voiceSelect = document.getElementById( 'beyondwords_voice' );
 
 			if ( voiceSelect ) {
@@ -151,10 +162,20 @@
 				} )
 				.then( ( response ) => response.json() )
 				.then( ( voices ) => {
+					// A newer request superseded this one — discard the stale
+					// response so the dropdowns keep the latest language's voices.
+					if ( requestId !== this.latestRequestId ) {
+						return;
+					}
 					this.voices = voices || [];
 					this.renderVoiceNames();
 				} )
 				.catch( ( error ) => {
+					// Don't let a superseded request's failure wipe the voices
+					// a later request already rendered.
+					if ( requestId !== this.latestRequestId ) {
+						return;
+					}
 					// eslint-disable-next-line no-console
 					console.log( '🔊 Unable to load voices', error );
 					this.voices = [];
@@ -164,6 +185,11 @@
 					}
 				} )
 				.finally( () => {
+					// Only the latest request owns the loader; a superseded
+					// request must not hide it while the newer one is pending.
+					if ( requestId !== this.latestRequestId ) {
+						return;
+					}
 					toggleLoader( false );
 				} );
 		},
