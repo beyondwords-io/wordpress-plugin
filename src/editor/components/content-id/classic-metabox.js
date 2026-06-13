@@ -128,14 +128,17 @@
 		}
 
 		// Language select — only update if the value exists as an option.
+		// Compare option values directly rather than building a selector from
+		// the API-supplied value (which could contain selector-breaking
+		// characters), so the lookup can never throw.
 		const languageSelect = document.getElementById(
 			'beyondwords_language_code'
 		);
 		if ( languageSelect && meta.beyondwords_language_code ) {
-			const option = languageSelect.querySelector(
-				'option[value="' + meta.beyondwords_language_code + '"]'
+			const hasOption = [ ...languageSelect.options ].some(
+				( option ) => option.value === meta.beyondwords_language_code
 			);
-			if ( option ) {
+			if ( hasOption ) {
 				languageSelect.value = meta.beyondwords_language_code;
 			}
 		}
@@ -152,7 +155,8 @@
 		if (
 			meta.beyondwords_content_id &&
 			meta.beyondwords_project_id &&
-			typeof BeyondWords !== 'undefined'
+			typeof BeyondWords !== 'undefined' &&
+			typeof BeyondWords.Player === 'function'
 		) {
 			let playerContainer = document.getElementById(
 				'beyondwords-metabox-player'
@@ -172,17 +176,31 @@
 
 			if ( playerContainer ) {
 				playerContainer.innerHTML = '';
-				new BeyondWords.Player( {
-					target: playerContainer,
-					projectId: Number( meta.beyondwords_project_id ),
-					contentId: meta.beyondwords_content_id,
-					previewToken: meta.beyondwords_preview_token || '',
-					adverts: [],
-					analyticsConsent: 'none',
-					introsOutros: [],
-					playerStyle: 'small',
-					widgetStyle: 'none',
-				} );
+
+				// The player SDK is loaded from an external CDN script and is
+				// not a declared dependency of this metabox script, so its
+				// constructor can throw (partial load, bad config, or a runtime
+				// error inside the SDK). Contain any such failure here: the
+				// content has already been fetched and saved successfully, and a
+				// preview-only error must not reject the save-success chain and
+				// cause the saved meta to be overwritten with an error. Mirrors
+				// src/editor/components/play-audio/hooks.js.
+				try {
+					new BeyondWords.Player( {
+						target: playerContainer,
+						projectId: Number( meta.beyondwords_project_id ),
+						contentId: meta.beyondwords_content_id,
+						previewToken: meta.beyondwords_preview_token || '',
+						adverts: [],
+						analyticsConsent: 'none',
+						introsOutros: [],
+						playerStyle: 'small',
+						widgetStyle: 'none',
+					} );
+				} catch {
+					// Preview failed to initialise; the saved content is intact.
+					// @todo display error notice in the WordPress admin.
+				}
 			}
 		}
 	}
@@ -280,7 +298,17 @@
 
 				return savePostMeta( restBase, postId, meta ).then(
 					function () {
-						updateMetaboxUI( meta );
+						// The content has been fetched and saved. Refreshing the
+						// metabox UI (player re-init, form controls) is
+						// best-effort — contain any failure here so it cannot
+						// reject the save-success chain and divert into the
+						// .catch below, which would overwrite the just-saved
+						// meta with an error and report a false failure.
+						try {
+							updateMetaboxUI( meta );
+						} catch {
+							// UI refresh failed; the saved content is intact.
+						}
 						showNotice(
 							wp.i18n.__(
 								'Content fetched and saved successfully.',
