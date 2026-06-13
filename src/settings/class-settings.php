@@ -208,16 +208,18 @@ class Settings {
 	/**
 	 * Drain queued settings errors into a notice.
 	 *
-	 * Errors are queued via `Utils::add_settings_error_message()`, then
-	 * popped here and rendered as a single `notice notice-error`.
+	 * Errors are queued via `Utils::add_settings_error_message()` into a
+	 * transient that survives the post-save redirect, then drained here and
+	 * rendered as a single `notice notice-error`.
 	 */
 	public static function print_settings_errors(): void {
-		$errors = wp_cache_get( 'beyondwords_settings_errors', 'beyondwords' );
-		wp_cache_delete( 'beyondwords_settings_errors', 'beyondwords' );
+		$errors = get_transient( 'beyondwords_settings_errors' );
 
 		if ( ! is_array( $errors ) || empty( $errors ) ) {
 			return;
 		}
+
+		delete_transient( 'beyondwords_settings_errors' );
 
 		$allowed = [
 			'a'      => [ 'href' => [], 'target' => [] ],
