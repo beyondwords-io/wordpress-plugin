@@ -149,9 +149,27 @@
 					method: 'GET',
 					headers: { 'X-WP-Nonce': data.nonce },
 				} )
-				.then( ( response ) => response.json() )
+				.then( ( response ) => {
+					// window.fetch does not reject on HTTP error statuses. A
+					// WordPress REST error (e.g. an expired nonce returning 403)
+					// resolves with a JSON error *object*, not a voices array,
+					// so surface it through the catch below rather than letting
+					// that object reach renderVoiceNames().
+					if ( ! response.ok ) {
+						return response
+							.json()
+							.catch( () => null )
+							.then( ( body ) => {
+								throw new Error(
+									( body && body.message ) ||
+										`HTTP ${ response.status }`
+								);
+							} );
+					}
+					return response.json();
+				} )
 				.then( ( voices ) => {
-					this.voices = voices || [];
+					this.voices = Array.isArray( voices ) ? voices : [];
 					this.renderVoiceNames();
 				} )
 				.catch( ( error ) => {
