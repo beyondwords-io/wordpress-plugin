@@ -537,7 +537,12 @@ class Client {
 				}
 				$message = implode( ', ', $messages );
 			} elseif ( array_key_exists( 'message', $body ) ) {
-				$message = $body['message'];
+				// The API body is arbitrary JSON, so `message` may be null, a
+				// number, or a nested structure. Coerce to a string so the
+				// `: string` return type holds under strict_types.
+				$message = is_string( $body['message'] )
+					? $body['message']
+					: (string) wp_json_encode( $body['message'] );
 			}
 		}
 

@@ -775,6 +775,34 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A non-string `message` field must be coerced to a string rather than
+     * thrown from the `: string` return type under strict_types.
+     *
+     * @test
+     * @dataProvider provideNonStringMessages
+     */
+    public function error_message_from_response_coerces_non_string_message($message, $expected)
+    {
+        $response = [
+            'body' => wp_json_encode(['message' => $message])
+        ];
+
+        $result = Client::error_message_from_response($response);
+
+        $this->assertIsString($result);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function provideNonStringMessages()
+    {
+        return [
+            'null'         => [null, 'null'],
+            'integer'      => [42, '42'],
+            'nested array' => [['detail' => 'Boom'], '{"detail":"Boom"}'],
+        ];
+    }
+
+    /**
      * @test
      */
     public function get_content_returns_false_without_project_id()
