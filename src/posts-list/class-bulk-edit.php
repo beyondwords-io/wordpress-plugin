@@ -89,9 +89,16 @@ class BulkEdit {
 	 * was emitted by `bulk_edit_custom_box()` before delegating to the
 	 * generate/delete helpers.
 	 *
-	 * @return int[] IDs of posts that were updated.
+	 * Always terminates the request via `wp_send_json_success()` /
+	 * `wp_send_json_error()` (both call `wp_die()` internally). A WordPress AJAX
+	 * callback that merely returns falls through to core's `wp_die( '0' )`, so
+	 * the payload would be discarded and the client would always receive the
+	 * bare string `0`. The generate/delete dispatch is wrapped in try/catch so a
+	 * thrown `\Exception` — e.g. when none of the selected posts have BeyondWords
+	 * audio — becomes a JSON error response instead of an uncaught fatal,
+	 * mirroring the handling in `handle_bulk_delete_action()`.
 	 */
-	public static function save_bulk_edit(): array {
+	public static function save_bulk_edit(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if (
 			! isset( $_POST['beyondwords_bulk_edit_nonce'] )
@@ -101,21 +108,35 @@ class BulkEdit {
 		}
 
 		if ( ! isset( $_POST['beyondwords_bulk_edit'] ) || ! isset( $_POST['post_ids'] ) || ! is_array( $_POST['post_ids'] ) ) {
-			return [];
+			wp_send_json_error(
+				[ 'message' => __( 'Missing bulk-edit action or selected posts.', 'speechkit' ) ],
+				400
+			);
 		}
 
 		$post_ids = array_filter( array_map( 'intval', wp_unslash( $_POST['post_ids'] ) ) );
 		$action   = sanitize_text_field( wp_unslash( $_POST['beyondwords_bulk_edit'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		switch ( $action ) {
-			case 'generate':
-				return self::generate_audio_for_posts( $post_ids );
-			case 'delete':
-				return self::delete_audio_for_posts( $post_ids );
+		if ( 'generate' !== $action && 'delete' !== $action ) {
+			wp_send_json_error(
+				[ 'message' => __( 'Unrecognised bulk-edit action.', 'speechkit' ) ],
+				400
+			);
 		}
 
-		return [];
+		try {
+			$updated_post_ids = ( 'generate' === $action )
+				? self::generate_audio_for_posts( $post_ids )
+				: self::delete_audio_for_posts( $post_ids );
+		} catch ( \Exception $e ) {
+			wp_send_json_error(
+				[ 'message' => $e->getMessage() ],
+				500
+			);
+		}
+
+		wp_send_json_success( $updated_post_ids );
 	}
 
 	/**
