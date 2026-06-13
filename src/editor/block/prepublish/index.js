@@ -11,10 +11,12 @@ import { Component } from '@wordpress/element';
  */
 import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
-import { PlayerSection, VoiceSection } from '../../components/settings-panel';
 import Stack from '../../components/stack';
 
 export default class PrepublishPanel extends Component {
+	// Matches the Document Settings panel: only the "Generate audio" control.
+	// The Voice (Customize/Language/Voice) and Player (Embed) settings live in
+	// the plugin sidebar.
 	render() {
 		return (
 			<PluginPrePublishPanel
@@ -26,10 +28,6 @@ export default class PrepublishPanel extends Component {
 				<Stack>
 					<ErrorNotice wrapper={ PanelRow } />
 					<GenerateAudio wrapper={ PanelRow } />
-					<hr />
-					<VoiceSection withPanel={ false } />
-					<hr />
-					<PlayerSection withPanel={ false } />
 				</Stack>
 			</PluginPrePublishPanel>
 		);
