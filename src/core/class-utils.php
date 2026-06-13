@@ -89,11 +89,14 @@ class Utils {
 	 * @throws \Exception When `$type` is unrecognised.
 	 */
 	public static function get_post_meta_keys( string $type = 'current' ): array {
+		// Order matches the editor Inspect panel display/copy order. Every
+		// consumer treats this as a set (in_array / foreach), so the order only
+		// affects the block-editor Copy payload, which sources it from here.
 		$current = [
 			'beyondwords_generate_audio',
-			'beyondwords_integration_method',
 			'beyondwords_project_id',
 			'beyondwords_content_id',
+			'beyondwords_integration_method',
 			'beyondwords_preview_token',
 			'beyondwords_language_code',
 			'beyondwords_language_id',

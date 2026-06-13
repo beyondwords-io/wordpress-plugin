@@ -305,6 +305,7 @@ class Settings {
 
 		return new \WP_REST_Response(
 			[
+				'inspectMetaKeys'   => self::inspect_meta_keys(),
 				'integrationMethod' => Fields::get_integration_method(),
 				'pluginVersion'     => BEYONDWORDS__PLUGIN_VERSION,
 				'projectId'         => (string) get_option( Fields::OPTION_PROJECT_ID, '' ),
@@ -313,6 +314,44 @@ class Settings {
 				'wpVersion'         => $wp_version,
 			]
 		);
+	}
+
+	/**
+	 * Meta keys surfaced in the editor Inspect panel.
+	 *
+	 * Sourced from \BeyondWords\Core\Utils::get_post_meta_keys() so the block
+	 * editor never duplicates the canonical key lists — keeping it in step with
+	 * the Classic editor, which calls the same method directly.
+	 *
+	 * The deprecated set is the full deprecated list minus internal-only keys
+	 * (player config, voice ids, hashes, timestamps) that have never been shown
+	 * in the Inspect panel. array_diff preserves the canonical order.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array{current: string[], deprecated: string[]}
+	 */
+	private static function inspect_meta_keys(): array {
+		$internal_only = [
+			'beyondwords_player_content',
+			'beyondwords_player_style',
+			'beyondwords_title_voice_id',
+			'beyondwords_summary_voice_id',
+			'beyondwords_disabled',
+			'beyondwords_hash',
+			'speechkit_hash',
+			'speechkit_updated_at',
+		];
+
+		return [
+			'current'    => \BeyondWords\Core\Utils::get_post_meta_keys( 'current' ),
+			'deprecated' => array_values(
+				array_diff(
+					\BeyondWords\Core\Utils::get_post_meta_keys( 'deprecated' ),
+					$internal_only
+				)
+			),
+		];
 	}
 
 	/**

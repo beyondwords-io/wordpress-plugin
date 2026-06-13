@@ -37,26 +37,15 @@ export function PostInspectPanel( {
 	beyondwordsVideoTemplateId,
 	beyondwordsVideoSize,
 	beyondwordsEmbed,
-	// Deprecated custom fields
-	beyondwordsPodcastId,
-	publishPostToSpeechkit,
-	speechkitAccessKey,
-	speechkitGenerateAudio,
-	speechkitPodcastId,
-	speechkitProjectId,
-	speechkitDisabled,
-	speechkitError,
-	speechkitErrorMessage,
-	speechkitInfo,
-	speechkitResponse,
-	speechkitLink,
-	speechkitText,
-	speechkitRetries,
-	speechkitStatus,
 	// System
 	pluginVersion,
 	wpVersion,
 	wpPostId,
+	// Live post meta + the current/deprecated key lists (sourced from PHP via
+	// the beyondwords/settings store) that drive the Copy and Remove controls.
+	meta,
+	currentMetaKeys,
+	deprecatedMetaKeys,
 	// Other
 	createWarningNotice,
 	removeWarningNotice,
@@ -86,51 +75,23 @@ export function PostInspectPanel( {
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
 
-	// Single live source of truth for the panel: the post's current custom-field
-	// values keyed by field name. Rebuilt every render from the withSelect props
-	// (getEditedPostAttribute('meta')) so both the Copy and Remove controls track
-	// edits made after mount — e.g. audio being generated — instead of a snapshot.
-	const meta = {
-		// Current
-		beyondwords_generate_audio: beyondwordsGenerateAudio,
-		beyondwords_project_id: beyondwordsProjectId,
-		beyondwords_content_id: beyondwordsContentId,
-		beyondwords_integration_method: beyondwordsIntegrationMethod,
-		beyondwords_preview_token: beyondwordsPreviewToken,
-		beyondwords_language_code: beyondwordsLanguageCode,
-		beyondwords_language_id: beyondwordsLanguageId,
-		beyondwords_body_voice_id: beyondwordsBodyVoiceId,
-		beyondwords_error_message: beyondwordsErrorMessage,
-		beyondwords_delete_content: beyondwordsDeleteContent,
-		beyondwords_source: beyondwordsSource,
-		beyondwords_output: beyondwordsOutput,
-		beyondwords_script_template_id: beyondwordsScriptTemplateId,
-		beyondwords_video_template_id: beyondwordsVideoTemplateId,
-		beyondwords_video_size: beyondwordsVideoSize,
-		beyondwords_embed: beyondwordsEmbed,
-		// Deprecated
-		beyondwords_podcast_id: beyondwordsPodcastId,
-		publish_post_to_speechkit: publishPostToSpeechkit,
-		speechkit_generate_audio: speechkitGenerateAudio,
-		speechkit_project_id: speechkitProjectId,
-		speechkit_podcast_id: speechkitPodcastId,
-		speechkit_error_message: speechkitErrorMessage,
-		speechkit_disabled: speechkitDisabled,
-		speechkit_access_key: speechkitAccessKey,
-		speechkit_error: speechkitError,
-		speechkit_info: speechkitInfo,
-		speechkit_response: speechkitResponse,
-		speechkit_retries: speechkitRetries,
-		speechkit_status: speechkitStatus,
-		_speechkit_link: speechkitLink,
-		_speechkit_text: speechkitText,
-		// System (diagnostics only — copied, never counted as removable data)
+	// `meta` is the live post meta (getEditedPostAttribute('meta')); the current
+	// and deprecated key lists come from PHP via the settings store. Deriving both
+	// controls from the same live source means Copy and Remove can never disagree,
+	// and the Remove button tracks edits made after mount (e.g. audio generated).
+	const dataKeys = [
+		...( currentMetaKeys ?? [] ),
+		...( deprecatedMetaKeys ?? [] ),
+	];
+	const hasData = hasBeyondwordsData( meta, dataKeys );
+
+	// System diagnostics aren't post meta, so add them for the copied payload.
+	const copyMeta = {
+		...meta,
 		plugin_version: pluginVersion,
 		wp_version: wpVersion,
 		wp_post_id: wpPostId,
 	};
-
-	const hasData = hasBeyondwordsData( meta );
 
 	const handleRemoveButtonClick = ( e ) => {
 		e.stopPropagation();
@@ -147,7 +108,7 @@ export function PostInspectPanel( {
 	};
 
 	const copyToClipboardRef = useCopyToClipboard(
-		getTextToCopy( meta ),
+		getTextToCopy( copyMeta, currentMetaKeys, deprecatedMetaKeys ),
 		() => {
 			createNotice(
 				'info',
@@ -320,7 +281,7 @@ export default compose( [
 
 		const { getSettings } = select( 'beyondwords/settings' );
 
-		const { pluginVersion, wpVersion } = getSettings();
+		const { pluginVersion, wpVersion, inspectMetaKeys } = getSettings();
 
 		return {
 			// Current custom fields
@@ -356,32 +317,11 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_video_size,
 			beyondwordsEmbed:
 				getEditedPostAttribute( 'meta' ).beyondwords_embed,
-			// Deprecated custom fields
-			beyondwordsPodcastId:
-				getEditedPostAttribute( 'meta' ).beyondwords_podcast_id,
-			publishPostToSpeechkit:
-				getEditedPostAttribute( 'meta' ).publish_post_to_speechkit,
-			speechkitAccessKey:
-				getEditedPostAttribute( 'meta' ).speechkit_access_key,
-			speechkitGenerateAudio:
-				getEditedPostAttribute( 'meta' ).speechkit_generate_audio,
-			speechkitPodcastId:
-				getEditedPostAttribute( 'meta' ).speechkit_podcast_id,
-			speechkitProjectId:
-				getEditedPostAttribute( 'meta' ).speechkit_project_id,
-			speechkitDisabled:
-				getEditedPostAttribute( 'meta' ).speechkit_disabled,
-			speechkitError: getEditedPostAttribute( 'meta' ).speechkit_error,
-			speechkitErrorMessage:
-				getEditedPostAttribute( 'meta' ).speechkit_error_message,
-			speechkitInfo: getEditedPostAttribute( 'meta' ).speechkit_info,
-			speechkitResponse:
-				getEditedPostAttribute( 'meta' ).speechkit_response,
-			speechkitLink: getEditedPostAttribute( 'meta' )._speechkit_link,
-			speechkitText: getEditedPostAttribute( 'meta' )._speechkit_text,
-			speechkitRetries:
-				getEditedPostAttribute( 'meta' ).speechkit_retries,
-			speechkitStatus: getEditedPostAttribute( 'meta' ).speechkit_status,
+			// Live post meta + the current/deprecated key lists (from PHP via the
+			// settings store) that drive the Copy and Remove controls.
+			meta: getEditedPostAttribute( 'meta' ),
+			currentMetaKeys: inspectMetaKeys?.current,
+			deprecatedMetaKeys: inspectMetaKeys?.deprecated,
 			// System
 			pluginVersion,
 			wpVersion,

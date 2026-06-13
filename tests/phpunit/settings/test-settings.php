@@ -369,6 +369,59 @@ class SettingsTest extends TestCase
     }
 
     /**
+     * The Inspect panel meta keys are sourced from \BeyondWords\Core\Utils so the
+     * block editor never duplicates the canonical key lists.
+     *
+     * @test
+     * @group settings
+     */
+    public function rest_settings_response_includes_inspect_meta_keys()
+    {
+        $data = Settings::rest_settings_response()->get_data();
+
+        $this->assertArrayHasKey('inspectMetaKeys', $data);
+        $this->assertArrayHasKey('current', $data['inspectMetaKeys']);
+        $this->assertArrayHasKey('deprecated', $data['inspectMetaKeys']);
+
+        // Current keys are passed through verbatim from the canonical source.
+        $this->assertSame(
+            \BeyondWords\Core\Utils::get_post_meta_keys('current'),
+            $data['inspectMetaKeys']['current']
+        );
+
+        // Deprecated keys are the canonical deprecated set with the internal-only
+        // keys (player config, voice ids, hashes, timestamps) filtered out, so
+        // the Inspect panel keeps surfacing the same legacy fields it always has.
+        $expectedDeprecated = [
+            'beyondwords_podcast_id',
+            'publish_post_to_speechkit',
+            'speechkit_generate_audio',
+            'speechkit_project_id',
+            'speechkit_podcast_id',
+            'speechkit_error_message',
+            'speechkit_disabled',
+            'speechkit_access_key',
+            'speechkit_error',
+            'speechkit_info',
+            'speechkit_response',
+            'speechkit_retries',
+            'speechkit_status',
+            '_speechkit_link',
+            '_speechkit_text',
+        ];
+        $this->assertSame($expectedDeprecated, $data['inspectMetaKeys']['deprecated']);
+
+        // …and every surfaced key must be a real deprecated key (guards drift if
+        // a key is ever renamed in the canonical list).
+        $this->assertEmpty(
+            array_diff(
+                $data['inspectMetaKeys']['deprecated'],
+                \BeyondWords\Core\Utils::get_post_meta_keys('deprecated')
+            )
+        );
+    }
+
+    /**
      * @test
      * @group settings
      */
