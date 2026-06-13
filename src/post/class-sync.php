@@ -91,7 +91,17 @@ class Sync {
 			return false;
 		}
 
-		if ( ! self::should_process_post_status( get_post_status( $post_id ) ) ) {
+		// get_post_status() returns false when the post no longer exists — e.g. it
+		// was trashed or permanently deleted between a deferred job being queued
+		// (see on_add_or_update_post()) and the cron firing. An empty status is
+		// never processable, so bail before the strict-typed
+		// should_process_post_status() call, which would TypeError on false.
+		$status = get_post_status( $post_id );
+		if ( ! $status ) {
+			return false;
+		}
+
+		if ( ! self::should_process_post_status( $status ) ) {
 			return false;
 		}
 
@@ -319,11 +329,27 @@ class Sync {
 	}
 
 	/**
+	 * Clear any pending deferred audio-generation cron event for a post.
+	 *
+	 * Called when a post is trashed or deleted so a job queued by
+	 * `on_add_or_update_post()` doesn't fire for a post that no longer exists.
+	 * Runs before the `has_content()` checks in the lifecycle handlers because a
+	 * queued post may not have written its content meta yet.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function unschedule_audio_generation( int $post_id ): void {
+		wp_clear_scheduled_hook( self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
+	}
+
+	/**
 	 * Trash hook — DELETE the audio so it disappears from the dashboard, then
 	 * remove our local metadata.
 	 */
 	public static function on_trash_post( $post_id ): void {
 		$post_id = (int) $post_id;
+
+		self::unschedule_audio_generation( $post_id );
 
 		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
@@ -339,6 +365,8 @@ class Sync {
 	 */
 	public static function on_delete_post( $post_id ): void {
 		$post_id = (int) $post_id;
+
+		self::unschedule_audio_generation( $post_id );
 
 		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
