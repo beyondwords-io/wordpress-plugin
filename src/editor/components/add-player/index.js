@@ -4,14 +4,13 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Disabled, Placeholder } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import PlayAudio from '../play-audio';
-import { selectHasPlayAudioAction } from '../play-audio/check';
+import { useHasPlayAudioAction } from '../play-audio/hooks';
 
 // Register the block
 registerBlockType( 'beyondwords/player', {
@@ -21,10 +20,7 @@ registerBlockType( 'beyondwords/player', {
 		// Mirror the sidebar Preview panel: render a live (but non-interactive)
 		// player once the post has everything the player needs, otherwise a
 		// placeholder prompting the user to generate audio.
-		const canPreview = useSelect(
-			( select ) => selectHasPlayAudioAction( select ),
-			[]
-		);
+		const canPreview = useHasPlayAudioAction();
 
 		return (
 			<div { ...blockProps }>
