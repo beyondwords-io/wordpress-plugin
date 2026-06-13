@@ -12,6 +12,17 @@ context( 'Block Editor: Select Voice', () => {
 		cy.login();
 	} );
 
+	// Voice names for English: "Select a voice" first, then distinct names
+	// (ElevenLabs "Bridget" appears once despite having three models).
+	const voiceNames = [
+		'Select a voice',
+		'Ada (Multilingual)',
+		'Ava (Multilingual)',
+		'Ollie (Multilingual)',
+		'Bridget',
+		'Caleb',
+	];
+
 	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
@@ -22,20 +33,26 @@ context( 'Block Editor: Select Voice', () => {
 					title: `I can set a Voice for a ${ postType.name }`,
 				} );
 
-				// cy.closeWelcomeToBlockEditorTips()
+				// "Generate audio" lives in the document panel; toggle it before
+				// switching to the plugin sidebar, where the Voice settings live.
+				cy.checkGenerateAudio( postType );
 
-				cy.openBeyondwordsEditorPanel();
+				// Voice/Language are exposed only in the plugin sidebar now.
+				cy.openBeyondwordsPluginSidebar();
 
 				// "Customize" is opt-in and off by default, so the Language/Voice
 				// fields are hidden until it is enabled.
 				cy.get(
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'not.be.checked' );
-				cy.contains( '.components-select-control label', 'Language' ).should(
-					'not.exist'
-				);
+				cy.contains(
+					'.components-select-control label',
+					'Language'
+				).should( 'not.exist' );
 
-				cy.get( '.beyondwords--customize label' ).click();
+				cy.get( '.beyondwords--customize label' ).click( {
+					force: true,
+				} );
 
 				// Assert we have the expected Languages
 				cy.getBlockEditorSelect( 'Language' )
@@ -54,7 +71,8 @@ context( 'Block Editor: Select Voice', () => {
 
 				// Select a Language
 				cy.getBlockEditorSelect( 'Language' ).select(
-					'English (American)'
+					'English (American)',
+					{ force: true }
 				);
 
 				// Assert we have the expected Voices
@@ -64,24 +82,19 @@ context( 'Block Editor: Select Voice', () => {
 						const values = [ ...$els ].map( ( el ) =>
 							el.innerText.trim()
 						);
-						expect( values ).to.deep.eq( [
-							'Select a voice',
-							'Ada (Multilingual)',
-							'Ava (Multilingual)',
-							'Ollie (Multilingual)',
-							'Bridget',
-							'Caleb',
-						] );
+						expect( values ).to.deep.eq( voiceNames );
 					} );
 
 				// Select a Voice
 				cy.getBlockEditorSelect( 'Voice' ).select(
-					'Ollie (Multilingual)'
+					'Ollie (Multilingual)',
+					{ force: true }
 				);
 
 				// Select another Language
 				cy.getBlockEditorSelect( 'Language' ).select(
-					'English (British)'
+					'English (British)',
+					{ force: true }
 				);
 
 				// Verify the language selection took effect
@@ -96,19 +109,13 @@ context( 'Block Editor: Select Voice', () => {
 						const values = [ ...$els ].map( ( el ) =>
 							el.innerText.trim()
 						);
-						expect( values ).to.deep.eq( [
-							'Select a voice',
-							'Ada (Multilingual)',
-							'Ava (Multilingual)',
-							'Ollie (Multilingual)',
-							'Bridget',
-							'Caleb',
-						] );
+						expect( values ).to.deep.eq( voiceNames );
 					} );
 
 				// Select a Voice
 				cy.getBlockEditorSelect( 'Voice' ).select(
-					'Ava (Multilingual)'
+					'Ava (Multilingual)',
+					{ force: true }
 				);
 
 				// Verify meta is correctly set in the data store BEFORE publishing
@@ -128,8 +135,6 @@ context( 'Block Editor: Select Voice', () => {
 						} );
 					} );
 
-				cy.checkGenerateAudio( postType );
-
 				cy.publishWithConfirmation();
 
 				// "View post"
@@ -145,7 +150,7 @@ context( 'Block Editor: Select Voice', () => {
 
 				// Check Player content has also been saved in admin
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
-				cy.openBeyondwordsEditorPanel();
+				cy.openBeyondwordsPluginSidebar();
 
 				// Verify meta is correctly set in the data store AFTER publishing
 				cy.window()

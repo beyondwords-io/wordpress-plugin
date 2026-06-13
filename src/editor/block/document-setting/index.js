@@ -14,10 +14,12 @@ import GenerateAudio from '../../components/generate-audio';
 import OpenSidebar from '../../components/open-sidebar';
 import PendingNotice from '../../components/pending-notice';
 import PlayAudio from '../../components/play-audio';
-import { PlayerSection, VoiceSection } from '../../components/settings-panel';
 import Stack from '../../components/stack';
 
 export default class DocumentSettingPanel extends Component {
+	// The Voice (Customize/Language/Voice) and Player (Embed) settings are
+	// exposed only in the plugin sidebar; this panel keeps the "Generate audio"
+	// control plus the link to open that sidebar.
 	render() {
 		return (
 			<PluginDocumentSettingPanel
@@ -30,10 +32,6 @@ export default class DocumentSettingPanel extends Component {
 					<PendingNotice wrapper={ PanelRow } />
 					<PlayAudio wrapper={ PanelRow } />
 					<GenerateAudio wrapper={ PanelRow } />
-					<hr />
-					<VoiceSection withPanel={ false } />
-					<hr />
-					<PlayerSection withPanel={ false } />
 					<hr />
 					<OpenSidebar wrapper={ PanelRow } />
 				</Stack>

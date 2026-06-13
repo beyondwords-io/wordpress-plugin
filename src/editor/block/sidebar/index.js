@@ -27,8 +27,8 @@ export default class Sidebar extends Component {
 				>
 					<PreviewPanel />
 					<SettingsPanel />
-					<DataPanel />
 					<HelpPanel />
+					<DataPanel />
 					<InspectPanel />
 				</PluginSidebar>
 			</Fragment>
