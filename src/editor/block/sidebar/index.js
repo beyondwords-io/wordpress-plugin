@@ -8,7 +8,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { BeyondwordsIcon } from '../../components/icon';
+import { BeyondwordsIcon, BeyondwordsTitle } from '../../components/icon';
 import DataPanel from '../../components/data-panel';
 import HelpPanel from '../../components/help-panel';
 import InspectPanel from '../../components/inspect-panel';
@@ -27,7 +27,7 @@ export default class Sidebar extends Component {
 				</PluginSidebarMoreMenuItem>
 				<PluginSidebar
 					name="plugin-sidebar"
-					title={ __( 'BeyondWords', 'speechkit' ) }
+					title={ <BeyondwordsTitle /> }
 					icon={ <BeyondwordsIcon /> }
 				>
 					<PreviewPanel />
