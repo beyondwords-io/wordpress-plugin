@@ -34,6 +34,13 @@ context( 'Block Editor: Settings panel', () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
+				// Generate audio toggle sits at the top of the Content panel,
+				// above Source.
+				cy.get( '.beyondwords--generate-audio' ).should( 'exist' );
+				cy.get( '.beyondwords--generate-audio, .beyondwords--source' )
+					.first()
+					.should( 'have.class', 'beyondwords--generate-audio' );
+
 				select( 'beyondwords--source' )
 					.find( 'option' )
 					.should( ( $els ) => {
