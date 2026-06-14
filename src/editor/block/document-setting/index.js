@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
@@ -9,6 +8,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { BeyondwordsTitle } from '../../components/icon';
 import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
 import OpenSidebar from '../../components/open-sidebar';
@@ -24,7 +24,7 @@ export default class DocumentSettingPanel extends Component {
 		return (
 			<PluginDocumentSettingPanel
 				name="beyondwords-document-settings-panel"
-				title={ __( 'BeyondWords', 'speechkit' ) }
+				title={ <BeyondwordsTitle /> }
 				className="beyondwords-sidebar"
 			>
 				<Stack>

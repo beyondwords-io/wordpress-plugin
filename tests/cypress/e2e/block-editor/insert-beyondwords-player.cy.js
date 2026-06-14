@@ -34,9 +34,11 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 						.insertBlocks( block );
 				} );
 
+				// The live player can't render in the editor; a Placeholder shows instead.
 				cy.getEditorCanvasBody()
-					.find( 'div[data-beyondwords-player="true"]' )
-					.should( 'have.length', 1 );
+					.find( '.components-placeholder' )
+					.should( 'have.length', 1 )
+					.and( 'contain', 'BeyondWords' );
 
 				cy.publishWithConfirmation();
 				cy.viewPostViaSnackbar();

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
@@ -9,6 +8,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { BeyondwordsTitle } from '../../components/icon';
 import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
 import Stack from '../../components/stack';
@@ -21,7 +21,7 @@ export default class PrepublishPanel extends Component {
 		return (
 			<PluginPrePublishPanel
 				name="beyondwords-prepublish-panel"
-				title={ __( 'BeyondWords', 'speechkit' ) }
+				title={ <BeyondwordsTitle /> }
 				initialOpen={ true }
 				className="beyondwords-sidebar"
 			>
