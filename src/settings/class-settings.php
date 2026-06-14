@@ -275,6 +275,16 @@ class Settings {
 
 		register_rest_route(
 			'beyondwords/v1',
+			'/projects/(?P<projectId>[0-9]+)',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'rest_project_response' ],
+				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
+			]
+		);
+
+		register_rest_route(
+			'beyondwords/v1',
 			'/summarization-settings-templates',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -340,6 +350,23 @@ class Settings {
 	public static function rest_video_settings_response( \WP_REST_Request $request ): \WP_REST_Response {
 		$project_id = (int) $request->get_param( 'projectId' );
 		$response   = \BeyondWords\Api\Client::get_video_settings( $project_id );
+
+		return new \WP_REST_Response( $response );
+	}
+
+	/**
+	 * Proxy for the BeyondWords project endpoint.
+	 *
+	 * Editor scripts read the project's default `language` to pre-select the
+	 * Language dropdown when "Customize" is enabled.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 */
+	public static function rest_project_response( \WP_REST_Request $request ): \WP_REST_Response {
+		$project_id = (int) $request->get_param( 'projectId' );
+		$response   = \BeyondWords\Api\Client::get_project( $project_id );
 
 		return new \WP_REST_Response( $response );
 	}

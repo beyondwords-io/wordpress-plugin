@@ -30,29 +30,41 @@ context( 'Classic Editor: Select Voice', () => {
 			it( `shows the Model dropdown only for multi-model voices (${ postType.name })`, () => {
 				cy.createPost( { postType } );
 
+				// "Customize" is opt-in and off by default, so the Language/Voice
+				// fields are hidden until it is enabled.
+				cy.get( '#beyondwords-metabox-select-voice--fields' ).should(
+					'not.be.visible'
+				);
+				cy.get( '#beyondwords_customize' ).check();
+
+				// Enabling Customize fetches the project's default language and
+				// pre-selects it (mock project: en_US).
+				cy.get( 'select#beyondwords_language_code' ).should(
+					'have.value',
+					'en_US'
+				);
+
 				// Assert we have the expected Languages
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						expect( values ).to.have.length( 148 );
+						// 148 languages + the "Select a language…" placeholder.
+						expect( values ).to.have.length( 149 );
+						expect( values[ 0 ] ).to.eq( 'Select a language…' );
 						expect( values ).to.include( 'English (American)' );
 						expect( values ).to.include( 'English (British)' );
 						expect( values ).to.include( 'Welsh (Welsh)' );
 					} );
 
-				// Select a Language
-				cy.get( 'select#beyondwords_language_code' ).select(
-					'English (American)'
-				);
-
-				// The Voice dropdown lists distinct names, "Project default"
+				// The default language's voices are populated, "Select a voice"
 				// first; ElevenLabs "Bridget" appears once despite three models.
+				// Only the language is pre-filled — the voice stays unselected.
 				cy.get( 'select#beyondwords_voice' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						expect( optionLabels( $els ) ).to.deep.eq( [
-							'Project default',
+							'Select a voice',
 							'Ada (Multilingual)',
 							'Ava (Multilingual)',
 							'Ollie (Multilingual)',
@@ -60,6 +72,7 @@ context( 'Classic Editor: Select Voice', () => {
 							'Caleb',
 						] );
 					} );
+				cy.get( 'select#beyondwords_voice' ).should( 'have.value', '' );
 
 				// Multi-model voice → Model dropdown appears with its variants.
 				cy.get( 'select#beyondwords_voice' ).select( 'Bridget' );
@@ -94,8 +107,12 @@ context( 'Classic Editor: Select Voice', () => {
 			it( `persists the selected Voice + Model for a ${ postType.name }`, () => {
 				cy.createPost( { postType } );
 
-				cy.get( 'select#beyondwords_language_code' ).select(
-					'English (American)'
+				cy.get( '#beyondwords_customize' ).check();
+
+				// The project's default language (en_US) is pre-selected.
+				cy.get( 'select#beyondwords_language_code' ).should(
+					'have.value',
+					'en_US'
 				);
 
 				// Pick a multi-model voice + a specific Model variant.
@@ -112,12 +129,14 @@ context( 'Classic Editor: Select Voice', () => {
 					`I can select a custom Voice + Model for a ${ postType.name }`
 				);
 
-				// Publish WITHOUT generating audio: a sync would write the
-				// API's returned voice back over our pick (the mock always
-				// returns Ava), which would mask the metabox save we're testing.
+				// Publish without generating audio to keep the test deterministic.
 				cy.get( 'input#beyondwords_generate_audio' ).uncheck();
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
+
+				// A post with an explicit language/voice opens with Customize on,
+				// so the fields are visible after the page refresh.
+				cy.get( '#beyondwords_customize' ).should( 'be.checked' );
 
 				// Language, Voice and Model persist after a page refresh.
 				cy.get( 'select#beyondwords_language_code' )

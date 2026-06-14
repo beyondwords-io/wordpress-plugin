@@ -31,7 +31,6 @@ class AddPlayerTest extends TestCase
 
         $this->assertEquals(10, has_action('init', array(AddPlayer::class, 'register_block')));
 
-        $this->assertEquals(10, has_action('admin_head', array(AddPlayer::class, 'add_editor_styles')));
         $this->assertEquals(10, has_filter('tiny_mce_before_init', array(AddPlayer::class, 'filter_tiny_mce_settings')));
 
         $this->assertEquals(10, has_filter('mce_external_plugins', array(AddPlayer::class, 'add_plugin')));
@@ -101,18 +100,6 @@ class AddPlayerTest extends TestCase
         // Existing styles
         $settings = AddPlayer::filter_tiny_mce_settings(['content_style' => 'p { color: red; }']);
         $this->assertSame('p { color: red; } ' . AddPlayer::player_preview_i18n_styles() . ' ', $settings['content_style']);
-    }
-
-    /**
-     * @test
-     */
-    public function add_editor_styles()
-    {
-        $html = $this->capture_output(function () {
-            AddPlayer::add_editor_styles();
-        });
-
-        $this->assertSame('<style>' . AddPlayer::player_preview_i18n_styles() . '</style>', $html);
     }
 
     /**

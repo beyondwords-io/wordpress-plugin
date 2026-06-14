@@ -26,6 +26,7 @@ export function isBeyondwordsSupportedBlock( name ) {
 
 	// Skip editor UI blocks
 	const excludedBlocks = [
+		'beyondwords/player', // The Player block embeds the player itself
 		'core/freeform', // Classic editor
 		'core/legacy-widget',
 		'core/widget-area',

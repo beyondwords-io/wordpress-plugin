@@ -146,7 +146,7 @@ context( 'Block Editor: Add Post', () => {
 							cy.openBeyondwordsEditorPanel();
 
 							// Checkbox must stay unchecked despite preselect being enabled
-							cy.getBlockEditorCheckbox( 'Create' ).should(
+							cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 								'not.be.checked'
 							);
 
@@ -177,7 +177,7 @@ context( 'Block Editor: Add Post', () => {
 
 						cy.openBeyondwordsEditorPanel();
 
-						cy.getBlockEditorCheckbox( 'Update' ).should(
+						cy.getBlockEditorCheckbox( 'Update audio' ).should(
 							'be.checked'
 						);
 

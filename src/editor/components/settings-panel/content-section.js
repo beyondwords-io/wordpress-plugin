@@ -16,6 +16,7 @@ import {
 	SOURCE_POST,
 	projectDefaultOption,
 } from './helpers';
+import GenerateAudio from '../generate-audio';
 import Stack from '../stack';
 
 export function ContentSection() {
@@ -55,6 +56,7 @@ export function ContentSection() {
 	return (
 		<PanelBody title={ __( 'Content', 'speechkit' ) } initialOpen={ true }>
 			<Stack>
+				<GenerateAudio />
 				<SelectControl
 					className="beyondwords--source"
 					label={ __( 'Source', 'speechkit' ) }

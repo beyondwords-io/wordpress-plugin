@@ -365,7 +365,8 @@ class ContentTest extends TestCase
         $this->assertArrayHasKey('published', $body);
         $this->assertTrue($body['published']);
 
-        $this->assertSame('en_US', $body['language']);
+        // The post language is never sent — a chosen voice already carries it.
+        $this->assertArrayNotHasKey('language', $body);
         $this->assertArrayNotHasKey('summary_voice_id', $body);
         $this->assertArrayNotHasKey('title_voice_id', $body);
         $this->assertSame(3558, $body['body_voice_id']);

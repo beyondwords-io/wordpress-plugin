@@ -516,6 +516,10 @@ class SyncTest extends TestCase
         $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
         $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
+        // `language` and `body_voice_id` are no longer copied back from the API
+        // response — those meta keys hold the editor's explicit choices, so the
+        // resolved project defaults must not overwrite them (asserted above).
+
         // Deprecated keys are no longer copied from the API response.
         $this->assertSame('', get_post_meta($postId, 'beyondwords_summary_voice_id', true));
         $this->assertSame('', get_post_meta($postId, 'beyondwords_title_voice_id', true));
@@ -535,8 +539,8 @@ class SyncTest extends TestCase
                 ],
                 'projectId'    => BEYONDWORDS_TESTS_PROJECT_ID,
                 'contentId'    => BEYONDWORDS_TESTS_CONTENT_ID,
-                'language'     => 'en_US',
-                'bodyVoiceId'  => '3558',
+                'language'     => '',
+                'bodyVoiceId'  => '',
             ],
             'Response is not an array' => [
                 'response'    => new StdClass(),
