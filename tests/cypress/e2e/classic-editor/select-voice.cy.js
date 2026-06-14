@@ -37,6 +37,13 @@ context( 'Classic Editor: Select Voice', () => {
 				);
 				cy.get( '#beyondwords_customize' ).check();
 
+				// Enabling Customize fetches the project's default language and
+				// pre-selects it (mock project: en_US).
+				cy.get( 'select#beyondwords_language_code' ).should(
+					'have.value',
+					'en_US'
+				);
+
 				// Assert we have the expected Languages
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option' )
@@ -50,13 +57,9 @@ context( 'Classic Editor: Select Voice', () => {
 						expect( values ).to.include( 'Welsh (Welsh)' );
 					} );
 
-				// Select a Language
-				cy.get( 'select#beyondwords_language_code' ).select(
-					'English (American)'
-				);
-
-				// The Voice dropdown lists distinct names, "Select a voice"
+				// The default language's voices are populated, "Select a voice"
 				// first; ElevenLabs "Bridget" appears once despite three models.
+				// Only the language is pre-filled — the voice stays unselected.
 				cy.get( 'select#beyondwords_voice' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -69,6 +72,7 @@ context( 'Classic Editor: Select Voice', () => {
 							'Caleb',
 						] );
 					} );
+				cy.get( 'select#beyondwords_voice' ).should( 'have.value', '' );
 
 				// Multi-model voice → Model dropdown appears with its variants.
 				cy.get( 'select#beyondwords_voice' ).select( 'Bridget' );
@@ -105,8 +109,10 @@ context( 'Classic Editor: Select Voice', () => {
 
 				cy.get( '#beyondwords_customize' ).check();
 
-				cy.get( 'select#beyondwords_language_code' ).select(
-					'English (American)'
+				// The project's default language (en_US) is pre-selected.
+				cy.get( 'select#beyondwords_language_code' ).should(
+					'have.value',
+					'en_US'
 				);
 
 				// Pick a multi-model voice + a specific Model variant.

@@ -96,6 +96,7 @@
 
 	const selectVoice = {
 		voices: [],
+		voicesReq: 0,
 
 		init() {
 			if ( ! data ) {
@@ -152,6 +153,7 @@
 			}
 
 			if ( on ) {
+				this.applyProjectDefaultLanguage();
 				return;
 			}
 
@@ -171,6 +173,64 @@
 
 			this.voices = [];
 			this.setModelOptions( [] );
+		},
+
+		/**
+		 * On Customize-on, fetch the project's default language and pre-select it
+		 * — only the language; the user picks the Voice (so it stays "Select a
+		 * voice"). A spinner shows while the language and its voices resolve. On
+		 * failure, or when the post already has a language, fall back to the
+		 * manual "pick a language" flow.
+		 */
+		applyProjectDefaultLanguage() {
+			const language = document.getElementById(
+				'beyondwords_language_code'
+			);
+
+			// Only pre-fill a fresh post; never override an existing choice.
+			if ( ! language || language.value || ! data.projectId ) {
+				return;
+			}
+
+			toggleLoader( true );
+
+			const endpoint = `${ data.root }beyondwords/v1/projects/${ data.projectId }`;
+
+			window
+				.fetch( endpoint, {
+					method: 'GET',
+					headers: { 'X-WP-Nonce': data.nonce },
+				} )
+				.then( ( response ) => response.json() )
+				.then( ( project ) => {
+					// Bail if Customize was switched off, or a language was
+					// chosen, while the request was in flight — otherwise we'd
+					// re-show the fields and persist a language on a post the
+					// user left un-customised.
+					const customize = document.getElementById(
+						'beyondwords_customize'
+					);
+					if (
+						! customize ||
+						! customize.checked ||
+						language.value
+					) {
+						toggleLoader( false );
+						return;
+					}
+
+					const lang = project && project.language;
+					if ( lang ) {
+						language.value = lang;
+						// Populate the language's voices but seed no voice.
+						this.getVoices( lang, '' );
+					} else {
+						toggleLoader( false );
+					}
+				} )
+				.catch( () => {
+					toggleLoader( false );
+				} );
 		},
 
 		/**
@@ -197,6 +257,9 @@
 				return;
 			}
 
+			// Serialise concurrent fetches — only the latest one applies.
+			const reqId = ++this.voicesReq;
+
 			const endpoint = `${ data.root }beyondwords/v1/languages/${ languageCode }/voices`;
 
 			window
@@ -206,10 +269,16 @@
 				} )
 				.then( ( response ) => response.json() )
 				.then( ( voices ) => {
+					if ( reqId !== this.voicesReq ) {
+						return;
+					}
 					this.voices = voices || [];
 					this.renderVoiceNames( defaultVoiceId );
 				} )
 				.catch( ( error ) => {
+					if ( reqId !== this.voicesReq ) {
+						return;
+					}
 					// eslint-disable-next-line no-console
 					console.log( '🔊 Unable to load voices', error );
 					this.voices = [];
@@ -219,7 +288,9 @@
 					}
 				} )
 				.finally( () => {
-					toggleLoader( false );
+					if ( reqId === this.voicesReq ) {
+						toggleLoader( false );
+					}
 				} );
 		},
 

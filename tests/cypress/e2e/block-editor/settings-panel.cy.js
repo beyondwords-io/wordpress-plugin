@@ -111,7 +111,11 @@ context( 'Block Editor: Settings panel', () => {
 					force: true,
 				} );
 
-				select( 'beyondwords--language' ).select( 'English (American)', { force: true } );
+				// Enabling Customize pre-selects the project default language
+				// (mock: en_US → English (American)); wait for it before picking.
+				select( 'beyondwords--language' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'English (American)' );
 
 				// Bridget is an ElevenLabs voice with three models.
 				select( 'beyondwords--voice' ).select( 'Bridget', { force: true } );

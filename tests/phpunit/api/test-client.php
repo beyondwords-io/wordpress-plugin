@@ -386,6 +386,28 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      */
+    public function get_project()
+    {
+        $response = Client::get_project();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = Client::get_project();
+
+        $this->assertSame('en_US', $response['language']);
+        $this->assertArrayHasKey('body', $response);
+        $this->assertSame(2517, $response['body']['voice']['id']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
     public function get_summarization_settings_templates()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);

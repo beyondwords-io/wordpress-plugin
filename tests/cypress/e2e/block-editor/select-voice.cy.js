@@ -54,7 +54,19 @@ context( 'Block Editor: Select Voice', () => {
 					force: true,
 				} );
 
-				// Assert we have the expected Languages
+				// Enabling Customize fetches the project's default language and
+				// pre-selects it (mock project: en_US → English (American)).
+				cy.getBlockEditorSelect( 'Language' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'English (American)' );
+
+				// Only the language is pre-filled — the voice is left for the user
+				// to pick, so it stays on the "Select a voice" placeholder.
+				cy.getBlockEditorSelect( 'Voice' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Select a voice' );
+
+				// The Language dropdown still lists every language, placeholder first.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -64,18 +76,10 @@ context( 'Block Editor: Select Voice', () => {
 						// 148 languages + the "Select a language…" placeholder.
 						expect( values ).to.have.length( 149 );
 						expect( values[ 0 ] ).to.eq( 'Select a language…' );
-						expect( values ).to.include( 'English (American)' );
 						expect( values ).to.include( 'English (British)' );
-						expect( values ).to.include( 'Welsh (Welsh)' );
 					} );
 
-				// Select a Language
-				cy.getBlockEditorSelect( 'Language' ).select(
-					'English (American)',
-					{ force: true }
-				);
-
-				// Assert we have the expected Voices
+				// The default language's voices are populated.
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -85,24 +89,15 @@ context( 'Block Editor: Select Voice', () => {
 						expect( values ).to.deep.eq( voiceNames );
 					} );
 
-				// Select a Voice
-				cy.getBlockEditorSelect( 'Voice' ).select(
-					'Ollie (Multilingual)',
-					{ force: true }
-				);
-
-				// Select another Language
+				// Changing the Language re-fetches that language's voices.
 				cy.getBlockEditorSelect( 'Language' ).select(
 					'English (British)',
 					{ force: true }
 				);
-
-				// Verify the language selection took effect
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
 
-				// Assert we have the expected Voices
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -112,7 +107,7 @@ context( 'Block Editor: Select Voice', () => {
 						expect( values ).to.deep.eq( voiceNames );
 					} );
 
-				// Select a Voice
+				// Pick a Voice.
 				cy.getBlockEditorSelect( 'Voice' ).select(
 					'Ava (Multilingual)',
 					{ force: true }

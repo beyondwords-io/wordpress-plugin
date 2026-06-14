@@ -4,8 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { select, useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
 /**
@@ -17,7 +17,7 @@ import Toggle from '../toggle';
 
 export function VoiceSection( { withPanel = true } ) {
 	const postType = useSelect(
-		( select ) => select( 'core/editor' ).getCurrentPostType(),
+		( s ) => s( 'core/editor' ).getCurrentPostType(),
 		[]
 	);
 
@@ -34,18 +34,71 @@ export function VoiceSection( { withPanel = true } ) {
 		() => !! ( languageCode || voiceId )
 	);
 
+	const projectId = useSelect(
+		( s ) =>
+			s( 'core/editor' ).getEditedPostAttribute( 'meta' )
+				?.beyondwords_project_id ||
+			s( 'beyondwords/settings' ).getSettings()?.projectId,
+		[]
+	);
+
+	// When Customize is turned on for a post with no explicit choice yet, fetch
+	// the project's default language and pre-select it. We populate only the
+	// Language — the user picks the Voice (a project default voice can belong to
+	// a different language than the one we list). On failure we leave the
+	// Language empty and fall back to the manual "pick a language" flow.
+	const needsDefault = customize && ! languageCode && ! voiceId;
+
+	const project = useSelect(
+		( s ) =>
+			needsDefault
+				? s( 'beyondwords/settings' ).getProject( projectId )
+				: null,
+		[ needsDefault, projectId ]
+	);
+
+	// True once the project fetch has settled (resolved or failed). Keeps the
+	// spinner up and the Language hidden until we know the default — avoids a
+	// one-frame "empty dropdown then spinner" flicker on the first render.
+	const projectResolved = useSelect(
+		( s ) =>
+			! needsDefault ||
+			s( 'beyondwords/settings' ).hasFinishedResolution( 'getProject', [
+				projectId,
+			] ),
+		[ needsDefault, projectId ]
+	);
+
+	// Apply the resolved default language. Guarded by needsDefault so it never
+	// overrides an explicit choice, and sets only the language (no voice). Reads
+	// the freshest meta — not the closure's — so a concurrent edit to another
+	// field during the async fetch isn't clobbered.
+	useEffect( () => {
+		if ( needsDefault && project?.language ) {
+			const current =
+				select( 'core/editor' ).getEditedPostAttribute( 'meta' );
+			setMeta( {
+				...current,
+				beyondwords_language_code: project.language,
+			} );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ needsDefault, project ] );
+
+	const loadingProject = customize && needsDefault && ! projectResolved;
+
 	// Languages and voices are only needed while customising, so they are fetched
 	// lazily behind the toggle — a default post makes no language/voice API calls.
 	const languages = useSelect(
-		( select ) =>
-			customize ? select( 'beyondwords/settings' ).getLanguages() : [],
+		( s ) =>
+			customize ? s( 'beyondwords/settings' ).getLanguages() : [],
 		[ customize ]
 	);
 
 	const voices = useSelect(
-		( select ) =>
+		( s ) =>
 			customize && languageCode
-				? select( 'beyondwords/settings' ).getVoices( languageCode )
+				? s( 'beyondwords/settings' ).getVoices( languageCode )
 				: [],
 		[ customize, languageCode ]
 	);
@@ -53,10 +106,10 @@ export function VoiceSection( { withPanel = true } ) {
 	// Changing the Language re-fetches its voices; show a Spinner in place of the
 	// Voice/Model dropdowns until that resolves.
 	const isResolvingVoices = useSelect(
-		( select ) =>
+		( s ) =>
 			customize &&
 			!! languageCode &&
-			select( 'beyondwords/settings' ).isResolving( 'getVoices', [
+			s( 'beyondwords/settings' ).isResolving( 'getVoices', [
 				languageCode,
 			] ),
 		[ customize, languageCode ]
@@ -170,7 +223,8 @@ export function VoiceSection( { withPanel = true } ) {
 				checked={ customize }
 				onChange={ toggleCustomize }
 			/>
-			{ customize && (
+			{ loadingProject && <Spinner /> }
+			{ customize && ! loadingProject && (
 				<SelectControl
 					className="beyondwords--language"
 					label={ __( 'Language', 'speechkit' ) }
@@ -181,8 +235,10 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && isResolvingVoices && <Spinner /> }
-			{ customize && hasVoices && (
+			{ customize && ! loadingProject && isResolvingVoices && (
+				<Spinner />
+			) }
+			{ customize && ! loadingProject && hasVoices && (
 				<SelectControl
 					className="beyondwords--voice"
 					label={ __( 'Voice', 'speechkit' ) }
@@ -193,7 +249,7 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && showModel && (
+			{ customize && ! loadingProject && showModel && (
 				<SelectControl
 					className="beyondwords--model"
 					label={ __( 'Model', 'speechkit' ) }
