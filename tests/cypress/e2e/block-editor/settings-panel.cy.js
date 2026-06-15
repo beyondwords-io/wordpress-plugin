@@ -34,6 +34,13 @@ context( 'Block Editor: Settings panel', () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
+				// Generate audio toggle sits at the top of the Content panel,
+				// above Source.
+				cy.get( '.beyondwords--generate-audio' ).should( 'exist' );
+				cy.get( '.beyondwords--generate-audio, .beyondwords--source' )
+					.first()
+					.should( 'have.class', 'beyondwords--generate-audio' );
+
 				select( 'beyondwords--source' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -99,7 +106,16 @@ context( 'Block Editor: Settings panel', () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
-				select( 'beyondwords--language' ).select( 'English (American)', { force: true } );
+				// "Customize" is opt-in; enable it to reveal the Language/Voice fields.
+				cy.get( '.beyondwords--customize input[type="checkbox"]' ).check( {
+					force: true,
+				} );
+
+				// Enabling Customize pre-selects the project default language
+				// (mock: en_US → English (American)); wait for it before picking.
+				select( 'beyondwords--language' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'English (American)' );
 
 				// Bridget is an ElevenLabs voice with three models.
 				select( 'beyondwords--voice' ).select( 'Bridget', { force: true } );

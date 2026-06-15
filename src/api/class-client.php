@@ -110,9 +110,13 @@ class Client {
 	 * @param string          $content_id BeyondWords content ID.
 	 * @param int|string|null $project_id Optional project ID override.
 	 *
-	 * @return array<mixed>|false Response array, or false when project/content ID is missing.
+	 * @return array<mixed>|\WP_Error|false Raw HTTP response array, a `\WP_Error`
+	 *                                      on transport-level failure (unreachable
+	 *                                      host, timeout) which the caller surfaces
+	 *                                      as a connection error, or false when the
+	 *                                      project/content ID is missing.
 	 */
-	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|false {
+	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|\WP_Error|false {
 		if ( ! $project_id ) {
 			$project_id = get_option( 'beyondwords_project_id' );
 		}
@@ -362,6 +366,32 @@ class Client {
 	}
 
 	/**
+	 * GET /projects/:id
+	 *
+	 * Returns the project, including its default `language` code. Editor scripts
+	 * read it to pre-select the Language dropdown when "Customize" is enabled.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|null $project_id Optional override; falls back to the global option.
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	public static function get_project( ?int $project_id = null ): array|null|false {
+		if ( ! $project_id ) {
+			$project_id = get_option( 'beyondwords_project_id' );
+
+			if ( ! $project_id ) {
+				return false;
+			}
+		}
+
+		$url = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
+
+		return self::cached_get( 'project_' . (int) $project_id, $url );
+	}
+
+	/**
 	 * GET /summarization_settings_templates
 	 *
 	 * The list of script templates available to the organization. Editor
@@ -537,7 +567,12 @@ class Client {
 				}
 				$message = implode( ', ', $messages );
 			} elseif ( array_key_exists( 'message', $body ) ) {
-				$message = $body['message'];
+				// The API body is arbitrary JSON, so `message` may be null, a
+				// number, or a nested structure. Coerce to a string so the
+				// `: string` return type holds under strict_types.
+				$message = is_string( $body['message'] )
+					? $body['message']
+					: (string) wp_json_encode( $body['message'] );
 			}
 		}
 

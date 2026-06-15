@@ -2,20 +2,33 @@
  * WordPress dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
-import { BlockControls, useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { Placeholder } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { BeyondwordsIcon } from '../icon';
 
 // Register the block
 registerBlockType( 'beyondwords/player', {
+	icon: <BeyondwordsIcon />,
+	// The live player can't render in the editor, so show a standard Placeholder
+	// describing where it will appear (the saved markup still embeds the player).
 	edit: function Edit() {
-		const blockProps = useBlockProps( { contentEditable: false } );
+		const blockProps = useBlockProps();
 
 		return (
 			<div { ...blockProps }>
-				<BlockControls />
-				<div
-					data-beyondwords-player="true"
-					contentEditable="false"
-				></div>
+				<Placeholder
+					icon={ <BeyondwordsIcon /> }
+					label={ __( 'BeyondWords', 'speechkit' ) }
+					instructions={ __(
+						'The BeyondWords audio player will appear here.',
+						'speechkit'
+					) }
+				/>
 			</div>
 		);
 	},
