@@ -21,7 +21,10 @@ export function VoiceSection( { withPanel = true } ) {
 		[]
 	);
 
-	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	// `useEntityProp` returns `{}` (so `meta` is undefined) until the post entity
+	// record is hydrated; default to an empty object before reading meta values.
+	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const meta = rawMeta ?? {};
 
 	const languageCode = meta.beyondwords_language_code || '';
 	const voiceId = meta.beyondwords_body_voice_id || '';

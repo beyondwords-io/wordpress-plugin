@@ -26,7 +26,10 @@ export function PlayerSection( { withPanel = true } ) {
 		[]
 	);
 
-	const [ meta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	// `useEntityProp` returns `{}` (so `meta` is undefined) until the post entity
+	// record is hydrated; default to an empty object before reading meta values.
+	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const meta = rawMeta ?? {};
 
 	const source = meta.beyondwords_source || SOURCE_POST;
 	const output = meta.beyondwords_output || OUTPUT_AUDIO;
