@@ -23,7 +23,7 @@ export default function PlayerPlaceholder() {
 			icon={ <BeyondwordsIcon /> }
 			label={ __( 'BeyondWords', 'speechkit' ) }
 			instructions={ __(
-				'The BeyondWords audio player will appear here.',
+				'The BeyondWords audio player will appear here when ready.',
 				'speechkit'
 			) }
 		/>

@@ -26,7 +26,7 @@ context( 'Block Editor: Preview panel', () => {
 					.find( '.components-placeholder' )
 					.should(
 						'contain',
-						'The BeyondWords audio player will appear here.'
+						'The BeyondWords audio player will appear here'
 					);
 			} );
 
