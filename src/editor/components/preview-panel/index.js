@@ -8,6 +8,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import ErrorNotice from '../error-notice';
 import PlayAudio from '../play-audio';
 
 /**
@@ -31,10 +32,29 @@ function hasGeneratedContent( select ) {
 	);
 }
 
-export function PreviewPanel() {
-	const hasContent = useSelect( hasGeneratedContent, [] );
+/**
+ * Whether the post has a BeyondWords error message to surface.
+ *
+ * @param {Function} select Redux-style select() from `@wordpress/data`.
+ *
+ * @return {boolean} True when an error message is set on the post.
+ */
+function hasError( select ) {
+	const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
+	return Boolean(
+		meta?.beyondwords_error_message || meta?.speechkit_error_message
+	);
+}
 
-	if ( ! hasContent ) {
+export function PreviewPanel() {
+	// Show the panel when there's something to preview *or* an error to surface,
+	// mirroring the error display in the document-settings panel.
+	const showPanel = useSelect(
+		( select ) => hasGeneratedContent( select ) || hasError( select ),
+		[]
+	);
+
+	if ( ! showPanel ) {
 		return null;
 	}
 
@@ -44,6 +64,7 @@ export function PreviewPanel() {
 			initialOpen={ true }
 			className="beyondwords beyondwords-sidebar__preview"
 		>
+			<ErrorNotice wrapper={ PanelRow } />
 			<PlayAudio wrapper={ PanelRow } />
 		</PanelBody>
 	);

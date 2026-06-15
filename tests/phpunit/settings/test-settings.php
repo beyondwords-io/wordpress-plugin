@@ -448,6 +448,42 @@ class SettingsTest extends TestCase
      * @test
      * @group settings
      */
+    public function rest_project_route()
+    {
+        global $wp_rest_server;
+        $server = $wp_rest_server = new \WP_REST_Server;
+        do_action('rest_api_init');
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        Settings::register_rest_routes();
+
+        $path = '/beyondwords/v1/projects/' . BEYONDWORDS_TESTS_PROJECT_ID;
+
+        // Unauthenticated request is rejected by the permission callback.
+        wp_set_current_user(0);
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $this->assertSame(401, $response->get_status());
+
+        // Editor sees the project, including its default language.
+        $userId = self::factory()->user->create(['role' => 'editor']);
+        wp_set_current_user($userId);
+
+        $response = $server->dispatch(new \WP_REST_Request('GET', $path));
+        $data     = $response->get_data();
+
+        $this->assertSame(200, $response->get_status());
+        $this->assertIsArray($data);
+        $this->assertSame('en_US', $data['language']);
+
+        delete_option('beyondwords_api_key');
+        wp_delete_user($userId);
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
     public function rest_video_settings_templates_route()
     {
         global $wp_rest_server;

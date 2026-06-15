@@ -247,10 +247,14 @@ class Sync {
 			update_post_meta( $post_id, 'beyondwords_project_id', $project_id );
 			update_post_meta( $post_id, 'beyondwords_content_id', $response['id'] );
 
+			// We deliberately do NOT copy `language` or `body_voice_id` back from
+			// the API response. Those meta keys hold the editor's *explicit*
+			// language/voice choices ("Customize" on); echoing the project-default
+			// values the API resolved would make a default post look customised
+			// and freeze its voice so it no longer follows the project default.
+			// See Content::get_content_params().
 			$copy = [
 				'preview_token' => 'beyondwords_preview_token',
-				'language'      => 'beyondwords_language_code',
-				'body_voice_id' => 'beyondwords_body_voice_id',
 			];
 
 			foreach ( $copy as $api_key => $meta_key ) {

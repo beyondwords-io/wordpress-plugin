@@ -362,6 +362,32 @@ class Client {
 	}
 
 	/**
+	 * GET /projects/:id
+	 *
+	 * Returns the project, including its default `language` code. Editor scripts
+	 * read it to pre-select the Language dropdown when "Customize" is enabled.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|null $project_id Optional override; falls back to the global option.
+	 *
+	 * @return array<mixed>|null|false
+	 */
+	public static function get_project( ?int $project_id = null ): array|null|false {
+		if ( ! $project_id ) {
+			$project_id = get_option( 'beyondwords_project_id' );
+
+			if ( ! $project_id ) {
+				return false;
+			}
+		}
+
+		$url = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), (int) $project_id );
+
+		return self::cached_get( 'project_' . (int) $project_id, $url );
+	}
+
+	/**
 	 * GET /summarization_settings_templates
 	 *
 	 * The list of script templates available to the organization. Editor
