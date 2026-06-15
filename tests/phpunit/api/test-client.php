@@ -878,6 +878,38 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     *
+     * A transport-level failure (DNS error, timeout, refused/blocked connection)
+     * makes wp_remote_request() — and therefore call_api() — return a WP_Error.
+     * get_content() must surface that WP_Error rather than throwing a TypeError,
+     * so InspectPanel::rest_api_response() can fall through to its is_wp_error()
+     * branch and degrade to a "Could not connect to BeyondWords API" response.
+     */
+    public function get_content_returns_wp_error_on_connection_failure()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Priority 1 short-circuits before the mock plugin (priority 10), which
+        // respects an earlier WP_Error and passes it straight through.
+        $filter = function () {
+            return new \WP_Error('http_request_failed', 'cURL error 6: Could not resolve host');
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $result = Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertInstanceOf(\WP_Error::class, $result);
+        $this->assertSame('http_request_failed', $result->get_error_code());
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
      */
     public function get_voice_returns_false_without_language_code()
     {
