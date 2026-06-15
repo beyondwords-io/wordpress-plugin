@@ -78,7 +78,7 @@ class SelectVoice {
 	public static function element( $post ) {
 		$language_code = self::get_language_code( $post->ID );
 		$voice_id      = self::get_voice_id( $post->ID );
-		$languages     = \BeyondWords\Api\Client::get_languages();
+		$languages     = self::get_languages();
 		$voices        = self::get_voices_for_language( $language_code );
 
 		// "Customize" is opt-in: a post is customised once it has an explicit
@@ -158,6 +158,25 @@ class SelectVoice {
 	private static function get_voice_id( int $post_id ) {
 		$post_voice_id = get_post_meta( $post_id, 'beyondwords_body_voice_id', true );
 		return $post_voice_id ?: '';
+	}
+
+	/**
+	 * Get all available languages.
+	 *
+	 * Coerces the API result to an array so the language dropdown degrades to
+	 * empty when the languages API call fails (network error, WP_Error, non-2xx
+	 * status, empty body or invalid JSON). Client::get_languages() is declared
+	 * array|null|false, so an unguarded null/false would throw a TypeError
+	 * against render_language_select()'s array-typed parameter under
+	 * strict_types. Mirrors get_voices_for_language().
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array The languages array, or an empty array on API failure.
+	 */
+	private static function get_languages(): array {
+		$languages = \BeyondWords\Api\Client::get_languages();
+		return is_array( $languages ) ? $languages : [];
 	}
 
 	/**
