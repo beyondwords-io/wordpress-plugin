@@ -3,14 +3,14 @@
  */
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Disabled, Placeholder } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Disabled } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { BeyondwordsIcon } from '../icon';
 import PlayAudio from '../play-audio';
+import PlayerPlaceholder from '../play-audio/placeholder';
 import { useHasPlayAudioAction } from '../play-audio/hooks';
 
 // Register the block
@@ -33,14 +33,7 @@ registerBlockType( 'beyondwords/player', {
 						<PlayAudio />
 					</Disabled>
 				) : (
-					<Placeholder
-						icon={ <BeyondwordsIcon /> }
-						label={ __( 'BeyondWords', 'speechkit' ) }
-						instructions={ __(
-							'The BeyondWords audio player will appear here.',
-							'speechkit'
-						) }
-					/>
+					<PlayerPlaceholder />
 				) }
 			</div>
 		);

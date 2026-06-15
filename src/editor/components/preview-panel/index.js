@@ -3,43 +3,17 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import ErrorNotice from '../error-notice';
-import PlayAudio from '../play-audio';
-import { selectHasPlayAudioAction } from '../play-audio/hooks';
-
-/**
- * Whether the post has a BeyondWords error message to surface.
- *
- * @param {Function} select Redux-style select() from `@wordpress/data`.
- *
- * @return {boolean} True when an error message is set on the post.
- */
-function hasError( select ) {
-	const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
-	return Boolean(
-		meta?.beyondwords_error_message || meta?.speechkit_error_message
-	);
-}
+import PlayerPreview from '../play-audio/preview';
 
 export function PreviewPanel() {
-	// Show the panel when the player will load *or* there's an error to surface.
-	// selectHasPlayAudioAction is the exact predicate PlayAudioCheck gates on, so
-	// the panel never renders an empty body — e.g. a "Pending" post that has
-	// content but no player, and no error, stays hidden.
-	const showPanel = useSelect(
-		( select ) => selectHasPlayAudioAction( select ) || hasError( select ),
-		[]
-	);
-
-	if ( ! showPanel ) {
-		return null;
-	}
-
+	// The panel is always present and never empty: it surfaces any error, and
+	// shows the player once it can load, otherwise a placeholder. PlayerPreview
+	// is the same player/placeholder method the document-settings panel uses.
 	return (
 		<PanelBody
 			title={ __( 'Preview', 'speechkit' ) }
@@ -47,7 +21,7 @@ export function PreviewPanel() {
 			className="beyondwords beyondwords-sidebar__preview"
 		>
 			<ErrorNotice wrapper={ PanelRow } />
-			<PlayAudio wrapper={ PanelRow } />
+			<PlayerPreview wrapper={ PanelRow } />
 		</PanelBody>
 	);
 }

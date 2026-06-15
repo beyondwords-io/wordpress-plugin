@@ -13,7 +13,7 @@ import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
 import OpenSidebar from '../../components/open-sidebar';
 import PendingNotice from '../../components/pending-notice';
-import PlayAudio from '../../components/play-audio';
+import PlayerPreview from '../../components/play-audio/preview';
 import Stack from '../../components/stack';
 
 export default class DocumentSettingPanel extends Component {
@@ -30,7 +30,7 @@ export default class DocumentSettingPanel extends Component {
 				<Stack>
 					<ErrorNotice wrapper={ PanelRow } />
 					<PendingNotice wrapper={ PanelRow } />
-					<PlayAudio wrapper={ PanelRow } />
+					<PlayerPreview wrapper={ PanelRow } />
 					<GenerateAudio wrapper={ PanelRow } />
 					<hr />
 					<OpenSidebar wrapper={ PanelRow } />
