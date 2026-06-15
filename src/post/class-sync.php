@@ -91,7 +91,17 @@ class Sync {
 			return false;
 		}
 
-		if ( ! self::should_process_post_status( get_post_status( $post_id ) ) ) {
+		// get_post_status() returns false when the post no longer exists — e.g. it
+		// was trashed or permanently deleted between a deferred job being queued
+		// (see on_add_or_update_post()) and the cron firing. An empty status is
+		// never processable, so bail before the strict-typed
+		// should_process_post_status() call, which would TypeError on false.
+		$status = get_post_status( $post_id );
+		if ( ! $status ) {
+			return false;
+		}
+
+		if ( ! self::should_process_post_status( $status ) ) {
 			return false;
 		}
 
@@ -323,11 +333,54 @@ class Sync {
 	}
 
 	/**
+	 * Schedule a deferred audio-generation cron event for a post.
+	 *
+	 * Only reached on the async path, which is VIP-only by default (see
+	 * `is_async_generation_enabled()`). Prefers VIP's
+	 * `wpcom_vip_schedule_single_event()` wrapper when it exists (classic
+	 * WordPress.com VIP); on VIP Go — and anywhere the async filter is forced
+	 * on — the core function is the correct call and is routed through Cron
+	 * Control. No-ops when an event for this post is already queued, so repeated
+	 * saves don't stack duplicate jobs.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function schedule_audio_generation( int $post_id ): void {
+		if ( wp_next_scheduled( self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] ) ) {
+			return;
+		}
+
+		if ( function_exists( 'wpcom_vip_schedule_single_event' ) ) {
+			wpcom_vip_schedule_single_event( time(), self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
+			return;
+		}
+
+		wp_schedule_single_event( time(), self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
+	}
+
+	/**
+	 * Clear any pending deferred audio-generation cron event for a post.
+	 *
+	 * Called when a post is trashed or deleted so a job queued by
+	 * `on_add_or_update_post()` doesn't fire for a post that no longer exists.
+	 * Runs before the `has_content()` checks in the lifecycle handlers because a
+	 * queued post may not have written its content meta yet. `wp_clear_scheduled_hook()`
+	 * is routed through Cron Control on VIP, so it unschedules reliably there too.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function unschedule_audio_generation( int $post_id ): void {
+		wp_clear_scheduled_hook( self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
+	}
+
+	/**
 	 * Trash hook — DELETE the audio so it disappears from the dashboard, then
 	 * remove our local metadata.
 	 */
 	public static function on_trash_post( $post_id ): void {
 		$post_id = (int) $post_id;
+
+		self::unschedule_audio_generation( $post_id );
 
 		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
@@ -343,6 +396,8 @@ class Sync {
 	 */
 	public static function on_delete_post( $post_id ): void {
 		$post_id = (int) $post_id;
+
+		self::unschedule_audio_generation( $post_id );
 
 		if ( ! \BeyondWords\Post\Meta::has_content( $post_id ) ) {
 			return;
@@ -373,12 +428,12 @@ class Sync {
 		}
 
 		// On VIP, defer the blocking create/update API call to a background cron
-		// job so the save request returns immediately. The eligibility check is
-		// repeated inside generate_audio_for_post() when the job runs.
+		// job so the save request returns immediately. Off-VIP we fall through to
+		// the synchronous call below, because WP-Cron there is traffic-triggered
+		// and unreliable. The eligibility check is repeated inside
+		// generate_audio_for_post() when the deferred job runs.
 		if ( self::is_async_generation_enabled() && self::should_generate_audio_for_post( $post_id ) ) {
-			if ( ! wp_next_scheduled( self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] ) ) {
-				wp_schedule_single_event( time(), self::GENERATE_AUDIO_CRON_HOOK, [ $post_id ] );
-			}
+			self::schedule_audio_generation( $post_id );
 
 			return true;
 		}

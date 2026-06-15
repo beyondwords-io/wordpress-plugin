@@ -1307,4 +1307,97 @@ class SyncTest extends TestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
+
+    /**
+     * @test
+     * @group generateAudio
+     */
+    public function should_generate_audio_for_post_returns_false_for_missing_post()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        // Remove the post so get_post_status() returns false — mimics a post
+        // trashed/deleted between a deferred job being queued and the cron firing.
+        wp_delete_post($postId, true);
+
+        // Regression: this previously threw an uncaught TypeError under
+        // strict_types because get_post_status() returns false for a missing post
+        // and should_process_post_status() requires a non-nullable string.
+        $this->assertFalse(Sync::should_generate_audio_for_post($postId));
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group generateAudio
+     */
+    public function generate_audio_for_post_returns_false_for_missing_post()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        wp_delete_post($postId, true);
+
+        // The deferred cron callback must no-op rather than fatal when its post
+        // has already been removed.
+        $this->assertFalse(Sync::generate_audio_for_post($postId));
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group trash
+     */
+    public function on_trash_post_unschedules_pending_generate_audio_event()
+    {
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+        ]);
+
+        wp_schedule_single_event(time(), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+        $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+
+        Sync::on_trash_post($postId);
+
+        // The pending deferred job must be cleared so it can't fire for a trashed post.
+        $this->assertFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     * @group delete
+     */
+    public function on_delete_post_unschedules_pending_generate_audio_event()
+    {
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+        ]);
+
+        wp_schedule_single_event(time(), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+        $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+
+        Sync::on_delete_post($postId);
+
+        // The pending deferred job must be cleared so it can't fire for a deleted post.
+        $this->assertFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+
+        wp_delete_post($postId, true);
+    }
 }
