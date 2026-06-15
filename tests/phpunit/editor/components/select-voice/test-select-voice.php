@@ -190,10 +190,12 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // The language dropdown still renders, with no options.
+        // The language dropdown still renders, with only the empty "Select a
+        // language…" placeholder option — the failed API yields no languages.
         $languageSelect = $crawler->filter('#beyondwords_language_code');
         $this->assertCount(1, $languageSelect);
-        $this->assertCount(0, $languageSelect->filter('option'));
+        $this->assertCount(1, $languageSelect->filter('option'));
+        $this->assertSame('', $languageSelect->filter('option')->attr('value'));
 
         // Render continued past the language select to the voice select, proving
         // no TypeError was thrown.
