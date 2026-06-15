@@ -17,7 +17,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
 import Toggle from '../toggle';
-import { BeyondwordsIcon } from '../icon';
+import { BeyondwordsTitle } from '../icon';
 
 /**
  * Add BeyondWords controls to Gutenberg Blocks.
@@ -64,8 +64,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 
 					<InspectorControls>
 						<PanelBody
-							icon={ <BeyondwordsIcon /> }
-							title={ __( 'BeyondWords', 'speechkit' ) }
+							title={ <BeyondwordsTitle /> }
 							initialOpen={ true }
 						>
 							<PanelRow>

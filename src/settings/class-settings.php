@@ -208,16 +208,30 @@ class Settings {
 	/**
 	 * Drain queued settings errors into a notice.
 	 *
-	 * Errors are queued via `Utils::add_settings_error_message()`, then
-	 * popped here and rendered as a single `notice notice-error`.
+	 * Hooked to `admin_notices`, which fires on every admin screen, so this
+	 * early-returns unless we are on the BeyondWords settings page — the only
+	 * screen these errors are ever queued for (the sanitizers redirect back
+	 * here, and the connection check runs on this page's load hook). Gating it
+	 * this way avoids a transient read on every unrelated admin page and stops
+	 * a queued error from painting on another screen before it is drained.
+	 *
+	 * Errors are queued via `Utils::add_settings_error_message()` into a
+	 * transient that survives the post-save redirect, then drained here and
+	 * rendered as a single `notice notice-error`.
 	 */
 	public static function print_settings_errors(): void {
-		$errors = wp_cache_get( 'beyondwords_settings_errors', 'beyondwords' );
-		wp_cache_delete( 'beyondwords_settings_errors', 'beyondwords' );
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'settings_page_' . self::PAGE_SLUG !== $screen->id ) {
+			return;
+		}
+
+		$errors = get_transient( 'beyondwords_settings_errors' );
 
 		if ( ! is_array( $errors ) || empty( $errors ) ) {
 			return;
 		}
+
+		delete_transient( 'beyondwords_settings_errors' );
 
 		$allowed = [
 			'a'      => [ 'href' => [], 'target' => [] ],
@@ -269,6 +283,16 @@ class Settings {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ self::class, 'rest_video_settings_response' ],
+				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
+			]
+		);
+
+		register_rest_route(
+			'beyondwords/v1',
+			'/projects/(?P<projectId>[0-9]+)',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ self::class, 'rest_project_response' ],
 				'permission_callback' => static fn() => current_user_can( 'edit_posts' ),
 			]
 		);
@@ -340,6 +364,23 @@ class Settings {
 	public static function rest_video_settings_response( \WP_REST_Request $request ): \WP_REST_Response {
 		$project_id = (int) $request->get_param( 'projectId' );
 		$response   = \BeyondWords\Api\Client::get_video_settings( $project_id );
+
+		return new \WP_REST_Response( $response );
+	}
+
+	/**
+	 * Proxy for the BeyondWords project endpoint.
+	 *
+	 * Editor scripts read the project's default `language` to pre-select the
+	 * Language dropdown when "Customize" is enabled.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 */
+	public static function rest_project_response( \WP_REST_Request $request ): \WP_REST_Response {
+		$project_id = (int) $request->get_param( 'projectId' );
+		$response   = \BeyondWords\Api\Client::get_project( $project_id );
 
 		return new \WP_REST_Response( $response );
 	}
