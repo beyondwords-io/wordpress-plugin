@@ -168,8 +168,8 @@ export function GenerateAudio( { wrapper } ) {
 	};
 
 	const label = hasContent
-		? __( 'Update', 'speechkit' )
-		: __( 'Create', 'speechkit' );
+		? __( 'Update audio', 'speechkit' )
+		: __( 'Generate audio', 'speechkit' );
 
 	return (
 		<Wrapper>

@@ -13,7 +13,7 @@ export function DataPanel() {
 	return (
 		<PanelBody
 			title={ __( 'Data', 'speechkit' ) }
-			initialOpen={ true }
+			initialOpen={ false }
 			className="beyondwords beyondwords-sidebar__data"
 		>
 			<ContentId wrapper={ PanelRow } />

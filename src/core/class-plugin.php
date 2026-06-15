@@ -82,7 +82,6 @@ class Plugin {
 
 		// Post edit screen — top-level UI.
 		\BeyondWords\Editor\Components\AddPlayer::init();
-		\BeyondWords\Editor\Components\AddPlayer\Assets::init();
 		\BeyondWords\Editor\Components\BlockAttributes::init();
 		\BeyondWords\Editor\Components\ErrorNotice\Assets::init();
 		\BeyondWords\Editor\Components\InspectPanel::init();

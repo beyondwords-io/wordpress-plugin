@@ -386,6 +386,28 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      */
+    public function get_project()
+    {
+        $response = Client::get_project();
+        $this->assertFalse($response);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $response = Client::get_project();
+
+        $this->assertSame('en_US', $response['language']);
+        $this->assertArrayHasKey('body', $response);
+        $this->assertSame(2517, $response['body']['voice']['id']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
     public function get_summarization_settings_templates()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
@@ -775,6 +797,34 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A non-string `message` field must be coerced to a string rather than
+     * thrown from the `: string` return type under strict_types.
+     *
+     * @test
+     * @dataProvider provideNonStringMessages
+     */
+    public function error_message_from_response_coerces_non_string_message($message, $expected)
+    {
+        $response = [
+            'body' => wp_json_encode(['message' => $message])
+        ];
+
+        $result = Client::error_message_from_response($response);
+
+        $this->assertIsString($result);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function provideNonStringMessages()
+    {
+        return [
+            'null'         => [null, 'null'],
+            'integer'      => [42, '42'],
+            'nested array' => [['detail' => 'Boom'], '{"detail":"Boom"}'],
+        ];
+    }
+
+    /**
      * @test
      */
     public function get_content_returns_false_without_project_id()
@@ -821,6 +871,38 @@ class ClientTest extends TestCase
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
             (string) $captured_url
         );
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * A transport-level failure (DNS error, timeout, refused/blocked connection)
+     * makes wp_remote_request() — and therefore call_api() — return a WP_Error.
+     * get_content() must surface that WP_Error rather than throwing a TypeError,
+     * so InspectPanel::rest_api_response() can fall through to its is_wp_error()
+     * branch and degrade to a "Could not connect to BeyondWords API" response.
+     */
+    public function get_content_returns_wp_error_on_connection_failure()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Priority 1 short-circuits before the mock plugin (priority 10), which
+        // respects an earlier WP_Error and passes it straight through.
+        $filter = function () {
+            return new \WP_Error('http_request_failed', 'cURL error 6: Could not resolve host');
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $result = Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertInstanceOf(\WP_Error::class, $result);
+        $this->assertSame('http_request_failed', $result->get_error_code());
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

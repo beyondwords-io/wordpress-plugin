@@ -17,7 +17,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			cy.getLabel( 'Content ID' ).should( 'exist' );
 		} );
@@ -29,7 +29,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: { slug: 'post' },
 		} );
 
-		cy.openBeyondwordsPluginSidebar();
+		cy.openBeyondwordsDataPanel();
 
 		cy.getLabel( 'Content ID' ).should( 'exist' );
 	} );
@@ -41,7 +41,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			cy.get( '.beyondwords-sidebar__data input[type="text"]' )
 				.filter(
@@ -68,7 +68,7 @@ context( 'Block Editor: Content ID', () => {
 			} );
 
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			// Type a content ID into the field
 			cy.getLabel( 'Content ID' )
@@ -110,7 +110,7 @@ context( 'Block Editor: Content ID', () => {
 			// Verify persists after reload — including generate_audio,
 			// which is only reliably testable after a fresh page load.
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			cy.window()
 				.its( 'wp.data' )
@@ -136,7 +136,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			// Intercept the fetch request at browser level and return 404
 			cy.intercept(
@@ -177,7 +177,7 @@ context( 'Block Editor: Content ID', () => {
 
 			// Verify error persists after reload
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			cy.window()
 				.its( 'wp.data' )
@@ -199,7 +199,7 @@ context( 'Block Editor: Content ID', () => {
 			postType: 'post',
 		} ).then( ( postId ) => {
 			cy.visitPostEditorById( postId );
-			cy.openBeyondwordsPluginSidebar();
+			cy.openBeyondwordsDataPanel();
 
 			// Type a content ID and fetch
 			cy.getLabel( 'Content ID' )

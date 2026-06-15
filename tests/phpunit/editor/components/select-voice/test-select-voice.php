@@ -78,24 +78,24 @@ class SelectVoiceTest extends TestCase
         $languageSelect = $crawler->filter('#beyondwords_language_code');
         $this->assertCount(1, $languageSelect);
 
-        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(33)')->attr('value'));
-        $this->assertSame('English (American)', $languageSelect->filter('option:nth-child(33)')->text());
+        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(34)')->attr('value'));
+        $this->assertSame('English (American)', $languageSelect->filter('option:nth-child(34)')->text());
 
-        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(35)')->attr('value'));
-        $this->assertSame('English (British)', $languageSelect->filter('option:nth-child(35)')->text());
+        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(36)')->attr('value'));
+        $this->assertSame('English (British)', $languageSelect->filter('option:nth-child(36)')->text());
 
-        $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(92)')->attr('value'));
-        $this->assertSame('Welsh (Welsh)', $languageSelect->filter('option:nth-child(92)')->text());
+        $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(93)')->attr('value'));
+        $this->assertSame('Welsh (Welsh)', $languageSelect->filter('option:nth-child(93)')->text());
 
         $voiceLabel = $crawler->filter('p#beyondwords-metabox-select-voice--voice-id');
         $this->assertEquals('Voice', $voiceLabel->text());
 
-        // The Voice dropdown lists distinct names, "Project default" first.
+        // The Voice dropdown lists distinct names, "Select a voice" first.
         $voiceSelect = $crawler->filter('#beyondwords_voice');
         $this->assertCount(1, $voiceSelect);
 
         $this->assertSame('', $voiceSelect->filter('option:nth-child(1)')->attr('value'));
-        $this->assertSame('Project default', $voiceSelect->filter('option:nth-child(1)')->text());
+        $this->assertSame('Select a voice', $voiceSelect->filter('option:nth-child(1)')->text());
 
         $this->assertSame('Ada (Multilingual)', $voiceSelect->filter('option:nth-child(2)')->attr('value'));
         $this->assertSame('Ava (Multilingual)', $voiceSelect->filter('option:nth-child(3)')->attr('value'));
@@ -151,6 +151,55 @@ class SelectVoiceTest extends TestCase
             '9001',
             $crawler->filter('#beyondwords_voice_id option[selected]')->attr('value')
         );
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Regression: a failed languages API call returns null (network error,
+     * WP_Error, non-2xx, empty body or invalid JSON). Passed unguarded into
+     * render_language_select()'s array-typed parameter under strict_types this
+     * threw an uncatchable TypeError, crashing the classic-editor metabox. The
+     * language dropdown must now render empty instead of fataling.
+     *
+     * @test
+     */
+    public function element_degrades_gracefully_when_languages_api_fails()
+    {
+        // Simulate the languages API being unreachable. Priority 1 short-circuits
+        // before the mock API filter, which respects an earlier preempt.
+        $filter = function ($preempt, $args, $url) {
+            if (str_contains($url, '/organization/languages')) {
+                return new \WP_Error('http_request_failed', 'Connection refused');
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        // No language code, so no voices API call is made — the languages call
+        // is the only one exercised here.
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_languages_api_fails',
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $crawler = new Crawler($html);
+
+        // The language dropdown still renders, with only the empty "Select a
+        // language…" placeholder option — the failed API yields no languages.
+        $languageSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $languageSelect);
+        $this->assertCount(1, $languageSelect->filter('option'));
+        $this->assertSame('', $languageSelect->filter('option')->attr('value'));
+
+        // Render continued past the language select to the voice select, proving
+        // no TypeError was thrown.
+        $this->assertCount(1, $crawler->filter('#beyondwords_voice'));
 
         wp_delete_post($post->ID, true);
     }

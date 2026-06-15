@@ -78,14 +78,58 @@ class SelectVoice {
 	public static function element( $post ) {
 		$language_code = self::get_language_code( $post->ID );
 		$voice_id      = self::get_voice_id( $post->ID );
-		$languages     = \BeyondWords\Api\Client::get_languages();
+		$languages     = self::get_languages();
 		$voices        = self::get_voices_for_language( $language_code );
+
+		// "Customize" is opt-in: a post is customised once it has an explicit
+		// language or voice. When off we hide the fields and store nothing, so the
+		// BeyondWords project defaults apply.
+		$customize    = '' !== (string) $language_code || '' !== (string) $voice_id;
+		$fields_style = $customize ? '' : 'display: none;';
 
 		wp_nonce_field( 'beyondwords_select_voice', 'beyondwords_select_voice_nonce' );
 
+		self::render_customize_toggle( $customize );
+		?>
+		<div id="beyondwords-metabox-select-voice--fields" style="<?php echo esc_attr( $fields_style ); ?>">
+		<?php
 		self::render_language_select( $languages, $language_code );
 		self::render_voice_select( $voices, $voice_id, $language_code );
 		self::render_loading_spinner();
+		?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the "Customize" toggle.
+	 *
+	 * When unchecked the post uses the project default language and voice and the
+	 * language/voice fields are hidden. classic-metabox.js mirrors the visibility
+	 * and clears the selects when it is unchecked so save() removes the meta.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param bool $customize Whether Customize is currently enabled.
+	 */
+	private static function render_customize_toggle( bool $customize ): void {
+		?>
+		<p
+			id="beyondwords-metabox-select-voice--customize"
+			class="post-attributes-label-wrapper page-template-label-wrapper"
+		>
+			<label class="post-attributes-label" for="beyondwords_customize">
+				<?php esc_html_e( 'Customize', 'speechkit' ); ?>
+			</label>
+		</p>
+		<input
+			type="checkbox"
+			id="beyondwords_customize"
+			name="beyondwords_customize"
+			value="1"
+			<?php checked( $customize ); ?>
+		/>
+		<?php
 	}
 
 	/**
@@ -114,6 +158,25 @@ class SelectVoice {
 	private static function get_voice_id( int $post_id ) {
 		$post_voice_id = get_post_meta( $post_id, 'beyondwords_body_voice_id', true );
 		return $post_voice_id ?: '';
+	}
+
+	/**
+	 * Get all available languages.
+	 *
+	 * Coerces the API result to an array so the language dropdown degrades to
+	 * empty when the languages API call fails (network error, WP_Error, non-2xx
+	 * status, empty body or invalid JSON). Client::get_languages() is declared
+	 * array|null|false, so an unguarded null/false would throw a TypeError
+	 * against render_language_select()'s array-typed parameter under
+	 * strict_types. Mirrors get_voices_for_language().
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array The languages array, or an empty array on API failure.
+	 */
+	private static function get_languages(): array {
+		$languages = \BeyondWords\Api\Client::get_languages();
+		return is_array( $languages ) ? $languages : [];
 	}
 
 	/**
@@ -155,6 +218,11 @@ class SelectVoice {
 		</p>
 		<select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
 			<?php
+			printf(
+				'<option value="" %s>%s</option>',
+				selected( '', strval( $selected_lang_code ), false ),
+				esc_html__( 'Select a language…', 'speechkit' )
+			);
 			foreach ( $languages as $language ) {
 				if ( empty( $language['code'] ) || empty( $language['name'] ) || empty( $language['accent'] ) ) {
 					continue;
@@ -231,7 +299,7 @@ class SelectVoice {
 			printf(
 				'<option value="" %s>%s</option>',
 				selected( '', strval( $selected_name ), false ),
-				esc_html__( 'Project default', 'speechkit' )
+				esc_html__( 'Select a voice', 'speechkit' )
 			);
 			foreach ( $names as $name ) {
 				printf(

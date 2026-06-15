@@ -11,7 +11,7 @@ class FieldsTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
+        delete_transient('beyondwords_settings_errors');
     }
 
     public function tearDown(): void
@@ -21,7 +21,7 @@ class FieldsTest extends TestCase
         delete_option(Fields::OPTION_INTEGRATION_METHOD);
         delete_option(Fields::OPTION_PREPEND_EXCERPT);
         delete_option(Fields::OPTION_PLAYER_UI);
-        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
+        delete_transient('beyondwords_settings_errors');
         parent::tearDown();
     }
 
@@ -113,7 +113,7 @@ class FieldsTest extends TestCase
     {
         Fields::sanitize_api_key('');
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertIsArray($errors);
         $this->assertArrayHasKey('Settings/ApiKey', $errors);
     }
@@ -133,7 +133,7 @@ class FieldsTest extends TestCase
     {
         Fields::sanitize_project_id('');
 
-        $errors = wp_cache_get('beyondwords_settings_errors', 'beyondwords');
+        $errors = get_transient('beyondwords_settings_errors');
         $this->assertIsArray($errors);
         $this->assertArrayHasKey('Settings/ProjectId', $errors);
     }

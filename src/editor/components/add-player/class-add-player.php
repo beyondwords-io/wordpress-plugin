@@ -36,7 +36,6 @@ class AddPlayer {
 	public static function init() {
 		add_action( 'init', [ self::class, 'register_block'] );
 
-		add_action( 'admin_head', [ self::class, 'add_editor_styles'] );
 		add_filter( 'tiny_mce_before_init', [ self::class, 'filter_tiny_mce_settings'] );
 
 		add_filter( 'mce_external_plugins', [ self::class, 'add_plugin'] );
@@ -141,25 +140,5 @@ class AddPlayer {
 		}
 
 		return $settings;
-	}
-
-	/**
-	 * Add editor styles.
-	 *
-	 * Adds i18n-compatible Block Editor CSS for the player placeholder.
-	 *
-	 * @since 3.3.0
-	 * @since 6.0.0 Make static.
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 */
-	public static function add_editor_styles() {
-		$allowed_html = [
-			'style' => [],
-		];
-
-		echo wp_kses(
-			sprintf( '<style>%s</style>', self::player_preview_i18n_styles() ),
-			$allowed_html
-		);
 	}
 }

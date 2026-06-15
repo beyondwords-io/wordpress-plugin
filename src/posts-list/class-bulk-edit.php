@@ -86,12 +86,26 @@ class BulkEdit {
 	 * AJAX handler for the inline bulk-edit submission.
 	 *
 	 * Wired via `wp_ajax_save_bulk_edit_beyondwords`. Verifies the nonce that
-	 * was emitted by `bulk_edit_custom_box()` before delegating to the
-	 * generate/delete helpers.
+	 * was emitted by `bulk_edit_custom_box()` and the current user's capability
+	 * before delegating to the generate/delete helpers.
 	 *
-	 * @return int[] IDs of posts that were updated.
+	 * The nonce only proves the request was intentional (CSRF protection); it
+	 * does not authorise the action. Because every `wp_ajax_*` callback is
+	 * reachable by any logged-in user, we additionally gate on capabilities —
+	 * mirroring the core bulk-action capability checks the redirect-based
+	 * handlers rely on — so a Subscriber/Contributor cannot mutate or delete
+	 * audio on posts they are not allowed to edit.
+	 *
+	 * Always terminates the request via `wp_send_json_success()` /
+	 * `wp_send_json_error()` (both call `wp_die()` internally). A WordPress AJAX
+	 * callback that merely returns falls through to core's `wp_die( '0' )`, so
+	 * the payload would be discarded and the client would always receive the
+	 * bare string `0`. The generate/delete dispatch is wrapped in try/catch so a
+	 * thrown `\Exception` — e.g. when none of the selected posts have BeyondWords
+	 * audio — becomes a JSON error response instead of an uncaught fatal,
+	 * mirroring the handling in `handle_bulk_delete_action()`.
 	 */
-	public static function save_bulk_edit(): array {
+	public static function save_bulk_edit(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if (
 			! isset( $_POST['beyondwords_bulk_edit_nonce'] )
@@ -100,22 +114,59 @@ class BulkEdit {
 			wp_nonce_ays( '' );
 		}
 
-		if ( ! isset( $_POST['beyondwords_bulk_edit'] ) || ! isset( $_POST['post_ids'] ) || ! is_array( $_POST['post_ids'] ) ) {
-			return [];
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error(
+				[ 'message' => __( 'Sorry, you are not allowed to bulk edit BeyondWords audio.', 'speechkit' ) ],
+				403
+			);
 		}
 
-		$post_ids = array_filter( array_map( 'intval', wp_unslash( $_POST['post_ids'] ) ) );
+		if ( ! isset( $_POST['beyondwords_bulk_edit'] ) || ! isset( $_POST['post_ids'] ) || ! is_array( $_POST['post_ids'] ) ) {
+			wp_send_json_error(
+				[ 'message' => __( 'Missing bulk-edit action or selected posts.', 'speechkit' ) ],
+				400
+			);
+		}
+
+		$post_ids = array_filter( array_map( 'absint', wp_unslash( $_POST['post_ids'] ) ) );
 		$action   = sanitize_text_field( wp_unslash( $_POST['beyondwords_bulk_edit'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		switch ( $action ) {
-			case 'generate':
-				return self::generate_audio_for_posts( $post_ids );
-			case 'delete':
-				return self::delete_audio_for_posts( $post_ids );
+		if ( 'generate' !== $action && 'delete' !== $action ) {
+			wp_send_json_error(
+				[ 'message' => __( 'Unrecognised bulk-edit action.', 'speechkit' ) ],
+				400
+			);
 		}
 
-		return [];
+		// Only operate on posts the current user is actually allowed to edit, so a
+		// crafted request cannot mutate or delete audio on out-of-reach posts.
+		$post_ids = array_values(
+			array_filter(
+				$post_ids,
+				static fn( $post_id ): bool => current_user_can( 'edit_post', $post_id )
+			)
+		);
+
+		// A capable user may still have selected only posts they cannot edit; treat
+		// that as a clean no-op rather than the empty-batch error the delete helper
+		// would otherwise throw.
+		if ( empty( $post_ids ) ) {
+			wp_send_json_success( [] );
+		}
+
+		try {
+			$updated_post_ids = ( 'generate' === $action )
+				? self::generate_audio_for_posts( $post_ids )
+				: self::delete_audio_for_posts( $post_ids );
+		} catch ( \Exception $e ) {
+			wp_send_json_error(
+				[ 'message' => $e->getMessage() ],
+				500
+			);
+		}
+
+		wp_send_json_success( $updated_post_ids );
 	}
 
 	/**
