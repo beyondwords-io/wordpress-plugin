@@ -175,11 +175,16 @@ class Content {
 	 * @return string The post body without excluded blocks.
 	 */
 	public static function get_content_without_excluded_blocks( int|\WP_Post $post ): string {
+		$post = get_post( $post );
+
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			throw new \Exception( esc_html__( 'Post Not Found', 'speechkit' ) );
+		}
+
 		if ( ! has_blocks( $post ) ) {
 			return trim( $post->post_content );
 		}
 
-		$blocks = parse_blocks( $post->post_content );
 		$output = '';
 
 		$blocks = self::get_audio_enabled_blocks( $post );
