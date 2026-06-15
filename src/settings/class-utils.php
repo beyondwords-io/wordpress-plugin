@@ -176,16 +176,22 @@ class Utils {
 	/**
 	 * Queue a settings error message for later rendering.
 	 *
-	 * Errors are stored in the object cache so they survive the redirect that
-	 * follows a settings save without relying on PHP session state.
+	 * Stored in a short-lived transient — not the object cache — so the message
+	 * survives the `wp_redirect()` the Settings API performs after a save. The
+	 * default WordPress object cache is request-scoped, so `wp_cache_*` is empty
+	 * by the time the redirected page load renders the notice on the majority of
+	 * hosts (those without a persistent Redis/Memcached drop-in). A transient
+	 * falls back to the options table on those hosts, so the message is never
+	 * lost. The 30-second TTL matches WordPress core's own `settings_errors`
+	 * transient and is ample for a single redirect.
 	 *
 	 * @param string $message  Error message (HTML allowed; rendered through `wp_kses`).
 	 * @param string $error_id Optional stable ID; auto-generated when blank.
 	 */
 	public static function add_settings_error_message( string $message, string $error_id = '' ): void {
-		$errors = wp_cache_get( 'beyondwords_settings_errors', 'beyondwords' );
+		$errors = get_transient( 'beyondwords_settings_errors' );
 
-		if ( empty( $errors ) ) {
+		if ( ! is_array( $errors ) ) {
 			$errors = [];
 		}
 
@@ -195,6 +201,6 @@ class Utils {
 
 		$errors[ $error_id ] = $message;
 
-		wp_cache_set( 'beyondwords_settings_errors', $errors, 'beyondwords' );
+		set_transient( 'beyondwords_settings_errors', $errors, 30 );
 	}
 }

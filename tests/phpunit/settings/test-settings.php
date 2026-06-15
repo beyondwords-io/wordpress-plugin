@@ -20,12 +20,17 @@ class SettingsTest extends TestCase
         parent::setUp();
 
         // Your set up methods here.
-        wp_cache_delete('beyondwords_settings_errors', 'beyondwords');
+        delete_transient('beyondwords_settings_errors');
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
+        delete_transient('beyondwords_settings_errors');
+        // print_settings_errors() is now screen-gated; reset the screen so a
+        // test that sets it does not leak into the review-notice tests, which
+        // rely on no settings screen being active.
+        unset($GLOBALS['current_screen']);
 
         // Then...
         parent::tearDown();
@@ -136,6 +141,8 @@ class SettingsTest extends TestCase
      */
     public function print_settings_errors_without_errors()
     {
+        set_current_screen('settings_page_beyondwords');
+
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
         });
@@ -153,7 +160,8 @@ class SettingsTest extends TestCase
         $errors['Settings/Test2'] = 'Errors test 2';
         $errors['Settings/Test3'] = 'Errors test 3';
 
-        wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
+        set_transient('beyondwords_settings_errors', $errors, 30);
+        set_current_screen('settings_page_beyondwords');
 
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
@@ -263,7 +271,8 @@ class SettingsTest extends TestCase
         $errors['Settings/Test2'] = 'Errors test 2';
         $errors['Settings/Test3'] = 'Errors test 3';
 
-        wp_cache_set('beyondwords_settings_errors', $errors, 'beyondwords');
+        set_transient('beyondwords_settings_errors', $errors, 30);
+        set_current_screen('settings_page_beyondwords');
 
         $html = $this->capture_output(function () {
             Settings::print_settings_errors();
@@ -272,6 +281,86 @@ class SettingsTest extends TestCase
         $this->assertStringContainsString('<li>Errors test 1</li>', $html);
         $this->assertStringContainsString('<li>Errors test 2</li>', $html);
         $this->assertStringContainsString('<li>Errors test 3</li>', $html);
+    }
+
+    /**
+     * Regression: a sanitizer-queued error must reach the notice after the
+     * post-save redirect, even with no persistent object cache.
+     *
+     * Reproduces saving the Authentication tab with an empty API key: the
+     * Settings API runs `Fields::sanitize_api_key()` during the options.php
+     * POST, then `wp_redirect()`s to a fresh request that renders the notice.
+     * We model that request boundary with `wp_cache_flush()` — on a host with
+     * no persistent cache, the in-memory object cache is empty on the next
+     * request, which previously dropped the error. The transient survives it.
+     *
+     * @test
+     */
+    public function print_settings_errors_renders_sanitizer_error_after_redirect()
+    {
+        \BeyondWords\Settings\Fields::sanitize_api_key('');
+
+        wp_cache_flush();
+
+        set_current_screen('settings_page_beyondwords');
+
+        $html = $this->capture_output(function () {
+            Settings::print_settings_errors();
+        });
+
+        $this->assertStringContainsString('Please enter the BeyondWords API key', $html);
+    }
+
+    /**
+     * Regression: queued errors are drained once rendered, so the same notice
+     * does not re-appear on the next admin page.
+     *
+     * `print_settings_errors()` is hooked to `admin_notices`, which fires on
+     * every admin screen, and the transient lives for 30s. The fix deletes the
+     * transient as soon as it has rendered, so the next request's
+     * `get_transient()` finds nothing and the notice shows exactly once instead
+     * of lingering on unrelated admin pages. Asserting the transient is gone
+     * after a render is the faithful model of that next request, and locks in
+     * the post-render delete so a future change cannot silently drop it.
+     *
+     * @test
+     */
+    public function print_settings_errors_drains_transient_after_render()
+    {
+        set_transient('beyondwords_settings_errors', ['Settings/Once' => 'Shown once'], 30);
+        set_current_screen('settings_page_beyondwords');
+
+        $html = $this->capture_output(function () {
+            Settings::print_settings_errors();
+        });
+        $this->assertStringContainsString('Shown once', $html);
+
+        // Drained: a fresh request's get_transient() has nothing left to render.
+        $this->assertFalse(get_transient('beyondwords_settings_errors'));
+    }
+
+    /**
+     * The notice handler is hooked to `admin_notices` (every admin screen) but
+     * must only act on the BeyondWords settings page — the only screen these
+     * errors are queued for. On any other screen it early-returns without even
+     * reading the transient, so a queued error never paints elsewhere and is
+     * left intact to render once the user reaches the settings page.
+     *
+     * @test
+     */
+    public function print_settings_errors_only_renders_on_settings_screen()
+    {
+        set_transient('beyondwords_settings_errors', ['Settings/X' => 'Should not show here'], 30);
+
+        set_current_screen('edit-post');
+
+        $html = $this->capture_output(function () {
+            Settings::print_settings_errors();
+        });
+
+        $this->assertSame('', $html);
+        // Not drained off-screen — it must survive to render on the settings page.
+        $this->assertIsArray(get_transient('beyondwords_settings_errors'));
     }
 
     /**
