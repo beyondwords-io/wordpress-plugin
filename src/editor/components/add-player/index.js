@@ -9,17 +9,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { BeyondwordsIcon } from '../icon';
 import PlayAudio from '../play-audio';
 import { useHasPlayAudioAction } from '../play-audio/hooks';
 
 // Register the block
 registerBlockType( 'beyondwords/player', {
+	icon: <BeyondwordsIcon />,
 	edit: function Edit() {
 		const blockProps = useBlockProps();
 
 		// Mirror the sidebar Preview panel: render a live (but non-interactive)
 		// player once the post has everything the player needs, otherwise a
-		// placeholder prompting the user to generate audio.
+		// placeholder describing where the player will appear.
 		const canPreview = useHasPlayAudioAction();
 
 		return (
@@ -32,10 +34,10 @@ registerBlockType( 'beyondwords/player', {
 					</Disabled>
 				) : (
 					<Placeholder
-						icon="controls-volumeon"
-						label={ __( 'BeyondWords Player', 'speechkit' ) }
+						icon={ <BeyondwordsIcon /> }
+						label={ __( 'BeyondWords', 'speechkit' ) }
 						instructions={ __(
-							'The BeyondWords player will be displayed here once audio has been generated for this content.',
+							'The BeyondWords audio player will appear here.',
 							'speechkit'
 						) }
 					/>

@@ -13,6 +13,7 @@ export const DEFAULT_STATE = {
 	scriptTemplates: [],
 	videoTemplates: [],
 	videoSizes: [],
+	project: {},
 };
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
@@ -67,6 +68,17 @@ const resolvers = {
 			path: `/beyondwords/v1/projects/${ projectId }/video-settings`,
 		} );
 		return set( 'videoSizes', r?.sizes ?? [] );
+	},
+	// The project carries the default `language` used to pre-select the Language
+	// dropdown when Customize is enabled. Fetched on demand (behind the toggle).
+	async getProject( projectId ) {
+		if ( ! projectId ) {
+			return set( 'project', {} );
+		}
+		const value = await apiFetch( {
+			path: `/beyondwords/v1/projects/${ projectId }`,
+		} );
+		return set( 'project', value );
 	},
 };
 

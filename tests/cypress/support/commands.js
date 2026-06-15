@@ -332,6 +332,17 @@ Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
 		.should( 'be.visible' );
 } );
 
+Cypress.Commands.add( 'openBeyondwordsDataPanel', () => {
+	cy.openBeyondwordsPluginSidebar();
+	// The Data panel is collapsed by default; expand it to reach the Content
+	// ID field and the Fetch button.
+	cy.get( '.beyondwords-sidebar__data' ).then( ( $panel ) => {
+		if ( ! $panel.hasClass( 'is-opened' ) ) {
+			cy.wrap( $panel ).contains( 'button', 'Data' ).click();
+		}
+	} );
+} );
+
 Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 	return cy
 		.get( 'label', ...args )

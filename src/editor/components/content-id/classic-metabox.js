@@ -128,14 +128,15 @@
 		}
 
 		// Language select — only update if the value exists as an option.
+		// Match option values directly so a malformed API value can't throw.
 		const languageSelect = document.getElementById(
 			'beyondwords_language_code'
 		);
 		if ( languageSelect && meta.beyondwords_language_code ) {
-			const option = languageSelect.querySelector(
-				'option[value="' + meta.beyondwords_language_code + '"]'
+			const hasOption = [ ...languageSelect.options ].some(
+				( option ) => option.value === meta.beyondwords_language_code
 			);
-			if ( option ) {
+			if ( hasOption ) {
 				languageSelect.value = meta.beyondwords_language_code;
 			}
 		}
@@ -152,7 +153,8 @@
 		if (
 			meta.beyondwords_content_id &&
 			meta.beyondwords_project_id &&
-			typeof BeyondWords !== 'undefined'
+			typeof BeyondWords !== 'undefined' &&
+			typeof BeyondWords.Player === 'function'
 		) {
 			let playerContainer = document.getElementById(
 				'beyondwords-metabox-player'
@@ -172,17 +174,26 @@
 
 			if ( playerContainer ) {
 				playerContainer.innerHTML = '';
-				new BeyondWords.Player( {
-					target: playerContainer,
-					projectId: Number( meta.beyondwords_project_id ),
-					contentId: meta.beyondwords_content_id,
-					previewToken: meta.beyondwords_preview_token || '',
-					adverts: [],
-					analyticsConsent: 'none',
-					introsOutros: [],
-					playerStyle: 'small',
-					widgetStyle: 'none',
-				} );
+
+				// The player SDK is an external CDN script, so its constructor
+				// can throw; contain it so a preview-only error can't fail the
+				// save. Mirrors play-audio/hooks.js.
+				try {
+					new BeyondWords.Player( {
+						target: playerContainer,
+						projectId: Number( meta.beyondwords_project_id ),
+						contentId: meta.beyondwords_content_id,
+						previewToken: meta.beyondwords_preview_token || '',
+						adverts: [],
+						analyticsConsent: 'none',
+						introsOutros: [],
+						playerStyle: 'small',
+						widgetStyle: 'none',
+					} );
+				} catch {
+					// Preview failed to initialise; the saved content is intact.
+					// @todo display error notice in the WordPress admin.
+				}
 			}
 		}
 	}
@@ -280,7 +291,14 @@
 
 				return savePostMeta( restBase, postId, meta ).then(
 					function () {
-						updateMetaboxUI( meta );
+						// Save succeeded. Refreshing the UI is best-effort —
+						// contain failures so they can't reject the chain and
+						// divert into the .catch, overwriting the saved meta.
+						try {
+							updateMetaboxUI( meta );
+						} catch {
+							// UI refresh failed; the saved content is intact.
+						}
 						showNotice(
 							wp.i18n.__(
 								'Content fetched and saved successfully.',

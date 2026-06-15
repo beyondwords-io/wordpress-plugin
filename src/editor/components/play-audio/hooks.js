@@ -20,6 +20,16 @@ export function useBeyondWordsNamespace() {
 	} );
 
 	useEffect( () => {
+		// The script can finish loading in the gap between the render-phase
+		// useState initializer (which may have seen no namespace) and this
+		// post-paint effect. Re-read the namespace synchronously so we don't
+		// attach a 'load' listener to an already-loaded script — that listener
+		// would never fire again, leaving value null and the player uncreated.
+		if ( window?.BeyondWords ) {
+			setValue( window.BeyondWords );
+			return;
+		}
+
 		const onLoad = () => {
 			setValue( window?.BeyondWords ?? null );
 		};
