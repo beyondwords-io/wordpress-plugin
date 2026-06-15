@@ -3,6 +3,7 @@
 /**
  * WordPress dependencies
  */
+import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 
 const PLAYER_SCRIPT_SRC =
@@ -144,4 +145,58 @@ export function useBeyondWordsPlayer( {
 	] );
 
 	return player;
+}
+
+/**
+ * Whether the post has everything the BeyondWords player needs to load a
+ * preview.
+ *
+ * Pure selector so it can be called inside `useSelect`/`withSelect` (and unit
+ * tested without a React render). Shared by the `beyondwords/player` block and
+ * the `PlayAudioCheck` gate via `useHasPlayAudioAction()`. Legacy `podcast_id`
+ * keys are recognised so posts upgraded from older plugin versions still
+ * preview correctly.
+ *
+ * @param {Function} select Redux-style select() from `@wordpress/data`.
+ *
+ * @return {boolean} True when the player can load.
+ */
+export function selectHasPlayAudioAction( select ) {
+	const { getEditedPostAttribute } = select( 'core/editor' );
+
+	const status = getEditedPostAttribute( 'status' );
+	const projectId = getEditedPostAttribute( 'meta' ).beyondwords_project_id;
+	const integrationMethod =
+		getEditedPostAttribute( 'meta' ).beyondwords_integration_method;
+
+	// Get Content ID, inc fallbacks for legacy field names.
+	const beyondwordsContentId =
+		getEditedPostAttribute( 'meta' ).beyondwords_content_id;
+	const beyondwordsPodcastId =
+		getEditedPostAttribute( 'meta' ).beyondwords_podcast_id;
+	const speechkitPodcastId =
+		getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
+
+	const contentId =
+		beyondwordsContentId || beyondwordsPodcastId || speechkitPodcastId;
+
+	const isClientSide = integrationMethod === 'client-side';
+
+	const hasClientSideContent = isClientSide && projectId;
+
+	const hasRestApiContent = ! isClientSide && projectId && contentId;
+
+	return Boolean(
+		status !== 'pending' && ( hasClientSideContent || hasRestApiContent )
+	);
+}
+
+/**
+ * Hook wrapper around {@link selectHasPlayAudioAction} for use in function
+ * components — the block preview and the `PlayAudioCheck` gate.
+ *
+ * @return {boolean} True when the player can load.
+ */
+export function useHasPlayAudioAction() {
+	return useSelect( selectHasPlayAudioAction, [] );
 }

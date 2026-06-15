@@ -34,11 +34,12 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 						.insertBlocks( block );
 				} );
 
-				// The live player can't render in the editor; a Placeholder shows instead.
+				// The block renders either a live (disabled) player preview or a
+				// Placeholder depending on post state, so assert on the block
+				// wrapper, which is present in both cases.
 				cy.getEditorCanvasBody()
-					.find( '.components-placeholder' )
-					.should( 'have.length', 1 )
-					.and( 'contain', 'BeyondWords' );
+					.find( '.wp-block-beyondwords-player' )
+					.should( 'have.length', 1 );
 
 				cy.publishWithConfirmation();
 				cy.viewPostViaSnackbar();
