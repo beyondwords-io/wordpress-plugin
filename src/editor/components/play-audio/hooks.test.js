@@ -107,8 +107,8 @@ describe( 'selectHasPlayAudioAction', () => {
 
 	describe( 'pending review', () => {
 		it( 'never loads for a pending post with full REST content', () => {
-			// The empty-panel bug case: full content but status === 'pending'
-			// means the player never loads, so the panel must stay hidden.
+			// Pending status means the player can't load, so the Preview panel
+			// shows the placeholder instead of the live player.
 			expect(
 				selectHasPlayAudioAction(
 					makeSelect( {

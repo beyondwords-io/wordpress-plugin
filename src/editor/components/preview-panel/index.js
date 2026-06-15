@@ -8,12 +8,15 @@ import { PanelBody, PanelRow } from '@wordpress/components';
  * Internal dependencies
  */
 import ErrorNotice from '../error-notice';
-import PlayerPreview from '../play-audio/preview';
+import PlayAudio from '../play-audio';
+import PlayerPlaceholder from '../play-audio/placeholder';
+import { useHasPlayAudioAction } from '../play-audio/hooks';
 
 export function PreviewPanel() {
 	// The panel is always present and never empty: it surfaces any error, and
-	// shows the player once it can load, otherwise a placeholder. PlayerPreview
-	// is the same player/placeholder method the document-settings panel uses.
+	// shows the live player once it can load, otherwise a placeholder.
+	const canPreview = useHasPlayAudioAction();
+
 	return (
 		<PanelBody
 			title={ __( 'Preview', 'speechkit' ) }
@@ -21,7 +24,11 @@ export function PreviewPanel() {
 			className="beyondwords beyondwords-sidebar__preview"
 		>
 			<ErrorNotice wrapper={ PanelRow } />
-			<PlayerPreview wrapper={ PanelRow } />
+			{ canPreview ? (
+				<PlayAudio wrapper={ PanelRow } />
+			) : (
+				<PlayerPlaceholder />
+			) }
 		</PanelBody>
 	);
 }
