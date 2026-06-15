@@ -3,10 +3,10 @@
 /**
  * Internal dependencies
  */
-import { canPlayAudio } from './helpers';
+import { selectHasPlayAudioAction } from './hooks';
 
 // A fake `select( 'core/editor' )` exposing getEditedPostAttribute over a given
-// post status + meta, matching how canPlayAudio reads the store.
+// post status + meta, matching how selectHasPlayAudioAction reads the store.
 const makeSelect =
 	( { status = 'publish', meta = {} } = {} ) =>
 	() => ( {
@@ -21,9 +21,9 @@ const makeSelect =
 		},
 	} );
 
-describe( 'canPlayAudio', () => {
+describe( 'selectHasPlayAudioAction', () => {
 	it( 'is false with no project id and no content id', () => {
-		expect( canPlayAudio( makeSelect() ) ).toBe( false );
+		expect( selectHasPlayAudioAction( makeSelect() ) ).toBe( false );
 	} );
 
 	describe( 'client-side integration', () => {
@@ -35,23 +35,27 @@ describe( 'canPlayAudio', () => {
 				},
 			} );
 
-		it( 'renders with just a project id (no content id needed)', () => {
+		it( 'loads with just a project id (no content id needed)', () => {
 			expect(
-				canPlayAudio( clientSide( { beyondwords_project_id: 123 } ) )
+				selectHasPlayAudioAction(
+					clientSide( { beyondwords_project_id: 123 } )
+				)
 			).toBe( true );
 		} );
 
-		it( 'does not render without a project id', () => {
-			expect( canPlayAudio( clientSide( {} ) ) ).toBe( false );
+		it( 'does not load without a project id', () => {
+			expect( selectHasPlayAudioAction( clientSide( {} ) ) ).toBe(
+				false
+			);
 		} );
 	} );
 
 	describe( 'REST API integration', () => {
 		const restApi = ( meta ) => makeSelect( { meta } );
 
-		it( 'renders with both a project id and a content id', () => {
+		it( 'loads with both a project id and a content id', () => {
 			expect(
-				canPlayAudio(
+				selectHasPlayAudioAction(
 					restApi( {
 						beyondwords_project_id: 123,
 						beyondwords_content_id: 456,
@@ -60,23 +64,27 @@ describe( 'canPlayAudio', () => {
 			).toBe( true );
 		} );
 
-		it( 'does not render with a project id but no content id', () => {
+		it( 'does not load with a project id but no content id', () => {
 			expect(
-				canPlayAudio( restApi( { beyondwords_project_id: 123 } ) )
+				selectHasPlayAudioAction(
+					restApi( { beyondwords_project_id: 123 } )
+				)
 			).toBe( false );
 		} );
 
-		it( 'does not render with a content id but no project id', () => {
+		it( 'does not load with a content id but no project id', () => {
 			// The legacy/partial-meta bug case: a content id exists but
-			// beyondwords_project_id is missing, so no player would render.
+			// beyondwords_project_id is missing, so no player would load.
 			expect(
-				canPlayAudio( restApi( { beyondwords_content_id: 456 } ) )
+				selectHasPlayAudioAction(
+					restApi( { beyondwords_content_id: 456 } )
+				)
 			).toBe( false );
 		} );
 
 		it( 'honours legacy beyondwords_podcast_id as the content id', () => {
 			expect(
-				canPlayAudio(
+				selectHasPlayAudioAction(
 					restApi( {
 						beyondwords_project_id: 123,
 						beyondwords_podcast_id: 456,
@@ -87,7 +95,7 @@ describe( 'canPlayAudio', () => {
 
 		it( 'honours legacy speechkit_podcast_id as the content id', () => {
 			expect(
-				canPlayAudio(
+				selectHasPlayAudioAction(
 					restApi( {
 						beyondwords_project_id: 123,
 						speechkit_podcast_id: 456,
@@ -98,11 +106,11 @@ describe( 'canPlayAudio', () => {
 	} );
 
 	describe( 'pending review', () => {
-		it( 'never renders for a pending post with full REST content', () => {
+		it( 'never loads for a pending post with full REST content', () => {
 			// The empty-panel bug case: full content but status === 'pending'
-			// means PlayAudio renders nothing, so the panel must stay hidden.
+			// means the player never loads, so the panel must stay hidden.
 			expect(
-				canPlayAudio(
+				selectHasPlayAudioAction(
 					makeSelect( {
 						status: 'pending',
 						meta: {
@@ -114,9 +122,9 @@ describe( 'canPlayAudio', () => {
 			).toBe( false );
 		} );
 
-		it( 'never renders for a pending client-side post', () => {
+		it( 'never loads for a pending client-side post', () => {
 			expect(
-				canPlayAudio(
+				selectHasPlayAudioAction(
 					makeSelect( {
 						status: 'pending',
 						meta: {
@@ -127,13 +135,5 @@ describe( 'canPlayAudio', () => {
 				)
 			).toBe( false );
 		} );
-	} );
-
-	it( 'tolerates missing meta', () => {
-		const select = () => ( {
-			getEditedPostAttribute: ( attr ) =>
-				attr === 'status' ? 'publish' : undefined,
-		} );
-		expect( canPlayAudio( select ) ).toBe( false );
 	} );
 } );

@@ -10,7 +10,7 @@ import { useSelect } from '@wordpress/data';
  */
 import ErrorNotice from '../error-notice';
 import PlayAudio from '../play-audio';
-import { canPlayAudio } from '../play-audio/helpers';
+import { selectHasPlayAudioAction } from '../play-audio/hooks';
 
 /**
  * Whether the post has a BeyondWords error message to surface.
@@ -27,12 +27,12 @@ function hasError( select ) {
 }
 
 export function PreviewPanel() {
-	// Show the panel when PlayAudio will render a player *or* there's an error to
-	// surface. canPlayAudio matches PlayAudioCheck exactly, so the panel never
-	// renders an empty body — e.g. a "Pending" post that has content but no
-	// player, and no error, stays hidden.
+	// Show the panel when the player will load *or* there's an error to surface.
+	// selectHasPlayAudioAction is the exact predicate PlayAudioCheck gates on, so
+	// the panel never renders an empty body — e.g. a "Pending" post that has
+	// content but no player, and no error, stays hidden.
 	const showPanel = useSelect(
-		( select ) => canPlayAudio( select ) || hasError( select ),
+		( select ) => selectHasPlayAudioAction( select ) || hasError( select ),
 		[]
 	);
 

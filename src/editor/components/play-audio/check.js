@@ -1,16 +1,17 @@
 /**
  * Internal dependencies
  */
-import { useCanPlayAudio } from './hooks';
+import { useHasPlayAudioAction } from './hooks';
 
-export function PlayAudioCheck( { children } ) {
-	const hasPlayAudioAction = useCanPlayAudio();
-
-	if ( ! hasPlayAudioAction ) {
-		return null;
-	}
-
-	return children;
+/**
+ * Renders its children only when the BeyondWords player has everything it
+ * needs to load a preview.
+ *
+ * @param {Object}  props          Component props.
+ * @param {Element} props.children Content to gate behind the play-audio check.
+ *
+ * @return {Element|null} The children when the player can load, else null.
+ */
+export default function PlayAudioCheck( { children } ) {
+	return useHasPlayAudioAction() ? children : null;
 }
-
-export default PlayAudioCheck;
