@@ -1,9 +1,9 @@
 /**
  * @group block-editor
- * @covers src/editor/components/generate-audio/,src/post/class-sync.php
+ * @covers src/editor/components/generate-audio/,src/post/class-sync.php,src/settings/class-preselect.php
  */
 
-/* global Cypress, cy, beforeEach, context, it, describe */
+/* global Cypress, cy, before, beforeEach, afterEach, context, it, describe, expect */
 
 /**
  * Focused edge-case tests for the GenerateAudio component.
@@ -53,11 +53,15 @@ context( 'Block Editor: Generate Audio', () => {
 			// Preselect is applied via a useEffect, so the box starts unchecked
 			// for a tick before flipping on. Wait for it to settle, otherwise an
 			// uncheck races the effect and is undone.
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should( 'be.checked' );
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'be.checked'
+			);
 
 			// Toggle the input directly — clicking the CheckboxControl label
 			// double-fires the change event and lands back on checked.
-			cy.getBlockEditorCheckbox( 'Generate audio' ).uncheck( { force: true } );
+			cy.getBlockEditorCheckbox( 'Generate audio' ).uncheck( {
+				force: true,
+			} );
 			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 				'not.be.checked'
 			);
@@ -183,6 +187,100 @@ context( 'Block Editor: Generate Audio', () => {
 					'.editor-post-publish-panel .beyondwords--generate-audio input[type="checkbox"]'
 				).should( 'not.be.checked' );
 			} );
+		} );
+	} );
+
+	describe( 'Auto-preselect does not dirty the post', () => {
+		it( 'reflects preselect without writing meta or dirtying the post', () => {
+			// No title → nothing else can dirty the post.
+			cy.createPost( { postType: { slug: 'post' } } );
+
+			cy.openBeyondwordsEditorPanel();
+
+			// Default preselect for 'post' is mode 'all' → box shows checked
+			// (derived from the setting, not written to meta).
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'be.checked'
+			);
+
+			cy.window().then( ( win ) => {
+				const editor = win.wp.data.select( 'core/editor' );
+
+				// The toggle is derived — no meta is written for preselect.
+				const meta = editor.getEditedPostAttribute( 'meta' ) || {};
+				expect( meta.beyondwords_generate_audio ).to.be.oneOf( [
+					undefined,
+					null,
+				] );
+
+				// Improvement #2: the auto-preselect must not dirty the post.
+				expect( editor.isEditedPostDirty() ).to.eq( false );
+			} );
+		} );
+	} );
+
+	describe( 'Term-gated preselect (bidirectional)', () => {
+		let newsId;
+
+		before( () => {
+			cy.task( 'createTerm', {
+				taxonomy: 'category',
+				name: 'CypressBwNews',
+			} ).then( ( id ) => {
+				newsId = id;
+			} );
+		} );
+
+		beforeEach( () => {
+			cy.task( 'updateOptionJson', {
+				name: 'beyondwords_preselect',
+				value: {
+					post: { mode: 'terms', terms: { category: [ newsId ] } },
+				},
+			} );
+		} );
+
+		afterEach( () => {
+			// Restore the default seed so later specs see post = 'all'.
+			cy.task( 'updateOptionJson', {
+				name: 'beyondwords_preselect',
+				value: {
+					post: { mode: 'all' },
+					page: { mode: 'all' },
+					cpt_active: { mode: 'all' },
+				},
+			} );
+		} );
+
+		it( 'checks when a matching term is added and unchecks when removed', () => {
+			cy.createPost( { postType: { slug: 'post' } } );
+
+			cy.openBeyondwordsEditorPanel();
+
+			// No matching category yet → not preselected.
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'not.be.checked'
+			);
+
+			// Assign the matching category via the store.
+			cy.window().then( ( win ) => {
+				win.wp.data
+					.dispatch( 'core/editor' )
+					.editPost( { categories: [ newsId ] } );
+			} );
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'be.checked'
+			);
+
+			// Remove it → auto-unchecks (bidirectional).
+			cy.window().then( ( win ) => {
+				win.wp.data
+					.dispatch( 'core/editor' )
+					.editPost( { categories: [] } );
+			} );
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'not.be.checked'
+			);
 		} );
 	} );
 

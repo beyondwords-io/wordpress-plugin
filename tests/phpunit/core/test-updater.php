@@ -136,6 +136,62 @@ class UpdaterTest extends TestCase
     /**
      * @test
      */
+    public function migrate_preselect_format_converts_legacy_shapes()
+    {
+        update_option('beyondwords_preselect', [
+            'post'  => '1',                          // legacy whole post type
+            'page'  => ['category' => ['1', '2']],   // legacy term-gated
+            'cpt'   => ['mode' => 'all'],            // already new format
+            'empty' => [],                           // dropped
+        ]);
+
+        Updater::migrate_preselect_format();
+
+        $this->assertSame([
+            'post' => ['mode' => 'all'],
+            'page' => ['mode' => 'terms', 'terms' => ['category' => [1, 2]]],
+            'cpt'  => ['mode' => 'all'],
+        ], get_option('beyondwords_preselect'));
+
+        delete_option('beyondwords_preselect');
+    }
+
+    /**
+     * @test
+     */
+    public function migrate_preselect_format_is_idempotent()
+    {
+        $value = [
+            'post' => ['mode' => 'all'],
+            'page' => ['mode' => 'terms', 'terms' => ['category' => [3]]],
+        ];
+
+        update_option('beyondwords_preselect', $value);
+
+        Updater::migrate_preselect_format();
+
+        $this->assertSame($value, get_option('beyondwords_preselect'));
+
+        delete_option('beyondwords_preselect');
+    }
+
+    /**
+     * @test
+     */
+    public function migrate_preselect_format_is_a_noop_when_option_is_not_an_array()
+    {
+        update_option('beyondwords_preselect', 'corrupt');
+
+        Updater::migrate_preselect_format();
+
+        $this->assertSame('corrupt', get_option('beyondwords_preselect'));
+
+        delete_option('beyondwords_preselect');
+    }
+
+    /**
+     * @test
+     */
     public function migrate_disabled_to_embed_none()
     {
         // A post that opted out of the player via the legacy flag.
