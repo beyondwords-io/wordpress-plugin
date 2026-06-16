@@ -58,11 +58,11 @@ class UtilsTest extends TestCase
     public function get_post_meta_keys()
     {
         $keys = [
-            // Current
+            // Current — order matches the editor Inspect panel display/copy order.
             'beyondwords_generate_audio',
-            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
+            'beyondwords_integration_method',
             'beyondwords_preview_token',
             'beyondwords_language_code',
             'beyondwords_language_id',
@@ -130,11 +130,11 @@ class UtilsTest extends TestCase
     public function get_post_meta_keys_all()
     {
         $keys = [
-            // Current
+            // Current — order matches the editor Inspect panel display/copy order.
             'beyondwords_generate_audio',
-            'beyondwords_integration_method',
             'beyondwords_project_id',
             'beyondwords_content_id',
+            'beyondwords_integration_method',
             'beyondwords_preview_token',
             'beyondwords_language_code',
             'beyondwords_language_id',
