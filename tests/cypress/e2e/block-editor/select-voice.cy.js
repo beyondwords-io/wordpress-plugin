@@ -8,26 +8,28 @@
 context( 'Block Editor: Select Voice', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
 
+	const optionLabels = ( $els ) =>
+		[ ...$els ].map( ( el ) => el.innerText.trim() );
+
 	beforeEach( () => {
 		cy.login();
 	} );
 
-	// Voice names for English: "Select a voice" first, then distinct names
-	// (ElevenLabs "Bridget" appears once despite having three models).
-	const voiceNames = [
-		'Select a voice',
-		'Ada (Multilingual)',
-		'Ava (Multilingual)',
-		'Ollie (Multilingual)',
-		'Bridget',
-		'Caleb',
+	// The Model dropdown for English: "Select a model" first, then the
+	// ElevenLabs models a voice offers (default leading), Standard bucket last.
+	const modelLabels = [
+		'Select a model',
+		'Multilingual v2',
+		'v3',
+		'Flash v2.5',
+		'Standard',
 	];
 
 	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `can set a Voice for a ${ postType.name } if languages are selected`, () => {
+			it( `narrows the Voice list by the selected Model for a ${ postType.name }`, () => {
 				cy.createPost( {
 					postType,
 					title: `I can set a Voice for a ${ postType.name }`,
@@ -40,8 +42,8 @@ context( 'Block Editor: Select Voice', () => {
 				// Voice/Language are exposed only in the plugin sidebar now.
 				cy.openBeyondwordsPluginSidebar();
 
-				// "Customize" is opt-in and off by default, so the Language/Voice
-				// fields are hidden until it is enabled.
+				// "Customize" is opt-in and off by default, so the Language/Model/
+				// Voice fields are hidden until it is enabled.
 				cy.get(
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'not.be.checked' );
@@ -60,36 +62,39 @@ context( 'Block Editor: Select Voice', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (American)' );
 
-				// Only the language is pre-filled — the voice is left for the user
-				// to pick, so it stays on the "Select a voice" placeholder.
-				cy.getBlockEditorSelect( 'Voice' )
+				// Only the language is pre-filled — no model picked yet, so the
+				// Model dropdown opens on its placeholder…
+				cy.getBlockEditorSelect( 'Model' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						expect( optionLabels( $els ) ).to.deep.eq(
+							modelLabels
+						);
+					} );
+				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'Select a voice' );
+					.should( 'have.text', 'Select a model' );
+
+				// …and the Voice dropdown stays hidden until a model narrows it.
+				cy.contains(
+					'.components-select-control label',
+					'Voice'
+				).should( 'not.exist' );
 
 				// The Language dropdown still lists every language, placeholder first.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option' )
 					.should( ( $els ) => {
-						const values = [ ...$els ].map( ( el ) =>
-							el.innerText.trim()
-						);
+						const values = optionLabels( $els );
 						// 148 languages + the "Select a language…" placeholder.
 						expect( values ).to.have.length( 149 );
 						expect( values[ 0 ] ).to.eq( 'Select a language…' );
 						expect( values ).to.include( 'English (British)' );
 					} );
 
-				// The default language's voices are populated.
-				cy.getBlockEditorSelect( 'Voice' )
-					.find( 'option' )
-					.should( ( $els ) => {
-						const values = [ ...$els ].map( ( el ) =>
-							el.innerText.trim()
-						);
-						expect( values ).to.deep.eq( voiceNames );
-					} );
-
-				// Changing the Language re-fetches that language's voices.
+				// Changing the Language re-fetches its voices and seeds that
+				// language's default body voice (en_GB → Ollie, a Standard voice),
+				// so the Model resolves to Standard and the Voice to Ollie.
 				cy.getBlockEditorSelect( 'Language' ).select(
 					'English (British)',
 					{ force: true }
@@ -97,21 +102,35 @@ context( 'Block Editor: Select Voice', () => {
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
+				cy.getBlockEditorSelect( 'Model' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Standard' );
+				cy.getBlockEditorSelect( 'Voice' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Ollie (Multilingual)' );
 
+				// Pick the v3 model → the Voice list narrows to the voices that
+				// offer it (Bridget + Caleb), the first auto-selected.
+				cy.getBlockEditorSelect( 'Model' ).select( 'v3', {
+					force: true,
+				} );
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option' )
 					.should( ( $els ) => {
-						const values = [ ...$els ].map( ( el ) =>
-							el.innerText.trim()
-						);
-						expect( values ).to.deep.eq( voiceNames );
+						expect( optionLabels( $els ) ).to.deep.eq( [
+							'Select a voice',
+							'Bridget',
+							'Caleb',
+						] );
 					} );
+				cy.getBlockEditorSelect( 'Voice' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Bridget' );
 
-				// Pick a Voice.
-				cy.getBlockEditorSelect( 'Voice' ).select(
-					'Ava (Multilingual)',
-					{ force: true }
-				);
+				// Pick a specific Voice within the model.
+				cy.getBlockEditorSelect( 'Voice' ).select( 'Caleb', {
+					force: true,
+				} );
 
 				// Verify meta is correctly set in the data store BEFORE publishing
 				cy.window()
@@ -139,10 +158,6 @@ context( 'Block Editor: Select Voice', () => {
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
-				// The beyondwords-* <head> meta tags are only emitted for the
-				// client-side (Magic Embed) integration now, so they're not
-				// asserted here (covered by the PHPUnit Head tests).
-
 				// Check Player content has also been saved in admin
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsPluginSidebar();
@@ -167,13 +182,17 @@ context( 'Block Editor: Select Voice', () => {
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'be.checked' );
 
+				// Language, Model and Voice persist after reload (derived from the
+				// saved voice id).
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
-
+				cy.getBlockEditorSelect( 'Model' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'v3' );
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'Ava (Multilingual)' );
+					.should( 'have.text', 'Caleb' );
 			} );
 		} );
 } );

@@ -83,7 +83,7 @@ Release date: tbc
 **Enhancements**
 
 * [#527](https://github.com/beyondwords-io/wordpress-plugin/pull/527) BeyondWords editor redesign for the block and classic editors.
-    * New Content (Source, Script template), Format (Output, Video template, Video size), Voice (Language, Voice, Model) and Player (Embed) settings, available in both editors.
+    * New Content (Source, Script template), Format (Output, Video template, Video size), Voice (Language, Model, Voice) and Player (Embed) settings, available in both editors.
     * The Player "Embed" setting replaces the "Display player" checkbox — choose "None" to hide the player on a post.
 * [#520](https://github.com/beyondwords-io/wordpress-plugin/pull/520) Settings page updates for WordPress v7.
 

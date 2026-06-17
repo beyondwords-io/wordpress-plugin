@@ -16,10 +16,11 @@ import {
 	EMBED_VIDEO_POST,
 	EMBED_VIDEO_SCRIPT,
 	PROJECT_DEFAULT_VALUE,
-	DEFAULT_ELEVENLABS_VOICE_MODEL_ID,
+	STANDARD_MODEL_KEY,
 	projectDefaultOption,
 	voiceModelLabel,
-	getVoiceModelVariants,
+	voiceModelKey,
+	getLanguageModels,
 	getSourceOptions,
 	getOutputOptions,
 	sourceIncludesPost,
@@ -59,67 +60,91 @@ describe( 'voiceModelLabel', () => {
 	} );
 } );
 
-describe( 'getVoiceModelVariants', () => {
-	const adamFlash = {
-		id: 8602,
-		name: 'Adam E',
-		service: 'ElevenLabs',
-		model_id: 'eleven_flash_v2_5',
-	};
-	const adamMulti = {
-		id: 8603,
-		name: 'Adam E',
-		service: 'ElevenLabs',
-		model_id: 'eleven_multilingual_v2',
-	};
-	const adamV3 = {
-		id: 9257,
-		name: 'Adam E',
-		service: 'ElevenLabs',
-		model_id: 'eleven_v3',
-	};
-	const azure = {
-		id: 1,
-		name: 'James',
-		service: 'Azure',
-		model_id: null,
-	};
-	const voices = [ adamFlash, adamMulti, adamV3, azure ];
-
-	it( 'returns the voice alone for non-ElevenLabs services', () => {
-		expect( getVoiceModelVariants( azure, voices ) ).toEqual( [ azure ] );
+describe( 'voiceModelKey', () => {
+	it( 'keys ElevenLabs voices by model_id', () => {
+		expect(
+			voiceModelKey( { service: 'ElevenLabs', model_id: 'eleven_v3' } )
+		).toBe( 'eleven_v3' );
 	} );
 
-	it( 'returns the voice alone when model_id is not a string', () => {
-		const noModel = { ...adamFlash, model_id: null };
-		expect( getVoiceModelVariants( noModel, voices ) ).toEqual( [
-			noModel,
-		] );
-	} );
-
-	it( 'groups same-name ElevenLabs voices as model variants', () => {
-		const variants = getVoiceModelVariants( adamV3, voices );
-		expect( variants ).toHaveLength( 3 );
-		expect( variants.map( ( v ) => v.id ).sort() ).toEqual( [
-			8602, 8603, 9257,
-		] );
-	} );
-
-	it( 'sorts the default model first', () => {
-		const variants = getVoiceModelVariants( adamV3, voices );
-		expect( variants[ 0 ].model_id ).toBe(
-			DEFAULT_ELEVENLABS_VOICE_MODEL_ID
+	it( 'buckets non-ElevenLabs voices as Standard', () => {
+		expect( voiceModelKey( { service: 'Azure', model_id: null } ) ).toBe(
+			STANDARD_MODEL_KEY
 		);
-		expect( variants[ 0 ].id ).toBe( 8603 );
+		expect( voiceModelKey( { name: 'Ada (Multilingual)' } ) ).toBe(
+			STANDARD_MODEL_KEY
+		);
 	} );
 
-	it( 'does not mix in voices with a different name', () => {
-		const variants = getVoiceModelVariants( adamV3, voices );
-		expect( variants.every( ( v ) => v.name === 'Adam E' ) ).toBe( true );
+	it( 'buckets ElevenLabs voices without a string model_id as Standard', () => {
+		expect(
+			voiceModelKey( { service: 'ElevenLabs', model_id: null } )
+		).toBe( STANDARD_MODEL_KEY );
+	} );
+} );
+
+describe( 'getLanguageModels', () => {
+	// API order puts a non-default ElevenLabs model first, to prove the default
+	// is pulled to the front while the rest keep their order, Standard last.
+	const voices = [
+		{
+			id: 9001,
+			name: 'Bridget',
+			service: 'ElevenLabs',
+			model_id: 'eleven_flash_v2_5',
+		},
+		{
+			id: 9002,
+			name: 'Bridget',
+			service: 'ElevenLabs',
+			model_id: 'eleven_multilingual_v2',
+		},
+		{
+			id: 9003,
+			name: 'Bridget',
+			service: 'ElevenLabs',
+			model_id: 'eleven_v3',
+		},
+		{ id: 3555, name: 'Ada (Multilingual)' },
+	];
+
+	it( 'lists the default model first, then the rest, Standard last', () => {
+		expect( getLanguageModels( voices ).map( ( m ) => m.key ) ).toEqual( [
+			'eleven_multilingual_v2',
+			'eleven_flash_v2_5',
+			'eleven_v3',
+			STANDARD_MODEL_KEY,
+		] );
 	} );
 
-	it( 'returns an empty array for a missing voice', () => {
-		expect( getVoiceModelVariants( undefined, voices ) ).toEqual( [] );
+	it( 'labels each model bucket', () => {
+		expect( getLanguageModels( voices ).map( ( m ) => m.label ) ).toEqual( [
+			'Multilingual v2',
+			'Flash v2.5',
+			'v3',
+			'Standard',
+		] );
+	} );
+
+	it( 'omits the Standard bucket when no non-ElevenLabs voices exist', () => {
+		expect(
+			getLanguageModels( voices.slice( 0, 3 ) ).map( ( m ) => m.key )
+		).toEqual( [
+			'eleven_multilingual_v2',
+			'eleven_flash_v2_5',
+			'eleven_v3',
+		] );
+	} );
+
+	it( 'returns a single Standard bucket for non-ElevenLabs voices only', () => {
+		expect( getLanguageModels( [ { id: 1, name: 'Ada' } ] ) ).toEqual( [
+			{ key: STANDARD_MODEL_KEY, label: 'Standard' },
+		] );
+	} );
+
+	it( 'handles an empty or missing voices list', () => {
+		expect( getLanguageModels( [] ) ).toEqual( [] );
+		expect( getLanguageModels( undefined ) ).toEqual( [] );
 	} );
 } );
 

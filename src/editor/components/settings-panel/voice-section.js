@@ -11,7 +11,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { getVoiceModelVariants, voiceModelLabel } from './helpers';
+import { getLanguageModels, voiceModelKey } from './helpers';
 import Stack from '../stack';
 import Toggle from '../toggle';
 
@@ -166,57 +166,58 @@ export function VoiceSection( { withPanel = true } ) {
 		} ) ),
 	];
 
-	// Voice dropdown lists distinct voice names. ElevenLabs voices repeat a name
-	// once per model, so deduping by name keeps the list clean; the Model
-	// dropdown then selects the actual variant (voice id) within a name.
-	const voicesByName = {};
-	const voiceNames = [];
-	( voices ?? [] ).forEach( ( voice ) => {
-		if ( ! voicesByName[ voice.name ] ) {
-			voicesByName[ voice.name ] = [];
-			voiceNames.push( voice.name );
-		}
-		voicesByName[ voice.name ].push( voice );
-	} );
+	// "Model" is a language-level filter: each ElevenLabs model_id, plus a single
+	// "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
+	// Voice list to the voices that offer it. With a single bucket there is no
+	// Model dropdown and every voice is listed.
+	const models = getLanguageModels( voices );
+	const showModel = models.length > 1;
 
 	const selectedVoice = ( voices ?? [] ).find(
 		( voice ) => String( voice.id ) === String( voiceId )
 	);
-	const selectedVoiceName = selectedVoice?.name || '';
+	// The selected model is derived from the selected voice (we persist only the
+	// voice id); empty until a voice — and therefore a model — is chosen.
+	const selectedModelKey = selectedVoice
+		? voiceModelKey( selectedVoice )
+		: '';
 
-	const voiceOptions = [
-		{ label: __( 'Select a voice', 'speechkit' ), value: '' },
-		...voiceNames.map( ( name ) => ( {
-			label: decodeEntities( name ),
-			value: name,
+	const bucketVoices = showModel
+		? ( voices ?? [] ).filter(
+				( voice ) => voiceModelKey( voice ) === selectedModelKey
+		  )
+		: voices ?? [];
+
+	const hasVoices = ( voices ?? [] ).length > 0;
+
+	// Model gates the Voice list: hide Voice until a model is chosen. The
+	// single-bucket case has no Model dropdown, so Voice shows immediately.
+	const showVoice = hasVoices && ( ! showModel || '' !== selectedModelKey );
+
+	const modelOptions = [
+		{ label: __( 'Select a model', 'speechkit' ), value: '' },
+		...models.map( ( model ) => ( {
+			label: decodeEntities( model.label ),
+			value: model.key,
 		} ) ),
 	];
 
-	// Picking a name selects that name's default model variant.
-	const setVoiceName = ( name ) => {
-		if ( ! name ) {
-			setVoiceId( '' );
-			return;
-		}
-		const variants = getVoiceModelVariants(
-			voicesByName[ name ][ 0 ],
-			voices
+	const voiceOptions = [
+		{ label: __( 'Select a voice', 'speechkit' ), value: '' },
+		...bucketVoices.map( ( voice ) => ( {
+			label: decodeEntities( voice.name ),
+			value: String( voice.id ),
+		} ) ),
+	];
+
+	// Picking a Model selects that bucket's first voice, so a concrete voice is
+	// always stored (the voice carries the model).
+	const setModel = ( key ) => {
+		const first = ( voices ?? [] ).find(
+			( voice ) => voiceModelKey( voice ) === key
 		);
-		const defaultVariant = variants[ 0 ] ?? voicesByName[ name ][ 0 ];
-		setVoiceId( String( defaultVariant.id ) );
+		setVoiceId( first ? String( first.id ) : '' );
 	};
-
-	const modelVariants = selectedVoice
-		? getVoiceModelVariants( selectedVoice, voices )
-		: [];
-	const showModel = modelVariants.length > 1;
-
-	const modelOptions = modelVariants.map( ( variant ) => ( {
-		label: voiceModelLabel( variant.model_id ),
-		value: String( variant.id ),
-	} ) );
-
-	const hasVoices = ( voices ?? [] ).length > 0;
 
 	const fields = (
 		<Stack>
@@ -241,22 +242,22 @@ export function VoiceSection( { withPanel = true } ) {
 			{ customize && ! loadingProject && isResolvingVoices && (
 				<Spinner />
 			) }
-			{ customize && ! loadingProject && hasVoices && (
-				<SelectControl
-					className="beyondwords--voice"
-					label={ __( 'Voice', 'speechkit' ) }
-					options={ voiceOptions }
-					value={ selectedVoiceName }
-					onChange={ setVoiceName }
-					__nextHasNoMarginBottom
-					__next40pxDefaultSize
-				/>
-			) }
 			{ customize && ! loadingProject && showModel && (
 				<SelectControl
 					className="beyondwords--model"
 					label={ __( 'Model', 'speechkit' ) }
 					options={ modelOptions }
+					value={ selectedModelKey }
+					onChange={ setModel }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			) }
+			{ customize && ! loadingProject && showVoice && (
+				<SelectControl
+					className="beyondwords--voice"
+					label={ __( 'Voice', 'speechkit' ) }
+					options={ voiceOptions }
 					value={ String( voiceId ) }
 					onChange={ setVoiceId }
 					__nextHasNoMarginBottom
