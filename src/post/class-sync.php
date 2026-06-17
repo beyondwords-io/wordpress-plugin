@@ -83,8 +83,16 @@ class Sync {
 	/**
 	 * Whether to (re)generate audio for a post on save.
 	 *
-	 * Returns false for autosaves, revisions, ineligible statuses, and posts
-	 * whose `beyondwords_generate_audio` flag is unset.
+	 * Returns false for autosaves, revisions, and ineligible statuses.
+	 *
+	 * An explicit `beyondwords_generate_audio` value always wins ('1' = yes,
+	 * '0' = no). When it is unset we fall back to the Preselect setting, but
+	 * only for editor/REST saves: the block editor derives the toggle from
+	 * Preselect without writing meta (so the post isn't dirtied — improvement
+	 * #2), so the generate decision has to come from the setting at save time.
+	 * The classic editor writes an explicit value via its checkbox, and
+	 * programmatic/imported posts (wp_insert_post, WXR import, cron) keep the
+	 * explicit-meta requirement so a bulk import never unexpectedly generates.
 	 */
 	public static function should_generate_audio_for_post( int $post_id ): bool {
 		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
@@ -105,8 +113,19 @@ class Sync {
 			return false;
 		}
 
-		if ( \BeyondWords\Post\Meta::has_generate_audio( $post_id ) ) {
-			return (bool) get_post_meta( $post_id, 'beyondwords_generate_audio', true );
+		$generate_audio = get_post_meta( $post_id, 'beyondwords_generate_audio', true );
+
+		if ( '1' === $generate_audio ) {
+			return true;
+		}
+
+		if ( '0' === $generate_audio ) {
+			return false;
+		}
+
+		// Unset: honour Preselect, but only on an editor/REST save.
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return \BeyondWords\Settings\Preselect::should_preselect_for_post( $post_id );
 		}
 
 		return false;

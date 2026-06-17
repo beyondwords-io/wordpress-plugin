@@ -206,12 +206,10 @@ context( 'Block Editor: Generate Audio', () => {
 			cy.window().then( ( win ) => {
 				const editor = win.wp.data.select( 'core/editor' );
 
-				// The toggle is derived — no meta is written for preselect.
+				// The toggle is derived — we never write '1' to meta for
+				// preselect (the value stays at its registered default).
 				const meta = editor.getEditedPostAttribute( 'meta' ) || {};
-				expect( meta.beyondwords_generate_audio ).to.be.oneOf( [
-					undefined,
-					null,
-				] );
+				expect( meta.beyondwords_generate_audio ).to.not.equal( '1' );
 
 				// Improvement #2: the auto-preselect must not dirty the post.
 				expect( editor.isEditedPostDirty() ).to.eq( false );
