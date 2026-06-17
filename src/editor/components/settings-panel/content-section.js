@@ -11,6 +11,7 @@ import { decodeEntities } from '@wordpress/html-entities';
  * Internal dependencies
  */
 import {
+	asArray,
 	getSourceOptions,
 	sourceIncludesScript,
 	SOURCE_POST,
@@ -46,11 +47,11 @@ export function ContentSection() {
 		setMeta( { ...meta, beyondwords_script_template_id: value } );
 	};
 
-	const hasScriptTemplates = ( scriptTemplates ?? [] ).length > 0;
+	const hasScriptTemplates = asArray( scriptTemplates ).length > 0;
 
 	const scriptTemplateOptions = [
 		projectDefaultOption(),
-		...( scriptTemplates ?? [] ).map( ( template ) => ( {
+		...asArray( scriptTemplates ).map( ( template ) => ( {
 			label: decodeEntities( template.name ?? template.slug ?? '' ),
 			value: String( template.id ),
 		} ) ),

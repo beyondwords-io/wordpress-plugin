@@ -11,7 +11,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { getVoiceModelVariants, voiceModelLabel } from './helpers';
+import { asArray, getVoiceModelVariants, voiceModelLabel } from './helpers';
 import Stack from '../stack';
 import Toggle from '../toggle';
 
@@ -127,7 +127,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// never send the language itself — the voice carries it). Languages with no
 	// default voice fall back to the "Select a voice" placeholder.
 	const setLanguageCode = ( value ) => {
-		const language = ( languages ?? [] ).find(
+		const language = asArray( languages ).find(
 			( item ) => decodeEntities( item.code ) === value
 		);
 		const defaultVoiceId = language?.default_voices?.body?.id;
@@ -158,7 +158,7 @@ export function VoiceSection( { withPanel = true } ) {
 
 	const languageOptions = [
 		{ label: __( 'Select a language…', 'speechkit' ), value: '' },
-		...( languages ?? [] ).map( ( language ) => ( {
+		...asArray( languages ).map( ( language ) => ( {
 			label: `${ decodeEntities( language.name ) } (${ decodeEntities(
 				language.accent
 			) })`,
@@ -171,7 +171,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// dropdown then selects the actual variant (voice id) within a name.
 	const voicesByName = {};
 	const voiceNames = [];
-	( voices ?? [] ).forEach( ( voice ) => {
+	asArray( voices ).forEach( ( voice ) => {
 		if ( ! voicesByName[ voice.name ] ) {
 			voicesByName[ voice.name ] = [];
 			voiceNames.push( voice.name );
@@ -179,7 +179,7 @@ export function VoiceSection( { withPanel = true } ) {
 		voicesByName[ voice.name ].push( voice );
 	} );
 
-	const selectedVoice = ( voices ?? [] ).find(
+	const selectedVoice = asArray( voices ).find(
 		( voice ) => String( voice.id ) === String( voiceId )
 	);
 	const selectedVoiceName = selectedVoice?.name || '';
@@ -216,7 +216,7 @@ export function VoiceSection( { withPanel = true } ) {
 		value: String( variant.id ),
 	} ) );
 
-	const hasVoices = ( voices ?? [] ).length > 0;
+	const hasVoices = asArray( voices ).length > 0;
 
 	const fields = (
 		<Stack>

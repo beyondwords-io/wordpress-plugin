@@ -62,6 +62,17 @@ export function voiceModelLabel( modelId ) {
 }
 
 /**
+ * Coerce a possibly-non-array value (e.g. a REST error object) to an array.
+ *
+ * @param {*} value Possibly an array.
+ *
+ * @return {Array} The value if it is an array, otherwise an empty array.
+ */
+export function asArray( value ) {
+	return Array.isArray( value ) ? value : [];
+}
+
+/**
  * The model variants for a voice.
  *
  * For ElevenLabs voices, returns every voice record sharing the same name (each
@@ -81,7 +92,7 @@ export function getVoiceModelVariants( voice, voices ) {
 		return voice ? [ voice ] : [];
 	}
 
-	return ( voices ?? [] )
+	return asArray( voices )
 		.filter(
 			( candidate ) =>
 				candidate.name === voice.name &&
