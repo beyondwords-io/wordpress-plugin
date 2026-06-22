@@ -32,11 +32,18 @@ class SelectVoice {
 	public const ELEVENLABS_SERVICE = 'ElevenLabs';
 
 	/**
-	 * The variant listed first in the Model dropdown when a voice has several.
+	 * The model listed first in the Model dropdown.
 	 *
 	 * @since 7.0.0
 	 */
 	public const DEFAULT_ELEVENLABS_VOICE_MODEL_ID = 'eleven_multilingual_v2';
+
+	/**
+	 * Bucket key for voices without an ElevenLabs model_id (e.g. standard voices).
+	 *
+	 * @since 7.0.0
+	 */
+	public const STANDARD_MODEL_KEY = 'standard';
 
 	/**
 	 * Init.
@@ -94,7 +101,8 @@ class SelectVoice {
 		<div id="beyondwords-metabox-select-voice--fields" style="<?php echo esc_attr( $fields_style ); ?>">
 		<?php
 		self::render_language_select( $languages, $language_code );
-		self::render_voice_select( $voices, $voice_id, $language_code );
+		self::render_model_select( $voices, $voice_id );
+		self::render_voice_select( $voices, $voice_id );
 		self::render_loading_spinner();
 		?>
 		</div>
@@ -242,93 +250,50 @@ class SelectVoice {
 	}
 
 	/**
-	 * Render the voice select dropdowns: Voice (name) + Model (variant).
+	 * Render the Model select: a language-level filter over the voices.
 	 *
-	 * ElevenLabs voices repeat a name once per model, each a distinct voice id.
-	 * The Voice dropdown lists distinct names; the Model dropdown then selects
-	 * the variant (voice id) within a name and is hidden when a voice has a
-	 * single model. The Model dropdown is always present in the DOM so its value
-	 * (`beyondwords_voice_id`) is submitted even while hidden.
+	 * Each ElevenLabs model_id is a bucket, plus a single "Standard" bucket for
+	 * non-ElevenLabs voices. Picking a model narrows the Voice dropdown to the
+	 * voices that offer it. The Model select carries no `name` — it is a
+	 * client-side filter and is not submitted; the persisted value is the voice
+	 * id from the Voice select. The dropdown is hidden when a language offers a
+	 * single bucket (there is nothing to narrow by).
 	 *
-	 * @since 6.0.0
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 * @since 7.0.0 Split into Voice (name) + Model (variant) dropdowns.
+	 * @since 7.0.0
 	 *
 	 * @param array        $voices The voices array.
 	 * @param string|false $selected_voice_id The selected voice ID.
-	 * @param string|false $language_code The language code.
 	 */
-	private static function render_voice_select( array $voices, $selected_voice_id, $language_code ): void {
-		$selected_voice = null;
-		foreach ( $voices as $voice ) {
-			if ( strval( $voice['id'] ?? '' ) === strval( $selected_voice_id ) ) {
-				$selected_voice = $voice;
-				break;
-			}
-		}
+	private static function render_model_select( array $voices, $selected_voice_id ): void {
+		$selected_voice = self::find_voice( $voices, $selected_voice_id );
+		$selected_key   = $selected_voice ? self::voice_model_key( $selected_voice ) : '';
 
-		$selected_name = $selected_voice['name'] ?? '';
-
-		// Distinct voice names, preserving the API order.
-		$names = [];
-		foreach ( $voices as $voice ) {
-			$name = $voice['name'] ?? '';
-			if ( '' !== $name && ! in_array( $name, $names, true ) ) {
-				$names[] = $name;
-			}
-		}
-
-		$variants   = $selected_voice ? self::voice_model_variants( $selected_voice, $voices ) : [];
-		$show_model = count( $variants ) > 1;
+		$models     = self::language_models( $voices );
+		$show_model = count( $models ) > 1;
 		?>
-		<p
-			id="beyondwords-metabox-select-voice--voice-id"
-			class="post-attributes-label-wrapper page-template-label-wrapper"
-		>
-			<label class="post-attributes-label" for="beyondwords_voice">
-				<?php esc_html_e( 'Voice', 'speechkit' ); ?>
-			</label>
-		</p>
-		<select
-			id="beyondwords_voice"
-			name="beyondwords_voice"
-			style="width: 100%;"
-			<?php echo disabled( ! strval( $language_code ) ); ?>
-		>
-			<?php
-			printf(
-				'<option value="" %s>%s</option>',
-				selected( '', strval( $selected_name ), false ),
-				esc_html__( 'Select a voice', 'speechkit' )
-			);
-			foreach ( $names as $name ) {
-				printf(
-					'<option value="%s" %s>%s</option>',
-					esc_attr( $name ),
-					selected( strval( $name ), strval( $selected_name ), false ),
-					esc_html( $name )
-				);
-			}
-			?>
-		</select>
 		<div
 			id="beyondwords-metabox-select-voice--model"
 			class="beyondwords-metabox-settings__field"
 			<?php echo $show_model ? '' : 'style="display: none;"'; ?>
 		>
 			<p class="post-attributes-label-wrapper page-template-label-wrapper">
-				<label class="post-attributes-label" for="beyondwords_voice_id">
+				<label class="post-attributes-label" for="beyondwords_model">
 					<?php esc_html_e( 'Model', 'speechkit' ); ?>
 				</label>
 			</p>
-			<select id="beyondwords_voice_id" name="beyondwords_voice_id" style="width: 100%;">
+			<select id="beyondwords_model" style="width: 100%;">
 				<?php
-				foreach ( $variants as $variant ) {
+				printf(
+					'<option value="" %s>%s</option>',
+					selected( '', $show_model ? strval( $selected_key ) : '', false ),
+					esc_html__( 'Select a model', 'speechkit' )
+				);
+				foreach ( $models as $model ) {
 					printf(
 						'<option value="%s" %s>%s</option>',
-						esc_attr( $variant['id'] ),
-						selected( strval( $variant['id'] ), strval( $selected_voice_id ), false ),
-						esc_html( self::voice_model_label( $variant['model_id'] ?? '' ) )
+						esc_attr( $model['key'] ),
+						selected( strval( $model['key'] ), $show_model ? strval( $selected_key ) : '', false ),
+						esc_html( $model['label'] )
 					);
 				}
 				?>
@@ -338,55 +303,175 @@ class SelectVoice {
 	}
 
 	/**
-	 * The model variants for a voice.
+	 * Render the Voice select: the voices in the currently selected model bucket.
 	 *
-	 * For ElevenLabs voices, returns every voice record sharing the same name
-	 * (each a distinct model), the default model first. For any other service,
-	 * returns the voice on its own. Mirrors `getVoiceModelVariants()` in
+	 * This is the saved field (`beyondwords_voice_id`) — its value is the voice
+	 * id, which carries the model. With a single bucket every voice is listed;
+	 * with several the list is scoped to the selected model and the field is
+	 * hidden until a model is chosen.
+	 *
+	 * @since 6.0.0
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Model-first: scope the Voice list to the selected model.
+	 *
+	 * @param array        $voices The voices array.
+	 * @param string|false $selected_voice_id The selected voice ID.
+	 */
+	private static function render_voice_select( array $voices, $selected_voice_id ): void {
+		$selected_voice = self::find_voice( $voices, $selected_voice_id );
+		$selected_key   = $selected_voice ? self::voice_model_key( $selected_voice ) : '';
+
+		$models     = self::language_models( $voices );
+		$show_model = count( $models ) > 1;
+
+		// Single bucket → list every voice; several → scope to the chosen model.
+		if ( $show_model ) {
+			$bucket_voices = array_values(
+				array_filter(
+					$voices,
+					static function ( $voice ) use ( $selected_key ) {
+						return self::voice_model_key( $voice ) === $selected_key;
+					}
+				)
+			);
+		} else {
+			$bucket_voices = array_values( $voices );
+		}
+
+		// Model gates the Voice list: hide it until a model is chosen. With a
+		// single bucket there is no Model dropdown, so the Voice list shows now.
+		$show_voice  = count( $voices ) > 0 && ( ! $show_model || '' !== strval( $selected_key ) );
+		$voice_style = $show_voice ? '' : 'display: none;';
+		?>
+		<div
+			id="beyondwords-metabox-select-voice--voice-id"
+			class="beyondwords-metabox-settings__field"
+			style="<?php echo esc_attr( $voice_style ); ?>"
+		>
+			<p class="post-attributes-label-wrapper page-template-label-wrapper">
+				<label class="post-attributes-label" for="beyondwords_voice_id">
+					<?php esc_html_e( 'Voice', 'speechkit' ); ?>
+				</label>
+			</p>
+			<select id="beyondwords_voice_id" name="beyondwords_voice_id" style="width: 100%;">
+				<?php
+				printf(
+					'<option value="" %s>%s</option>',
+					selected( '', strval( $selected_voice_id ), false ),
+					esc_html__( 'Select a voice', 'speechkit' )
+				);
+				foreach ( $bucket_voices as $voice ) {
+					printf(
+						'<option value="%s" %s>%s</option>',
+						esc_attr( $voice['id'] ?? '' ),
+						selected( strval( $voice['id'] ?? '' ), strval( $selected_voice_id ), false ),
+						esc_html( $voice['name'] ?? '' )
+					);
+				}
+				?>
+			</select>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Find a voice record by id.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array        $voices   The voices array.
+	 * @param string|false $voice_id The voice ID to find.
+	 *
+	 * @return array|null The matching voice record, or null.
+	 */
+	private static function find_voice( array $voices, $voice_id ): ?array {
+		foreach ( $voices as $voice ) {
+			if ( strval( $voice['id'] ?? '' ) === strval( $voice_id ) ) {
+				return $voice;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The model bucket key for a voice: its ElevenLabs model_id, or the shared
+	 * Standard bucket for any other service. Mirrors `voiceModelKey()` in
 	 * src/editor/components/settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param array $voice  The selected voice record.
+	 * @param array $voice A voice record.
+	 *
+	 * @return string The model bucket key.
+	 */
+	public static function voice_model_key( array $voice ): string {
+		if (
+			( $voice['service'] ?? '' ) === self::ELEVENLABS_SERVICE &&
+			isset( $voice['model_id'] ) &&
+			is_string( $voice['model_id'] )
+		) {
+			return $voice['model_id'];
+		}
+		return self::STANDARD_MODEL_KEY;
+	}
+
+	/**
+	 * The distinct model buckets across a language's voices, as `[key, label]`
+	 * pairs for the Model dropdown — ElevenLabs models first (the default
+	 * leading), then a single Standard bucket if present. Mirrors
+	 * `getLanguageModels()` in src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
 	 * @param array $voices All voices for the current language.
 	 *
-	 * @return array The voice's model variants.
+	 * @return array The Model dropdown options.
 	 */
-	public static function voice_model_variants( array $voice, array $voices ): array {
-		if (
-			( $voice['service'] ?? '' ) !== self::ELEVENLABS_SERVICE ||
-			! isset( $voice['model_id'] ) ||
-			! is_string( $voice['model_id'] )
-		) {
-			return [ $voice ];
+	public static function language_models( array $voices ): array {
+		$model_ids    = [];
+		$has_standard = false;
+
+		foreach ( $voices as $voice ) {
+			$key = self::voice_model_key( $voice );
+			if ( self::STANDARD_MODEL_KEY === $key ) {
+				$has_standard = true;
+			} elseif ( ! in_array( $key, $model_ids, true ) ) {
+				$model_ids[] = $key;
+			}
 		}
 
-		$variants = array_values(
-			array_filter(
-				$voices,
-				static function ( $candidate ) use ( $voice ) {
-					return ( $candidate['name'] ?? null ) === $voice['name']
-						&& ( $candidate['service'] ?? '' ) === self::ELEVENLABS_SERVICE
-						&& isset( $candidate['model_id'] )
-						&& is_string( $candidate['model_id'] );
-				}
-			)
-		);
-
+		// Stable sort (PHP 8+): the default model leads, the rest keep API order.
 		usort(
-			$variants,
+			$model_ids,
 			static function ( $a, $b ) {
-				if ( $a['model_id'] === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+				if ( $a === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
 					return -1;
 				}
-				if ( $b['model_id'] === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+				if ( $b === self::DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
 					return 1;
 				}
 				return 0;
 			}
 		);
 
-		return $variants;
+		$models = array_map(
+			static function ( $key ) {
+				return [
+					'key'   => $key,
+					'label' => self::voice_model_label( $key ),
+				];
+			},
+			$model_ids
+		);
+
+		if ( $has_standard ) {
+			$models[] = [
+				'key'   => self::STANDARD_MODEL_KEY,
+				'label' => __( 'Standard', 'speechkit' ),
+			];
+		}
+
+		return $models;
 	}
 
 	/**

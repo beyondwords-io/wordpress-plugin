@@ -28,12 +28,17 @@ export function projectDefaultOption() {
 
 // Voice "models" only exist for ElevenLabs voices, exposed as a snake_case
 // `model_id` slug. Each (name, model_id) pair is a distinct voice record with
-// its own `id`, so picking a model just means picking that variant's voice id —
-// no separate model param is sent to the API.
+// its own `id`. The Model dropdown is a language-level filter: picking a model
+// narrows the Voice list to the voices that offer it, then the chosen voice id
+// (which carries the model) is the only value sent to the API. Voices from any
+// other service have no `model_id` and share a single "Standard" bucket.
 export const ELEVENLABS_SERVICE = 'ElevenLabs';
 
-// The variant listed first in the Model dropdown when a voice has several.
+// The model listed first in the Model dropdown.
 export const DEFAULT_ELEVENLABS_VOICE_MODEL_ID = 'eleven_multilingual_v2';
+
+// Bucket key for voices without an ElevenLabs `model_id` (e.g. standard voices).
+export const STANDARD_MODEL_KEY = 'standard';
 
 // Human labels for the known ElevenLabs model slugs. Unknown slugs fall back to
 // a title-cased version of the slug minus the `eleven_` prefix.
@@ -62,41 +67,73 @@ export function voiceModelLabel( modelId ) {
 }
 
 /**
- * The model variants for a voice.
+ * The model bucket key for a voice.
  *
- * For ElevenLabs voices, returns every voice record sharing the same name (each
- * a distinct model), the default model first. For any other service, returns
- * the voice on its own.
+ * ElevenLabs voices key by their `model_id`; every other voice falls into the
+ * shared STANDARD_MODEL_KEY bucket.
  *
- * @param {Object}        voice  The selected voice record.
+ * @param {Object} voice A voice record.
+ *
+ * @return {string} The model bucket key.
+ */
+export function voiceModelKey( voice ) {
+	if (
+		voice?.service === ELEVENLABS_SERVICE &&
+		typeof voice?.model_id === 'string'
+	) {
+		return voice.model_id;
+	}
+	return STANDARD_MODEL_KEY;
+}
+
+/**
+ * The distinct model buckets offered across a language's voices, as
+ * `{ key, label }` options for the Model dropdown.
+ *
+ * ElevenLabs models come first (the default model leading), followed by a
+ * single "Standard" bucket when any non-ElevenLabs voices are present.
+ *
  * @param {Array<Object>} voices All voices for the current language.
  *
- * @return {Array<Object>} The voice's model variants.
+ * @return {Array<{key: string, label: string}>} The Model dropdown options.
  */
-export function getVoiceModelVariants( voice, voices ) {
-	if (
-		voice?.service !== ELEVENLABS_SERVICE ||
-		typeof voice?.model_id !== 'string'
-	) {
-		return voice ? [ voice ] : [];
+export function getLanguageModels( voices ) {
+	const modelIds = [];
+	let hasStandard = false;
+
+	( voices ?? [] ).forEach( ( voice ) => {
+		const key = voiceModelKey( voice );
+		if ( key === STANDARD_MODEL_KEY ) {
+			hasStandard = true;
+		} else if ( ! modelIds.includes( key ) ) {
+			modelIds.push( key );
+		}
+	} );
+
+	// Stable sort (V8): the default model leads, the rest keep API order.
+	modelIds.sort( ( a, b ) => {
+		if ( a === DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+			return -1;
+		}
+		if ( b === DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
+			return 1;
+		}
+		return 0;
+	} );
+
+	const models = modelIds.map( ( key ) => ( {
+		key,
+		label: voiceModelLabel( key ),
+	} ) );
+
+	if ( hasStandard ) {
+		models.push( {
+			key: STANDARD_MODEL_KEY,
+			label: __( 'Standard', 'speechkit' ),
+		} );
 	}
 
-	return ( voices ?? [] )
-		.filter(
-			( candidate ) =>
-				candidate.name === voice.name &&
-				candidate.service === ELEVENLABS_SERVICE &&
-				typeof candidate.model_id === 'string'
-		)
-		.sort( ( a, b ) => {
-			if ( a.model_id === DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
-				return -1;
-			}
-			if ( b.model_id === DEFAULT_ELEVENLABS_VOICE_MODEL_ID ) {
-				return 1;
-			}
-			return 0;
-		} );
+	return models;
 }
 
 export function getSourceOptions() {

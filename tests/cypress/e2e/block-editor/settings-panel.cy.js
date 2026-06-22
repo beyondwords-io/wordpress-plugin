@@ -55,7 +55,9 @@ context( 'Block Editor: Settings panel', () => {
 				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
 
 				// Switching to Script reveals it, Project default first.
-				select( 'beyondwords--source' ).select( 'Script', { force: true } );
+				select( 'beyondwords--source' ).select( 'Script', {
+					force: true,
+				} );
 				select( 'beyondwords--script-template' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -83,7 +85,9 @@ context( 'Block Editor: Settings panel', () => {
 				cy.get( '.beyondwords--video-template' ).should( 'not.exist' );
 				cy.get( '.beyondwords--video-size' ).should( 'not.exist' );
 
-				select( 'beyondwords--output' ).select( 'Video', { force: true } );
+				select( 'beyondwords--output' ).select( 'Video', {
+					force: true,
+				} );
 
 				select( 'beyondwords--video-template' )
 					.find( 'option' )
@@ -102,12 +106,14 @@ context( 'Block Editor: Settings panel', () => {
 					} );
 			} );
 
-			it( `Voice section shows the Model dropdown only for multi-model voices (${ postType.name })`, () => {
+			it( `Voice section filters the Voice list by Model for a ${ postType.name }`, () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
-				// "Customize" is opt-in; enable it to reveal the Language/Voice fields.
-				cy.get( '.beyondwords--customize input[type="checkbox"]' ).check( {
+				// "Customize" is opt-in; enable it to reveal the Language/Model fields.
+				cy.get(
+					'.beyondwords--customize input[type="checkbox"]'
+				).check( {
 					force: true,
 				} );
 
@@ -117,25 +123,34 @@ context( 'Block Editor: Settings panel', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (American)' );
 
-				// Bridget is an ElevenLabs voice with three models.
-				select( 'beyondwords--voice' ).select( 'Bridget', { force: true } );
+				// Model is a language-level filter: each ElevenLabs model plus a
+				// "Standard" bucket, "Select a model" first. The Voice list is
+				// hidden until a model is chosen.
 				select( 'beyondwords--model' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						expect( optionLabels( $els ) ).to.deep.eq( [
+							'Select a model',
 							'Multilingual v2',
 							'v3',
 							'Flash v2.5',
+							'Standard',
 						] );
 					} );
+				cy.get( '.beyondwords--voice' ).should( 'not.exist' );
 
-				// Caleb is single-model — the Model dropdown disappears.
-				select( 'beyondwords--voice' ).select( 'Caleb', { force: true } );
-				cy.get( '.beyondwords--model' ).should( 'not.exist' );
-
-				// Ada is non-ElevenLabs — also no Model dropdown.
-				select( 'beyondwords--voice' ).select( 'Ada (Multilingual)', { force: true } );
-				cy.get( '.beyondwords--model' ).should( 'not.exist' );
+				// Picking a model narrows the Voice list to the voices that offer
+				// it (v3 → Bridget + Caleb).
+				select( 'beyondwords--model' ).select( 'v3', { force: true } );
+				select( 'beyondwords--voice' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						expect( optionLabels( $els ) ).to.deep.eq( [
+							'Select a voice',
+							'Bridget',
+							'Caleb',
+						] );
+					} );
 			} );
 
 			it( `Player Embed options derive from Source × Output for a ${ postType.name }`, () => {
@@ -153,8 +168,12 @@ context( 'Block Editor: Settings panel', () => {
 					} );
 
 				// Post + script × Audio + video → all four assets.
-				select( 'beyondwords--source' ).select( 'Post + script', { force: true } );
-				select( 'beyondwords--output' ).select( 'Audio + video', { force: true } );
+				select( 'beyondwords--source' ).select( 'Post + script', {
+					force: true,
+				} );
+				select( 'beyondwords--output' ).select( 'Audio + video', {
+					force: true,
+				} );
 
 				select( 'beyondwords--embed' )
 					.find( 'option' )
