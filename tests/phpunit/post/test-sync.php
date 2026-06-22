@@ -825,6 +825,21 @@ class SyncTest extends TestCase
                     'beyondwords_generate_audio' => '1',
                 ],
             ],
+            // Legacy key only — must still be honoured (migrated on read).
+            'legacy speechkit_generate_audio = 1' => [
+                'expect' => true,
+                'post_status' => 'publish',
+                'meta_input' => [
+                    'speechkit_generate_audio' => '1',
+                ],
+            ],
+            'legacy speechkit_generate_audio = 0' => [
+                'expect' => false,
+                'post_status' => 'publish',
+                'meta_input' => [
+                    'speechkit_generate_audio' => '0',
+                ],
+            ],
         ];
     }
 

@@ -3,168 +3,199 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import Toggle from '../toggle';
 
+const META_KEY = 'beyondwords_generate_audio';
+
+/**
+ * Parse a stored Generate audio flag.
+ *
+ * @param {*} value The meta value.
+ *
+ * @return {boolean|null} true/false when set, null when unset.
+ */
+const parseFlag = ( value ) => {
+	if ( value === '1' ) {
+		return true;
+	}
+	if ( value === '0' ) {
+		return false;
+	}
+	return null;
+};
+
+/**
+ * Resolve the preselect mode for a post type's config, tolerant of the
+ * pre-7.0.0 shapes (`'1'` and a bare taxonomy array).
+ *
+ * @param {*} config The preselect entry for a post type.
+ *
+ * @return {string} One of 'off', 'all', 'terms'.
+ */
+const resolveMode = ( config ) => {
+	if ( config === '1' || config === 1 || config === true ) {
+		return 'all';
+	}
+
+	if ( config && typeof config === 'object' ) {
+		if ( config.mode === 'all' || config.mode === 'terms' ) {
+			return config.mode;
+		}
+		// Legacy { taxonomy: [ ids ] } shape, before migration.
+		if ( ! ( 'mode' in config ) ) {
+			return Object.keys( config ).length ? 'terms' : 'off';
+		}
+	}
+
+	return 'off';
+};
+
+/**
+ * Resolve the selected term map for a post type's config.
+ *
+ * @param {*} config The preselect entry for a post type.
+ *
+ * @return {Object} Map of taxonomy slug to term IDs.
+ */
+const resolveTerms = ( config ) => {
+	if ( config && typeof config === 'object' ) {
+		if (
+			config.mode === 'terms' &&
+			config.terms &&
+			typeof config.terms === 'object'
+		) {
+			return config.terms;
+		}
+		if ( ! ( 'mode' in config ) ) {
+			return config; // Legacy shape.
+		}
+	}
+	return {};
+};
+
 export function GenerateAudio( { wrapper } ) {
 	const Wrapper = wrapper || Fragment;
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { generateAudio, shouldPreselect, hasExplicitValue, hasContent } =
-		useSelect( ( select ) => {
-			const {
-				getCurrentPostAttribute,
-				getCurrentPostType,
-				getEditedPostAttribute,
-				getPostEdits,
-			} = select( 'core/editor' );
+	const { checked, hasContent } = useSelect( ( select ) => {
+		const {
+			getCurrentPostType,
+			getCurrentPostAttribute,
+			getEditedPostAttribute,
+			getPostEdits,
+		} = select( 'core/editor' );
 
-			const { getSettings } = select( 'beyondwords/settings' );
+		const { getTaxonomy } = select( 'core' );
+		const { getSettings } = select( 'beyondwords/settings' );
 
-			/**
-			 * Get the Generate audio value from post meta.
-			 *
-			 * Returns:
-			 * - true/false if explicitly set in meta
-			 * - null if not set (should use preselect logic)
-			 */
-			const getGenerateAudio = () => {
-				const { meta } = getPostEdits();
+		const postType = getCurrentPostType();
+		const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
+		const editedMeta = getPostEdits()?.meta || {};
 
-				// Check if edited in this session
-				if ( meta && 'beyondwords_generate_audio' in meta ) {
-					return meta.beyondwords_generate_audio === '1';
-				}
-
-				// Check saved post meta
-				const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
-				const {
-					beyondwords_generate_audio: beyondwordsValue,
-					speechkit_generate_audio: speechkitValue,
-				} = savedMeta;
-
-				// Give precedence to beyondwords_generate_audio when explicitly set
-				if ( beyondwordsValue === '1' ) {
-					return true;
-				}
-
-				if ( beyondwordsValue === '0' ) {
-					return false;
-				}
-
-				// Fall back to deprecated speechkit_generate_audio only if
-				// beyondwords_generate_audio is not explicitly set
-				if ( speechkitValue === '1' ) {
-					return true;
-				}
-
-				if ( speechkitValue === '0' ) {
-					return false;
-				}
-				return null;
-			};
-
-			/**
-			 * Should we preselect "Generate audio", based on the plugin setting?
-			 */
-			const getShouldPreselect = () => {
-				const settings = getSettings();
-
-				if ( ! settings ) {
-					return false;
-				}
-
-				const preselect =
-					typeof settings.preselect === 'object' &&
-					settings.preselect !== null
-						? settings.preselect
-						: {};
-
-				const postType = getCurrentPostType();
-
-				// Exit if the current post type does not exist in the plugin settings
-				if ( ! ( postType in preselect ) ) {
-					return false;
-				}
-
-				// Is the current post type checked at post-level in the plugin settings?
-				// If so, preselect Generate audio regardless of taxonomies
-				if ( preselect[ postType ] === '1' ) {
-					return true;
-				}
-
-				// Check if categories have been edited
-				// todo: support multiple taxonomies
-				const postEdits = getPostEdits();
-				if ( ! Array.isArray( postEdits.categories ) ) {
-					return false;
-				}
-
-				// Handle cases where preselect[ postType ] is not an object
-				if (
-					typeof preselect[ postType ] !== 'object' ||
-					preselect[ postType ] === null
-				) {
-					return false;
-				}
-
-				// Do any post categories match the plugin settings?
-				// todo: support multiple taxonomies
-				if ( ! Array.isArray( preselect[ postType ].category ) ) {
-					return false;
-				}
-
-				const categories = getEditedPostAttribute( 'categories' );
-
-				return categories.some( ( x ) =>
-					preselect[ postType ].category.includes( String( x ) )
-				);
-			};
-
-			const currentValue = getGenerateAudio();
-			const shouldPreselectValue = getShouldPreselect();
-			const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
-
-			return {
-				generateAudio:
-					currentValue === null ? shouldPreselectValue : currentValue,
-				shouldPreselect: shouldPreselectValue,
-				hasExplicitValue: currentValue !== null,
-				hasContent: Boolean(
-					savedMeta.beyondwords_content_id ||
-						savedMeta.beyondwords_podcast_id ||
-						savedMeta.speechkit_podcast_id
-				),
-			};
-		}, [] );
-
-	// Set "Generate audio" meta when preselected, but only if the value
-	// is truly unset (null) — neither in post edits nor saved meta.
-	// This prevents overriding an explicit '0' on existing posts, and
-	// also prevents the pre-publish panel instance from overriding a
-	// user's earlier manual uncheck (since GenerateAudio renders in
-	// both the document settings panel and the pre-publish panel).
-	useEffect( () => {
-		if ( shouldPreselect && ! hasExplicitValue ) {
-			editPost( {
-				meta: {
-					beyondwords_generate_audio: '1',
-				},
-			} );
+		/**
+		 * The explicit value, if any — the user's decision.
+		 *
+		 * An in-session edit wins (the user toggled this session); otherwise
+		 * the saved meta, preferring beyondwords_generate_audio and falling
+		 * back to the deprecated speechkit_generate_audio.
+		 */
+		let explicit;
+		if ( META_KEY in editedMeta ) {
+			explicit = parseFlag( editedMeta[ META_KEY ] );
+		} else {
+			explicit =
+				parseFlag( savedMeta[ META_KEY ] ) ??
+				parseFlag( savedMeta.speechkit_generate_audio );
 		}
-	}, [ shouldPreselect, hasExplicitValue, editPost ] );
+
+		/**
+		 * Should "Generate audio" be preselected, per the plugin setting?
+		 *
+		 * Reactive: for term-gated post types this recomputes as taxonomy terms
+		 * are edited, so the toggle follows the rule in both directions.
+		 */
+		const getShouldPreselect = () => {
+			const settings = getSettings();
+			if ( ! settings ) {
+				return false;
+			}
+
+			const preselect =
+				settings.preselect && typeof settings.preselect === 'object'
+					? settings.preselect
+					: {};
+
+			if ( ! ( postType in preselect ) ) {
+				return false;
+			}
+
+			const config = preselect[ postType ];
+			const mode = resolveMode( config );
+
+			if ( mode === 'all' ) {
+				return true;
+			}
+			if ( mode !== 'terms' ) {
+				return false;
+			}
+
+			const terms = resolveTerms( config );
+
+			// OR across every listed taxonomy/term (exact term-ID match).
+			return Object.keys( terms ).some( ( slug ) => {
+				const ids = terms[ slug ];
+				if ( ! Array.isArray( ids ) || ! ids.length ) {
+					return false;
+				}
+
+				// Tolerant: skip taxonomies that aren't registered/loaded.
+				const taxonomy = getTaxonomy( slug );
+				if ( ! taxonomy ) {
+					return false;
+				}
+
+				const assigned = getEditedPostAttribute(
+					taxonomy.rest_base || slug
+				);
+				if ( ! Array.isArray( assigned ) ) {
+					return false;
+				}
+
+				const wanted = ids.map( String );
+				return assigned.some( ( id ) =>
+					wanted.includes( String( id ) )
+				);
+			} );
+		};
+
+		return {
+			// Derived only — we never write meta for the preselect case, so the
+			// post is not dirtied. When the publisher has not made an explicit
+			// choice the toggle reflects the preselect rule; persistence of an
+			// untouched preselected post is handled server-side by
+			// Meta::has_generate_audio() → Preselect::should_preselect_for_post().
+			checked:
+				explicit !== undefined && explicit !== null
+					? explicit
+					: getShouldPreselect(),
+			hasContent: Boolean(
+				savedMeta.beyondwords_content_id ||
+					savedMeta.beyondwords_podcast_id ||
+					savedMeta.speechkit_podcast_id
+			),
+		};
+	}, [] );
 
 	const handleChange = () => {
-		editPost( {
-			meta: {
-				beyondwords_generate_audio: ! generateAudio ? '1' : '0',
-			},
-		} );
+		// The user's explicit choice — a real, persisted edit (correctly
+		// dirties the post). Once set, it overrides the preselect rule.
+		editPost( { meta: { [ META_KEY ]: ! checked ? '1' : '0' } } );
 	};
 
 	const label = hasContent
@@ -176,7 +207,7 @@ export function GenerateAudio( { wrapper } ) {
 			<Toggle
 				className="beyondwords--generate-audio"
 				label={ label }
-				checked={ generateAudio }
+				checked={ Boolean( checked ) }
 				onChange={ handleChange }
 			/>
 		</Wrapper>

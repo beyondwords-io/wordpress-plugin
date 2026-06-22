@@ -41,7 +41,7 @@ class Updater {
 		}
 
 		if ( version_compare( $version, '7.0.0', '<' ) ) {
-			self::flatten_preselect();
+			self::migrate_preselect_format();
 			self::delete_deprecated_options();
 			self::migrate_disabled_to_embed_none();
 		}
@@ -54,36 +54,49 @@ class Updater {
 	}
 
 	/**
-	 * Flatten the legacy preselect format.
+	 * Convert the legacy preselect option to the 7.0.0 mode-based format.
 	 *
-	 * Pre-7.0.0, `beyondwords_preselect` could store taxonomy term arrays per
-	 * post type (e.g. `['post' => ['category' => ['1','2']]]`). 7.0.0
-	 * simplifies to `['post' => '1']` — a flag per post type.
+	 * Pre-7.0.0 stored either `'1'` (whole post type) or
+	 * `[ taxonomy => [ term ids ] ]` (term-gated) per post type. 7.0.0 stores
+	 * `[ 'mode' => 'all' ]` or `[ 'mode' => 'terms', 'terms' => [...] ]`.
 	 *
-	 * Per spec: a post type stays selected if its old value was the literal
-	 * string `'1'` OR a non-empty array of taxonomy terms.
+	 * Reuses the tolerant readers on `Preselect`, so it is idempotent: already
+	 * mode-based values pass through unchanged. The `-dev` plugin version keeps
+	 * the `< 7.0.0` gate firing on every load, so the no-op path matters.
+	 *
+	 * @since 7.0.0
 	 */
-	public static function flatten_preselect(): void {
+	public static function migrate_preselect_format(): void {
 		$preselect = get_option( 'beyondwords_preselect' );
 
 		if ( ! is_array( $preselect ) ) {
 			return;
 		}
 
-		$flattened = [];
+		$migrated = [];
 
 		foreach ( $preselect as $post_type => $value ) {
-			if ( '1' === $value ) {
-				$flattened[ (string) $post_type ] = '1';
-				continue;
-			}
+			$post_type = (string) $post_type;
+			$single    = [ $post_type => $value ];
 
-			if ( is_array( $value ) && ! empty( $value ) ) {
-				$flattened[ (string) $post_type ] = '1';
+			$mode = \BeyondWords\Settings\Preselect::get_mode( $post_type, $single );
+
+			if ( \BeyondWords\Settings\Preselect::MODE_ALL === $mode ) {
+				$migrated[ $post_type ] = [ 'mode' => \BeyondWords\Settings\Preselect::MODE_ALL ];
+			} elseif ( \BeyondWords\Settings\Preselect::MODE_TERMS === $mode ) {
+				$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type, $single );
+
+				if ( ! empty( $terms ) ) {
+					$migrated[ $post_type ] = [
+						'mode'  => \BeyondWords\Settings\Preselect::MODE_TERMS,
+						'terms' => $terms,
+					];
+				}
 			}
+			// MODE_OFF (empty / unrecognised) → dropped.
 		}
 
-		update_option( 'beyondwords_preselect', $flattened, false );
+		update_option( 'beyondwords_preselect', $migrated, false );
 	}
 
 	/**

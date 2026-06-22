@@ -3,7 +3,7 @@
  * @covers src/settings/class-settings.php
  */
 
-/* global Cypress, cy, beforeEach, context, it */
+/* global Cypress, cy, beforeEach, afterEach, context, it */
 
 /**
  * Exercises the settings-form submission paths end-to-end.
@@ -50,14 +50,20 @@ context( 'Settings: form submission', () => {
 			);
 
 			cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
-			cy.get( 'input[name="beyondwords_preselect[post]"]' ).check();
-			cy.get( 'input[name="beyondwords_preselect[page]"]' ).check();
-			cy.get( 'input[name="beyondwords_preselect[cpt_active]"]' ).check();
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_inactive]"]'
+				'input[name="beyondwords_preselect[post][enabled]"]'
+			).check();
+			cy.get(
+				'input[name="beyondwords_preselect[page][enabled]"]'
+			).check();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_active][enabled]"]'
+			).check();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_inactive][enabled]"]'
 			).uncheck();
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_unsupported]"]'
+				'input[name="beyondwords_preselect[cpt_unsupported][enabled]"]'
 			).should( 'not.exist' );
 			cy.get( 'select[name="beyondwords_player_ui"]' ).select(
 				'Enabled'
@@ -71,16 +77,62 @@ context( 'Settings: form submission', () => {
 				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
 			);
 			cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.be.checked' );
-			cy.get( 'input[name="beyondwords_preselect[post]"]' ).should(
-				'be.checked'
-			);
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_active]"]'
+				'input[name="beyondwords_preselect[post][enabled]"]'
+			).should( 'be.checked' );
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_active][enabled]"]'
 			).should( 'be.checked' );
 			cy.get( 'select[name="beyondwords_player_ui"]' ).should(
 				'have.value',
 				'enabled'
 			);
+		} );
+	} );
+
+	afterEach( () => {
+		// Restore the default preselect seed so later specs are unaffected.
+		cy.task( 'updateOptionJson', {
+			name: 'beyondwords_preselect',
+			value: {
+				post: { mode: 'all' },
+				page: { mode: 'all' },
+				cpt_active: { mode: 'all' },
+			},
+		} );
+	} );
+
+	it( 'persists term-gated preselect via the settings form', () => {
+		cy.task( 'createTerm', {
+			taxonomy: 'category',
+			name: 'CypressSettingsNews',
+		} ).then( ( newsId ) => {
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
+			);
+			cy.dismissPointers();
+
+			// Term-gate posts: untick the whole-post-type box, tick a term.
+			cy.get(
+				'input[name="beyondwords_preselect[post][all]"]'
+			).uncheck();
+			cy.get(
+				`input[name="beyondwords_preselect[post][terms][category][]"][value="${ newsId }"]`
+			).check();
+
+			cy.get( 'input[type=submit]' ).click();
+			cy.get( '.notice-success' );
+
+			// Reload and verify the post-type box is off and the term persisted.
+			cy.visit(
+				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
+			);
+			cy.get( 'input[name="beyondwords_preselect[post][all]"]' ).should(
+				'not.be.checked'
+			);
+			cy.get(
+				`input[name="beyondwords_preselect[post][terms][category][]"][value="${ newsId }"]`
+			).should( 'be.checked' );
 		} );
 	} );
 } );
