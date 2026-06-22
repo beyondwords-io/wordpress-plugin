@@ -190,4 +190,122 @@ context( 'Classic Editor: Select Voice', () => {
 					} );
 			} );
 		} );
+
+	// --- Edge cases: run once for a single post type. ---
+	const edgePostType = postTypes.find( ( x ) => x.priority );
+
+	it( 'stores a distinct voice id for the same name under each Model', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// Selecting a Model auto-selects "Bridget" (the bucket's first voice);
+		// each (name, model) pair maps to a different voice id.
+		[
+			[ 'Multilingual v2', '9001' ],
+			[ 'v3', '9002' ],
+			[ 'Flash v2.5', '9003' ],
+		].forEach( ( [ model, voiceId ] ) => {
+			cy.get( 'select#beyondwords_model' ).select( model );
+			cy.get( 'select#beyondwords_voice_id' )
+				.find( 'option:selected' )
+				.should( 'have.text', 'Bridget' );
+			cy.get( 'select#beyondwords_voice_id' ).should(
+				'have.value',
+				voiceId
+			);
+		} );
+	} );
+
+	it( 'hides the Voice list when the Model is cleared', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		cy.get( 'select#beyondwords_model' ).select( 'v3' );
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
+			'be.visible'
+		);
+
+		// Returning to the placeholder hides the (empty) Voice dropdown.
+		cy.get( 'select#beyondwords_model' ).select( 'Select a model' );
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
+			'not.be.visible'
+		);
+	} );
+
+	it( 'reverts to project defaults when Customize is turned off', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+		cy.get( 'select#beyondwords_model' ).select( 'Flash v2.5' );
+		cy.get( 'select#beyondwords_voice_id' ).should( 'have.value', '9003' );
+
+		// Turning Customize off clears the selects so they submit empty.
+		cy.get( '#beyondwords_customize' ).uncheck();
+		cy.get( '#beyondwords-metabox-select-voice--fields' ).should(
+			'not.be.visible'
+		);
+		cy.get( 'select#beyondwords_language_code' ).should( 'have.value', '' );
+		cy.get( 'select#beyondwords_voice_id' ).should( 'have.value', '' );
+
+		cy.classicSetPostTitle(
+			`Customize off reverts a ${ edgePostType.name } to defaults`
+		);
+		cy.get( 'input#beyondwords_generate_audio' ).uncheck();
+		cy.contains( 'input[type="submit"]', 'Publish' ).click();
+
+		// With both meta values removed, the post reopens un-customized.
+		cy.get( '#beyondwords_customize' ).should( 'not.be.checked' );
+		cy.get( '#beyondwords-metabox-select-voice--fields' ).should(
+			'not.be.visible'
+		);
+	} );
+
+	it( 'hides the Model dropdown when the language offers a single model', () => {
+		// Every voice shares one ElevenLabs model → no Model dropdown; the Voice
+		// list shows immediately.
+		cy.intercept( 'GET', '**/beyondwords/v1/languages/*/voices*', {
+			body: [
+				{
+					id: 9010,
+					name: 'Caleb',
+					service: 'ElevenLabs',
+					model_id: 'eleven_v3',
+					language: { code: 'en_US' },
+				},
+			],
+		} ).as( 'singleModelVoices' );
+
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'not.be.visible'
+		);
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
+			'be.visible'
+		);
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Caleb',
+				] );
+			} );
+	} );
 } );

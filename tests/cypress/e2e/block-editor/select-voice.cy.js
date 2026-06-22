@@ -195,4 +195,179 @@ context( 'Block Editor: Select Voice', () => {
 					.should( 'have.text', 'Caleb' );
 			} );
 		} );
+
+	// --- Edge cases: the picker logic is post-type agnostic, so these run once. ---
+	const edgePostType = postTypes.find( ( x ) => x.priority );
+
+	// Run an assertion against the editor's current post meta.
+	const expectMeta = ( assertFn ) =>
+		cy
+			.window()
+			.its( 'wp.data' )
+			.then( ( data ) => {
+				cy.wrap( null, { timeout: 10000 } ).should( () => {
+					const meta = data
+						.select( 'core/editor' )
+						.getEditedPostAttribute( 'meta' );
+					assertFn( meta );
+				} );
+			} );
+
+	// Enable Customize and wait for the default language (en_US) to resolve.
+	const enableCustomizeForEnUs = () => {
+		cy.checkGenerateAudio( edgePostType );
+		cy.openBeyondwordsPluginSidebar();
+		cy.get( '.beyondwords--customize label' ).click( { force: true } );
+		cy.getBlockEditorSelect( 'Language' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'English (American)' );
+	};
+
+	it( 'stores a distinct voice id for the same name under each Model', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Same name, different model',
+		} );
+		enableCustomizeForEnUs();
+
+		// "Bridget" is the auto-selected first voice in each ElevenLabs bucket,
+		// but each (name, model) pair is a different voice id.
+		[
+			[ 'Multilingual v2', '9001' ],
+			[ 'v3', '9002' ],
+			[ 'Flash v2.5', '9003' ],
+		].forEach( ( [ model, voiceId ] ) => {
+			cy.getBlockEditorSelect( 'Model' ).select( model, { force: true } );
+			cy.getBlockEditorSelect( 'Voice' )
+				.find( 'option:selected' )
+				.should( 'have.text', 'Bridget' );
+			expectMeta( ( meta ) =>
+				expect( String( meta?.beyondwords_body_voice_id ) ).to.eq(
+					voiceId
+				)
+			);
+		} );
+	} );
+
+	it( 'hides the Voice list when the Model is cleared', () => {
+		cy.createPost( { postType: edgePostType, title: 'Clear the model' } );
+		enableCustomizeForEnUs();
+
+		cy.getBlockEditorSelect( 'Model' ).select( 'v3', { force: true } );
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Bridget' );
+
+		// Returning to the placeholder clears the voice and hides the Voice list.
+		cy.getBlockEditorSelect( 'Model' ).select( 'Select a model', {
+			force: true,
+		} );
+		cy.contains( '.components-select-control label', 'Voice' ).should(
+			'not.exist'
+		);
+		expectMeta( ( meta ) =>
+			expect( meta?.beyondwords_body_voice_id || '' ).to.eq( '' )
+		);
+	} );
+
+	it( 'clears the language and voice when Customize is turned off', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Toggle customize off',
+		} );
+		enableCustomizeForEnUs();
+
+		cy.getBlockEditorSelect( 'Model' ).select( 'v3', { force: true } );
+		expectMeta( ( meta ) => {
+			expect( meta?.beyondwords_language_code || '' ).to.not.eq( '' );
+			expect( meta?.beyondwords_body_voice_id || '' ).to.not.eq( '' );
+		} );
+
+		// Turning Customize off reverts to the project defaults: meta is cleared
+		// and the fields are hidden.
+		cy.get( '.beyondwords--customize label' ).click( { force: true } );
+		cy.contains( '.components-select-control label', 'Language' ).should(
+			'not.exist'
+		);
+		expectMeta( ( meta ) => {
+			expect( meta?.beyondwords_language_code || '' ).to.eq( '' );
+			expect( meta?.beyondwords_body_voice_id || '' ).to.eq( '' );
+		} );
+	} );
+
+	it( 'hides the Model dropdown when the language offers a single model', () => {
+		// Every voice shares one ElevenLabs model → no Model dropdown; the Voice
+		// list shows immediately.
+		cy.intercept( 'GET', '**/beyondwords/v1/languages/*/voices*', {
+			body: [
+				{
+					id: 9010,
+					name: 'Caleb',
+					service: 'ElevenLabs',
+					model_id: 'eleven_v3',
+					language: { code: 'en_US' },
+				},
+			],
+		} ).as( 'singleModelVoices' );
+
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Single model language',
+		} );
+		enableCustomizeForEnUs();
+
+		cy.contains( '.components-select-control label', 'Model' ).should(
+			'not.exist'
+		);
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Caleb',
+				] );
+			} );
+	} );
+
+	it( 'lists Standard voices directly when the language has no ElevenLabs models', () => {
+		cy.intercept( 'GET', '**/beyondwords/v1/languages/*/voices*', {
+			body: [
+				{
+					id: 3555,
+					name: 'Ada (Multilingual)',
+					language: { code: 'en_US' },
+				},
+				{
+					id: 2517,
+					name: 'Ava (Multilingual)',
+					language: { code: 'en_US' },
+				},
+				{
+					id: 3558,
+					name: 'Ollie (Multilingual)',
+					language: { code: 'en_US' },
+				},
+			],
+		} ).as( 'standardVoices' );
+
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Standard only language',
+		} );
+		enableCustomizeForEnUs();
+
+		cy.contains( '.components-select-control label', 'Model' ).should(
+			'not.exist'
+		);
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+				] );
+			} );
+	} );
 } );
