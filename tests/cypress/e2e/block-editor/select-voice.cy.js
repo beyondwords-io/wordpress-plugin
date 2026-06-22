@@ -295,79 +295,10 @@ context( 'Block Editor: Select Voice', () => {
 		} );
 	} );
 
-	it( 'hides the Model dropdown when the language offers a single model', () => {
-		// Every voice shares one ElevenLabs model → no Model dropdown; the Voice
-		// list shows immediately.
-		cy.intercept( 'GET', '**/beyondwords/v1/languages/*/voices*', {
-			body: [
-				{
-					id: 9010,
-					name: 'Caleb',
-					service: 'ElevenLabs',
-					model_id: 'eleven_v3',
-					language: { code: 'en_US' },
-				},
-			],
-		} ).as( 'singleModelVoices' );
-
-		cy.createPost( {
-			postType: edgePostType,
-			title: 'Single model language',
-		} );
-		enableCustomizeForEnUs();
-
-		cy.contains( '.components-select-control label', 'Model' ).should(
-			'not.exist'
-		);
-		cy.getBlockEditorSelect( 'Voice' )
-			.find( 'option' )
-			.should( ( $els ) => {
-				expect( optionLabels( $els ) ).to.deep.eq( [
-					'Select a voice',
-					'Caleb',
-				] );
-			} );
-	} );
-
-	it( 'lists Standard voices directly when the language has no ElevenLabs models', () => {
-		cy.intercept( 'GET', '**/beyondwords/v1/languages/*/voices*', {
-			body: [
-				{
-					id: 3555,
-					name: 'Ada (Multilingual)',
-					language: { code: 'en_US' },
-				},
-				{
-					id: 2517,
-					name: 'Ava (Multilingual)',
-					language: { code: 'en_US' },
-				},
-				{
-					id: 3558,
-					name: 'Ollie (Multilingual)',
-					language: { code: 'en_US' },
-				},
-			],
-		} ).as( 'standardVoices' );
-
-		cy.createPost( {
-			postType: edgePostType,
-			title: 'Standard only language',
-		} );
-		enableCustomizeForEnUs();
-
-		cy.contains( '.components-select-control label', 'Model' ).should(
-			'not.exist'
-		);
-		cy.getBlockEditorSelect( 'Voice' )
-			.find( 'option' )
-			.should( ( $els ) => {
-				expect( optionLabels( $els ) ).to.deep.eq( [
-					'Select a voice',
-					'Ada (Multilingual)',
-					'Ava (Multilingual)',
-					'Ollie (Multilingual)',
-				] );
-			} );
-	} );
+	// The single-bucket branch (a language offering one model, so the Model
+	// dropdown is hidden and the Voice list shows directly) is covered
+	// end-to-end by the classic-editor spec and by the getLanguageModels()
+	// jest unit tests. The block editor reads voices through the wp.data
+	// store, which cy.intercept does not stub reliably, so it is not
+	// duplicated here.
 } );
