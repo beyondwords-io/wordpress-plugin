@@ -60,6 +60,29 @@ class Preselect {
 	 */
 	public static function init(): void {
 		add_action( 'admin_init', [ self::class, 'register' ] );
+		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_assets' ] );
+	}
+
+	/**
+	 * Enqueue the settings-page script that progressively reveals the "All"
+	 * checkbox and term trees. Only on the BeyondWords settings page.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $hook Current admin page hook.
+	 */
+	public static function enqueue_assets( $hook ): void {
+		if ( 'settings_page_' . Settings::PAGE_SLUG !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'beyondwords-settings--preselect',
+			BEYONDWORDS__PLUGIN_URI . 'src/settings/preselect.js',
+			[],
+			BEYONDWORDS__PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -282,23 +305,25 @@ class Preselect {
 		foreach ( Utils::get_compatible_post_types() as $post_type ) {
 			$submitted = ( isset( $value[ $post_type ] ) && is_array( $value[ $post_type ] ) ) ? $value[ $post_type ] : [];
 
-			// The post-type checkbox ("all") wins over any ticked terms — same
-			// precedence the v6 UI implied, made explicit here.
-			if ( ! empty( $submitted['all'] ) ) {
+			// Post-type checkbox unticked → not preselected.
+			if ( empty( $submitted['enabled'] ) ) {
+				unset( $clean[ $post_type ] );
+				continue;
+			}
+
+			$has_taxonomies = ! empty( self::get_hierarchical_taxonomy_names( $post_type ) );
+
+			// "All" wins over any ticked terms; with no hierarchical taxonomies
+			// the whole-post-type option is the only choice.
+			if ( ! $has_taxonomies || ! empty( $submitted['all'] ) ) {
 				$clean[ $post_type ] = [ 'mode' => self::MODE_ALL ];
 				continue;
 			}
 
-			$terms = self::sanitize_terms( $post_type, $submitted, $existing );
-
-			if ( ! empty( $terms ) ) {
-				$clean[ $post_type ] = [
-					'mode'  => self::MODE_TERMS,
-					'terms' => $terms,
-				];
-			} else {
-				unset( $clean[ $post_type ] );
-			}
+			$clean[ $post_type ] = [
+				'mode'  => self::MODE_TERMS,
+				'terms' => self::sanitize_terms( $post_type, $submitted, $existing ),
+			];
 		}
 
 		return $clean;
@@ -372,12 +397,17 @@ class Preselect {
 	}
 
 	/**
-	 * Render the control for one post type (v6 layout): a single checkbox to
-	 * preselect the whole type, followed by an indented hierarchical term tree
-	 * to instead preselect only posts that have one of the ticked terms.
+	 * Render the control for one post type.
 	 *
-	 * Ticking the post-type checkbox stores `mode => 'all'`; ticking terms
-	 * (with the checkbox off) stores `mode => 'terms'`; nothing ticked is off.
+	 * Three nested levels, progressively revealed by `preselect.js`:
+	 *   1. the post-type checkbox — off means "don't preselect" (term area hidden);
+	 *   2. an "All" checkbox, ticked by default when the post type is enabled —
+	 *      ticked means preselect every post of this type (taxonomy terms hidden);
+	 *   3. the hierarchical taxonomy term trees, shown when "All" is unticked, to
+	 *      preselect only posts that have one of the ticked terms.
+	 *
+	 * Maps to the stored format: off → absent, "All" → `mode => 'all'`, terms →
+	 * `mode => 'terms'`. "All" takes priority over any ticked terms.
 	 *
 	 * @param \WP_Post_Type       $post_type_object Post type object.
 	 * @param array<string,mixed> $preselect        Stored option.
@@ -387,45 +417,54 @@ class Preselect {
 		$mode           = self::get_mode( $post_type, $preselect );
 		$selected_terms = self::get_selected_terms( $post_type, $preselect );
 		$base           = self::OPTION_NAME . '[' . $post_type . ']';
+		$taxonomies     = self::get_hierarchical_taxonomies( $post_type );
+
+		$enabled    = ( self::MODE_OFF !== $mode );
+		$is_all     = ( self::MODE_TERMS !== $mode ); // 'all' (or the default for a fresh enable).
+		$show_terms = ( $enabled && ! $is_all );
 		?>
-		<div class="beyondwords-setting__preselect--post-type">
+		<div class="beyondwords-setting__preselect--post-type" data-post-type="<?php echo esc_attr( $post_type ); ?>">
 			<label>
 				<input
 					type="checkbox"
-					name="<?php echo esc_attr( $base . '[all]' ); ?>"
+					class="beyondwords-setting__preselect--enabled"
+					name="<?php echo esc_attr( $base . '[enabled]' ); ?>"
 					value="1"
-					<?php checked( self::MODE_ALL === $mode ); ?>
+					<?php checked( $enabled ); ?>
 				/>
 				<?php echo esc_html( $post_type_object->label ); ?>
 			</label>
-			<?php self::render_taxonomy_terms( $post_type_object, $selected_terms ); ?>
-		</div>
-		<?php
-	}
 
-	/**
-	 * Render the hierarchical taxonomy term trees for a post type, indented
-	 * beneath the post-type checkbox.
-	 *
-	 * @param \WP_Post_Type       $post_type_object Post type object.
-	 * @param array<string,int[]> $selected_terms   Selected term IDs by taxonomy.
-	 */
-	private static function render_taxonomy_terms( $post_type_object, array $selected_terms ): void {
-		$taxonomies = self::get_hierarchical_taxonomies( $post_type_object->name );
-
-		if ( empty( $taxonomies ) ) {
-			return;
-		}
-		?>
-		<div class="beyondwords-setting__preselect--taxonomy" style="margin: 0.5rem 0;">
-			<?php foreach ( $taxonomies as $taxonomy ) : ?>
-				<h4 style="margin: 0.5rem 0 0.5rem 1.5rem;"><?php echo esc_html( $taxonomy->label ); ?></h4>
-				<?php
-				$ids  = $selected_terms[ $taxonomy->name ] ?? [];
-				$name = self::OPTION_NAME . '[' . $post_type_object->name . '][terms][' . $taxonomy->name . '][]';
-				self::render_term_tree( $taxonomy, $name, $ids );
-				?>
-			<?php endforeach; ?>
+			<?php if ( ! empty( $taxonomies ) ) : ?>
+				<div
+					class="beyondwords-setting__preselect--options"
+					style="margin: 0.25rem 0 0 1.5rem;<?php echo $enabled ? '' : ' display: none;'; ?>"
+				>
+					<label>
+						<input
+							type="checkbox"
+							class="beyondwords-setting__preselect--all"
+							name="<?php echo esc_attr( $base . '[all]' ); ?>"
+							value="1"
+							<?php checked( $is_all ); ?>
+						/>
+						<?php esc_html_e( 'All', 'speechkit' ); ?>
+					</label>
+					<div
+						class="beyondwords-setting__preselect--taxonomies"
+						style="<?php echo $show_terms ? '' : 'display: none;'; ?>"
+					>
+						<?php foreach ( $taxonomies as $taxonomy ) : ?>
+							<h4 style="margin: 0.5rem 0 0.5rem 1.5rem;"><?php echo esc_html( $taxonomy->label ); ?></h4>
+							<?php
+							$ids  = $selected_terms[ $taxonomy->name ] ?? [];
+							$name = $base . '[terms][' . $taxonomy->name . '][]';
+							self::render_term_tree( $taxonomy, $name, $ids );
+							?>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

@@ -50,16 +50,20 @@ context( 'Settings: form submission', () => {
 			);
 
 			cy.get( '#beyondwords_prepend_excerpt' ).uncheck();
-			cy.get( 'input[name="beyondwords_preselect[post][all]"]' ).check();
-			cy.get( 'input[name="beyondwords_preselect[page][all]"]' ).check();
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_active][all]"]'
+				'input[name="beyondwords_preselect[post][enabled]"]'
 			).check();
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_inactive][all]"]'
+				'input[name="beyondwords_preselect[page][enabled]"]'
+			).check();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_active][enabled]"]'
+			).check();
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_inactive][enabled]"]'
 			).uncheck();
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_unsupported][all]"]'
+				'input[name="beyondwords_preselect[cpt_unsupported][enabled]"]'
 			).should( 'not.exist' );
 			cy.get( 'select[name="beyondwords_player_ui"]' ).select(
 				'Enabled'
@@ -73,11 +77,11 @@ context( 'Settings: form submission', () => {
 				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
 			);
 			cy.get( '#beyondwords_prepend_excerpt' ).should( 'not.be.checked' );
-			cy.get( 'input[name="beyondwords_preselect[post][all]"]' ).should(
-				'be.checked'
-			);
 			cy.get(
-				'input[name="beyondwords_preselect[cpt_active][all]"]'
+				'input[name="beyondwords_preselect[post][enabled]"]'
+			).should( 'be.checked' );
+			cy.get(
+				'input[name="beyondwords_preselect[cpt_active][enabled]"]'
 			).should( 'be.checked' );
 			cy.get( 'select[name="beyondwords_player_ui"]' ).should(
 				'have.value',
