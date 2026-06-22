@@ -11,7 +11,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { getLanguageModels, voiceModelKey } from './helpers';
+import { asArray, getLanguageModels, voiceModelKey } from './helpers';
 import Stack from '../stack';
 import Toggle from '../toggle';
 
@@ -127,7 +127,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// never send the language itself — the voice carries it). Languages with no
 	// default voice fall back to the "Select a voice" placeholder.
 	const setLanguageCode = ( value ) => {
-		const language = ( languages ?? [] ).find(
+		const language = asArray( languages ).find(
 			( item ) => decodeEntities( item.code ) === value
 		);
 		const defaultVoiceId = language?.default_voices?.body?.id;
@@ -158,7 +158,7 @@ export function VoiceSection( { withPanel = true } ) {
 
 	const languageOptions = [
 		{ label: __( 'Select a language…', 'speechkit' ), value: '' },
-		...( languages ?? [] ).map( ( language ) => ( {
+		...asArray( languages ).map( ( language ) => ( {
 			label: `${ decodeEntities( language.name ) } (${ decodeEntities(
 				language.accent
 			) })`,
@@ -173,7 +173,7 @@ export function VoiceSection( { withPanel = true } ) {
 	const models = getLanguageModels( voices );
 	const showModel = models.length > 1;
 
-	const selectedVoice = ( voices ?? [] ).find(
+	const selectedVoice = asArray( voices ).find(
 		( voice ) => String( voice.id ) === String( voiceId )
 	);
 	// The selected model is derived from the selected voice (we persist only the
@@ -183,12 +183,12 @@ export function VoiceSection( { withPanel = true } ) {
 		: '';
 
 	const bucketVoices = showModel
-		? ( voices ?? [] ).filter(
+		? asArray( voices ).filter(
 				( voice ) => voiceModelKey( voice ) === selectedModelKey
 		  )
-		: voices ?? [];
+		: asArray( voices );
 
-	const hasVoices = ( voices ?? [] ).length > 0;
+	const hasVoices = asArray( voices ).length > 0;
 
 	// Model gates the Voice list: hide Voice until a model is chosen. The
 	// single-bucket case has no Model dropdown, so Voice shows immediately.
@@ -213,7 +213,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// Picking a Model selects that bucket's first voice, so a concrete voice is
 	// always stored (the voice carries the model).
 	const setModel = ( key ) => {
-		const first = ( voices ?? [] ).find(
+		const first = asArray( voices ).find(
 			( voice ) => voiceModelKey( voice ) === key
 		);
 		setVoiceId( first ? String( first.id ) : '' );

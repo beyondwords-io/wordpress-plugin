@@ -67,6 +67,17 @@ export function voiceModelLabel( modelId ) {
 }
 
 /**
+ * Coerce a possibly-non-array value (e.g. a REST error object) to an array.
+ *
+ * @param {*} value Possibly an array.
+ *
+ * @return {Array} The value if it is an array, otherwise an empty array.
+ */
+export function asArray( value ) {
+	return Array.isArray( value ) ? value : [];
+}
+
+/**
  * The model bucket key for a voice.
  *
  * ElevenLabs voices key by their `model_id`; every other voice falls into the
@@ -101,7 +112,7 @@ export function getLanguageModels( voices ) {
 	const modelIds = [];
 	let hasStandard = false;
 
-	( voices ?? [] ).forEach( ( voice ) => {
+	asArray( voices ).forEach( ( voice ) => {
 		const key = voiceModelKey( voice );
 		if ( key === STANDARD_MODEL_KEY ) {
 			hasStandard = true;

@@ -11,6 +11,7 @@ import { decodeEntities } from '@wordpress/html-entities';
  * Internal dependencies
  */
 import {
+	asArray,
 	getOutputOptions,
 	outputIncludesVideo,
 	OUTPUT_AUDIO,
@@ -66,7 +67,7 @@ export function FormatSection() {
 
 	const videoTemplateOptions = [
 		projectDefaultOption(),
-		...( videoTemplates ?? [] ).map( ( template ) => ( {
+		...asArray( videoTemplates ).map( ( template ) => ( {
 			label: decodeEntities( template.name ?? template.slug ?? '' ),
 			value: String( template.id ),
 		} ) ),
@@ -74,7 +75,7 @@ export function FormatSection() {
 
 	const videoSizeOptions = [
 		projectDefaultOption(),
-		...( videoSizes ?? [] )
+		...asArray( videoSizes )
 			.filter( ( size ) => size.enabled !== false )
 			.map( ( size ) => ( {
 				label: decodeEntities(
