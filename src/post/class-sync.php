@@ -113,7 +113,10 @@ class Sync {
 			return false;
 		}
 
-		$generate_audio = get_post_meta( $post_id, 'beyondwords_generate_audio', true );
+		// Read via get_renamed_post_meta so a legacy post that still only has
+		// the old `speechkit_generate_audio` key is honoured (and migrated to
+		// `beyondwords_generate_audio` on read).
+		$generate_audio = \BeyondWords\Post\Meta::get_renamed_post_meta( $post_id, 'generate_audio' );
 
 		if ( '1' === $generate_audio ) {
 			return true;

@@ -15,8 +15,6 @@ declare( strict_types = 1 );
 
 namespace BeyondWords\Core;
 
-use BeyondWords\Settings\Preselect;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -81,16 +79,16 @@ class Updater {
 			$post_type = (string) $post_type;
 			$single    = [ $post_type => $value ];
 
-			$mode = Preselect::get_mode( $post_type, $single );
+			$mode = \BeyondWords\Settings\Preselect::get_mode( $post_type, $single );
 
-			if ( Preselect::MODE_ALL === $mode ) {
-				$migrated[ $post_type ] = [ 'mode' => Preselect::MODE_ALL ];
-			} elseif ( Preselect::MODE_TERMS === $mode ) {
-				$terms = Preselect::get_selected_terms( $post_type, $single );
+			if ( \BeyondWords\Settings\Preselect::MODE_ALL === $mode ) {
+				$migrated[ $post_type ] = [ 'mode' => \BeyondWords\Settings\Preselect::MODE_ALL ];
+			} elseif ( \BeyondWords\Settings\Preselect::MODE_TERMS === $mode ) {
+				$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type, $single );
 
 				if ( ! empty( $terms ) ) {
 					$migrated[ $post_type ] = [
-						'mode'  => Preselect::MODE_TERMS,
+						'mode'  => \BeyondWords\Settings\Preselect::MODE_TERMS,
 						'terms' => $terms,
 					];
 				}
