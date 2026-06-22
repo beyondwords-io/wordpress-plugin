@@ -60,29 +60,6 @@ class Preselect {
 	 */
 	public static function init(): void {
 		add_action( 'admin_init', [ self::class, 'register' ] );
-		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_assets' ] );
-	}
-
-	/**
-	 * Enqueue the settings-page script that gates the term checkboxes on the
-	 * selected mode. Only on the BeyondWords settings page.
-	 *
-	 * @since 7.0.0
-	 *
-	 * @param string $hook Current admin page hook.
-	 */
-	public static function enqueue_assets( $hook ): void {
-		if ( 'settings_page_' . Settings::PAGE_SLUG !== $hook ) {
-			return;
-		}
-
-		wp_enqueue_script(
-			'beyondwords-settings--preselect',
-			BEYONDWORDS__PLUGIN_URI . 'src/settings/preselect.js',
-			[],
-			BEYONDWORDS__PLUGIN_VERSION,
-			true
-		);
 	}
 
 	/**
@@ -304,14 +281,20 @@ class Preselect {
 
 		foreach ( Utils::get_compatible_post_types() as $post_type ) {
 			$submitted = ( isset( $value[ $post_type ] ) && is_array( $value[ $post_type ] ) ) ? $value[ $post_type ] : [];
-			$mode      = isset( $submitted['mode'] ) ? (string) $submitted['mode'] : self::MODE_OFF;
 
-			if ( self::MODE_ALL === $mode ) {
+			// The post-type checkbox ("all") wins over any ticked terms — same
+			// precedence the v6 UI implied, made explicit here.
+			if ( ! empty( $submitted['all'] ) ) {
 				$clean[ $post_type ] = [ 'mode' => self::MODE_ALL ];
-			} elseif ( self::MODE_TERMS === $mode ) {
+				continue;
+			}
+
+			$terms = self::sanitize_terms( $post_type, $submitted, $existing );
+
+			if ( ! empty( $terms ) ) {
 				$clean[ $post_type ] = [
 					'mode'  => self::MODE_TERMS,
-					'terms' => self::sanitize_terms( $post_type, $submitted, $existing ),
+					'terms' => $terms,
 				];
 			} else {
 				unset( $clean[ $post_type ] );
@@ -389,10 +372,15 @@ class Preselect {
 	}
 
 	/**
-	 * Render the three-way radio + term tree for one post type.
+	 * Render the control for one post type (v6 layout): a single checkbox to
+	 * preselect the whole type, followed by an indented hierarchical term tree
+	 * to instead preselect only posts that have one of the ticked terms.
 	 *
-	 * @param \WP_Post_Type       $post_type_object    Post type object.
-	 * @param array<string,mixed> $preselect Stored option.
+	 * Ticking the post-type checkbox stores `mode => 'all'`; ticking terms
+	 * (with the checkbox off) stores `mode => 'terms'`; nothing ticked is off.
+	 *
+	 * @param \WP_Post_Type       $post_type_object Post type object.
+	 * @param array<string,mixed> $preselect        Stored option.
 	 */
 	private static function render_post_type( $post_type_object, array $preselect ): void {
 		$post_type      = $post_type_object->name;
@@ -400,52 +388,38 @@ class Preselect {
 		$selected_terms = self::get_selected_terms( $post_type, $preselect );
 		$base           = self::OPTION_NAME . '[' . $post_type . ']';
 		?>
-		<fieldset class="beyondwords-setting__preselect--post-type" data-post-type="<?php echo esc_attr( $post_type ); ?>">
-			<legend class="beyondwords-setting__preselect--legend"><?php echo esc_html( $post_type_object->label ); ?></legend>
-			<?php foreach ( self::mode_choices() as $choice => $label ) : ?>
-				<?php $id = 'beyondwords-preselect-' . $post_type . '-' . $choice; ?>
-				<label for="<?php echo esc_attr( $id ); ?>" class="beyondwords-setting__preselect--mode">
-					<input
-						type="radio"
-						id="<?php echo esc_attr( $id ); ?>"
-						name="<?php echo esc_attr( $base . '[mode]' ); ?>"
-						value="<?php echo esc_attr( $choice ); ?>"
-						<?php checked( $mode, $choice ); ?>
-					/>
-					<?php echo esc_html( $label ); ?>
-				</label>
-			<?php endforeach; ?>
-			<?php self::render_taxonomy_terms( $post_type_object, $selected_terms, $mode ); ?>
-		</fieldset>
+		<div class="beyondwords-setting__preselect--post-type">
+			<label>
+				<input
+					type="checkbox"
+					name="<?php echo esc_attr( $base . '[all]' ); ?>"
+					value="1"
+					<?php checked( self::MODE_ALL === $mode ); ?>
+				/>
+				<?php echo esc_html( $post_type_object->label ); ?>
+			</label>
+			<?php self::render_taxonomy_terms( $post_type_object, $selected_terms ); ?>
+		</div>
 		<?php
 	}
 
 	/**
-	 * Render the hierarchical taxonomy term trees for a post type.
-	 *
-	 * Checkboxes are always enabled server-side (so they work without JS and
-	 * are submittable); `preselect.js` disables/dims them while the mode isn't
-	 * `terms`. `sanitize()` ignores submitted terms unless `terms` mode is set.
+	 * Render the hierarchical taxonomy term trees for a post type, indented
+	 * beneath the post-type checkbox.
 	 *
 	 * @param \WP_Post_Type       $post_type_object Post type object.
 	 * @param array<string,int[]> $selected_terms   Selected term IDs by taxonomy.
-	 * @param string              $mode             Current mode.
 	 */
-	private static function render_taxonomy_terms( $post_type_object, array $selected_terms, string $mode ): void {
+	private static function render_taxonomy_terms( $post_type_object, array $selected_terms ): void {
 		$taxonomies = self::get_hierarchical_taxonomies( $post_type_object->name );
 
 		if ( empty( $taxonomies ) ) {
 			return;
 		}
-
-		$classes = 'beyondwords-setting__preselect--terms';
-		if ( self::MODE_TERMS !== $mode ) {
-			$classes .= ' is-disabled';
-		}
 		?>
-		<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="beyondwords-setting__preselect--taxonomy" style="margin: 0.5rem 0;">
 			<?php foreach ( $taxonomies as $taxonomy ) : ?>
-				<h4 class="beyondwords-setting__preselect--taxonomy"><?php echo esc_html( $taxonomy->label ); ?></h4>
+				<h4 style="margin: 0.5rem 0 0.5rem 1.5rem;"><?php echo esc_html( $taxonomy->label ); ?></h4>
 				<?php
 				$ids  = $selected_terms[ $taxonomy->name ] ?? [];
 				$name = self::OPTION_NAME . '[' . $post_type_object->name . '][terms][' . $taxonomy->name . '][]';
@@ -499,9 +473,9 @@ class Preselect {
 			return;
 		}
 		?>
-		<ul class="beyondwords-setting__preselect--term-list">
+		<ul class="beyondwords-setting__preselect--term-list" style="margin: 0; padding: 0; list-style: none;">
 			<?php foreach ( $by_parent[ $parent_id ] as $term ) : ?>
-				<li class="beyondwords-setting__preselect--term">
+				<li class="beyondwords-setting__preselect--term" style="margin: 0.5rem 0 0 1.5rem;">
 					<label>
 						<input
 							type="checkbox"
@@ -516,19 +490,6 @@ class Preselect {
 			<?php endforeach; ?>
 		</ul>
 		<?php
-	}
-
-	/**
-	 * The mode radio choices, in display order.
-	 *
-	 * @return array<string,string>
-	 */
-	private static function mode_choices(): array {
-		return [
-			self::MODE_OFF   => __( 'Don’t preselect', 'speechkit' ),
-			self::MODE_ALL   => __( 'Preselect for all', 'speechkit' ),
-			self::MODE_TERMS => __( 'Preselect only for specific terms', 'speechkit' ),
-		];
 	}
 
 	/**

@@ -28,9 +28,6 @@ class PreselectTest extends TestCase
         }
         $this->registered_taxonomies = [];
 
-        wp_dequeue_script('beyondwords-settings--preselect');
-        wp_deregister_script('beyondwords-settings--preselect');
-
         parent::tearDown();
     }
 
@@ -61,27 +58,6 @@ class PreselectTest extends TestCase
         Preselect::init();
 
         $this->assertSame(10, has_action('admin_init', [Preselect::class, 'register']));
-        $this->assertSame(10, has_action('admin_enqueue_scripts', [Preselect::class, 'enqueue_assets']));
-    }
-
-    /**
-     * @test
-     */
-    public function enqueue_assets_enqueues_on_settings_page()
-    {
-        Preselect::enqueue_assets('settings_page_' . \BeyondWords\Settings\Settings::PAGE_SLUG);
-
-        $this->assertTrue(wp_script_is('beyondwords-settings--preselect', 'enqueued'));
-    }
-
-    /**
-     * @test
-     */
-    public function enqueue_assets_skips_other_admin_pages()
-    {
-        Preselect::enqueue_assets('plugins.php');
-
-        $this->assertFalse(wp_script_is('beyondwords-settings--preselect', 'enqueued'));
     }
 
     /**
@@ -357,17 +333,19 @@ class PreselectTest extends TestCase
      */
     public function sanitize_stores_all_mode()
     {
-        $clean = Preselect::sanitize(['post' => ['mode' => 'all']]);
+        // Submitted shape mirrors the form: the post-type "all" checkbox ticked.
+        $clean = Preselect::sanitize(['post' => ['all' => '1']]);
         $this->assertSame(['mode' => 'all'], $clean['post']);
     }
 
     /**
      * @test
      */
-    public function sanitize_drops_post_type_when_mode_off()
+    public function sanitize_drops_post_type_when_nothing_selected()
     {
         update_option(Preselect::OPTION_NAME, ['post' => ['mode' => 'all']]);
-        $clean = Preselect::sanitize(['post' => ['mode' => 'off']]);
+        // Neither the checkbox nor any term ticked.
+        $clean = Preselect::sanitize(['post' => []]);
         $this->assertArrayNotHasKey('post', $clean);
     }
 
@@ -377,7 +355,7 @@ class PreselectTest extends TestCase
     public function sanitize_keeps_terms_for_rendered_taxonomies_and_casts_ids()
     {
         $clean = Preselect::sanitize([
-            'post' => ['mode' => 'terms', 'terms' => ['category' => ['1', '2']]],
+            'post' => ['terms' => ['category' => ['1', '2']]],
         ]);
 
         $this->assertSame(
@@ -389,11 +367,24 @@ class PreselectTest extends TestCase
     /**
      * @test
      */
+    public function sanitize_all_checkbox_wins_over_ticked_terms()
+    {
+        // Both the "all" checkbox and some terms ticked → "all" wins.
+        $clean = Preselect::sanitize([
+            'post' => ['all' => '1', 'terms' => ['category' => [1]]],
+        ]);
+
+        $this->assertSame(['mode' => 'all'], $clean['post']);
+    }
+
+    /**
+     * @test
+     */
     public function sanitize_drops_unknown_post_types()
     {
         $clean = Preselect::sanitize([
-            'post'         => ['mode' => 'all'],
-            'unknown-type' => ['mode' => 'all'],
+            'post'         => ['all' => '1'],
+            'unknown-type' => ['all' => '1'],
         ]);
 
         $this->assertArrayHasKey('post', $clean);
@@ -407,7 +398,7 @@ class PreselectTest extends TestCase
     {
         // post_tag is non-hierarchical and must never be stored.
         $clean = Preselect::sanitize([
-            'post' => ['mode' => 'terms', 'terms' => ['post_tag' => [5], 'category' => [1]]],
+            'post' => ['terms' => ['post_tag' => [5], 'category' => [1]]],
         ]);
 
         $this->assertSame(['category' => [1]], $clean['post']['terms']);
@@ -425,7 +416,7 @@ class PreselectTest extends TestCase
 
         // The form only submits category (genre's checkboxes weren't rendered).
         $clean = Preselect::sanitize([
-            'post' => ['mode' => 'terms', 'terms' => ['category' => [2]]],
+            'post' => ['terms' => ['category' => [2]]],
         ]);
 
         // genre is preserved; category is updated from the form.
@@ -444,7 +435,7 @@ class PreselectTest extends TestCase
             'cpt_gone' => ['mode' => 'all'],
         ]);
 
-        $clean = Preselect::sanitize(['post' => ['mode' => 'all']]);
+        $clean = Preselect::sanitize(['post' => ['all' => '1']]);
 
         $this->assertArrayHasKey('cpt_gone', $clean);
         $this->assertSame(['mode' => 'all'], $clean['cpt_gone']);
@@ -463,13 +454,13 @@ class PreselectTest extends TestCase
     /**
      * @test
      */
-    public function sanitize_terms_mode_to_all_clears_stored_terms()
+    public function sanitize_unticking_all_clears_stored_terms()
     {
         update_option(Preselect::OPTION_NAME, [
             'post' => ['mode' => 'terms', 'terms' => ['category' => [1]]],
         ]);
 
-        $clean = Preselect::sanitize(['post' => ['mode' => 'all']]);
+        $clean = Preselect::sanitize(['post' => ['all' => '1']]);
 
         $this->assertSame(['mode' => 'all'], $clean['post']);
     }
@@ -477,12 +468,12 @@ class PreselectTest extends TestCase
     /**
      * @test
      */
-    public function sanitize_all_mode_to_terms_replaces_with_submitted_terms()
+    public function sanitize_all_to_terms_replaces_with_submitted_terms()
     {
         update_option(Preselect::OPTION_NAME, ['post' => ['mode' => 'all']]);
 
         $clean = Preselect::sanitize([
-            'post' => ['mode' => 'terms', 'terms' => ['category' => [2]]],
+            'post' => ['terms' => ['category' => [2]]],
         ]);
 
         $this->assertSame(
@@ -501,7 +492,7 @@ class PreselectTest extends TestCase
         $filter = static fn() => ['page'];
         add_filter('beyondwords_settings_post_types', $filter);
 
-        $clean = Preselect::sanitize(['page' => ['mode' => 'all']]);
+        $clean = Preselect::sanitize(['page' => ['all' => '1']]);
 
         remove_filter('beyondwords_settings_post_types', $filter);
 
@@ -534,7 +525,7 @@ class PreselectTest extends TestCase
     /**
      * @test
      */
-    public function render_outputs_three_radios_per_post_type_with_correct_state()
+    public function render_outputs_a_checkbox_per_post_type_checked_for_all_mode()
     {
         update_option(Preselect::OPTION_NAME, ['post' => ['mode' => 'all']]);
 
@@ -544,13 +535,15 @@ class PreselectTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // off / all / terms radios for "post".
-        $radios = $crawler->filter('input[type="radio"][name="' . Preselect::OPTION_NAME . '[post][mode]"]');
-        $this->assertSame(3, $radios->count());
+        // 'post' is mode 'all' → its post-type checkbox is checked.
+        $postCheckbox = $crawler->filter('input[type="checkbox"][name="' . Preselect::OPTION_NAME . '[post][all]"]');
+        $this->assertCount(1, $postCheckbox);
+        $this->assertSame('checked', $postCheckbox->attr('checked'));
 
-        // The "all" radio is the checked one.
-        $checked = $crawler->filter('input[type="radio"][name="' . Preselect::OPTION_NAME . '[post][mode]"][value="all"]');
-        $this->assertSame('checked', $checked->attr('checked'));
+        // 'page' is not preselected → its post-type checkbox is unchecked.
+        $pageCheckbox = $crawler->filter('input[type="checkbox"][name="' . Preselect::OPTION_NAME . '[page][all]"]');
+        $this->assertCount(1, $pageCheckbox);
+        $this->assertNull($pageCheckbox->attr('checked'));
     }
 
     /**
