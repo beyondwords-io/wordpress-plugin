@@ -339,4 +339,59 @@ class GenerateAudioTest extends TestCase
         delete_option('beyondwords_preselect');
         wp_delete_post($post->ID, true);
     }
+
+    /**
+     * Terms mode: the classic checkbox is checked when the post has a listed
+     * term, and unchecked when it does not.
+     *
+     * @test
+     */
+    public function element_checkbox_checked_when_terms_match()
+    {
+        $news = self::factory()->term->create(['taxonomy' => 'category', 'name' => 'News']);
+        $post = self::factory()->post->create_and_get(['post_type' => 'post']);
+        wp_set_post_terms($post->ID, [$news], 'category');
+
+        update_option('beyondwords_preselect', [
+            'post' => ['mode' => 'terms', 'terms' => ['category' => [$news]]],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            GenerateAudio::element($post);
+        });
+
+        $this->assertMatchesRegularExpression(
+            '/id="beyondwords_generate_audio"[^>]*checked/s',
+            $html
+        );
+
+        delete_option('beyondwords_preselect');
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function element_checkbox_unchecked_when_terms_do_not_match()
+    {
+        $news = self::factory()->term->create(['taxonomy' => 'category', 'name' => 'News']);
+        $post = self::factory()->post->create_and_get(['post_type' => 'post']);
+        wp_set_post_terms($post->ID, [], 'category');
+
+        update_option('beyondwords_preselect', [
+            'post' => ['mode' => 'terms', 'terms' => ['category' => [$news]]],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            GenerateAudio::element($post);
+        });
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/id="beyondwords_generate_audio"[^>]*checked/s',
+            $html
+        );
+
+        delete_option('beyondwords_preselect');
+        wp_delete_post($post->ID, true);
+    }
 }

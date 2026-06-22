@@ -24,23 +24,22 @@ context( 'Classic Editor: term-gated Generate audio', () => {
 		} );
 	} );
 
-	beforeEach( () => {
-		cy.login();
+	const setPreselect = ( value ) =>
 		cy.task( 'updateOptionJson', {
 			name: 'beyondwords_preselect',
-			value: { post: { mode: 'terms', terms: { category: [ newsId ] } } },
+			value,
 		} );
+
+	beforeEach( () => {
+		cy.login();
 	} );
 
 	afterEach( () => {
 		// Restore the default seed so later specs see post = 'all'.
-		cy.task( 'updateOptionJson', {
-			name: 'beyondwords_preselect',
-			value: {
-				post: { mode: 'all' },
-				page: { mode: 'all' },
-				cpt_active: { mode: 'all' },
-			},
+		setPreselect( {
+			post: { mode: 'all' },
+			page: { mode: 'all' },
+			cpt_active: { mode: 'all' },
 		} );
 	} );
 
@@ -48,7 +47,22 @@ context( 'Classic Editor: term-gated Generate audio', () => {
 		cy.task( 'deactivatePlugin', 'classic-editor' );
 	} );
 
-	it( 'toggles Generate audio as the matching category is ticked/unticked', () => {
+	it( 'Post not selected → Generate audio is not preselected', () => {
+		setPreselect( {} ); // 'post' absent → off.
+		cy.createPost( { postType: { slug: 'post' } } );
+		cy.get( 'input#beyondwords_generate_audio' ).should( 'not.be.checked' );
+	} );
+
+	it( 'All selected → Generate audio is preselected', () => {
+		setPreselect( { post: { mode: 'all' } } );
+		cy.createPost( { postType: { slug: 'post' } } );
+		cy.get( 'input#beyondwords_generate_audio' ).should( 'be.checked' );
+	} );
+
+	it( 'Terms selected → toggles as the matching category is ticked/unticked', () => {
+		setPreselect( {
+			post: { mode: 'terms', terms: { category: [ newsId ] } },
+		} );
 		cy.createPost( { postType: { slug: 'post' } } );
 
 		// New post has no matching term → not preselected.
@@ -66,6 +80,9 @@ context( 'Classic Editor: term-gated Generate audio', () => {
 	} );
 
 	it( 'stops auto-toggling once Generate audio is changed by hand', () => {
+		setPreselect( {
+			post: { mode: 'terms', terms: { category: [ newsId ] } },
+		} );
 		cy.createPost( { postType: { slug: 'post' } } );
 
 		// Auto-check via the matching term.

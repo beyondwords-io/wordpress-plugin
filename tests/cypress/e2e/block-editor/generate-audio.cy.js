@@ -217,7 +217,7 @@ context( 'Block Editor: Generate Audio', () => {
 		} );
 	} );
 
-	describe( 'Term-gated preselect (bidirectional)', () => {
+	describe( 'Respects all preselect modes for a post type', () => {
 		let newsId;
 
 		before( () => {
@@ -229,38 +229,52 @@ context( 'Block Editor: Generate Audio', () => {
 			} );
 		} );
 
-		beforeEach( () => {
+		const setPreselect = ( value ) =>
 			cy.task( 'updateOptionJson', {
 				name: 'beyondwords_preselect',
-				value: {
-					post: { mode: 'terms', terms: { category: [ newsId ] } },
-				},
+				value,
 			} );
-		} );
 
 		afterEach( () => {
 			// Restore the default seed so later specs see post = 'all'.
-			cy.task( 'updateOptionJson', {
-				name: 'beyondwords_preselect',
-				value: {
-					post: { mode: 'all' },
-					page: { mode: 'all' },
-					cpt_active: { mode: 'all' },
-				},
+			setPreselect( {
+				post: { mode: 'all' },
+				page: { mode: 'all' },
+				cpt_active: { mode: 'all' },
 			} );
 		} );
 
-		it( 'checks when a matching term is added and unchecks when removed', () => {
+		it( 'Post not selected → Generate audio is not preselected', () => {
+			setPreselect( {} ); // 'post' absent → off.
 			cy.createPost( { postType: { slug: 'post' } } );
+			cy.openBeyondwordsEditorPanel();
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'not.be.checked'
+			);
+		} );
 
+		it( 'All selected → Generate audio is preselected', () => {
+			setPreselect( { post: { mode: 'all' } } );
+			cy.createPost( { postType: { slug: 'post' } } );
+			cy.openBeyondwordsEditorPanel();
+			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
+				'be.checked'
+			);
+		} );
+
+		it( 'Terms selected → preselected only when the post has a matching term', () => {
+			setPreselect( {
+				post: { mode: 'terms', terms: { category: [ newsId ] } },
+			} );
+			cy.createPost( { postType: { slug: 'post' } } );
 			cy.openBeyondwordsEditorPanel();
 
-			// No matching category yet → not preselected.
+			// No matching term → not preselected.
 			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
 				'not.be.checked'
 			);
 
-			// Assign the matching category via the store.
+			// Add the matching term → preselected.
 			cy.window().then( ( win ) => {
 				win.wp.data
 					.dispatch( 'core/editor' )
@@ -270,7 +284,7 @@ context( 'Block Editor: Generate Audio', () => {
 				'be.checked'
 			);
 
-			// Remove it → auto-unchecks (bidirectional).
+			// Remove it → not preselected (bidirectional).
 			cy.window().then( ( win ) => {
 				win.wp.data
 					.dispatch( 'core/editor' )
