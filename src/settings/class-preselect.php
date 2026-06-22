@@ -423,7 +423,7 @@ class Preselect {
 		$is_all     = ( self::MODE_TERMS !== $mode ); // 'all' (or the default for a fresh enable).
 		$show_terms = ( $enabled && ! $is_all );
 		?>
-		<div class="beyondwords-setting__preselect--post-type" data-post-type="<?php echo esc_attr( $post_type ); ?>">
+		<div class="beyondwords-setting__preselect--post-type" data-post-type="<?php echo esc_attr( $post_type ); ?>" style="margin-bottom: 1.25rem;">
 			<label>
 				<input
 					type="checkbox"
