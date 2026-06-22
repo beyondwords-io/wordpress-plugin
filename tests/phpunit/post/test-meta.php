@@ -255,11 +255,17 @@ class MetaTest extends TestCase
      */
     public function has_generate_audio($expected, $postArgs)
     {
+        // Isolate the meta-reading + fallback from the preselect setting, whose
+        // default ('post' => all) would otherwise make an empty-meta post
+        // preselect. Preselect-driven behaviour is covered in PreselectTest.
+        update_option('beyondwords_preselect', []);
+
         $postId = self::factory()->post->create($postArgs);
 
         $this->assertEquals($expected, Meta::has_generate_audio($postId));
 
         wp_delete_post($postId, true);
+        delete_option('beyondwords_preselect');
     }
 
     /**

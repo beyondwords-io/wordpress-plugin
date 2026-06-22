@@ -85,7 +85,7 @@ context( 'Site Health', () => {
 			// Preselect 'Generate audio' (Preferences tab)
 			cy.getSiteHealthValue( 'Preselect ‘Generate audio’' ).should(
 				'have.text',
-				'{\n    "post": "1",\n    "page": "1",\n    "cpt_active": "1"\n}'
+				'{\n    "post": {\n        "mode": "all"\n    },\n    "page": {\n        "mode": "all"\n    },\n    "cpt_active": {\n        "mode": "all"\n    }\n}'
 			);
 
 			// Filter registries

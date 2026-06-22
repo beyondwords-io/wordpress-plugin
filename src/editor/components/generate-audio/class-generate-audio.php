@@ -43,38 +43,82 @@ class GenerateAudio {
 				}
 			}
 		);
+
+		add_action( 'admin_enqueue_scripts', [ self::class, 'admin_enqueue_scripts' ] );
 	}
 
 	/**
-	 * Check whether the post type should preselect the "Generate audio" checkbox.
+	 * Enqueue the classic-editor term-gated preselect script.
 	 *
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * Only needed for the classic editor (the block editor handles preselect in
+	 * React) and only for post types configured with `terms` mode — `all`/`off`
+	 * need no live JS, as the server renders the correct initial checkbox state.
 	 *
-	 * @param \WP_Post|int $post The post object or ID.
+	 * @since 7.0.0
 	 *
-	 * @todo move this function to somewhere reusable for the Block editor.
+	 * @param string $hook Current admin page hook.
+	 */
+	public static function admin_enqueue_scripts( $hook ): void {
+		if ( \BeyondWords\Core\Utils::is_gutenberg_page() ) {
+			return;
+		}
+
+		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+			return;
+		}
+
+		$post_type = get_post_type();
+
+		if ( ! in_array( $post_type, \BeyondWords\Settings\Utils::get_compatible_post_types(), true ) ) {
+			return;
+		}
+
+		if ( \BeyondWords\Settings\Preselect::MODE_TERMS !== \BeyondWords\Settings\Preselect::get_mode( $post_type ) ) {
+			return;
+		}
+
+		$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type );
+
+		// Nothing to watch — no point loading the script.
+		if ( empty( $terms ) ) {
+			return;
+		}
+
+		wp_register_script(
+			'beyondwords-metabox--generate-audio',
+			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/generate-audio/classic-metabox.js',
+			[],
+			BEYONDWORDS__PLUGIN_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'beyondwords-metabox--generate-audio',
+			'beyondwordsPreselect',
+			[
+				'mode'  => \BeyondWords\Settings\Preselect::MODE_TERMS,
+				'terms' => $terms,
+			]
+		);
+
+		wp_enqueue_script( 'beyondwords-metabox--generate-audio' );
+	}
+
+	/**
+	 * Check whether the "Generate audio" checkbox should be preselected.
+	 *
+	 * Delegates to the shared decision in `Preselect`, which honours both
+	 * whole-post-type ('all') and term-gated ('terms') preselection and is
+	 * tolerant of taxonomies that have since been unregistered.
 	 *
 	 * @since 6.0.0 Make static.
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Delegated to Preselect; term-gating reinstated.
+	 *
+	 * @param \WP_Post|int $post The post object or ID.
 	 */
 	public static function should_preselect_generate_audio( $post ) {
-		$post_type = get_post_type( $post );
-
-		if ( ! $post_type ) {
-			return false;
-		}
-
-		$preselect = get_option( 'beyondwords_preselect' );
-
-		if ( ! is_array( $preselect ) ) {
-			return false;
-		}
-
-		// Preselect if the post type in the settings has been checked (not the taxonomies)
-		if ( array_key_exists( $post_type, $preselect ) && $preselect[ $post_type ] === '1' ) {
-			return true;
-		}
-
-		return false;
+		return \BeyondWords\Settings\Preselect::should_preselect_for_post( $post );
 	}
 
 	/**

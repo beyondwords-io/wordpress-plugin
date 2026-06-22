@@ -122,7 +122,7 @@ function setupNodeEvents( on, config ) {
 				// Set defaults for options NOT synced from API
 				'option add beyondwords_player_ui enabled',
 				// eslint-disable-next-line max-len
-				'option add beyondwords_preselect \'{"post":"1","page":"1","cpt_active":"1"}\' --format=json',
+				'option add beyondwords_preselect \'{"post":{"mode":"all"},"page":{"mode":"all"},"cpt_active":{"mode":"all"}}\' --format=json',
 			] );
 
 			hasSetupDatabase = true;
@@ -253,6 +253,24 @@ function setupNodeEvents( on, config ) {
 			const { name, value } = args;
 			await execWp( `option update ${ name } '${ value }'` );
 			return null;
+		},
+
+		async updateOptionJson( args ) {
+			const { name, value } = args;
+			const json = JSON.stringify( value ).replace( /'/g, "'\\''" );
+			await execWp( `option update ${ name } '${ json }' --format=json` );
+			return null;
+		},
+
+		async createTerm( args ) {
+			const { taxonomy, name } = args;
+			const escapedName = name.replace( /'/g, "'\\''" );
+			const result = await execWp(
+				`term create ${ taxonomy } '${ escapedName }' --porcelain`,
+				{ returnResult: true }
+			);
+			const lastLine = result.stdout.trim().split( '\n' ).pop();
+			return parseInt( lastLine, 10 );
 		},
 
 		async deleteOption( optionName ) {
