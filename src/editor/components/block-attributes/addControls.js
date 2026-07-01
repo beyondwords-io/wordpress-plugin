@@ -47,12 +47,12 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 				: 'controls-volumeoff';
 
 			const buttonLabel = !! beyondwordsAudio
-				? __( 'Disable audio processing', 'speechkit' )
-				: __( 'Enable audio processing', 'speechkit' );
+				? __( 'Disable generation', 'speechkit' )
+				: __( 'Enable generation', 'speechkit' );
 
 			const toggleLabel = !! beyondwordsAudio
-				? __( 'Audio processing enabled', 'speechkit' )
-				: __( 'Audio processing disabled', 'speechkit' );
+				? __( 'Generation enabled', 'speechkit' )
+				: __( 'Generation disabled', 'speechkit' );
 
 			const toggleBeyondwordsAudio = () => {
 				setAttributes( { beyondwordsAudio: ! beyondwordsAudio } );

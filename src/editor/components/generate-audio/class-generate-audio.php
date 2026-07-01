@@ -48,13 +48,16 @@ class GenerateAudio {
 	}
 
 	/**
-	 * Enqueue the classic-editor term-gated preselect script.
+	 * Enqueue the classic-editor Generate audio script.
 	 *
-	 * Only needed for the classic editor (the block editor handles preselect in
-	 * React) and only for post types configured with `terms` mode — `all`/`off`
-	 * need no live JS, as the server renders the correct initial checkbox state.
+	 * Classic editor only — the block editor handles this in React. The script
+	 * keeps the state-reflecting "Generation enabled/disabled" caption in step
+	 * with the checkbox, so it loads for every compatible post type. When the
+	 * post type is configured with `terms` mode it also carries the term data
+	 * needed to live-update the checkbox as matching terms are ticked.
 	 *
 	 * @since 7.0.0
+	 * @since 7.0.0 Always enqueued (for the caption); preselect data is optional.
 	 *
 	 * @param string $hook Current admin page hook.
 	 */
@@ -73,17 +76,6 @@ class GenerateAudio {
 			return;
 		}
 
-		if ( \BeyondWords\Settings\Preselect::MODE_TERMS !== \BeyondWords\Settings\Preselect::get_mode( $post_type ) ) {
-			return;
-		}
-
-		$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type );
-
-		// Nothing to watch — no point loading the script.
-		if ( empty( $terms ) ) {
-			return;
-		}
-
 		wp_register_script(
 			'beyondwords-metabox--generate-audio',
 			BEYONDWORDS__PLUGIN_URI . 'src/editor/components/generate-audio/classic-metabox.js',
@@ -92,14 +84,22 @@ class GenerateAudio {
 			true
 		);
 
-		wp_localize_script(
-			'beyondwords-metabox--generate-audio',
-			'beyondwordsPreselect',
-			[
-				'mode'  => \BeyondWords\Settings\Preselect::MODE_TERMS,
-				'terms' => $terms,
-			]
-		);
+		// Term-gated preselect additionally needs the watched terms — only in
+		// `terms` mode, and only when there is something to watch.
+		if ( \BeyondWords\Settings\Preselect::MODE_TERMS === \BeyondWords\Settings\Preselect::get_mode( $post_type ) ) {
+			$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type );
+
+			if ( ! empty( $terms ) ) {
+				wp_localize_script(
+					'beyondwords-metabox--generate-audio',
+					'beyondwordsPreselect',
+					[
+						'mode'  => \BeyondWords\Settings\Preselect::MODE_TERMS,
+						'terms' => $terms,
+					]
+				);
+			}
+		}
 
 		wp_enqueue_script( 'beyondwords-metabox--generate-audio' );
 	}
@@ -131,6 +131,12 @@ class GenerateAudio {
 		wp_nonce_field( 'beyondwords_generate_audio', 'beyondwords_generate_audio_nonce' );
 
 		$generate_audio = \BeyondWords\Post\Meta::has_generate_audio( $post->ID );
+
+		// State-reflecting caption: the label reads out the current state. The
+		// data attributes let classic-metabox.js keep it in step as the checkbox
+		// is toggled (the block editor toggle behaves the same way).
+		$label_enabled  = __( 'Generation enabled', 'speechkit' );
+		$label_disabled = __( 'Generation disabled', 'speechkit' );
 		?>
 		<!--  checkbox -->
 		<p id="beyondwords-metabox-generate-audio">
@@ -141,7 +147,13 @@ class GenerateAudio {
 				value="1"
 				<?php checked( $generate_audio ); ?>
 			/>
-			<?php esc_html_e( 'Generate audio', 'speechkit' ); ?>
+			<label for="beyondwords_generate_audio">
+				<span
+					id="beyondwords-generate-audio-label"
+					data-label-enabled="<?php echo esc_attr( $label_enabled ); ?>"
+					data-label-disabled="<?php echo esc_attr( $label_disabled ); ?>"
+				><?php echo esc_html( $generate_audio ? $label_enabled : $label_disabled ); ?></span>
+			</label>
 		</p>
 		<?php
 	}

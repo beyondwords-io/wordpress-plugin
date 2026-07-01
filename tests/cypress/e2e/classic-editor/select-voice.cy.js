@@ -70,7 +70,7 @@ context( 'Classic Editor: Select Voice', () => {
 							'Multilingual v2',
 							'v3',
 							'Flash v2.5',
-							'Standard',
+							'Legacy',
 						] );
 					} );
 
@@ -82,7 +82,7 @@ context( 'Classic Editor: Select Voice', () => {
 				);
 
 				// Standard model → only the non-ElevenLabs voices.
-				cy.get( 'select#beyondwords_model' ).select( 'Standard' );
+				cy.get( 'select#beyondwords_model' ).select( 'Legacy' );
 				cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
 					'be.visible'
 				);

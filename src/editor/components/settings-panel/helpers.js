@@ -129,7 +129,7 @@ export function getLanguageModels( voices ) {
 	if ( hasStandard ) {
 		models.push( {
 			key: STANDARD_MODEL_KEY,
-			label: __( 'Standard', 'speechkit' ),
+			label: __( 'Legacy', 'speechkit' ),
 		} );
 	}
 
