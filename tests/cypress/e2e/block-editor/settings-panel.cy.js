@@ -134,7 +134,7 @@ context( 'Block Editor: Settings panel', () => {
 							'Multilingual v2',
 							'v3',
 							'Flash v2.5',
-							'Standard',
+							'Legacy',
 						] );
 					} );
 				cy.get( '.beyondwords--voice' ).should( 'not.exist' );

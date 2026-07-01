@@ -218,8 +218,8 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 } );
 
 // Use the className selector instead of the label text — the GenerateAudio
-// label flips between "Create" and "Update" based on whether the post
-// already has a beyondwords_content_id.
+// caption flips between "Generation enabled" and "Generation disabled" to
+// reflect the toggle state, so it can't be used to locate the control.
 const GENERATE_AUDIO_CHECKBOX =
 	'.beyondwords--generate-audio input[type="checkbox"]';
 const GENERATE_AUDIO_LABEL = '.beyondwords--generate-audio label';
@@ -350,6 +350,12 @@ Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 		.closest( '.beyondwords-toggle' )
 		.find( 'input[type="checkbox"]' )
 		.then( ( $el ) => cy.wrap( $el ) );
+} );
+
+// The GenerateAudio caption is state-reflecting ("Generation enabled/disabled"),
+// so locate its checkbox by the stable className rather than by label text.
+Cypress.Commands.add( 'getGenerateAudioCheckbox', () => {
+	return cy.get( GENERATE_AUDIO_CHECKBOX );
 } );
 
 Cypress.Commands.add( 'getBlockEditorSelect', ( text, ...args ) => {

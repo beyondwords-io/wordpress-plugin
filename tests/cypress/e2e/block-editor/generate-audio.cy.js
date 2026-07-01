@@ -29,9 +29,7 @@ context( 'Block Editor: Generate Audio', () => {
 			cy.openBeyondwordsEditorPanel();
 
 			// Sidebar checkbox should be checked via preselect
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'be.checked' );
 
 			// Open pre-publish panel
 			cy.get( '.editor-post-publish-button__button' ).click();
@@ -53,18 +51,14 @@ context( 'Block Editor: Generate Audio', () => {
 			// Preselect is applied via a useEffect, so the box starts unchecked
 			// for a tick before flipping on. Wait for it to settle, otherwise an
 			// uncheck races the effect and is undone.
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'be.checked' );
 
 			// Toggle the input directly — clicking the CheckboxControl label
 			// double-fires the change event and lands back on checked.
-			cy.getBlockEditorCheckbox( 'Generate audio' ).uncheck( {
+			cy.getGenerateAudioCheckbox().uncheck( {
 				force: true,
 			} );
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 
 			// Open pre-publish panel
 			cy.get( '.editor-post-publish-button__button' ).click();
@@ -88,9 +82,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Sidebar checkbox should be checked via preselect
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-					'be.checked'
-				);
+				cy.getGenerateAudioCheckbox().should( 'be.checked' );
 
 				// Open pre-publish panel
 				cy.get( '.editor-post-publish-button__button' ).click();
@@ -153,9 +145,7 @@ context( 'Block Editor: Generate Audio', () => {
 
 			cy.openBeyondwordsEditorPanel();
 
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 		} );
 
 		it( 'saved generate_audio=0 is not overridden in pre-publish panel', () => {
@@ -176,9 +166,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Sidebar should respect saved '0' despite preselect
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-					'not.be.checked'
-				);
+				cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 
 				// Open pre-publish panel — should also respect saved '0'
 				cy.get( '.editor-post-publish-button__button' ).click();
@@ -199,9 +187,7 @@ context( 'Block Editor: Generate Audio', () => {
 
 			// Default preselect for 'post' is mode 'all' → box shows checked
 			// (derived from the setting, not written to meta).
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'be.checked' );
 
 			cy.window().then( ( win ) => {
 				const editor = win.wp.data.select( 'core/editor' );
@@ -248,18 +234,14 @@ context( 'Block Editor: Generate Audio', () => {
 			setPreselect( {} ); // 'post' absent → off.
 			cy.createPost( { postType: { slug: 'post' } } );
 			cy.openBeyondwordsEditorPanel();
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 		} );
 
 		it( 'All selected → Generate audio is preselected', () => {
 			setPreselect( { post: { mode: 'all' } } );
 			cy.createPost( { postType: { slug: 'post' } } );
 			cy.openBeyondwordsEditorPanel();
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'be.checked' );
 		} );
 
 		it( 'Terms selected → preselected only when the post has a matching term', () => {
@@ -270,9 +252,7 @@ context( 'Block Editor: Generate Audio', () => {
 			cy.openBeyondwordsEditorPanel();
 
 			// No matching term → not preselected.
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 
 			// Add the matching term → preselected.
 			cy.window().then( ( win ) => {
@@ -280,9 +260,7 @@ context( 'Block Editor: Generate Audio', () => {
 					.dispatch( 'core/editor' )
 					.editPost( { categories: [ newsId ] } );
 			} );
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'be.checked' );
 
 			// Remove it → not preselected (bidirectional).
 			cy.window().then( ( win ) => {
@@ -290,9 +268,7 @@ context( 'Block Editor: Generate Audio', () => {
 					.dispatch( 'core/editor' )
 					.editPost( { categories: [] } );
 			} );
-			cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-				'not.be.checked'
-			);
+			cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 		} );
 	} );
 
@@ -319,9 +295,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// beyondwords_generate_audio=0 should take precedence
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-					'not.be.checked'
-				);
+				cy.getGenerateAudioCheckbox().should( 'not.be.checked' );
 			} );
 		} );
 
@@ -342,9 +316,7 @@ context( 'Block Editor: Generate Audio', () => {
 				cy.openBeyondwordsEditorPanel();
 
 				// Should fall back to speechkit_generate_audio=1
-				cy.getBlockEditorCheckbox( 'Generate audio' ).should(
-					'be.checked'
-				);
+				cy.getGenerateAudioCheckbox().should( 'be.checked' );
 			} );
 		} );
 	} );

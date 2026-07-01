@@ -83,7 +83,7 @@ export function GenerateAudio( { wrapper } ) {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { checked, hasContent } = useSelect( ( select ) => {
+	const { checked } = useSelect( ( select ) => {
 		const {
 			getCurrentPostType,
 			getCurrentPostAttribute,
@@ -184,11 +184,6 @@ export function GenerateAudio( { wrapper } ) {
 				explicit !== undefined && explicit !== null
 					? explicit
 					: getShouldPreselect(),
-			hasContent: Boolean(
-				savedMeta.beyondwords_content_id ||
-					savedMeta.beyondwords_podcast_id ||
-					savedMeta.speechkit_podcast_id
-			),
 		};
 	}, [] );
 
@@ -198,9 +193,11 @@ export function GenerateAudio( { wrapper } ) {
 		editPost( { meta: { [ META_KEY ]: ! checked ? '1' : '0' } } );
 	};
 
-	const label = hasContent
-		? __( 'Update audio', 'speechkit' )
-		: __( 'Generate audio', 'speechkit' );
+	// State-reflecting caption: the toggle reads out its current state rather
+	// than the action it performs.
+	const label = checked
+		? __( 'Generation enabled', 'speechkit' )
+		: __( 'Generation disabled', 'speechkit' );
 
 	return (
 		<Wrapper>

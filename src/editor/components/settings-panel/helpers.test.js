@@ -122,7 +122,7 @@ describe( 'getLanguageModels', () => {
 			'Multilingual v2',
 			'Flash v2.5',
 			'v3',
-			'Standard',
+			'Legacy',
 		] );
 	} );
 
@@ -138,7 +138,7 @@ describe( 'getLanguageModels', () => {
 
 	it( 'returns a single Standard bucket for non-ElevenLabs voices only', () => {
 		expect( getLanguageModels( [ { id: 1, name: 'Ada' } ] ) ).toEqual( [
-			{ key: STANDARD_MODEL_KEY, label: 'Standard' },
+			{ key: STANDARD_MODEL_KEY, label: 'Legacy' },
 		] );
 	} );
 

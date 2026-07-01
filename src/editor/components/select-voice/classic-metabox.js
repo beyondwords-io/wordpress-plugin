@@ -31,7 +31,7 @@
 		( data && data.defaultModelId ) || 'eleven_multilingual_v2';
 	const SELECT_VOICE = ( data && data.selectVoice ) || 'Select a voice';
 	const SELECT_MODEL = ( data && data.selectModel ) || 'Select a model';
-	const STANDARD_MODEL = ( data && data.standardModel ) || 'Standard';
+	const STANDARD_MODEL = ( data && data.standardModel ) || 'Legacy';
 	const MODEL_LABELS = ( data && data.voiceModelLabels ) || {};
 
 	// Bucket key for voices without an ElevenLabs model_id (e.g. standard voices).
