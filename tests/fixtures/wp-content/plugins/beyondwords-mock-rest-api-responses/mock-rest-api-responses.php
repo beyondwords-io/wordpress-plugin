@@ -832,6 +832,7 @@ function beyondwords_mock_get_video_settings( $params ) {
 			'content_image_enabled'    => true,
 			'image_extraction_enabled' => true,
 			'pan_and_zoom_enabled'     => true,
+			'variants'                 => array( 'article', 'summary' ),
 			'sizes'                    => array(
 				array(
 					'name'        => 'landscape',
@@ -852,7 +853,7 @@ function beyondwords_mock_get_video_settings( $params ) {
 					'description' => '9:16',
 					'width'       => 1080,
 					'height'      => 1920,
-					'enabled'     => true,
+					'enabled'     => false,
 				),
 			),
 		)
