@@ -31,8 +31,17 @@ class Uninstaller {
 	public static function cleanup_plugin_transients(): int {
 		global $wpdb;
 
+		// Each transient is stored as a pair of options — `_transient_<key>` and
+		// `_transient_timeout_<key>` — so both prefixes must be swept, otherwise
+		// the timeout rows are left orphaned. (On external-object-cache hosts,
+		// e.g. VIP, there are no option rows to delete; those entries hold a TTL
+		// and self-expire.)
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE `option_name` LIKE '_transient_beyondwords_%'" );
+		$count = $wpdb->query(
+			"DELETE FROM $wpdb->options
+			WHERE `option_name` LIKE '_transient_beyondwords_%'
+			OR `option_name` LIKE '_transient_timeout_beyondwords_%'"
+		);
 
 		return (int) $count;
 	}
