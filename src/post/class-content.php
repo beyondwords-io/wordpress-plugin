@@ -330,33 +330,11 @@ class Content {
 			}
 		}
 
-		// Output = Video or Audio + video → enable video generation. Video
-		// size filters the project's `sizes` array down to the user's pick.
+		// Output = Video or Audio + video → enable video generation.
 		$output = get_post_meta( $post_id, 'beyondwords_output', true );
 
 		if ( in_array( $output, [ 'video', 'audio_and_video' ], true ) ) {
-			$body['video_settings'] = [ 'enabled' => true ];
-
-			$video_template_id = intval(
-				get_post_meta( $post_id, 'beyondwords_video_template_id', true )
-			);
-
-			if ( $video_template_id > 0 ) {
-				$body['video_settings']['template'] = [
-					'id' => $video_template_id,
-				];
-			}
-
-			$video_size = get_post_meta( $post_id, 'beyondwords_video_size', true );
-
-			if ( $video_size ) {
-				$body['video_settings']['sizes'] = [
-					[
-						'name'    => (string) $video_size,
-						'enabled' => true,
-					],
-				];
-			}
+			$body['video_settings'] = self::get_video_settings_params( $post_id );
 		}
 
 		/**
@@ -371,6 +349,87 @@ class Content {
 		$body = apply_filters( 'beyondwords_content_params', $body, $post_id );
 
 		return (string) wp_json_encode( $body );
+	}
+
+	/**
+	 * Build the `video_settings` param sent to the BeyondWords content endpoint.
+	 *
+	 * Choosing "Video" (or "Audio + video") output opts a post into video
+	 * generation, overriding the project's default `video_settings.enabled`.
+	 *
+	 * The BeyondWords backend silently skips video generation unless the payload
+	 * carries `enabled: true` AND a non-empty `variants` array AND a non-empty
+	 * `sizes` array whose entries include `width`/`height`. Earlier versions sent
+	 * only `template.id` and `sizes[].name`/`enabled`, which left `variants` empty
+	 * server-side — so no video was ever produced.
+	 *
+	 * We mirror the BeyondWords dashboard, which sends the full object whenever a
+	 * user customises video: seed the payload from the project's default video
+	 * settings (fetched once and cached by the API client), then layer the post's
+	 * own choices on top — the chosen size becomes the only enabled size, and the
+	 * chosen video template overrides the project default. Anything the post
+	 * doesn't customise (variants, and the size dimensions) is echoed straight
+	 * from the project defaults.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int $post_id WordPress post ID.
+	 *
+	 * @return array<string, mixed> The `video_settings` param.
+	 */
+	private static function get_video_settings_params( int $post_id ): array {
+		// Fetch the defaults for the project this post publishes to — which may
+		// be a per-post override of the global project — so the variants and size
+		// dimensions match the project the content POST actually targets.
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
+		$defaults   = \BeyondWords\Api\Client::get_video_settings( is_numeric( $project_id ) ? (int) $project_id : null );
+		$defaults   = is_array( $defaults ) ? $defaults : [];
+
+		$settings = [ 'enabled' => true ];
+
+		// `variants` — echo the project defaults. The backend needs a non-empty
+		// list here or it skips generation, and the plugin exposes no per-post
+		// variant control, so the project default is the correct value to send.
+		if ( ! empty( $defaults['variants'] ) && is_array( $defaults['variants'] ) ) {
+			$settings['variants'] = array_values( $defaults['variants'] );
+		}
+
+		// `sizes` — echo the project's sizes (carrying the width/height the
+		// backend requires), toggling `enabled` to the post's chosen size when one
+		// is set, otherwise keeping each size's project default.
+		$video_size    = (string) get_post_meta( $post_id, 'beyondwords_video_size', true );
+		$default_sizes = ( isset( $defaults['sizes'] ) && is_array( $defaults['sizes'] ) ) ? $defaults['sizes'] : [];
+
+		$sizes = [];
+
+		foreach ( $default_sizes as $size ) {
+			if ( ! is_array( $size ) || ! isset( $size['name'] ) ) {
+				continue;
+			}
+
+			$sizes[] = [
+				'name'    => (string) $size['name'],
+				'width'   => (int) ( $size['width'] ?? 0 ),
+				'height'  => (int) ( $size['height'] ?? 0 ),
+				'enabled' => '' !== $video_size
+					? ( (string) $size['name'] === $video_size )
+					: (bool) ( $size['enabled'] ?? false ),
+			];
+		}
+
+		if ( ! empty( $sizes ) ) {
+			$settings['sizes'] = $sizes;
+		}
+
+		// `template` — the post's chosen video template, or omit to defer to the
+		// project default template.
+		$video_template_id = intval( get_post_meta( $post_id, 'beyondwords_video_template_id', true ) );
+
+		if ( $video_template_id > 0 ) {
+			$settings['template'] = [ 'id' => $video_template_id ];
+		}
+
+		return $settings;
 	}
 
 	/**
