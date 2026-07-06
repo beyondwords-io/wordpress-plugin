@@ -109,6 +109,7 @@ Release date: tbc
 
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Send the full `video_settings` payload so videos generate.
     * Selecting "Video" or "Audio + video" output now sends the complete video settings (seeded from the project defaults), fixing posts that produced no video.
+* [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
 * [#540](https://github.com/beyondwords-io/wordpress-plugin/pull/540) Escape the player `onload` attribute to prevent stored XSS via the Content ID.
 * [#539](https://github.com/beyondwords-io/wordpress-plugin/pull/539) Add capability checks to the bulk-edit AJAX handler.
 * [#541](https://github.com/beyondwords-io/wordpress-plugin/pull/541) Prevent a player SDK error from clobbering saved content on Fetch.

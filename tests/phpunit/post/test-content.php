@@ -10,11 +10,18 @@ class ContentTest extends TestCase
     {
         // Before...
         parent::setUp();
+
+        // A project id is required for Client::get_video_settings() (used when
+        // building the video_settings payload) to resolve a project and return
+        // the mocked defaults rather than false.
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
 
         // Then...
         parent::tearDown();
@@ -494,8 +501,19 @@ class ContentTest extends TestCase
 
         $this->assertArrayHasKey('video_settings', $body);
         $this->assertTrue($body['video_settings']['enabled']);
+
+        // The backend skips generation unless `variants` is non-empty, so we
+        // echo the project defaults.
+        $this->assertSame(['article', 'summary'], $body['video_settings']['variants']);
+
+        // The full project `sizes` are sent (each carrying width/height), with
+        // only the chosen size enabled.
         $this->assertSame(
-            [['name' => 'landscape', 'enabled' => true]],
+            [
+                ['name' => 'landscape', 'width' => 1920, 'height' => 1080, 'enabled' => true],
+                ['name' => 'square',    'width' => 1080, 'height' => 1080, 'enabled' => false],
+                ['name' => 'portrait',  'width' => 1080, 'height' => 1920, 'enabled' => false],
+            ],
             $body['video_settings']['sizes']
         );
 
@@ -510,6 +528,76 @@ class ContentTest extends TestCase
         $body = json_decode(Content::get_content_params($postId), true);
 
         $this->assertArrayNotHasKey('video_settings', $body);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     **/
+    public function get_content_params_video_settings_echo_project_defaults_when_no_size_picked()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoNoSizePicked',
+            'meta_input' => [
+                'beyondwords_output' => 'video',
+                // No beyondwords_video_size → "Project default".
+            ],
+        ]);
+
+        $body = json_decode(Content::get_content_params($postId), true);
+
+        $this->assertArrayHasKey('video_settings', $body);
+        $this->assertTrue($body['video_settings']['enabled']);
+        $this->assertSame(['article', 'summary'], $body['video_settings']['variants']);
+
+        // With no size chosen, each size keeps its project-default enabled flag.
+        $this->assertSame(
+            [
+                ['name' => 'landscape', 'width' => 1920, 'height' => 1080, 'enabled' => true],
+                ['name' => 'square',    'width' => 1080, 'height' => 1080, 'enabled' => true],
+                ['name' => 'portrait',  'width' => 1080, 'height' => 1920, 'enabled' => false],
+            ],
+            $body['video_settings']['sizes']
+        );
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group getContentParams
+     *
+     * Regression test: the plugin previously sent a partial payload (only
+     * `enabled` + `template.id` + `sizes[].name`/`enabled`) which left `variants`
+     * empty server-side, so the BeyondWords backend silently skipped video
+     * generation. The full object must always carry non-empty `variants` and
+     * `sizes` whose entries include `width`/`height`.
+     **/
+    public function get_content_params_video_settings_always_carry_variants_and_sized_entries()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'ContentTest::videoRegression',
+            'meta_input' => [
+                'beyondwords_output' => 'audio_and_video',
+            ],
+        ]);
+
+        $video = json_decode(Content::get_content_params($postId), true)['video_settings'];
+
+        $this->assertTrue($video['enabled']);
+        $this->assertNotEmpty($video['variants']);
+        $this->assertNotEmpty($video['sizes']);
+
+        foreach ($video['sizes'] as $size) {
+            $this->assertArrayHasKey('name', $size);
+            $this->assertArrayHasKey('width', $size);
+            $this->assertArrayHasKey('height', $size);
+            $this->assertArrayHasKey('enabled', $size);
+        }
 
         wp_delete_post($postId, true);
     }
