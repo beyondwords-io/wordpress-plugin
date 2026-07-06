@@ -220,29 +220,58 @@ class Metabox {
 		$preview_token = \BeyondWords\Post\Meta::get_preview_token( $post->ID );
 
         // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		?>
-		<div id="beyondwords-metabox-player" style="margin: 13px 0;">
-		<script defer
-			src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
-			onload='const player = new BeyondWords.Player({
-				target: this.parentElement,
-				projectId: <?php echo esc_attr( $project_id ); ?>,
-				<?php if ( ! empty( $content_id ) ) : ?>
-				contentId: "<?php echo esc_attr( $content_id ); ?>",
-				<?php else : ?>
-				sourceId: "<?php echo esc_attr( $post->ID ); ?>",
-				<?php endif; ?>
-				previewToken: "<?php echo esc_attr( $preview_token ); ?>",
-				adverts: [],
-				analyticsConsent: "none",
-				introsOutros: [],
-				playerStyle: "small",
-				widgetStyle: "none",
-			});'
-		>
-		</script>
-		</div>
-		<?php
+		if ( ! empty( $content_id ) ) :
+			// REST-API content may still be processing on the BeyondWords
+			// backend. Embedding the player now would 404 (and CDN-cache that
+			// 404) for content that isn't ready. Render a loading state and let
+			// classic-metabox.js poll GET /content until it is `processed`,
+			// then embed. The data-* attributes carry what the player needs.
+			?>
+			<div
+				id="beyondwords-metabox-player"
+				role="status"
+				aria-live="polite"
+				style="margin: 13px 0;"
+				data-project-id="<?php echo esc_attr( $project_id ); ?>"
+				data-content-id="<?php echo esc_attr( $content_id ); ?>"
+				data-preview-token="<?php echo esc_attr( $preview_token ); ?>"
+			>
+				<span
+					class="spinner is-active"
+					style="float: none; margin: 0 8px 0 0;"
+				></span>
+				<span class="beyondwords-player-loading-text">
+					<?php esc_html_e( 'Generating…', 'speechkit' ); ?>
+				</span>
+			</div>
+			<script
+				defer
+				src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
+			></script>
+			<?php
+		else :
+			// Client-side integration is keyed on the source (post) ID — there
+			// is nothing to poll, so embed immediately as before.
+			?>
+			<div id="beyondwords-metabox-player" style="margin: 13px 0;">
+			<script defer
+				src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
+				onload='const player = new BeyondWords.Player({
+					target: this.parentElement,
+					projectId: <?php echo esc_attr( $project_id ); ?>,
+					sourceId: "<?php echo esc_attr( $post->ID ); ?>",
+					previewToken: "<?php echo esc_attr( $preview_token ); ?>",
+					adverts: [],
+					analyticsConsent: "none",
+					introsOutros: [],
+					playerStyle: "small",
+					widgetStyle: "none",
+				});'
+			>
+			</script>
+			</div>
+			<?php
+		endif;
         // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 
