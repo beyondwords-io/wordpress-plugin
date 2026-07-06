@@ -467,7 +467,7 @@ class SelectVoice {
 		if ( $has_standard ) {
 			$models[] = [
 				'key'   => self::STANDARD_MODEL_KEY,
-				'label' => __( 'Standard', 'speechkit' ),
+				'label' => __( 'Legacy', 'speechkit' ),
 			];
 		}
 

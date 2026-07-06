@@ -1,633 +1,1091 @@
-# Copyright (C) 2023 BeyondWords
+# Copyright (C) 2026 BeyondWords
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: BeyondWords - Text-to-Speech 4.2.4\n"
+"Project-Id-Version: BeyondWords - Text-to-Speech 7.0.0-dev-3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/speechkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-11-15T15:45:53+00:00\n"
+"POT-Creation-Date: 2026-07-06T05:27:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: speechkit\n"
 
 #. Plugin Name of the plugin
-#: src/Component/SiteHealth/SiteHealth.php:81
+#: speechkit.php
+#: src/site-health/class-site-health.php:91
 msgid "BeyondWords - Text-to-Speech"
 msgstr ""
 
 #. Plugin URI of the plugin
 #. Author URI of the plugin
+#: speechkit.php
 msgid "https://beyondwords.io"
 msgstr ""
 
 #. Description of the plugin
+#: speechkit.php
 msgid "The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player."
 msgstr ""
 
 #. Author of the plugin
-#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:53
-#: src/Compatibility/Elementor/Elementor.php:194
-#: src/Component/Post/Metabox/Metabox.php:82
-#: src/Component/Post/Panel/Inspect/Inspect.php:108
-#: src/Component/Posts/BulkEdit/BulkEdit.php:77
-#: src/Component/Posts/Column/Column.php:62
-#: src/Component/Settings/Settings.php:59
-#: src/Component/Settings/Settings.php:60
-#: build/index.js:1
-#: src/Component/Plugin/Panel/DocumentSetting/index.js:25
-#: src/Component/Plugin/Panel/Prepublish/index.js:22
-#: src/Component/Plugin/Sidebar/index.js:20
-#: src/Component/Plugin/Sidebar/index.js:24
-#: src/Component/Post/BlockAttributes/addControls.js:80
-#: src/Component/Post/Panel/Prepublish/index.js:10
+#: speechkit.php
+#: plugins/beyondwords-debug-tool/src/class-page.php:44
+#: plugins/beyondwords-debug-tool/src/class-page.php:45
+#: plugins/beyondwords-debug-tool/src/class-page.php:60
+#: plugins/beyondwords-import-tool/src/class-page.php:52
+#: plugins/beyondwords-import-tool/src/class-page.php:53
+#: plugins/beyondwords-import-tool/src/class-page.php:68
+#: src/editor/classic/class-metabox.php:54
+#: src/editor/components/inspect-panel/class-inspect-panel.php:84
+#: src/posts-list/class-bulk-edit.php:72
+#: src/posts-list/class-column.php:71
+#: src/settings/class-settings.php:50
+#: src/editor/block/sidebar/index.js:26
+#: src/editor/components/add-player/index.js:38
+#: src/editor/components/icon/index.js:51
 msgid "BeyondWords"
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:82
-#: src/Component/Post/GenerateAudio/GenerateAudio.php:91
-#: src/Component/Posts/BulkEdit/BulkEdit.php:80
-#: src/Component/Posts/BulkEdit/BulkEdit.php:178
-#: build/index.js:1
-#: src/Component/Post/GenerateAudio/index.js:35
-#: src/Component/Post/Panel/Prepublish/index.js:13
-msgid "Generate audio"
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:98
+#, php-format
+msgid "Could not create directory: %s. Please create it manually with write permissions."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Beyondwords.php:110
-#: src/Component/Post/DisplayPlayer/DisplayPlayer.php:96
-#: build/index.js:1
-#: src/Component/Post/DisplayPlayer/index.js:40
-msgid "Display player"
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:116
+#, php-format
+msgid "Could not create log file: %s. Please create it manually with write permissions."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Help.php:45
-#: build/index.js:1
-#: src/Component/Post/Panel/Help/index.js:16
-msgid "Help"
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:130
+#, php-format
+msgid "Log file is not writable: %s. Please ensure PHP has write permissions."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Help.php:53
-#: build/index.js:1
-#: src/Component/Post/Panel/Help/index.js:28
-msgid "Setup guide"
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:178
+msgid "You do not have permission to download this file."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Help.php:56
-#: build/index.js:1
-#: src/Component/Post/Panel/Help/index.js:21
-msgid "For setup instructions, troubleshooting, and FAQs, see our BeyondWords for WordPress guide."
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:184
+msgid "Security check failed."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Help.php:64
-#: build/index.js:1
-#: src/Component/Post/Panel/Help/index.js:38
-msgid "Email BeyondWords"
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:191
+msgid "Log file does not exist."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Help.php:68
-#: build/index.js:1
-#: src/Component/Post/Panel/Help/index.js:33
-msgid "Need help? Email our support team."
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:210
+msgid "Failed to open log file for reading."
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Inspect.php:58
-#: src/Component/Post/Panel/Inspect/Inspect.php:108
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:204
-msgid "Inspect"
+#: plugins/beyondwords-debug-tool/src/class-page.php:78
+msgid "Debug Tool"
 msgstr ""
 
-#: src/Compatibility/Elementor/ControlsSections/Inspect.php:187
-#: src/Component/Post/Panel/Inspect/Inspect.php:137
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:122
-msgid "Copy"
+#: plugins/beyondwords-debug-tool/src/class-page.php:79
+msgid "Log BeyondWords REST API requests and responses for debugging purposes."
 msgstr ""
 
-#: src/Compatibility/Elementor/Elementor.php:119
-msgid "Post not found."
+#: plugins/beyondwords-debug-tool/src/class-page.php:83
+msgid "Important:"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:84
+msgid "The log file is stored in a publicly accessible location. We mask API keys, but the log may contain other sensitive information. You are responsible for deleting the log file when debugging is complete."
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:93
+msgid "Debug REST API Requests"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:97
+msgid "Enable logging of BeyondWords API requests and responses"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:100
+msgid "When enabled, all requests to and responses from the BeyondWords API will be logged."
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:109
+msgid "API URL Being Monitored"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:115
+msgid "Log File Location"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:120
+msgid "Writable"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:129
+msgid "Download"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:138
+msgid "Save Debug Settings"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-ajax.php:40
+msgid "Permission denied."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-ajax.php:46
+msgid "Import data not found. Please start over."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:62
+#, php-format
+msgid "Processing %1$d of %2$d records..."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:64
+#, php-format
+msgid "Successfully updated %1$d records (%2$d meta values)."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:66
+#, php-format
+msgid "%d record(s) could not be imported because a matching WordPress post could not be found:"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:67
+msgid "An error occurred during import."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:68
+msgid "A network error occurred. Please try again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:69
+msgid "Failed records copied to clipboard."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:87
+msgid "Error uploading file. Please try again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:96
+msgid "File is too large. Maximum size is 10 MB."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:102
+msgid "Invalid file type. Please upload a JSON file."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:129
+msgid "Invalid file content. Please upload a valid JSON file."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:149
+msgid "Could not verify the uploaded file. Please try again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:156
+msgid "Could not read the uploaded file. Please try again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:165
+#, php-format
+msgid "Invalid JSON: %s"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:172
+msgid "JSON file must contain a non-empty array."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:180
+#, php-format
+msgid "Too many records. Maximum is %s per import. Please split your file into smaller batches and import them separately."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:222
+msgid "Validation errors:"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:229
+msgid "No valid records found to import."
+msgstr ""
+
+#. translators: 1: row number, 2: field name
+#: plugins/beyondwords-import-tool/src/class-file-handler.php:254
+#, php-format
+msgid "Row %1$d: Missing required field \"%2$s\"."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:86
+msgid "Import Tool"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:128
+msgid "Your import session has expired. Please upload the file again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:132
+msgid "Start Over"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:145
+msgid "Import BeyondWords data from a JSON file."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:147
+msgid "This tool allows you to bulk import BeyondWords audio assignments from a JSON file supplied by BeyondWords."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:148
+msgid "It will update the relevant WordPress posts with the necessary meta fields to link them to your BeyondWords projects and content."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:149
+msgid "The JSON file will contain an array of objects with the following fields: <code>source_id</code>, <code>source_url</code>, <code>project_id</code>, <code>content_id</code>."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:150
+msgid "Audio that was created with WordPress plugin versions later than <code>v4.0</code> (released July 2023) should have a numeric WordPress Post ID for the <code>source_id</code>, so assigning audio to those posts should go smoothly."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:151
+msgid "For audio that was created with plugin versions earlier than <code>v4.0</code> we will attempt to locate the post using the <code>source_url</code> field."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:152
+msgid "If we are unable to locate the post using either <code>source_id</code> or <code>source_url</code>, audio assignment will be skipped."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:156
+msgid "You will have the opportunity to review the changes before they are applied. Please do so carefully."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:163
+msgid "JSON File"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:167
+msgid "Select a JSON file to import."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:172
+msgid "Upload and Validate"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:208
+#, php-format
+msgid "Processing %d records..."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:210
+#, php-format
+msgid "Found %1$d records to import (%2$d post meta operations)."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:218
+#, php-format
+msgid "%d record(s) will be skipped because a matching WordPress post could not be found:"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:226
+#: plugins/beyondwords-import-tool/src/class-page.php:294
+msgid "Source ID"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:227
+#: plugins/beyondwords-import-tool/src/class-page.php:295
+msgid "Source URL"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:242
+msgid "The following update_post_meta() calls will be executed:"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:248
+msgid "Confirm and Execute"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:249
+msgid "Cancel"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:268
+msgid "Importing data..."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:273
+#, php-format
+msgid "Processing 0 of %d records..."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:277
+msgid "Import completed!"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:284
+msgid "Please copy the list of failed records below and send it to BeyondWords support so we can help resolve the issue."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:286
+#: plugins/beyondwords-import-tool/src/class-page.php:287
+#: plugins/beyondwords-import-tool/src/class-page.php:303
+#: plugins/beyondwords-import-tool/src/class-page.php:304
+msgid "Copy failed records to clipboard"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:289
+#: plugins/beyondwords-import-tool/src/class-page.php:306
+msgid "Copied!"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:296
+#: src/settings/class-fields.php:88
+#: src/site-health/class-site-health.php:112
+msgid "Project ID"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:297
+#: src/editor/components/content-id/class-content-id.php:67
+#: src/editor/components/content-id/index.js:150
+msgid "Content ID"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:309
+msgid "Import Another File"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:315
+msgid "Try Again"
+msgstr ""
+
+#: plugins/speechkit-export-tool/src/class-page.php:36
+#: plugins/speechkit-export-tool/src/class-page.php:37
+#: plugins/speechkit-export-tool/src/class-page.php:54
+msgid "Export SpeechKit Data"
+msgstr ""
+
+#: plugins/speechkit-export-tool/src/class-page.php:55
+msgid "This tool helps site owners export a sample of their SpeechKit data."
+msgstr ""
+
+#: plugins/speechkit-export-tool/src/class-page.php:56
+msgid "The exported file should be sent to the SpeechKit team to enable them to replicate your SpeechKit data."
+msgstr ""
+
+#: plugins/speechkit-export-tool/src/class-page.php:57
+msgid "It is safe for you to send this file using email, because no sensitive information is present in the file."
+msgstr ""
+
+#: plugins/speechkit-export-tool/src/class-page.php:61
+msgid "Download Export File"
+msgstr ""
+
+#: src/api/class-client.php:239
+msgid "None of the selected posts had valid BeyondWords audio data."
+msgstr ""
+
+#: src/api/class-client.php:245
+msgid "Batch delete can only be performed on audio belonging a single project."
+msgstr ""
+
+#. translators: %s is replaced with the support email link
+#: src/api/class-client.php:624
+#, php-format
+msgid "API request error. Please contact %s."
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:40
+msgid "BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK."
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:43
+msgid "BeyondWords source ID"
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:47
+msgid "BeyondWords project ID"
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:51
+msgid "BeyondWords content ID"
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:55
+msgid "BeyondWords legacy podcast ID"
+msgstr ""
+
+#: src/compatibility/class-wpgraphql.php:78
+msgid "BeyondWords audio details"
+msgstr ""
+
+#: src/editor/classic/class-metabox.php:91
+#: src/editor/components/settings-panel/player-section.js:87
+msgid "Player"
+msgstr ""
+
+#: src/editor/classic/class-metabox.php:110
+#: src/editor/components/settings-panel/content-section.js:60
+msgid "Content"
+msgstr ""
+
+#: src/editor/classic/class-metabox.php:115
+#: src/editor/components/settings-panel/format-section.js:90
+msgid "Format"
+msgstr ""
+
+#: src/editor/classic/class-metabox.php:120
+#: src/editor/components/select-voice/class-select-voice.php:353
+#: src/editor/components/settings-panel/voice-section.js:259
+#: src/editor/components/settings-panel/voice-section.js:277
+msgid "Voice"
+msgstr ""
+
+#: src/editor/classic/class-metabox.php:125
+#: src/editor/components/data-panel/index.js:15
+msgid "Data"
 msgstr ""
 
 #. translators: %s is replaced with the link to the BeyondWords dashboard
-#: src/Component/Post/Metabox/Metabox.php:162
+#: src/editor/classic/class-metabox.php:182
+#, php-format
 msgid "Listen to content saved as “Pending” in the %s."
 msgstr ""
 
-#: src/Component/Post/Metabox/Metabox.php:166
-#: src/Component/Settings/Languages/Languages.php:121
-#: src/Component/Settings/Settings.php:268
+#: src/editor/classic/class-metabox.php:186
 msgid "BeyondWords dashboard"
 msgstr ""
 
 #. translators: %s is replaced with the link to the support email address
-#: src/Component/Post/Metabox/Metabox.php:242
+#: src/editor/classic/class-metabox.php:284
+#, php-format
 msgid "Need help? Email our support team on %s"
 msgstr ""
 
-#: src/Component/Post/Metabox/Metabox.php:256
+#: src/editor/classic/class-metabox.php:303
 msgid "To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked."
 msgstr ""
 
-#: src/Component/Post/Panel/Inspect/Inspect.php:151
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:286
+#: src/editor/components/add-player/class-add-player.php:118
+msgid "Player placeholder: The position of the audio player."
+msgstr ""
+
+#: src/editor/components/content-id/class-content-id.php:85
+#: src/editor/components/content-id/index.js:168
+msgid "Fetch"
+msgstr ""
+
+#: src/editor/components/generate-audio/class-generate-audio.php:138
+#: src/editor/components/block-attributes/addControls.js:54
+#: src/editor/components/generate-audio/index.js:199
+msgid "Generation enabled"
+msgstr ""
+
+#: src/editor/components/generate-audio/class-generate-audio.php:139
+#: src/editor/components/block-attributes/addControls.js:55
+#: src/editor/components/generate-audio/index.js:200
+msgid "Generation disabled"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:84
+#: src/editor/components/inspect-panel/index.js:126
+msgid "Inspect"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:115
+#: src/editor/components/inspect-panel/index.js:253
+msgid "Copy"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:129
+#: src/editor/components/inspect-panel/index.js:265
 msgid "Remove"
 msgstr ""
 
-#: src/Component/Post/Panel/Inspect/Inspect.php:285
+#: src/editor/components/inspect-panel/class-inspect-panel.php:160
+msgid "Name"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:161
+#: src/editor/components/inspect-panel/class-inspect-panel.php:201
+msgid "Value"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:186
+msgid "Key"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:269
 msgid "Copied using the Classic Editor"
 msgstr ""
 
-#: src/Component/Post/PlayerStyle/PlayerStyle.php:65
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:71
-#: build/index.js:1
-#: src/Component/Post/PlayerStyle/index.js:51
-msgid "Player style"
+#: src/editor/components/inspect-panel/class-inspect-panel.php:359
+msgid "Invalid Project ID"
 msgstr ""
 
-#: src/Component/Posts/BulkEdit/BulkEdit.php:79
+#: src/editor/components/inspect-panel/class-inspect-panel.php:369
+msgid "Invalid Content ID"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:382
+msgid "Could not connect to BeyondWords API"
+msgstr ""
+
+#. translators: %d is replaced with the error code.
+#: src/editor/components/inspect-panel/class-inspect-panel.php:397
+#, php-format
+msgid "BeyondWords REST API returned error code %d"
+msgstr ""
+
+#: src/editor/components/inspect-panel/class-inspect-panel.php:412
+msgid "Invalid response from BeyondWords API"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:65
+#: src/editor/components/select-voice/class-select-voice.php:361
+#: src/editor/components/settings-panel/voice-section.js:206
+msgid "Select a voice"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:66
+#: src/editor/components/select-voice/class-select-voice.php:289
+#: src/editor/components/settings-panel/voice-section.js:198
+msgid "Select a model"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:67
+#: src/editor/components/select-voice/class-select-voice.php:470
+#: src/editor/components/settings-panel/helpers.js:132
+msgid "Legacy"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:71
+#: src/editor/components/select-voice/class-select-voice.php:490
+#: src/editor/components/settings-panel/helpers.js:46
+msgid "v3"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:72
+#: src/editor/components/select-voice/class-select-voice.php:491
+#: src/editor/components/settings-panel/helpers.js:47
+msgid "Multilingual v2"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:73
+#: src/editor/components/select-voice/class-select-voice.php:492
+#: src/editor/components/settings-panel/helpers.js:48
+msgid "Flash v2.5"
+msgstr ""
+
+#: src/editor/components/select-voice/class-assets.php:74
+#: src/editor/components/select-voice/class-select-voice.php:493
+#: src/editor/components/settings-panel/helpers.js:49
+msgid "Turbo v2.5"
+msgstr ""
+
+#: src/editor/components/select-voice/class-select-voice.php:130
+#: src/editor/components/settings-panel/voice-section.js:226
+msgid "Customize"
+msgstr ""
+
+#: src/editor/components/select-voice/class-select-voice.php:224
+#: src/editor/components/settings-panel/voice-section.js:234
+msgid "Language"
+msgstr ""
+
+#: src/editor/components/select-voice/class-select-voice.php:232
+#: src/editor/components/settings-panel/voice-section.js:160
+msgid "Select a language…"
+msgstr ""
+
+#: src/editor/components/select-voice/class-select-voice.php:281
+#: src/editor/components/settings-panel/voice-section.js:248
+msgid "Model"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-assets.php:64
+#: src/editor/components/settings-fields/class-settings-fields.php:205
+#: src/site-health/class-site-health.php:229
+#: src/site-health/class-site-health.php:237
+#: src/editor/components/settings-panel/helpers.js:190
+msgid "None"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-assets.php:65
+#: src/editor/components/settings-fields/class-settings-fields.php:213
+#: src/editor/components/settings-panel/helpers.js:195
+msgid "Audio (post)"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-assets.php:66
+#: src/editor/components/settings-fields/class-settings-fields.php:219
+#: src/editor/components/settings-panel/helpers.js:201
+msgid "Audio (script)"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-assets.php:67
+#: src/editor/components/settings-fields/class-settings-fields.php:228
+#: src/editor/components/settings-panel/helpers.js:210
+msgid "Video (post)"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-assets.php:68
+#: src/editor/components/settings-fields/class-settings-fields.php:234
+#: src/editor/components/settings-panel/helpers.js:216
+msgid "Video (script)"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:92
+#: src/editor/components/settings-panel/helpers.js:26
+msgid "Project default"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:107
+#: src/editor/components/settings-panel/helpers.js:141
+msgid "Post"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:111
+#: src/editor/components/settings-panel/helpers.js:142
+msgid "Script"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:115
+#: src/editor/components/settings-panel/helpers.js:144
+msgid "Post + script"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:131
+#: src/editor/components/settings-panel/helpers.js:152
+msgid "Audio"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:135
+#: src/editor/components/settings-panel/helpers.js:153
+msgid "Video"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:139
+#: src/editor/components/settings-panel/helpers.js:155
+msgid "Audio + video"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:363
+#: src/editor/components/settings-panel/content-section.js:65
+msgid "Source"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:370
+#: src/editor/components/settings-panel/content-section.js:75
+msgid "Script template"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:404
+#: src/editor/components/settings-panel/format-section.js:94
+msgid "Output"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:411
+#: src/editor/components/settings-panel/format-section.js:105
+msgid "Video template"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:422
+#: src/editor/components/settings-panel/format-section.js:114
+msgid "Video size"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:446
+#: src/editor/components/settings-panel/player-section.js:67
+msgid "Embed"
+msgstr ""
+
+#: src/editor/components/settings-fields/class-settings-fields.php:450
+#: src/editor/components/settings-panel/player-section.js:68
+msgid "Pick which generated asset is shown on this post. All other generated assets stay available in BeyondWords."
+msgstr ""
+
+#: src/post/class-content.php:41
+#: src/post/class-content.php:77
+#: src/post/class-content.php:116
+#: src/post/class-content.php:138
+#: src/post/class-content.php:181
+msgid "Post Not Found"
+msgstr ""
+
+#: src/posts-list/class-bulk-edit.php:74
 msgid "— No change —"
 msgstr ""
 
-#: src/Component/Posts/BulkEdit/BulkEdit.php:81
-#: src/Component/Posts/BulkEdit/BulkEdit.php:179
+#: src/posts-list/class-bulk-edit.php:75
+#: src/posts-list/class-bulk-edit.php:239
+msgid "Generate audio"
+msgstr ""
+
+#: src/posts-list/class-bulk-edit.php:76
+#: src/posts-list/class-bulk-edit.php:240
 msgid "Delete audio"
 msgstr ""
 
+#: src/posts-list/class-bulk-edit.php:119
+msgid "Sorry, you are not allowed to bulk edit BeyondWords audio."
+msgstr ""
+
+#: src/posts-list/class-bulk-edit.php:126
+msgid "Missing bulk-edit action or selected posts."
+msgstr ""
+
+#: src/posts-list/class-bulk-edit.php:137
+msgid "Unrecognised bulk-edit action."
+msgstr ""
+
+#: src/posts-list/class-bulk-edit.php:214
+msgid "Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE."
+msgstr ""
+
 #. translators: %d is replaced with the number of posts processed
-#: src/Component/Posts/BulkEdit/BulkEdit.php:310
+#: src/posts-list/class-notices.php:46
+#, php-format
 msgid "Audio was requested for %d post."
 msgid_plural "Audio was requested for %d posts."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d is replaced with the number of posts processed
-#: src/Component/Posts/BulkEdit/BulkEdit.php:346
+#: src/posts-list/class-notices.php:73
+#, php-format
 msgid "Audio was deleted for %d post."
 msgid_plural "Audio was deleted for %d posts."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d is replaced with the number of posts that were skipped
-#: src/Component/Posts/BulkEdit/BulkEdit.php:382
+#: src/posts-list/class-notices.php:100
+#, php-format
 msgid "%d post failed, check for errors in the BeyondWords column below."
 msgid_plural "%d posts failed, check for errors in the BeyondWords column below."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Component/Settings/ApiKey/ApiKey.php:50
-msgid "BeyondWords API key"
+#: src/settings/class-fields.php:80
+msgid "API key"
 msgstr ""
 
-#: src/Component/Settings/ApiKey/ApiKey.php:90
-msgid "Please enter the BeyondWords API key. This can be found in your project settings."
+#: src/settings/class-fields.php:111
+#: src/site-health/class-site-health.php:102
+msgid "Integration method"
 msgstr ""
 
-#: src/Component/Settings/Languages/Languages.php:67
-msgid "Languages"
+#: src/settings/class-fields.php:148
+msgid "Excerpt"
 msgstr ""
 
-#. translators: %s is replaced with the link to the BeyondWords dashboard
-#: src/Component/Settings/Languages/Languages.php:117
-msgid "The default voice for audio is determined by the project settings in your %s."
-msgstr ""
-
-#: src/Component/Settings/Languages/Languages.php:128
-msgid "Add languages here to use voices other than the default project voice."
-msgstr ""
-
-#: src/Component/Settings/Languages/Languages.php:133
-msgid "The voices will be available to select on the Post Edit screen."
-msgstr ""
-
-#. translators: %s is replaced with the "playerStyle setting" link
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:111
-msgid "The default player style (%s) for the audio player. This can be overridden for each post."
-msgstr ""
-
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:114
-msgid "playerStyle setting"
-msgstr ""
-
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:134
-msgid "Standard"
-msgstr ""
-
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:138
-msgid "Small"
-msgstr ""
-
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:142
-msgid "Large"
-msgstr ""
-
-#: src/Component/Settings/PlayerStyle/PlayerStyle.php:146
-msgid "Video"
-msgstr ""
-
-#: src/Component/Settings/PlayerUI/PlayerUI.php:62
-#: src/Component/SiteHealth/SiteHealth.php:102
+#: src/settings/class-fields.php:156
+#: src/site-health/class-site-health.php:138
 msgid "Player UI"
 msgstr ""
 
-#. translators: %s is replaced with the "headless mode" link
-#: src/Component/Settings/PlayerUI/PlayerUI.php:100
-msgid "Enable or disable the player, or set it to %s."
+#: src/settings/class-fields.php:171
+msgid "Please enter the BeyondWords API key. This can be found in your project settings."
 msgstr ""
 
-#: src/Component/Settings/PlayerUI/PlayerUI.php:103
-msgid "headless mode"
-msgstr ""
-
-#: src/Component/Settings/PlayerUI/PlayerUI.php:123
-msgid "Enabled"
-msgstr ""
-
-#: src/Component/Settings/PlayerUI/PlayerUI.php:124
-msgid "Headless"
-msgstr ""
-
-#: src/Component/Settings/PlayerUI/PlayerUI.php:125
-msgid "Disabled"
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:75
-#: src/Component/SiteHealth/SiteHealth.php:97
-msgid "Player version"
-msgstr ""
-
-#. translators: %s is replaced with the player version from the BeyondWords API
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:115
-msgid "The player version on this WordPress site doesn’t match the “%s” player in your BeyondWords account. Saving the WordPress plugin settings will update your BeyondWords account to keep the player version in sync."
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:119
-msgid "Your BeyondWords account is currently using another player."
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:147
-msgid "We sync changes to the player version with your Beyondwords account when these settings are saved."
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:155
-msgid "If caching is enabled you may need to clear the cache to change the player version for existing posts."
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:259
-msgid "There was an error syncing the player version with your BeyondWords account. The versions may be different. Sign in to your BeyondWords dashboard and change the player version there if you need them to be in sync."
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:280
-msgid "Latest"
-msgstr ""
-
-#: src/Component/Settings/PlayerVersion/PlayerVersion.php:281
-msgid "Legacy"
-msgstr ""
-
-#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:55
-#: src/Component/SiteHealth/SiteHealth.php:107
-msgid "Process excerpts"
-msgstr ""
-
-#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:82
-msgid "Use excerpts for summaries"
-msgstr ""
-
-#: src/Component/Settings/IncludeExcerpt/IncludeExcerpt.php:87
-msgid "Summaries are read aloud in-between titles and body content."
-msgstr ""
-
-#: src/Component/Settings/Preselect/Preselect.php:61
-#: src/Component/SiteHealth/SiteHealth.php:113
-msgid "Preselect ‘Generate audio’"
-msgstr ""
-
-#: src/Component/Settings/Preselect/Preselect.php:83
-msgid "No compatible post types found. This plugin will only work with post types that support custom fields."
-msgstr ""
-
-#: src/Component/Settings/ProjectId/ProjectId.php:50
-#: src/Core/Core.php:533
-msgid "BeyondWords project ID"
-msgstr ""
-
-#: src/Component/Settings/ProjectId/ProjectId.php:90
+#: src/settings/class-fields.php:184
 msgid "Please enter your BeyondWords project ID. This can be found in your project settings."
 msgstr ""
 
-#: src/Component/Settings/Settings.php:98
-msgid "Basic settings"
+#. translators: %s is the link text "Magic Embed"
+#: src/settings/class-fields.php:251
+#, php-format
+msgid "REST API is the default integration. Choose %s if your theme/plugins prevent BeyondWords from saving content via the REST API — for example on sites using a page builder."
 msgstr ""
 
-#: src/Component/Settings/Settings.php:107
-msgid "Player settings"
+#: src/settings/class-fields.php:254
+#: src/settings/class-fields.php:339
+msgid "Magic Embed"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:115
-msgid "Content settings"
+#: src/settings/class-fields.php:275
+msgid "Include the post excerpt at the start of generated audio and video."
 msgstr ""
 
-#: src/Component/Settings/Settings.php:123
-msgid "‘Generate audio’ settings"
+#. translators: %s is the link text "headless mode"
+#: src/settings/class-fields.php:297
+#, php-format
+msgid "Enable or disable the player, or set it to %s."
 msgstr ""
 
-#: src/Component/Settings/Settings.php:143
-msgid "The details we need to authenticate your BeyondWords account. For more options, head to your BeyondWords dashboard."
+#: src/settings/class-fields.php:300
+msgid "headless mode"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:164
-msgid "Upgrade to the latest player version for the newest features."
+#: src/settings/class-fields.php:338
+msgid "REST API"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:185
-msgid "By default, BeyondWords will process your titles and body content into audio."
+#: src/settings/class-fields.php:350
+msgid "Enabled"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:206
-msgid "The ‘Generate audio’ checkbox in the BeyondWords sidebar will be automatically checked for selected post types. The default setting can be manually overridden."
+#: src/settings/class-fields.php:351
+msgid "Headless"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:214
-msgid "Uncheck a post type to view its Categories. You can then set defaults at a category level. Make sure to check all relevant boxes."
+#: src/settings/class-fields.php:352
+msgid "Disabled"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:223
-msgid "The default WordPress ‘Categories’ taxonomy is currently the only taxonomy supported."
+#: src/settings/class-preselect.php:104
+#: src/site-health/class-site-health.php:143
+msgid "Preselect ‘Generate audio’"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:237
+#: src/settings/class-preselect.php:380
+msgid "No compatible post types found. BeyondWords requires post types that support a title, an editor, and custom fields."
+msgstr ""
+
+#: src/settings/class-preselect.php:451
+msgid "All"
+msgstr ""
+
+#: src/settings/class-settings.php:49
+#: src/settings/class-settings.php:78
+msgid "BeyondWords Settings"
+msgstr ""
+
+#: src/settings/class-settings.php:105
+msgid "Save changes"
+msgstr ""
+
+#: src/settings/class-settings.php:122
 msgid "Settings"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:254
-msgid "BeyondWords settings"
-msgstr ""
-
-#. translators: %s is replaced with a "let us know" link
-#: src/Component/Settings/Settings.php:282
-msgid "It looks like you tried the \"Latest\" player and switched back to the \"Legacy\" player. If you experienced any issues switching player please %s so we can help."
-msgstr ""
-
-#: src/Component/Settings/Settings.php:285
-msgid "WordPress support: Latest player"
-msgstr ""
-
-#: src/Component/Settings/Settings.php:286
-msgid "let us know"
-msgstr ""
-
-#: src/Component/Settings/Settings.php:299
-msgid "The player will appear before the first part of <code>the_content()</code> by default. You can change the location via the WordPress Editor."
-msgstr ""
-
-#. translators: %s is replaced with a "plugin settings" link
-#: src/Component/Settings/Settings.php:343
-#: src/Component/Settings/Settings.php:386
+#. translators: %s is the "plugin settings" link
+#: src/settings/class-settings.php:144
+#, php-format
 msgid "To use BeyondWords, please update the %s."
 msgstr ""
 
-#: src/Component/Settings/Settings.php:347
-#: src/Component/Settings/Settings.php:390
+#: src/settings/class-settings.php:148
 msgid "plugin settings"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:397
+#: src/settings/class-settings.php:154
 msgid "Don’t have a BeyondWords account yet?"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:405
+#: src/settings/class-settings.php:161
 msgid "Sign up free"
 msgstr ""
 
-#: src/Component/Settings/Settings.php:514
-msgid "Please check and re-enter your BeyondWords API key and project ID. They appear to be invalid."
+#. translators: %s is the link to the WordPress plugin repo
+#: src/settings/class-settings.php:194
+#, php-format
+msgid "Happy with our work? Help us spread the word with a rating on the %s."
 msgstr ""
 
-#: src/Component/Settings/SettingsUpdated/SettingsUpdated.php:50
-msgid "Settings Updated"
+#: src/settings/class-settings.php:198
+msgid "WordPress Plugin Repo"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:87
+#: src/settings/class-tabs.php:90
+msgid "Authentication"
+msgstr ""
+
+#: src/settings/class-tabs.php:91
+msgid "Integration"
+msgstr ""
+
+#: src/settings/class-tabs.php:92
+msgid "Preferences"
+msgstr ""
+
+#. translators: %s is replaced with the BeyondWords REST API response debug data
+#: src/settings/class-utils.php:167
+#, php-format
+msgid "We were unable to validate your BeyondWords REST API connection.<br />Please check your project ID and API key, save changes, and contact us for support if this message remains.<br /><br />BeyondWords REST API Response:<br />%s"
+msgstr ""
+
+#: src/site-health/class-site-health.php:97
+msgid "Compatible post types"
+msgstr ""
+
+#: src/site-health/class-site-health.php:107
 msgid "API Key"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:92
-msgid "Project ID"
+#: src/site-health/class-site-health.php:132
+msgid "Include excerpt"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:119
-msgid "Allowed post types"
+#: src/site-health/class-site-health.php:133
+msgid "Yes"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:124
-msgid "Supported post types"
+#: src/site-health/class-site-health.php:133
+msgid "No"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:129
-msgid "Settings updated"
-msgstr ""
-
-#: src/Component/SiteHealth/SiteHealth.php:136
-msgid "Registered filters"
-msgstr ""
-
-#: src/Component/SiteHealth/SiteHealth.php:137
-#: src/Component/SiteHealth/SiteHealth.php:145
-msgid "None"
-msgstr ""
-
-#: src/Component/SiteHealth/SiteHealth.php:144
-msgid "Registered deprecated filters"
-msgstr ""
-
-#: src/Component/SiteHealth/SiteHealth.php:172
-#: src/Component/SiteHealth/SiteHealth.php:177
+#: src/site-health/class-site-health.php:159
+#: src/site-health/class-site-health.php:166
 msgid "Plugin version"
 msgstr ""
 
-#: src/Component/SiteHealth/SiteHealth.php:205
+#. translators: 1: Current plugin version, 2: Database plugin version
+#: src/site-health/class-site-health.php:169
+#, php-format
+msgid "Version mismatch: file: %1$s / db: %2$s"
+msgstr ""
+
+#: src/site-health/class-site-health.php:185
 msgid "REST API URL"
 msgstr ""
 
-#: src/Core/ApiClient.php:145
-msgid "None of the selected posts had valid BeyondWords audio data."
+#: src/site-health/class-site-health.php:200
+#: src/site-health/class-site-health.php:208
+msgid "Communication with REST API"
 msgstr ""
 
-#: src/Core/ApiClient.php:149
-msgid "Batch delete can only be performed on audio belonging a single project."
+#: src/site-health/class-site-health.php:201
+msgid "BeyondWords API is reachable"
 msgstr ""
 
-#. translators: %s is replaced with the support email link
-#: src/Core/ApiClient.php:489
-msgid "API request error. Please contact %s."
+#. translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup.
+#: src/site-health/class-site-health.php:211
+#, php-format
+msgid "Unable to reach BeyondWords API at %1$s: %2$s"
 msgstr ""
 
-#. translators: %s is replaced with the reason that JSON parsing failed
-#: src/Core/ApiClient.php:501
-msgid "Unable to parse JSON in BeyondWords API response. Reason: %s."
+#: src/site-health/class-site-health.php:228
+msgid "Registered filters"
 msgstr ""
 
-#. translators: %d is replaced with number of BeyondWords errors
-#: src/Core/Core.php:499
-msgid "%d BeyondWords error found."
-msgid_plural "%d BeyondWords errors found."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Core/Core.php:510
-msgid "Check the BeyondWords column for more details."
+#: src/site-health/class-site-health.php:236
+msgid "Registered deprecated filters"
 msgstr ""
 
-#: src/Core/Core.php:530
-msgid "BeyondWords audio details. Use this data to embed an audio player using the BeyondWords JavaScript SDK."
+#: src/site-health/class-site-health.php:249
+msgid "Date Activated"
 msgstr ""
 
-#: src/Core/Core.php:537
-msgid "BeyondWords content ID"
+#: src/site-health/class-site-health.php:254
+msgid "Review Notice Dismissed"
 msgstr ""
 
-#: src/Core/Core.php:541
-msgid "BeyondWords legacy podcast ID"
+#: src/site-health/class-site-health.php:266
+msgid "Undefined"
 msgstr ""
 
-#: src/Core/Core.php:559
-msgid "BeyondWords audio details"
+#: src/editor/components/add-player/index.js:39
+msgid "The BeyondWords audio player will appear here."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Status/index.js:21
-msgid "Status"
+#: src/editor/components/block-attributes/addControls.js:50
+msgid "Disable generation"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/BlockAttributes/addControls.js:45
-msgid "Disable audio processing"
+#: src/editor/components/block-attributes/addControls.js:51
+msgid "Enable generation"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/BlockAttributes/addControls.js:46
-msgid "Enable audio processing"
+#: src/editor/components/content-id/classic-metabox.js:303
+msgid "Content fetched and saved successfully."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/BlockAttributes/addControls.js:48
-msgid "Audio processing enabled"
+#: src/editor/components/content-id/classic-metabox.js:315
+msgid "Failed to save fetched content."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/BlockAttributes/addControls.js:49
-msgid "Audio processing disabled"
+#: src/editor/components/content-id/classic-metabox.js:327
+#: src/editor/components/content-id/classic-metabox.js:339
+#: src/editor/components/content-id/index.js:91
+#: src/editor/components/content-id/index.js:128
+msgid "Failed to fetch content. Please check the Content ID."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/BlockAttributes/addControls.js:93
-msgid "Segment marker"
+#: src/editor/components/help-panel/index.js:16
+msgid "Help"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/OpenSidebar/index.js:15
-msgid "Open the"
+#: src/editor/components/help-panel/index.js:36
+msgid "Setup guide"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/OpenSidebar/index.js:22
-msgid "BeyondWords sidebar"
+#: src/editor/components/help-panel/index.js:41
+msgid "Need help? Email our support team."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/OpenSidebar/index.js:24
-msgid "for additional options and features."
+#: src/editor/components/help-panel/index.js:46
+msgid "Email BeyondWords"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:180
+#: src/editor/components/inspect-panel/helpers.js:56
 msgid "Deprecated"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:196
+#: src/editor/components/inspect-panel/helpers.js:58
 msgid "System"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:198
+#: src/editor/components/inspect-panel/helpers.js:60
 msgid "Copied using the Block Editor"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:285
+#: src/editor/components/inspect-panel/index.js:115
+msgid "Copied data to clipboard."
+msgstr ""
+
+#: src/editor/components/inspect-panel/index.js:264
 msgid "Restore"
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:364
+#: src/editor/components/inspect-panel/index.js:344
 msgid "The BeyondWords data for this post will be removed when the post is saved."
 msgstr ""
 
-#: build/index.js:1
-#: src/Component/Post/Panel/Inspect/index.js:380
-msgid "Unable to remove the BeyondWords data. Please email our support team."
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/PendingNotice/index.js:23
-msgid "Listen to content saved as “Pending” in the BeyondWords dashboard."
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/PendingNotice/index.js:29
-msgid "BeyondWords dashboard."
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/PlayAudio/index.js:118
-msgid "🔊 There was an error playing the audio. Please try again."
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/SelectVoice/index.js:82
-msgid "Language"
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/SelectVoice/index.js:85
-msgid "Project default"
-msgstr ""
-
-#: build/index.js:1
-#: src/Component/Post/SelectVoice/index.js:102
-msgid "Voice"
-msgstr ""
-
-#: src/Component/Post/Panel/Inspect/js/inspect.js:13
+#: src/editor/components/inspect-panel/js/inspect.js:36
 msgid "Remove all BeyondWords data when the post is saved?"
 msgstr ""
 
-#: build/Component/Post/AddPlayer/block.json
-#: src/Component/Post/AddPlayer/block.json
+#: src/editor/components/open-sidebar/index.js:15
+msgid "Open the"
+msgstr ""
+
+#: src/editor/components/open-sidebar/index.js:22
+msgid "BeyondWords sidebar"
+msgstr ""
+
+#: src/editor/components/open-sidebar/index.js:24
+msgid "for additional options and features."
+msgstr ""
+
+#: src/editor/components/pending-notice/index.js:23
+msgid "Listen to content saved as “Pending” in the BeyondWords dashboard."
+msgstr ""
+
+#: src/editor/components/pending-notice/index.js:29
+msgid "BeyondWords dashboard."
+msgstr ""
+
+#: src/editor/components/preview-panel/index.js:63
+msgid "Preview"
+msgstr ""
+
+#: src/editor/components/add-player/block.json
 msgctxt "block title"
 msgid "BeyondWords"
 msgstr ""
 
-#: build/Component/Post/AddPlayer/block.json
-#: src/Component/Post/AddPlayer/block.json
+#: src/editor/components/add-player/block.json
 msgctxt "block description"
 msgid "Embed the BeyondWords audio player. This will override the default player location."
 msgstr ""
 
-#: build/Component/Post/AddPlayer/block.json
-#: src/Component/Post/AddPlayer/block.json
+#: src/editor/components/add-player/block.json
 msgctxt "block keyword"
 msgid "audio"
 msgstr ""
 
-#: build/Component/Post/AddPlayer/block.json
-#: src/Component/Post/AddPlayer/block.json
+#: src/editor/components/add-player/block.json
 msgctxt "block keyword"
 msgid "text-to-speech"
 msgstr ""

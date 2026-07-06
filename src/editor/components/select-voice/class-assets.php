@@ -64,7 +64,7 @@ class Assets {
 				'projectId'        => (string) get_option( 'beyondwords_project_id', '' ),
 				'selectVoice'      => __( 'Select a voice', 'speechkit' ),
 				'selectModel'      => __( 'Select a model', 'speechkit' ),
-				'standardModel'    => __( 'Standard', 'speechkit' ),
+				'standardModel'    => __( 'Legacy', 'speechkit' ),
 				'elevenLabs'       => \BeyondWords\Editor\Components\SelectVoice::ELEVENLABS_SERVICE,
 				'defaultModelId'   => \BeyondWords\Editor\Components\SelectVoice::DEFAULT_ELEVENLABS_VOICE_MODEL_ID,
 				'voiceModelLabels' => [

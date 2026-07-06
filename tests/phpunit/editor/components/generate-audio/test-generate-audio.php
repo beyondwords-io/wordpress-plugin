@@ -82,11 +82,12 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * 'all' mode needs no live JS — the server renders the initial state.
+     * 'all' mode still enqueues the script — the state-reflecting caption needs
+     * it — but carries no term-gating preselect payload.
      *
      * @test
      */
-    public function admin_enqueue_scripts_skips_for_all_mode()
+    public function admin_enqueue_scripts_enqueues_without_preselect_for_all_mode()
     {
         global $current_screen, $post;
         $current_screen = \WP_Screen::get('post');
@@ -99,7 +100,11 @@ class GenerateAudioTest extends TestCase
 
         GenerateAudio::admin_enqueue_scripts('post.php');
 
-        $this->assertFalse(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
+        $this->assertTrue(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
+
+        // No term-gating payload in 'all' mode.
+        $data = wp_scripts()->get_data('beyondwords-metabox--generate-audio', 'data');
+        $this->assertStringNotContainsString('beyondwordsPreselect', (string) $data);
 
         wp_delete_post($post->ID, true);
     }
@@ -131,11 +136,12 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * 'terms' mode with no usable terms has nothing to watch — skip the script.
+     * 'terms' mode with no usable terms still enqueues the script (for the
+     * caption) but adds no term-gating payload.
      *
      * @test
      */
-    public function admin_enqueue_scripts_skips_when_terms_empty()
+    public function admin_enqueue_scripts_enqueues_without_preselect_when_terms_empty()
     {
         global $current_screen, $post;
         $current_screen = \WP_Screen::get('post');
@@ -148,7 +154,10 @@ class GenerateAudioTest extends TestCase
 
         GenerateAudio::admin_enqueue_scripts('post.php');
 
-        $this->assertFalse(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
+        $this->assertTrue(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
+
+        $data = wp_scripts()->get_data('beyondwords-metabox--generate-audio', 'data');
+        $this->assertStringNotContainsString('beyondwordsPreselect', (string) $data);
 
         wp_delete_post($post->ID, true);
     }
@@ -388,6 +397,56 @@ class GenerateAudioTest extends TestCase
 
         $this->assertDoesNotMatchRegularExpression(
             '/id="beyondwords_generate_audio"[^>]*checked/s',
+            $html
+        );
+
+        delete_option('beyondwords_preselect');
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * The caption reads out the checked state and exposes both label variants
+     * as data attributes for classic-metabox.js to swap between when toggled.
+     *
+     * @test
+     */
+    public function element_caption_reflects_checked_state()
+    {
+        $post = self::factory()->post->create_and_get(['post_type' => 'post']);
+        update_option('beyondwords_preselect', ['post' => ['mode' => 'all']]);
+
+        $html = $this->capture_output(function () use ($post) {
+            GenerateAudio::element($post);
+        });
+
+        // Both label variants are exposed as data attributes.
+        $this->assertStringContainsString('data-label-enabled="Generation enabled"', $html);
+        $this->assertStringContainsString('data-label-disabled="Generation disabled"', $html);
+
+        // The rendered caption reads out the (checked) state.
+        $this->assertMatchesRegularExpression(
+            '/id="beyondwords-generate-audio-label"[^>]*>Generation enabled</s',
+            $html
+        );
+
+        delete_option('beyondwords_preselect');
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function element_caption_reads_disabled_when_unchecked()
+    {
+        $post = self::factory()->post->create_and_get(['post_type' => 'post']);
+        update_option('beyondwords_preselect', []);
+
+        $html = $this->capture_output(function () use ($post) {
+            GenerateAudio::element($post);
+        });
+
+        $this->assertMatchesRegularExpression(
+            '/id="beyondwords-generate-audio-label"[^>]*>Generation disabled</s',
             $html
         );
 

@@ -22,7 +22,7 @@ context( 'Block Editor: Select Voice', () => {
 		'Multilingual v2',
 		'v3',
 		'Flash v2.5',
-		'Standard',
+		'Legacy',
 	];
 
 	// Only test priority post types
@@ -104,7 +104,7 @@ context( 'Block Editor: Select Voice', () => {
 					.should( 'have.text', 'English (British)' );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'Standard' );
+					.should( 'have.text', 'Legacy' );
 				cy.getBlockEditorSelect( 'Voice' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Ollie (Multilingual)' );

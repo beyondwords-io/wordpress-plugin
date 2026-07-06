@@ -97,7 +97,7 @@ class SelectVoiceTest extends TestCase
 
         $modelOptions = $crawler->filter('#beyondwords_model option')->each(fn ($node) => $node->text());
         $this->assertSame(
-            ['Select a model', 'Multilingual v2', 'v3', 'Flash v2.5', 'Standard'],
+            ['Select a model', 'Multilingual v2', 'v3', 'Flash v2.5', 'Legacy'],
             $modelOptions
         );
 
@@ -148,7 +148,7 @@ class SelectVoiceTest extends TestCase
 
         $modelOptions = $crawler->filter('#beyondwords_model option')->each(fn ($node) => $node->text());
         $this->assertSame(
-            ['Select a model', 'Multilingual v2', 'v3', 'Flash v2.5', 'Standard'],
+            ['Select a model', 'Multilingual v2', 'v3', 'Flash v2.5', 'Legacy'],
             $modelOptions
         );
         $this->assertSame(
@@ -260,7 +260,7 @@ class SelectVoiceTest extends TestCase
             array_column($models, 'key')
         );
         $this->assertSame(
-            ['Multilingual v2', 'Flash v2.5', 'v3', 'Standard'],
+            ['Multilingual v2', 'Flash v2.5', 'v3', 'Legacy'],
             array_column($models, 'label')
         );
 
