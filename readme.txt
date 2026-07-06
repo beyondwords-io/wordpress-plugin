@@ -83,10 +83,44 @@ Release date: tbc
 
 **Enhancements**
 
+* [#520](https://github.com/beyondwords-io/wordpress-plugin/pull/520) New settings page and project-wide rewrite.
+    * Simplifies the plugin settings — removing many tabs, fields and options — so that audio/video generation and player display are managed from your BeyondWords project settings.
+    * Standardises the codebase to WordPress VIP coding standards and migrates CI tooling from Yarn to npm.
 * [#527](https://github.com/beyondwords-io/wordpress-plugin/pull/527) BeyondWords editor redesign for the block and classic editors.
     * New Content (Source, Script template), Format (Output, Video template, Video size), Voice (Language, Model, Voice) and Player (Embed) settings, available in both editors.
     * The Player "Embed" setting replaces the "Display player" checkbox — choose "None" to hide the player on a post.
-* [#520](https://github.com/beyondwords-io/wordpress-plugin/pull/520) Settings page updates for WordPress v7.
+* [#536](https://github.com/beyondwords-io/wordpress-plugin/pull/536) Wire up the Player "Embed" setting.
+    * The Embed choice (audio/video × post/script) now controls the rendered player, rather than only showing or hiding it.
+* [#537](https://github.com/beyondwords-io/wordpress-plugin/pull/537) Opt-in "Customize" voice and language controls.
+    * A per-post "Customize" toggle (off by default) reveals the Language and Voice pickers; the project's default language is pre-selected when enabled.
+    * The Voice and Language settings are consolidated into the plugin sidebar.
+* [#558](https://github.com/beyondwords-io/wordpress-plugin/pull/558) Reorder the voice picker to Language → Model → Voice.
+    * "Model" is now a language-level filter that narrows the Voice list.
+* [#557](https://github.com/beyondwords-io/wordpress-plugin/pull/557) Preselect "Generate audio" by taxonomy term.
+    * Reinstates preselecting audio generation for posts assigned specific terms, now across all hierarchical taxonomies and without marking posts as having unsaved changes.
+* [#555](https://github.com/beyondwords-io/wordpress-plugin/pull/555) Live player preview for the "Add Player" block.
+    * The block renders a non-interactive preview of the actual player, or a prompt to generate audio when none exists.
+* [#563](https://github.com/beyondwords-io/wordpress-plugin/pull/563) State-reflecting generation labels and "Legacy" model rename.
+    * The "Generate audio" toggle now reads "Generation enabled" / "Generation disabled"; the "Standard" voice model bucket is relabelled "Legacy".
+* [#532](https://github.com/beyondwords-io/wordpress-plugin/pull/532) Cache API reads and defer audio generation on WordPress VIP.
+    * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
+
+**Fixes**
+
+* [#540](https://github.com/beyondwords-io/wordpress-plugin/pull/540) Escape the player `onload` attribute to prevent stored XSS via the Content ID.
+* [#539](https://github.com/beyondwords-io/wordpress-plugin/pull/539) Add capability checks to the bulk-edit AJAX handler.
+* [#541](https://github.com/beyondwords-io/wordpress-plugin/pull/541) Prevent a player SDK error from clobbering saved content on Fetch.
+* [#546](https://github.com/beyondwords-io/wordpress-plugin/pull/546) Prevent the classic editor Voice/Model dropdowns breaking on a voices REST error.
+* [#545](https://github.com/beyondwords-io/wordpress-plugin/pull/545) Persist settings-validation errors across the save redirect.
+* [#554](https://github.com/beyondwords-io/wordpress-plugin/pull/554) Return JSON from the bulk-edit AJAX handler and catch delete errors.
+* [#553](https://github.com/beyondwords-io/wordpress-plugin/pull/553) Resolve the post ID in `Content::get_content_without_excluded_blocks`.
+* [#552](https://github.com/beyondwords-io/wordpress-plugin/pull/552) Re-check the BeyondWords namespace in an effect to avoid a player init race.
+* [#551](https://github.com/beyondwords-io/wordpress-plugin/pull/551) Track live meta for the Inspect panel Remove button.
+* [#550](https://github.com/beyondwords-io/wordpress-plugin/pull/550) Coerce non-string API error messages to avoid a fatal `TypeError`.
+* [#548](https://github.com/beyondwords-io/wordpress-plugin/pull/548) Guard against undefined post meta in the settings-panel sections.
+* [#544](https://github.com/beyondwords-io/wordpress-plugin/pull/544) Prevent a `TypeError` in the deferred audio-generation cron when a post is deleted.
+* [#543](https://github.com/beyondwords-io/wordpress-plugin/pull/543) Guard a null languages API result in the classic editor voice select.
+* [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
 
 **Deprecations**
 
@@ -97,9 +131,20 @@ Release date: tbc
 **Compatibility**
 
 * Tested up to WordPress 7.0.
-* PHP 8.5 support.
+* [#515](https://github.com/beyondwords-io/wordpress-plugin/pull/515) PHP 8.5 support.
     * Run unit and e2e tests against PHP 8.0 and PHP 8.5 in GitHub Actions.
     * Bumped `phpVersion` in wp-env to 8.5.
+
+**Codebase Enhancements**
+
+* [#533](https://github.com/beyondwords-io/wordpress-plugin/pull/533) Fix failing Cypress tests for v7.
+* [#538](https://github.com/beyondwords-io/wordpress-plugin/pull/538) Remove the unused `updatePostMeta` util from the Inspect panel.
+* [#562](https://github.com/beyondwords-io/wordpress-plugin/pull/562) Re-enable Plugin Check on `plugin-check-action` v1.1.7.
+* [#560](https://github.com/beyondwords-io/wordpress-plugin/pull/560) Cancel superseded CI runs via a concurrency group.
+* [#516](https://github.com/beyondwords-io/wordpress-plugin/pull/516) Remove `environment` from the GitHub workflows.
+* [#517](https://github.com/beyondwords-io/wordpress-plugin/pull/517), [#535](https://github.com/beyondwords-io/wordpress-plugin/pull/535) Update GitHub Actions dependencies.
+* [#514](https://github.com/beyondwords-io/wordpress-plugin/pull/514), [#529](https://github.com/beyondwords-io/wordpress-plugin/pull/529), [#534](https://github.com/beyondwords-io/wordpress-plugin/pull/534) Dependency upgrades.
+* Various dependency updates to clear Dependabot security warnings.
 
 = 6.3.0 =
 
