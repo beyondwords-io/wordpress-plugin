@@ -275,13 +275,25 @@ Source: `tests/cypress/e2e/` — same delete-when-the-UI-is-removed rule. (Detai
 
 ## Versioning
 
-Plugin version lives in two places — keep them in sync:
+**Always bump the version with the script — never edit the version by hand:**
+
+```sh
+scripts/bump-version.sh 7.0.0-beta.1
+```
+
+It sets the version everywhere it lives (and verifies each one), then you review
+the diff and commit. It does not commit, tag, or touch the changelog.
+
+The version lives in five places, all kept in sync by the script:
 
 - [speechkit.php](speechkit.php) plugin header `Version:` line
 - `BEYONDWORDS__PLUGIN_VERSION` constant in the same file
 - `version` in [package.json](package.json) (informational; npm publish is not used)
+- root `version` and `packages[""].version` in [package-lock.json](package-lock.json)
+- `Stable tag:` in [readme.txt](readme.txt)
 
 Bump on any release. Pre-release versions use semver pre-release identifiers, e.g. `7.0.0-beta.1`.
+If you add a new place the version needs to appear, update [scripts/bump-version.sh](scripts/bump-version.sh) too.
 
 ## Known issues
 
