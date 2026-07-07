@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 
 export const SOURCE_POST = 'post';
@@ -24,6 +25,86 @@ export const PROJECT_DEFAULT_VALUE = '';
 
 export function projectDefaultOption() {
 	return { label: __( 'Project default', 'speechkit' ), value: '' };
+}
+
+// A language row from /organization/languages is a (name, accent, code)
+// combination — e.g. English has one row per accent. The editor splits the
+// pair across two selects: Language lists the distinct NAMES, Accent lists the
+// rows for the chosen name, and the chosen row's CODE is the stored value.
+// Rows missing a code, name or accent are skipped (mirrors the PHP guard in
+// src/editor/components/select-voice/class-select-voice.php).
+const isValidLanguage = ( language ) =>
+	!! ( language?.code && language?.name && language?.accent );
+
+/**
+ * The distinct language names across the /languages rows, in API order.
+ *
+ * @param {Array<Object>} languages The language rows.
+ *
+ * @return {Array<string>} The decoded language names.
+ */
+export function getLanguageNames( languages ) {
+	const names = [];
+
+	( languages ?? [] ).forEach( ( language ) => {
+		if ( ! isValidLanguage( language ) ) {
+			return;
+		}
+		const name = decodeEntities( language.name );
+		if ( ! names.includes( name ) ) {
+			names.push( name );
+		}
+	} );
+
+	return names;
+}
+
+/**
+ * The accents for a language name, as Accent dropdown options carrying the
+ * language CODE as their value, in API order.
+ *
+ * @param {Array<Object>} languages The language rows.
+ * @param {string}        name      The decoded language name.
+ *
+ * @return {Array<{label: string, value: string}>} The Accent dropdown options.
+ */
+export function getAccentsForName( languages, name ) {
+	if ( ! name ) {
+		return [];
+	}
+
+	return ( languages ?? [] )
+		.filter(
+			( language ) =>
+				isValidLanguage( language ) &&
+				decodeEntities( language.name ) === name
+		)
+		.map( ( language ) => ( {
+			label: decodeEntities( language.accent ),
+			value: decodeEntities( language.code ),
+		} ) );
+}
+
+/**
+ * Find a language row by its code.
+ *
+ * @param {Array<Object>} languages The language rows.
+ * @param {string}        code      The language code.
+ *
+ * @return {Object|null} The matching row, or null.
+ */
+export function findLanguageByCode( languages, code ) {
+	if ( ! code ) {
+		return null;
+	}
+
+	return (
+		( languages ?? [] ).find(
+			( language ) =>
+				isValidLanguage( language ) &&
+				decodeEntities( language.code ) === code
+		) ?? null
+	);
 }
 
 // Voice "models" only exist for ElevenLabs voices, exposed as a snake_case

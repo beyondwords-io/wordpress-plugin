@@ -1,13 +1,20 @@
 /* global beyondwordsData */
 
 /*
- * Classic-editor Customize + Language + Model + Voice behaviour.
+ * Classic-editor Customize + Language + Accent + Model + Voice behaviour.
  *
  * "Customize" is opt-in. While off, the post uses the project default language
  * and voice: the fields stay hidden and the selects submit empty so save()
  * removes the meta. While on, the Language dropdown drives a voices fetch and
  * seeds the language's default voice (we never send the language itself — the
  * voice carries it).
+ *
+ * "Language" lists language NAMES (e.g. English); "Accent" lists the accents
+ * for the chosen name and is the submitted field (`beyondwords_language_code`)
+ * — a (name, accent) pair maps to exactly one language code. Picking a name
+ * auto-selects its first accent, which fetches that language's voices and
+ * seeds its default body voice. The Accent select is hidden when a language
+ * offers a single accent (nothing to choose).
  *
  * "Model" is a language-level filter: each ElevenLabs model_id, plus a single
  * "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
@@ -26,6 +33,7 @@
 	const data =
 		typeof beyondwordsData !== 'undefined' ? beyondwordsData : null;
 
+	const LANGUAGES = ( data && data.languages ) || [];
 	const ELEVENLABS = ( data && data.elevenLabs ) || 'ElevenLabs';
 	const DEFAULT_MODEL_ID =
 		( data && data.defaultModelId ) || 'eleven_multilingual_v2';
@@ -125,6 +133,45 @@
 
 	const byId = ( id ) => document.getElementById( id );
 
+	/**
+	 * The language rows (accents) for a language name, in API order.
+	 *
+	 * @param {string} name The language name, or ''.
+	 *
+	 * @return {Array<Object>} The matching slim language rows.
+	 */
+	const accentsForName = ( name ) =>
+		name ? LANGUAGES.filter( ( language ) => language.name === name ) : [];
+
+	/**
+	 * Find a slim language row by its code.
+	 *
+	 * @param {string} code The language code.
+	 *
+	 * @return {Object|null} The matching row, or null.
+	 */
+	const findLanguageByCode = ( code ) =>
+		LANGUAGES.find(
+			( language ) => String( language.code ) === String( code )
+		) || null;
+
+	/**
+	 * An Accent <option> for a language row: the CODE as its value, carrying
+	 * the language's default body voice id for the voice-seeding flow.
+	 *
+	 * @param {Object} language A slim language row.
+	 *
+	 * @return {HTMLOptionElement} The option element.
+	 */
+	const accentOption = ( language ) => {
+		const el = option( String( language.code ), language.accent );
+		el.setAttribute(
+			'data-default-voice-id',
+			language.defaultVoiceId ? String( language.defaultVoiceId ) : ''
+		);
+		return el;
+	};
+
 	const toggleLoader = ( show ) => {
 		const loader = document.querySelector(
 			'.beyondwords-settings__loader'
@@ -146,12 +193,19 @@
 			}
 
 			const customize = byId( 'beyondwords_customize' );
+			const languageName = byId( 'beyondwords_language_name' );
 			const language = byId( 'beyondwords_language_code' );
 			const model = byId( 'beyondwords_model' );
 
 			if ( customize ) {
 				customize.addEventListener( 'change', ( event ) => {
 					this.toggleCustomize( event.target.checked );
+				} );
+			}
+
+			if ( languageName ) {
+				languageName.addEventListener( 'change', ( event ) => {
+					this.onLanguageNameChange( event.target.value );
 				} );
 			}
 
@@ -196,13 +250,113 @@
 				return;
 			}
 
-			const language = byId( 'beyondwords_language_code' );
-			if ( language ) {
-				language.value = '';
+			const languageName = byId( 'beyondwords_language_name' );
+			if ( languageName ) {
+				languageName.value = '';
 			}
+
+			// Resets the Accent select to a single empty option, so it submits
+			// empty and save() removes the meta.
+			this.renderAccents( '', '' );
 
 			this.voices = [];
 			this.renderModels( '' );
+		},
+
+		/**
+		 * Pick a language NAME → rebuild the Accent select and auto-select its
+		 * first accent, which resolves the stored language code: fetch that
+		 * language's voices and seed its default body voice. The placeholder
+		 * clears the selection (the Accent select submits empty).
+		 *
+		 * @param {string} name The language name, or '' for the placeholder.
+		 */
+		onLanguageNameChange( name ) {
+			const first = this.renderAccents( name, '' );
+
+			if ( first ) {
+				this.getVoices(
+					String( first.code ),
+					first.defaultVoiceId ? String( first.defaultVoiceId ) : ''
+				);
+			} else {
+				this.getVoices( '', '' );
+			}
+		},
+
+		/**
+		 * Rebuild the Accent select for a language name and select an accent —
+		 * the row matching selectedCode, falling back to the name's first
+		 * accent. The wrapper is hidden when the language offers a single
+		 * accent (nothing to choose); the select still submits that accent's
+		 * code. With no name, a single empty option keeps the field posting
+		 * ('' = no language chosen).
+		 *
+		 * @param {string} name         The language name, or ''.
+		 * @param {string} selectedCode The language code to select, or ''.
+		 *
+		 * @return {Object|null} The selected slim language row, or null.
+		 */
+		renderAccents( name, selectedCode ) {
+			const wrapper = byId( 'beyondwords-metabox-select-voice--accent' );
+			const accentSelect = byId( 'beyondwords_language_code' );
+			const accents = accentsForName( name );
+
+			let selected = null;
+
+			if ( accents.length ) {
+				selected =
+					accents.find(
+						( language ) =>
+							String( language.code ) === String( selectedCode )
+					) || accents[ 0 ];
+			}
+
+			if ( accentSelect ) {
+				if ( selected ) {
+					accentSelect.replaceChildren(
+						...accents.map( accentOption )
+					);
+					accentSelect.value = String( selected.code );
+				} else {
+					accentSelect.replaceChildren( option( '', '' ) );
+					accentSelect.value = '';
+				}
+			}
+
+			if ( wrapper ) {
+				wrapper.style.display = accents.length > 1 ? '' : 'none';
+			}
+
+			return selected;
+		},
+
+		/**
+		 * Programmatically select a language code: set the Language (name)
+		 * select, rebuild its Accent options with the code selected, and fetch
+		 * the voices. Used by the project-default flow.
+		 *
+		 * @param {string} code        The language code.
+		 * @param {string} seedVoiceId The voice id to seed, or '' for none.
+		 *
+		 * @return {boolean} Whether the code matched a known language.
+		 */
+		selectCode( code, seedVoiceId ) {
+			const row = findLanguageByCode( code );
+
+			if ( ! row ) {
+				return false;
+			}
+
+			const nameSelect = byId( 'beyondwords_language_name' );
+			if ( nameSelect ) {
+				nameSelect.value = row.name;
+			}
+
+			this.renderAccents( row.name, String( code ) );
+			this.getVoices( String( code ), seedVoiceId || '' );
+
+			return true;
 		},
 
 		/**
@@ -245,11 +399,9 @@
 					}
 
 					const lang = project && project.language;
-					if ( lang ) {
-						language.value = lang;
-						// Populate the language's models/voices but seed no voice.
-						this.getVoices( lang, '' );
-					} else {
+					// Select the name + accent for the default code and
+					// populate the language's models/voices, seeding no voice.
+					if ( ! lang || ! this.selectCode( String( lang ), '' ) ) {
 						toggleLoader( false );
 					}
 				} )

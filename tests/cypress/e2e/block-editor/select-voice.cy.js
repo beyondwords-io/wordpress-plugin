@@ -57,10 +57,14 @@ context( 'Block Editor: Select Voice', () => {
 				} );
 
 				// Enabling Customize fetches the project's default language and
-				// pre-selects it (mock project: en_US → English (American)).
+				// pre-selects its name + accent (mock project: en_US →
+				// English + American).
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'English' );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'American' );
 
 				// Only the language is pre-filled — no model picked yet, so the
 				// Model dropdown opens on its placeholder…
@@ -81,27 +85,39 @@ context( 'Block Editor: Select Voice', () => {
 					'Voice'
 				).should( 'not.exist' );
 
-				// The Language dropdown still lists every language, placeholder first.
+				// The Language dropdown lists each language NAME once,
+				// placeholder first; the Accent dropdown lists the accents
+				// for the chosen name.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// 148 languages + the "Select a language…" placeholder.
-						expect( values ).to.have.length( 149 );
+						// 79 language names + the "Select a language…" placeholder.
+						expect( values ).to.have.length( 80 );
 						expect( values[ 0 ] ).to.eq( 'Select a language…' );
-						expect( values ).to.include( 'English (British)' );
+						expect( values ).to.include( 'English' );
+						expect( values ).to.include( 'Welsh' );
+					} );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						const values = optionLabels( $els );
+						// English has 14 accents.
+						expect( values ).to.have.length( 14 );
+						expect( values ).to.include( 'American' );
+						expect( values ).to.include( 'British' );
 					} );
 
-				// Changing the Language re-fetches its voices and seeds that
-				// language's default body voice (en_GB → Ollie, a Standard voice),
-				// so the Model resolves to Standard and the Voice to Ollie.
-				cy.getBlockEditorSelect( 'Language' ).select(
-					'English (British)',
-					{ force: true }
-				);
-				cy.getBlockEditorSelect( 'Language' )
+				// Changing the Accent re-fetches its voices and seeds that
+				// language's default body voice (en_GB → Ollie, a Legacy
+				// voice), so the Model resolves to Legacy and the Voice to
+				// Ollie.
+				cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
+					force: true,
+				} );
+				cy.getBlockEditorSelect( 'Accent' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (British)' );
+					.should( 'have.text', 'British' );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Legacy' );
@@ -182,11 +198,14 @@ context( 'Block Editor: Select Voice', () => {
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'be.checked' );
 
-				// Language, Model and Voice persist after reload (derived from the
-				// saved voice id).
+				// Language, Accent, Model and Voice persist after reload
+				// (derived from the saved language code + voice id).
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (British)' );
+					.should( 'have.text', 'English' );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'British' );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'v3' );
@@ -220,7 +239,10 @@ context( 'Block Editor: Select Voice', () => {
 		cy.get( '.beyondwords--customize label' ).click( { force: true } );
 		cy.getBlockEditorSelect( 'Language' )
 			.find( 'option:selected' )
-			.should( 'have.text', 'English (American)' );
+			.should( 'have.text', 'English' );
+		cy.getBlockEditorSelect( 'Accent' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'American' );
 	};
 
 	it( 'stores a distinct voice id for the same name under each Model', () => {
@@ -295,10 +317,29 @@ context( 'Block Editor: Select Voice', () => {
 		} );
 	} );
 
+	it( 'hides the Accent select for single-accent languages', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Single-accent language',
+		} );
+		enableCustomizeForEnUs();
+
+		// Welsh offers a single accent: it is auto-selected (storing its
+		// code) and the Accent select hides — nothing to choose.
+		cy.getBlockEditorSelect( 'Language' ).select( 'Welsh', {
+			force: true,
+		} );
+		cy.contains( '.components-select-control label', 'Accent' ).should(
+			'not.exist'
+		);
+		expectMeta( ( meta ) =>
+			expect( meta?.beyondwords_language_code ).to.eq( 'cy_GB' )
+		);
+	} );
+
 	// The single-bucket branch (a language offering one model, so the Model
 	// dropdown is hidden and the Voice list shows directly) is covered
-	// end-to-end by the classic-editor spec and by the getLanguageModels()
-	// jest unit tests. The block editor reads voices through the wp.data
-	// store, which cy.intercept does not stub reliably, so it is not
-	// duplicated here.
+	// end-to-end by the classic-editor spec. The block editor reads voices
+	// through the wp.data store, which cy.intercept does not stub reliably,
+	// so it is not duplicated here.
 } );

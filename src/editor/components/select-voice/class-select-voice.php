@@ -100,7 +100,8 @@ class SelectVoice {
 		?>
 		<div id="beyondwords-metabox-select-voice--fields" style="<?php echo esc_attr( $fields_style ); ?>">
 		<?php
-		self::render_language_select( $languages, $language_code );
+		self::render_language_name_select( $languages, $language_code );
+		self::render_accent_select( $languages, $language_code );
 		self::render_model_select( $voices, $voice_id );
 		self::render_voice_select( $voices, $voice_id );
 		self::render_loading_spinner();
@@ -206,46 +207,218 @@ class SelectVoice {
 	}
 
 	/**
-	 * Render the language select dropdown.
+	 * Whether a language row carries the fields the pickers need.
 	 *
-	 * @since 6.0.0
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0
+	 *
+	 * @param mixed $language A language record.
+	 *
+	 * @return bool
+	 */
+	private static function is_valid_language( $language ): bool {
+		return is_array( $language )
+			&& ! empty( $language['code'] )
+			&& ! empty( $language['name'] )
+			&& ! empty( $language['accent'] );
+	}
+
+	/**
+	 * The distinct language names across the language rows, in API order.
+	 * Mirrors `getLanguageNames()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array $languages The languages array.
+	 *
+	 * @return string[] The language names.
+	 */
+	public static function language_names( array $languages ): array {
+		$names = [];
+
+		foreach ( $languages as $language ) {
+			if ( ! self::is_valid_language( $language ) ) {
+				continue;
+			}
+			if ( ! in_array( $language['name'], $names, true ) ) {
+				$names[] = $language['name'];
+			}
+		}
+
+		return $names;
+	}
+
+	/**
+	 * The language rows (accents) for a language name, in API order. Mirrors
+	 * `getAccentsForName()` in src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array  $languages The languages array.
+	 * @param string $name      The language name.
+	 *
+	 * @return array The matching language rows.
+	 */
+	public static function accents_for_name( array $languages, string $name ): array {
+		if ( '' === $name ) {
+			return [];
+		}
+
+		return array_values(
+			array_filter(
+				$languages,
+				static function ( $language ) use ( $name ) {
+					return self::is_valid_language( $language ) && $language['name'] === $name;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Find a language row by its code. Mirrors `findLanguageByCode()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array        $languages The languages array.
+	 * @param string|false $code      The language code.
+	 *
+	 * @return array|null The matching language row, or null.
+	 */
+	public static function find_language_by_code( array $languages, $code ): ?array {
+		foreach ( $languages as $language ) {
+			if ( self::is_valid_language( $language ) && strval( $language['code'] ) === strval( $code ) ) {
+				return $language;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Slim language rows for the classic-editor script: enough to rebuild the
+	 * Accent dropdown (and seed the default body voice) when the user picks a
+	 * language name, without another API round-trip.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array The slim language rows.
+	 */
+	public static function languages_for_script(): array {
+		$rows = [];
+
+		foreach ( self::get_languages() as $language ) {
+			if ( ! self::is_valid_language( $language ) ) {
+				continue;
+			}
+
+			$rows[] = [
+				'code'           => strval( $language['code'] ),
+				'name'           => strval( $language['name'] ),
+				'accent'         => strval( $language['accent'] ),
+				'defaultVoiceId' => strval( $language['default_voices']['body']['id'] ?? '' ),
+			];
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Render the Language select: one entry per language NAME (e.g. "English").
+	 *
+	 * The name select is a client-side control only — it carries no `name`
+	 * attribute and is not submitted. Its companion Accent select (which keeps
+	 * the `beyondwords_language_code` field) resolves the (name, accent) pair
+	 * to the stored language code.
+	 *
+	 * @since 6.0.0 As render_language_select, combining name + accent.
+	 * @since 7.0.0 Split into Language (name) + Accent selects.
 	 *
 	 * @param array        $languages The languages array.
 	 * @param string|false $selected_lang_code The selected language code.
 	 */
-	private static function render_language_select( array $languages, $selected_lang_code ): void {
+	private static function render_language_name_select( array $languages, $selected_lang_code ): void {
+		$selected_language = self::find_language_by_code( $languages, $selected_lang_code );
+		$selected_name     = $selected_language['name'] ?? '';
 		?>
 		<p
-			id="beyondwords-metabox-select-voice--language-code"
+			id="beyondwords-metabox-select-voice--language-name"
 			class="post-attributes-label-wrapper page-template-label-wrapper"
 		>
-			<label class="post-attributes-label" for="beyondwords_language_code">
+			<label class="post-attributes-label" for="beyondwords_language_name">
 				<?php esc_html_e( 'Language', 'speechkit' ); ?>
 			</label>
 		</p>
-		<select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
+		<select id="beyondwords_language_name" style="width: 100%;">
 			<?php
 			printf(
 				'<option value="" %s>%s</option>',
-				selected( '', strval( $selected_lang_code ), false ),
+				selected( '', strval( $selected_name ), false ),
 				esc_html__( 'Select a language…', 'speechkit' )
 			);
-			foreach ( $languages as $language ) {
-				if ( empty( $language['code'] ) || empty( $language['name'] ) || empty( $language['accent'] ) ) {
-					continue;
-				}
+			foreach ( self::language_names( $languages ) as $name ) {
 				printf(
-					'<option value="%s" data-default-voice-id="%s" %s>%s (%s)</option>',
-					esc_attr( $language['code'] ),
-					esc_attr( $language['default_voices']['body']['id'] ?? '' ),
-					selected( strval( $language['code'] ), strval( $selected_lang_code ) ),
-					esc_html( $language['name'] ),
-					esc_html( $language['accent'] )
+					'<option value="%s" %s>%s</option>',
+					esc_attr( $name ),
+					selected( $name, strval( $selected_name ), false ),
+					esc_html( $name )
 				);
 			}
 			?>
 		</select>
+		<?php
+	}
+
+	/**
+	 * Render the Accent select: the accents for the selected language name.
+	 *
+	 * This is the submitted field (`beyondwords_language_code`) — a (name,
+	 * accent) pair maps to exactly one language code, so the Accent select
+	 * carries the code. Hidden when the language offers a single accent
+	 * (nothing to choose), while still submitting that accent's code. Always
+	 * renders at least one option so the field posts (save() requires the key
+	 * to be present; an empty value means "no language chosen").
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array        $languages The languages array.
+	 * @param string|false $selected_lang_code The selected language code.
+	 */
+	private static function render_accent_select( array $languages, $selected_lang_code ): void {
+		$selected_language = self::find_language_by_code( $languages, $selected_lang_code );
+		$selected_name     = $selected_language['name'] ?? '';
+		$accents           = self::accents_for_name( $languages, strval( $selected_name ) );
+
+		$show_accent  = count( $accents ) > 1;
+		$accent_style = $show_accent ? '' : 'display: none;';
+		?>
+		<div
+			id="beyondwords-metabox-select-voice--accent"
+			class="beyondwords-metabox-settings__field"
+			style="<?php echo esc_attr( $accent_style ); ?>"
+		>
+			<p class="post-attributes-label-wrapper page-template-label-wrapper">
+				<label class="post-attributes-label" for="beyondwords_language_code">
+					<?php esc_html_e( 'Accent', 'speechkit' ); ?>
+				</label>
+			</p>
+			<select id="beyondwords_language_code" name="beyondwords_language_code" style="width: 100%;">
+				<?php
+				if ( empty( $accents ) ) {
+					echo '<option value=""></option>';
+				}
+				foreach ( $accents as $language ) {
+					printf(
+						'<option value="%s" data-default-voice-id="%s" %s>%s</option>',
+						esc_attr( $language['code'] ),
+						esc_attr( $language['default_voices']['body']['id'] ?? '' ),
+						selected( strval( $language['code'] ), strval( $selected_lang_code ), false ),
+						esc_html( $language['accent'] )
+					);
+				}
+				?>
+			</select>
+		</div>
 		<?php
 	}
 

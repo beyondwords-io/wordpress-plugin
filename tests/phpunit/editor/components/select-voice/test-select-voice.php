@@ -72,20 +72,47 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-code');
+        $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-name');
         $this->assertEquals('Language', $languageLabel->text());
 
-        $languageSelect = $crawler->filter('#beyondwords_language_code');
-        $this->assertCount(1, $languageSelect);
+        // The Language select lists each language NAME once, placeholder
+        // first. It is a client-side control only — no name attribute.
+        $nameSelect = $crawler->filter('#beyondwords_language_name');
+        $this->assertCount(1, $nameSelect);
+        $this->assertNull($nameSelect->attr('name'));
 
-        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(34)')->attr('value'));
-        $this->assertSame('English (American)', $languageSelect->filter('option:nth-child(34)')->text());
+        // 79 distinct names + the "Select a language…" placeholder.
+        $this->assertCount(80, $nameSelect->filter('option'));
 
-        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(36)')->attr('value'));
-        $this->assertSame('English (British)', $languageSelect->filter('option:nth-child(36)')->text());
+        $this->assertSame('English', $nameSelect->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('English', $nameSelect->filter('option:nth-child(4)')->text());
+        $this->assertNotNull($nameSelect->filter('option:nth-child(4)')->attr('selected'));
 
-        $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(93)')->attr('value'));
-        $this->assertSame('Welsh (Welsh)', $languageSelect->filter('option:nth-child(93)')->text());
+        $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->attr('value'));
+        $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->text());
+
+        // The Accent select is the submitted field and carries the language
+        // CODE; the post's saved en_US stays selected. English offers several
+        // accents, so the field is visible.
+        $accentLabel = $crawler->filter('#beyondwords-metabox-select-voice--accent label');
+        $this->assertEquals('Accent', $accentLabel->text());
+
+        $accentWrapper = $crawler->filter('#beyondwords-metabox-select-voice--accent');
+        $this->assertStringNotContainsString('display: none', (string) $accentWrapper->attr('style'));
+
+        $accentSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $accentSelect);
+        $this->assertSame('beyondwords_language_code', $accentSelect->attr('name'));
+
+        // The 14 English accents, in API order.
+        $this->assertCount(14, $accentSelect->filter('option'));
+
+        $this->assertSame('en_US', $accentSelect->filter('option:nth-child(5)')->attr('value'));
+        $this->assertSame('American', $accentSelect->filter('option:nth-child(5)')->text());
+        $this->assertNotNull($accentSelect->filter('option:nth-child(5)')->attr('selected'));
+
+        $this->assertSame('en_GB', $accentSelect->filter('option:nth-child(6)')->attr('value'));
+        $this->assertSame('British', $accentSelect->filter('option:nth-child(6)')->text());
 
         // en_US offers several models, so the Model dropdown is visible with a
         // "Select a model" placeholder leading the buckets (Standard last).
@@ -208,18 +235,93 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // The language dropdown still renders, with only the empty "Select a
+        // The Language select still renders, with only the "Select a
         // language…" placeholder option — the failed API yields no languages.
-        $languageSelect = $crawler->filter('#beyondwords_language_code');
-        $this->assertCount(1, $languageSelect);
-        $this->assertCount(1, $languageSelect->filter('option'));
-        $this->assertSame('', $languageSelect->filter('option')->attr('value'));
+        $nameSelect = $crawler->filter('#beyondwords_language_name');
+        $this->assertCount(1, $nameSelect);
+        $this->assertCount(1, $nameSelect->filter('option'));
+        $this->assertSame('', $nameSelect->filter('option')->attr('value'));
+
+        // The Accent select renders a single empty option, so the field still
+        // submits ('' = no language chosen).
+        $accentSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $accentSelect);
+        $this->assertCount(1, $accentSelect->filter('option'));
+        $this->assertSame('', $accentSelect->filter('option')->attr('value'));
 
         // Render continued past the language select to the voice select, proving
         // no TypeError was thrown.
         $this->assertCount(1, $crawler->filter('#beyondwords_voice_id'));
 
         wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function language_names()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+            ['code' => 'en_GB', 'name' => 'English', 'accent' => 'British'],
+            ['code' => 'cy_GB', 'name' => 'Welsh', 'accent' => 'Welsh'],
+            // Rows missing a code, name or accent are skipped.
+            ['code' => 'xx_XX', 'name' => 'Broken'],
+        ];
+
+        $this->assertSame(['English', 'Welsh'], SelectVoice::language_names($languages));
+    }
+
+    /**
+     * @test
+     */
+    public function accents_for_name()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+            ['code' => 'cy_GB', 'name' => 'Welsh', 'accent' => 'Welsh'],
+            ['code' => 'en_GB', 'name' => 'English', 'accent' => 'British'],
+        ];
+
+        $accents = SelectVoice::accents_for_name($languages, 'English');
+
+        $this->assertSame(['en_US', 'en_GB'], array_column($accents, 'code'));
+        $this->assertSame([], SelectVoice::accents_for_name($languages, ''));
+    }
+
+    /**
+     * @test
+     */
+    public function find_language_by_code()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+        ];
+
+        $this->assertSame('English', SelectVoice::find_language_by_code($languages, 'en_US')['name']);
+        $this->assertNull(SelectVoice::find_language_by_code($languages, 'xx_XX'));
+        $this->assertNull(SelectVoice::find_language_by_code($languages, false));
+    }
+
+    /**
+     * @test
+     */
+    public function languages_for_script()
+    {
+        $rows = SelectVoice::languages_for_script();
+
+        // Slim rows: code/name/accent plus the default body voice id used to
+        // seed the Voice select when a language is picked.
+        $this->assertCount(148, $rows);
+        $this->assertSame(
+            ['code', 'name', 'accent', 'defaultVoiceId'],
+            array_keys($rows[0])
+        );
+
+        $en = array_column($rows, null, 'code')['en_US'];
+        $this->assertSame('English', $en['name']);
+        $this->assertSame('American', $en['accent']);
+        $this->assertSame('2517', $en['defaultVoiceId']);
     }
 
     /**

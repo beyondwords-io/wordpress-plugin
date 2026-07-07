@@ -38,23 +38,42 @@ context( 'Classic Editor: Select Voice', () => {
 				cy.get( '#beyondwords_customize' ).check();
 
 				// Enabling Customize fetches the project's default language and
-				// pre-selects it (mock project: en_US).
+				// pre-selects its name + accent (mock project: en_US).
 				cy.get( 'select#beyondwords_language_code' ).should(
 					'have.value',
 					'en_US'
 				);
+				cy.get( 'select#beyondwords_language_name' ).should(
+					'have.value',
+					'English'
+				);
 
-				// Assert we have the expected Languages
+				// The Language select lists each language NAME once,
+				// placeholder first.
+				cy.get( 'select#beyondwords_language_name' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						const values = optionLabels( $els );
+						// 79 language names + the "Select a language…" placeholder.
+						expect( values ).to.have.length( 80 );
+						expect( values[ 0 ] ).to.eq( 'Select a language…' );
+						expect( values ).to.include( 'English' );
+						expect( values ).to.include( 'Welsh' );
+					} );
+
+				// The Accent select lists the accents for the chosen name and
+				// carries the language code (the submitted field).
+				cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+					'be.visible'
+				);
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// 148 languages + the "Select a language…" placeholder.
-						expect( values ).to.have.length( 149 );
-						expect( values[ 0 ] ).to.eq( 'Select a language…' );
-						expect( values ).to.include( 'English (American)' );
-						expect( values ).to.include( 'English (British)' );
-						expect( values ).to.include( 'Welsh (Welsh)' );
+						// English has 14 accents.
+						expect( values ).to.have.length( 14 );
+						expect( values ).to.include( 'American' );
+						expect( values ).to.include( 'British' );
 					} );
 
 				// The Model dropdown lists every model the language offers,
@@ -158,10 +177,14 @@ context( 'Classic Editor: Select Voice', () => {
 				// so the fields are visible after the page refresh.
 				cy.get( '#beyondwords_customize' ).should( 'be.checked' );
 
-				// Language, Model and Voice persist after a page refresh.
+				// Language, Accent, Model and Voice persist after a page refresh.
+				cy.get( 'select#beyondwords_language_name' ).should(
+					'have.value',
+					'English'
+				);
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'American' );
 				cy.get( '#beyondwords-metabox-select-voice--model' ).should(
 					'be.visible'
 				);
@@ -240,6 +263,63 @@ context( 'Classic Editor: Select Voice', () => {
 		);
 	} );
 
+	it( 'picking a language name auto-selects its first accent', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// Welsh offers a single accent: it is auto-selected and the Accent
+		// select hides (nothing to choose), while still holding the code.
+		cy.get( 'select#beyondwords_language_name' ).select( 'Welsh' );
+		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+			'not.be.visible'
+		);
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'cy_GB'
+		);
+
+		// Back to English: its first accent (New Zealand) is auto-selected
+		// and the Accent select reappears with every English accent.
+		cy.get( 'select#beyondwords_language_name' ).select( 'English' );
+		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+			'be.visible'
+		);
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_NZ'
+		);
+		cy.get( 'select#beyondwords_language_code' )
+			.find( 'option' )
+			.should( 'have.length', 14 );
+	} );
+
+	it( 'switching accent re-fetches voices and seeds the default voice', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// en_GB's default body voice is Ollie (a Legacy voice), so switching
+		// accent seeds its model + voice.
+		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_GB'
+		);
+		cy.get( 'select#beyondwords_model' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Legacy' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Ollie (Multilingual)' );
+	} );
+
 	it( 'reverts to project defaults when Customize is turned off', () => {
 		cy.createPost( { postType: edgePostType } );
 		cy.get( '#beyondwords_customize' ).check();
@@ -255,6 +335,7 @@ context( 'Classic Editor: Select Voice', () => {
 		cy.get( '#beyondwords-metabox-select-voice--fields' ).should(
 			'not.be.visible'
 		);
+		cy.get( 'select#beyondwords_language_name' ).should( 'have.value', '' );
 		cy.get( 'select#beyondwords_language_code' ).should( 'have.value', '' );
 		cy.get( 'select#beyondwords_voice_id' ).should( 'have.value', '' );
 

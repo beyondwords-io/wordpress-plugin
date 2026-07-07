@@ -11,7 +11,13 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { getLanguageModels, voiceModelKey } from './helpers';
+import {
+	findLanguageByCode,
+	getAccentsForName,
+	getLanguageModels,
+	getLanguageNames,
+	voiceModelKey,
+} from './helpers';
 import Stack from '../stack';
 import Toggle from '../toggle';
 
@@ -122,10 +128,11 @@ export function VoiceSection( { withPanel = true } ) {
 		setMeta( { ...meta, beyondwords_body_voice_id: value } );
 	};
 
-	// Picking a Language sets the language *and* seeds the voice with that
-	// language's default body voice, so a concrete voice is always stored (we
-	// never send the language itself — the voice carries it). Languages with no
-	// default voice fall back to the "Select a voice" placeholder.
+	// Picking an Accent (or auto-picking one via a Language name change) sets
+	// the language code *and* seeds the voice with that language's default
+	// body voice, so a concrete voice is always stored (we never send the
+	// language itself — the voice carries it). Languages with no default voice
+	// fall back to the "Select a voice" placeholder.
 	const setLanguageCode = ( value ) => {
 		const language = ( languages ?? [] ).find(
 			( item ) => decodeEntities( item.code ) === value
@@ -139,6 +146,13 @@ export function VoiceSection( { withPanel = true } ) {
 				? String( defaultVoiceId )
 				: '',
 		} );
+	};
+
+	// Picking a language NAME auto-selects its first accent, which resolves
+	// the stored language code.
+	const setLanguageName = ( name ) => {
+		const first = getAccentsForName( languages, name )[ 0 ];
+		setLanguageCode( first ? first.value : '' );
 	};
 
 	// Toggling Customize off reverts the post to the project defaults by clearing
@@ -156,15 +170,27 @@ export function VoiceSection( { withPanel = true } ) {
 		}
 	};
 
-	const languageOptions = [
+	// The Language dropdown lists each distinct language NAME; the Accent
+	// dropdown lists the accents for that name and carries the language CODE
+	// (the stored value — a (name, accent) pair maps to exactly one code).
+	// Both derive from the stored code, so no extra state is persisted.
+	const selectedLanguage = findLanguageByCode( languages, languageCode );
+	const languageName = selectedLanguage
+		? decodeEntities( selectedLanguage.name )
+		: '';
+
+	const languageNameOptions = [
 		{ label: __( 'Select a language…', 'speechkit' ), value: '' },
-		...( languages ?? [] ).map( ( language ) => ( {
-			label: `${ decodeEntities( language.name ) } (${ decodeEntities(
-				language.accent
-			) })`,
-			value: decodeEntities( language.code ),
+		...getLanguageNames( languages ).map( ( name ) => ( {
+			label: name,
+			value: name,
 		} ) ),
 	];
+
+	const accentOptions = getAccentsForName( languages, languageName );
+
+	// The Accent dropdown only appears when the language offers a choice.
+	const showAccent = accentOptions.length > 1;
 
 	// "Model" is a language-level filter: each ElevenLabs model_id, plus a single
 	// "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
@@ -232,7 +258,18 @@ export function VoiceSection( { withPanel = true } ) {
 				<SelectControl
 					className="beyondwords--language"
 					label={ __( 'Language', 'speechkit' ) }
-					options={ languageOptions }
+					options={ languageNameOptions }
+					value={ languageName }
+					onChange={ setLanguageName }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			) }
+			{ customize && ! loadingProject && showAccent && (
+				<SelectControl
+					className="beyondwords--accent"
+					label={ __( 'Accent', 'speechkit' ) }
+					options={ accentOptions }
 					value={ languageCode }
 					onChange={ setLanguageCode }
 					__nextHasNoMarginBottom
