@@ -183,19 +183,32 @@ class UninstallerTest extends TestCase
         set_transient('beyondwords_voices_en', ['voice1'], 60);
         set_transient('unrelated_transient', 'keep-me', 60);
 
+        // Each expiring transient writes a value row AND a `_transient_timeout_`
+        // row; the cleanup must sweep both. Confirm the timeout rows exist up
+        // front so the post-cleanup assertion below isn't vacuous.
+        $timeoutsBefore = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_beyondwords_%'"
+        );
+        $this->assertGreaterThanOrEqual(2, $timeoutsBefore);
+
         $count = Uninstaller::cleanup_plugin_transients();
 
         // The Uninstaller does a raw SQL delete; clear the object cache so the
         // next get_transient() reads from the database (not stale cache).
         wp_cache_flush();
 
-        $this->assertGreaterThanOrEqual(2, $count);
+        // 2 beyondwords transients × (value + timeout) = 4 rows deleted.
+        $this->assertGreaterThanOrEqual(4, $count);
 
+        // Neither the value rows nor the timeout rows should remain.
         $remaining = $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '_transient_beyondwords_%'"
+            "SELECT COUNT(*) FROM {$wpdb->options}
+             WHERE option_name LIKE '_transient_beyondwords_%'
+                OR option_name LIKE '_transient_timeout_beyondwords_%'"
         );
         $this->assertSame('0', (string) $remaining);
 
+        // Unrelated transient (and its own timeout row) left untouched.
         $this->assertSame('keep-me', get_transient('unrelated_transient'));
 
         delete_transient('unrelated_transient');
