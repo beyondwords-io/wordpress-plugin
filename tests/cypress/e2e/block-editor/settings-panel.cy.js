@@ -117,11 +117,15 @@ context( 'Block Editor: Settings panel', () => {
 					force: true,
 				} );
 
-				// Enabling Customize pre-selects the project default language
-				// (mock: en_US → English (American)); wait for it before picking.
+				// Enabling Customize pre-selects the project default language,
+				// split across the Language (name) + Accent selects (mock:
+				// en_US → English + American); wait for it before picking.
 				select( 'beyondwords--language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'English' );
+				select( 'beyondwords--accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'American' );
 
 				// Model is a language-level filter: each ElevenLabs model plus a
 				// "Standard" bucket, "Select a model" first. The Voice list is
