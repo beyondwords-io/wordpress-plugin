@@ -245,6 +245,15 @@ export function VoiceSection( { withPanel = true } ) {
 		setVoiceId( first ? String( first.id ) : '' );
 	};
 
+	// While the voices resolve, Model + Voice are hidden (their contents depend
+	// on the fetch) and the Spinner below takes their place — so the spinner is
+	// never wedged between two select fields. They are hidden via CSS rather
+	// than unmounted, so the <select> doesn't detach from the DOM mid-interaction
+	// when the fetch resolves.
+	const hiddenWhileResolving = isResolvingVoices
+		? ' beyondwords--is-hidden'
+		: '';
+
 	const fields = (
 		<Stack>
 			<Toggle
@@ -276,12 +285,9 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && ! loadingProject && isResolvingVoices && (
-				<Spinner />
-			) }
 			{ customize && ! loadingProject && showModel && (
 				<SelectControl
-					className="beyondwords--model"
+					className={ 'beyondwords--model' + hiddenWhileResolving }
 					label={ __( 'Model', 'speechkit' ) }
 					options={ modelOptions }
 					value={ selectedModelKey }
@@ -292,7 +298,7 @@ export function VoiceSection( { withPanel = true } ) {
 			) }
 			{ customize && ! loadingProject && showVoice && (
 				<SelectControl
-					className="beyondwords--voice"
+					className={ 'beyondwords--voice' + hiddenWhileResolving }
 					label={ __( 'Voice', 'speechkit' ) }
 					options={ voiceOptions }
 					value={ String( voiceId ) }
@@ -300,6 +306,9 @@ export function VoiceSection( { withPanel = true } ) {
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
+			) }
+			{ customize && ! loadingProject && isResolvingVoices && (
+				<Spinner />
 			) }
 		</Stack>
 	);
