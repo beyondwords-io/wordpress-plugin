@@ -82,6 +82,48 @@
 	};
 
 	/**
+	 * A voice's primary (native) language code. Handles the API `language`
+	 * string, the `{ code }` object form, and falls back to the first entry of
+	 * `languages[]`.
+	 *
+	 * @param {Object} voice A voice record.
+	 *
+	 * @return {string} The primary language code, or ''.
+	 */
+	const voicePrimaryCode = ( voice ) => {
+		const language = voice && voice.language;
+		if ( typeof language === 'string' ) {
+			return language;
+		}
+		if ( language && typeof language === 'object' && language.code ) {
+			return language.code;
+		}
+		return (
+			( voice && voice.languages && voice.languages[ 0 ]
+				? voice.languages[ 0 ].code
+				: '' ) || ''
+		);
+	};
+
+	/**
+	 * Whether a voice is native to a language code (that code is its primary
+	 * language). A voice with no determinable primary language is treated as
+	 * native (never hidden).
+	 *
+	 * @param {Object} voice A voice record.
+	 * @param {string} code  The language code.
+	 *
+	 * @return {boolean} Whether the voice is native to the code.
+	 */
+	const voiceIsNative = ( voice, code ) => {
+		const primary = voicePrimaryCode( voice );
+		if ( ! primary ) {
+			return true;
+		}
+		return String( primary ) === String( code );
+	};
+
+	/**
 	 * The distinct model buckets across a language's voices, ElevenLabs models
 	 * first (the default leading), then a single Standard bucket if present.
 	 *
@@ -195,11 +237,20 @@
 			const customize = byId( 'beyondwords_customize' );
 			const languageName = byId( 'beyondwords_language_name' );
 			const language = byId( 'beyondwords_language_code' );
+			const native = byId( 'beyondwords_native' );
 			const model = byId( 'beyondwords_model' );
 
 			if ( customize ) {
 				customize.addEventListener( 'change', ( event ) => {
 					this.toggleCustomize( event.target.checked );
+				} );
+			}
+
+			if ( native ) {
+				native.addEventListener( 'change', () => {
+					const voiceSelect = byId( 'beyondwords_voice_id' );
+					// Re-scope the Model + Voice lists; keep the current voice.
+					this.renderModels( voiceSelect ? voiceSelect.value : '' );
 				} );
 			}
 
@@ -551,10 +602,50 @@
 		},
 
 		/**
-		 * Rebuild the Model dropdown from the current voices and select the model
-		 * for the supplied voice (if any), then rebuild the Voice dropdown for
-		 * that model. The Model dropdown is hidden when a language offers a single
-		 * bucket.
+		 * The current voices narrowed by the Native filter (native-only, or all).
+		 * The voice identified by keepId (the current selection) is always kept,
+		 * so toggling the filter never drops it. Mirrors `filterVoicesByNative()`
+		 * in src/editor/components/settings-panel/helpers.js.
+		 *
+		 * @param {string} keepId The voice id to always keep, or ''.
+		 *
+		 * @return {Array<Object>} The native-scoped voices.
+		 */
+		scopedVoices( keepId ) {
+			const nativeSelect = byId( 'beyondwords_native' );
+			const codeSelect = byId( 'beyondwords_language_code' );
+			const nativeFilter = nativeSelect ? nativeSelect.value : 'native';
+			const code = codeSelect ? codeSelect.value : '';
+
+			let result =
+				nativeFilter === 'all'
+					? this.voices
+					: this.voices.filter( ( voice ) =>
+							voiceIsNative( voice, code )
+					  );
+
+			if (
+				keepId &&
+				! result.some(
+					( voice ) => String( voice.id ) === String( keepId )
+				)
+			) {
+				const saved = this.voices.find(
+					( voice ) => String( voice.id ) === String( keepId )
+				);
+				if ( saved ) {
+					result = result.concat( [ saved ] );
+				}
+			}
+
+			return result;
+		},
+
+		/**
+		 * Rebuild the Model dropdown from the current (native-scoped) voices and
+		 * select the model for the supplied voice (if any), then rebuild the Voice
+		 * dropdown for that model. The Model dropdown is hidden when the scoped set
+		 * offers a single bucket.
 		 *
 		 * @param {string} selectedVoiceId The voice id to pre-select, or ''.
 		 */
@@ -564,7 +655,8 @@
 			);
 			const modelSelect = byId( 'beyondwords_model' );
 
-			const models = languageModels( this.voices );
+			const voices = this.scopedVoices( selectedVoiceId );
+			const models = languageModels( voices );
 			const showModel = models.length > 1;
 
 			if ( modelSelect ) {
@@ -577,7 +669,7 @@
 			}
 
 			const selectedVoice = selectedVoiceId
-				? this.voices.find(
+				? voices.find(
 						( voice ) =>
 							String( voice.id ) === String( selectedVoiceId )
 				  )
@@ -593,7 +685,12 @@
 				modelWrapper.style.display = showModel ? '' : 'none';
 			}
 
-			this.renderVoices( selectedKey, selectedVoiceId, showModel );
+			this.renderVoices(
+				selectedKey,
+				selectedVoiceId,
+				showModel,
+				voices
+			);
 		},
 
 		/**
@@ -601,11 +698,12 @@
 		 * Model gate and no model chosen, the Voice dropdown is hidden; with a
 		 * single bucket every voice is listed.
 		 *
-		 * @param {string}  modelKey    The selected model bucket key, or ''.
-		 * @param {string}  preselectId The voice id to select if in the bucket.
-		 * @param {boolean} showModel   Whether the Model dropdown is shown.
+		 * @param {string}        modelKey    The selected model bucket key, or ''.
+		 * @param {string}        preselectId The voice id to select if in the bucket.
+		 * @param {boolean}       showModel   Whether the Model dropdown is shown.
+		 * @param {Array<Object>} voices      The native-scoped voices to list.
 		 */
-		renderVoices( modelKey, preselectId, showModel ) {
+		renderVoices( modelKey, preselectId, showModel, voices ) {
 			const voiceWrapper = byId(
 				'beyondwords-metabox-select-voice--voice-id'
 			);
@@ -624,10 +722,10 @@
 			}
 
 			const bucketVoices = showModel
-				? this.voices.filter(
+				? voices.filter(
 						( voice ) => voiceModelKey( voice ) === modelKey
 				  )
-				: this.voices;
+				: voices;
 
 			if ( voiceSelect ) {
 				voiceSelect.replaceChildren(
@@ -655,17 +753,23 @@
 		 * @param {string} modelKey The selected model bucket key.
 		 */
 		onModelChange( modelKey ) {
+			const voiceSelect = byId( 'beyondwords_voice_id' );
+			const voices = this.scopedVoices(
+				voiceSelect ? voiceSelect.value : ''
+			);
+
 			if ( ! modelKey ) {
-				this.renderVoices( '', '', true );
+				this.renderVoices( '', '', true, voices );
 				return;
 			}
-			const first = this.voices.find(
+			const first = voices.find(
 				( voice ) => voiceModelKey( voice ) === modelKey
 			);
 			this.renderVoices(
 				modelKey,
 				first ? String( first.id ) : '',
-				true
+				true,
+				voices
 			);
 		},
 	};

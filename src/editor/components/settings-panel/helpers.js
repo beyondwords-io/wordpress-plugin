@@ -107,6 +107,91 @@ export function findLanguageByCode( languages, code ) {
 	);
 }
 
+// The "Native" filter narrows the Voice list to voices that speak the selected
+// language natively (their primary language), versus multilingual voices that
+// merely support it as a secondary language. Default is native-only; "All" adds
+// the non-native voices back in.
+export const NATIVE_ONLY = 'native';
+export const NATIVE_ALL = 'all';
+
+/**
+ * A voice's primary (native) language code.
+ *
+ * Handles the API's `language` string, the mock's `{ code }` object, and falls
+ * back to the first entry of `languages[]`.
+ *
+ * @param {Object} voice A voice record.
+ *
+ * @return {string} The primary language code, or '' when unknown.
+ */
+export function voicePrimaryCode( voice ) {
+	const language = voice?.language;
+
+	if ( typeof language === 'string' ) {
+		return language;
+	}
+	if ( language && typeof language === 'object' && language.code ) {
+		return language.code;
+	}
+	return voice?.languages?.[ 0 ]?.code || '';
+}
+
+/**
+ * Whether a voice is native to a language code — i.e. that code is its primary
+ * language. A voice with no determinable primary language is treated as native
+ * (we never hide a voice we cannot classify).
+ *
+ * @param {Object} voice A voice record.
+ * @param {string} code  The language code.
+ *
+ * @return {boolean} Whether the voice is native to the code.
+ */
+export function voiceIsNative( voice, code ) {
+	const primary = voicePrimaryCode( voice );
+	if ( ! primary ) {
+		return true;
+	}
+	return String( primary ) === String( code );
+}
+
+/**
+ * Apply the Native filter to a language's voices.
+ *
+ * With NATIVE_ONLY only voices native to `code` are kept; with NATIVE_ALL every
+ * fetched voice is kept. The voice identified by `keepId` (the current
+ * selection) is always kept, so changing the filter never drops the saved voice
+ * from the list.
+ *
+ * @param {Array<Object>} voices       All fetched voices for the language.
+ * @param {string}        code         The selected language code.
+ * @param {string}        nativeFilter NATIVE_ONLY or NATIVE_ALL.
+ * @param {string}        keepId       The voice id to always keep, or ''.
+ *
+ * @return {Array<Object>} The filtered voices.
+ */
+export function filterVoicesByNative( voices, code, nativeFilter, keepId ) {
+	const list = voices ?? [];
+
+	let result =
+		nativeFilter === NATIVE_ALL
+			? list
+			: list.filter( ( voice ) => voiceIsNative( voice, code ) );
+
+	if (
+		keepId &&
+		! result.some( ( voice ) => String( voice.id ) === String( keepId ) )
+	) {
+		const saved = list.find(
+			( voice ) => String( voice.id ) === String( keepId )
+		);
+		if ( saved ) {
+			result = [ ...result, saved ];
+		}
+	}
+
+	return result;
+}
+
 // Voice "models" only exist for ElevenLabs voices, exposed as a snake_case
 // `model_id` slug. Each (name, model_id) pair is a distinct voice record with
 // its own `id`. The Model dropdown is a language-level filter: picking a model

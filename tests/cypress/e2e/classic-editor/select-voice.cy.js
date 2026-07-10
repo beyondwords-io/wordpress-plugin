@@ -312,12 +312,55 @@ context( 'Classic Editor: Select Voice', () => {
 			'have.value',
 			'en_GB'
 		);
+
+		// The mock's English voices are all American-primary multilingual
+		// voices, so none are native to British English. Set Native to "All"
+		// to list them; the seeded default (Ollie) is shown either way.
+		cy.get( 'select#beyondwords_native' ).select( 'All' );
 		cy.get( 'select#beyondwords_model' )
 			.find( 'option:selected' )
 			.should( 'have.text', 'Legacy' );
 		cy.get( 'select#beyondwords_voice_id' )
 			.find( 'option:selected' )
 			.should( 'have.text', 'Ollie (Multilingual)' );
+	} );
+
+	it( 'filters the Voice list by Native', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// Default is Native: the non-native Klaus (German primary, speaks
+		// American English) is excluded from the Legacy bucket.
+		cy.get( 'select#beyondwords_native' ).should( 'have.value', 'native' );
+		cy.get( 'select#beyondwords_model' ).select( 'Legacy' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+				] );
+			} );
+
+		// Switching to All adds the non-native Klaus to the Legacy bucket.
+		cy.get( 'select#beyondwords_native' ).select( 'All' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+					'Klaus (Multilingual)',
+				] );
+			} );
 	} );
 
 	it( 'reverts to project defaults when Customize is turned off', () => {

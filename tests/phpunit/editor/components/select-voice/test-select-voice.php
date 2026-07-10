@@ -114,6 +114,19 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('en_GB', $accentSelect->filter('option:nth-child(6)')->attr('value'));
         $this->assertSame('British', $accentSelect->filter('option:nth-child(6)')->text());
 
+        // The Native select is a client-side filter (no name); it defaults to
+        // "native" and offers "Native" + "All".
+        $nativeLabel = $crawler->filter('#beyondwords-metabox-select-voice--native label');
+        $this->assertEquals('Native', $nativeLabel->text());
+
+        $nativeSelect = $crawler->filter('#beyondwords_native');
+        $this->assertNull($nativeSelect->attr('name'));
+        $this->assertSame(
+            ['Native', 'All'],
+            $nativeSelect->filter('option')->each(fn ($node) => $node->text())
+        );
+        $this->assertSame('native', $nativeSelect->filter('option[selected]')->attr('value'));
+
         // en_US offers several models, so the Model dropdown is visible with a
         // "Select a model" placeholder leading the buckets (Standard last).
         $modelLabel = $crawler->filter('#beyondwords-metabox-select-voice--model label');
@@ -322,6 +335,109 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('English', $en['name']);
         $this->assertSame('American', $en['accent']);
         $this->assertSame('2517', $en['defaultVoiceId']);
+    }
+
+    /**
+     * @test
+     */
+    public function voice_primary_code()
+    {
+        // API string form, mock object form, and languages[] fallback.
+        $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => 'en_US']));
+        $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => ['code' => 'en_US']]));
+        $this->assertSame('de_DE', SelectVoice::voice_primary_code(['languages' => [['code' => 'de_DE']]]));
+        $this->assertSame('', SelectVoice::voice_primary_code(['name' => 'Nobody']));
+    }
+
+    /**
+     * @test
+     */
+    public function voice_is_native()
+    {
+        $this->assertTrue(SelectVoice::voice_is_native(['language' => ['code' => 'en_US']], 'en_US'));
+        $this->assertFalse(SelectVoice::voice_is_native(['language' => ['code' => 'de_DE']], 'en_US'));
+
+        // A voice with no determinable primary language is treated as native.
+        $this->assertTrue(SelectVoice::voice_is_native(['name' => 'Nobody'], 'en_US'));
+    }
+
+    /**
+     * @test
+     */
+    public function filter_voices_by_native()
+    {
+        $native     = ['id' => 1, 'name' => 'Ada', 'language' => ['code' => 'en_US']];
+        $nonNative  = ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']];
+        $voices     = [$native, $nonNative];
+
+        // Native-only drops the non-native voice; "all" keeps both.
+        $this->assertSame(
+            [1],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'native', ''), 'id')
+        );
+        $this->assertSame(
+            [1, 2],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'all', ''), 'id')
+        );
+
+        // The kept voice is unioned back in even when native-only would hide it.
+        $this->assertSame(
+            [1, 2],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'native', '2'), 'id')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function default_native_filter()
+    {
+        $voices = [
+            ['id' => 1, 'name' => 'Ada', 'language' => ['code' => 'en_US']],
+            ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']],
+        ];
+
+        // Opens on "all" only when the saved voice is not native to the language.
+        $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', '1'));
+        $this->assertSame('all', SelectVoice::default_native_filter($voices, 'en_US', '2'));
+        $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', ''));
+    }
+
+    /**
+     * A saved voice that is not native to the language opens the picker on the
+     * "All" Native filter so it stays visible in the Voice dropdown.
+     *
+     * @test
+     */
+    public function element_opens_on_all_for_non_native_saved_voice()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_non_native',
+            'meta_input' => [
+                'beyondwords_language_code' => 'en_US',
+                // Klaus (9500) is German-primary, non-native to en_US.
+                'beyondwords_body_voice_id' => '9500',
+            ],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        $crawler = new Crawler($html);
+
+        // Native opens on "all".
+        $this->assertSame('all', $crawler->filter('#beyondwords_native option[selected]')->attr('value'));
+
+        // Klaus is present and selected in the Voice dropdown.
+        $voiceOptions = $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text());
+        $this->assertContains('Klaus (Multilingual)', $voiceOptions);
+        $this->assertSame(
+            '9500',
+            $crawler->filter('#beyondwords_voice_id option[selected]')->attr('value')
+        );
+
+        wp_delete_post($post->ID, true);
     }
 
     /**

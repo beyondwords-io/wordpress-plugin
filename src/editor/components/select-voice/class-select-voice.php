@@ -88,6 +88,12 @@ class SelectVoice {
 		$languages     = self::get_languages();
 		$voices        = self::get_voices_for_language( $language_code );
 
+		// The Native filter defaults to native-only, but opens on "All" when the
+		// saved voice is not native to the language so it stays visible. Model +
+		// Voice are then rendered from the native-scoped set.
+		$native_filter   = self::default_native_filter( $voices, $language_code, $voice_id );
+		$filtered_voices = self::filter_voices_by_native( $voices, $language_code, $native_filter, $voice_id );
+
 		// "Customize" is opt-in: a post is customised once it has an explicit
 		// language or voice. When off we hide the fields and store nothing, so the
 		// BeyondWords project defaults apply.
@@ -102,8 +108,9 @@ class SelectVoice {
 		<?php
 		self::render_language_name_select( $languages, $language_code );
 		self::render_accent_select( $languages, $language_code );
-		self::render_model_select( $voices, $voice_id );
-		self::render_voice_select( $voices, $voice_id );
+		self::render_native_select( $native_filter );
+		self::render_model_select( $filtered_voices, $voice_id );
+		self::render_voice_select( $filtered_voices, $voice_id );
 		self::render_loading_spinner();
 		?>
 		</div>
@@ -423,6 +430,50 @@ class SelectVoice {
 	}
 
 	/**
+	 * Render the Native select: filter the Voice list to voices native to the
+	 * language, or all (multilingual) voices.
+	 *
+	 * A client-side filter only — it carries no `name` and is not submitted. The
+	 * persisted value is the voice id from the Voice select. Mirrors the
+	 * `beyondwords--native` control in
+	 * src/editor/components/settings-panel/voice-section.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $native_filter The selected filter ("native" or "all").
+	 */
+	private static function render_native_select( string $native_filter ): void {
+		$options = [
+			'native' => __( 'Native', 'speechkit' ),
+			'all'    => __( 'All', 'speechkit' ),
+		];
+		?>
+		<div
+			id="beyondwords-metabox-select-voice--native"
+			class="beyondwords-metabox-settings__field"
+		>
+			<p class="post-attributes-label-wrapper page-template-label-wrapper">
+				<label class="post-attributes-label" for="beyondwords_native">
+					<?php esc_html_e( 'Native', 'speechkit' ); ?>
+				</label>
+			</p>
+			<select id="beyondwords_native" style="width: 100%;">
+				<?php
+				foreach ( $options as $value => $label ) {
+					printf(
+						'<option value="%s" %s>%s</option>',
+						esc_attr( $value ),
+						selected( $value, $native_filter, false ),
+						esc_html( $label )
+					);
+				}
+				?>
+			</select>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render the Model select: a language-level filter over the voices.
 	 *
 	 * Each ElevenLabs model_id is a bucket, plus a single "Standard" bucket for
@@ -564,6 +615,121 @@ class SelectVoice {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * A voice's primary (native) language code. Handles the API `language`
+	 * string, the `{ code }` object form, and falls back to the first entry of
+	 * `languages[]`. Mirrors `voicePrimaryCode()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array $voice A voice record.
+	 *
+	 * @return string The primary language code, or '' when unknown.
+	 */
+	public static function voice_primary_code( array $voice ): string {
+		$language = $voice['language'] ?? null;
+
+		if ( is_string( $language ) ) {
+			return $language;
+		}
+		if ( is_array( $language ) && ! empty( $language['code'] ) ) {
+			return (string) $language['code'];
+		}
+		return (string) ( $voice['languages'][0]['code'] ?? '' );
+	}
+
+	/**
+	 * Whether a voice is native to a language code — that code is its primary
+	 * language. A voice with no determinable primary language is treated as
+	 * native (never hidden). Mirrors `voiceIsNative()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array  $voice A voice record.
+	 * @param string $code  The language code.
+	 *
+	 * @return bool
+	 */
+	public static function voice_is_native( array $voice, string $code ): bool {
+		$primary = self::voice_primary_code( $voice );
+		if ( '' === $primary ) {
+			return true;
+		}
+		return $primary === $code;
+	}
+
+	/**
+	 * Apply the Native filter to a language's voices — native-only, or all. The
+	 * voice identified by `$keep_id` (the current selection) is always kept, so
+	 * the saved voice is never dropped. Mirrors `filterVoicesByNative()` in
+	 * src/editor/components/settings-panel/helpers.js.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array        $voices        The voices array.
+	 * @param string       $code          The language code.
+	 * @param string       $native_filter "native" or "all".
+	 * @param string|false $keep_id       The voice id to always keep.
+	 *
+	 * @return array The filtered voices.
+	 */
+	public static function filter_voices_by_native( array $voices, string $code, string $native_filter, $keep_id ): array {
+		if ( 'all' === $native_filter ) {
+			$result = $voices;
+		} else {
+			$result = array_values(
+				array_filter(
+					$voices,
+					static function ( $voice ) use ( $code ) {
+						return self::voice_is_native( $voice, $code );
+					}
+				)
+			);
+		}
+
+		$keep_id = strval( $keep_id );
+		if ( '' === $keep_id ) {
+			return $result;
+		}
+
+		foreach ( $result as $voice ) {
+			if ( strval( $voice['id'] ?? '' ) === $keep_id ) {
+				return $result;
+			}
+		}
+
+		$saved = self::find_voice( $voices, $keep_id );
+		if ( $saved ) {
+			$result[] = $saved;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * The Native filter to open with: "all" when the saved voice is not native
+	 * to the language (so it stays visible), otherwise "native".
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array        $voices        The voices array.
+	 * @param string|false $language_code The language code.
+	 * @param string|false $voice_id      The saved voice id.
+	 *
+	 * @return string "native" or "all".
+	 */
+	public static function default_native_filter( array $voices, $language_code, $voice_id ): string {
+		$saved = self::find_voice( $voices, $voice_id );
+
+		if ( $saved && '' !== strval( $language_code ) && ! self::voice_is_native( $saved, strval( $language_code ) ) ) {
+			return 'all';
+		}
+
+		return 'native';
 	}
 
 	/**

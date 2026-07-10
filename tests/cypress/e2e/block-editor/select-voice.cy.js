@@ -110,14 +110,21 @@ context( 'Block Editor: Select Voice', () => {
 
 				// Changing the Accent re-fetches its voices and seeds that
 				// language's default body voice (en_GB → Ollie, a Legacy
-				// voice), so the Model resolves to Legacy and the Voice to
-				// Ollie.
+				// voice).
 				cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
 					force: true,
 				} );
 				cy.getBlockEditorSelect( 'Accent' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'British' );
+
+				// The mock's English voices are all American-primary
+				// multilingual voices, so none are native to British English.
+				// Switch Native to "All" to list them; the seeded default
+				// (Ollie) is shown either way.
+				cy.getBlockEditorSelect( 'Native' ).select( 'All', {
+					force: true,
+				} );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Legacy' );
@@ -199,13 +206,18 @@ context( 'Block Editor: Select Voice', () => {
 				).should( 'be.checked' );
 
 				// Language, Accent, Model and Voice persist after reload
-				// (derived from the saved language code + voice id).
+				// (derived from the saved language code + voice id). Caleb is
+				// not native to en_GB, so the Native filter seeds to "All" on
+				// load to keep the saved voice visible.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English' );
 				cy.getBlockEditorSelect( 'Accent' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'British' );
+				cy.getBlockEditorSelect( 'Native' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'All' );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'v3' );
@@ -335,6 +347,45 @@ context( 'Block Editor: Select Voice', () => {
 		expectMeta( ( meta ) =>
 			expect( meta?.beyondwords_language_code ).to.eq( 'cy_GB' )
 		);
+	} );
+
+	it( 'filters the Voice list by Native', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Native filter',
+		} );
+		enableCustomizeForEnUs();
+
+		// Default is Native: the non-native Klaus (German primary, speaks
+		// American English) is excluded from the Legacy bucket.
+		cy.getBlockEditorSelect( 'Native' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Native' );
+		cy.getBlockEditorSelect( 'Model' ).select( 'Legacy', { force: true } );
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+				] );
+			} );
+
+		// Switching to All adds the non-native Klaus to the Legacy bucket.
+		cy.getBlockEditorSelect( 'Native' ).select( 'All', { force: true } );
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+					'Klaus (Multilingual)',
+				] );
+			} );
 	} );
 
 	// The single-bucket branch (a language offering one model, so the Model

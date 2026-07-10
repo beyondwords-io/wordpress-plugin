@@ -5,17 +5,21 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { select, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies
  */
 import {
+	NATIVE_ALL,
+	NATIVE_ONLY,
+	filterVoicesByNative,
 	findLanguageByCode,
 	getAccentsForName,
 	getLanguageModels,
 	getLanguageNames,
+	voiceIsNative,
 	voiceModelKey,
 } from './helpers';
 import Stack from '../stack';
@@ -124,6 +128,32 @@ export function VoiceSection( { withPanel = true } ) {
 		[ customize, languageCode ]
 	);
 
+	// The Native filter narrows the Voice list to voices native to the selected
+	// language; "All" adds the multilingual (non-native) voices back. Held in
+	// local UI state — it is a filter, not a persisted choice.
+	const [ nativeFilter, setNativeFilter ] = useState( NATIVE_ONLY );
+
+	// Seed the filter from the saved voice on load: if the saved voice is not
+	// native to the language (e.g. a multilingual voice, or an older post), open
+	// on "All" so it stays visible. Runs once, once the voices have resolved.
+	const nativeSeeded = useRef( false );
+	useEffect( () => {
+		if ( nativeSeeded.current || ! customize || isResolvingVoices ) {
+			return;
+		}
+		const saved = ( voices ?? [] ).find(
+			( voice ) => String( voice.id ) === String( voiceId )
+		);
+		// Wait for the voices to load before deciding.
+		if ( voiceId && ! saved ) {
+			return;
+		}
+		nativeSeeded.current = true;
+		if ( saved && languageCode && ! voiceIsNative( saved, languageCode ) ) {
+			setNativeFilter( NATIVE_ALL );
+		}
+	}, [ customize, isResolvingVoices, voices, voiceId, languageCode ] );
+
 	const setVoiceId = ( value ) => {
 		setMeta( { ...meta, beyondwords_body_voice_id: value } );
 	};
@@ -192,14 +222,23 @@ export function VoiceSection( { withPanel = true } ) {
 	// The Accent dropdown only appears when the language offers a choice.
 	const showAccent = accentOptions.length > 1;
 
+	// Apply the Native filter first: everything below (Model buckets, Voice list)
+	// derives from the native-scoped set. The current voice is always kept.
+	const filteredVoices = filterVoicesByNative(
+		voices,
+		languageCode,
+		nativeFilter,
+		voiceId
+	);
+
 	// "Model" is a language-level filter: each ElevenLabs model_id, plus a single
 	// "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
 	// Voice list to the voices that offer it. With a single bucket there is no
 	// Model dropdown and every voice is listed.
-	const models = getLanguageModels( voices );
+	const models = getLanguageModels( filteredVoices );
 	const showModel = models.length > 1;
 
-	const selectedVoice = ( voices ?? [] ).find(
+	const selectedVoice = filteredVoices.find(
 		( voice ) => String( voice.id ) === String( voiceId )
 	);
 	// The selected model is derived from the selected voice (we persist only the
@@ -209,12 +248,12 @@ export function VoiceSection( { withPanel = true } ) {
 		: '';
 
 	const bucketVoices = showModel
-		? ( voices ?? [] ).filter(
+		? filteredVoices.filter(
 				( voice ) => voiceModelKey( voice ) === selectedModelKey
 		  )
-		: voices ?? [];
+		: filteredVoices;
 
-	const hasVoices = ( voices ?? [] ).length > 0;
+	const hasVoices = filteredVoices.length > 0;
 
 	// Model gates the Voice list: hide Voice until a model is chosen. The
 	// single-bucket case has no Model dropdown, so Voice shows immediately.
@@ -239,7 +278,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// Picking a Model selects that bucket's first voice, so a concrete voice is
 	// always stored (the voice carries the model).
 	const setModel = ( key ) => {
-		const first = ( voices ?? [] ).find(
+		const first = filteredVoices.find(
 			( voice ) => voiceModelKey( voice ) === key
 		);
 		setVoiceId( first ? String( first.id ) : '' );
@@ -281,6 +320,23 @@ export function VoiceSection( { withPanel = true } ) {
 					options={ accentOptions }
 					value={ languageCode }
 					onChange={ setLanguageCode }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			) }
+			{ customize && ! loadingProject && languageCode && (
+				<SelectControl
+					className="beyondwords--native"
+					label={ __( 'Native', 'speechkit' ) }
+					options={ [
+						{
+							label: __( 'Native', 'speechkit' ),
+							value: NATIVE_ONLY,
+						},
+						{ label: __( 'All', 'speechkit' ), value: NATIVE_ALL },
+					] }
+					value={ nativeFilter }
+					onChange={ setNativeFilter }
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
