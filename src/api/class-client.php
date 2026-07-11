@@ -47,6 +47,15 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Default request timeout (seconds).
+	 *
+	 * Content generation (create/update audio) can be slow server-side, so the
+	 * default is deliberately generous. Callers on an admin render hot path —
+	 * e.g. the settings connection check — pass a short timeout instead.
+	 */
+	const DEFAULT_TIMEOUT = 30;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -443,13 +452,14 @@ class Client {
 	 * @param string               $body    Request body (already JSON-encoded for write methods).
 	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to {@see self::DEFAULT_TIMEOUT}.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [] ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_TIMEOUT ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
 
-		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers ) );
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
@@ -479,17 +489,17 @@ class Client {
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to {@see self::DEFAULT_TIMEOUT}.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private static function build_args( string $method, string $body = '', array $headers = [] ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::DEFAULT_TIMEOUT ): array {
 		return [
 			'blocking' => true,
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
+			'timeout'  => $timeout,
 		];
 	}
 
