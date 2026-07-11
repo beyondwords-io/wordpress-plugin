@@ -34,11 +34,34 @@ context( 'Block Editor: Insert BeyondWords Player', () => {
 						.insertBlocks( block );
 				} );
 
-				// The block renders a static Placeholder (no live player is
-				// embedded in the editor), so assert on the block wrapper.
+				// The block renders a static core Placeholder describing where
+				// the player will appear — assert on its label and instructions.
 				cy.getEditorCanvasBody()
 					.find( '.wp-block-beyondwords-player' )
 					.should( 'have.length', 1 );
+
+				cy.getEditorCanvasBody()
+					.find(
+						'.wp-block-beyondwords-player .components-placeholder__label'
+					)
+					.should( 'contain', 'BeyondWords Player' );
+
+				cy.getEditorCanvasBody()
+					.find(
+						'.wp-block-beyondwords-player .components-placeholder__instructions'
+					)
+					.should(
+						'contain',
+						'The BeyondWords audio player will appear here.'
+					);
+
+				// Guard against regressing to an in-editor live player preview:
+				// the block must not embed the player box in the editor canvas.
+				cy.getEditorCanvasBody()
+					.find(
+						'.wp-block-beyondwords-player .beyondwords-player-box-wrapper'
+					)
+					.should( 'not.exist' );
 
 				cy.publishWithConfirmation();
 				cy.viewPostViaSnackbar();
