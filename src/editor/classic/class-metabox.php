@@ -219,31 +219,54 @@ class Metabox {
 		$content_id    = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 		$preview_token = \BeyondWords\Post\Meta::get_preview_token( $post->ID );
 
-        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		/*
+		 * Build the player SDK config as a PHP array, then JSON-encode it for the
+		 * inline `onload` handler instead of concatenating the values by hand.
+		 *
+		 * The Content ID is editable post meta (Meta::get_content_id) and the
+		 * preview token is supplied by the REST API, so both are untrusted in this
+		 * output context. The HEX flags escape ' " < > & inside every string value
+		 * as \uXXXX, so a value cannot break out of the JS string literal, the
+		 * single-quoted attribute, or the surrounding <script> markup; the
+		 * structural JSON quotes are left intact so the spread object literal stays
+		 * valid JavaScript, and esc_attr() below encodes those for the attribute.
+		 * Mirrors \BeyondWords\Player\Renderer\Javascript::render().
+		 */
+		$config = [
+			'projectId'        => (int) $project_id,
+			'previewToken'     => (string) $preview_token,
+			'adverts'          => [],
+			'analyticsConsent' => 'none',
+			'introsOutros'     => [],
+			'playerStyle'      => 'small',
+			'widgetStyle'      => 'none',
+		];
+
+		if ( ! empty( $content_id ) ) {
+			$config['contentId'] = (string) $content_id;
+		} else {
+			$config['sourceId'] = (string) $post->ID;
+		}
+
+		$onload = sprintf(
+			'const player = new BeyondWords.Player({ target: this.parentElement, ...%s });',
+			wp_json_encode(
+				$config,
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+			)
+		);
+
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
 		<div id="beyondwords-metabox-player" style="margin: 13px 0;">
 		<script defer
 			src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
-			onload='const player = new BeyondWords.Player({
-				target: this.parentElement,
-				projectId: <?php echo esc_attr( $project_id ); ?>,
-				<?php if ( ! empty( $content_id ) ) : ?>
-				contentId: "<?php echo esc_attr( $content_id ); ?>",
-				<?php else : ?>
-				sourceId: "<?php echo esc_attr( $post->ID ); ?>",
-				<?php endif; ?>
-				previewToken: "<?php echo esc_attr( $preview_token ); ?>",
-				adverts: [],
-				analyticsConsent: "none",
-				introsOutros: [],
-				playerStyle: "small",
-				widgetStyle: "none",
-			});'
+			onload='<?php echo esc_attr( $onload ); ?>'
 		>
 		</script>
 		</div>
 		<?php
-        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 
 	/**
