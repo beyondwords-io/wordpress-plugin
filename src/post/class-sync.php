@@ -327,7 +327,16 @@ class Sync {
 			];
 
 			foreach ( $keys as $key ) {
-				register_meta( 'post', $key, $options );
+				$meta_options = $options;
+
+				// Content IDs are interpolated into BeyondWords API URL paths, so
+				// the block-editor / REST write path needs the same strict charset
+				// validation as the classic editor — see Meta::sanitize_content_id().
+				if ( 'beyondwords_content_id' === $key ) {
+					$meta_options['sanitize_callback'] = [ \BeyondWords\Post\Meta::class, 'sanitize_content_id' ];
+				}
+
+				register_meta( 'post', $key, $meta_options );
 			}
 		}
 	}
