@@ -277,4 +277,63 @@ final class BulkEditTest extends TestCase
             wp_delete_post($postId, true);
         }
     }
+
+    /**
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_defers_beyond_sync_cap()
+    {
+        // Force a tiny synchronous cap and run off VIP (default) with no API
+        // credentials, so posts beyond the cap are deferred and the processed
+        // one fails without a network call.
+        $limit = static fn(): int => 1;
+        add_filter('beyondwords_bulk_generate_sync_limit', $limit);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $postIds = [
+            self::factory()->post->create(['post_status' => 'publish']),
+            self::factory()->post->create(['post_status' => 'publish']),
+            self::factory()->post->create(['post_status' => 'publish']),
+        ];
+
+        $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
+        $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, 'https://example.com/wp-admin/edit.php');
+
+        $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $postIds);
+
+        parse_str((string) parse_url($redirect, PHP_URL_QUERY), $args);
+
+        // 1 processed (failed, no creds) + 2 deferred = the 3 selected posts.
+        $this->assertSame('0', $args['beyondwords_bulk_generated']);
+        $this->assertSame('1', $args['beyondwords_bulk_failed']);
+        $this->assertSame('2', $args['beyondwords_bulk_deferred']);
+
+        foreach ($postIds as $postId) {
+            $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
+        }
+
+        remove_filter('beyondwords_bulk_generate_sync_limit', $limit);
+        foreach ($postIds as $postId) {
+            wp_delete_post($postId, true);
+        }
+    }
+
+    /**
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_ignores_other_actions()
+    {
+        $redirect = 'https://example.com/wp-admin/edit.php';
+
+        // A non-BeyondWords bulk action must be returned untouched.
+        $result = BulkEdit::handle_bulk_generate_action($redirect, 'trash', [1, 2, 3]);
+
+        $this->assertSame($redirect, $result);
+    }
 }

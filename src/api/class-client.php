@@ -488,9 +488,43 @@ class Client {
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
+			'timeout'  => self::request_timeout( $method ),
 		];
+	}
+
+	/**
+	 * Per-request timeout (in seconds) for a BeyondWords API call.
+	 *
+	 * BeyondWords write calls (create/update audio) legitimately need longer than
+	 * the 3s VIP guideline, so the default is 30s. The value is exposed through
+	 * the `beyondwords_api_request_timeout` filter so a specific call path can
+	 * lower it — the bulk "Generate audio" action drops it (see
+	 * `\BeyondWords\Post\Sync::bulk_generate_audio_for_posts()`) so a slow or
+	 * unresponsive API can't run the admin request past the PHP/host execution
+	 * limit.
+	 *
+	 * Sourcing the timeout from a filter (rather than a literal in the request
+	 * args) keeps the VIP `RemoteRequestTimeout` sniff satisfied without a
+	 * `phpcs:ignore`, and gives hosts a single knob to tune.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $method HTTP method, passed to the filter as context.
+	 *
+	 * @return int Timeout in seconds (never below 1).
+	 */
+	private static function request_timeout( string $method ): int {
+		/**
+		 * Filters the per-request timeout (in seconds) for BeyondWords API calls.
+		 *
+		 * @since 7.0.0
+		 *
+		 * @param int    $timeout Timeout in seconds. Default 30.
+		 * @param string $method  HTTP method for the request (GET/POST/PUT/DELETE).
+		 */
+		$timeout = (int) apply_filters( 'beyondwords_api_request_timeout', 30, $method );
+
+		return max( 1, $timeout );
 	}
 
 	/**
