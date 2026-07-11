@@ -223,4 +223,59 @@ class UpdaterTest extends TestCase
         wp_delete_post($embedPost, true);
         wp_delete_post($untouchedPost, true);
     }
+
+    /**
+     * The migration gate must close once the recorded version matches this
+     * build — otherwise the pre-release `< 7.0.0` comparison keeps the v7
+     * migrations firing on every request.
+     *
+     * @test
+     */
+    public function run_is_a_noop_once_the_recorded_version_matches_this_build()
+    {
+        // Simulate an install that has already booted this exact build.
+        update_option('beyondwords_version', BEYONDWORDS__PLUGIN_VERSION);
+
+        // A post still carrying the legacy opt-out flag. If run() re-executed
+        // the v7 block it would strip this flag and set Embed = None; the
+        // version guard must leave it untouched.
+        $post = self::factory()->post->create();
+        update_post_meta($post, 'beyondwords_disabled', '1');
+
+        Updater::run();
+
+        // Migration did not run: legacy flag preserved, no Embed written.
+        $this->assertSame('1', get_post_meta($post, 'beyondwords_disabled', true));
+        $this->assertSame('', get_post_meta($post, 'beyondwords_embed', true));
+
+        wp_delete_post($post, true);
+        delete_option('beyondwords_version');
+    }
+
+    /**
+     * When the recorded version predates a migration, run() must execute it and
+     * normalise the stored version to this build.
+     *
+     * @test
+     */
+    public function run_migrates_and_records_the_version_when_outdated()
+    {
+        update_option('beyondwords_version', '6.0.0');
+
+        $post = self::factory()->post->create();
+        update_post_meta($post, 'beyondwords_disabled', '1');
+
+        Updater::run();
+
+        // v7 migration ran: legacy flag converted to Embed = None and removed.
+        $this->assertSame('none', get_post_meta($post, 'beyondwords_embed', true));
+        $this->assertSame('', get_post_meta($post, 'beyondwords_disabled', true));
+
+        // Stored version normalised to this build, so the next run() is a no-op.
+        $this->assertSame(BEYONDWORDS__PLUGIN_VERSION, get_option('beyondwords_version'));
+
+        wp_delete_post($post, true);
+        delete_option('beyondwords_version');
+        delete_option('beyondwords_date_activated');
+    }
 }
