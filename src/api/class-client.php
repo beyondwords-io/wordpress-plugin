@@ -488,8 +488,11 @@ class Client {
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
+			// VIP requires a short, bounded timeout on blocking requests: these
+			// run synchronously on the classic-editor render path (cached GETs)
+			// and inside `wp_after_insert_post` (write POST/PUT), so a slow API
+			// must not pin a PHP worker.
+			'timeout'  => 3,
 		];
 	}
 
