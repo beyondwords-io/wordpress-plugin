@@ -388,6 +388,43 @@ context( 'Block Editor: Select Voice', () => {
 			} );
 	} );
 
+	it( 'shows a spinner in place of Model and Voice while voices resolve', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Voice resolving spinner',
+		} );
+		enableCustomizeForEnUs();
+		// Wait for the default language's voices to load (Model appears).
+		cy.getBlockEditorSelect( 'Model' ).should( 'exist' );
+
+		// Delay the voices response so the resolving state is observable. The
+		// real (mock) data still arrives — only its delivery is delayed — so
+		// the store is not stubbed empty.
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/languages/*/voices*',
+			( req ) => {
+				req.on( 'response', ( res ) => {
+					res.setDelay( 1500 );
+				} );
+			}
+		);
+
+		// Switching Accent re-fetches the voices. While that resolves, the
+		// Model + Voice group is hidden and a spinner takes their place — it is
+		// never wedged between two select fields.
+		cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
+			force: true,
+		} );
+		cy.get( '.beyondwords--voice-fields' ).should( 'not.be.visible' );
+		cy.get( '.components-spinner' ).should( 'be.visible' );
+
+		// Recovery — Model + Voice returning once the fetch resolves — is
+		// covered by the other tests, which use the un-intercepted mock:
+		// cy.intercept does not re-populate the block editor's wp.data voices
+		// store, so it can't be asserted here.
+	} );
+
 	// The single-bucket branch (a language offering one model, so the Model
 	// dropdown is hidden and the Voice list shows directly) is covered
 	// end-to-end by the classic-editor spec. The block editor reads voices

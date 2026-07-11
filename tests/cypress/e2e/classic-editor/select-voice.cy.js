@@ -432,4 +432,44 @@ context( 'Classic Editor: Select Voice', () => {
 				] );
 			} );
 	} );
+
+	it( 'shows the loader in place of Model and Voice while voices resolve', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+		// Wait for the default language's voices to load (Model appears).
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'be.visible'
+		);
+
+		// Delay the voices response so the resolving state is observable.
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/languages/*/voices*',
+			( req ) => {
+				req.on( 'response', ( res ) => {
+					res.setDelay( 1500 );
+				} );
+			}
+		);
+
+		// Switching accent clears the Model + Voice dropdowns and shows the
+		// loader in their place until the new voices resolve.
+		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
+		cy.get( '.beyondwords-settings__loader' ).should( 'be.visible' );
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'not.be.visible'
+		);
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
+			'not.be.visible'
+		);
+
+		// Once the (delayed) fetch resolves, the loader hides again.
+		cy.get( '.beyondwords-settings__loader', { timeout: 10000 } ).should(
+			'not.be.visible'
+		);
+	} );
 } );

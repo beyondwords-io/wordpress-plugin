@@ -17,13 +17,3 @@
 .beyondwords .components-button.is-secondary .dashicon {
   margin-right: 5px;
 }
-
-/*
- * Voice picker: hide a field whose contents are still resolving (the Model and
- * Voice dropdowns while their voices fetch) rather than unmounting it, so the
- * Spinner can take its place without the <select> detaching from the DOM
- * mid-interaction when the fetch resolves.
- */
-.beyondwords--is-hidden {
-  display: none;
-}

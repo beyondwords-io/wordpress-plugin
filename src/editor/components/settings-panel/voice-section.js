@@ -116,13 +116,29 @@ export function VoiceSection( { withPanel = true } ) {
 		[ customize, languageCode ]
 	);
 
-	// Changing the Language re-fetches its voices; show a Spinner in place of the
-	// Voice/Model dropdowns until that resolves.
-	const isResolvingVoices = useSelect(
+	// Resolution flags drive the progressive Spinner: the Spinner always follows
+	// the last resolved control and stands in for everything still loading below
+	// it. We use `hasFinishedResolution` (monotonic false→true per argument set)
+	// rather than `isResolving` (which flips on and off and leaves a one-frame
+	// gap where stale data shows) so the fields never flash stale content.
+	const languagesResolving = useSelect(
+		( s ) =>
+			customize &&
+			! s( 'beyondwords/settings' ).hasFinishedResolution(
+				'getLanguages',
+				[]
+			),
+		[ customize ]
+	);
+
+	// Changing the Language re-fetches its voices; the Model + Voice dropdowns
+	// depend on them, so they are hidden and the Spinner takes their place until
+	// this resolves.
+	const voicesResolving = useSelect(
 		( s ) =>
 			customize &&
 			!! languageCode &&
-			s( 'beyondwords/settings' ).isResolving( 'getVoices', [
+			! s( 'beyondwords/settings' ).hasFinishedResolution( 'getVoices', [
 				languageCode,
 			] ),
 		[ customize, languageCode ]
@@ -138,7 +154,7 @@ export function VoiceSection( { withPanel = true } ) {
 	// on "All" so it stays visible. Runs once, once the voices have resolved.
 	const nativeSeeded = useRef( false );
 	useEffect( () => {
-		if ( nativeSeeded.current || ! customize || isResolvingVoices ) {
+		if ( nativeSeeded.current || ! customize || voicesResolving ) {
 			return;
 		}
 		const saved = ( voices ?? [] ).find(
@@ -152,7 +168,7 @@ export function VoiceSection( { withPanel = true } ) {
 		if ( saved && languageCode && ! voiceIsNative( saved, languageCode ) ) {
 			setNativeFilter( NATIVE_ALL );
 		}
-	}, [ customize, isResolvingVoices, voices, voiceId, languageCode ] );
+	}, [ customize, voicesResolving, voices, voiceId, languageCode ] );
 
 	const setVoiceId = ( value ) => {
 		setMeta( { ...meta, beyondwords_body_voice_id: value } );
@@ -284,14 +300,16 @@ export function VoiceSection( { withPanel = true } ) {
 		setVoiceId( first ? String( first.id ) : '' );
 	};
 
-	// While the voices resolve, Model + Voice are hidden (their contents depend
-	// on the fetch) and the Spinner below takes their place — so the spinner is
-	// never wedged between two select fields. They are hidden via CSS rather
-	// than unmounted, so the <select> doesn't detach from the DOM mid-interaction
-	// when the fetch resolves.
-	const hiddenWhileResolving = isResolvingVoices
-		? ' beyondwords--is-hidden'
-		: '';
+	// The picker resolves progressively: the Spinner always follows the last
+	// resolved control and stands in for everything still loading below it.
+	//   1. While the languages (and project default) load, only a Spinner shows.
+	//   2. Language + Accent + Native show; while their voices resolve the
+	//      Model + Voice group is hidden and the Spinner takes its place.
+	//   3. Once the voices resolve, Model + Voice show and the Spinner is gone.
+	// The Model + Voice group stays mounted and is hidden with an inline style,
+	// so the <select> keeps its DOM identity (no detach mid-interaction) and the
+	// hide can't lose a specificity battle with the component's own CSS.
+	const fieldsReady = customize && ! loadingProject && ! languagesResolving;
 
 	const fields = (
 		<Stack>
@@ -301,8 +319,10 @@ export function VoiceSection( { withPanel = true } ) {
 				checked={ customize }
 				onChange={ toggleCustomize }
 			/>
-			{ loadingProject && <Spinner /> }
-			{ customize && ! loadingProject && (
+			{ customize && ( loadingProject || languagesResolving ) && (
+				<Spinner />
+			) }
+			{ fieldsReady && (
 				<SelectControl
 					className="beyondwords--language"
 					label={ __( 'Language', 'speechkit' ) }
@@ -313,7 +333,7 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && ! loadingProject && showAccent && (
+			{ fieldsReady && showAccent && (
 				<SelectControl
 					className="beyondwords--accent"
 					label={ __( 'Accent', 'speechkit' ) }
@@ -324,7 +344,7 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && ! loadingProject && languageCode && (
+			{ fieldsReady && languageCode && (
 				<SelectControl
 					className="beyondwords--native"
 					label={ __( 'Native', 'speechkit' ) }
@@ -341,31 +361,38 @@ export function VoiceSection( { withPanel = true } ) {
 					__next40pxDefaultSize
 				/>
 			) }
-			{ customize && ! loadingProject && showModel && (
-				<SelectControl
-					className={ 'beyondwords--model' + hiddenWhileResolving }
-					label={ __( 'Model', 'speechkit' ) }
-					options={ modelOptions }
-					value={ selectedModelKey }
-					onChange={ setModel }
-					__nextHasNoMarginBottom
-					__next40pxDefaultSize
-				/>
+			{ fieldsReady && languageCode && ( showModel || showVoice ) && (
+				<div
+					className="beyondwords--voice-fields"
+					style={ voicesResolving ? { display: 'none' } : undefined }
+				>
+					<Stack>
+						{ showModel && (
+							<SelectControl
+								className="beyondwords--model"
+								label={ __( 'Model', 'speechkit' ) }
+								options={ modelOptions }
+								value={ selectedModelKey }
+								onChange={ setModel }
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+							/>
+						) }
+						{ showVoice && (
+							<SelectControl
+								className="beyondwords--voice"
+								label={ __( 'Voice', 'speechkit' ) }
+								options={ voiceOptions }
+								value={ String( voiceId ) }
+								onChange={ setVoiceId }
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+							/>
+						) }
+					</Stack>
+				</div>
 			) }
-			{ customize && ! loadingProject && showVoice && (
-				<SelectControl
-					className={ 'beyondwords--voice' + hiddenWhileResolving }
-					label={ __( 'Voice', 'speechkit' ) }
-					options={ voiceOptions }
-					value={ String( voiceId ) }
-					onChange={ setVoiceId }
-					__nextHasNoMarginBottom
-					__next40pxDefaultSize
-				/>
-			) }
-			{ customize && ! loadingProject && isResolvingVoices && (
-				<Spinner />
-			) }
+			{ fieldsReady && languageCode && voicesResolving && <Spinner /> }
 		</Stack>
 	);
 
