@@ -478,12 +478,15 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * A non-2xx response is not cached, so the next call retries the API rather
-     * than serving a cached error for the full TTL.
+     * A failed editor-dropdown fetch is negative-cached for a short TTL, so a
+     * slow or unreachable API is probed at most once per interval instead of
+     * blocking every admin edit-screen render. The second call within the TTL
+     * is served from the transient (the empty-array sentinel) and makes no HTTP
+     * request.
      */
-    public function failed_responses_are_not_cached()
+    public function failed_responses_are_negative_cached()
     {
-        // No API key → the mock returns a 401, which must not be cached.
+        // No API key → the mock returns a 401, which is negative-cached.
         $calls   = 0;
         $counter = function ($preempt, $args, $url) use (&$calls) {
             if (str_contains((string) $url, '/summarization_settings_templates')) {
@@ -493,12 +496,57 @@ class ClientTest extends TestCase
         };
         add_filter('pre_http_request', $counter, 0, 3);
 
-        Client::get_summarization_settings_templates();
-        Client::get_summarization_settings_templates();
+        $first  = Client::get_summarization_settings_templates();
+        $second = Client::get_summarization_settings_templates();
 
         remove_filter('pre_http_request', $counter, 0);
 
-        $this->assertSame(2, $calls, 'Errors should not be cached');
+        $this->assertSame(1, $calls, 'A failed response should be negative-cached, so the second call is served from the transient');
+        $this->assertSame([], $second, 'The negative-cache sentinel is an empty array');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * Cached editor-dropdown GETs render on the admin edit screen, so they use
+     * a short (<= 3s) timeout to avoid tying up a PHP worker when the API is
+     * slow. Write-path (and other direct call_api) requests keep the longer
+     * timeout so user-initiated saves aren't dropped mid-generation.
+     */
+    public function render_path_gets_use_a_short_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $timeouts = [];
+        $capture  = function ($preempt, $args, $url) use (&$timeouts) {
+            $timeouts[(string) $url] = $args['timeout'] ?? null;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $capture, 0, 3);
+
+        Client::get_summarization_settings_templates();      // cached_get → short timeout
+        Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);   // call_api  → long timeout
+
+        remove_filter('pre_http_request', $capture, 0);
+
+        $render_timeout = null;
+        $write_timeout  = null;
+        foreach ($timeouts as $url => $timeout) {
+            if (str_contains($url, '/summarization_settings_templates')) {
+                $render_timeout = $timeout;
+            } elseif (str_contains($url, '/content/')) {
+                $write_timeout = $timeout;
+            }
+        }
+
+        $this->assertNotNull($render_timeout, 'Expected a render-path request to be captured');
+        $this->assertLessThanOrEqual(3, $render_timeout, 'Render-path GETs should use a short (<= 3s) timeout');
+        $this->assertSame(30, $write_timeout, 'Direct/write-path requests keep the longer timeout');
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**

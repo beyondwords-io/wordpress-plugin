@@ -47,6 +47,30 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long to negative-cache a *failed* editor-dropdown fetch (WP_Error /
+	 * timeout, 5xx, 4xx, non-JSON). Much shorter than CACHE_TTL so a transient
+	 * outage self-heals within minutes, but long enough that a slow or
+	 * unreachable API is probed at most once per interval rather than blocking
+	 * every admin edit-screen render.
+	 */
+	const CACHE_TTL_ON_ERROR = 2 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Request timeout (seconds) for write-path calls (create/update/delete
+	 * audio). Long, because these run on user-initiated saves that must not be
+	 * dropped mid-generation.
+	 */
+	const WRITE_REQUEST_TIMEOUT = 30;
+
+	/**
+	 * Request timeout (seconds) for cached render-path GETs (editor dropdowns).
+	 * Short, per VIP guidance (see `vip_safe_wp_remote_get`), so a slow API
+	 * can't tie up a PHP-FPM worker for the length of an admin render. Paired
+	 * with negative caching ({@see CACHE_TTL_ON_ERROR}) to bound repeat failures.
+	 */
+	const RENDER_REQUEST_TIMEOUT = 3;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -443,13 +467,14 @@ class Client {
 	 * @param string               $body    Request body (already JSON-encoded for write methods).
 	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds; defaults to the long write-path timeout.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [] ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::WRITE_REQUEST_TIMEOUT ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
 
-		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers ) );
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
@@ -479,17 +504,22 @@ class Client {
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private static function build_args( string $method, string $body = '', array $headers = [] ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::WRITE_REQUEST_TIMEOUT ): array {
 		return [
 			'blocking' => true,
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
+			// The write-path default (WRITE_REQUEST_TIMEOUT) exceeds VIP's 3s
+			// guidance and trips this sniff — a deliberate trade-off so saves
+			// aren't dropped mid-generation. Render-path GETs pass the short
+			// RENDER_REQUEST_TIMEOUT via cached_get(), which stays within guidance.
 			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
+			'timeout'  => $timeout,
 		];
 	}
 
@@ -515,17 +545,25 @@ class Client {
 	}
 
 	/**
-	 * GET an endpoint, caching successful list/object responses.
+	 * GET an editor-render-path endpoint, caching both hits and failures.
 	 *
-	 * Only 2xx array responses are cached, so a transient API error retries on
-	 * the next call rather than caching an empty/error payload for the full TTL.
+	 * Successful 2xx array responses are cached for {@see CACHE_TTL}. Failures
+	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
+	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
+	 * at most once per interval instead of re-issuing a blocking request on
+	 * every admin render. The request itself uses the short
+	 * {@see RENDER_REQUEST_TIMEOUT} for the same reason.
+	 *
+	 * A 401 additionally self-heals: call_api() clears
+	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
 	 *
 	 * @since 7.0.0
 	 *
 	 * @param string $suffix Cache-key suffix (include any project/language id).
 	 * @param string $url    Absolute endpoint URL.
 	 *
-	 * @return array<mixed>|null|false
+	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
+	 *                                 value ([] after a cached failure) thereafter.
 	 */
 	private static function cached_get( string $suffix, string $url ): array|null|false {
 		$key    = self::cache_key( $suffix );
@@ -535,7 +573,7 @@ class Client {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url );
+		$response = self::call_api( 'GET', $url, '', false, [], self::RENDER_REQUEST_TIMEOUT );
 		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if (
@@ -544,7 +582,13 @@ class Client {
 			&& is_array( $decoded )
 		) {
 			set_transient( $key, $decoded, self::CACHE_TTL );
+
+			return $decoded;
 		}
+
+		// Negative-cache the failure so the next render is served from the
+		// transient instead of blocking on another remote round-trip.
+		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
 
 		return $decoded;
 	}
