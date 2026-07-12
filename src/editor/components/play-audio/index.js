@@ -16,11 +16,6 @@ import { useBeyondWordsPlayer } from './hooks';
 /**
  * The message to show when the player did not (yet) embed.
  *
- * Kept audio/video-neutral to match the "Generation enabled/disabled" labels —
- * content can be audio or video. The classic editor mirrors these exact strings
- * in content-id/classic-metabox.js (showMetaboxMessage) so they share one
- * translation.
- *
  * @param {string|undefined} status   Last-seen content status.
  * @param {boolean}          timedOut Whether polling gave up.
  *

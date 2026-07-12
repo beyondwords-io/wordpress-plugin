@@ -83,6 +83,8 @@ Release date: tbc
 
 **Enhancements**
 
+* [#566](https://github.com/beyondwords-io/wordpress-plugin/pull/566) Poll the content status before embedding the player.
+    * The block and classic editor previews now wait until content has finished processing — showing a loading spinner meanwhile — instead of embedding the player immediately and caching a 404 when the audio or video isn't ready yet.
 * [#527](https://github.com/beyondwords-io/wordpress-plugin/pull/527) BeyondWords editor redesign for the block and classic editors.
     * New Content (Source, Script template), Format (Output, Video template, Video size), Voice (Language, Model, Voice) and Player (Embed) settings, available in both editors.
     * The Player "Embed" setting replaces the "Display player" checkbox — choose "None" to hide the player on a post.
