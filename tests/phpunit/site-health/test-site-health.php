@@ -118,9 +118,16 @@ class SiteHealthTest extends TestCase
 
     /**
      * @test
+     *
+     * With credentials configured the probe runs and reports the API as
+     * reachable (the mock returns a non-error response for the API root).
      */
-    public function add_rest_api_connection()
+    public function add_rest_api_connection_reports_reachable_when_configured()
     {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+
         $siteHealth = new SiteHealth();
 
         $siteHealth->add_rest_api_connection($this->info);
@@ -131,6 +138,117 @@ class SiteHealthTest extends TestCase
         $this->assertSame('Communication with REST API', $this->info['beyondwords']['fields']['api-communication']['label']);
         $this->assertSame('BeyondWords API is reachable', $this->info['beyondwords']['fields']['api-communication']['value']);
         $this->assertSame('true', $this->info['beyondwords']['fields']['api-communication']['debug']);
+
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * On an unconfigured install the probe is skipped entirely — no blocking
+     * HTTP request is made when there are no API credentials.
+     */
+    public function add_rest_api_connection_skips_probe_without_credentials()
+    {
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $calls++;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertSame(0, $calls, 'No HTTP request should be made without API credentials');
+        $this->assertSame('not-configured', $this->info['beyondwords']['fields']['api-communication']['debug']);
+        $this->assertStringContainsString('not configured', $this->info['beyondwords']['fields']['api-communication']['value']);
+    }
+
+    /**
+     * @test
+     *
+     * The reachability result is cached in a transient, so a second render
+     * within the TTL is served from cache and makes no HTTP request.
+     */
+    public function add_rest_api_connection_caches_the_probe_result()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $calls++;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        $first  = [];
+        $second = [];
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($first);
+        $siteHealth->add_rest_api_connection($second);
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertSame(1, $calls, 'Second render should be served from the transient cache');
+        $this->assertSame(
+            $first['beyondwords']['fields']['api-communication'],
+            $second['beyondwords']['fields']['api-communication']
+        );
+
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * A transport-level failure is reported as unreachable, surfacing the
+     * error message returned by the request.
+     */
+    public function add_rest_api_connection_reports_unreachable_on_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+
+        $filter = function ($preempt, $args, $url) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                return new WP_Error('http_request_failed', 'Connection timed out');
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $value = $this->info['beyondwords']['fields']['api-communication']['value'];
+        $this->assertStringContainsString('Unable to reach BeyondWords API', $value);
+        $this->assertStringContainsString('Connection timed out', $value);
+        $this->assertSame('Connection timed out', $this->info['beyondwords']['fields']['api-communication']['debug']);
+
+        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**

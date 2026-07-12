@@ -74,6 +74,36 @@ class SiteHealth {
 	];
 
 	/**
+	 * Transient key holding the cached REST API reachability result.
+	 *
+	 * @var string
+	 */
+	const REACHABILITY_TRANSIENT = 'beyondwords_site_health_api_status';
+
+	/**
+	 * How long to cache the REST API reachability probe.
+	 *
+	 * Site Health renders this section on every Info-screen view (and again
+	 * when an admin clicks "Copy site info to clipboard"), so the probe result
+	 * is cached to keep the page render off the network. The TTL is short so a
+	 * recovered connection self-heals quickly, while meeting VIP's 300-second
+	 * minimum cache-expiry guidance.
+	 *
+	 * @var int
+	 */
+	const REACHABILITY_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Bounded timeout (seconds) for the reachability probe.
+	 *
+	 * Kept well under VIP's 3-second ceiling so a slow or unreachable API can't
+	 * block the Site Health render.
+	 *
+	 * @var int
+	 */
+	const REACHABILITY_TIMEOUT = 2;
+
+	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
@@ -186,34 +216,109 @@ class SiteHealth {
 			'value' => $api_url,
 		];
 
-		$response = wp_remote_request(
-			$api_url,
-			[
-				'blocking' => true,
-				'body'     => '',
-				'method'   => 'GET',
-			]
+		$info['beyondwords']['fields']['api-communication'] = array_merge(
+			[ 'label' => __( 'Communication with REST API', 'speechkit' ) ],
+			self::get_api_communication( $api_url )
 		);
+	}
+
+	/**
+	 * Resolve the "Communication with REST API" value/debug pair.
+	 *
+	 * Skips the network entirely on unconfigured installs and serves a cached
+	 * result on configured ones, so rendering the Site Health screen never
+	 * blocks on an uncached external request.
+	 *
+	 * @param string $api_url BeyondWords REST API base URL.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function get_api_communication( string $api_url ): array {
+		// Nothing to probe until the site has API credentials — skip the
+		// blocking request on fresh installs entirely.
+		if ( ! \BeyondWords\Settings\Utils::has_api_creds() ) {
+			return [
+				'value' => __( 'Not checked — BeyondWords API credentials are not configured', 'speechkit' ),
+				'debug' => 'not-configured',
+			];
+		}
+
+		$cached = get_transient( self::REACHABILITY_TRANSIENT );
+
+		if ( is_array( $cached ) && isset( $cached['value'], $cached['debug'] ) ) {
+			return $cached;
+		}
+
+		$result = self::probe_api_reachability( $api_url );
+
+		set_transient( self::REACHABILITY_TRANSIENT, $result, self::REACHABILITY_TTL );
+
+		return $result;
+	}
+
+	/**
+	 * Perform the bounded reachability request and format the result.
+	 *
+	 * Prefers `vip_safe_wp_remote_get()` (VIP's circuit-breaking wrapper) and
+	 * falls back to `wp_remote_request()` with an explicit low timeout
+	 * elsewhere, so a slow or unreachable API can't hang the render.
+	 *
+	 * @param string $api_url BeyondWords REST API base URL.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function probe_api_reachability( string $api_url ): array {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+			$fallback = new \WP_Error(
+				'beyondwords_api_unreachable',
+				__( 'Request skipped after repeated failures', 'speechkit' )
+			);
+
+			$response = vip_safe_wp_remote_get( $api_url, $fallback, 3, self::REACHABILITY_TIMEOUT );
+		} else {
+			$response = wp_remote_request(
+				$api_url,
+				[
+					'method'  => 'GET',
+					'timeout' => self::REACHABILITY_TIMEOUT,
+				]
+			);
+		}
 
 		if ( ! is_wp_error( $response ) ) {
-			$info['beyondwords']['fields']['api-communication'] = [
-				'label' => __( 'Communication with REST API', 'speechkit' ),
+			return [
 				'value' => __( 'BeyondWords API is reachable', 'speechkit' ),
 				'debug' => 'true',
 			];
-			return;
 		}
 
-		$info['beyondwords']['fields']['api-communication'] = [
-			'label' => __( 'Communication with REST API', 'speechkit' ),
+		return [
 			'value' => sprintf(
-				/* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
+				/* translators: 1: The IP address the REST API resolves to. 2: The error returned by the request. */
 				__( 'Unable to reach BeyondWords API at %1$s: %2$s', 'speechkit' ),
-				gethostbyname( $api_url ),
+				self::resolve_api_host( $api_url ),
 				$response->get_error_message()
 			),
 			'debug' => $response->get_error_message(),
 		];
+	}
+
+	/**
+	 * Resolve the API host to an IP address for the connectivity diagnostic.
+	 *
+	 * `gethostbyname()` needs a bare hostname, so the URL is parsed first; it
+	 * returns the host (or URL) unchanged when resolution fails.
+	 *
+	 * @param string $api_url BeyondWords REST API base URL.
+	 */
+	private static function resolve_api_host( string $api_url ): string {
+		$host = wp_parse_url( $api_url, PHP_URL_HOST );
+
+		if ( ! is_string( $host ) || '' === $host ) {
+			return $api_url;
+		}
+
+		return gethostbyname( $host );
 	}
 
 	/**
