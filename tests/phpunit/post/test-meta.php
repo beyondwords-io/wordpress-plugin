@@ -222,6 +222,71 @@ class MetaTest extends TestCase
     }
 
     /**
+     * Legacy `speechkit_response` meta that was stored as a WordPress HTTP response
+     * array or a WP_Error object (plugin ~3.x) must be read back without a fatal error.
+     *
+     * These non-scalar shapes cannot be seeded via `meta_input` / update_post_meta,
+     * because Sync::register_meta() registers `speechkit_response` with a
+     * `sanitize_text_field` sanitize_callback that coerces any write to a string. Real
+     * legacy rows predate that registration, so we reproduce them by writing the
+     * serialized value straight to wp_postmeta — exactly as an old plugin version did.
+     *
+     * @test
+     * @dataProvider get_http_response_body_from_post_meta_legacy_provider
+     *
+     * @param string $expected  Expected return value.
+     * @param mixed  $metaValue Raw (unserialized) legacy meta value to seed.
+     */
+    public function get_http_response_body_from_post_meta_with_legacy_data($expected, $metaValue)
+    {
+        global $wpdb;
+
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create(['post_title' => 'MetaTest:getHttpResponseBodyFromPostMetaLegacy']);
+
+        // Write the serialized value directly, bypassing the registered sanitize_callback,
+        // to mimic a legacy row already present in the database.
+        $wpdb->insert(
+            $wpdb->postmeta,
+            [
+                'post_id'    => $postId,
+                'meta_key'   => 'speechkit_response',
+                'meta_value' => maybe_serialize($metaValue),
+            ]
+        );
+        wp_cache_delete($postId, 'post_meta');
+
+        $this->assertSame($expected, Meta::get_http_response_body_from_post_meta($postId, 'speechkit_response'));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     *
+     */
+    public function get_http_response_body_from_post_meta_legacy_provider()
+    {
+        $json = '{"foo":"bar","baz":42}';
+
+        return [
+            // is_array() branch: return the 'body' of the stored HTTP response.
+            'HTTP response array' => [
+                $json,
+                ['body' => $json, 'response' => ['code' => 500, 'message' => 'Internal Server Error']],
+            ],
+            // is_wp_error() branch: the regression case — instance methods must not be
+            // called statically, else PHP 8 throws an uncaught Error (white-screen fatal).
+            'WP_Error object'     => [
+                'WP_Error [http_request_failed] A valid URL was not provided.',
+                new \WP_Error('http_request_failed', 'A valid URL was not provided.'),
+            ],
+        ];
+    }
+
+    /**
      *
      */
     public function exported_data_helper($path)
