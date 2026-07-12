@@ -31,6 +31,7 @@ class SyncTest extends TestCase
         Sync::init();
 
         $this->assertEquals(99, has_action('init', array(Sync::class, 'register_meta')));
+        $this->assertEquals(10, has_action('rest_api_init', array(Sync::class, 'register_rest_meta_visibility')));
         $this->assertEquals(99, has_action('wp_after_insert_post', array(Sync::class, 'on_add_or_update_post')));
         $this->assertEquals(10, has_action('wp_trash_post', array(Sync::class, 'on_trash_post')));
         $this->assertEquals(10, has_action('before_delete_post', array(Sync::class, 'on_delete_post')));
@@ -619,6 +620,93 @@ class SyncTest extends TestCase
         $this->assertArrayHasKey('_speechkit_text', $meta);
         $this->assertSame('_speechkit_text', get_post_meta($postId, '_speechkit_text', true));
 
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * Meta registered with `show_in_rest` is readable by anyone in the `view`
+     * context — WP performs no capability check there. This test locks in that
+     * secrets and internal data never reach the REST API (registered
+     * `show_in_rest => false`), that the sensitive keys the block editor does
+     * need are stripped from unauthenticated responses, and that an authenticated
+     * editor still sees them via the `edit` context.
+     *
+     * @test
+     */
+    public function register_meta_does_not_expose_private_meta_to_the_public()
+    {
+        global $wp_rest_server;
+        $server = $wp_rest_server = new \WP_REST_Server;
+        do_action('rest_api_init');
+
+        Sync::register_meta();
+        Sync::register_rest_meta_visibility();
+
+        $postId = self::factory()->post->create([
+            'post_type'   => 'post',
+            'post_status' => 'publish',
+            'post_title'  => 'SyncTest::register_meta_does_not_expose_private_meta_to_the_public',
+            'meta_input'  => [
+                // Sensitive keys the block editor needs (edit context only).
+                'beyondwords_error_message' => 'Internal API error message',
+                'beyondwords_preview_token' => 'secret-preview-token',
+                'speechkit_error_message'   => 'Legacy internal error message',
+                '_speechkit_link'           => 'https://example.com/a/12345',
+                // Secret / internal keys the editor never reads over REST.
+                'speechkit_access_key'      => 'legacy-per-post-secret-access-key',
+                '_speechkit_text'           => 'Legacy article text',
+                'speechkit_status'          => 'processed',
+                // Non-sensitive keys that stay publicly readable.
+                'beyondwords_content_id'    => '12345',
+                'speechkit_project_id'      => '67890',
+            ],
+        ]);
+
+        // --- Anonymous `view` request (the vulnerable path). ---
+        wp_set_current_user(0);
+        $response = $server->dispatch(new \WP_REST_Request('GET', "/wp/v2/posts/{$postId}"));
+        $this->assertSame(200, $response->get_status());
+        $meta = $response->get_data()['meta'];
+
+        // Sensitive keys are registered for REST but hidden from the public.
+        $this->assertArrayNotHasKey('beyondwords_error_message', $meta);
+        $this->assertArrayNotHasKey('beyondwords_preview_token', $meta);
+        $this->assertArrayNotHasKey('speechkit_error_message', $meta);
+        $this->assertArrayNotHasKey('_speechkit_link', $meta);
+
+        // Secret / internal keys are never registered for REST at all.
+        $this->assertArrayNotHasKey('speechkit_access_key', $meta);
+        $this->assertArrayNotHasKey('_speechkit_text', $meta);
+        $this->assertArrayNotHasKey('speechkit_status', $meta);
+
+        // Non-sensitive keys remain publicly readable (e.g. for headless use).
+        $this->assertArrayHasKey('beyondwords_content_id', $meta);
+        $this->assertSame('12345', $meta['beyondwords_content_id']);
+        $this->assertArrayHasKey('speechkit_project_id', $meta);
+        $this->assertSame('67890', $meta['speechkit_project_id']);
+
+        // --- Authenticated `edit` request (the block editor). ---
+        $editorId = self::factory()->user->create(['role' => 'editor']);
+        wp_set_current_user($editorId);
+
+        $request = new \WP_REST_Request('GET', "/wp/v2/posts/{$postId}");
+        $request->set_param('context', 'edit');
+        $response = $server->dispatch($request);
+        $this->assertSame(200, $response->get_status());
+        $meta = $response->get_data()['meta'];
+
+        // The editor still sees the sensitive keys it needs to render the UI.
+        $this->assertArrayHasKey('beyondwords_error_message', $meta);
+        $this->assertSame('Internal API error message', $meta['beyondwords_error_message']);
+        $this->assertArrayHasKey('beyondwords_preview_token', $meta);
+        $this->assertSame('secret-preview-token', $meta['beyondwords_preview_token']);
+        $this->assertArrayHasKey('speechkit_error_message', $meta);
+        $this->assertArrayHasKey('_speechkit_link', $meta);
+
+        // But the secret access key is never exposed, even to editors.
+        $this->assertArrayNotHasKey('speechkit_access_key', $meta);
+
+        wp_delete_user($editorId);
         wp_delete_post($postId, true);
     }
 
