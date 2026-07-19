@@ -24,6 +24,11 @@ final class BulkEditTest extends TestCase
         // Your tear down methods here.
         unset($_POST, $_REQUEST);
 
+        // The redirect handlers gate on current_user_can( 'edit_post', ... ), so
+        // several tests log a user in. Reset it so state cannot leak into sibling
+        // test classes.
+        wp_set_current_user(0);
+
         // Then...
         parent::tearDown();
     }
@@ -149,6 +154,10 @@ final class BulkEditTest extends TestCase
      */
     public function handle_bulk_generate_action()
     {
+        // The handler now filters $object_ids by current_user_can( 'edit_post' ),
+        // so run as an administrator who can edit every selected post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         // Set up API credentials for integration test
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -232,6 +241,10 @@ final class BulkEditTest extends TestCase
      */
     public function handle_bulk_generate_action_with_no_api_credentials()
     {
+        // The handler now filters $object_ids by current_user_can( 'edit_post' ),
+        // so run as an administrator who can edit every selected post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         // Test error handling when API credentials are missing
         // This tests the failure path where posts cannot be generated
 
@@ -279,12 +292,255 @@ final class BulkEditTest extends TestCase
     }
 
     /**
+     * A user with `edit_posts` may still lack `edit_post` for an individual post
+     * they do not own. Core routes custom bulk actions through this filter after
+     * only the coarse edit_posts gate, so the redirect-based generate handler must
+     * itself drop posts the user cannot edit — only the editable post is flagged
+     * for generation and counted. Mirrors the AJAX coverage in test-bulk-edit-ajax.php.
+     *
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_skips_posts_the_user_cannot_edit()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        $ownPostId = self::factory()->post->create([
+            'post_author' => $authorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::generate-skip::own',
+        ]);
+
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::generate-skip::other',
+        ]);
+
+        // Intercept the create-audio request with a benign success so generation
+        // completes hermetically, without a real network call.
+        $mockHttp = function () {
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '{}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $mockHttp, 10, 3);
+
+        $redirect = BulkEdit::handle_bulk_generate_action(
+            'https://example.com/wp-admin/edit.php',
+            'beyondwords_generate_audio',
+            [$ownPostId, $otherPostId]
+        );
+
+        remove_filter('pre_http_request', $mockHttp, 10);
+
+        // Only the editable post is flagged for generation.
+        $this->assertSame('1', get_post_meta($ownPostId, 'beyondwords_generate_audio', true));
+        $this->assertEmpty(get_post_meta($otherPostId, 'beyondwords_generate_audio', true));
+
+        // generated + failed counts only the one editable post.
+        $query = parse_url($redirect, PHP_URL_QUERY);
+        parse_str($query, $args);
+        $this->assertEquals(
+            1,
+            (int)$args['beyondwords_bulk_generated'] + (int)$args['beyondwords_bulk_failed']
+        );
+
+        wp_delete_post($ownPostId, true);
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * When the per-post filter removes every selected post, the generate handler
+     * must be a clean no-op: a zero count, no post mutated, and no API request.
+     *
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_is_a_noop_when_no_editable_posts_remain()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::generate-noop::other',
+        ]);
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this no-op test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $redirect = BulkEdit::handle_bulk_generate_action(
+            'https://example.com/wp-admin/edit.php',
+            'beyondwords_generate_audio',
+            [$otherPostId]
+        );
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $query = parse_url($redirect, PHP_URL_QUERY);
+        parse_str($query, $args);
+
+        $this->assertEquals(0, $args['beyondwords_bulk_generated']);
+        $this->assertEquals(0, $args['beyondwords_bulk_failed']);
+        $this->assertArrayHasKey('beyondwords_bulk_edit_result_nonce', $args);
+        $this->assertFalse($httpAttempted, 'No API request should be made when no editable posts remain.');
+        $this->assertEmpty(get_post_meta($otherPostId, 'beyondwords_generate_audio', true));
+
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * On the delete branch the per-post `edit_post` filter must drop posts the
+     * user cannot edit, so the API batch-delete request only ever carries the
+     * editable post's content — and only that post's meta is cleared.
+     *
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_delete_action_skips_posts_the_user_cannot_edit()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        $ownPostId = self::factory()->post->create([
+            'post_author' => $authorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::delete-skip::own',
+        ]);
+        update_post_meta($ownPostId, 'beyondwords_project_id', 12345);
+        update_post_meta($ownPostId, 'beyondwords_content_id', 'own-content-aaa');
+
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::delete-skip::other',
+        ]);
+        update_post_meta($otherPostId, 'beyondwords_project_id', 12345);
+        update_post_meta($otherPostId, 'beyondwords_content_id', 'other-content-bbb');
+
+        $requests = [];
+        $mockHttp = function ($preempt, $args, $url) use (&$requests) {
+            if (str_contains($url, '/content/batch_delete')) {
+                $requests[] = $args['body'] ?? '';
+                return [
+                    'response' => ['code' => 200, 'message' => 'OK'],
+                    'body'     => '{}',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $mockHttp, 10, 3);
+
+        $redirect = BulkEdit::handle_bulk_delete_action(
+            'https://example.com/wp-admin/edit.php',
+            'beyondwords_delete_audio',
+            [$ownPostId, $otherPostId]
+        );
+
+        remove_filter('pre_http_request', $mockHttp, 10);
+
+        // Exactly one batch-delete request, carrying only the editable post's content.
+        $this->assertCount(1, $requests);
+        $this->assertStringContainsString('own-content-aaa', $requests[0]);
+        $this->assertStringNotContainsString('other-content-bbb', $requests[0]);
+
+        // Only the editable post's meta is cleared; the other post is untouched.
+        $this->assertSame('', get_post_meta($ownPostId, 'beyondwords_content_id', true));
+        $this->assertSame('other-content-bbb', get_post_meta($otherPostId, 'beyondwords_content_id', true));
+
+        // The redirect reports exactly one deleted post.
+        $query = parse_url($redirect, PHP_URL_QUERY);
+        parse_str($query, $args);
+        $this->assertEquals(1, $args['beyondwords_bulk_deleted']);
+
+        wp_delete_post($ownPostId, true);
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * When the per-post filter removes every selected post, the delete handler
+     * must be a clean no-op: a zero count, no API request, and — critically — no
+     * BULK-NO-RESPONSE error from handing an empty batch to the API.
+     *
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_delete_action_is_a_noop_when_no_editable_posts_remain()
+    {
+        $authorId      = self::factory()->user->create(['role' => 'author']);
+        $otherAuthorId = self::factory()->user->create(['role' => 'author']);
+
+        wp_set_current_user($authorId);
+
+        $otherPostId = self::factory()->post->create([
+            'post_author' => $otherAuthorId,
+            'post_status' => 'publish',
+            'post_title'  => 'BulkEditTest::delete-noop::other',
+        ]);
+        update_post_meta($otherPostId, 'beyondwords_project_id', 12345);
+        update_post_meta($otherPostId, 'beyondwords_content_id', 'noop-content-id');
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this no-op test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $redirect = BulkEdit::handle_bulk_delete_action(
+            'https://example.com/wp-admin/edit.php',
+            'beyondwords_delete_audio',
+            [$otherPostId]
+        );
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $query = parse_url($redirect, PHP_URL_QUERY);
+        parse_str($query, $args);
+
+        // Zero deleted, no error surfaced, and no API request attempted.
+        $this->assertEquals(0, $args['beyondwords_bulk_deleted']);
+        $this->assertArrayNotHasKey('beyondwords_bulk_error', $args);
+        $this->assertFalse($httpAttempted, 'No API delete should be attempted when no editable posts remain.');
+        $this->assertSame('noop-content-id', get_post_meta($otherPostId, 'beyondwords_content_id', true));
+
+        wp_delete_post($otherPostId, true);
+    }
+
+    /**
      * @test
      *
      * @backupGlobals disabled
      */
     public function handle_bulk_generate_action_defers_beyond_sync_cap()
     {
+        // The handler gates on current_user_can( 'edit_post', ... ), so run as an
+        // administrator who can edit every selected post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
         // Force a tiny synchronous cap and run off VIP (default) with no API
         // credentials, so posts beyond the cap are deferred and the processed
         // one fails without a network call.
