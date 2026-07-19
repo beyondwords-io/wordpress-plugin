@@ -3,20 +3,49 @@
 To override default behaviour, the following constants can be defined in
 `wp-config.php`.
 
-##  BEYONDWORDS_AUTO_SYNC_SETTINGS
+##  Behaviour
 
-Should we auto-sync the settings to/from the BeyondWords dashboard?
-Defaults to `true`.
+###  BEYONDWORDS_AUTOREGENERATE
 
-```php
-define('BEYONDWORDS_AUTO_SYNC_SETTINGS', false);
-```
-
-##  BEYONDWORDS_AUTOREGENERATE
-
-Should we autoregenerate the audio when an existing Post is updated?
-Defaults to `true`.
+Setting this to a falsy value stops the plugin regenerating audio for posts
+that already have a BeyondWords content ID. The check runs in
+[src/post/class-sync.php](../src/post/class-sync.php) only after an existing
+content ID has been found, so initial generation for posts without audio is
+unaffected. Defaults to regenerating.
 
 ```php
 define('BEYONDWORDS_AUTOREGENERATE', false);
+```
+
+The value is reported in the "BeyondWords - Text-to-Speech" section of the Site
+Health Info screen, see
+[src/site-health/class-site-health.php](../src/site-health/class-site-health.php).
+
+##  URL overrides
+
+The URLs the plugin calls are defined as class constants in
+[src/core/class-urls.php](../src/core/class-urls.php). Each one can be
+overridden by defining a constant of the same name in `wp-config.php`. These
+are intended for local development and testing against non-production
+environments.
+
+An override is only applied if it is a non-empty string — the accessors guard
+with `strlen()`, so defining a constant as `''` leaves the built-in default in
+place.
+
+| Constant | Default |
+| --- | --- |
+| `BEYONDWORDS_API_URL` | `https://api.beyondwords.io/v1` |
+| `BEYONDWORDS_BACKEND_URL` | `''` (empty) |
+| `BEYONDWORDS_JS_SDK_URL` | `https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js` |
+| `BEYONDWORDS_AMP_PLAYER_URL` | `https://audio.beyondwords.io/amp/%d?podcast_id=%s` |
+| `BEYONDWORDS_AMP_IMG_URL` | `https://beyondwords-cdn-b7fyckdeejejb6dj.a03.azurefd.net/assets/logo.svg` |
+| `BEYONDWORDS_DASHBOARD_URL` | `https://dash.beyondwords.io` |
+
+`BEYONDWORDS_AMP_PLAYER_URL` is a format string: `%d` is the project ID and
+`%s` is the content ID.
+
+```php
+define('BEYONDWORDS_API_URL', 'https://api.staging.example.com/v1');
+define('BEYONDWORDS_DASHBOARD_URL', 'https://dash.staging.example.com');
 ```

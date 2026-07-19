@@ -14,8 +14,8 @@ carries all of:
 - a non-empty `variants` array
 - a non-empty `sizes` array whose entries include `width`/`height`
 
-Earlier plugin versions sent only `template.id` and `sizes[].name`/`enabled`,
-which left `variants` empty server-side — so no video was ever produced.
+A partial payload carrying only `template.id` and `sizes[].name`/`enabled`
+leaves `variants` empty server-side, so no video is produced.
 
 ## Approach: mirror the dashboard
 
@@ -28,7 +28,9 @@ video, so the plugin does the same:
    override of the global project — so variants and size dimensions match the
    project the content POST actually targets.
 2. Layer the post's own choices on top:
-   - the chosen size becomes the only enabled size;
+   - when the post sets a Video size, that size becomes the only enabled
+     size; when the post leaves Video size at "Project default", every size
+     keeps the project's own `enabled` flag;
    - the chosen video template overrides the project default (omitted when the
      post has none, deferring to the project default).
 3. Anything the post doesn't customise (`variants`, and the size dimensions) is
