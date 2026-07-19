@@ -420,6 +420,13 @@ class Sync {
 
 		foreach ( $post_types as $post_type ) {
 			foreach ( $keys as $key ) {
+				// Content IDs are interpolated into BeyondWords API URL paths, so
+				// the block-editor / REST write path needs the same strict charset
+				// validation as the classic editor — see Meta::sanitize_content_id().
+				$sanitize_callback = 'beyondwords_content_id' === $key
+					? [ \BeyondWords\Post\Meta::class, 'sanitize_content_id' ]
+					: 'sanitize_text_field';
+
 				register_meta(
 					'post',
 					$key,
@@ -430,7 +437,7 @@ class Sync {
 						'default'           => '',
 						'object_subtype'    => $post_type,
 						'prepare_callback'  => 'sanitize_text_field',
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => $sanitize_callback,
 						'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
 					]
 				);

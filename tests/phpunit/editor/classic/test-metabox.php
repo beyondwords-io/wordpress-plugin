@@ -185,7 +185,13 @@ class MetaboxTest extends TestCase
         // Set the meta after creation so no save_post handler can overwrite the
         // payload before we render — this keeps the assertions meaningful.
         update_post_meta($postId, 'beyondwords_project_id', 12345);
-        update_post_meta($postId, 'beyondwords_content_id', $payload);
+
+        // Content IDs are charset-validated on save (Meta::sanitize_content_id), so
+        // update_post_meta() would blank this payload and nothing would render. Write
+        // it straight to the DB instead — a hostile value can now only reach the
+        // renderer via a raw row (legacy data, a direct DB write, or a future
+        // regression), which is exactly the case this escaping defence must survive.
+        $this->store_raw_content_id($postId, $payload);
 
         $html = $this->capture_output(function () use ($postId) {
             Metabox::player_embed($postId);
@@ -217,6 +223,24 @@ class MetaboxTest extends TestCase
         $this->assertStringContainsString('new BeyondWords.Player(', $onload);
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * Write a Content ID straight into post meta, bypassing the
+     * Meta::sanitize_content_id() callback registered on the meta key, so a
+     * hostile value can still be put in front of the renderer.
+     */
+    private function store_raw_content_id($post_id, $value)
+    {
+        global $wpdb;
+
+        $wpdb->insert($wpdb->postmeta, [
+            'post_id'    => $post_id,
+            'meta_key'   => 'beyondwords_content_id',
+            'meta_value' => $value,
+        ]);
+
+        wp_cache_delete($post_id, 'post_meta');
     }
 
     /**

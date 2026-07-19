@@ -47,6 +47,17 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long to negative-cache a *failed* editor-dropdown fetch (WP_Error /
+	 * timeout, 5xx, 4xx, non-JSON). Much shorter than CACHE_TTL so a transient
+	 * outage self-heals within minutes, but long enough that a slow or
+	 * unreachable API is probed at most once per interval rather than blocking
+	 * every admin edit-screen render.
+	 *
+	 * @since 7.0.0
+	 */
+	const CACHE_TTL_ON_ERROR = 2 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Default timeout, in seconds, for a BeyondWords API request.
 	 *
 	 * The create/update content calls can be slow, so this is deliberately
@@ -69,6 +80,19 @@ class Client {
 	 * @since 7.0.0
 	 */
 	const DELETE_TIMEOUT = 3;
+
+	/**
+	 * Timeout, in seconds, for a cached render-path GET (editor dropdowns).
+	 *
+	 * These run inline on every classic-editor metabox render, so a long
+	 * blocking timeout would tie up a PHP-FPM worker for the length of an admin
+	 * page load. Short, per VIP guidance (see `vip_safe_wp_remote_get`), and
+	 * paired with negative caching ({@see CACHE_TTL_ON_ERROR}) to bound repeat
+	 * failures.
+	 *
+	 * @since 7.0.0
+	 */
+	const RENDER_TIMEOUT = 3;
 
 	/**
 	 * Register WordPress hooks.
@@ -149,7 +173,7 @@ class Client {
 			return false;
 		}
 
-		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
+		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 
 		return self::call_api( 'GET', $url );
 	}
@@ -194,7 +218,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'PUT', $url, $body, $post_id );
 
@@ -240,7 +264,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 		$response = self::call_api( 'DELETE', $url, '', $post_id, [], self::DELETE_TIMEOUT );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
@@ -529,7 +553,8 @@ class Client {
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
 	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
-	 *                                      DELETEs pass the shorter DELETE_TIMEOUT.
+	 *                                      DELETEs pass the shorter DELETE_TIMEOUT and cached
+	 *                                      render-path GETs the shorter RENDER_TIMEOUT.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -565,17 +590,25 @@ class Client {
 	}
 
 	/**
-	 * GET an endpoint, caching successful list/object responses.
+	 * GET an editor-render-path endpoint, caching both hits and failures.
 	 *
-	 * Only 2xx array responses are cached, so a transient API error retries on
-	 * the next call rather than caching an empty/error payload for the full TTL.
+	 * Successful 2xx array responses are cached for {@see CACHE_TTL}. Failures
+	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
+	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
+	 * at most once per interval instead of re-issuing a blocking request on
+	 * every admin render. The request itself uses the short
+	 * {@see RENDER_TIMEOUT} for the same reason.
+	 *
+	 * A 401 additionally self-heals: call_api() clears
+	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
 	 *
 	 * @since 7.0.0
 	 *
 	 * @param string $suffix Cache-key suffix (include any project/language id).
 	 * @param string $url    Absolute endpoint URL.
 	 *
-	 * @return array<mixed>|null|false
+	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
+	 *                                 value ([] after a cached failure) thereafter.
 	 */
 	private static function cached_get( string $suffix, string $url ): array|null|false {
 		$key    = self::cache_key( $suffix );
@@ -585,7 +618,7 @@ class Client {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url );
+		$response = self::call_api( 'GET', $url, '', false, [], self::RENDER_TIMEOUT );
 		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if (
@@ -594,7 +627,13 @@ class Client {
 			&& is_array( $decoded )
 		) {
 			set_transient( $key, $decoded, self::CACHE_TTL );
+
+			return $decoded;
 		}
+
+		// Negative-cache the failure so the next render is served from the
+		// transient instead of blocking on another remote round-trip.
+		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
 
 		return $decoded;
 	}

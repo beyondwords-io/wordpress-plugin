@@ -180,6 +180,34 @@ class Meta {
 	}
 
 	/**
+	 * Sanitize a BeyondWords Content ID.
+	 *
+	 * Content IDs are BeyondWords-issued numeric IDs or UUIDs, so the only valid
+	 * characters are alphanumerics and hyphens — the same `[a-zA-Z0-9\-]+` charset
+	 * the plugin's own inspect REST route enforces. Anything outside that set is
+	 * rejected (blanked) rather than stored, because the Content ID is later
+	 * interpolated into BeyondWords API URL paths in \BeyondWords\Api\Client, where
+	 * characters such as `/`, `.`, `?`, `#` and `&` would let a crafted value steer
+	 * an authenticated, organization-API-key-scoped request to an attacker-chosen
+	 * endpoint (path/query injection).
+	 *
+	 * Used both directly by the classic-editor save handler and as the
+	 * `sanitize_callback` for the `beyondwords_content_id` post meta, so the
+	 * block-editor / REST write path is validated identically.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param mixed $content_id Raw submitted Content ID.
+	 *
+	 * @return string Sanitized Content ID, or '' when the value is invalid.
+	 */
+	public static function sanitize_content_id( $content_id ): string {
+		$content_id = sanitize_text_field( (string) $content_id );
+
+		return preg_match( '/^[a-zA-Z0-9-]*$/', $content_id ) ? $content_id : '';
+	}
+
+	/**
 	 * Get the (legacy) Podcast ID for a WordPress Post.
 	 *
 	 * Over time there have been various approaches to storing the Podcast ID.
@@ -423,7 +451,7 @@ class Meta {
 		}
 
 		if ( is_wp_error( $post_meta ) ) {
-			return sprintf( self::WP_ERROR_FORMAT, $post_meta::get_error_code(), $post_meta::get_error_message() );
+			return sprintf( self::WP_ERROR_FORMAT, $post_meta->get_error_code(), $post_meta->get_error_message() );
 		}
 
 		return (string) $post_meta;

@@ -57,13 +57,18 @@ class JavascriptTest extends TestCase
     }
 
     /**
-     * Stored-XSS regression: dangerous characters in a param value must never
-     * break out of the single-quoted onload='...' attribute, whatever the payload.
+     * Stored-XSS regression: dangerous characters in a Content ID must never
+     * break out of the single-quoted onload='...' attribute, whatever the value.
+     *
+     * Content IDs are now charset-validated on save (Meta::sanitize_content_id),
+     * so a hostile value can only reach the renderer via a raw row — legacy data,
+     * a direct DB write, or a future regression. We store one straight in the DB,
+     * bypassing the meta sanitiser, to keep the renderer's output-escaping second
+     * line of defence under test.
      *
      * Asserts the security *property* — one intact <script> and the value survives
      * as inert JSON data — rather than a specific escaping mechanism, so it stays
-     * valid if the escaping strategy is ever refactored. The injected value reaches
-     * the renderer via `beyondwords_content_id`, the documented editor/REST sink.
+     * valid if the escaping strategy is ever refactored.
      *
      * @test
      * @dataProvider dangerousContentIdProvider
@@ -74,9 +79,12 @@ class JavascriptTest extends TestCase
             'post_title' => 'JavascriptTest::render_neutralises_a_dangerous_content_id',
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_content_id' => $payload,
             ],
         ]);
+
+        // The meta sanitiser would blank this value, so store it raw to simulate
+        // a legacy/externally-written row reaching the renderer.
+        $this->store_raw_content_id($post->ID, $payload);
 
         $html = Javascript::render($post);
 
@@ -101,10 +109,31 @@ class JavascriptTest extends TestCase
     }
 
     /**
-     * Payloads that survive sanitize_text_field() (the meta sanitiser registered
-     * for beyondwords_content_id) — quotes, ampersands and Unicode. It strips
-     * < > tags, so tag-based payloads can only reach the renderer via a filter;
-     * those are covered by render_neutralises_dangerous_sdk_params_from_filter().
+     * Write a Content ID straight into post meta, bypassing the
+     * Meta::sanitize_content_id() callback registered on the meta key, to
+     * reproduce a hostile value that predates or otherwise circumvents input
+     * validation so the renderer's output escaping stays under test.
+     */
+    private function store_raw_content_id($post_id, $value)
+    {
+        global $wpdb;
+
+        $wpdb->insert($wpdb->postmeta, [
+            'post_id'    => $post_id,
+            'meta_key'   => 'beyondwords_content_id',
+            'meta_value' => $value,
+        ]);
+
+        wp_cache_delete($post_id, 'post_meta');
+    }
+
+    /**
+     * Values that would break out of, or corrupt, the onload attribute if the
+     * renderer didn't neutralise them — quotes, ampersands and Unicode. They no
+     * longer survive the beyondwords_content_id meta sanitiser (which blanks
+     * anything outside [a-zA-Z0-9-]), so the test injects them via a raw DB write
+     * to isolate the renderer's own output-escaping defence. Tag-based payloads
+     * are covered by render_neutralises_dangerous_sdk_params_from_filter().
      */
     public function dangerousContentIdProvider()
     {
