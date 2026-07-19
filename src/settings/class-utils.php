@@ -64,12 +64,6 @@ class Utils {
 	const CONNECTION_CHECK_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Timeout (seconds) for the connection-check GET. Kept at the VIP-approved
-	 * 3-second ceiling so a slow API can't stall the settings page render.
-	 */
-	const CONNECTION_CHECK_TIMEOUT = 3;
-
-	/**
 	 * Transient that throttles connection re-validation. Its value is a
 	 * fingerprint of the credentials last checked, so changing the API key or
 	 * project ID busts the throttle and forces an immediate re-check.
@@ -165,8 +159,9 @@ class Utils {
 	 *    per {@see self::CONNECTION_CHECK_TTL}. Changing the API key or project ID
 	 *    changes the fingerprint, so saving new credentials re-validates
 	 *    immediately rather than waiting out the throttle window.
-	 * 2. The request uses a short {@see self::CONNECTION_CHECK_TIMEOUT} timeout so
-	 *    a slow API can't block the page render.
+	 * 2. The request uses the client's short default timeout
+	 *    ({@see \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT}) so a slow API
+	 *    can't block the page render.
 	 *
 	 * The stored flag is only cleared on a definitive auth failure (401/403) —
 	 * `Client::call_api()` clears it on 401 and we mirror that for 403 here. A
@@ -192,7 +187,7 @@ class Utils {
 		}
 
 		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = \BeyondWords\Api\Client::call_api( 'GET', $url, '', false, [], self::CONNECTION_CHECK_TIMEOUT );
+		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
 
 		// Record the attempt whatever the outcome, so repeated page loads don't
 		// re-issue the request — a down API is throttled just like a healthy one.
