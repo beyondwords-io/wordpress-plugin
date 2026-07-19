@@ -18,22 +18,34 @@ To run an arbitrary `wp-env` command against a specific environment:
 npm run env -- run cli wp option get siteurl
 
 # tests
-npm run env:tests run cli wp option get siteurl
+npm run env:tests -- run cli wp option get siteurl
 ```
 
 ##  Prerequisites
 
 ###  1. Ensure Mock API is enabled
 
-The tests environment has `BEYONDWORDS_MOCK_API` set to `true` by default in
-[`.wp-env.tests.json`](../.wp-env.tests.json). To override anything per
-developer, create a `.wp-env.tests.override.json` file (for example, using the
-`config` section) — see
-[`.wp-env.tests.override.json.example`](../.wp-env.tests.override.json.example).
-Restart with `npm run env:tests:start` after editing.
+The tests **site** — the WordPress install Cypress drives — has
+`BEYONDWORDS_MOCK_API` set to `true` in
+[`.wp-env.tests.json`](../.wp-env.tests.json), so Cypress is mocked out of the
+box. To change any of that per developer, add a `config` section to
+`.wp-env.tests.override.json` — see
+[`.wp-env.tests.override.json.example`](../.wp-env.tests.override.json.example)
+— and restart with `npm run env:tests:start`.
+
+PHPUnit does **not** inherit that setting. It boots against the WordPress test
+framework's own `wp-tests-config.php`, which never sees wp-env's `wp-config.php`
+defines, so [`tests/phpunit/bootstrap.php`](../tests/phpunit/bootstrap.php)
+reads `BEYONDWORDS_MOCK_API` and the `BEYONDWORDS_TESTS_*` secrets from
+environment variables (CI), falling back to the `config` section of
+`.wp-env.tests.override.json` (local). That is why the example file sets
+`BEYONDWORDS_MOCK_API` to `true`, and why you must create the override file
+(step 3) — without it PHPUnit hits the real API. The bootstrap re-reads the
+JSON on every run, so no restart is needed for PHPUnit.
 
 `.wp-env.override.json` is the equivalent override for the **development** env,
-and does not affect the tests env.
+and does not affect the tests env — see
+[`.wp-env.override.json.example`](../.wp-env.override.json.example).
 
 ###  2. Create test audio in BeyondWords dashboard
 

@@ -16,9 +16,14 @@ transient.
 
 ## API connection check (`Utils::validate_api_connection()`)
 
-`beyondwords_valid_api_connection` stores a **timestamp** recording the last
-successful credential validation. It gates visibility of the Integration /
-Preferences tabs via `Tabs::get_visible_tabs()`.
+`beyondwords_valid_api_connection` stores an **ISO-8601 UTC datetime string**
+(`gmdate( \DateTime::ATOM )`) recording the last successful credential
+validation; only its truthiness is ever read. It gates visibility of the
+Integration / Preferences tabs via `Tabs::get_visible_tabs()`, and also gates
+the admin/editor UI bootstrap in `Core\Plugin::init()`
+([src/core/class-plugin.php](../src/core/class-plugin.php)), which returns
+early without it — so a missing flag hides the editor sidebar, posts-list
+column and bulk-edit UI as well as the settings tabs.
 
 Validation runs when the Authentication tab loads, and is throttled by the
 `beyondwords_api_connection_checked` transient
@@ -31,8 +36,10 @@ Validation runs when the Authentication tab loads, and is throttled by the
   request is made.
 - The fingerprint is recorded whatever the outcome, so a failing or down API is
   throttled too rather than retried on every page load.
-- Editing the API key or project ID changes the fingerprint, busting the
-  throttle and forcing an immediate re-check.
+- Saving a changed API key or project ID changes the fingerprint, busting the
+  throttle and forcing an immediate re-check. The fingerprint is computed from
+  the stored options, so typing in a field has no effect until the values are
+  saved.
 
 How the flag itself is updated:
 
@@ -44,8 +51,8 @@ How the flag itself is updated:
 - Transient failures (timeout, DNS, 5xx, `WP_Error`) intentionally leave the
   last known-good flag in place — a blip should not lock the operator out of
   the settings tabs.
-- Only authentication failures clear it: a 401 (in `Client::call_api()`,
-  [src/api/class-client.php](../src/api/class-client.php)) or a 403 (in the
-  validation itself). Re-validation then happens on the next Authentication
-  tab load that is not throttled — immediately if the credentials were edited,
-  otherwise once the 5-minute window expires.
+- Once a request is made, only authentication failures clear it: a 401 (in
+  `Client::call_api()`, [src/api/class-client.php](../src/api/class-client.php))
+  or a 403 (in the validation itself). Re-validation then happens on the next
+  Authentication tab load that is not throttled — immediately if the saved
+  credentials changed, otherwise once the 5-minute window expires.

@@ -25,9 +25,11 @@ One entry per compatible post type, each with a `mode`:
 ]
 ```
 
-Only `all` and `terms` are honoured by `Preselect::get_mode()`; anything else
-resolves to `off`. Nothing writes an explicit `mode: off` — `sanitize()`
-removes the post type's entry instead.
+`all` and `terms` are the only valid values of the `mode` key; any other `mode`
+resolves to `off`. `Preselect::get_mode()` is also tolerant of the pre-7.0.0
+shapes described below, so a legacy `'1'` still reads as `all` and a bare
+taxonomy array as `terms` before the migration has run. Nothing writes an
+explicit `mode: off` — `sanitize()` removes the post type's entry instead.
 
 ### Default value
 

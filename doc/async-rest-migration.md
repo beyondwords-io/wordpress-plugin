@@ -50,8 +50,11 @@ returns immediately: [src/post/class-sync.php](../src/post/class-sync.php).
   WP-Cron from a real system cron, so the deferred job fires promptly.
 - Overridable via the `beyondwords_async_generate_audio` filter.
 - The cron job re-runs `generate_audio_for_post()`, which re-checks eligibility
-  and captures the API response → writes `content_id` / `preview_token` / voice
-  meta exactly as the synchronous path does. No webhook/poll needed.
+  and passes the API response to `process_response()` → writes
+  `beyondwords_project_id`, `beyondwords_content_id` and
+  `beyondwords_preview_token` exactly as the synchronous path does. Language and
+  voice meta are deliberately not copied back from the response: those keys hold
+  explicit editor choices. No webhook/poll needed.
 - Error meta is written when the job runs (≈1 cron tick later) rather than
   inline, so the editor surfaces an API error on its next load.
 
@@ -104,9 +107,10 @@ per-render blocking is largely mitigated.
 
 Removing it entirely is partly done.
 [src/editor/components/select-voice/classic-metabox.js](../src/editor/components/select-voice/classic-metabox.js)
-already fetches from the REST proxies on load — `hydrate()` re-fetches the saved
-language's voices, and `applyProjectDefaultLanguage()` fetches `/projects/{id}`
-— so the model/voice dropdowns could be rendered empty and filled client-side.
+already fetches from the REST proxies — `hydrate()` re-fetches the saved
+language's voices on load, and `applyProjectDefaultLanguage()` fetches
+`/projects/{id}` when Customize is switched on — so the model/voice dropdowns
+could be rendered empty and filled client-side.
 The language list has no client-side fetch, and
 [src/editor/components/settings-fields/classic-metabox.js](../src/editor/components/settings-fields/classic-metabox.js)
 does no fetching at all, so its template and video-size dropdowns would need one

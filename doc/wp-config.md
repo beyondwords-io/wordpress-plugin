@@ -23,7 +23,7 @@ Health Info screen, see
 
 ##  URL overrides
 
-The URLs the plugin calls are defined as class constants in
+The URLs the plugin uses are defined as class constants in
 [src/core/class-urls.php](../src/core/class-urls.php). Each one can be
 overridden by defining a constant of the same name in `wp-config.php`. These
 are intended for local development and testing against non-production
@@ -44,6 +44,13 @@ place.
 
 `BEYONDWORDS_AMP_PLAYER_URL` is a format string: `%d` is the project ID and
 `%s` is the content ID.
+
+`BEYONDWORDS_BACKEND_URL` is legacy: `Urls::get_backend_url()` has no callers in
+`src/`, so overriding it changes nothing at runtime. Note that the build also
+reads a `BEYONDWORDS_BACKEND_URL` *environment* variable via `DefinePlugin` in
+[webpack.config.js](../webpack.config.js) (defaulting to
+`https://audio.beyondwords.io`); that is a separate, build-time value and is
+unrelated to the `wp-config.php` constant.
 
 ```php
 define('BEYONDWORDS_API_URL', 'https://api.staging.example.com/v1');

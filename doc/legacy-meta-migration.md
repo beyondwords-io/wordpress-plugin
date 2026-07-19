@@ -18,10 +18,10 @@ That move does not unregister the keys. `Sync::register_meta()` in
 sanitised and `Sync::is_protected_meta()` still keeps them out of the legacy
 Custom Fields panel. What the move changes is `show_in_rest`, which is set from
 the `current` list plus `Sync::REST_LEGACY_META_KEYS` — a short allow-list of
-deprecated keys (`beyondwords_podcast_id`, the `speechkit_*` ids and error
-message, `_speechkit_link`) that the editor still reads as a fallback on
-upgraded sites. Deprecated keys outside that allow-list get
-`show_in_rest => false`.
+deprecated keys (`beyondwords_podcast_id`, `speechkit_generate_audio`,
+`speechkit_project_id`, `speechkit_podcast_id`, `speechkit_error_message`,
+`_speechkit_link`) that the editor still reads as a fallback on upgraded sites.
+Deprecated keys outside that allow-list get `show_in_rest => false`.
 
 ### Keys deprecated
 
@@ -34,8 +34,8 @@ upgraded sites. Deprecated keys outside that allow-list get
 
 DB rows are **kept** on plugin deactivation and upgrade — only removed on full
 uninstall — so a plugin downgrade still finds the values. The one exception is
-`beyondwords_disabled`, which the v7.0.0 migration deletes as it converts it
-(see below).
+the `beyondwords_disabled = '1'` rows, which the v7.0.0 migration deletes as it
+converts them (see below).
 
 ### `beyondwords_disabled` → `beyondwords_embed`
 
@@ -47,7 +47,15 @@ To carry existing opt-outs forward, the v7.0.0 migration in
 `beyondwords_disabled = '1'` in batches of 100. A post only gets
 `beyondwords_embed = 'none'` if its `beyondwords_embed` is still empty — an
 Embed value already set is authoritative and is left alone. Either way the
-legacy flag is deleted, so this key does not survive the upgrade.
+legacy flag is deleted from that post. Rows holding any other value (`''`,
+`'0'`) are not matched by the query and stay in place, where both pre-v7 code
+and `Meta::get_disabled()` read them as "not disabled".
+
+The query passes `'post_type' => 'any'`, which excludes post types registered
+with `exclude_from_search`. Those types can still be BeyondWords-compatible —
+`Settings\Utils::get_compatible_post_types()` builds its list from an
+unfiltered `get_post_types()` call — so posts of such a type keep their
+`beyondwords_disabled` row through the upgrade.
 
 `Player::is_enabled()` still honours `beyondwords_disabled` as a fallback for
 any post the migration hasn't reached (e.g. after a downgrade/re-upgrade). It
@@ -60,7 +68,10 @@ non-empty `beyondwords_embed` and only falls back to `Meta::get_disabled()`.
 - `src/editor/components/player-content/`
 - `src/editor/components/display-player/` (replaced by the Embed setting)
 
-`display-player`'s preview role was folded into `preview-panel/`.
+`display-player` rendered the "Display player" checkbox as a row inside
+`preview-panel/`; that row was dropped and the visibility control now lives in
+the Embed select in
+[settings-panel/player-section.js](../src/editor/components/settings-panel/player-section.js).
 `src/editor/components/play-audio/` was **not** removed — it is still the
 component that renders the player, imported by
 [preview-panel/index.js](../src/editor/components/preview-panel/index.js) and by
@@ -77,10 +88,10 @@ component.
 
 DB rows for the deprecated keys are preserved until full uninstall, so a plugin
 downgrade still renders posts using the legacy values — with the exception of
-`beyondwords_disabled`, which `migrate_disabled_to_embed_none()` deletes on
-upgrade to v7.0.0. A downgrade after that migration will not see the old
-opt-out flag; the equivalent state lives in `beyondwords_embed = 'none'`, which
-pre-v7 code ignores.
+the `beyondwords_disabled = '1'` rows, which `migrate_disabled_to_embed_none()`
+deletes on upgrade to v7.0.0. A downgrade after that migration will not see the
+old opt-out flag on those posts; the equivalent state lives in
+`beyondwords_embed = 'none'`, which pre-v7 code ignores.
 
 New posts written under v7 use the new keys only; the remaining legacy keys are
 left untouched.
