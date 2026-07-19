@@ -264,6 +264,29 @@ class BulkEdit {
 			$redirect
 		);
 
+		// Only operate on posts the current user is actually allowed to edit. Core
+		// routes custom bulk actions through this filter after only a coarse
+		// edit_posts check, so without this per-post guard a crafted request could
+		// force (billable) audio generation on another author's posts. Mirrors the
+		// capability filter in save_bulk_edit().
+		$object_ids = array_values(
+			array_filter(
+				$object_ids,
+				static fn( $post_id ): bool => current_user_can( 'edit_post', $post_id )
+			)
+		);
+
+		// A capable user may still have selected only posts they cannot edit; treat
+		// that as a clean no-op reporting a zero count.
+		if ( empty( $object_ids ) ) {
+			$redirect = add_query_arg( 'beyondwords_bulk_generated', 0, $redirect );
+			$redirect = add_query_arg( 'beyondwords_bulk_failed', 0, $redirect );
+
+			$nonce = wp_create_nonce( 'beyondwords_bulk_edit_result' );
+
+			return add_query_arg( 'beyondwords_bulk_edit_result_nonce', $nonce, $redirect );
+		}
+
 		sort( $object_ids );
 
 		$generated = 0;
@@ -314,6 +337,28 @@ class BulkEdit {
 			],
 			$redirect
 		);
+
+		// Only operate on posts the current user is actually allowed to edit. Core
+		// routes custom bulk actions through this filter after only a coarse
+		// edit_posts check, so without this per-post guard a crafted request could
+		// remotely delete audio and wipe plugin meta on another author's posts.
+		// Mirrors the capability filter in save_bulk_edit().
+		$object_ids = array_values(
+			array_filter(
+				$object_ids,
+				static fn( $post_id ): bool => current_user_can( 'edit_post', $post_id )
+			)
+		);
+
+		// Bail before the remote batch-delete when nothing editable remains, so an
+		// empty selection cannot trigger an API call (or the BULK-NO-RESPONSE error).
+		if ( empty( $object_ids ) ) {
+			$redirect = add_query_arg( 'beyondwords_bulk_deleted', 0, $redirect );
+
+			$nonce = wp_create_nonce( 'beyondwords_bulk_edit_result' );
+
+			return add_query_arg( 'beyondwords_bulk_edit_result_nonce', $nonce, $redirect );
+		}
 
 		sort( $object_ids );
 
