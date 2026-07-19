@@ -179,12 +179,14 @@ class SelectVoice {
 	/**
 	 * Get all available languages.
 	 *
-	 * Coerces the API result to an array so the language dropdown degrades to
-	 * empty when the languages API call fails (network error, WP_Error, non-2xx
-	 * status, empty body or invalid JSON). Client::get_languages() is declared
-	 * array|null|false, so an unguarded null/false would throw a TypeError
-	 * against render_language_select()'s array-typed parameter under
-	 * strict_types. Mirrors get_voices_for_language().
+	 * Coerces the API result to a list of language records so the language
+	 * dropdown degrades to empty when the languages API call fails (network
+	 * error, WP_Error, non-2xx status, empty body or invalid JSON).
+	 * Client::get_languages() is declared array|null|false, so an unguarded
+	 * null/false would throw a TypeError against render_language_select()'s
+	 * array-typed parameter under strict_types; non-array elements (e.g. the
+	 * scalar values of a decoded API error body) are dropped so the render loop
+	 * only iterates records. Mirrors get_voices_for_language().
 	 *
 	 * @since 7.0.0
 	 *
@@ -192,17 +194,32 @@ class SelectVoice {
 	 */
 	private static function get_languages(): array {
 		$languages = \BeyondWords\Api\Client::get_languages();
-		return is_array( $languages ) ? $languages : [];
+
+		if ( ! is_array( $languages ) ) {
+			return [];
+		}
+
+		return array_values( array_filter( $languages, 'is_array' ) );
 	}
 
 	/**
 	 * Get voices for a language code.
 	 *
+	 * Coerces the API result to a list of voice records so the Model and Voice
+	 * dropdowns degrade to empty when the voices API call fails. Beyond the
+	 * top-level array check (Client::get_voices() is declared array|null|false,
+	 * so an unguarded null/false throws a TypeError against the render helpers'
+	 * array-typed parameters under strict_types), each element is filtered to an
+	 * array: a non-2xx response can decode to the API's error shape — e.g.
+	 * {"message": "Too many requests"} on a 429 — whose scalar element would
+	 * otherwise fatal in voice_model_key(). Mirrors get_languages().
+	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Drop non-array elements so an API error body can't fatal the render.
 	 *
 	 * @param string|false $language_code The language code.
-	 * @return array The voices array.
+	 * @return array The voices array, or an empty array on API failure.
 	 */
 	private static function get_voices_for_language( $language_code ): array {
 		if ( $language_code === false || $language_code === '' ) {
@@ -210,7 +227,12 @@ class SelectVoice {
 		}
 
 		$voices = \BeyondWords\Api\Client::get_voices( $language_code );
-		return is_array( $voices ) ? $voices : [];
+
+		if ( ! is_array( $voices ) ) {
+			return [];
+		}
+
+		return array_values( array_filter( $voices, 'is_array' ) );
 	}
 
 	/**
@@ -734,17 +756,20 @@ class SelectVoice {
 
 	/**
 	 * The model bucket key for a voice: its ElevenLabs model_id, or the shared
-	 * Standard bucket for any other service. Mirrors `voiceModelKey()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * Standard bucket for any other service (or any non-record value). Mirrors
+	 * `voiceModelKey()` in src/editor/components/settings-panel/helpers.js, which
+	 * guards with `voice?.` so a scalar left by a decoded API error body buckets
+	 * as Standard rather than fataling against an `array` type under strict_types.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param array $voice A voice record.
+	 * @param mixed $voice A voice record (defensively, any value).
 	 *
 	 * @return string The model bucket key.
 	 */
-	public static function voice_model_key( array $voice ): string {
+	public static function voice_model_key( mixed $voice ): string {
 		if (
+			is_array( $voice ) &&
 			( $voice['service'] ?? '' ) === self::ELEVENLABS_SERVICE &&
 			isset( $voice['model_id'] ) &&
 			is_string( $voice['model_id'] )

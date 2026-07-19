@@ -270,6 +270,75 @@ class SelectVoiceTest extends TestCase
     }
 
     /**
+     * Regression: a non-2xx voices response can carry the BeyondWords API's own
+     * error shape — e.g. {"message": "Too many requests"} on a 429 — which
+     * json_decode()s to ['message' => '<string>']. That passed the top-level
+     * is_array() check, so the string element flowed into the render helpers
+     * (find_voice() / voice_model_key()), which are typed for arrays, and threw
+     * an uncatchable TypeError under strict_types — crashing the classic-editor
+     * metabox mid-render on every load for the duration of an API incident. The
+     * Model/Voice dropdowns must now degrade to empty instead of fataling.
+     *
+     * @test
+     */
+    public function element_degrades_gracefully_when_voices_api_returns_error_object()
+    {
+        // Answer the voices request with the API's {"message": ...} error body
+        // and a 429. Priority 1 short-circuits before the mock API filter, which
+        // respects an earlier preempt; the languages request is left to the mock
+        // so only the voices path is exercised here.
+        $filter = function ($preempt, $args, $url) {
+            if (str_contains($url, '/organization/voices')) {
+                return [
+                    'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+                    'body'     => '{"message":"Too many requests"}',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        // A saved language code makes element() call the voices API.
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_voices_api_error_object',
+            'meta_input' => [
+                'beyondwords_language_code' => 'en_US',
+            ],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $crawler = new Crawler($html);
+
+        // Render reached the Voice select — no TypeError was thrown.
+        $this->assertCount(1, $crawler->filter('#beyondwords_voice_id'));
+
+        // The error body yields no voice records, so both dropdowns hide and
+        // carry only their placeholder option.
+        $modelWrapper = $crawler->filter('#beyondwords-metabox-select-voice--model');
+        $this->assertStringContainsString('display: none', (string) $modelWrapper->attr('style'));
+        $this->assertSame(
+            ['Select a model'],
+            $crawler->filter('#beyondwords_model option')->each(fn ($node) => $node->text())
+        );
+
+        $voiceWrapper = $crawler->filter('#beyondwords-metabox-select-voice--voice-id');
+        $this->assertStringContainsString('display: none', (string) $voiceWrapper->attr('style'));
+        $this->assertSame(
+            ['Select a voice'],
+            $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text())
+        );
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
      * @test
      */
     public function language_names()
@@ -455,6 +524,12 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('standard', SelectVoice::voice_model_key(['name' => 'Ada (Multilingual)']));
         $this->assertSame('standard', SelectVoice::voice_model_key(['service' => 'Azure', 'model_id' => null]));
         $this->assertSame('standard', SelectVoice::voice_model_key(['service' => 'ElevenLabs']));
+
+        // Defensive: a non-record value — e.g. a scalar left by a decoded API
+        // error body — buckets as Standard rather than fataling against the
+        // parameter type. Mirrors the JS `voice?.` guard.
+        $this->assertSame('standard', SelectVoice::voice_model_key('Too many requests'));
+        $this->assertSame('standard', SelectVoice::voice_model_key(null));
     }
 
     /**
