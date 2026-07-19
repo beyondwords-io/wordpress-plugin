@@ -10,11 +10,13 @@ class SettingsUtilsTest extends TestCase
     {
         parent::setUp();
         delete_transient('beyondwords_settings_errors');
+        delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
     }
 
     public function tearDown(): void
     {
         delete_transient('beyondwords_settings_errors');
+        delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
         delete_option('beyondwords_valid_api_connection');
@@ -236,6 +238,169 @@ class SettingsUtilsTest extends TestCase
         $errors = get_transient('beyondwords_settings_errors');
         $this->assertIsArray($errors);
         $this->assertArrayHasKey('Settings/ValidApiConnection', $errors);
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * A transient failure (5xx, timeout, DNS error) must NOT clear a
+     * previously-valid connection flag — otherwise a brief API blip hides the
+     * Integration and Preferences tabs and locks the operator out.
+     *
+     * @test
+     */
+    public function validate_api_connection_preserves_flag_on_server_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $filter = function ($preempt, $args, $url) {
+            return [
+                'response' => ['code' => 500, 'message' => 'Internal Server Error'],
+                'body'     => '{"code":500,"message":"Internal Server Error"}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        // The last known-good flag survives the blip.
+        $this->assertTrue(Utils::has_valid_api_connection());
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * A transport-level failure returns a WP_Error (no HTTP status). It is
+     * transient, so the connection flag must be preserved.
+     *
+     * @test
+     */
+    public function validate_api_connection_preserves_flag_on_wp_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $filter = function ($preempt, $args, $url) {
+            return new \WP_Error('http_request_failed', 'cURL error 28: Operation timed out');
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertTrue(Utils::has_valid_api_connection());
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * A 403 is a definitive auth failure (revoked key or wrong project), so it
+     * clears the connection flag just like a 401.
+     *
+     * @test
+     */
+    public function validate_api_connection_clears_flag_on_forbidden()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $filter = function ($preempt, $args, $url) {
+            return [
+                'response' => ['code' => 403, 'message' => 'Forbidden'],
+                'body'     => '{"code":403,"message":"Forbidden"}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertFalse(Utils::has_valid_api_connection());
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * Removing credentials clears the connection flag — no creds, no
+     * connection — without issuing an API request.
+     *
+     * @test
+     */
+    public function validate_api_connection_clears_flag_when_credentials_removed()
+    {
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertFalse(Utils::has_valid_api_connection());
+    }
+
+    /**
+     * Within the throttle window the check is served from the last result
+     * without issuing a second API request — this keeps the uncached remote
+     * call off every settings-page render.
+     *
+     * @test
+     */
+    public function validate_api_connection_throttles_repeat_checks()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls) {
+            $calls++;
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '{"id":' . BEYONDWORDS_TESTS_PROJECT_ID . '}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertTrue(Utils::validate_api_connection());
+        // Second call within the window short-circuits — no new API request.
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(1, $calls);
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * Changing credentials busts the throttle so the new creds are validated
+     * immediately rather than waiting out the window.
+     *
+     * @test
+     */
+    public function validate_api_connection_revalidates_when_credentials_change()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls) {
+            $calls++;
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '{"id":' . BEYONDWORDS_TESTS_PROJECT_ID . '}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(1, $calls);
+
+        // Rotate the API key: the fingerprint differs, so validation runs again.
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY . '-rotated');
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(2, $calls);
 
         remove_filter('pre_http_request', $filter, 10);
     }
