@@ -405,19 +405,29 @@ context( 'Block Editor: Select Voice', () => {
 			'**/beyondwords/v1/languages/*/voices*',
 			( req ) => {
 				req.on( 'response', ( res ) => {
-					res.setDelay( 1500 );
+					res.setDelay( 4000 );
 				} );
 			}
 		);
 
 		// Switching Accent re-fetches the voices. While that resolves, the
 		// Model + Voice group is hidden and a spinner takes their place — it is
-		// never wedged between two select fields.
+		// never wedged between two select fields. Both are asserted together so
+		// a fast resolve can't slip between two separate commands, and via our
+		// own class rather than the component's (which varies by WP version).
 		cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
 			force: true,
 		} );
-		cy.get( '.beyondwords--voice-fields' ).should( 'not.be.visible' );
-		cy.get( '.components-spinner' ).should( 'be.visible' );
+		cy.get( 'body' ).should( ( $body ) => {
+			expect(
+				$body.find( '.beyondwords--voice-fields:visible' ),
+				'Model + Voice hidden while resolving'
+			).to.have.length( 0 );
+			expect(
+				$body.find( '.beyondwords--voice-spinner' ),
+				'spinner shown in their place'
+			).to.have.length( 1 );
+		} );
 
 		// Recovery — Model + Voice returning once the fetch resolves — is
 		// covered by the other tests, which use the un-intercepted mock:

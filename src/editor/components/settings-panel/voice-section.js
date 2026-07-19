@@ -320,7 +320,9 @@ export function VoiceSection( { withPanel = true } ) {
 				onChange={ toggleCustomize }
 			/>
 			{ customize && ( loadingProject || languagesResolving ) && (
-				<Spinner />
+				<div className="beyondwords--languages-spinner">
+					<Spinner />
+				</div>
 			) }
 			{ fieldsReady && (
 				<SelectControl
@@ -392,7 +394,11 @@ export function VoiceSection( { withPanel = true } ) {
 					</Stack>
 				</div>
 			) }
-			{ fieldsReady && languageCode && voicesResolving && <Spinner /> }
+			{ fieldsReady && languageCode && voicesResolving && (
+				<div className="beyondwords--voice-spinner">
+					<Spinner />
+				</div>
+			) }
 		</Stack>
 	);
 
