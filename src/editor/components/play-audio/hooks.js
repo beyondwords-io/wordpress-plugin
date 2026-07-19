@@ -3,15 +3,20 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import {
+	pollContentStatus,
+	PROCESSED_STATUS,
+} from '../../lib/poll-content-status';
+
 const PLAYER_SCRIPT_SRC =
 	'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
-
-// Delay first player load after a contentId appears so the CDN doesn't cache a
-// 404 for content it hasn't published yet.
-const NEW_CONTENT_DELAY_MS = 2000;
 
 export function useBeyondWordsNamespace() {
 	const [ value, setValue ] = useState( () => {
@@ -57,6 +62,22 @@ export function useBeyondWordsNamespace() {
 	return value;
 }
 
+/**
+ * Create a (preview) BeyondWords player once its content is ready.
+ *
+ * A contentId that appears during this session may still be processing, so it
+ * polls until `processed` before embedding (see lib/poll-content-status.js).
+ *
+ * @param {Object}      options              Options.
+ * @param {HTMLElement} options.target       Player mount node.
+ * @param {number}      options.projectId    BeyondWords project ID.
+ * @param {number}      options.sourceId     Post ID (client-side integration).
+ * @param {string}      options.contentId    BeyondWords content ID, if any.
+ * @param {string}      options.previewToken Preview token, if any.
+ *
+ * @return {{player: (Object|null), status: (string|undefined), isPolling: boolean, timedOut: boolean}}
+ *         The player instance and the current polling state.
+ */
 export function useBeyondWordsPlayer( {
 	target,
 	projectId,
@@ -67,18 +88,30 @@ export function useBeyondWordsPlayer( {
 	const BeyondWords = useBeyondWordsNamespace();
 
 	const [ player, setPlayer ] = useState( null );
+	const [ pollState, setPollState ] = useState( {
+		status: undefined,
+		isPolling: false,
+		timedOut: false,
+	} );
 
-	// Initialized from the mount-time contentId so existing posts skip the delay.
-	const hasSeenContentIdRef = useRef( !! contentId );
+	// Content that existed at mount finished processing long ago and embeds
+	// immediately; only a contentId appearing during this session polls first.
+	const mountContentIdRef = useRef( contentId );
 
 	useEffect( () => {
 		if ( ! BeyondWords?.Player || ! target ) {
 			setPlayer( null );
+			setPollState( {
+				status: undefined,
+				isPolling: false,
+				timedOut: false,
+			} );
 			return;
 		}
 
 		let newPlayer;
-		let timeoutId;
+		let cancelled = false;
+		const controller = new AbortController();
 
 		const initPlayer = () => {
 			try {
@@ -109,23 +142,64 @@ export function useBeyondWordsPlayer( {
 				return;
 			}
 
-			if ( contentId ) {
-				hasSeenContentIdRef.current = true;
-			}
-
 			setPlayer( newPlayer );
 		};
 
-		if ( contentId && ! hasSeenContentIdRef.current ) {
-			timeoutId = setTimeout( initPlayer, NEW_CONTENT_DELAY_MS );
+		if ( contentId && contentId !== mountContentIdRef.current ) {
+			// Session-fresh content: poll until processed, then embed, so a 404
+			// is never CDN-cached for still-processing content.
+			setPollState( {
+				status: undefined,
+				isPolling: true,
+				timedOut: false,
+			} );
+
+			pollContentStatus( {
+				fetchStatus: async () => {
+					const data = await apiFetch( {
+						path: `/beyondwords/v1/projects/${ projectId }/content/${ contentId }`,
+						signal: controller.signal,
+					} );
+					return { status: data?.status };
+				},
+				onTick: ( status ) => {
+					if ( ! cancelled ) {
+						setPollState( {
+							status,
+							isPolling: true,
+							timedOut: false,
+						} );
+					}
+				},
+				isHidden: () => document.hidden,
+				signal: controller.signal,
+			} )
+				.then( ( { status, timedOut } ) => {
+					if ( cancelled ) {
+						return;
+					}
+					setPollState( { status, isPolling: false, timedOut } );
+					if ( ! timedOut && status === PROCESSED_STATUS ) {
+						initPlayer();
+					}
+				} )
+				.catch( () => {
+					// Aborted (unmount or dependency change) — nothing to do.
+				} );
 		} else {
+			// Already-processed content (present at mount) or client-side
+			// integration (keyed on sourceId): nothing to poll, embed now.
+			setPollState( {
+				status: undefined,
+				isPolling: false,
+				timedOut: false,
+			} );
 			initPlayer();
 		}
 
 		return () => {
-			if ( timeoutId ) {
-				clearTimeout( timeoutId );
-			}
+			cancelled = true;
+			controller.abort();
 			setPlayer( null );
 			if ( newPlayer ) {
 				newPlayer.destroy();
@@ -140,7 +214,12 @@ export function useBeyondWordsPlayer( {
 		previewToken,
 	] );
 
-	return player;
+	return {
+		player,
+		status: pollState.status,
+		isPolling: pollState.isPolling,
+		timedOut: pollState.timedOut,
+	};
 }
 
 /**

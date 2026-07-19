@@ -1,6 +1,6 @@
 /**
  * @group classic-editor
- * @covers src/editor/components/content-id/,src/editor/classic/class-metabox.php
+ * @covers src/editor/components/content-id/,src/editor/classic/class-metabox.php,src/editor/lib/
  */
 
 /* global Cypress, cy, before, beforeEach, after, context, it */
@@ -138,6 +138,67 @@ context( 'Classic Editor: Content ID', () => {
 				postId,
 				metaKey: 'beyondwords_content_id',
 			} ).should( 'equal', 'not-found-content-id' );
+		} );
+	} );
+
+	it( 'shows a loading spinner while the content is still processing', () => {
+		// The metabox polls GET /content on page load for a post that has
+		// content. Stub it as still-processing so the spinner stays up and the
+		// player is not embedded (which would have 404-cached before this fix).
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/projects/*/content/*',
+			{
+				statusCode: 200,
+				body: { status: 'processing' },
+			}
+		).as( 'pollContent' );
+
+		cy.createTestPostWithAudio( {
+			title: 'Cypress Test: classic player polling spinner',
+			postStatus: 'publish',
+			postType: 'post',
+		} ).then( ( postId ) => {
+			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
+
+			cy.wait( '@pollContent' );
+
+			cy.get(
+				'#beyondwords-metabox-player .spinner.is-active'
+			).should( 'exist' );
+			cy.get( '#beyondwords-metabox-player' ).should(
+				'contain',
+				'Generating'
+			);
+		} );
+	} );
+
+	it( 'shows a failure message and no spinner when generation errored', () => {
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/projects/*/content/*',
+			{
+				statusCode: 200,
+				body: { status: 'error' },
+			}
+		).as( 'pollContent' );
+
+		cy.createTestPostWithAudio( {
+			title: 'Cypress Test: classic player polling error',
+			postStatus: 'publish',
+			postType: 'post',
+		} ).then( ( postId ) => {
+			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
+
+			cy.wait( '@pollContent' );
+
+			cy.get( '#beyondwords-metabox-player' ).should(
+				'contain',
+				'Generation failed.'
+			);
+			cy.get(
+				'#beyondwords-metabox-player .spinner.is-active'
+			).should( 'not.exist' );
 		} );
 	} );
 } );

@@ -148,10 +148,12 @@ class MetaboxTest extends TestCase
     }
 
     /**
-     * A crafted Content ID must not break out of the inline player onload handler.
+     * A crafted Content ID must never reach a JS execution context.
      *
-     * Stored-XSS regression: the browser HTML-decodes the attribute before compiling the
-     * handler, so esc_attr()'s &quot; became a real " — the HEX-flag JSON encoding must hold.
+     * Stored-XSS regression: browsers HTML-decode attributes before compiling inline
+     * handlers, so esc_attr()'d quotes became real JS quotes. The REST path now emits
+     * no inline handler at all — the ID travels in an esc_attr()'d data attribute;
+     * the inline client-side path is covered by the test below.
      *
      * @test
      */
@@ -176,7 +178,62 @@ class MetaboxTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // The injected markup must not spawn extra elements: exactly one player <script>.
+        // The injected markup must not spawn extra elements: exactly one player
+        // container and one (SDK) <script>.
+        $container = $crawler->filter('#beyondwords-metabox-player');
+        $this->assertCount(1, $container);
+
+        $script = $crawler->filter('script');
+        $this->assertCount(1, $script);
+
+        // No inline handler on the polling path, so the payload has no JS
+        // execution context to break out of.
+        $this->assertNull($script->attr('onload'));
+
+        // Crawler::attr() returns the HTML-decoded attribute — the exact string
+        // getAttribute() hands to the player SDK as a plain value.
+        $this->assertSame($payload, $container->attr('data-content-id'));
+
+        // esc_attr() encoded the quotes, so the raw break-out sequence never
+        // appears in the emitted markup.
+        $this->assertStringNotContainsString('"});alert(document.domain)', $html);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * The client-side (Magic Embed) path still embeds inline, so it must keep
+     * JSON-encoding its config.
+     *
+     * Keyed on the source ID (no Content ID to poll); the untrusted preview token
+     * is HEX-flag JSON-encoded so an injected quote stays inside the JS string.
+     *
+     * @test
+     */
+    public function player_embed_json_encodes_the_client_side_config()
+    {
+        $payload = '"});alert(document.domain);({"';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'MetaboxTest::player_embed_json_encodes_the_client_side_config',
+        ]);
+
+        // Client-side integration: a project ID but no Content ID, so the player
+        // embeds inline from the source (post) ID.
+        update_post_meta($postId, 'beyondwords_project_id', 12345);
+        update_post_meta(
+            $postId,
+            'beyondwords_integration_method',
+            \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE
+        );
+        update_post_meta($postId, 'beyondwords_preview_token', $payload);
+
+        $html = $this->capture_output(function () use ($postId) {
+            Metabox::player_embed($postId);
+        });
+
+        $crawler = new Crawler($html);
+
         $script = $crawler->filter('#beyondwords-metabox-player script');
         $this->assertCount(1, $script);
 

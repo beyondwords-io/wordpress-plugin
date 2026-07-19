@@ -4,6 +4,305 @@
 	'use strict';
 
 	/**
+	 * Content statuses that mean "still processing" — keep polling.
+	 *
+	 * @type {string[]}
+	 */
+	const NON_TERMINAL_STATUSES = [ 'draft', 'queued', 'processing' ];
+
+	/**
+	 * Poll `fetchStatus` until the content reaches a terminal status.
+	 *
+	 * Mirror of src/editor/lib/poll-content-status.js, inlined because this
+	 * classic-editor script is enqueued raw (not built) and cannot `import`.
+	 *
+	 * @param {Object}   options               Options.
+	 * @param {Function} options.fetchStatus   () => Promise<{ status }>.
+	 * @param {Function} [options.onTick]      Called per non-terminal poll.
+	 * @param {Function} [options.isHidden]    () => boolean; skip the call when true.
+	 * @param {Function} [options.isCancelled] () => boolean; stop polling when true.
+	 * @param {number}   [options.intervalMs]  Delay between polls.
+	 * @param {number}   [options.timeoutMs]   Overall time budget.
+	 * @return {Promise<{status: (string|undefined), timedOut: boolean}>} Result;
+	 *         a superseded (cancelled) poll stops without resolving.
+	 */
+	function pollContentStatus( options ) {
+		const fetchStatus = options.fetchStatus;
+		const onTick = options.onTick;
+		const isHidden = options.isHidden;
+		const isCancelled =
+			options.isCancelled ||
+			function () {
+				return false;
+			};
+		const intervalMs = options.intervalMs || 3000;
+		const timeoutMs = options.timeoutMs || 120000;
+		const start = Date.now();
+		let lastStatus;
+		let hiddenMs = 0;
+
+		return new Promise( function ( resolve ) {
+			function tick() {
+				if ( isCancelled() ) {
+					return;
+				}
+
+				// Budget measures visible time — a hidden tab resumes polling on
+				// return instead of timing out having never fetched.
+				if ( Date.now() - start - hiddenMs >= timeoutMs ) {
+					resolve( { status: lastStatus, timedOut: true } );
+					return;
+				}
+
+				// Skip the upstream call while the tab is hidden — each poll is
+				// an uncached upstream API call.
+				if ( isHidden && isHidden() ) {
+					const hiddenAt = Date.now();
+					setTimeout( function () {
+						hiddenMs += Date.now() - hiddenAt;
+						tick();
+					}, intervalMs );
+					return;
+				}
+
+				fetchStatus()
+					.then( function ( result ) {
+						if ( isCancelled() ) {
+							return;
+						}
+
+						const status = result && result.status;
+						lastStatus = status;
+
+						if ( NON_TERMINAL_STATUSES.indexOf( status ) === -1 ) {
+							resolve( { status, timedOut: false } );
+							return;
+						}
+
+						if ( onTick ) {
+							onTick( status );
+						}
+
+						setTimeout( tick, intervalMs );
+					} )
+					.catch( function () {
+						if ( isCancelled() ) {
+							return;
+						}
+
+						// Transient failure — keep polling until the budget.
+						setTimeout( tick, intervalMs );
+					} );
+			}
+
+			tick();
+		} );
+	}
+
+	/**
+	 * Resolve once the BeyondWords player SDK global is available.
+	 *
+	 * The SDK loads from a deferred <script>; by the time polling finishes it is
+	 * almost always ready, but guard with a short bounded wait just in case.
+	 *
+	 * @return {Promise<void>} Resolves when ready (or after the wait budget).
+	 */
+	function whenBeyondWordsReady() {
+		return new Promise( function ( resolve ) {
+			function ready() {
+				return (
+					typeof BeyondWords !== 'undefined' &&
+					typeof BeyondWords.Player === 'function'
+				);
+			}
+
+			if ( ready() ) {
+				resolve();
+				return;
+			}
+
+			let attempts = 0;
+			const id = setInterval( function () {
+				attempts += 1;
+				if ( ready() || attempts > 100 ) {
+					clearInterval( id );
+					resolve();
+				}
+			}, 100 );
+		} );
+	}
+
+	/**
+	 * Render the spinner + loading text into the player container.
+	 *
+	 * @param {HTMLElement} container The player container.
+	 */
+	function showMetaboxLoading( container ) {
+		container.innerHTML = '';
+
+		const spinner = document.createElement( 'span' );
+		spinner.className = 'spinner is-active';
+		spinner.style.float = 'none';
+		spinner.style.margin = '0 8px 0 0';
+
+		const text = document.createElement( 'span' );
+		text.className = 'beyondwords-player-loading-text';
+		text.textContent = wp.i18n.__( 'Generating…', 'speechkit' );
+
+		container.appendChild( spinner );
+		container.appendChild( text );
+	}
+
+	/**
+	 * Replace the container contents with a terminal message (error / skipped /
+	 * timeout), or clear it when there is nothing to say.
+	 *
+	 * @param {HTMLElement} container The player container.
+	 * @param {Object}      result    The poll result { status, timedOut }.
+	 */
+	function showMetaboxMessage( container, result ) {
+		let message = '';
+
+		if ( result.timedOut ) {
+			message = wp.i18n.__(
+				'Generation is taking longer than expected. Refresh to check again.',
+				'speechkit'
+			);
+		} else if ( result.status === 'error' ) {
+			message = wp.i18n.__( 'Generation failed.', 'speechkit' );
+		} else if ( result.status === 'skipped' ) {
+			message = wp.i18n.__( 'No content was generated.', 'speechkit' );
+		}
+
+		container.innerHTML = '';
+
+		if ( message ) {
+			const p = document.createElement( 'p' );
+			p.className = 'beyondwords-player-message';
+			p.textContent = message;
+			container.appendChild( p );
+		}
+	}
+
+	/**
+	 * Poll the content status, then embed the player once it is `processed`.
+	 *
+	 * Constructing the player only on `processed` means a 404 is never
+	 * CDN-cached; terminal error / skipped / timeout shows a message instead.
+	 *
+	 * @param {HTMLElement} container The #beyondwords-metabox-player element.
+	 */
+	function initMetaboxPlayer( container ) {
+		if ( ! container ) {
+			return;
+		}
+
+		if (
+			typeof beyondwordsData === 'undefined' ||
+			! beyondwordsData.root
+		) {
+			return;
+		}
+
+		const projectId = container.getAttribute( 'data-project-id' );
+		const contentId = container.getAttribute( 'data-content-id' );
+		const previewToken =
+			container.getAttribute( 'data-preview-token' ) || '';
+
+		if ( ! projectId || ! contentId ) {
+			return;
+		}
+
+		// A newer init for this container supersedes any in-flight poll.
+		const token = {};
+		container.beyondwordsPollToken = token;
+		const isCancelled = function () {
+			return container.beyondwordsPollToken !== token;
+		};
+
+		function embedPlayer() {
+			whenBeyondWordsReady().then( function () {
+				if ( isCancelled() ) {
+					return;
+				}
+
+				if (
+					typeof BeyondWords === 'undefined' ||
+					typeof BeyondWords.Player !== 'function'
+				) {
+					// SDK never emitted on this page or failed its bounded wait; generation
+					// itself succeeded, so clear the spinner. A refresh re-loads the SDK.
+					container.innerHTML = '';
+					return;
+				}
+
+				container.innerHTML = '';
+
+				// The SDK constructor can throw; contain it so a preview-only
+				// error can't surface as a fatal.
+				try {
+					new BeyondWords.Player( {
+						target: container,
+						projectId: Number( projectId ),
+						contentId,
+						previewToken,
+						adverts: [],
+						analyticsConsent: 'none',
+						introsOutros: [],
+						playerStyle: 'small',
+						widgetStyle: 'none',
+					} );
+				} catch {
+					// Preview failed to initialise; saved content is intact.
+				}
+			} );
+		}
+
+		showMetaboxLoading( container );
+
+		pollContentStatus( {
+			fetchStatus() {
+				return fetch(
+					beyondwordsData.root +
+						'beyondwords/v1/projects/' +
+						encodeURIComponent( projectId ) +
+						'/content/' +
+						encodeURIComponent( contentId ),
+					{
+						credentials: 'same-origin',
+						headers: {
+							'X-WP-Nonce': beyondwordsData.nonce,
+						},
+					}
+				)
+					.then( function ( response ) {
+						if ( ! response.ok ) {
+							throw new Error( response.statusText );
+						}
+						return response.json();
+					} )
+					.then( function ( data ) {
+						return { status: data.status };
+					} );
+			},
+			isHidden() {
+				return document.hidden;
+			},
+			isCancelled,
+		} ).then( function ( result ) {
+			if ( isCancelled() ) {
+				return;
+			}
+
+			if ( ! result.timedOut && result.status === 'processed' ) {
+				embedPlayer();
+			} else {
+				showMetaboxMessage( container, result );
+			}
+		} );
+	}
+
+	/**
 	 * Remove any existing notice from the metabox.
 	 */
 	function clearNotice() {
@@ -146,12 +445,9 @@
 			errorContainer.remove();
 		}
 
-		if (
-			meta.beyondwords_content_id &&
-			meta.beyondwords_project_id &&
-			typeof BeyondWords !== 'undefined' &&
-			typeof BeyondWords.Player === 'function'
-		) {
+		// Route through initMetaboxPlayer so still-processing content is polled
+		// until `processed`, not embedded straight away (which would CDN-cache a 404).
+		if ( meta.beyondwords_content_id && meta.beyondwords_project_id ) {
 			let playerContainer = document.getElementById(
 				'beyondwords-metabox-player'
 			);
@@ -169,26 +465,20 @@
 			}
 
 			if ( playerContainer ) {
-				playerContainer.innerHTML = '';
+				playerContainer.setAttribute(
+					'data-project-id',
+					meta.beyondwords_project_id
+				);
+				playerContainer.setAttribute(
+					'data-content-id',
+					meta.beyondwords_content_id
+				);
+				playerContainer.setAttribute(
+					'data-preview-token',
+					meta.beyondwords_preview_token || ''
+				);
 
-				// The external SDK constructor can throw; contain it so a preview-only
-				// error can't fail the save. Mirrors play-audio/hooks.js.
-				try {
-					new BeyondWords.Player( {
-						target: playerContainer,
-						projectId: Number( meta.beyondwords_project_id ),
-						contentId: meta.beyondwords_content_id,
-						previewToken: meta.beyondwords_preview_token || '',
-						adverts: [],
-						analyticsConsent: 'none',
-						introsOutros: [],
-						playerStyle: 'small',
-						widgetStyle: 'none',
-					} );
-				} catch {
-					// Preview failed to initialise; the saved content is intact.
-					// @todo display error notice in the WordPress admin.
-				}
+				initMetaboxPlayer( playerContainer );
 			}
 		}
 	}
@@ -343,6 +633,17 @@
 
 	function init() {
 		document.body.addEventListener( 'click', handleFetchClick );
+
+		// Embed the player preview once its content has finished processing.
+		const playerContainer = document.getElementById(
+			'beyondwords-metabox-player'
+		);
+		if (
+			playerContainer &&
+			playerContainer.getAttribute( 'data-content-id' )
+		) {
+			initMetaboxPlayer( playerContainer );
+		}
 	}
 
 	if ( document.readyState !== 'loading' ) {

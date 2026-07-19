@@ -207,42 +207,71 @@ class Metabox {
 		$content_id    = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 		$preview_token = \BeyondWords\Post\Meta::get_preview_token( $post->ID );
 
-		// The content ID and preview token are untrusted; the JSON_HEX_* flags escape
-		// them so no value breaks out of the onload attribute. Mirrors Javascript::render().
-		$config = [
-			'projectId'        => (int) $project_id,
-			'previewToken'     => (string) $preview_token,
-			'adverts'          => [],
-			'analyticsConsent' => 'none',
-			'introsOutros'     => [],
-			'playerStyle'      => 'small',
-			'widgetStyle'      => 'none',
-		];
-
-		if ( ! empty( $content_id ) ) {
-			$config['contentId'] = (string) $content_id;
-		} else {
-			$config['sourceId'] = (string) $post->ID;
-		}
-
-		$onload = sprintf(
-			'const player = new BeyondWords.Player({ target: this.parentElement, ...%s });',
-			wp_json_encode(
-				$config,
-				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-			)
-		);
-
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		?>
-		<div id="beyondwords-metabox-player" style="margin: 13px 0;">
-		<script defer
-			src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
-			onload='<?php echo esc_attr( $onload ); ?>'
-		>
-		</script>
-		</div>
-		<?php
+		if ( ! empty( $content_id ) ) :
+			/*
+			 * Still-processing content would 404 (and the CDN would cache it), so
+			 * render a loading state and let classic-metabox.js poll until `processed`.
+			 * The untrusted content ID / preview token travel as esc_attr()'d data-*
+			 * attributes — never interpolated into a JS execution context.
+			 */
+			?>
+			<div
+				id="beyondwords-metabox-player"
+				role="status"
+				aria-live="polite"
+				style="margin: 13px 0;"
+				data-project-id="<?php echo esc_attr( $project_id ); ?>"
+				data-content-id="<?php echo esc_attr( $content_id ); ?>"
+				data-preview-token="<?php echo esc_attr( $preview_token ); ?>"
+			>
+				<span
+					class="spinner is-active"
+					style="float: none; margin: 0 8px 0 0;"
+				></span>
+				<span class="beyondwords-player-loading-text">
+					<?php esc_html_e( 'Generating…', 'speechkit' ); ?>
+				</span>
+			</div>
+			<script
+				defer
+				src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
+			></script>
+			<?php
+		else :
+			/*
+			 * Client-side integration is keyed on the source ID — nothing to poll, so
+			 * embed immediately. The untrusted preview token is JSON_HEX_*-encoded so
+			 * no value breaks out of the onload attribute. Mirrors Javascript::render().
+			 */
+			$config = [
+				'projectId'        => (int) $project_id,
+				'sourceId'         => (string) $post->ID,
+				'previewToken'     => (string) $preview_token,
+				'adverts'          => [],
+				'analyticsConsent' => 'none',
+				'introsOutros'     => [],
+				'playerStyle'      => 'small',
+				'widgetStyle'      => 'none',
+			];
+
+			$onload = sprintf(
+				'const player = new BeyondWords.Player({ target: this.parentElement, ...%s });',
+				wp_json_encode(
+					$config,
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+				)
+			);
+			?>
+			<div id="beyondwords-metabox-player" style="margin: 13px 0;">
+			<script defer
+				src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
+				onload='<?php echo esc_attr( $onload ); ?>'
+			>
+			</script>
+			</div>
+			<?php
+		endif;
 		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 
