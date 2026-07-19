@@ -152,9 +152,7 @@ context( 'Classic Editor: Content ID', () => {
 	} );
 
 	it( 'shows a loading spinner while the content is still processing', () => {
-		// The metabox polls GET /content on page load for a post that has
-		// content. Stub it as still-processing so the spinner stays up and the
-		// player is not embedded (which would have 404-cached before this fix).
+		// Stub as still-processing so the spinner stays up for the assertion.
 		cy.intercept(
 			'GET',
 			'**/beyondwords/v1/projects/*/content/*',

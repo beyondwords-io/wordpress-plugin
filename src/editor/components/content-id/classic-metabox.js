@@ -3,21 +3,13 @@
 ( function () {
 	'use strict';
 
-	/**
-	 * Content statuses that mean "still processing" — keep polling.
-	 *
-	 * @type {string[]}
-	 */
 	const NON_TERMINAL_STATUSES = [ 'draft', 'queued', 'processing' ];
 
 	/**
 	 * Poll `fetchStatus` until the content reaches a terminal status.
 	 *
-	 * Mirror of src/editor/lib/poll-content-status.js (which the block editor
-	 * imports and jest covers). Inlined here because this classic-editor script
-	 * is enqueued raw — it is not built, so it cannot `import`. Resolves
-	 * { status, timedOut }; a cancelled poll (superseded by a newer one) simply
-	 * stops without resolving.
+	 * Mirrors src/editor/lib/poll-content-status.js; inlined because this script
+	 * is served raw and cannot import a built module.
 	 *
 	 * @param {Object}   options               Options.
 	 * @param {Function} options.fetchStatus   () => Promise<{ status }>.
@@ -49,15 +41,12 @@
 					return;
 				}
 
-				// Budget measures visible time — a hidden tab resumes polling on
-				// return instead of timing out having never fetched.
+				// Hidden cycles never fetch, so they must not spend the budget.
 				if ( Date.now() - start - hiddenMs >= timeoutMs ) {
 					resolve( { status: lastStatus, timedOut: true } );
 					return;
 				}
 
-				// Skip the upstream call while the tab is hidden — each poll is
-				// an uncached upstream API call.
 				if ( isHidden && isHidden() ) {
 					const hiddenAt = Date.now();
 					setTimeout( function () {
@@ -104,10 +93,7 @@
 	/**
 	 * Resolve once the BeyondWords player SDK global is available.
 	 *
-	 * The SDK loads from a deferred <script>; by the time polling finishes it is
-	 * almost always ready, but guard with a short bounded wait just in case.
-	 *
-	 * @return {Promise<void>} Resolves when ready (or after the wait budget).
+	 * @return {Promise<void>} Resolves when ready, or after the wait budget.
 	 */
 	function whenBeyondWordsReady() {
 		return new Promise( function ( resolve ) {
@@ -156,8 +142,7 @@
 	}
 
 	/**
-	 * Replace the container contents with a terminal message (error / skipped /
-	 * timeout), or clear it when there is nothing to say.
+	 * Replace the container contents with a terminal message, if there is one.
 	 *
 	 * @param {HTMLElement} container The player container.
 	 * @param {Object}      result    The poll result { status, timedOut }.
@@ -188,12 +173,6 @@
 
 	/**
 	 * Poll the content status, then embed the player once it is `processed`.
-	 *
-	 * Reads projectId / contentId / previewToken from the container's data-*
-	 * attributes, shows a spinner while the content is still processing, and only
-	 * constructs the player on `processed` — so the player never requests (and
-	 * CDN-caches a 404 for) unprocessed content. A terminal error / skipped /
-	 * timeout shows a short message instead.
 	 *
 	 * @param {HTMLElement} container The #beyondwords-metabox-player element.
 	 */
@@ -235,19 +214,14 @@
 					typeof BeyondWords === 'undefined' ||
 					typeof BeyondWords.Player !== 'function'
 				) {
-					// SDK unavailable — either it was never emitted on this page
-					// (the post had no content at load, so player_embed() didn't
-					// run) or it failed to load within the bounded wait.
-					// Generation itself succeeded; clear the spinner so it isn't
-					// left stuck. A page refresh re-loads the SDK.
+					// The SDK is only emitted for posts that had content at load,
+					// so clear the spinner rather than leave it stuck forever.
 					container.innerHTML = '';
 					return;
 				}
 
 				container.innerHTML = '';
 
-				// The SDK constructor can throw; contain it so a preview-only
-				// error can't surface as a fatal.
 				try {
 					new BeyondWords.Player( {
 						target: container,
@@ -456,10 +430,7 @@
 			errorContainer.remove();
 		}
 
-		// Re-initialise the player preview with the fetched content. Route
-		// through initMetaboxPlayer so a just-fetched-but-still-processing
-		// content is polled until `processed` rather than embedded straight
-		// away (which would request — and CDN-cache a 404 for — unready content).
+		// Just-fetched content may still be processing, so poll before embedding.
 		if ( meta.beyondwords_content_id && meta.beyondwords_project_id ) {
 			let playerContainer = document.getElementById(
 				'beyondwords-metabox-player'
