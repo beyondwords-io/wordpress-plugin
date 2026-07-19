@@ -55,10 +55,13 @@ context( 'Block Editor: Select Voice', () => {
 				} );
 
 				// Enabling Customize fetches the project's default language and
-				// pre-selects it (mock project: en_US → English (American)).
+				// pre-selects it (mock project: en_US → English + American).
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'English' );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'American' );
 
 				// Only the language is pre-filled — no model picked yet, so the
 				// Model dropdown opens on its placeholder…
@@ -83,21 +86,34 @@ context( 'Block Editor: Select Voice', () => {
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// 148 languages + the "Select a language…" placeholder.
-						expect( values ).to.have.length( 149 );
+						expect( values ).to.have.length( 80 );
 						expect( values[ 0 ] ).to.eq( 'Select a language…' );
-						expect( values ).to.include( 'English (British)' );
+						expect( values ).to.include( 'English' );
+						expect( values ).to.include( 'Welsh' );
+					} );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						const values = optionLabels( $els );
+						expect( values ).to.have.length( 14 );
+						expect( values ).to.include( 'American' );
+						expect( values ).to.include( 'British' );
 					} );
 
-				// Changing the Language re-fetches voices and seeds that
-				// language's default body voice, resolving Model + Voice.
-				cy.getBlockEditorSelect( 'Language' ).select(
-					'English (British)',
-					{ force: true }
-				);
-				cy.getBlockEditorSelect( 'Language' )
+				// Changing the Accent seeds that language's default body voice
+				// (en_GB → Ollie, a Legacy voice).
+				cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
+					force: true,
+				} );
+				cy.getBlockEditorSelect( 'Accent' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (British)' );
+					.should( 'have.text', 'British' );
+
+				// The mock's English voices are all American-primary, so none
+				// are native to en_GB and Native must be "All" to list them.
+				cy.getBlockEditorSelect( 'Native' ).select( 'All', {
+					force: true,
+				} );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Legacy' );
@@ -174,10 +190,17 @@ context( 'Block Editor: Select Voice', () => {
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'be.checked' );
 
-				// Language/Model/Voice persist after reload, derived from the saved voice id.
+				// Caleb is not native to en_GB, so the Native filter seeds to
+				// "All" on load to keep the saved voice visible.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (British)' );
+					.should( 'have.text', 'English' );
+				cy.getBlockEditorSelect( 'Accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'British' );
+				cy.getBlockEditorSelect( 'Native' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'All' );
 				cy.getBlockEditorSelect( 'Model' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'v3' );
@@ -211,7 +234,10 @@ context( 'Block Editor: Select Voice', () => {
 		cy.get( '.beyondwords--customize label' ).click( { force: true } );
 		cy.getBlockEditorSelect( 'Language' )
 			.find( 'option:selected' )
-			.should( 'have.text', 'English (American)' );
+			.should( 'have.text', 'English' );
+		cy.getBlockEditorSelect( 'Accent' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'American' );
 	};
 
 	it( 'stores a distinct voice id for the same name under each Model', () => {
@@ -282,6 +308,102 @@ context( 'Block Editor: Select Voice', () => {
 			expect( meta?.beyondwords_language_code || '' ).to.eq( '' );
 			expect( meta?.beyondwords_body_voice_id || '' ).to.eq( '' );
 		} );
+	} );
+
+	it( 'hides the Accent select for single-accent languages', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Single-accent language',
+		} );
+		enableCustomizeForEnUs();
+
+		// Welsh has one accent, so it is auto-selected and its code stored.
+		cy.getBlockEditorSelect( 'Language' ).select( 'Welsh', {
+			force: true,
+		} );
+		cy.contains( '.components-select-control label', 'Accent' ).should(
+			'not.exist'
+		);
+		expectMeta( ( meta ) =>
+			expect( meta?.beyondwords_language_code ).to.eq( 'cy_GB' )
+		);
+	} );
+
+	it( 'filters the Voice list by Native', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Native filter',
+		} );
+		enableCustomizeForEnUs();
+
+		// Klaus is German-primary, so he is not native to en_US.
+		cy.getBlockEditorSelect( 'Native' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Native' );
+		cy.getBlockEditorSelect( 'Model' ).select( 'Legacy', { force: true } );
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+				] );
+			} );
+
+		cy.getBlockEditorSelect( 'Native' ).select( 'All', { force: true } );
+		cy.getBlockEditorSelect( 'Voice' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+					'Klaus (Multilingual)',
+				] );
+			} );
+	} );
+
+	it( 'shows a spinner in place of Model and Voice while voices resolve', () => {
+		cy.createPost( {
+			postType: edgePostType,
+			title: 'Voice resolving spinner',
+		} );
+		enableCustomizeForEnUs();
+		cy.getBlockEditorSelect( 'Model' ).should( 'exist' );
+
+		// Delay rather than stub the response: the wp.data store still needs
+		// the real mock data to arrive.
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/languages/*/voices*',
+			( req ) => {
+				req.on( 'response', ( res ) => {
+					res.setDelay( 4000 );
+				} );
+			}
+		);
+
+		// Asserted together so a fast resolve can't slip between two commands,
+		// and via our own class as the component's varies by WP version.
+		cy.getBlockEditorSelect( 'Accent' ).select( 'British', {
+			force: true,
+		} );
+		cy.get( 'body' ).should( ( $body ) => {
+			expect(
+				$body.find( '.beyondwords--voice-fields:visible' ),
+				'Model + Voice hidden while resolving'
+			).to.have.length( 0 );
+			expect(
+				$body.find( '.beyondwords--voice-spinner' ),
+				'spinner shown in their place'
+			).to.have.length( 1 );
+		} );
+
+		// Recovery is covered by the other tests: cy.intercept does not
+		// re-populate the wp.data voices store, so it can't be asserted here.
 	} );
 
 	// The single-bucket branch (Model dropdown hidden) is covered by the
