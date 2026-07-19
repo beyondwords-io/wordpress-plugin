@@ -30,8 +30,7 @@ export function ContentSection() {
 		[]
 	);
 
-	// `useEntityProp` returns `{}` (so `meta` is undefined) until the post entity
-	// record is hydrated; default to an empty object before reading meta values.
+	// `useEntityProp` yields undefined meta until the post entity record is hydrated.
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = rawMeta ?? {};
 

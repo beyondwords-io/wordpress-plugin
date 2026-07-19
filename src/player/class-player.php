@@ -1,10 +1,6 @@
 <?php
 /**
- * BeyondWords player entry point.
- *
- * Owns the front-end hooks that decide when and how a BeyondWords player is
- * rendered on a post. Per-context rendering is delegated to the renderer
- * classes under `src/player/renderer/`.
+ * BeyondWords player entry point: front-end hooks that decide when a player renders.
  *
  * @package BeyondWords\Player
  * @since   3.0.0
@@ -25,8 +21,9 @@ defined( 'ABSPATH' ) || exit;
 class Player {
 
 	/**
-	 * Renderer classes evaluated in order. The first whose `check()` returns
-	 * true wins — keep AMP first so AMP requests get the AMP player.
+	 * Renderer classes evaluated in order; the first whose `check()` passes wins.
+	 *
+	 * AMP stays first so AMP requests get the AMP player.
 	 *
 	 * @var string[]
 	 */
@@ -41,9 +38,8 @@ class Player {
 	public static function init(): void {
 		add_action( 'init', [ self::class, 'register_shortcodes' ] );
 
-		// Replace legacy `<div data-beyondwords-player>` markup with the modern
-		// shortcode early, then auto-prepend the player at very late priority
-		// so other `the_content` filters can't strip it.
+		// Legacy-markup replacement runs early; auto-prepend runs at very late
+		// priority so other `the_content` filters can't strip the player.
 		add_filter( 'the_content', [ self::class, 'replace_legacy_custom_player' ], 5 );
 		add_filter( 'the_content', [ self::class, 'auto_prepend_player' ], 1000000 );
 		add_filter( 'newsstand_the_content', [ self::class, 'auto_prepend_player' ] );
@@ -57,8 +53,7 @@ class Player {
 	}
 
 	/**
-	 * Auto-prepend the player to `the_content` on singular pages, unless the
-	 * editor has already placed a player via shortcode/script/legacy div.
+	 * Auto-prepend the player to `the_content` unless the post already embeds one.
 	 *
 	 * @param string $content Post content.
 	 *
@@ -69,11 +64,8 @@ class Player {
 			return $content;
 		}
 
-		// Bail before the potentially expensive has_custom_player() DOM scan when
-		// no player could render anyway. This mirrors render_player()'s own early
-		// return, so returning $content here is equivalent to prepending its '' —
-		// but it spares every "player disabled / Embed: None" singular pageview
-		// the cost of parsing the post content.
+		// Mirrors render_player()'s own early return, but bails before the expensive
+		// has_custom_player() DOM scan when no player could render anyway.
 		$post = get_post();
 
 		if ( ! $post instanceof \WP_Post || ! self::is_enabled( $post ) ) {
@@ -88,11 +80,10 @@ class Player {
 	}
 
 	/**
-	 * Convert legacy `<div data-beyondwords-player>` placeholders to the
-	 * modern shortcode so the rest of the pipeline only deals with one form.
+	 * Convert legacy `<div data-beyondwords-player>` placeholders to the shortcode.
 	 *
-	 * The regex tolerates attribute reordering, missing values (boolean
-	 * attribute), and self-closing tags — see the inline examples.
+	 * The regex tolerates attribute reordering, valueless (boolean) attributes,
+	 * extra attributes, and self-closing tags.
 	 *
 	 * @param string $content Post content.
 	 *
@@ -103,12 +94,6 @@ class Player {
 			return $content;
 		}
 
-		// Examples this matches:
-		// <div data-beyondwords-player="true"></div>
-		// <div data-beyondwords-player></div>
-		// <div data-beyondwords-player contenteditable="false"></div>
-		// <div contenteditable="false" data-beyondwords-player> </div>
-		// <div data-beyondwords-player />
 		$pattern = '/<div\s+(?=[^>]*data-beyondwords-player[\s>=\/])[^>]*(?:\/>|>\s*<\/div>)/i';
 
 		return preg_replace( $pattern, '[beyondwords_player]', $content );
@@ -167,14 +152,11 @@ class Player {
 	 * Headless mode counts as enabled — we still emit the SDK script so the
 	 * publisher's own UI can drive it.
 	 *
-	 * @since 7.0.0 "Embed: None" hides the player; the legacy `beyondwords_disabled`
-	 *              flag is still honoured for posts saved before v7.
+	 * @since 7.0.0 "Embed: None" hides the player; the legacy disabled flag is still honoured.
 	 *
 	 * @param \WP_Post $post Post object.
 	 */
 	public static function is_enabled( \WP_Post $post ): bool {
-		// "Embed: None" hides the player; the legacy `beyondwords_disabled` flag
-		// is honoured for pre-v7 posts the migration hasn't reached.
 		if ( \BeyondWords\Editor\Components\SettingsFields::is_player_disabled_for_post( $post->ID ) ) {
 			return false;
 		}
@@ -200,11 +182,8 @@ class Player {
 
 		$js_sdk_url = \BeyondWords\Core\Urls::get_js_sdk_url();
 
-		// Skip the DOM parse below — expensive on large posts, yet run on every
-		// singular pageview — unless a marker substring is actually present. Both
-		// XPath queries require one of these literal strings in the markup (the
-		// attribute name, or the SDK URL inside a script `src`), so if neither
-		// appears the parse cannot match and we can bail cheaply.
+		// Both XPath queries need one of these literal substrings, so when neither
+		// appears we can skip the expensive per-pageview DOM parse.
 		if (
 			! str_contains( $content, 'data-beyondwords-player' )
 			&& ! str_contains( $content, $js_sdk_url )

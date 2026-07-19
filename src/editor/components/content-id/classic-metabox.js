@@ -110,7 +110,6 @@
 	 * @param {Object} meta The meta values that were saved.
 	 */
 	function updateMetaboxUI( meta ) {
-		// Content ID input.
 		const contentIdInput = document.getElementById(
 			'beyondwords_content_id'
 		);
@@ -118,7 +117,6 @@
 			contentIdInput.value = meta.beyondwords_content_id;
 		}
 
-		// Generate audio checkbox — fetched content sets this to '0'.
 		const generateAudioCheckbox = document.getElementById(
 			'beyondwords_generate_audio'
 		);
@@ -127,7 +125,6 @@
 				meta.beyondwords_generate_audio === '1';
 		}
 
-		// Language select — only update if the value exists as an option.
 		// Match option values directly so a malformed API value can't throw.
 		const languageSelect = document.getElementById(
 			'beyondwords_language_code'
@@ -149,7 +146,6 @@
 			errorContainer.remove();
 		}
 
-		// Re-initialise the player preview with the fetched content.
 		if (
 			meta.beyondwords_content_id &&
 			meta.beyondwords_project_id &&
@@ -175,9 +171,8 @@
 			if ( playerContainer ) {
 				playerContainer.innerHTML = '';
 
-				// The player SDK is an external CDN script, so its constructor
-				// can throw; contain it so a preview-only error can't fail the
-				// save. Mirrors play-audio/hooks.js.
+				// The external SDK constructor can throw; contain it so a preview-only
+				// error can't fail the save. Mirrors play-audio/hooks.js.
 				try {
 					new BeyondWords.Player( {
 						target: playerContainer,
@@ -254,7 +249,6 @@
 		clearNotice();
 		let spinner = setLoading( button, input, true );
 
-		// Fetch content from the BeyondWords API.
 		fetch(
 			beyondwordsData.root +
 				'beyondwords/v1/projects/' +
@@ -291,9 +285,8 @@
 
 				return savePostMeta( restBase, postId, meta ).then(
 					function () {
-						// Save succeeded. Refreshing the UI is best-effort —
-						// contain failures so they can't reject the chain and
-						// divert into the .catch, overwriting the saved meta.
+						// UI refresh is best-effort — contain failures so they can't
+						// reject the chain into the .catch and overwrite the saved meta.
 						try {
 							updateMetaboxUI( meta );
 						} catch {
@@ -321,7 +314,6 @@
 					return;
 				}
 
-				// Persist the error message to post meta.
 				const errorMeta = {
 					beyondwords_content_id: contentId,
 					beyondwords_error_message: wp.i18n.__(

@@ -2,9 +2,6 @@
 /**
  * Base class for player renderers.
  *
- * Subclasses (`Amp`, `Javascript`) override `check()` to decide whether their
- * variant applies, and add a `render()` method to produce HTML.
- *
  * @package BeyondWords\Player\Renderer
  * @since   6.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -25,10 +22,6 @@ class Base {
 
 	/**
 	 * Whether a player should be rendered for this post in this request.
-	 *
-	 * Returns false during preview, in the block editor, or when the post is
-	 * missing a project ID. For REST API integration we additionally require
-	 * a content ID; Magic Embed (client-side) doesn't need one.
 	 *
 	 * @param \WP_Post $post WordPress post object.
 	 */

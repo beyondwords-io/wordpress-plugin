@@ -2,9 +2,6 @@
 /**
  * AMP-compatible BeyondWords player renderer.
  *
- * Used when the request is being served through an AMP plugin
- * (`\BeyondWords\Core\Utils::is_amp()`).
- *
  * @package BeyondWords\Player\Renderer
  * @since   6.0.0
  * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.

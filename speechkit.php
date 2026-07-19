@@ -27,15 +27,12 @@ declare( strict_types = 1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// Composer autoload
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-// Define constants
 // phpcs:disable
 define('BEYONDWORDS__PLUGIN_VERSION', '7.0.0-beta.1');
 define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable
 
-// Bootstrap.
 BeyondWords\Core\Plugin::init();

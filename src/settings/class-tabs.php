@@ -1,11 +1,8 @@
 <?php
 /**
- * BeyondWords settings tabs.
+ * BeyondWords settings tabs: slugs, settings groups and section IDs per tab.
  *
- * Defines the three tabs (Authentication, Integration, Preferences),
- * their slugs, settings groups and section IDs. Field registration lives
- * in `Fields` and `Preselect`; this class is the single source of truth
- * for which tab a field belongs to.
+ * Field registration lives in `Fields` and `Preselect`.
  *
  * @package BeyondWords\Settings
  *
@@ -20,9 +17,6 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Settings tabs.
- *
- * `register()` runs on `admin_init` and creates the settings sections that
- * the field renderers attach to.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */

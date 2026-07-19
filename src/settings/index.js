@@ -1,6 +1,5 @@
 /**
- * Settings feature entry — registers the `beyondwords/settings` data store
- * for the block editor to read from.
+ * Settings feature entry — registers the `beyondwords/settings` data store.
  */
 import { register } from '@wordpress/data';
 import store from './store';

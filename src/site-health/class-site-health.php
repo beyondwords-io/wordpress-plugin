@@ -1,8 +1,6 @@
 <?php
 /**
- * BeyondWords Site Health.
- *
- * Adds a "BeyondWords" section to the WordPress Site Health debugging info.
+ * BeyondWords section for the WordPress Site Health debugging info.
  *
  * @package BeyondWords\SiteHealth
  * @since   3.7.0
@@ -25,8 +23,7 @@ class SiteHealth {
 	/**
 	 * BeyondWords filter hooks that are still active.
 	 *
-	 * Used to surface "Registered filters" in Site Health so support can see
-	 * which extension points the site is using.
+	 * Surfaced in Site Health so support can see which extension points are in use.
 	 *
 	 * @var string[]
 	 */
@@ -195,23 +192,15 @@ class SiteHealth {
 	/**
 	 * Resolve the "Communication with REST API" value/debug pair.
 	 *
-	 * Deliberately **not** cached. This mirrors WordPress core's own
-	 * `dotorg_communication` field ({@see \WP_Debug_Data::get_wp_core()}), which
-	 * probes wordpress.org on every Info-screen render: Site Health is a
-	 * diagnostic, so a cached result would keep reporting "unreachable" to an
-	 * admin who has just fixed their credentials, DNS or firewall and hit
-	 * refresh to confirm. The request is instead bounded by the shared
-	 * {@see \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT} and skipped
-	 * entirely when there are no credentials, which keeps the render cost
-	 * predictable without ever serving stale diagnostics.
+	 * Deliberately not cached: Site Health is a diagnostic, and core's own
+	 * `dotorg_communication` field likewise probes uncached on every render.
 	 *
 	 * @param string $api_url BeyondWords REST API base URL.
 	 *
 	 * @return array<string,string>
 	 */
 	private static function get_api_communication( string $api_url ): array {
-		// Nothing to probe until the site has API credentials — skip the
-		// blocking request on fresh installs entirely.
+		// Nothing to probe until the site has API credentials.
 		if ( ! \BeyondWords\Settings\Utils::has_api_creds() ) {
 			return [
 				'value' => __( 'Not checked — BeyondWords API credentials are not configured', 'speechkit' ),
@@ -219,11 +208,8 @@ class SiteHealth {
 			];
 		}
 
-		// A plain request, not `Client::call_api()`: this is a passive probe, and
-		// `call_api()` would clear `beyondwords_valid_api_connection` on a 401 as
-		// a side effect of merely viewing Site Health. `vip_safe_wp_remote_get()`
-		// is avoided for the same reason — its circuit breaker reports a failure
-		// without actually retrying, which would make the diagnostic lie.
+		// A plain request on purpose: `call_api()` would clear the valid-connection
+		// flag on a 401, and the VIP helper's circuit breaker can fake failures.
 		$response = wp_remote_request(
 			$api_url,
 			[
@@ -334,9 +320,6 @@ class SiteHealth {
 
 	/**
 	 * Mask a sensitive string for display in Site Health.
-	 *
-	 * Replaces all but the last `$count` characters with `$char` so the API key
-	 * is recognisable but unreadable.
 	 *
 	 * @param string|false $value Value to mask. `false` (e.g. missing option) renders empty.
 	 * @param int          $count Number of trailing characters to preserve.

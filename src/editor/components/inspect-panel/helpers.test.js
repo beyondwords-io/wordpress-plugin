@@ -5,8 +5,7 @@
  */
 import { SYSTEM_META_KEYS, hasBeyondwordsData, getTextToCopy } from './helpers';
 
-// Key lists as PHP supplies them via the settings store (a representative subset
-// is enough for these unit tests — the real lists come from get_post_meta_keys).
+// Representative subset of the key lists PHP supplies via the settings store.
 const CURRENT = [ 'beyondwords_generate_audio', 'beyondwords_content_id' ];
 const DEPRECATED = [ 'speechkit_podcast_id' ];
 const DATA_KEYS = [ ...CURRENT, ...DEPRECATED ];

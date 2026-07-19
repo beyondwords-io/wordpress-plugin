@@ -10,8 +10,7 @@ const PLAYER_SCRIPT_SRC =
 	'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
 
 // Delay first player load after a contentId appears so the CDN doesn't cache a
-// 404 for content it hasn't published yet. Matches the implicit delay the
-// Classic Editor gets from its post-save page reload.
+// 404 for content it hasn't published yet.
 const NEW_CONTENT_DELAY_MS = 2000;
 
 export function useBeyondWordsNamespace() {
@@ -20,11 +19,8 @@ export function useBeyondWordsNamespace() {
 	} );
 
 	useEffect( () => {
-		// The script can finish loading in the gap between the render-phase
-		// useState initializer (which may have seen no namespace) and this
-		// post-paint effect. Re-read the namespace synchronously so we don't
-		// attach a 'load' listener to an already-loaded script — that listener
-		// would never fire again, leaving value null and the player uncreated.
+		// The script can finish loading between the useState initializer and this
+		// effect; re-read now so we don't listen on an already-loaded script.
 		if ( window?.BeyondWords ) {
 			setValue( window.BeyondWords );
 			return;
@@ -148,14 +144,10 @@ export function useBeyondWordsPlayer( {
 }
 
 /**
- * Whether the post has everything the BeyondWords player needs to load a
- * preview.
+ * Whether the post has everything the BeyondWords player needs to load a preview.
  *
- * Pure selector so it can be called inside `useSelect`/`withSelect` (and unit
- * tested without a React render). Shared by the `beyondwords/player` block and
- * the `PlayAudioCheck` gate via `useHasPlayAudioAction()`. Legacy `podcast_id`
- * keys are recognised so posts upgraded from older plugin versions still
- * preview correctly.
+ * Pure selector (usable in `useSelect`/`withSelect`, unit-testable). Legacy
+ * `podcast_id` keys are recognised so upgraded posts still preview.
  *
  * @param {Function} select Redux-style select() from `@wordpress/data`.
  *
@@ -169,7 +161,6 @@ export function selectHasPlayAudioAction( select ) {
 	const integrationMethod =
 		getEditedPostAttribute( 'meta' ).beyondwords_integration_method;
 
-	// Get Content ID, inc fallbacks for legacy field names.
 	const beyondwordsContentId =
 		getEditedPostAttribute( 'meta' ).beyondwords_content_id;
 	const beyondwordsPodcastId =
@@ -192,8 +183,7 @@ export function selectHasPlayAudioAction( select ) {
 }
 
 /**
- * Hook wrapper around {@link selectHasPlayAudioAction} for use in function
- * components — the block preview and the `PlayAudioCheck` gate.
+ * Hook wrapper around {@link selectHasPlayAudioAction} for function components.
  *
  * @return {boolean} True when the player can load.
  */

@@ -87,7 +87,6 @@ class Metabox {
 		// Single nonce guarding the Content/Format/Player <select> fields.
 		\BeyondWords\Editor\Components\SettingsFields::nonce();
 
-		// Player section: player/errors, Embed, Generate audio.
 		self::heading( __( 'Player', 'speechkit' ) );
 
 		self::errors( $post );
@@ -100,27 +99,22 @@ class Metabox {
 			}
 		}
 
-		// The Embed dropdown ("None" = no player) replaces the old Display
-		// player checkbox.
+		// The Embed dropdown ("None" = no player) replaces the old Display player checkbox.
 		\BeyondWords\Editor\Components\SettingsFields::render_player_section( $post );
 		( new \BeyondWords\Editor\Components\GenerateAudio() )::element( $post );
 
-		// Content section: Source + Script template.
 		echo '<hr />';
 		self::heading( __( 'Content', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_content_section( $post );
 
-		// Format section: Output + Video template + Video size.
 		echo '<hr />';
 		self::heading( __( 'Format', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_format_section( $post );
 
-		// Voice section: Language + Voice + Model.
 		echo '<hr />';
 		self::heading( __( 'Voice', 'speechkit' ) );
 		( new \BeyondWords\Editor\Components\SelectVoice() )::element( $post );
 
-		// Data section: Content ID + Fetch button.
 		echo '<hr />';
 		self::heading( __( 'Data', 'speechkit' ) );
 		\BeyondWords\Editor\Components\ContentId::element( $post );
@@ -131,10 +125,6 @@ class Metabox {
 
 	/**
 	 * Print a settings-section heading.
-	 *
-	 * The sections mirror the block editor's Player/Content/Format/Voice panels.
-	 * A heading gives each group a label because the individual field labels
-	 * (Source, Output, Embed…) aren't self-explanatory on their own.
 	 *
 	 * @since 7.0.0
 	 *
@@ -148,12 +138,10 @@ class Metabox {
 	}
 
 	/**
-	 * The "Pending review" message, shown instead of the audio player
-	 * if the post status in WordPress is "pending".
+	 * The "Pending review" message for posts with "pending" status.
 	 *
-	 * This message is displayed instead of the player because the player
-	 * cannot be rendered for audio which has been created
-	 * with { published: false }.
+	 * Shown instead of the player, which cannot render audio created with
+	 * { published: false }.
 	 *
 	 * @since 3.7.0
 	 * @since 6.0.0 Make static.
@@ -219,19 +207,8 @@ class Metabox {
 		$content_id    = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 		$preview_token = \BeyondWords\Post\Meta::get_preview_token( $post->ID );
 
-		/*
-		 * Build the player SDK config as a PHP array, then JSON-encode it for the
-		 * inline `onload` handler instead of concatenating the values by hand.
-		 *
-		 * The Content ID is editable post meta (Meta::get_content_id) and the
-		 * preview token is supplied by the REST API, so both are untrusted in this
-		 * output context. The HEX flags escape ' " < > & inside every string value
-		 * as \uXXXX, so a value cannot break out of the JS string literal, the
-		 * single-quoted attribute, or the surrounding <script> markup; the
-		 * structural JSON quotes are left intact so the spread object literal stays
-		 * valid JavaScript, and esc_attr() below encodes those for the attribute.
-		 * Mirrors \BeyondWords\Player\Renderer\Javascript::render().
-		 */
+		// The content ID and preview token are untrusted; the JSON_HEX_* flags escape
+		// them so no value breaks out of the onload attribute. Mirrors Javascript::render().
 		$config = [
 			'projectId'        => (int) $project_id,
 			'previewToken'     => (string) $preview_token,

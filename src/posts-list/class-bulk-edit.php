@@ -1,9 +1,6 @@
 <?php
 /**
- * Bulk Edit handler for the posts list screen.
- *
- * Adds a "BeyondWords" column to the bulk-edit dropdown so multiple posts can
- * have audio generated or deleted in one action.
+ * Bulk Edit handler for the posts list screen: generate/delete audio for many posts.
  *
  * @package BeyondWords\PostsList
  * @since   3.0.0
@@ -83,27 +80,10 @@ class BulkEdit {
 	}
 
 	/**
-	 * AJAX handler for the inline bulk-edit submission.
+	 * AJAX handler (`wp_ajax_save_bulk_edit_beyondwords`) for the inline bulk edit.
 	 *
-	 * Wired via `wp_ajax_save_bulk_edit_beyondwords`. Verifies the nonce that
-	 * was emitted by `bulk_edit_custom_box()` and the current user's capability
-	 * before delegating to the generate/delete helpers.
-	 *
-	 * The nonce only proves the request was intentional (CSRF protection); it
-	 * does not authorise the action. Because every `wp_ajax_*` callback is
-	 * reachable by any logged-in user, we additionally gate on capabilities —
-	 * mirroring the core bulk-action capability checks the redirect-based
-	 * handlers rely on — so a Subscriber/Contributor cannot mutate or delete
-	 * audio on posts they are not allowed to edit.
-	 *
-	 * Always terminates the request via `wp_send_json_success()` /
-	 * `wp_send_json_error()` (both call `wp_die()` internally). A WordPress AJAX
-	 * callback that merely returns falls through to core's `wp_die( '0' )`, so
-	 * the payload would be discarded and the client would always receive the
-	 * bare string `0`. The generate/delete dispatch is wrapped in try/catch so a
-	 * thrown `\Exception` — e.g. when none of the selected posts have BeyondWords
-	 * audio — becomes a JSON error response instead of an uncaught fatal,
-	 * mirroring the handling in `handle_bulk_delete_action()`.
+	 * The nonce is CSRF protection only; any logged-in user can reach a
+	 * `wp_ajax_*` callback, so capabilities must additionally gate the action.
 	 */
 	public static function save_bulk_edit(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
@@ -148,9 +128,8 @@ class BulkEdit {
 			)
 		);
 
-		// A capable user may still have selected only posts they cannot edit; treat
-		// that as a clean no-op rather than the empty-batch error the delete helper
-		// would otherwise throw.
+		// A capable user may have selected only posts they cannot edit; treat that
+		// as a clean no-op rather than the delete helper's empty-batch error.
 		if ( empty( $post_ids ) ) {
 			wp_send_json_success( [] );
 		}
@@ -264,11 +243,8 @@ class BulkEdit {
 			$redirect
 		);
 
-		// Only operate on posts the current user is actually allowed to edit. Core
-		// routes custom bulk actions through this filter after only a coarse
-		// edit_posts check, so without this per-post guard a crafted request could
-		// force (billable) audio generation on another author's posts. Mirrors the
-		// capability filter in save_bulk_edit().
+		// Core routes custom bulk actions here after only a coarse edit_posts check,
+		// so guard per-post — else a crafted request could trigger billable generation.
 		$object_ids = array_values(
 			array_filter(
 				$object_ids,
@@ -276,8 +252,7 @@ class BulkEdit {
 			)
 		);
 
-		// A capable user may still have selected only posts they cannot edit; treat
-		// that as a clean no-op reporting a zero count.
+		// Nothing editable selected: a clean no-op reporting a zero count.
 		if ( empty( $object_ids ) ) {
 			$redirect = add_query_arg( 'beyondwords_bulk_generated', 0, $redirect );
 			$redirect = add_query_arg( 'beyondwords_bulk_failed', 0, $redirect );
@@ -338,11 +313,8 @@ class BulkEdit {
 			$redirect
 		);
 
-		// Only operate on posts the current user is actually allowed to edit. Core
-		// routes custom bulk actions through this filter after only a coarse
-		// edit_posts check, so without this per-post guard a crafted request could
-		// remotely delete audio and wipe plugin meta on another author's posts.
-		// Mirrors the capability filter in save_bulk_edit().
+		// Core routes custom bulk actions here after only a coarse edit_posts check,
+		// so guard per-post — else a crafted request could wipe another author's audio.
 		$object_ids = array_values(
 			array_filter(
 				$object_ids,
@@ -350,8 +322,7 @@ class BulkEdit {
 			)
 		);
 
-		// Bail before the remote batch-delete when nothing editable remains, so an
-		// empty selection cannot trigger an API call (or the BULK-NO-RESPONSE error).
+		// Bail before the remote batch-delete so an empty selection can't hit the API.
 		if ( empty( $object_ids ) ) {
 			$redirect = add_query_arg( 'beyondwords_bulk_deleted', 0, $redirect );
 

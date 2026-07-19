@@ -5,15 +5,8 @@ declare( strict_types = 1 );
 /**
  * BeyondWords Component: Settings Fields (Classic editor).
  *
- * The classic-editor counterparts of the block editor's Content, Format and
- * Player settings sections. Each section renders server-side <select> controls;
- * the dynamic show/hide + option-recompute behaviour lives in the bundled
- * [classic-metabox.js](classic-metabox.js), which mirrors the block editor's
- * [helpers.js](../settings-panel/helpers.js).
- *
- * The option-derivation helpers (source/output/embed) are kept as pure static
- * methods so they can be unit-tested and reused by both the renderers here and,
- * conceptually, the JS mirror.
+ * Classic-editor counterparts of the block editor's Content/Format/Player
+ * sections; dynamic behaviour lives in classic-metabox.js (mirrors helpers.js).
  *
  * @package BeyondWords\Editor\Components
  * @author  Stuart McAlpine <stu@beyondwords.io>
@@ -80,8 +73,10 @@ class SettingsFields {
 	// Option helpers (mirror src/editor/components/settings-panel/helpers.js).
 
 	/**
-	 * The "Project default" leaf option. An empty value defers to the project
-	 * setting — the plugin omits the field from the content payload when empty.
+	 * The "Project default" leaf option.
+	 *
+	 * An empty value defers to the project setting — the plugin omits the field
+	 * from the content payload when empty.
 	 *
 	 * @since 7.0.0
 	 *
@@ -260,11 +255,10 @@ class SettingsFields {
 	}
 
 	/**
-	 * The default Embed value for a post that hasn't chosen one yet: the first
-	 * asset the current Source × Output produces (e.g. Post × Audio → "Audio
-	 * (post)"). This keeps the player visible by default — "None" is the
-	 * deliberate opt-out. Mirrors `getDefaultEmbed()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * The default Embed for a post that hasn't chosen one: the first produced asset.
+	 *
+	 * Keeps the player visible by default — "None" is the deliberate opt-out.
+	 * Mirrors getDefaultEmbed() in settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
@@ -286,15 +280,8 @@ class SettingsFields {
 	/**
 	 * Resolve the effective Embed value for a post.
 	 *
-	 * Centralises the source×output→asset resolution so the dropdown's shown
-	 * default ({@see render_player_section()}) and the rendered player
-	 * ({@see \BeyondWords\Player\ConfigBuilder}) can never diverge:
-	 *
-	 * - No explicit choice yet: a legacy "Display player" opt-out (pre-v7 posts
-	 *   not yet migrated) resolves to None, otherwise the first asset the current
-	 *   Source × Output produces so the player stays visible.
-	 * - A persisted value that no longer fits the current Source × Output falls
-	 *   back to None.
+	 * Centralised so the shown default and the rendered player (ConfigBuilder)
+	 * never diverge; legacy opt-outs and no-longer-valid values resolve to None.
 	 *
 	 * @since 7.0.0
 	 *
@@ -323,10 +310,8 @@ class SettingsFields {
 	/**
 	 * Whether the player is suppressed on a post.
 	 *
-	 * The Embed dropdown's "None" replaces the pre-v7 "Display player" opt-out.
-	 * An explicit Embed value is authoritative; only when none is set do we fall
-	 * back to the legacy `beyondwords_disabled` flag (for posts saved before the
-	 * v7.0.0 migration ran).
+	 * An explicit Embed value is authoritative ("None" replaces the pre-v7 opt-out);
+	 * only when unset do we fall back to the legacy `beyondwords_disabled` flag.
 	 *
 	 * @since 7.0.0
 	 *
@@ -600,8 +585,7 @@ class SettingsFields {
 			return $post_id;
 		}
 
-		// The nonce proves intent, not authorisation — confirm this user may
-		// edit this specific post before writing its meta.
+		// The nonce proves intent, not authorisation.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return $post_id;
 		}
@@ -627,8 +611,7 @@ class SettingsFields {
 				continue;
 			}
 
-			// Reject anything outside the known option set rather than persist
-			// arbitrary values.
+			// Reject anything outside the known option set.
 			if ( self::is_valid_meta_value( $key, $value ) ) {
 				update_post_meta( $post_id, $key, $value );
 			}
@@ -640,9 +623,8 @@ class SettingsFields {
 	/**
 	 * Whether a submitted value is allowed for the given Settings Fields key.
 	 *
-	 * Enum fields are checked against their option sets; the template-id fields
-	 * must be numeric; the free-form video size (an API-supplied name) only needs
-	 * the sanitisation already applied by the caller.
+	 * The free-form video size (an API-supplied name) only needs the
+	 * sanitisation already applied by the caller.
 	 *
 	 * @since 7.0.0
 	 *

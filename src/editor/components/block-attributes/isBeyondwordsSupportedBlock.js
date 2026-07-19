@@ -1,12 +1,12 @@
 /**
  * Check if a block is supported by BeyondWords.
- * Only content blocks that can be read aloud should have BeyondWords attributes and controls.
+ *
+ * Only content blocks that can be read aloud get attributes and controls.
  *
  * @param {string} name Block name.
  * @return {boolean} Whether the block is supported by BeyondWords.
  */
 export function isBeyondwordsSupportedBlock( name ) {
-	// Skip blocks without a name
 	if ( ! name ) {
 		return false;
 	}
@@ -24,7 +24,6 @@ export function isBeyondwordsSupportedBlock( name ) {
 		return false;
 	}
 
-	// Skip editor UI blocks
 	const excludedBlocks = [
 		'beyondwords/player', // The Player block embeds the player itself
 		'core/freeform', // Classic editor

@@ -22,10 +22,8 @@ class Meta {
 	/**
 	 * Get "renamed" Post Meta.
 	 *
-	 * We previously saved custom fields with a prefix of `speechkit_*` and we now
-	 * save them with a prefix of `beyondwords_*`.
-	 *
-	 * This method checks both prefixes, copying `speechkit_*` data to `beyondwords_*`.
+	 * Checks `beyondwords_*` then the legacy `speechkit_*` prefix, migrating
+	 * legacy values to the new prefix on read.
 	 *
 	 * @since 3.7.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -43,7 +41,6 @@ class Meta {
 		if ( metadata_exists( 'post', $post_id, 'speechkit_' . $name ) ) {
 			$value = get_post_meta( $post_id, 'speechkit_' . $name, true );
 
-			// Migrate over to newer `beyondwords_*` format
 			update_post_meta( $post_id, 'beyondwords_' . $name, $value );
 
 			return $value;
@@ -67,7 +64,6 @@ class Meta {
 
 		$metadata = array_filter( $metadata, fn( $item ) => in_array( $item['meta_key'], $keys_to_check ) );
 
-		// Prepend the WordPress Post ID to the meta data
         // phpcs:disable WordPress.DB.SlowDBQuery
 		array_push(
 			$metadata,
@@ -124,7 +120,7 @@ class Meta {
 		$content_id         = self::get_content_id( $post_id );
 		$integration_method = get_post_meta( $post_id, 'beyondwords_integration_method', true );
 
-		// If the integration method is not set, we assume REST API for legacy compatibility.
+		// Unset means REST API, for legacy compatibility.
 		if ( empty( $integration_method ) ) {
 			$integration_method = \BeyondWords\Settings\Fields::INTEGRATION_REST_API;
 		}
@@ -133,7 +129,7 @@ class Meta {
 			return true;
 		}
 
-		// Get the project ID for the post (do not use the plugin setting).
+		// Strict: don't fall back to the plugin-setting project ID.
 		$project_id = self::get_project_id( $post_id, true );
 
 		if ( \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE === $integration_method && ! empty( $project_id ) ) {
@@ -180,20 +176,11 @@ class Meta {
 	}
 
 	/**
-	 * Sanitize a BeyondWords Content ID.
+	 * Sanitize a BeyondWords Content ID (numeric ID or UUID).
 	 *
-	 * Content IDs are BeyondWords-issued numeric IDs or UUIDs, so the only valid
-	 * characters are alphanumerics and hyphens — the same `[a-zA-Z0-9\-]+` charset
-	 * the plugin's own inspect REST route enforces. Anything outside that set is
-	 * rejected (blanked) rather than stored, because the Content ID is later
-	 * interpolated into BeyondWords API URL paths in \BeyondWords\Api\Client, where
-	 * characters such as `/`, `.`, `?`, `#` and `&` would let a crafted value steer
-	 * an authenticated, organization-API-key-scoped request to an attacker-chosen
-	 * endpoint (path/query injection).
-	 *
-	 * Used both directly by the classic-editor save handler and as the
-	 * `sanitize_callback` for the `beyondwords_content_id` post meta, so the
-	 * block-editor / REST write path is validated identically.
+	 * Anything beyond alphanumerics and hyphens is rejected: the ID is later
+	 * interpolated into API URL paths, where `/`, `?`, `#` etc. would allow
+	 * path/query injection against the authenticated API.
 	 *
 	 * @since 7.0.0
 	 *
@@ -223,50 +210,34 @@ class Meta {
 	 * @return int|false Podcast ID, or false
 	 */
 	public static function get_podcast_id( int $post_id ): string|int|false {
-		// Check for "Podcast ID" custom field (number, or string for > 4.x)
 		$podcast_id = self::get_renamed_post_meta( $post_id, 'podcast_id' );
 
 		if ( $podcast_id ) {
 			return $podcast_id;
 		}
 
-		// It may also be found by parsing post_meta._speechkit_link
+		// Legacy player URLs are /a/[ID], /e/[ID] or /m/[ID].
 		$speechkit_link = get_post_meta( $post_id, '_speechkit_link', true );
-		// Player URL can be either /a/[ID] or /e/[ID] or /m/[ID]
 		preg_match( '/\/[aem]\/(\d+)/', (string) $speechkit_link, $matches );
 		if ( $matches ) {
 			return intval( $matches[1] );
 		}
 
-		// It may also be found by parsing post_meta.speechkit_response
 		$speechkit_response = self::get_http_response_body_from_post_meta( $post_id, 'speechkit_response' );
 		preg_match( '/"podcast_id":(")?(\d+)(?(1)\1|)/', (string) $speechkit_response, $matches );
-		// $matches[2] is the Podcast ID (response.podcast_id)
 		if ( $matches && $matches[2] ) {
 			return intval( $matches[2] );
 		}
 
-		/**
-		 * It may also be found by parsing post_meta.speechkit_info
-		 *
-		 * NOTE: This has been copied verbatim from the existing iframe player check
-		 *       at Speechkit_Public::iframe_player_embed_html(), in case it is
-		 *       needed for posts which were created a very long time ago.
-		 *       I cannot write unit tests for this to pass, they always fail for me,
-		 *       so there are currently no tests for it.
-		 */
-		// Mirrors the if/else at Speechkit_Public::iframe_player_embed_html();
+		// Mirrors the if/else at legacy Speechkit_Public::iframe_player_embed_html();
 		// only the share_url branch produces a usable Podcast ID for us.
 		$article = get_post_meta( $post_id, 'speechkit_info', true );
 		if ( ! empty( $article ) && isset( $article['share_url'] ) ) {
-			// Player URL can be either /a/[ID] or /e/[ID] or /m/[ID]
 			preg_match( '/\/[aem]\/(\d+)/', (string) $article['share_url'], $matches );
 			if ( $matches ) {
 				return intval( $matches[1] );
 			}
 		}
-
-		// todo throw ContentIdNotFoundException???
 
 		return false;
 	}
@@ -274,12 +245,7 @@ class Meta {
 	/**
 	 * Get the BeyondWords preview token for a WordPress Post.
 	 *
-	 * The preview token allows us to play audio that has a future scheduled
-	 * publish date, so we can preview the audio in WordPress admin before it
-	 * is published.
-	 *
-	 * The token is supplied by the BeyondWords REST API whenever audio content
-	 * is created/updated, and stored in a WordPress custom field.
+	 * The token allows previewing audio in admin before its scheduled publish date.
 	 *
 	 * @since 4.5.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -307,12 +273,10 @@ class Meta {
 	public static function has_generate_audio( int $post_id ): bool {
 		$generate_audio = self::get_renamed_post_meta( $post_id, 'generate_audio' );
 
-		// Checkbox was checked.
 		if ( $generate_audio === '1' ) {
 			return true;
 		}
 
-		// Checkbox was unchecked.
 		if ( $generate_audio === '0' ) {
 			return false;
 		}
@@ -323,10 +287,8 @@ class Meta {
 	/**
 	 * Get the Project ID for a WordPress Post.
 	 *
-	 * It is possible to change the BeyondWords project ID in the plugin settings,
-	 * so the current Project ID setting will not necessarily be correct for all
-	 * historic Posts. Because of this, we attempt to retrive the correct Project ID
-	 * from various custom fields, then fall-back to the plugin setting.
+	 * The plugin-setting project ID may have changed since a post was created,
+	 * so historic custom fields are checked before falling back to the setting.
 	 *
 	 * @since 3.0.0
 	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
@@ -341,36 +303,29 @@ class Meta {
 	 * @return int|false Project ID, or false
 	 */
 	public static function get_project_id( int $post_id, bool $strict = false ): int|string|false {
-		// If strict is true, we only check the custom field and do not fall back to the plugin setting.
 		if ( $strict ) {
 			return self::get_renamed_post_meta( $post_id, 'project_id' );
 		}
 
-		// Check the post custom field.
 		$post_meta = intval( self::get_renamed_post_meta( $post_id, 'project_id' ) );
 
 		if ( ! empty( $post_meta ) ) {
 			return $post_meta;
 		}
 
-		// Parse post_meta.speechkit_response, if available.
 		$speechkit_response = self::get_http_response_body_from_post_meta( $post_id, 'speechkit_response' );
 
 		preg_match( '/"project_id":(")?(\d+)(?(1)\1|)/', (string) $speechkit_response, $matches );
 
-		// $matches[2] is the Project ID (response.project_id)
 		if ( $matches && $matches[2] ) {
 			return intval( $matches[2] );
 		}
 
-		// Check the plugin setting.
 		$setting = get_option( 'beyondwords_project_id' );
 
 		if ( $setting ) {
 			return intval( $setting );
 		}
-
-		// todo throw ProjectIdNotFoundException?
 
 		return false;
 	}
@@ -397,8 +352,6 @@ class Meta {
 	/**
 	 * Get the "Error Message" value for a WordPress Post.
 	 *
-	 * Supports data saved with the `beyondwords_*` prefix and the legacy `speechkit_*` prefix.
-	 *
 	 * @since 3.7.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
@@ -413,8 +366,6 @@ class Meta {
 	/**
 	 * Get the "Disabled" value for a WordPress Post.
 	 *
-	 * Supports data saved with the `beyondwords_*` prefix and the legacy `speechkit_*` prefix.
-	 *
 	 * @since 3.7.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
@@ -427,11 +378,8 @@ class Meta {
 	/**
 	 * Get HTTP response body from post meta.
 	 *
-	 * The data may have been saved as a WordPress HTTP response array. If it was,
-	 * then return the 'body' key of the HTTP response instead of the raw post meta.
-	 *
-	 * The data may also have been saved as a WordPress WP_Error instance. If it was,
-	 * then return a string containing the WP_Error code and message.
+	 * Legacy rows may hold a whole WordPress HTTP response array or a WP_Error;
+	 * both are normalised to a string.
 	 *
 	 * @since 3.0.3
 	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils

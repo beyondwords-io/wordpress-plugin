@@ -25,6 +25,18 @@ local development environment.
 5. [Plugin features](./doc/plugin-features.md): An overview of the features of
 our plugin.
 6. [wp-config.php](./doc/wp-config.md): Our *wp-config.php* settings.
+7. [Async REST migration](./doc/async-rest-migration.md): API response caching
+and background (cron) audio generation on WordPress VIP.
+8. [Legacy meta migration](./doc/legacy-meta-migration.md): The v7 post-meta
+cleanup and downgrade-safety guarantees.
+9. [REST meta visibility](./doc/rest-meta-visibility.md): How BeyondWords post
+meta is exposed (or hidden) over the WordPress REST API.
+10. [Video settings payload](./doc/video-settings-payload.md): Why the plugin
+sends a full `video_settings` object to the content endpoint.
+11. [Preselect "Generate audio"](./doc/preselect-generate-audio.md): The
+setting's stored format and how the editor and save path honour it.
+12. [Settings internals](./doc/settings-internals.md): Settings-error
+transport and the API connection check.
 
 ##  Links
 

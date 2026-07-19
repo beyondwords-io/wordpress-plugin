@@ -17,21 +17,16 @@ export const EMBED_AUDIO_SCRIPT = 'audio_script';
 export const EMBED_VIDEO_POST = 'video_post';
 export const EMBED_VIDEO_SCRIPT = 'video_script';
 
-// Empty value = defer to the project setting. The plugin omits the field from
-// the content payload when empty, so the BeyondWords backend applies the
-// project default. Prepend this to leaf-setting dropdowns.
+// Empty value = defer to the project setting — the plugin omits the field from
+// the content payload so the BeyondWords backend applies the project default.
 export const PROJECT_DEFAULT_VALUE = '';
 
 export function projectDefaultOption() {
 	return { label: __( 'Project default', 'speechkit' ), value: '' };
 }
 
-// Voice "models" only exist for ElevenLabs voices, exposed as a snake_case
-// `model_id` slug. Each (name, model_id) pair is a distinct voice record with
-// its own `id`. The Model dropdown is a language-level filter: picking a model
-// narrows the Voice list to the voices that offer it, then the chosen voice id
-// (which carries the model) is the only value sent to the API. Voices from any
-// other service have no `model_id` and share a single "Standard" bucket.
+// Voice "models" only exist for ElevenLabs voices; each (name, model_id) pair is
+// a distinct voice record, and the chosen voice id is the only value sent to the API.
 export const ELEVENLABS_SERVICE = 'ElevenLabs';
 
 // The model listed first in the Model dropdown.
@@ -40,8 +35,7 @@ export const DEFAULT_ELEVENLABS_VOICE_MODEL_ID = 'eleven_multilingual_v2';
 // Bucket key for voices without an ElevenLabs `model_id` (e.g. standard voices).
 export const STANDARD_MODEL_KEY = 'standard';
 
-// Human labels for the known ElevenLabs model slugs. Unknown slugs fall back to
-// a title-cased version of the slug minus the `eleven_` prefix.
+// Human labels for the known ElevenLabs model slugs.
 const VOICE_MODEL_LABELS = {
 	eleven_v3: __( 'v3', 'speechkit' ),
 	eleven_multilingual_v2: __( 'Multilingual v2', 'speechkit' ),
@@ -69,8 +63,7 @@ export function voiceModelLabel( modelId ) {
 /**
  * The model bucket key for a voice.
  *
- * ElevenLabs voices key by their `model_id`; every other voice falls into the
- * shared STANDARD_MODEL_KEY bucket.
+ * ElevenLabs voices key by `model_id`; all others share the Standard bucket.
  *
  * @param {Object} voice A voice record.
  *
@@ -87,11 +80,9 @@ export function voiceModelKey( voice ) {
 }
 
 /**
- * The distinct model buckets offered across a language's voices, as
- * `{ key, label }` options for the Model dropdown.
+ * The distinct model buckets across a language's voices, for the Model dropdown.
  *
- * ElevenLabs models come first (the default model leading), followed by a
- * single "Standard" bucket when any non-ElevenLabs voices are present.
+ * ElevenLabs models first (the default leading), then a single Standard bucket.
  *
  * @param {Array<Object>} voices All voices for the current language.
  *
@@ -177,9 +168,7 @@ export function outputIncludesVideo( output ) {
 /**
  * Derive the valid "Embed" dropdown options from the current Source × Output.
  *
- * Returns None plus one entry for each asset combination the current
- * source/output would produce. The Embed value persisted to post meta picks
- * one of these to render on the published post.
+ * Returns None plus one entry per asset the current source/output would produce.
  *
  * @param {string} source One of SOURCE_*.
  * @param {string} output One of OUTPUT_*.
@@ -238,9 +227,9 @@ export function isEmbedValid( embed, source, output ) {
 }
 
 /**
- * The default Embed value for a post that hasn't chosen one yet: the first asset
- * the current Source × Output produces (e.g. Post × Audio → "Audio (post)").
- * This keeps the player visible by default — "None" is the deliberate opt-out.
+ * The default Embed for a post that hasn't chosen one: the first produced asset.
+ *
+ * Keeps the player visible by default — "None" is the deliberate opt-out.
  *
  * @param {string} source One of SOURCE_*.
  * @param {string} output One of OUTPUT_*.

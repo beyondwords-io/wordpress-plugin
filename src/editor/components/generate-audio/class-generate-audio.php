@@ -50,11 +50,8 @@ class GenerateAudio {
 	/**
 	 * Enqueue the classic-editor Generate audio script.
 	 *
-	 * Classic editor only — the block editor handles this in React. The script
-	 * keeps the state-reflecting "Generation enabled/disabled" caption in step
-	 * with the checkbox, so it loads for every compatible post type. When the
-	 * post type is configured with `terms` mode it also carries the term data
-	 * needed to live-update the checkbox as matching terms are ticked.
+	 * Always enqueued (the caption sync needs it); `terms` mode additionally
+	 * localizes the term data used to live-update the checkbox.
 	 *
 	 * @since 7.0.0
 	 * @since 7.0.0 Always enqueued (for the caption); preselect data is optional.
@@ -84,8 +81,6 @@ class GenerateAudio {
 			true
 		);
 
-		// Term-gated preselect additionally needs the watched terms — only in
-		// `terms` mode, and only when there is something to watch.
 		if ( \BeyondWords\Settings\Preselect::MODE_TERMS === \BeyondWords\Settings\Preselect::get_mode( $post_type ) ) {
 			$terms = \BeyondWords\Settings\Preselect::get_selected_terms( $post_type );
 
@@ -106,10 +101,6 @@ class GenerateAudio {
 
 	/**
 	 * Check whether the "Generate audio" checkbox should be preselected.
-	 *
-	 * Delegates to the shared decision in `Preselect`, which honours both
-	 * whole-post-type ('all') and term-gated ('terms') preselection and is
-	 * tolerant of taxonomies that have since been unregistered.
 	 *
 	 * @since 6.0.0 Make static.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -132,9 +123,8 @@ class GenerateAudio {
 
 		$generate_audio = \BeyondWords\Post\Meta::has_generate_audio( $post->ID );
 
-		// State-reflecting caption: the label reads out the current state. The
-		// data attributes let classic-metabox.js keep it in step as the checkbox
-		// is toggled (the block editor toggle behaves the same way).
+		// State-reflecting caption; the data attributes let classic-metabox.js keep
+		// it in step as the checkbox toggles (mirrors the block editor toggle).
 		$label_enabled  = __( 'Generation enabled', 'speechkit' );
 		$label_disabled = __( 'Generation disabled', 'speechkit' );
 		?>
@@ -171,7 +161,6 @@ class GenerateAudio {
 			return $post_id;
 		}
 
-		// "save_post" can be triggered at other times, so verify this request came from the our component
 		if (
 			! isset( $_POST['beyondwords_generate_audio_nonce'] ) ||
 			! wp_verify_nonce(

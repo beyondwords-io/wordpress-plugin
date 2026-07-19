@@ -20,7 +20,6 @@ import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
  * @return {Object} settings Modified settings.
  */
 function addAttributes( settings, name ) {
-	// Only add attributes to content blocks
 	if ( ! isBeyondwordsSupportedBlock( name ) ) {
 		return settings;
 	}

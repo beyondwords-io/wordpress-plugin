@@ -26,8 +26,7 @@ export function PlayerSection( { withPanel = true } ) {
 		[]
 	);
 
-	// `useEntityProp` returns `{}` (so `meta` is undefined) until the post entity
-	// record is hydrated; default to an empty object before reading meta values.
+	// `useEntityProp` yields undefined meta until the post entity record is hydrated.
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = rawMeta ?? {};
 
@@ -35,10 +34,8 @@ export function PlayerSection( { withPanel = true } ) {
 	const output = meta.beyondwords_output || OUTPUT_AUDIO;
 
 	const stored = meta.beyondwords_embed;
-	// No explicit choice yet → default to the first asset so the player shows.
-	// ("Embed: None" is the deliberate opt-out.) Legacy `beyondwords_disabled`
-	// posts are converted to "None" by the v7.0.0 migration, so an unset value
-	// here always means "show".
+	// Unset → default to the first asset so the player shows ("None" is the
+	// opt-out; the v7.0.0 migration converts legacy `beyondwords_disabled` posts).
 	const embed = stored || getDefaultEmbed( source, output );
 
 	const embedOptions = getEmbedOptions( source, output );
@@ -47,13 +44,8 @@ export function PlayerSection( { withPanel = true } ) {
 		setMeta( { ...meta, beyondwords_embed: value } );
 	};
 
-	// When Source × Output narrows the option list and the *stored* embed is no
-	// longer offered, fall back to None.
-	//
-	// We never write meta on mount: an unset value already means "show the first
-	// asset" (Player::is_enabled() treats it that way), and a mount-time write
-	// races the other panels' preselect writes — e.g. it would clobber the
-	// Generate audio preselect back to off.
+	// Never write meta on mount: an unset value already means "show", and a
+	// mount-time write races the other panels' preselect writes (e.g. Generate audio).
 	useEffect( () => {
 		if ( stored && ! isEmbedValid( stored, source, output ) ) {
 			setEmbed( EMBED_NONE );
@@ -77,8 +69,7 @@ export function PlayerSection( { withPanel = true } ) {
 		/>
 	);
 
-	// In the document/pre-publish panels we render the field directly inside the
-	// existing "BeyondWords" panel rather than nesting another panel.
+	// Document/pre-publish panels render the field without nesting another panel.
 	if ( ! withPanel ) {
 		return <Stack>{ field }</Stack>;
 	}

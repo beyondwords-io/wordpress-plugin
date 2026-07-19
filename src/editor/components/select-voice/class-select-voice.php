@@ -24,8 +24,7 @@ defined( 'ABSPATH' ) || exit;
 class SelectVoice {
 
 	/**
-	 * Voice "service" that exposes selectable models. Only ElevenLabs voices
-	 * carry a `model_id`; every (name, model_id) pair is a distinct voice id.
+	 * The only voice service whose voices carry a selectable `model_id`.
 	 *
 	 * @since 7.0.0
 	 */
@@ -89,8 +88,7 @@ class SelectVoice {
 		$voices        = self::get_voices_for_language( $language_code );
 
 		// "Customize" is opt-in: a post is customised once it has an explicit
-		// language or voice. When off we hide the fields and store nothing, so the
-		// BeyondWords project defaults apply.
+		// language or voice; when off we store nothing so project defaults apply.
 		$customize    = '' !== (string) $language_code || '' !== (string) $voice_id;
 		$fields_style = $customize ? '' : 'display: none;';
 
@@ -112,9 +110,8 @@ class SelectVoice {
 	/**
 	 * Render the "Customize" toggle.
 	 *
-	 * When unchecked the post uses the project default language and voice and the
-	 * language/voice fields are hidden. classic-metabox.js mirrors the visibility
-	 * and clears the selects when it is unchecked so save() removes the meta.
+	 * When unchecked, classic-metabox.js hides the fields and clears the selects
+	 * so save() removes the meta and the project defaults apply.
 	 *
 	 * @since 7.0.0
 	 *
@@ -171,14 +168,8 @@ class SelectVoice {
 	/**
 	 * Get all available languages.
 	 *
-	 * Coerces the API result to a list of language records so the language
-	 * dropdown degrades to empty when the languages API call fails (network
-	 * error, WP_Error, non-2xx status, empty body or invalid JSON).
-	 * Client::get_languages() is declared array|null|false, so an unguarded
-	 * null/false would throw a TypeError against render_language_select()'s
-	 * array-typed parameter under strict_types; non-array elements (e.g. the
-	 * scalar values of a decoded API error body) are dropped so the render loop
-	 * only iterates records. Mirrors get_voices_for_language().
+	 * Coerced to a list of language records so an API failure (null/false, or a
+	 * decoded error body) degrades to an empty dropdown instead of a TypeError.
 	 *
 	 * @since 7.0.0
 	 *
@@ -197,14 +188,8 @@ class SelectVoice {
 	/**
 	 * Get voices for a language code.
 	 *
-	 * Coerces the API result to a list of voice records so the Model and Voice
-	 * dropdowns degrade to empty when the voices API call fails. Beyond the
-	 * top-level array check (Client::get_voices() is declared array|null|false,
-	 * so an unguarded null/false throws a TypeError against the render helpers'
-	 * array-typed parameters under strict_types), each element is filtered to an
-	 * array: a non-2xx response can decode to the API's error shape — e.g.
-	 * {"message": "Too many requests"} on a 429 — whose scalar element would
-	 * otherwise fatal in voice_model_key(). Mirrors get_languages().
+	 * Coerced to a list of voice records so an API failure (null/false, or a
+	 * decoded error body like a 429's) degrades to empty instead of fataling.
 	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -274,12 +259,8 @@ class SelectVoice {
 	/**
 	 * Render the Model select: a language-level filter over the voices.
 	 *
-	 * Each ElevenLabs model_id is a bucket, plus a single "Standard" bucket for
-	 * non-ElevenLabs voices. Picking a model narrows the Voice dropdown to the
-	 * voices that offer it. The Model select carries no `name` — it is a
-	 * client-side filter and is not submitted; the persisted value is the voice
-	 * id from the Voice select. The dropdown is hidden when a language offers a
-	 * single bucket (there is nothing to narrow by).
+	 * Carries no `name` — it is never submitted; the persisted value is the
+	 * voice id. Hidden when a language offers a single bucket.
 	 *
 	 * @since 7.0.0
 	 *
@@ -327,10 +308,8 @@ class SelectVoice {
 	/**
 	 * Render the Voice select: the voices in the currently selected model bucket.
 	 *
-	 * This is the saved field (`beyondwords_voice_id`) — its value is the voice
-	 * id, which carries the model. With a single bucket every voice is listed;
-	 * with several the list is scoped to the selected model and the field is
-	 * hidden until a model is chosen.
+	 * The saved field (`beyondwords_voice_id`) — the submitted voice id carries
+	 * the model.
 	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -346,7 +325,6 @@ class SelectVoice {
 		$models     = self::language_models( $voices );
 		$show_model = count( $models ) > 1;
 
-		// Single bucket → list every voice; several → scope to the chosen model.
 		if ( $show_model ) {
 			$bucket_voices = array_values(
 				array_filter(
@@ -360,8 +338,7 @@ class SelectVoice {
 			$bucket_voices = array_values( $voices );
 		}
 
-		// Model gates the Voice list: hide it until a model is chosen. With a
-		// single bucket there is no Model dropdown, so the Voice list shows now.
+		// Model gates the Voice list: hide it until a model is chosen.
 		$show_voice  = count( $voices ) > 0 && ( ! $show_model || '' !== strval( $selected_key ) );
 		$voice_style = $show_voice ? '' : 'display: none;';
 		?>
@@ -416,11 +393,10 @@ class SelectVoice {
 	}
 
 	/**
-	 * The model bucket key for a voice: its ElevenLabs model_id, or the shared
-	 * Standard bucket for any other service (or any non-record value). Mirrors
-	 * `voiceModelKey()` in src/editor/components/settings-panel/helpers.js, which
-	 * guards with `voice?.` so a scalar left by a decoded API error body buckets
-	 * as Standard rather than fataling against an `array` type under strict_types.
+	 * The model bucket key for a voice: its ElevenLabs model_id, else Standard.
+	 *
+	 * Accepts any value so a scalar from a decoded API error body buckets as
+	 * Standard rather than fataling. Mirrors settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
@@ -441,10 +417,10 @@ class SelectVoice {
 	}
 
 	/**
-	 * The distinct model buckets across a language's voices, as `[key, label]`
-	 * pairs for the Model dropdown — ElevenLabs models first (the default
-	 * leading), then a single Standard bucket if present. Mirrors
-	 * `getLanguageModels()` in src/editor/components/settings-panel/helpers.js.
+	 * The distinct model buckets across a language's voices, for the Model dropdown.
+	 *
+	 * ElevenLabs models first (the default leading), then a single Standard
+	 * bucket if present. Mirrors getLanguageModels() in settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
@@ -500,9 +476,9 @@ class SelectVoice {
 	}
 
 	/**
-	 * Human label for a voice model_id slug. Unknown slugs fall back to a
-	 * title-cased version of the slug minus the `eleven_` prefix. Mirrors
-	 * `voiceModelLabel()` in src/editor/components/settings-panel/helpers.js.
+	 * Human label for a voice model_id slug.
+	 *
+	 * Mirrors voiceModelLabel() in settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
@@ -567,7 +543,6 @@ class SelectVoice {
 			return $post_id;
 		}
 
-		// "save_post" can be triggered at other times, so verify this request came from the our component
 		if (
 			! wp_verify_nonce(
 				sanitize_key( $_POST['beyondwords_select_voice_nonce'] ),
@@ -610,7 +585,6 @@ class SelectVoice {
 	 * @return void
 	 */
 	public static function rest_api_init_callback() {
-		// Languages endpoint
 		register_rest_route(
 			'beyondwords/v1',
 			'/languages',
@@ -621,7 +595,6 @@ class SelectVoice {
 			]
 		);
 
-		// Voices endpoint
 		register_rest_route(
 			'beyondwords/v1',
 			'/languages/(?P<languageCode>[a-zA-Z0-9-_]+)/voices',
@@ -650,8 +623,7 @@ class SelectVoice {
 	}
 
 	/**
-	 * "Voices" WP REST API response (required for the Gutenberg editor
-	 * and Block Editor).
+	 * "Voices" WP REST API response (required for the Gutenberg editor).
 	 *
 	 * @since 4.0.0
 	 * @since 6.0.0 Make static.

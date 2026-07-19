@@ -14,8 +14,7 @@ namespace BeyondWords\PostsList;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Custom "BeyondWords" column for compatible post-type list tables, with
- * sortable header support.
+ * Sortable "BeyondWords" column on compatible post-type list tables.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -75,10 +74,6 @@ class Column {
 	/**
 	 * Render the cell contents for the BeyondWords column.
 	 *
-	 * Output is one of: an error message (with warning dashicon), a green tick
-	 * if audio exists, or an em dash if not. A "Disabled" badge is appended
-	 * when the post has BeyondWords playback disabled.
-	 *
 	 * @param string $column_name Column slug being rendered.
 	 * @param int    $post_id     Post ID.
 	 */
@@ -94,8 +89,6 @@ class Column {
 		$error_message = \BeyondWords\Post\Meta::get_error_message( $post_id );
 		$has_content   = \BeyondWords\Post\Meta::has_content( $post_id );
 
-		// "Disabled" = no player on this post: the v7 "Embed: None" choice, or the
-		// legacy `beyondwords_disabled` flag for posts not yet migrated.
 		$disabled = \BeyondWords\Editor\Components\SettingsFields::is_player_disabled_for_post( $post_id );
 
 		if ( ! empty( $error_message ) ) {
@@ -124,8 +117,7 @@ class Column {
 	}
 
 	/**
-	 * Apply the BeyondWords meta-query sort to the main query when the user
-	 * clicks the BeyondWords column header.
+	 * Apply the BeyondWords meta-query sort when ordering by the BeyondWords column.
 	 *
 	 * @param \WP_Query $query Query object, modified in place.
 	 *

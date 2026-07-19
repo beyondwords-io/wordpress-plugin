@@ -14,8 +14,7 @@ namespace BeyondWords\PostsList;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * One notice per post-bulk-action result, all gated on the same nonce so
- * direct URL fiddling can't surface arbitrary text.
+ * One notice per bulk-action result, all nonce-gated against direct URL fiddling.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -135,8 +134,7 @@ class Notices {
 	}
 
 	/**
-	 * Verify the result-nonce embedded in bulk-action redirects, fatally exiting
-	 * via `wp_nonce_ays()` on tamper.
+	 * Verify the result nonce in bulk-action redirects, dying via `wp_nonce_ays()` on tamper.
 	 *
 	 * Returns false (without exiting) when the nonce param is absent so callers
 	 * can short-circuit normal page loads cheaply.
