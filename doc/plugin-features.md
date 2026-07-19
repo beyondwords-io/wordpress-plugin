@@ -21,7 +21,7 @@ against the API — Integration and Preferences appear after that.
 | Post Edit | ‘Source’ and ‘Script template’     | Generate from the ‘Post’, a ‘Script’, or ‘Post + script’. ‘Script template’ is shown only when the source includes a script, and defaults to ‘Project default’. |
 | Post Edit | ‘Output’                           | Generate ‘Audio’, ‘Video’, or ‘Audio + video’. |
 | Post Edit | ‘Video template’ and ‘Video size’  | Per-post video options, shown when the output includes video. Each defaults to ‘Project default’. |
-| Post Edit | ‘Voice’                            | Toggle ‘Customize’ to override the project defaults with a ‘Language’ and a ‘Voice’. A ‘Model’ dropdown appears when the chosen language offers more than one model; it filters the voice list and is not saved — the voice id carries the model. |
+| Post Edit | ‘Voice’                            | Toggle ‘Customize’ to override the project defaults with a ‘Language’ and a ‘Voice’. ‘Accent’, ‘Native’ and ‘Model’ narrow the voice list; they are filters only and are not saved — the post stores just the language code and voice id. |
 | Post Edit | Per-block generation toggle        | Exclude an individual block from the generated audio, via the block toolbar button or the block inspector panel. |
 | Post Edit | BeyondWords sidebar / metabox      | All plugin functionality and support in one place: a sidebar in the Block Editor, and an equivalent metabox in the Classic Editor. |
 | Post Edit | Prepublish panel                   | Confirm audio generation immediately before publishing. |
