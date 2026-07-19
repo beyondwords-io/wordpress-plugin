@@ -10,9 +10,8 @@ context( 'Block Editor: Preview panel', () => {
 		cy.login();
 	} );
 
-	// Note: the block-editor player-preview poll is deliberately not covered
-	// here. It only starts once the CDN player SDK global is available, which
-	// isn't deterministic in CI, so a block spinner assertion is flaky.
+	// The block poll only starts once the CDN player SDK global loads, which
+	// isn't deterministic in CI, so a spinner assertion here would be flaky.
 
 	it( 'shows a BeyondWords error message in the Preview panel', () => {
 		cy.createTestPost( {

@@ -56,8 +56,6 @@ function PlayAudio( {
 		previewToken,
 	} );
 
-	// Only speak up once polling has settled without a player (error/skipped/
-	// timeout). While polling, the spinner covers it.
 	const message =
 		! isPolling && ! player ? terminalMessage( status, timedOut ) : null;
 
@@ -65,8 +63,8 @@ function PlayAudio( {
 		<PlayAudioCheck>
 			<Wrapper>
 				<div className="beyondwords-player-box-wrapper">
-					{ /* Live region scoped to the status text only, so the
-					     player's own DOM isn't announced when it embeds. */ }
+					{ /* Scoped to the status text so the player's own DOM
+					     isn't announced when it embeds. */ }
 					{ ( isPolling || message ) && (
 						<div role="status" aria-live="polite">
 							{ isPolling && (

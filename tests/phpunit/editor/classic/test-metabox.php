@@ -163,20 +163,9 @@ class MetaboxTest extends TestCase
     /**
      * A crafted Content ID must never reach a JS execution context.
      *
-     * Regression test for a stored XSS. The Content ID is editable post meta,
-     * saved with only sanitize_text_field() (which keeps double quotes), and was
-     * emitted into an inline `onload` JS string with esc_attr(). esc_attr()
-     * encodes `"` as `&quot;`, but the browser HTML-decodes the attribute before
-     * compiling the handler, so `&quot;` became a real `"` that closed the JS
-     * string literal and ran the rest of the value as code.
-     *
-     * REST-API content is now embedded by classic-metabox.js only after it polls
-     * the content status, so player_embed() emits no inline handler at all on
-     * this path. The Content ID travels in an esc_attr()'d `data-content-id`
-     * attribute and is read back with getAttribute(), so it is never interpolated
-     * into JavaScript source — removing the vector rather than escaping around
-     * it. The client-side path still embeds inline and is covered by
-     * player_embed_json_encodes_the_client_side_config() below.
+     * Regression test for a stored XSS: esc_attr()'s `&quot;` was HTML-decoded
+     * back to a real `"` that closed the inline onload's JS string literal. This
+     * path now emits no handler at all, so the ID stays an inert data attribute.
      *
      * @test
      */
@@ -192,11 +181,8 @@ class MetaboxTest extends TestCase
         // payload before we render — this keeps the assertions meaningful.
         update_post_meta($postId, 'beyondwords_project_id', 12345);
 
-        // Content IDs are charset-validated on save (Meta::sanitize_content_id), so
-        // update_post_meta() would blank this payload and nothing would render. Write
-        // it straight to the DB instead — a hostile value can now only reach the
-        // renderer via a raw row (legacy data, a direct DB write, or a future
-        // regression), which is exactly the case this escaping defence must survive.
+        // Content IDs are charset-validated on save, so a hostile value can only
+        // reach the renderer via a raw row — write one directly to reproduce that.
         $this->store_raw_content_id($postId, $payload);
 
         $html = $this->capture_output(function () use ($postId) {
@@ -205,38 +191,29 @@ class MetaboxTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // The injected markup must not spawn extra elements: exactly one player
-        // container and one (SDK) <script>.
+        // The injected markup must not spawn extra elements.
         $container = $crawler->filter('#beyondwords-metabox-player');
         $this->assertCount(1, $container);
 
         $script = $crawler->filter('script');
         $this->assertCount(1, $script);
 
-        // No inline handler on the polling path, so the payload has no JS
-        // execution context to break out of.
+        // No inline handler, so there is no JS context to break out of.
         $this->assertNull($script->attr('onload'));
 
-        // Crawler::attr() returns the HTML-decoded attribute — the exact string
-        // getAttribute() hands to the player SDK as a plain value.
         $this->assertSame($payload, $container->attr('data-content-id'));
 
-        // esc_attr() encoded the quotes, so the raw break-out sequence never
-        // appears in the emitted markup.
+        // esc_attr() encoded the quotes, so the break-out sequence never appears.
         $this->assertStringNotContainsString('"});alert(document.domain)', $html);
 
         wp_delete_post($postId, true);
     }
 
     /**
-     * The client-side (Magic Embed) path still embeds inline, so it must keep
-     * JSON-encoding its config.
+     * The client-side path still embeds inline, so it must keep JSON-encoding.
      *
-     * That integration is keyed on the source (post) ID and has no Content ID to
-     * poll, so player_embed() writes an inline `onload` handler. The preview
-     * token comes from the REST API and is untrusted in that output context, so
-     * the config is JSON-encoded with the HEX flags: an injected quote is
-     * hex-encoded and stays inside the JS string literal instead of closing it.
+     * It has no Content ID to poll, so the HEX flags are what stop an untrusted
+     * value closing the JS string literal.
      *
      * @test
      */
@@ -248,8 +225,7 @@ class MetaboxTest extends TestCase
             'post_title' => 'MetaboxTest::player_embed_json_encodes_the_client_side_config',
         ]);
 
-        // Client-side integration: a project ID but no Content ID, so the player
-        // embeds inline from the source (post) ID.
+        // A project ID but no Content ID, so the player embeds inline.
         update_post_meta($postId, 'beyondwords_project_id', 12345);
         update_post_meta(
             $postId,
@@ -267,13 +243,9 @@ class MetaboxTest extends TestCase
         $script = $crawler->filter('#beyondwords-metabox-player script');
         $this->assertCount(1, $script);
 
-        // Crawler::attr() returns the HTML-decoded attribute — exactly what the
-        // browser hands to the JS engine when the onload handler fires.
+        // attr() decodes the attribute, as the browser does before compiling it.
         $onload = $script->attr('onload');
 
-        // wp_json_encode() has hex-encoded the injected quotes so they stay
-        // inside the JS string literal. Assert the exact encoded value
-        // (structural quotes included) is present verbatim.
         $encoded = wp_json_encode(
             $payload,
             JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
@@ -283,7 +255,6 @@ class MetaboxTest extends TestCase
         // The raw break-out sequence (a bare " closing the string) must be absent.
         $this->assertStringNotContainsString('"});alert(document.domain)', $onload);
 
-        // The player is still initialised.
         $this->assertStringContainsString('new BeyondWords.Player(', $onload);
 
         wp_delete_post($postId, true);
