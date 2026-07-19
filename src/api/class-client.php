@@ -95,6 +95,21 @@ class Client {
 	const RENDER_TIMEOUT = 3;
 
 	/**
+	 * Timeout, in seconds, for the voices GET.
+	 *
+	 * Voices is the one editor dropdown that is genuinely slow to prepare —
+	 * ~3.7s p95 in Sentry, against ~250ms p95 for every other editor GET — so
+	 * the shared `RENDER_TIMEOUT` would abandon more than 5% of cold-cache
+	 * fetches. Because a failure is then negative-cached, that would blank the
+	 * Voice dropdown for a whole `CACHE_TTL_ON_ERROR` rather than just the one
+	 * render. Still well under the generous `REQUEST_TIMEOUT` default, and only
+	 * ever paid on a cache miss.
+	 *
+	 * @since 7.0.0
+	 */
+	const VOICES_TIMEOUT = 8;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -378,6 +393,9 @@ class Client {
 	/**
 	 * GET /organization/voices?filter[language.code]=…
 	 *
+	 * Passes the longer `VOICES_TIMEOUT` — this endpoint is materially slower
+	 * than the other editor dropdowns.
+	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
 	 *
 	 * @return array<mixed>|null|false
@@ -389,7 +407,7 @@ class Client {
 			rawurlencode( strval( $language_code ) )
 		);
 
-		return self::cached_get( 'voices_' . $language_code, $url );
+		return self::cached_get( 'voices_' . $language_code, $url, self::VOICES_TIMEOUT );
 	}
 
 	/**
@@ -596,21 +614,24 @@ class Client {
 	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
 	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
 	 * at most once per interval instead of re-issuing a blocking request on
-	 * every admin render. The request itself uses the short
-	 * {@see RENDER_TIMEOUT} for the same reason.
+	 * every admin render. The request itself defaults to the short
+	 * {@see RENDER_TIMEOUT} for the same reason; the slower voices endpoint
+	 * passes its own {@see VOICES_TIMEOUT}.
 	 *
 	 * A 401 additionally self-heals: call_api() clears
 	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param string $suffix Cache-key suffix (include any project/language id).
-	 * @param string $url    Absolute endpoint URL.
+	 * @param string $suffix  Cache-key suffix (include any project/language id).
+	 * @param string $url     Absolute endpoint URL.
+	 * @param int    $timeout Request timeout in seconds. Defaults to RENDER_TIMEOUT;
+	 *                        the voices GET passes the longer VOICES_TIMEOUT.
 	 *
 	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
 	 *                                 value ([] after a cached failure) thereafter.
 	 */
-	private static function cached_get( string $suffix, string $url ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::RENDER_TIMEOUT ): array|null|false {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 
@@ -618,7 +639,7 @@ class Client {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url, '', false, [], self::RENDER_TIMEOUT );
+		$response = self::call_api( 'GET', $url, '', false, [], $timeout );
 		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if (

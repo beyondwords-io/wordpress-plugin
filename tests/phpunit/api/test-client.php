@@ -541,6 +541,49 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
+     * Voices is materially slower to prepare than the other dropdowns (~3.7s p95
+     * vs ~250ms), so it gets its own longer bound — the shared RENDER_TIMEOUT
+     * would abandon cold-cache fetches and, because failures are negative-cached,
+     * blank the Voice dropdown for a whole CACHE_TTL_ON_ERROR.
+     */
+    public function voices_get_uses_longer_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = null;
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/organization/voices')) {
+                $captured = $args['timeout'] ?? null;
+            }
+            return $preempt; // Pass through — let the mock supply the response.
+        };
+        add_filter('pre_http_request', $filter, 0, 3);
+
+        Client::get_voices('en_US');
+
+        remove_filter('pre_http_request', $filter, 0);
+
+        $this->assertSame(Client::VOICES_TIMEOUT, $captured);
+        $this->assertGreaterThan(
+            Client::RENDER_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices needs a longer bound than the other editor GETs'
+        );
+        $this->assertLessThan(
+            Client::REQUEST_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices still runs during page generation, so it must stay well under the default'
+        );
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
      * A failed editor-dropdown fetch is negative-cached for a short TTL, so a
      * slow or unreachable API is probed at most once per interval instead of
      * blocking every admin edit-screen render. The second call within the TTL
