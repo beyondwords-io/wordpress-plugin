@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use BeyondWords\SiteHealth\SiteHealth;
+use BeyondWords\Api\Client;
 use BeyondWords\Core\Urls;
 
 class SiteHealthTest extends TestCase
@@ -118,9 +119,15 @@ class SiteHealthTest extends TestCase
 
     /**
      * @test
+     *
+     * With credentials configured the probe runs and reports the API as
+     * reachable (the mock returns a non-error response for the API root).
      */
-    public function add_rest_api_connection()
+    public function add_rest_api_connection_reports_reachable_when_configured()
     {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
         $siteHealth = new SiteHealth();
 
         $siteHealth->add_rest_api_connection($this->info);
@@ -131,6 +138,144 @@ class SiteHealthTest extends TestCase
         $this->assertSame('Communication with REST API', $this->info['beyondwords']['fields']['api-communication']['label']);
         $this->assertSame('BeyondWords API is reachable', $this->info['beyondwords']['fields']['api-communication']['value']);
         $this->assertSame('true', $this->info['beyondwords']['fields']['api-communication']['debug']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * On an unconfigured install the probe is skipped entirely — no blocking
+     * HTTP request is made when there are no API credentials.
+     */
+    public function add_rest_api_connection_skips_probe_without_credentials()
+    {
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $calls++;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertSame(0, $calls, 'No HTTP request should be made without API credentials');
+        $this->assertSame('not-configured', $this->info['beyondwords']['fields']['api-communication']['debug']);
+        $this->assertStringContainsString('not configured', $this->info['beyondwords']['fields']['api-communication']['value']);
+    }
+
+    /**
+     * @test
+     *
+     * The probe is deliberately NOT cached. Site Health is a diagnostic, so
+     * every render must re-check — a cached result would keep reporting
+     * "unreachable" to an admin who just fixed the problem and hit refresh.
+     * This mirrors WordPress core's own dotorg_communication field, which
+     * probes wordpress.org on every Info-screen render.
+     */
+    public function add_rest_api_connection_is_not_cached()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls   = 0;
+        $counter = function ($preempt, $args, $url) use (&$calls) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $calls++;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $counter, 0, 3);
+
+        $first  = [];
+        $second = [];
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($first);
+        $siteHealth->add_rest_api_connection($second);
+
+        remove_filter('pre_http_request', $counter, 0);
+
+        $this->assertSame(2, $calls, 'Every render must re-probe so the diagnostic is never stale');
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * The probe passes the client's shared default timeout, so a slow API
+     * cannot stall the Site Health render and the bound stays within VIP
+     * guidance.
+     */
+    public function add_rest_api_connection_uses_the_shared_default_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = null;
+        $filter   = function ($preempt, $args, $url) use (&$captured) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $captured = $args;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 0, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $filter, 0);
+
+        $this->assertIsArray($captured);
+        $this->assertSame(Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
+        $this->assertLessThanOrEqual(3, $captured['timeout'], 'Must stay within VIP guidance (<= 3s)');
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * A transport-level failure is reported as unreachable, surfacing the
+     * error message returned by the request.
+     */
+    public function add_rest_api_connection_reports_unreachable_on_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = function ($preempt, $args, $url) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                return new WP_Error('http_request_failed', 'Connection timed out');
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $value = $this->info['beyondwords']['fields']['api-communication']['value'];
+        $this->assertStringContainsString('Unable to reach BeyondWords API', $value);
+        $this->assertStringContainsString('Connection timed out', $value);
+        $this->assertSame('Connection timed out', $this->info['beyondwords']['fields']['api-communication']['debug']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**

@@ -186,34 +186,86 @@ class SiteHealth {
 			'value' => $api_url,
 		];
 
+		$info['beyondwords']['fields']['api-communication'] = array_merge(
+			[ 'label' => __( 'Communication with REST API', 'speechkit' ) ],
+			self::get_api_communication( $api_url )
+		);
+	}
+
+	/**
+	 * Resolve the "Communication with REST API" value/debug pair.
+	 *
+	 * Deliberately **not** cached. This mirrors WordPress core's own
+	 * `dotorg_communication` field ({@see \WP_Debug_Data::get_wp_core()}), which
+	 * probes wordpress.org on every Info-screen render: Site Health is a
+	 * diagnostic, so a cached result would keep reporting "unreachable" to an
+	 * admin who has just fixed their credentials, DNS or firewall and hit
+	 * refresh to confirm. The request is instead bounded by the shared
+	 * {@see \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT} and skipped
+	 * entirely when there are no credentials, which keeps the render cost
+	 * predictable without ever serving stale diagnostics.
+	 *
+	 * @param string $api_url BeyondWords REST API base URL.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function get_api_communication( string $api_url ): array {
+		// Nothing to probe until the site has API credentials — skip the
+		// blocking request on fresh installs entirely.
+		if ( ! \BeyondWords\Settings\Utils::has_api_creds() ) {
+			return [
+				'value' => __( 'Not checked — BeyondWords API credentials are not configured', 'speechkit' ),
+				'debug' => 'not-configured',
+			];
+		}
+
+		// A plain request, not `Client::call_api()`: this is a passive probe, and
+		// `call_api()` would clear `beyondwords_valid_api_connection` on a 401 as
+		// a side effect of merely viewing Site Health. `vip_safe_wp_remote_get()`
+		// is avoided for the same reason — its circuit breaker reports a failure
+		// without actually retrying, which would make the diagnostic lie.
 		$response = wp_remote_request(
 			$api_url,
 			[
-				'blocking' => true,
-				'body'     => '',
-				'method'   => 'GET',
+				'method'  => 'GET',
+				'timeout' => \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT,
 			]
 		);
 
 		if ( ! is_wp_error( $response ) ) {
-			$info['beyondwords']['fields']['api-communication'] = [
-				'label' => __( 'Communication with REST API', 'speechkit' ),
+			return [
 				'value' => __( 'BeyondWords API is reachable', 'speechkit' ),
 				'debug' => 'true',
 			];
-			return;
 		}
 
-		$info['beyondwords']['fields']['api-communication'] = [
-			'label' => __( 'Communication with REST API', 'speechkit' ),
+		return [
 			'value' => sprintf(
-				/* translators: 1: The IP address the REST API resolves to. 2: The error returned by the lookup. */
+				/* translators: 1: The IP address the REST API resolves to. 2: The error returned by the request. */
 				__( 'Unable to reach BeyondWords API at %1$s: %2$s', 'speechkit' ),
-				gethostbyname( $api_url ),
+				self::resolve_api_host( $api_url ),
 				$response->get_error_message()
 			),
 			'debug' => $response->get_error_message(),
 		];
+	}
+
+	/**
+	 * Resolve the API host to an IP address for the connectivity diagnostic.
+	 *
+	 * `gethostbyname()` needs a bare hostname, so the URL is parsed first; it
+	 * returns the host (or URL) unchanged when resolution fails.
+	 *
+	 * @param string $api_url BeyondWords REST API base URL.
+	 */
+	private static function resolve_api_host( string $api_url ): string {
+		$host = wp_parse_url( $api_url, PHP_URL_HOST );
+
+		if ( ! is_string( $host ) || '' === $host ) {
+			return $api_url;
+		}
+
+		return gethostbyname( $host );
 	}
 
 	/**
