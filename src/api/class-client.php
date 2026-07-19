@@ -47,6 +47,17 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long to negative-cache a *failed* editor-dropdown fetch (WP_Error /
+	 * timeout, 5xx, 4xx, non-JSON). Much shorter than CACHE_TTL so a transient
+	 * outage self-heals within minutes, but long enough that a slow or
+	 * unreachable API is probed at most once per interval rather than blocking
+	 * every admin edit-screen render.
+	 *
+	 * @since 7.0.0
+	 */
+	const CACHE_TTL_ON_ERROR = 2 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Default timeout, in seconds, for a BeyondWords API request.
 	 *
 	 * The create/update content calls can be slow, so this is deliberately
@@ -71,27 +82,28 @@ class Client {
 	const DELETE_TIMEOUT = 3;
 
 	/**
-	 * Timeout, in seconds, for a cached editor GET.
+	 * Timeout, in seconds, for a cached render-path GET (editor dropdowns).
 	 *
-	 * The dropdown data (languages, voices, templates, project/video settings)
-	 * is fetched while the classic editor renders — up to five sequential
-	 * blocking GETs on a cold cache — so a long timeout would pin a PHP worker
-	 * for the whole page generation and can breach VIP request limits. These
-	 * endpoints are fast (sub-second in practice), and a miss is cheap: the
-	 * dropdown falls back to its empty state and refills on the next request.
+	 * These run inline on every classic-editor metabox render, so a long
+	 * blocking timeout would tie up a PHP-FPM worker for the length of an admin
+	 * page load. Short, per VIP guidance (see `vip_safe_wp_remote_get`), and
+	 * paired with negative caching ({@see CACHE_TTL_ON_ERROR}) to bound repeat
+	 * failures.
 	 *
 	 * @since 7.0.0
 	 */
-	const CACHED_GET_TIMEOUT = 3;
+	const RENDER_TIMEOUT = 3;
 
 	/**
 	 * Timeout, in seconds, for the voices GET.
 	 *
 	 * Voices is the one editor dropdown that is genuinely slow to prepare —
 	 * ~3.7s p95 in Sentry, against ~250ms p95 for every other editor GET — so
-	 * the shared `CACHED_GET_TIMEOUT` would abandon more than 5% of cold-cache
-	 * fetches and leave the Voice dropdown empty. Bounded well under the
-	 * generous `REQUEST_TIMEOUT` default, and only ever paid on a cache miss.
+	 * the shared `RENDER_TIMEOUT` would abandon more than 5% of cold-cache
+	 * fetches. Because a failure is then negative-cached, that would blank the
+	 * Voice dropdown for a whole `CACHE_TTL_ON_ERROR` rather than just the one
+	 * render. Still well under the generous `REQUEST_TIMEOUT` default, and only
+	 * ever paid on a cache miss.
 	 *
 	 * @since 7.0.0
 	 */
@@ -559,7 +571,8 @@ class Client {
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
 	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
-	 *                                      DELETEs pass the shorter DELETE_TIMEOUT.
+	 *                                      DELETEs pass the shorter DELETE_TIMEOUT and cached
+	 *                                      render-path GETs the shorter RENDER_TIMEOUT.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -595,24 +608,30 @@ class Client {
 	}
 
 	/**
-	 * GET an endpoint, caching successful list/object responses.
+	 * GET an editor-render-path endpoint, caching both hits and failures.
 	 *
-	 * Only 2xx array responses are cached, so a transient API error retries on
-	 * the next call rather than caching an empty/error payload for the full TTL.
+	 * Successful 2xx array responses are cached for {@see CACHE_TTL}. Failures
+	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
+	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
+	 * at most once per interval instead of re-issuing a blocking request on
+	 * every admin render. The request itself defaults to the short
+	 * {@see RENDER_TIMEOUT} for the same reason; the slower voices endpoint
+	 * passes its own {@see VOICES_TIMEOUT}.
 	 *
-	 * Defaults to the short `CACHED_GET_TIMEOUT` because these run while the
-	 * classic editor renders; the slower voices endpoint passes its own bound.
+	 * A 401 additionally self-heals: call_api() clears
+	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
 	 *
 	 * @since 7.0.0
 	 *
 	 * @param string $suffix  Cache-key suffix (include any project/language id).
 	 * @param string $url     Absolute endpoint URL.
-	 * @param int    $timeout Request timeout in seconds. Defaults to CACHED_GET_TIMEOUT;
+	 * @param int    $timeout Request timeout in seconds. Defaults to RENDER_TIMEOUT;
 	 *                        the voices GET passes the longer VOICES_TIMEOUT.
 	 *
-	 * @return array<mixed>|null|false
+	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
+	 *                                 value ([] after a cached failure) thereafter.
 	 */
-	private static function cached_get( string $suffix, string $url, int $timeout = self::CACHED_GET_TIMEOUT ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::RENDER_TIMEOUT ): array|null|false {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 
@@ -629,7 +648,13 @@ class Client {
 			&& is_array( $decoded )
 		) {
 			set_transient( $key, $decoded, self::CACHE_TTL );
+
+			return $decoded;
 		}
+
+		// Negative-cache the failure so the next render is served from the
+		// transient instead of blocking on another remote round-trip.
+		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
 
 		return $decoded;
 	}
