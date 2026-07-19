@@ -236,6 +236,7 @@ class BulkEdit {
 		$redirect = remove_query_arg(
 			[
 				'beyondwords_bulk_generated',
+				'beyondwords_bulk_deferred',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
 				'beyondwords_bulk_error',
@@ -262,29 +263,19 @@ class BulkEdit {
 			return add_query_arg( 'beyondwords_bulk_edit_result_nonce', $nonce, $redirect );
 		}
 
-		sort( $object_ids );
-
-		$generated = 0;
-		$failed    = 0;
-
+		// Sync offloads to cron on VIP or runs a hard-capped synchronous batch
+		// off VIP; it also normalises and sorts the IDs, so no sort() here.
 		try {
-			foreach ( $object_ids as $post_id ) {
-				update_post_meta( $post_id, 'beyondwords_generate_audio', '1' );
-			}
+			$counts   = \BeyondWords\Post\Sync::bulk_generate_audio_for_posts( $object_ids );
+			$redirect = add_query_arg( 'beyondwords_bulk_generated', $counts['generated'], $redirect );
+			$redirect = add_query_arg( 'beyondwords_bulk_failed', $counts['failed'], $redirect );
 
-			foreach ( $object_ids as $post_id ) {
-				if ( \BeyondWords\Post\Sync::generate_audio_for_post( $post_id ) ) {
-					++$generated;
-				} else {
-					++$failed;
-				}
+			if ( $counts['deferred'] > 0 ) {
+				$redirect = add_query_arg( 'beyondwords_bulk_deferred', $counts['deferred'], $redirect );
 			}
 		} catch ( \Exception $e ) {
 			$redirect = add_query_arg( 'beyondwords_bulk_error', $e->getMessage(), $redirect );
 		}
-
-		$redirect = add_query_arg( 'beyondwords_bulk_generated', $generated, $redirect );
-		$redirect = add_query_arg( 'beyondwords_bulk_failed', $failed, $redirect );
 
 		$nonce = wp_create_nonce( 'beyondwords_bulk_edit_result' );
 
@@ -306,6 +297,7 @@ class BulkEdit {
 		$redirect = remove_query_arg(
 			[
 				'beyondwords_bulk_generated',
+				'beyondwords_bulk_deferred',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
 				'beyondwords_bulk_error',

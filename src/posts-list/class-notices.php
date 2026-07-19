@@ -25,6 +25,7 @@ class Notices {
 	 */
 	public static function init(): void {
 		add_action( 'admin_notices', [ self::class, 'generated_notice' ] );
+		add_action( 'admin_notices', [ self::class, 'deferred_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'deleted_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'failed_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'error_notice' ] );
@@ -52,6 +53,36 @@ class Notices {
 		);
 		?>
 		<div id="beyondwords-bulk-edit-notice-generated" class="notice notice-info is-dismissible">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * "N posts still need audio" notice after a bulk action hit the off-VIP sync cap.
+	 *
+	 * Deferred posts already have their generate flag set, so re-running the
+	 * action completes them.
+	 */
+	public static function deferred_notice(): void {
+		$count = self::get_query_count( 'beyondwords_bulk_deferred' );
+
+		if ( null === $count ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: %d is replaced with the number of posts not yet processed */
+			_n(
+				'%d post still needs audio — run Generate audio again to continue.',
+				'%d posts still need audio — run Generate audio again to continue.',
+				$count,
+				'speechkit'
+			),
+			$count
+		);
+		?>
+		<div id="beyondwords-bulk-edit-notice-deferred" class="notice notice-warning is-dismissible">
 			<p><?php echo esc_html( $message ); ?></p>
 		</div>
 		<?php

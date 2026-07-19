@@ -1409,6 +1409,116 @@ class SyncTest extends TestCase
      * @test
      * @group generateAudio
      */
+    public function bulk_generate_audio_for_posts_defers_to_cron_when_async_enabled()
+    {
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+
+        $postIds = [
+            self::factory()->post->create(['post_status' => 'publish']),
+            self::factory()->post->create(['post_status' => 'publish']),
+            self::factory()->post->create(['post_status' => 'publish']),
+        ];
+
+        $counts = Sync::bulk_generate_audio_for_posts($postIds);
+
+        // Every post is queued and reported as requested; nothing runs inline.
+        $this->assertSame(count($postIds), $counts['generated']);
+        $this->assertSame(0, $counts['failed']);
+        $this->assertSame(0, $counts['deferred']);
+
+        foreach ($postIds as $postId) {
+            $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
+            $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+            $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
+        }
+
+        foreach ($postIds as $postId) {
+            wp_unschedule_event(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+            wp_delete_post($postId, true);
+        }
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+    }
+
+    /**
+     * @test
+     * @group generateAudio
+     */
+    public function bulk_generate_audio_for_posts_caps_synchronous_batch_off_vip()
+    {
+        // Off VIP the synchronous batch is capped; expectations derive from the
+        // constant so this still holds if the cap is retuned.
+        $overflow = 2;
+        $selected = Sync::BULK_GENERATE_SYNC_LIMIT + $overflow;
+
+        // No credentials → each processed post fails before any (mock) API call,
+        // giving a deterministic count without hitting the network.
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $postIds = [];
+        for ($i = 0; $i < $selected; $i++) {
+            $postIds[] = self::factory()->post->create(['post_status' => 'publish']);
+        }
+
+        // Give the last post existing audio so the "needs update" ordering branch
+        // is exercised — it must be deferred behind the fresh generations.
+        update_post_meta($postIds[$selected - 1], 'beyondwords_content_id', 'existing-content-id');
+
+        $counts = Sync::bulk_generate_audio_for_posts($postIds);
+
+        $this->assertSame(Sync::BULK_GENERATE_SYNC_LIMIT, $counts['failed']);
+        $this->assertSame(0, $counts['generated']);
+        $this->assertSame($overflow, $counts['deferred']);
+
+        // The already-generated post is ordered last, so it is one of the deferred
+        // ones and keeps its content ID untouched.
+        $this->assertSame('existing-content-id', get_post_meta($postIds[$selected - 1], 'beyondwords_content_id', true));
+
+        // Every selected post is flagged, including the deferred ones.
+        foreach ($postIds as $postId) {
+            $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
+        }
+
+        // Guards against retuning the cap or the shared timeout into a combination
+        // that could exceed a typical PHP/VIP execution limit.
+        $this->assertLessThanOrEqual(
+            60,
+            Sync::BULK_GENERATE_SYNC_LIMIT * \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT,
+            'Worst-case bulk generate (cap x per-call timeout) must stay within a 60s execution limit.'
+        );
+
+        foreach ($postIds as $postId) {
+            wp_delete_post($postId, true);
+        }
+    }
+
+    /**
+     * @test
+     * @group generateAudio
+     */
+    public function bulk_generate_audio_for_posts_normalises_ids()
+    {
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+
+        $postId = self::factory()->post->create(['post_status' => 'publish']);
+
+        // Duplicates, zero, and negative IDs must be dropped/deduped.
+        $counts = Sync::bulk_generate_audio_for_posts([$postId, $postId, 0, -5]);
+
+        $this->assertSame(1, $counts['generated']);
+        $this->assertSame(0, $counts['failed']);
+        $this->assertSame(0, $counts['deferred']);
+        $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
+
+        wp_unschedule_event(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+        wp_delete_post($postId, true);
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+    }
+
+    /**
+     * @test
+     * @group generateAudio
+     */
     public function should_generate_audio_for_post_returns_false_for_missing_post()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);

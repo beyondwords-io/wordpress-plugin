@@ -34,6 +34,7 @@ final class NoticesTest extends TestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'generated_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'deferred_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'deleted_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'failed_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'error_notice')));
@@ -99,6 +100,21 @@ final class NoticesTest extends TestCase
         $this->expectException(\WPDieException::class);
 
         Notices::generated_notice();
+    }
+
+    /**
+     * @test
+     */
+    public function deferred_notice_with_invalid_nonce()
+    {
+        set_current_screen('edit-post');
+
+        $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_deferred'] = '42';
+
+        $this->expectException(\WPDieException::class);
+
+        Notices::deferred_notice();
     }
 
     /**
@@ -205,6 +221,45 @@ final class NoticesTest extends TestCase
             '42 posts' => [
                 'numDeleted' => 42,
                 'expectMessage' => 'Audio was deleted for 42 posts.',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider deferred_notice_provider
+     */
+    public function deferred_notice($numDeferred, $expectMessage)
+    {
+        set_current_screen('edit-post');
+
+        $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
+        $_GET['beyondwords_bulk_deferred'] = $numDeferred;
+
+        $html = $this->capture_output(function () {
+            Notices::deferred_notice();
+        });
+
+        $crawler = new Crawler($html);
+
+        $notice = $crawler->filter('div');
+
+        $this->assertEquals('beyondwords-bulk-edit-notice-deferred', $notice->getNode(0)->getAttribute('id'));
+        $this->assertEquals('notice notice-warning is-dismissible', $notice->getNode(0)->getAttribute('class'));
+
+        $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
+    }
+
+    public function deferred_notice_provider() {
+        return [
+            '1 post' => [
+                'numDeferred' => 1,
+                'expectMessage' => '1 post still needs audio — run Generate audio again to continue.',
+            ],
+            '42 posts' => [
+                'numDeferred' => 42,
+                'expectMessage' => '42 posts still need audio — run Generate audio again to continue.',
             ],
         ];
     }

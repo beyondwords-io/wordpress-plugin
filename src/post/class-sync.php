@@ -38,6 +38,16 @@ class Sync {
 	const DELETE_AUDIO_CRON_HOOK = 'beyondwords_delete_audio';
 
 	/**
+	 * Maximum posts the bulk "Generate audio" action processes synchronously (off VIP).
+	 *
+	 * Each post is a blocking API call, so the count is capped and the remainder
+	 * deferred (the caller surfaces a notice) to stay inside execution limits.
+	 *
+	 * @since 7.0.0
+	 */
+	const BULK_GENERATE_SYNC_LIMIT = 10;
+
+	/**
 	 * Deprecated post-meta keys still exposed to the block editor over REST.
 	 *
 	 * On sites upgraded from legacy SpeechKit these can hold a post's only
@@ -183,6 +193,8 @@ class Sync {
 	/**
 	 * Generate audio for a post if eligibility checks pass.
 	 *
+	 * @param int $post_id WordPress post ID.
+	 *
 	 * @return array<mixed>|false|null Response from the API, or false when audio wasn't generated.
 	 */
 	public static function generate_audio_for_post( int $post_id ): array|false|null {
@@ -230,6 +242,8 @@ class Sync {
 	 *
 	 * A `#404:…` error meta means the content no longer exists at BeyondWords,
 	 * so clear the stale IDs and create fresh content instead.
+	 *
+	 * @param int $post_id WordPress post ID.
 	 */
 	private static function update_or_recreate_audio( int $post_id ): array|null|false {
 		$response = \BeyondWords\Api\Client::update_audio( $post_id );
@@ -261,6 +275,91 @@ class Sync {
 	 */
 	public static function batch_delete_audio_for_posts( array $post_ids ): array|false|null {
 		return \BeyondWords\Api\Client::batch_delete_audio( $post_ids );
+	}
+
+	/**
+	 * Dispatch bulk "Generate audio" for a set of posts.
+	 *
+	 * On VIP each post is queued as a background cron job; off VIP generation
+	 * runs inline, capped at BULK_GENERATE_SYNC_LIMIT with the rest deferred.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int[] $post_ids WordPress post IDs from the bulk selection.
+	 *
+	 * @return array{generated:int, failed:int, deferred:int} Per-outcome counts.
+	 */
+	public static function bulk_generate_audio_for_posts( array $post_ids ): array {
+		$post_ids = array_map( 'intval', $post_ids );
+		$post_ids = array_values( array_unique( array_filter( $post_ids, static fn( int $id ): bool => $id > 0 ) ) );
+		sort( $post_ids );
+
+		// The async cron job reads this flag; off VIP it records intent for the
+		// posts deferred past the cap.
+		foreach ( $post_ids as $post_id ) {
+			update_post_meta( $post_id, 'beyondwords_generate_audio', '1' );
+		}
+
+		if ( self::is_async_generation_enabled() ) {
+			foreach ( $post_ids as $post_id ) {
+				self::schedule_audio_generation( $post_id );
+			}
+
+			return [
+				'generated' => count( $post_ids ),
+				'failed'    => 0,
+				'deferred'  => 0,
+			];
+		}
+
+		// Each call is bounded by the client's short timeout, so the cap is what
+		// keeps the batch total inside execution limits.
+		$ordered    = self::order_posts_for_bulk_generation( $post_ids );
+		$limit      = self::BULK_GENERATE_SYNC_LIMIT;
+		$to_process = array_slice( $ordered, 0, $limit );
+		$deferred   = count( $ordered ) - count( $to_process );
+
+		$generated = 0;
+		$failed    = 0;
+
+		foreach ( $to_process as $post_id ) {
+			if ( self::generate_audio_for_post( $post_id ) ) {
+				++$generated;
+			} else {
+				++$failed;
+			}
+		}
+
+		return [
+			'generated' => $generated,
+			'failed'    => $failed,
+			'deferred'  => $deferred,
+		];
+	}
+
+	/**
+	 * Order a bulk selection so posts needing audio precede regenerations.
+	 *
+	 * Keeps the synchronous cap making forward progress: re-running the action
+	 * works through un-generated posts instead of re-updating the same ones.
+	 *
+	 * @param int[] $post_ids Normalised, sorted post IDs.
+	 *
+	 * @return int[]
+	 */
+	private static function order_posts_for_bulk_generation( array $post_ids ): array {
+		$needs_create = [];
+		$needs_update = [];
+
+		foreach ( $post_ids as $post_id ) {
+			if ( \BeyondWords\Post\Meta::get_content_id( $post_id ) ) {
+				$needs_update[] = $post_id;
+			} else {
+				$needs_create[] = $post_id;
+			}
+		}
+
+		return array_merge( $needs_create, $needs_update );
 	}
 
 	/**

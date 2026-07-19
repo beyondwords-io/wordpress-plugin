@@ -99,6 +99,14 @@ To run the coverage gate standalone (without re-running the suite):
 npm run composer:tests -- test:coverage-check
 ```
 
+##  PHPUnit lore
+
+- **AJAX handler tests** extend `WP_Ajax_UnitTestCase`, which pretends
+  `DOING_AJAX` is true, routes `wp_die()` to a handler that captures the JSON
+  body into `$this->_last_response` and throws a `WPAjaxDie*Exception`, and
+  suppresses the "headers already sent" warning. See
+  `tests/phpunit/posts-list/test-bulk-edit-ajax.php`.
+
 ##  Flaky-test lore
 
 Hard-won details behind some non-obvious patterns in the Cypress suite:
