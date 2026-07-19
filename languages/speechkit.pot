@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-12T05:52:57+00:00\n"
+"POT-Creation-Date: 2026-07-19T07:29:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: speechkit\n"
@@ -46,7 +46,6 @@ msgstr ""
 #: src/settings/class-settings.php:50
 #: build/index.js:1
 #: src/editor/block/sidebar/index.js:26
-#: src/editor/components/add-player/index.js:38
 #: src/editor/components/icon/index.js:51
 msgid "BeyondWords"
 msgstr ""
@@ -382,16 +381,16 @@ msgstr ""
 msgid "Download Export File"
 msgstr ""
 
-#: src/api/class-client.php:239
+#: src/api/class-client.php:287
 msgid "None of the selected posts had valid BeyondWords audio data."
 msgstr ""
 
-#: src/api/class-client.php:245
+#: src/api/class-client.php:293
 msgid "Batch delete can only be performed on audio belonging a single project."
 msgstr ""
 
 #. translators: %s is replaced with the support email link
-#: src/api/class-client.php:624
+#: src/api/class-client.php:674
 #, php-format
 msgid "API request error. Please contact %s."
 msgstr ""
@@ -439,7 +438,7 @@ msgid "Format"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:120
-#: src/editor/components/select-voice/class-select-voice.php:353
+#: src/editor/components/select-voice/class-select-voice.php:375
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:259
 #: src/editor/components/settings-panel/voice-section.js:277
@@ -462,7 +461,7 @@ msgstr ""
 msgid "BeyondWords dashboard"
 msgstr ""
 
-#: src/editor/classic/class-metabox.php:244
+#: src/editor/classic/class-metabox.php:253
 #: build/index.js:1
 #: src/editor/components/content-id/classic-metabox.js:152
 #: src/editor/components/play-audio/index.js:75
@@ -470,12 +469,12 @@ msgid "Generating…"
 msgstr ""
 
 #. translators: %s is replaced with the link to the support email address
-#: src/editor/classic/class-metabox.php:313
+#: src/editor/classic/class-metabox.php:343
 #, php-format
 msgid "Need help? Email our support team on %s"
 msgstr ""
 
-#: src/editor/classic/class-metabox.php:332
+#: src/editor/classic/class-metabox.php:362
 msgid "To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked."
 msgstr ""
 
@@ -561,49 +560,49 @@ msgid "Invalid response from BeyondWords API"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:65
-#: src/editor/components/select-voice/class-select-voice.php:361
+#: src/editor/components/select-voice/class-select-voice.php:383
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:206
 msgid "Select a voice"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:66
-#: src/editor/components/select-voice/class-select-voice.php:289
+#: src/editor/components/select-voice/class-select-voice.php:311
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:198
 msgid "Select a model"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:67
-#: src/editor/components/select-voice/class-select-voice.php:470
+#: src/editor/components/select-voice/class-select-voice.php:495
 #: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:132
 msgid "Legacy"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:71
-#: src/editor/components/select-voice/class-select-voice.php:490
+#: src/editor/components/select-voice/class-select-voice.php:515
 #: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:46
 msgid "v3"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:72
-#: src/editor/components/select-voice/class-select-voice.php:491
+#: src/editor/components/select-voice/class-select-voice.php:516
 #: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:47
 msgid "Multilingual v2"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:73
-#: src/editor/components/select-voice/class-select-voice.php:492
+#: src/editor/components/select-voice/class-select-voice.php:517
 #: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:48
 msgid "Flash v2.5"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:74
-#: src/editor/components/select-voice/class-select-voice.php:493
+#: src/editor/components/select-voice/class-select-voice.php:518
 #: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:49
 msgid "Turbo v2.5"
@@ -615,19 +614,19 @@ msgstr ""
 msgid "Customize"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:224
+#: src/editor/components/select-voice/class-select-voice.php:246
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:234
 msgid "Language"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:232
+#: src/editor/components/select-voice/class-select-voice.php:254
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:160
 msgid "Select a language…"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:281
+#: src/editor/components/select-voice/class-select-voice.php:303
 #: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:248
 msgid "Model"
@@ -1026,7 +1025,12 @@ msgid "Undefined"
 msgstr ""
 
 #: build/index.js:1
-#: src/editor/components/add-player/index.js:39
+#: src/editor/components/add-player/index.js:27
+msgid "BeyondWords Player"
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/add-player/index.js:28
 msgid "The BeyondWords audio player will appear here."
 msgstr ""
 
