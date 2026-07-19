@@ -1682,7 +1682,7 @@ class SyncTest extends TestCase
         // Off-VIP the DELETE runs inline, bounded by the short delete timeout, and
         // nothing is queued.
         $this->assertSame('DELETE', $captured['method']);
-        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertSame(\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
         $this->assertFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));
 
         wp_delete_post($postId, true);
@@ -1721,7 +1721,7 @@ class SyncTest extends TestCase
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
             (string) $captured['url']
         );
-        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertSame(\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

@@ -246,8 +246,8 @@ class ClientTest extends TestCase
      * @test
      *
      * The deferred trash/delete cron job deletes audio by explicit IDs (the post
-     * meta is already gone), using the short DELETE_TIMEOUT so it never blocks a
-     * request for long.
+     * meta is already gone), using the short DEFAULT_REQUEST_TIMEOUT so it never
+     * blocks a request for long.
      */
     public function delete_audio_by_ids_issues_delete_with_short_timeout()
     {
@@ -277,7 +277,7 @@ class ClientTest extends TestCase
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
             (string) $captured['url']
         );
-        $this->assertSame(Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertSame(Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
@@ -542,9 +542,10 @@ class ClientTest extends TestCase
      * @group settings
      *
      * Voices is materially slower to prepare than the other dropdowns (~3.7s p95
-     * vs ~250ms), so it gets its own longer bound — the shared RENDER_TIMEOUT
-     * would abandon cold-cache fetches and, because failures are negative-cached,
-     * blank the Voice dropdown for a whole CACHE_TTL_ON_ERROR.
+     * vs ~250ms), so it is the one endpoint with its own longer bound — the
+     * shared DEFAULT_REQUEST_TIMEOUT would abandon cold-cache fetches and,
+     * because failures are negative-cached, blank the Voice dropdown for a whole
+     * CACHE_TTL_ON_ERROR.
      */
     public function voices_get_uses_longer_timeout()
     {
@@ -564,16 +565,11 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter, 0);
 
-        $this->assertSame(Client::VOICES_TIMEOUT, $captured);
+        $this->assertSame(Client::VOICES_REQUEST_TIMEOUT, $captured);
         $this->assertGreaterThan(
-            Client::RENDER_TIMEOUT,
-            Client::VOICES_TIMEOUT,
-            'Voices needs a longer bound than the other editor GETs'
-        );
-        $this->assertLessThan(
-            Client::REQUEST_TIMEOUT,
-            Client::VOICES_TIMEOUT,
-            'Voices still runs during page generation, so it must stay well under the default'
+            Client::DEFAULT_REQUEST_TIMEOUT,
+            Client::VOICES_REQUEST_TIMEOUT,
+            'Voices needs a longer bound than every other request'
         );
 
         delete_option('beyondwords_api_key');
@@ -615,12 +611,14 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * Cached editor-dropdown GETs render on the admin edit screen, so they use
-     * a short (<= 3s) timeout to avoid tying up a PHP worker when the API is
-     * slow. Write-path (and other direct call_api) requests keep the longer
-     * timeout so user-initiated saves aren't dropped mid-generation.
+     * Every request — cached editor-dropdown GETs and direct call_api requests
+     * alike — uses the short default timeout: the API responds quickly on every
+     * endpoint (content writes return the content ID immediately; audio
+     * generation is asynchronous server-side), so no request may tie up a PHP
+     * worker beyond VIP's 3-second ceiling. Voices, the one slow endpoint, is
+     * covered by voices_get_uses_longer_timeout().
      */
-    public function render_path_gets_use_a_short_timeout()
+    public function all_requests_use_the_short_default_timeout()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -632,25 +630,25 @@ class ClientTest extends TestCase
         };
         add_filter('pre_http_request', $capture, 0, 3);
 
-        Client::get_summarization_settings_templates();      // cached_get → short timeout
-        Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);   // call_api  → long timeout
+        Client::get_summarization_settings_templates();      // cached_get
+        Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);   // direct call_api
 
         remove_filter('pre_http_request', $capture, 0);
 
         $render_timeout = null;
-        $write_timeout  = null;
+        $direct_timeout = null;
         foreach ($timeouts as $url => $timeout) {
             if (str_contains($url, '/summarization_settings_templates')) {
                 $render_timeout = $timeout;
             } elseif (str_contains($url, '/content/')) {
-                $write_timeout = $timeout;
+                $direct_timeout = $timeout;
             }
         }
 
         $this->assertNotNull($render_timeout, 'Expected a render-path request to be captured');
-        $this->assertSame(Client::RENDER_TIMEOUT, $render_timeout, 'Render-path GETs should use the short RENDER_TIMEOUT');
-        $this->assertLessThanOrEqual(3, $render_timeout, 'RENDER_TIMEOUT must stay within VIP guidance (<= 3s)');
-        $this->assertSame(Client::REQUEST_TIMEOUT, $write_timeout, 'Direct/write-path requests keep the longer default timeout');
+        $this->assertSame(Client::DEFAULT_REQUEST_TIMEOUT, $render_timeout, 'Render-path GETs use the short default timeout');
+        $this->assertSame(Client::DEFAULT_REQUEST_TIMEOUT, $direct_timeout, 'Direct call_api requests share the same short default');
+        $this->assertLessThanOrEqual(3, Client::DEFAULT_REQUEST_TIMEOUT, 'DEFAULT_REQUEST_TIMEOUT must stay within VIP guidance (<= 3s)');
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

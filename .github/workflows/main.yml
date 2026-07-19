@@ -240,6 +240,25 @@ jobs:
         run: npm run lint:js
 
   # ######################################
+  # Jest unit tests
+  # ######################################
+  jest-tests:
+    name: Jest
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run Jest unit tests
+        run: npm run test:unit
+
+  # ######################################
   # Plugin Check
   # ######################################
   plugin-check:
