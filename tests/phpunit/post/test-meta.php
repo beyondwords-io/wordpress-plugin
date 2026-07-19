@@ -186,6 +186,45 @@ class MetaTest extends TestCase
     }
 
     /**
+     * A Content ID is interpolated into BeyondWords API URL paths, so only the
+     * `[a-zA-Z0-9\-]+` charset the inspect REST route allows may be stored —
+     * anything with path/query characters is blanked to defeat URL injection.
+     *
+     * @test
+     * @dataProvider sanitize_content_id_provider
+     *
+     * @param mixed  $input    Raw submitted Content ID.
+     * @param string $expected Expected sanitized value.
+     */
+    public function sanitize_content_id($input, $expected)
+    {
+        $this->assertSame($expected, Meta::sanitize_content_id($input));
+    }
+
+    public function sanitize_content_id_provider()
+    {
+        return [
+            // Legitimate values pass through unchanged.
+            'UUID'                    => ['9279c9e0-e0b5-4789-9040-f44478ed3e9e', '9279c9e0-e0b5-4789-9040-f44478ed3e9e'],
+            'numeric id'              => ['1234567', '1234567'],
+            'all-zero UUID'           => ['00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000'],
+            'empty string'           => ['', ''],
+            'surrounding whitespace'  => ['  9279c9e0-e0b5  ', '9279c9e0-e0b5'],
+            // Anything outside [a-zA-Z0-9-] is blanked.
+            'path traversal + query'  => ['x/../../projects/999/content/abc?force=1', ''],
+            'forward slash'           => ['abc/def', ''],
+            'dot segment'             => ['abc.def', ''],
+            'query string'            => ['abc?force=1', ''],
+            'fragment'                => ['abc#frag', ''],
+            'ampersand'               => ['a&b', ''],
+            'colon'                   => ['abc:def', ''],
+            'underscore'              => ['content_id', ''],
+            'space'                   => ['a b', ''],
+            'script tag'              => ['<script>alert(1)</script>', ''],
+        ];
+    }
+
+    /**
      * Get API response body from post meta field.
      *
      * @test
@@ -300,11 +339,13 @@ class MetaTest extends TestCase
             'post_title' => 'MetaTest:removeAllBeyondwordsMetadata',
         ]);
 
-        // Set all BeyondWords meta keys
+        // Set all BeyondWords meta keys. Use a hyphen rather than an underscore so
+        // the value survives beyondwords_content_id's strict sanitiser
+        // (Meta::sanitize_content_id) while remaining valid for every other key.
         $beyondwordsKeys = Utils::get_post_meta_keys('all');
 
         foreach ($beyondwordsKeys as $key) {
-            update_post_meta($postId, $key, 'test_value');
+            update_post_meta($postId, $key, 'test-value');
         }
 
         // Set a non-BeyondWords meta key that should NOT be removed

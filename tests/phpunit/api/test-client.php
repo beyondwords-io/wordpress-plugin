@@ -989,6 +989,38 @@ class ClientTest extends TestCase
     }
 
     /**
+     * The Content ID is charset-validated before storage, but Client must still
+     * defensively rawurlencode() it so any value that reaches the URL builder
+     * can't inject extra path or query segments into the authenticated request.
+     *
+     * @test
+     */
+    public function get_content_rawurlencodes_the_content_id()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured_url = null;
+        $filter = function ($preempt, $args, $url) use (&$captured_url) {
+            $captured_url = $url;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        Client::get_content('a/b?c=1');
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // The slash and query characters are percent-encoded, so the URL keeps
+        // its intended `/content/<id>` shape instead of gaining an attacker path.
+        $this->assertStringContainsString('/content/a%2Fb%3Fc%3D1', (string) $captured_url);
+        $this->assertStringNotContainsString('/content/a/b?c=1', (string) $captured_url);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * @test
      *
      * A transport-level failure (DNS error, timeout, refused/blocked connection)

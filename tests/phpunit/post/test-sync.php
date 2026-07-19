@@ -566,7 +566,9 @@ class SyncTest extends TestCase
                 'beyondwords_generate_audio'        => 'beyondwords_generate_audio',
                 'beyondwords_disabled'              => 'beyondwords_disabled',
                 'beyondwords_error_message'         => 'beyondwords_error_message',
-                'beyondwords_content_id'            => 'beyondwords_content_id',
+                // Content ID is charset-validated on save (Meta::sanitize_content_id),
+                // so it needs a valid value here rather than the meta-key placeholder.
+                'beyondwords_content_id'            => BEYONDWORDS_TESTS_CONTENT_ID,
                 'beyondwords_podcast_id'            => 'beyondwords_podcast_id',
                 'beyondwords_preview_token'         => 'beyondwords_preview_token',
                 'beyondwords_project_id'            => 'beyondwords_project_id',
@@ -591,7 +593,7 @@ class SyncTest extends TestCase
         $this->assertSame('beyondwords_error_message', get_post_meta($postId, 'beyondwords_error_message', true));
 
         $this->assertArrayHasKey('beyondwords_content_id', $meta);
-        $this->assertSame('beyondwords_content_id', get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
 
         $this->assertArrayHasKey('beyondwords_podcast_id', $meta);
         $this->assertSame('beyondwords_podcast_id', get_post_meta($postId, 'beyondwords_podcast_id', true));
@@ -619,6 +621,33 @@ class SyncTest extends TestCase
 
         $this->assertArrayHasKey('_speechkit_text', $meta);
         $this->assertSame('_speechkit_text', get_post_meta($postId, '_speechkit_text', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * The beyondwords_content_id meta is registered with a strict sanitize
+     * callback so the block-editor / REST write path can't persist a Content ID
+     * that would inject path or query segments into an authenticated BeyondWords
+     * API URL (see Meta::sanitize_content_id).
+     *
+     * @test
+     */
+    public function register_meta_sanitizes_content_id_on_write()
+    {
+        Sync::register_meta();
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::registerMetaSanitizesContentIdOnWrite',
+        ]);
+
+        // A crafted value with URL path/query characters is blanked on save.
+        update_post_meta($postId, 'beyondwords_content_id', 'x/../../projects/999/content/abc?force=1');
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
+
+        // A legitimate UUID Content ID is stored unchanged.
+        update_post_meta($postId, 'beyondwords_content_id', BEYONDWORDS_TESTS_CONTENT_ID);
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
 
         wp_delete_post($postId, true);
     }
