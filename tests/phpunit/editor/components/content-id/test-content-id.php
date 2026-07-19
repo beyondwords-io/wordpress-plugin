@@ -50,16 +50,13 @@ class ContentIdTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Nonce field
         $this->assertCount(1, $crawler->filter('#beyondwords_content_id_nonce'));
 
-        // Text input with empty value
         $input = $crawler->filter('#beyondwords_content_id');
         $this->assertCount(1, $input);
         $this->assertSame('', $input->attr('value'));
         $this->assertSame('beyondwords_content_id', $input->attr('name'));
 
-        // Fetch button
         $button = $crawler->filter('#beyondwords__content-id--fetch');
         $this->assertCount(1, $button);
         $this->assertStringContainsString('Fetch', $button->text());
@@ -170,9 +167,8 @@ class ContentIdTest extends TestCase
                 'postValue' => 'abc<b>def</b>ghi',
                 'expect'    => 'abcdefghi',
             ],
-            // A crafted Content ID must not be able to inject path/query segments
-            // into the authenticated BeyondWords API URL — see the fix in
-            // Meta::sanitize_content_id().
+            // A crafted Content ID must not inject path/query segments into the
+            // authenticated BeyondWords API URL — see Meta::sanitize_content_id().
             'Path traversal + query blanked' => [
                 'postValue' => 'x/../../projects/999/content/abc?force=1',
                 'expect'    => '',

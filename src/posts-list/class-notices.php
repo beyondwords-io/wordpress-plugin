@@ -14,8 +14,7 @@ namespace BeyondWords\PostsList;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * One notice per post-bulk-action result, all gated on the same nonce so
- * direct URL fiddling can't surface arbitrary text.
+ * One notice per bulk-action result, all nonce-gated against direct URL fiddling.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -60,13 +59,10 @@ class Notices {
 	}
 
 	/**
-	 * "N posts still need audio" notice after a Generate Audio bulk action that
-	 * hit the synchronous cap off VIP.
+	 * "N posts still need audio" notice after a bulk action hit the off-VIP sync cap.
 	 *
-	 * Off VIP we can't offload to WP-Cron, so a large selection is processed up to
-	 * a per-request cap and the rest are deferred. Their generate flag is already
-	 * set, so re-running the action — or selecting the remaining posts — completes
-	 * them.
+	 * Deferred posts already have their generate flag set, so re-running the
+	 * action completes them.
 	 */
 	public static function deferred_notice(): void {
 		$count = self::get_query_count( 'beyondwords_bulk_deferred' );
@@ -169,8 +165,7 @@ class Notices {
 	}
 
 	/**
-	 * Verify the result-nonce embedded in bulk-action redirects, fatally exiting
-	 * via `wp_nonce_ays()` on tamper.
+	 * Verify the result nonce in bulk-action redirects, dying via `wp_nonce_ays()` on tamper.
 	 *
 	 * Returns false (without exiting) when the nonce param is absent so callers
 	 * can short-circuit normal page loads cheaply.

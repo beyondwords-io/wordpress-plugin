@@ -9,7 +9,6 @@ class ClientTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
         // Register the http_request_args filter that production runs from
@@ -23,14 +22,12 @@ class ClientTest extends TestCase
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         remove_filter('http_request_args', [Client::class, 'filter_http_request_args'], 10);
 
         // Clear existing admin notices, so we can test notices in isolation
         remove_all_actions('admin_notices');
         remove_all_actions('all_admin_notices');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -541,11 +538,8 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * Voices is materially slower to prepare than the other dropdowns (~3.7s p95
-     * vs ~250ms), so it is the one endpoint with its own longer bound — the
-     * shared DEFAULT_REQUEST_TIMEOUT would abandon cold-cache fetches and,
-     * because failures are negative-cached, blank the Voice dropdown for a whole
-     * CACHE_TTL_ON_ERROR.
+     * Voices is materially slower (~3.7s p95 vs ~250ms), so it has its own longer bound —
+     * the short default would abandon cold-cache fetches and negative-cache a blank dropdown.
      */
     public function voices_get_uses_longer_timeout()
     {
@@ -580,11 +574,8 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * A failed editor-dropdown fetch is negative-cached for a short TTL, so a
-     * slow or unreachable API is probed at most once per interval instead of
-     * blocking every admin edit-screen render. The second call within the TTL
-     * is served from the transient (the empty-array sentinel) and makes no HTTP
-     * request.
+     * A failed fetch is negative-cached for a short TTL, so an unreachable API is probed
+     * at most once per interval; the second call gets the empty-array sentinel, no HTTP.
      */
     public function failed_responses_are_negative_cached()
     {
@@ -611,12 +602,8 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * Every request — cached editor-dropdown GETs and direct call_api requests
-     * alike — uses the short default timeout: the API responds quickly on every
-     * endpoint (content writes return the content ID immediately; audio
-     * generation is asynchronous server-side), so no request may tie up a PHP
-     * worker beyond VIP's 3-second ceiling. Voices, the one slow endpoint, is
-     * covered by voices_get_uses_longer_timeout().
+     * Every request uses the short default timeout — the API responds quickly everywhere
+     * (audio generation is async server-side) and VIP caps workers at 3s. Voices excepted.
      */
     public function all_requests_use_the_short_default_timeout()
     {
@@ -657,8 +644,7 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * 401 when the option-supplied API key is invalid (covers both the
-     * "missing" and "wrong" cases — the BeyondWords API treats them the same).
+     * 401 when the API key is invalid ("missing" and "wrong" are treated the same).
      */
     public function call_api_with_invalid_api_key()
     {
@@ -674,7 +660,6 @@ class ClientTest extends TestCase
 
         $this->assertSame(401, wp_remote_retrieve_response_code($response));
 
-        // We should find the error code & message in the post_meta table
         $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -727,7 +712,6 @@ class ClientTest extends TestCase
 
         $this->assertSame(404, wp_remote_retrieve_response_code($response));
 
-        // We should find the error code & message in the post_meta table
         $this->assertSame('#404: Not Found', get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
@@ -798,15 +782,13 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * Test that 404 errors are saved for REST_API posts even when global setting is CLIENT_SIDE.
-     * This tests the bug where saveErrorMessage checked the global option instead of post meta.
+     * 404 errors ARE saved for REST_API posts even when the global is CLIENT_SIDE —
+     * regression: saveErrorMessage checked the global option instead of post meta.
      */
     public function save_error_message404_for_rest_api_post_when_global_is_client_side()
     {
-        // Set global integration method to CLIENT_SIDE
         update_option('beyondwords_integration_method', 'client-side');
 
-        // Create a post with REST_API integration method in post meta
         $postId = self::factory()->post->create([
             'post_title' => 'ClientTest::saveErrorMessage404ForRestApiPostWhenGlobalIsClientSide',
             'meta_input' => [
@@ -814,11 +796,9 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        // Call saveErrorMessage with a 404 error
         Client::save_error_message($postId, 'Not Found', 404);
 
-        // The error SHOULD be saved because the post uses REST_API integration
-        // (even though the global setting is CLIENT_SIDE)
+        // Saved: the post's REST_API meta wins over the global CLIENT_SIDE setting.
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
         $this->assertEquals('#404: Not Found', $error);
 
@@ -829,14 +809,12 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * Test that 404 errors are NOT saved for CLIENT_SIDE posts.
+     * 404 errors are NOT saved for CLIENT_SIDE posts.
      */
     public function save_error_message404_not_saved_for_client_side_post()
     {
-        // Set global integration method to REST_API
         update_option('beyondwords_integration_method', 'rest-api');
 
-        // Create a post with CLIENT_SIDE integration method in post meta
         $postId = self::factory()->post->create([
             'post_title' => 'ClientTest::saveErrorMessage404NotSavedForClientSidePost',
             'meta_input' => [
@@ -844,10 +822,9 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        // Call saveErrorMessage with a 404 error
         Client::save_error_message($postId, 'Not Found', 404);
 
-        // The error should NOT be saved because the post uses CLIENT_SIDE integration
+        // Not saved: the post's CLIENT_SIDE meta wins over the global REST_API setting.
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
         $this->assertEmpty($error);
 
@@ -858,15 +835,12 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * Test legacy posts (no integration method meta) with global=REST_API.
-     * 404 errors SHOULD be saved because legacy posts default to REST_API.
+     * Legacy posts (no integration meta, pre-v6.0) with global=REST_API: 404s ARE saved.
      */
     public function save_error_message404_for_legacy_post_when_global_is_rest_api()
     {
-        // Set global integration method to REST_API
         update_option('beyondwords_integration_method', 'rest-api');
 
-        // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
         $postId = self::factory()->post->create([
             'post_title' => 'ClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsRestApi',
             'meta_input' => [
@@ -875,10 +849,9 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        // Call saveErrorMessage with a 404 error
         Client::save_error_message($postId, 'Not Found', 404);
 
-        // The error SHOULD be saved because legacy posts fall back to global (REST_API)
+        // Saved: legacy posts fall back to the global setting (REST_API).
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
         $this->assertEquals('#404: Not Found', $error);
 
@@ -889,15 +862,12 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * Test legacy posts (no integration method meta) with global=CLIENT_SIDE.
-     * 404 errors should NOT be saved because the post falls back to global CLIENT_SIDE.
+     * Legacy posts (no integration meta, pre-v6.0) with global=CLIENT_SIDE: 404s are NOT saved.
      */
     public function save_error_message404_for_legacy_post_when_global_is_client_side()
     {
-        // Set global integration method to CLIENT_SIDE
         update_option('beyondwords_integration_method', 'client-side');
 
-        // Create a legacy post with NO integration method meta (simulating pre-v6.0 post)
         $postId = self::factory()->post->create([
             'post_title' => 'ClientTest::saveErrorMessage404ForLegacyPostWhenGlobalIsClientSide',
             'meta_input' => [
@@ -906,10 +876,9 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        // Call saveErrorMessage with a 404 error
         Client::save_error_message($postId, 'Not Found', 404);
 
-        // The error should NOT be saved because legacy posts fall back to global (CLIENT_SIDE)
+        // Not saved: legacy posts fall back to the global setting (CLIENT_SIDE).
         $error = get_post_meta($postId, 'beyondwords_error_message', true);
         $this->assertEmpty($error);
 
@@ -1030,9 +999,8 @@ class ClientTest extends TestCase
     }
 
     /**
-     * The Content ID is charset-validated before storage, but Client must still
-     * defensively rawurlencode() it so any value that reaches the URL builder
-     * can't inject extra path or query segments into the authenticated request.
+     * Content IDs are charset-validated before storage, but Client must still defensively
+     * rawurlencode() so no value can inject path/query segments into the request.
      *
      * @test
      */
@@ -1052,8 +1020,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter, 1);
 
-        // The slash and query characters are percent-encoded, so the URL keeps
-        // its intended `/content/<id>` shape instead of gaining an attacker path.
+        // Percent-encoding keeps the intended /content/<id> shape — no attacker path.
         $this->assertStringContainsString('/content/a%2Fb%3Fc%3D1', (string) $captured_url);
         $this->assertStringNotContainsString('/content/a/b?c=1', (string) $captured_url);
 
@@ -1064,11 +1031,8 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * A transport-level failure (DNS error, timeout, refused/blocked connection)
-     * makes wp_remote_request() — and therefore call_api() — return a WP_Error.
-     * get_content() must surface that WP_Error rather than throwing a TypeError,
-     * so InspectPanel::rest_api_response() can fall through to its is_wp_error()
-     * branch and degrade to a "Could not connect to BeyondWords API" response.
+     * A transport-level failure makes call_api() return a WP_Error; get_content() must
+     * surface it (not TypeError) so InspectPanel can degrade to a could-not-connect response.
      */
     public function get_content_returns_wp_error_on_connection_failure()
     {

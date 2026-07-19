@@ -28,7 +28,6 @@ context( 'Classic Editor: Add Post', () => {
 					postType,
 				} );
 
-				// BeyondWords metabox is shown for supported post types
 				cy.get( 'div#beyondwords.postbox' )
 					.find( 'div.postbox-header' )
 					.contains( 'BeyondWords' )
@@ -49,7 +48,6 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				// "Generate Audio" is still on page
 				cy.get( 'input#beyondwords_generate_audio' );
 
 				cy.get( '#sample-permalink' ).click();
@@ -60,7 +58,6 @@ context( 'Classic Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [-] in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -73,7 +70,6 @@ context( 'Classic Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [—] in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -100,7 +96,6 @@ context( 'Classic Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [-] in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -113,7 +108,6 @@ context( 'Classic Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [—] in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -157,19 +151,16 @@ context( 'Classic Editor: Add Post', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				// "Generate Audio" checkbox is now always visible
 				cy.get( 'input#beyondwords_generate_audio' ).should( 'exist' );
 
 				cy.get( '#sample-permalink' ).click();
 
 				cy.hasPlayerInstances( 1 );
 
-				// See a [tick] in the BeyondWords column' )
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -200,27 +191,22 @@ context( 'Classic Editor: Add Post', () => {
 					`I can add a ${ postType.name } with "Pending review" audio`
 				);
 
-				// Show Status select box
 				cy.get( '.misc-pub-post-status a.edit-post-status' ).click();
 
-				// Select "Pending Review"
 				cy.get( '#post_status', { timeout: 20000 } ).select(
 					'Pending Review'
 				);
 
-				// Click "OK"
 				cy.get( 'a.save-post-status', { timeout: 20000 } ).click();
 
 				// Wait for permalink to update
 				cy.get( '#sample-permalink' );
 
-				// Click "Save as Pending" button
 				cy.get( 'input[value="Save as Pending"]' ).click();
 
 				// Wait for success message
 				cy.get( 'div#message.notice-success' );
 
-				// "Generate Audio" checkbox remains but is unchecked
 				cy.get( 'input#beyondwords_generate_audio' ).should(
 					'not.be.checked'
 				);
@@ -229,7 +215,6 @@ context( 'Classic Editor: Add Post', () => {
 					'Listen to content saved as “Pending” in the BeyondWords dashboard.'
 				);
 
-				// "Pending review" message contains link to project
 				cy.get( 'div#beyondwords-pending-review-message a' )
 					.invoke( 'attr', 'href' )
 					.should(
@@ -243,7 +228,6 @@ context( 'Classic Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] and "Pending" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -262,7 +246,6 @@ context( 'Classic Editor: Add Post', () => {
 		.filter( ( x ) => ! x.supported )
 		.forEach( ( postType ) => {
 			it( `${ postType.name } has no BeyondWords support`, () => {
-				// BeyondWords column should not exist
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
@@ -270,7 +253,6 @@ context( 'Classic Editor: Add Post', () => {
 					'not.exist'
 				);
 
-				// BeyondWords metabox should not exist
 				cy.createPost( {
 					postType,
 				} );

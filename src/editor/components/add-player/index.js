@@ -11,15 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { BeyondwordsIcon } from '../icon';
 
-// Register the block
 registerBlockType( 'beyondwords/player', {
 	icon: <BeyondwordsIcon />,
 	edit: function Edit() {
 		const blockProps = useBlockProps();
 
-		// The live player is not embedded in the editor preview — it only
-		// renders on the front end. Show a static Placeholder marking where
-		// the player will appear in the published post.
+		// The live player only renders on the front end; show a static
+		// Placeholder marking where it will appear.
 		return (
 			<div { ...blockProps }>
 				<Placeholder

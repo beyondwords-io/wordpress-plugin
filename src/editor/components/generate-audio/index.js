@@ -30,8 +30,9 @@ const parseFlag = ( value ) => {
 };
 
 /**
- * Resolve the preselect mode for a post type's config, tolerant of the
- * pre-7.0.0 shapes (`'1'` and a bare taxonomy array).
+ * Resolve the preselect mode for a post type's config.
+ *
+ * Tolerant of the pre-7.0.0 shapes (`'1'` and a bare taxonomy array).
  *
  * @param {*} config The preselect entry for a post type.
  *
@@ -98,13 +99,8 @@ export function GenerateAudio( { wrapper } ) {
 		const savedMeta = getCurrentPostAttribute( 'meta' ) || {};
 		const editedMeta = getPostEdits()?.meta || {};
 
-		/**
-		 * The explicit value, if any — the user's decision.
-		 *
-		 * An in-session edit wins (the user toggled this session); otherwise
-		 * the saved meta, preferring beyondwords_generate_audio and falling
-		 * back to the deprecated speechkit_generate_audio.
-		 */
+		// The user's explicit decision, if any: an in-session edit wins over
+		// saved meta.
 		let explicit;
 		if ( META_KEY in editedMeta ) {
 			explicit = parseFlag( editedMeta[ META_KEY ] );
@@ -114,12 +110,8 @@ export function GenerateAudio( { wrapper } ) {
 				parseFlag( savedMeta.speechkit_generate_audio );
 		}
 
-		/**
-		 * Should "Generate audio" be preselected, per the plugin setting?
-		 *
-		 * Reactive: for term-gated post types this recomputes as taxonomy terms
-		 * are edited, so the toggle follows the rule in both directions.
-		 */
+		// Reactive: for term-gated post types this recomputes as taxonomy terms
+		// are edited, so the toggle follows the preselect rule in both directions.
 		const getShouldPreselect = () => {
 			const settings = getSettings();
 			if ( ! settings ) {
@@ -175,11 +167,8 @@ export function GenerateAudio( { wrapper } ) {
 		};
 
 		return {
-			// Derived only — we never write meta for the preselect case, so the
-			// post is not dirtied. When the publisher has not made an explicit
-			// choice the toggle reflects the preselect rule; persistence of an
-			// untouched preselected post is handled server-side by
-			// Meta::has_generate_audio() → Preselect::should_preselect_for_post().
+			// Derived only — no meta write for the preselect case, so the post isn't
+			// dirtied; the server persists it via Preselect::should_preselect_for_post().
 			checked:
 				explicit !== undefined && explicit !== null
 					? explicit
@@ -188,13 +177,12 @@ export function GenerateAudio( { wrapper } ) {
 	}, [] );
 
 	const handleChange = () => {
-		// The user's explicit choice — a real, persisted edit (correctly
-		// dirties the post). Once set, it overrides the preselect rule.
+		// An explicit choice is a real edit (dirties the post) and overrides the
+		// preselect rule from then on.
 		editPost( { meta: { [ META_KEY ]: ! checked ? '1' : '0' } } );
 	};
 
-	// State-reflecting caption: the toggle reads out its current state rather
-	// than the action it performs.
+	// State-reflecting caption: the label reads the current state, not the action.
 	const label = checked
 		? __( 'Generation enabled', 'speechkit' )
 		: __( 'Generation disabled', 'speechkit' );

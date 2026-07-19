@@ -2,15 +2,10 @@
 /**
  * Preselect setting.
  *
- * Lets the publisher pick which post types have "Generate audio" ticked by
- * default in the post editor — either for every post of that type, or only
- * for posts assigned one of a chosen set of hierarchical taxonomy terms.
- *
  * @package BeyondWords\Settings
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
- * @since 7.0.0 Reinstated term-gating for all hierarchical taxonomies, stored
- *              in a mode-based format.
+ * @since 7.0.0 Reinstated term-gating, stored in a mode-based format.
  */
 
 declare( strict_types = 1 );
@@ -20,26 +15,10 @@ namespace BeyondWords\Settings;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Preselect setting.
+ * Preselect setting, stored as a per-post-type map with a `mode` key.
  *
- * Stored as a map keyed by post type, each value an array with a `mode`:
- *
- *     [
- *       'post' => [ 'mode' => 'all' ],
- *       'page' => [
- *         'mode'  => 'terms',
- *         'terms' => [ 'category' => [ 12, 34 ], 'genre' => [ 56 ] ],
- *       ],
- *     ]
- *
- * - A post type absent from the map is never preselected.
- * - `mode => 'all'`   preselects every post of that type.
- * - `mode => 'terms'` preselects only posts that have at least one of the
- *   listed term IDs (exact match, OR across taxonomies/terms).
- *
- * The pre-7.0.0 shapes (`'1'` for whole post type, `[ taxonomy => [ ids ] ]`
- * for term-gating) are read defensively here and converted to this format by
- * the migration in `Updater::run()`.
+ * `all` preselects every post; `terms` only posts with a listed term ID;
+ * absent means off. Pre-7.0.0 shapes are migrated by `Updater::run()`.
  *
  * @since 7.0.0
  */
@@ -64,8 +43,7 @@ class Preselect {
 	}
 
 	/**
-	 * Enqueue the settings-page script that progressively reveals the "All"
-	 * checkbox and term trees. Only on the BeyondWords settings page.
+	 * Enqueue the preselect progressive-disclosure script on the settings page.
 	 *
 	 * @since 7.0.0
 	 *
@@ -121,9 +99,8 @@ class Preselect {
 	/**
 	 * Resolve the preselect mode for a post type.
 	 *
-	 * Tolerant of the pre-7.0.0 shapes so behaviour is correct even before the
-	 * migration has run: `'1'` reads as `all`, a non-empty taxonomy array reads
-	 * as `terms`.
+	 * Tolerant of pre-7.0.0 shapes so behaviour is correct before the migration
+	 * runs: `'1'` reads as `all`, a non-empty taxonomy array as `terms`.
 	 *
 	 * @param string                   $post_type Post type slug.
 	 * @param array<string,mixed>|null $preselect Pre-loaded option, to avoid an extra `get_option()`.
@@ -212,13 +189,8 @@ class Preselect {
 	/**
 	 * Whether "Generate audio" should be preselected for a given post.
 	 *
-	 * - `all`   → always true.
-	 * - `terms` → true when the post has at least one listed term in a
-	 *             currently-registered taxonomy (exact match, OR semantics).
-	 * - `off`   → false.
-	 *
-	 * Tolerant of taxonomies that have since been unregistered or detached from
-	 * the post type — they are skipped, never fatal.
+	 * In `terms` mode a post matches when it has at least one listed term (OR
+	 * across taxonomies); unregistered/detached taxonomies are skipped, never fatal.
 	 *
 	 * @param \WP_Post|int $post Post object or ID.
 	 */
@@ -229,11 +201,8 @@ class Preselect {
 			return false;
 		}
 
-		// Use get(), whose explicit DEFAULT_VALUE fallback applies in every
-		// context (admin, REST block-editor saves, cron) — not just where the
-		// setting is registered. This keeps the server's generate decision in
-		// step with the editor's default-bearing display, since the block
-		// editor no longer writes the meta itself (it derives the toggle).
+		// get()'s DEFAULT_VALUE fallback applies in every context (REST, cron),
+		// keeping the server's decision in step with the editor's derived toggle.
 		$preselect = self::get();
 
 		$mode = self::get_mode( $post_type, $preselect );
@@ -278,20 +247,16 @@ class Preselect {
 	/**
 	 * Sanitise the submitted preselect map.
 	 *
-	 * Merge-preserve: only post types and taxonomies actually rendered this
-	 * request are taken from the submission. Config for post types that are not
-	 * currently compatible, and terms for taxonomies that are not currently
-	 * registered, are preserved from the stored value — so toggling a CPT or
-	 * taxonomy plugin off and saving settings never wipes the configuration.
+	 * Merge-preserve: only post types/taxonomies rendered this request are read
+	 * from the submission, so a save never wipes a deactivated plugin's config.
 	 *
 	 * @param mixed $value Raw submitted value.
 	 *
 	 * @return array<string,mixed>
 	 */
 	public static function sanitize( $value ): array {
-		// Use the RAW stored option as the merge base — not get(), which falls
-		// back to DEFAULT_VALUE and would otherwise leak `post => all` into a
-		// fresh save where 'post' isn't even a compatible post type.
+		// Merge from the RAW stored option — get()'s DEFAULT_VALUE fallback
+		// would leak `post => all` into a fresh save.
 		$raw      = get_option( self::OPTION_NAME );
 		$existing = is_array( $raw ) ? $raw : [];
 
@@ -299,13 +264,11 @@ class Preselect {
 			return $existing;
 		}
 
-		// Start from the stored value to preserve post types not rendered now.
 		$clean = $existing;
 
 		foreach ( Utils::get_compatible_post_types() as $post_type ) {
 			$submitted = ( isset( $value[ $post_type ] ) && is_array( $value[ $post_type ] ) ) ? $value[ $post_type ] : [];
 
-			// Post-type checkbox unticked → not preselected.
 			if ( empty( $submitted['enabled'] ) ) {
 				unset( $clean[ $post_type ] );
 				continue;
@@ -330,8 +293,7 @@ class Preselect {
 	}
 
 	/**
-	 * Sanitise the term map for one post type, merge-preserving terms for
-	 * taxonomies not rendered in this request.
+	 * Sanitise one post type's term map, merge-preserving unrendered taxonomies.
 	 *
 	 * @param string              $post_type Post type slug.
 	 * @param array<string,mixed> $submitted Submitted value for this post type.
@@ -399,15 +361,8 @@ class Preselect {
 	/**
 	 * Render the control for one post type.
 	 *
-	 * Three nested levels, progressively revealed by `preselect.js`:
-	 *   1. the post-type checkbox — off means "don't preselect" (term area hidden);
-	 *   2. an "All" checkbox, ticked by default when the post type is enabled —
-	 *      ticked means preselect every post of this type (taxonomy terms hidden);
-	 *   3. the hierarchical taxonomy term trees, shown when "All" is unticked, to
-	 *      preselect only posts that have one of the ticked terms.
-	 *
-	 * Maps to the stored format: off → absent, "All" → `mode => 'all'`, terms →
-	 * `mode => 'terms'`. "All" takes priority over any ticked terms.
+	 * Three nested levels (enable → "All" → term trees), progressively revealed
+	 * by `preselect.js`; "All" wins over any ticked terms on save.
 	 *
 	 * @param \WP_Post_Type       $post_type_object Post type object.
 	 * @param array<string,mixed> $preselect        Stored option.

@@ -15,8 +15,7 @@ namespace BeyondWords\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Core-wide utilities: editor-screen detection and the option/meta-key registries
- * the uninstaller iterates.
+ * Core-wide utilities: editor-screen detection and option/meta-key registries.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -65,8 +64,6 @@ class Utils {
 
 	/**
 	 * Whether the current request is being served as AMP.
-	 *
-	 * Tries the official AMP plugin, AMP for WP, and the legacy `is_amp_endpoint()`.
 	 */
 	public static function is_amp(): bool {
 		return (
@@ -89,9 +86,8 @@ class Utils {
 	 * @throws \Exception When `$type` is unrecognised.
 	 */
 	public static function get_post_meta_keys( string $type = 'current' ): array {
-		// Order matches the editor Inspect panel display/copy order. Every
-		// consumer treats this as a set (in_array / foreach), so the order only
-		// affects the block-editor Copy payload, which sources it from here.
+		// Order matches the editor Inspect panel display/copy order; every other
+		// consumer treats this as a set.
 		$current = [
 			'beyondwords_generate_audio',
 			'beyondwords_project_id',
@@ -177,8 +173,7 @@ class Utils {
 		];
 
 		$deprecated = [
-			// Removed in v7.0.0 — settings UI consolidated to three tabs and
-			// player/project styling moved to the BeyondWords dashboard.
+			// Removed in v7.0.0 — player/project styling moved to the BeyondWords dashboard.
 			'beyondwords_player_call_to_action',
 			'beyondwords_player_clickable_sections',
 			'beyondwords_player_content',

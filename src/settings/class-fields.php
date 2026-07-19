@@ -2,8 +2,7 @@
 /**
  * BeyondWords settings fields.
  *
- * Consolidates the simple text/select fields used by the settings tabs.
- * Compound fields (e.g. preselect) live in their own class.
+ * Compound fields (e.g. preselect) live in their own classes.
  *
  * @package BeyondWords\Settings
  *
@@ -19,11 +18,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings fields.
  *
- * One static method per field, each registering the option, sanitiser and
- * the renderer for `do_settings_fields`. Option keys, defaults and the
- * value enums for the integration method and player UI are exposed as
- * class constants so the rest of the plugin can read them without going
- * through the settings page.
+ * Option keys and value enums are class constants so the rest of the plugin
+ * can read them without going through the settings page.
  *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
@@ -116,10 +112,9 @@ class Fields {
 	}
 
 	/**
-	 * Register the per-site preferences (preselect, excerpt, player UI).
+	 * Register the per-site preferences (excerpt, player UI).
 	 *
-	 * Preselect lives in its own class because it has post-type-aware logic
-	 * and an enqueued JS asset for the post editor.
+	 * Preselect lives in its own class: post-type-aware logic plus a JS asset.
 	 */
 	public static function register_preferences_fields(): void {
 		register_setting(

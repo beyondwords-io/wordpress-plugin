@@ -13,15 +13,12 @@ import ErrorNotice from '../../components/error-notice';
 import GenerateAudio from '../../components/generate-audio';
 import Stack from '../../components/stack';
 
-// The pre-publish panel renders the registered plugin's icon after the title by
-// default (a generic "plug"). Suppress it with a no-op — the brand icon already
-// sits before the label via <BeyondwordsTitle />.
+// Suppress the default plugin icon rendered after the title (a generic "plug") —
+// the brand icon already sits before the label via <BeyondwordsTitle />.
 const NoIcon = () => null;
 
 export default class PrepublishPanel extends Component {
-	// Matches the Document Settings panel: only the "Generate audio" control.
-	// The Voice (Customize/Language/Voice) and Player (Embed) settings live in
-	// the plugin sidebar.
+	// Only the "Generate audio" control; Voice and Player settings live in the plugin sidebar.
 	render() {
 		return (
 			<PluginPrePublishPanel

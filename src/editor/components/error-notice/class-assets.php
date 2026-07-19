@@ -2,10 +2,6 @@
 /**
  * BeyondWords Error Notice — asset enqueue.
  *
- * Owns the block-editor stylesheet for the post error notice. Split from
- * [class-error-notice.php](class-error-notice.php) so each feature folder
- * has a single class responsible for asset registration.
- *
  * @package BeyondWords\Editor\Components\ErrorNotice
  * @since   7.0.0
  */

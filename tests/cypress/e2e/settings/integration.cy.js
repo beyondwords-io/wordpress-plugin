@@ -27,7 +27,6 @@ context( 'Settings > Integration', () => {
 	} );
 
 	it( 'persists Magic Embed (client-side) and round-trips back to REST API', () => {
-		// Switch to client-side.
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=integration'
 		);
@@ -37,7 +36,6 @@ context( 'Settings > Integration', () => {
 		cy.get( 'input[type="submit"]' ).click();
 		cy.get( '.notice-success' );
 
-		// Reload — value should persist.
 		cy.visit(
 			'/wp-admin/options-general.php?page=beyondwords&tab=integration'
 		);
@@ -46,7 +44,6 @@ context( 'Settings > Integration', () => {
 			'client-side'
 		);
 
-		// Switch back to REST API.
 		cy.get( 'select[name="beyondwords_integration_method"]' ).select(
 			'REST API'
 		);

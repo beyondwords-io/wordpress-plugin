@@ -7,8 +7,8 @@ require dirname( dirname( dirname( __FILE__ ) ) ) . '/vendor/yoast/phpunit-polyf
  * @package Speechkit
  */
 
-// PHP 8.4+: Suppress deprecation warnings from Symfony 5.4 (required for PHP 8.0 support)
-// When PHP 8.0 support is dropped, upgrade to Symfony 6.4+ and remove this.
+// PHP 8.4+: suppress deprecations from Symfony 5.4 (needed while PHP 8.0 is supported);
+// remove once upgraded to Symfony 6.4+.
 if ( PHP_VERSION_ID >= 80400 ) {
 	error_reporting( E_ALL & ~E_DEPRECATED );
 }
@@ -19,7 +19,6 @@ if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 }
 
-// Forward custom PHPUnit Polyfills configuration to PHPUnit bootstrap file.
 $_phpunit_polyfills_path = getenv( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' );
 if ( false !== $_phpunit_polyfills_path ) {
 	define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', $_phpunit_polyfills_path );
@@ -33,15 +32,8 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
 
-/*
- * Define plugin constants for tests.
- *
- * Two sources, in priority order:
- *   1. Environment variables (set by CI, e.g. via GitHub Actions secrets).
- *   2. The `config` block of `.wp-env.tests.override.json` (used locally —
- *      the WP test framework uses its own `wp-tests-config.php`, so the
- *      `define()` calls wp-env injects into wp-config.php don't reach us).
- */
+// Plugin constants come from env vars (CI) or `.wp-env.tests.override.json` (local) —
+// the test framework's own wp-tests-config.php never sees wp-env's wp-config.php defines.
 $bw_constants = array(
 	'BEYONDWORDS_API_URL',
 	'BEYONDWORDS_MOCK_API',
@@ -92,7 +84,6 @@ function _manually_load_plugin() {
 
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-// Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";
 
 // Load mock API responses plugin if enabled (after WP boots so filters work).
@@ -100,5 +91,4 @@ if ( defined( 'BEYONDWORDS_MOCK_API' ) && BEYONDWORDS_MOCK_API ) {
 	require dirname( __DIR__ ) . '/fixtures/wp-content/plugins/beyondwords-mock-rest-api-responses/mock-rest-api-responses.php';
 }
 
-// Load base TestCase class
 require __DIR__ . '/class-test-case.php';

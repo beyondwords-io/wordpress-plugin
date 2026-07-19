@@ -2,12 +2,10 @@ const { defineConfig } = require( 'cypress' );
 const util = require( 'util' );
 const exec = util.promisify( require( 'child_process' ).exec );
 
-// Track if we've done the one-time setup for this test run
 let hasSetupDatabase = false;
 
 /**
- * Helper function to execute WP-CLI commands
- * Automatically handles CI vs local environment differences
+ * Execute WP-CLI commands, handling CI vs local environment differences.
  *
  * @param {string|string[]} commands             - Single command or array of commands
  * @param {Object}          options              - Optional configuration
@@ -30,9 +28,8 @@ async function execWp( commands, options = {} ) {
 	return returnResult ? lastResult : undefined;
 }
 
-// CI sets these via env vars; locally cypress.env.json fills in the gaps.
-// We read cypress.env.json explicitly so we can keep allowCypressEnv:false
-// (Cypress 15 deprecates auto-merging cypress.env.json into Cypress.env()).
+// CI sets these via env vars; locally cypress.env.json fills the gaps — read it
+// explicitly to keep allowCypressEnv:false (Cypress 15 deprecates auto-merging).
 const localEnv = ( () => {
 	try {
 		return require( './cypress.env.json' );
@@ -93,10 +90,8 @@ function setupNodeEvents( on, config ) {
 	const apiKey = config.env.apiKey || '';
 	const projectId = ( config.expose && config.expose.projectId ) || '';
 
-	// implement node event listeners here
 	on( 'task', {
 		async setupDatabase() {
-			// One-shot per test run; bails if already set up.
 			if ( hasSetupDatabase ) {
 				// eslint-disable-next-line no-console
 				console.log(
@@ -108,7 +103,6 @@ function setupNodeEvents( on, config ) {
 			// eslint-disable-next-line no-console
 			console.log( '  - Running database setup...' );
 
-			// Reset database and activate plugins
 			await execWp( [
 				'plugin activate wp-reset',
 				'reset reset --yes',
@@ -192,7 +186,6 @@ function setupNodeEvents( on, config ) {
 				postDate = '',
 			} = options;
 
-			// Escape single quotes in title and content
 			const escapedTitle = title.replace( /'/g, "'\\''" );
 			const escapedContent = content.replace( /'/g, "'\\''" );
 
@@ -286,7 +279,6 @@ function setupNodeEvents( on, config ) {
 			const { pattern, exclude = [] } = options;
 
 			try {
-				// Get all options matching pattern
 				const listCmd = `option list --search='${ pattern }' --field=option_name`;
 				const result = await execWp( listCmd, { returnResult: true } );
 
@@ -295,7 +287,6 @@ function setupNodeEvents( on, config ) {
 					.split( '\n' )
 					.filter( Boolean );
 
-				// Delete each option (except excluded ones)
 				for ( const optionName of optionNames ) {
 					if ( ! exclude.includes( optionName ) ) {
 						await execWp( `option delete ${ optionName }` );

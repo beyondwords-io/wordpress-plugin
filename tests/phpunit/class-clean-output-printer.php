@@ -7,8 +7,7 @@ use PHPUnit\TextUI\DefaultResultPrinter;
 /**
  * Custom PHPUnit Result Printer that suppresses test output.
  *
- * This prevents HTML output from tests that render components
- * from cluttering the console output.
+ * Prevents HTML from component-rendering tests cluttering the console.
  */
 class CleanOutputPrinter extends DefaultResultPrinter
 {
@@ -19,7 +18,6 @@ class CleanOutputPrinter extends DefaultResultPrinter
      */
     protected function write_progress(string $progress): void
     {
-        // Suppress any captured output, only show progress
         parent::write_progress($progress);
     }
 }

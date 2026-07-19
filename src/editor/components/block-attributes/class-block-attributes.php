@@ -45,7 +45,6 @@ class BlockAttributes {
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 */
 	public static function register_audio_attribute( $args ) {
-		// Setup attributes if needed.
 		if ( ! isset( $args['attributes'] ) ) {
 			$args['attributes'] = [];
 		}
@@ -70,7 +69,6 @@ class BlockAttributes {
 	 * @since 6.0.0 Make static.
 	 */
 	public static function register_marker_attribute( $args ) {
-		// Setup attributes if needed.
 		if ( ! isset( $args['attributes'] ) ) {
 			$args['attributes'] = [];
 		}

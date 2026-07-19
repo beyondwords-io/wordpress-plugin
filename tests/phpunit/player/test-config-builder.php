@@ -6,26 +6,20 @@ use BeyondWords\Player\ConfigBuilder;
 
 /**
  * Class ConfigBuilderTest
- *
- * Constructs the parameters object for the BeyondWords JS SDK.
  */
 class ConfigBuilderTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         delete_option('beyondwords_project_id');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -327,8 +321,7 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * With no Embed chosen, the default for Source=Post × Output=Audio is
-     * "audio_post", which adds no asset params.
+     * With no Embed chosen, Source=Post × Output=Audio defaults to "audio_post" (no asset params).
      *
      * @test
      */
@@ -348,8 +341,7 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * With no Embed chosen, the default for Output=Video is "video_post", which
-     * sets video:true.
+     * With no Embed chosen, Output=Video defaults to "video_post", setting video:true.
      *
      * @test
      */
@@ -369,8 +361,7 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * A stored Embed value that no longer fits the current Source × Output falls
-     * back to None — no asset params are emitted.
+     * A stored Embed that no longer fits the current Source × Output falls back to None.
      *
      * @test
      */
@@ -417,8 +408,7 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * Embed asset params compose with Magic Embed (client-side) mode, where the
-     * post has no content ID so the SDK fetches by source ID.
+     * Embed asset params compose with Magic Embed — no content ID, so the SDK fetches by source ID.
      *
      * @test
      */

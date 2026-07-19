@@ -13,24 +13,17 @@ final class BulkEditTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
         unset($_POST, $_REQUEST);
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         unset($_POST, $_REQUEST);
 
-        // The redirect handlers gate on current_user_can( 'edit_post', ... ), so
-        // several tests log a user in. Reset it so state cannot leak into sibling
-        // test classes.
+        // Several tests log a user in; reset so state cannot leak into sibling test classes.
         wp_set_current_user(0);
 
-        // Then...
         parent::tearDown();
     }
 
@@ -46,12 +39,10 @@ final class BulkEditTest extends TestCase
         $this->assertEquals(10, has_action('bulk_edit_custom_box', array(BulkEdit::class, 'bulk_edit_custom_box')));
         $this->assertEquals(10, has_action('wp_ajax_save_bulk_edit_beyondwords', array(BulkEdit::class, 'save_bulk_edit')));
 
-        // Post type: post
         $this->assertEquals(10, has_filter('bulk_actions-edit-post', array(BulkEdit::class, 'bulk_actions_edit')));
         $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handle_bulk_delete_action')));
         $this->assertEquals(10, has_filter('handle_bulk_actions-edit-post', array(BulkEdit::class, 'handle_bulk_generate_action')));
 
-        // Post type: page
         $this->assertEquals(10, has_filter('bulk_actions-edit-page', array(BulkEdit::class, 'bulk_actions_edit')));
         $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handle_bulk_delete_action')));
         $this->assertEquals(10, has_filter('handle_bulk_actions-edit-page', array(BulkEdit::class, 'handle_bulk_generate_action')));
@@ -155,11 +146,9 @@ final class BulkEditTest extends TestCase
      */
     public function handle_bulk_generate_action()
     {
-        // The handler now filters $object_ids by current_user_can( 'edit_post' ),
-        // so run as an administrator who can edit every selected post.
+        // The handler filters $object_ids by current_user_can('edit_post'), so run as an admin.
         wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
 
-        // Set up API credentials for integration test
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -169,22 +158,18 @@ final class BulkEditTest extends TestCase
                 'post_title' => 'BulkEditTest::handle_bulk_generate_action::skip-1',
                 'post_content' => 'Test content for skip-1.',
             ]),
-            // Create
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-1',
                 'post_content' => 'Test content for create-1.',
             ]),
-            // Create
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-2',
                 'post_content' => 'Test content for create-2.',
             ]),
-            // Create
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-3',
                 'post_content' => 'Test content for create-3.',
             ]),
-            // Create
             self::factory()->post->create([
                 'post_title' => 'BulkEditTest::handle_bulk_generate_action::create-4',
                 'post_content' => 'Test content for create-4.',
@@ -204,7 +189,6 @@ final class BulkEditTest extends TestCase
         // beyondwords_bulk_generated should be updated with the no. of posts processed (so 99 becomes 4)
         $redirect = 'https://example.com/wp-admin/posts?beyondwords_bulk_generated=99';
 
-        // Add nonce into redirect
         $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
         $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $selectedPostIds);
@@ -216,16 +200,13 @@ final class BulkEditTest extends TestCase
         $this->assertArrayHasKey('beyondwords_bulk_generated', $args);
         $this->assertArrayHasKey('beyondwords_bulk_failed', $args);
 
-        // Verify that generated + failed equals the number of selected posts
         $total = (int)$args['beyondwords_bulk_generated'] + (int)$args['beyondwords_bulk_failed'];
         $this->assertEquals(count($selectedPostIds), $total);
 
-        // Verify all selected posts have the generate_audio flag set
         foreach ($selectedPostIds as $postId) {
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // Clean up
         foreach ($postIds as $postId) {
             wp_delete_post($postId, true);
         }
@@ -242,12 +223,8 @@ final class BulkEditTest extends TestCase
      */
     public function handle_bulk_generate_action_with_no_api_credentials()
     {
-        // The handler now filters $object_ids by current_user_can( 'edit_post' ),
-        // so run as an administrator who can edit every selected post.
+        // The handler filters $object_ids by current_user_can('edit_post'), so run as an admin.
         wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
-
-        // Test error handling when API credentials are missing
-        // This tests the failure path where posts cannot be generated
 
         $postIds = [
             self::factory()->post->create([
@@ -260,7 +237,6 @@ final class BulkEditTest extends TestCase
             ]),
         ];
 
-        // Ensure no API credentials are set
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
@@ -277,27 +253,22 @@ final class BulkEditTest extends TestCase
         $this->assertArrayHasKey('beyondwords_bulk_generated', $args);
         $this->assertArrayHasKey('beyondwords_bulk_failed', $args);
 
-        // When API credentials are missing, all posts should fail
         $this->assertEquals(0, $args['beyondwords_bulk_generated']);
         $this->assertEquals(count($postIds), $args['beyondwords_bulk_failed']);
 
-        // Verify all posts have the generate_audio flag set (even though they failed)
+        // The generate_audio flag is set even though generation failed.
         foreach ($postIds as $postId) {
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // Clean up
         foreach ($postIds as $postId) {
             wp_delete_post($postId, true);
         }
     }
 
     /**
-     * A user with `edit_posts` may still lack `edit_post` for an individual post
-     * they do not own. Core routes custom bulk actions through this filter after
-     * only the coarse edit_posts gate, so the redirect-based generate handler must
-     * itself drop posts the user cannot edit — only the editable post is flagged
-     * for generation and counted. Mirrors the AJAX coverage in test-bulk-edit-ajax.php.
+     * Core runs custom bulk actions after only the coarse edit_posts gate, so the handler
+     * itself must drop posts the user cannot edit. Mirrors test-bulk-edit-ajax.php.
      *
      * @test
      *
@@ -322,8 +293,7 @@ final class BulkEditTest extends TestCase
             'post_title'  => 'BulkEditTest::generate-skip::other',
         ]);
 
-        // Intercept the create-audio request with a benign success so generation
-        // completes hermetically, without a real network call.
+        // Benign success stub so generation completes without a real network call.
         $mockHttp = function () {
             return [
                 'response' => ['code' => 200, 'message' => 'OK'],
@@ -342,7 +312,6 @@ final class BulkEditTest extends TestCase
 
         remove_filter('pre_http_request', $mockHttp, 10);
 
-        // Only the editable post is flagged for generation.
         $this->assertSame('1', get_post_meta($ownPostId, 'beyondwords_generate_audio', true));
         $this->assertEmpty(get_post_meta($otherPostId, 'beyondwords_generate_audio', true));
 
@@ -407,9 +376,8 @@ final class BulkEditTest extends TestCase
     }
 
     /**
-     * On the delete branch the per-post `edit_post` filter must drop posts the
-     * user cannot edit, so the API batch-delete request only ever carries the
-     * editable post's content — and only that post's meta is cleared.
+     * On delete the per-post `edit_post` filter must drop uneditable posts, so the API
+     * batch-delete only carries the editable post's content — and only its meta clears.
      *
      * @test
      *
@@ -462,16 +430,13 @@ final class BulkEditTest extends TestCase
 
         remove_filter('pre_http_request', $mockHttp, 10);
 
-        // Exactly one batch-delete request, carrying only the editable post's content.
         $this->assertCount(1, $requests);
         $this->assertStringContainsString('own-content-aaa', $requests[0]);
         $this->assertStringNotContainsString('other-content-bbb', $requests[0]);
 
-        // Only the editable post's meta is cleared; the other post is untouched.
         $this->assertSame('', get_post_meta($ownPostId, 'beyondwords_content_id', true));
         $this->assertSame('other-content-bbb', get_post_meta($otherPostId, 'beyondwords_content_id', true));
 
-        // The redirect reports exactly one deleted post.
         $query = parse_url($redirect, PHP_URL_QUERY);
         parse_str($query, $args);
         $this->assertEquals(1, $args['beyondwords_bulk_deleted']);
@@ -481,9 +446,8 @@ final class BulkEditTest extends TestCase
     }
 
     /**
-     * When the per-post filter removes every selected post, the delete handler
-     * must be a clean no-op: a zero count, no API request, and — critically — no
-     * BULK-NO-RESPONSE error from handing an empty batch to the API.
+     * When the per-post filter removes every post, delete must be a clean no-op: zero
+     * count, no API request, and no BULK-NO-RESPONSE error from an empty batch.
      *
      * @test
      *
@@ -522,7 +486,6 @@ final class BulkEditTest extends TestCase
         $query = parse_url($redirect, PHP_URL_QUERY);
         parse_str($query, $args);
 
-        // Zero deleted, no error surfaced, and no API request attempted.
         $this->assertEquals(0, $args['beyondwords_bulk_deleted']);
         $this->assertArrayNotHasKey('beyondwords_bulk_error', $args);
         $this->assertFalse($httpAttempted, 'No API delete should be attempted when no editable posts remain.');
@@ -542,9 +505,8 @@ final class BulkEditTest extends TestCase
         // administrator who can edit every selected post.
         wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
 
-        // Run off VIP (default) with no API credentials, so the capped posts fail
-        // without a network call and the overflow is deferred. Select two more
-        // than the cap and derive the expectations from the constant.
+        // Off VIP with no creds: capped posts fail without a network call, the
+        // overflow defers; expectations derive from the constant.
         $overflow = 2;
         $selected = Sync::BULK_GENERATE_SYNC_LIMIT + $overflow;
 

@@ -2,10 +2,6 @@
 /**
  * BeyondWords Metabox — asset enqueue.
  *
- * Owns the classic-editor metabox stylesheet. Split from
- * [class-metabox.php](class-metabox.php) so the container/render concerns
- * stay separate from CSS registration.
- *
  * @package BeyondWords\Editor\Classic
  * @since   7.0.0
  */
@@ -33,10 +29,8 @@ class Assets {
 	/**
 	 * Enqueue Metabox CSS on classic-editor post screens for compatible post types.
 	 *
-	 * The API-valid gate is handled at bootstrap time in
-	 * [src/core/class-plugin.php](src/core/class-plugin.php) — `init()`
-	 * isn't called without a valid API connection — so we only need the
-	 * per-request hook + post-type checks here.
+	 * No API-valid check needed: class-plugin.php only calls init() with a
+	 * valid API connection.
 	 *
 	 * @param string $hook Current admin page hook.
 	 */

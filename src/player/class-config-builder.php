@@ -16,10 +16,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Constructs the SDK parameters object for one post.
  *
- * Two-step build: project-level defaults first, then per-post overrides via
- * `merge_post_settings()`. Final result passes through the
- * `beyondwords_player_sdk_params` filter so callers can mutate it.
- *
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class ConfigBuilder {
@@ -65,11 +61,8 @@ class ConfigBuilder {
 			$params['showUserInterface'] = false;
 		}
 
-		// Map the resolved Embed choice to the SDK's video/summary params so the
-		// on-page player shows the chosen asset. "script" === the AI summarization
-		// output, so script → summary:true. None/audio_post add nothing (the SDK
-		// defaults to audio + body); a None post normally never reaches here as the
-		// renderer short-circuits via Player::is_enabled(), but stay defensive.
+		// "Script" is the AI-summarization output, so script → summary:true.
+		// None/audio_post add nothing — the SDK defaults to audio + body.
 		$embed = \BeyondWords\Editor\Components\SettingsFields::get_effective_embed( $post->ID );
 
 		switch ( $embed ) {

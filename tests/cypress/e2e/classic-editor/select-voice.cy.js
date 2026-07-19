@@ -23,7 +23,6 @@ context( 'Classic Editor: Select Voice', () => {
 		cy.task( 'deactivatePlugin', 'classic-editor' );
 	} );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -58,7 +57,7 @@ context( 'Classic Editor: Select Voice', () => {
 						expect( values ).to.include( 'Welsh' );
 					} );
 
-				// The Accent select carries the language code, and is the
+				// The Accent select carries the language code, so it is the
 				// field that gets submitted.
 				cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
 					'be.visible'
@@ -72,8 +71,6 @@ context( 'Classic Editor: Select Voice', () => {
 						expect( values ).to.include( 'British' );
 					} );
 
-				// The Model dropdown lists every model the language offers,
-				// "Select a model" first, with the Standard bucket last.
 				cy.get( '#beyondwords-metabox-select-voice--model' ).should(
 					'be.visible'
 				);
@@ -112,7 +109,6 @@ context( 'Classic Editor: Select Voice', () => {
 						] );
 					} );
 
-				// v3 → only the voices that offer it (Bridget + Caleb).
 				cy.get( 'select#beyondwords_model' ).select( 'v3' );
 				cy.get( 'select#beyondwords_voice_id' )
 					.find( 'option' )
@@ -124,7 +120,6 @@ context( 'Classic Editor: Select Voice', () => {
 						] );
 					} );
 
-				// Multilingual v2 → only Bridget offers it.
 				cy.get( 'select#beyondwords_model' ).select(
 					'Multilingual v2'
 				);
@@ -143,13 +138,11 @@ context( 'Classic Editor: Select Voice', () => {
 
 				cy.get( '#beyondwords_customize' ).check();
 
-				// The project's default language (en_US) is pre-selected.
 				cy.get( 'select#beyondwords_language_code' ).should(
 					'have.value',
 					'en_US'
 				);
 
-				// Pick a Model, then a Voice within it.
 				cy.get( 'select#beyondwords_model' ).select( 'Flash v2.5' );
 				cy.get( 'select#beyondwords_voice_id' ).select( 'Bridget' );
 
@@ -173,7 +166,6 @@ context( 'Classic Editor: Select Voice', () => {
 				// so the fields are visible after the page refresh.
 				cy.get( '#beyondwords_customize' ).should( 'be.checked' );
 
-				// Language, Accent, Model and Voice persist after a page refresh.
 				cy.get( 'select#beyondwords_language_name' ).should(
 					'have.value',
 					'English'
@@ -195,8 +187,7 @@ context( 'Classic Editor: Select Voice', () => {
 					.should( 'have.text', 'Bridget' );
 
 				// Regression: after reload the in-memory voices are hydrated, so
-				// changing the Model still narrows the Voice list rather than
-				// emptying it (which would drop the saved voice on the next save).
+				// changing the Model narrows the Voice list instead of emptying it.
 				cy.get( 'select#beyondwords_model' ).select( 'v3' );
 				cy.get( 'select#beyondwords_voice_id' )
 					.find( 'option' )
@@ -252,7 +243,6 @@ context( 'Classic Editor: Select Voice', () => {
 			'be.visible'
 		);
 
-		// Returning to the placeholder hides the (empty) Voice dropdown.
 		cy.get( 'select#beyondwords_model' ).select( 'Select a model' );
 		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
 			'not.be.visible'

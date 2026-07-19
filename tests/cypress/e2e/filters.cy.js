@@ -12,7 +12,6 @@ describe( 'WordPress Filters', () => {
 
 	const postTypes = require( '../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -24,8 +23,7 @@ describe( 'WordPress Filters', () => {
 					title: `I can filter Player SDK params for a ${ postType.name }`,
 				} );
 
-				// Frontend should have a player div with expected SDK params from
-				// tests/fixtures/wp-content/plugins/beyondwords-filter-player-sdk-params
+				// Expected SDK params come from the beyondwords-filter-player-sdk-params fixture plugin.
 				cy.viewPostViaSnackbar();
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1, {
@@ -47,7 +45,6 @@ describe( 'WordPress Filters', () => {
 					title: `I can filter Player script onload for a ${ postType.name }`,
 				} );
 
-				// Frontend should have a player div
 				cy.viewPostViaSnackbar();
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
@@ -82,7 +79,6 @@ describe( 'WordPress Filters', () => {
 			// Should have 2 player script tags: auto + footer shortcode
 			cy.hasPlayerInstances( 2 );
 
-			// Verify contexts via the data attribute
 			cy.get( '[data-beyondwords-player-context="auto"]' ).should(
 				'have.length',
 				1

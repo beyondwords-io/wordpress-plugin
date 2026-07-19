@@ -1,27 +1,12 @@
 #!/usr/bin/env bash
 #
-# bump-version.sh — set the plugin version in every place it lives, in one command.
+# bump-version.sh — set the plugin version in every place it lives (see usage()).
 #
-# Usage:
-#   scripts/bump-version.sh <version>
-#
-# Example:
-#   scripts/bump-version.sh 7.0.0-beta.1
-#   scripts/bump-version.sh 7.0.0
-#
-# Updates, atomically-ish (all-or-nothing after validation):
-#   - speechkit.php       plugin header `Version:` line
-#   - speechkit.php       BEYONDWORDS__PLUGIN_VERSION constant
-#   - package.json        "version"
-#   - package-lock.json   root "version" and packages[""]."version"
-#   - readme.txt          "Stable tag:"
-#
-# It does NOT touch the changelog headings (those are curated by hand) and does
-# not create a git commit or tag — run it, review the diff, then commit.
+# Changelog headings are curated by hand, and no git commit or tag is created —
+# run it, review the diff, then commit.
 
 set -euo pipefail
 
-# --- locate the repo root relative to this script, so it works from any cwd ---
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
@@ -45,7 +30,6 @@ EOF
 
 die() { echo "bump-version: error: $*" >&2; exit 1; }
 
-# --- args -------------------------------------------------------------------
 [ $# -eq 1 ] || usage
 NEW="$1"
 
@@ -53,20 +37,18 @@ case "$NEW" in
   -h|--help) usage ;;
 esac
 
-# Semver: MAJOR.MINOR.PATCH with optional -prerelease and +build (dot-separated
-# alphanumeric identifiers). Rejects a leading "v", trailing spaces, etc.
+# Strict semver; rejects a leading "v", trailing spaces, etc.
 if ! printf '%s' "$NEW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?(\+[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$'; then
   die "'$NEW' is not a valid semver version (expected e.g. 7.0.0 or 7.0.0-beta.1)"
 fi
 
-# --- preflight: required tools and files ------------------------------------
 command -v node >/dev/null 2>&1 || die "node is required (used to edit the JSON files safely)"
 command -v perl >/dev/null 2>&1 || die "perl is required"
 for f in "$SPEECHKIT" "$PACKAGE_JSON" "$PACKAGE_LOCK" "$README"; do
   [ -f "$f" ] || die "expected file not found: $f (is the repo layout as expected?)"
 done
 
-# --- current canonical version (from the plugin constant) -------------------
+# The plugin constant is the canonical current version.
 OLD="$(perl -ne "print \$1 if /BEYONDWORDS__PLUGIN_VERSION\x27\s*,\s*\x27([^\x27]*)\x27/" "$SPEECHKIT")"
 [ -n "$OLD" ] || die "could not read the current version from $SPEECHKIT"
 
@@ -77,14 +59,11 @@ fi
 
 echo "bump-version: $OLD -> $NEW"
 
-# --- edit speechkit.php: header line + constant -----------------------------
 NEW="$NEW" perl -i -pe 's{^(\s*\*\s*Version:\s*)\S+}{$1$ENV{NEW}}' "$SPEECHKIT"
 NEW="$NEW" perl -i -pe 's{(BEYONDWORDS__PLUGIN_VERSION\x27\s*,\s*\x27)[^\x27]*}{$1$ENV{NEW}}' "$SPEECHKIT"
 
-# --- edit readme.txt: Stable tag --------------------------------------------
 NEW="$NEW" perl -i -pe 's{^(Stable tag:\s*)\S+}{$1$ENV{NEW}}' "$README"
 
-# --- edit package.json + package-lock.json via node (targeted, keeps format) -
 # Editing the exact JSON paths avoids clobbering any dependency's "version".
 NEW="$NEW" node -e '
   const fs = require("fs");
@@ -103,7 +82,6 @@ NEW="$NEW" node -e '
   }
 '
 
-# --- verify every location now reads NEW ------------------------------------
 declare -a checks=(
   "speechkit.php (header)|$(perl -ne 'print $1 if /^\s*\*\s*Version:\s*(\S+)/' "$SPEECHKIT")"
   "speechkit.php (constant)|$(perl -ne "print \$1 if /BEYONDWORDS__PLUGIN_VERSION\x27\s*,\s*\x27([^\x27]*)\x27/" "$SPEECHKIT")"

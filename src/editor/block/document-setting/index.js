@@ -17,9 +17,8 @@ import PlayAudio from '../../components/play-audio';
 import Stack from '../../components/stack';
 
 export default class DocumentSettingPanel extends Component {
-	// The Voice (Customize/Language/Voice) and Player (Embed) settings are
-	// exposed only in the plugin sidebar; this panel keeps the "Generate audio"
-	// control plus the link to open that sidebar.
+	// Voice and Player settings live only in the plugin sidebar; this panel keeps
+	// "Generate audio" plus the link to open it.
 	render() {
 		return (
 			<PluginDocumentSettingPanel

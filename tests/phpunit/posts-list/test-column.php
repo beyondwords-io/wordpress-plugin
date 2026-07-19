@@ -11,17 +11,11 @@ class ColumnTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -34,12 +28,10 @@ class ColumnTest extends TestCase
 
         do_action('wp_loaded');
 
-        // Post type: post
         $this->assertEquals(10, has_filter('manage_post_posts_columns', array(Column::class, 'render_columns_head')));
         $this->assertEquals(10, has_action('manage_post_posts_custom_column', array(Column::class, 'render_columns_content')));
         $this->assertEquals(10, has_filter('manage_edit-post_sortable_columns', array(Column::class, 'make_column_sortable')));
 
-        // Post type: page
         $this->assertEquals(10, has_filter('manage_page_posts_columns', array(Column::class, 'render_columns_head')));
         $this->assertEquals(10, has_action('manage_page_posts_custom_column', array(Column::class, 'render_columns_content')));
         $this->assertEquals(10, has_filter('manage_edit-page_sortable_columns', array(Column::class, 'make_column_sortable')));

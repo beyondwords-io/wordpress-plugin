@@ -95,13 +95,11 @@ export default compose( [
 		const { getCurrentPostId, getEditedPostAttribute } =
 			select( 'core/editor' );
 
-		// Project ID.
 		const beyondwordsProjectId =
 			getEditedPostAttribute( 'meta' ).beyondwords_project_id;
 		const speechkitProjectId =
 			getEditedPostAttribute( 'meta' ).speechkit_project_id;
 
-		// Content ID.
 		const beyondwordsContentId =
 			getEditedPostAttribute( 'meta' ).beyondwords_content_id;
 		const beyondwordsPodcastId =
@@ -109,7 +107,6 @@ export default compose( [
 		const speechkitPodcastId =
 			getEditedPostAttribute( 'meta' ).speechkit_podcast_id;
 
-		// Other attributes.
 		const beyondwordsPreviewToken =
 			getEditedPostAttribute( 'meta' ).beyondwords_preview_token;
 

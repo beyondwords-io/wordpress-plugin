@@ -31,18 +31,15 @@ export function VoiceSection( { withPanel = true } ) {
 		[]
 	);
 
-	// `useEntityProp` returns `{}` (so `meta` is undefined) until the post entity
-	// record is hydrated; default to an empty object before reading meta values.
+	// `useEntityProp` yields undefined meta until the post entity record is hydrated.
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = rawMeta ?? {};
 
 	const languageCode = meta.beyondwords_language_code || '';
 	const voiceId = meta.beyondwords_body_voice_id || '';
 
-	// "Customize" is opt-in. A post counts as customised as soon as it carries an
-	// explicit language or voice; otherwise it uses the project defaults, we show
-	// no fields and send nothing. Held in local state so toggling on can reveal
-	// the pickers before any choice has been made.
+	// "Customize" is opt-in: a post counts as customised once it carries an explicit
+	// language or voice. Local state so toggling on reveals the pickers pre-choice.
 	const [ customize, setCustomize ] = useState(
 		() => !! ( languageCode || voiceId )
 	);
@@ -55,11 +52,8 @@ export function VoiceSection( { withPanel = true } ) {
 		[]
 	);
 
-	// When Customize is turned on for a post with no explicit choice yet, fetch
-	// the project's default language and pre-select it. We populate only the
-	// Language — the user picks the Voice (a project default voice can belong to
-	// a different language than the one we list). On failure we leave the
-	// Language empty and fall back to the manual "pick a language" flow.
+	// Customize-on with no choice yet: fetch the project default language and seed
+	// only the Language (a project default voice can belong to another language).
 	const needsDefault = customize && ! languageCode && ! voiceId;
 
 	const project = useSelect(
@@ -70,9 +64,8 @@ export function VoiceSection( { withPanel = true } ) {
 		[ needsDefault, projectId ]
 	);
 
-	// True once the project fetch has settled (resolved or failed). Keeps the
-	// spinner up and the Language hidden until we know the default — avoids a
-	// one-frame "empty dropdown then spinner" flicker on the first render.
+	// True once the project fetch has settled; keeps the spinner up until then to
+	// avoid a one-frame "empty dropdown then spinner" flicker.
 	const projectResolved = useSelect(
 		( s ) =>
 			! needsDefault ||
@@ -82,10 +75,8 @@ export function VoiceSection( { withPanel = true } ) {
 		[ needsDefault, projectId ]
 	);
 
-	// Apply the resolved default language. Guarded by needsDefault so it never
-	// overrides an explicit choice, and sets only the language (no voice). Reads
-	// the freshest meta — not the closure's — so a concurrent edit to another
-	// field during the async fetch isn't clobbered.
+	// Apply the resolved default language. Reads the freshest meta — not the
+	// closure's — so a concurrent edit during the async fetch isn't clobbered.
 	useEffect( () => {
 		if ( needsDefault && project?.language ) {
 			const current =
@@ -100,8 +91,7 @@ export function VoiceSection( { withPanel = true } ) {
 
 	const loadingProject = customize && needsDefault && ! projectResolved;
 
-	// Languages and voices are only needed while customising, so they are fetched
-	// lazily behind the toggle — a default post makes no language/voice API calls.
+	// Fetched lazily behind the toggle — a default post makes no language/voice API calls.
 	const languages = useSelect(
 		( s ) =>
 			customize ? s( 'beyondwords/settings' ).getLanguages() : [],
@@ -185,8 +175,7 @@ export function VoiceSection( { withPanel = true } ) {
 		setLanguageCode( first ? first.value : '' );
 	};
 
-	// Toggling Customize off reverts the post to the project defaults by clearing
-	// both choices; toggling on just reveals the (empty) pickers.
+	// Customize off reverts to the project defaults by clearing both choices.
 	const toggleCustomize = () => {
 		const next = ! customize;
 		setCustomize( next );
@@ -226,18 +215,15 @@ export function VoiceSection( { withPanel = true } ) {
 		voiceId
 	);
 
-	// "Model" is a language-level filter: each ElevenLabs model_id, plus a single
-	// "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
-	// Voice list to the voices that offer it. With a single bucket there is no
-	// Model dropdown and every voice is listed.
+	// "Model" is a language-level filter over the voices; with a single bucket
+	// there is no Model dropdown and every voice is listed.
 	const models = getLanguageModels( filteredVoices );
 	const showModel = models.length > 1;
 
 	const selectedVoice = filteredVoices.find(
 		( voice ) => String( voice.id ) === String( voiceId )
 	);
-	// The selected model is derived from the selected voice (we persist only the
-	// voice id); empty until a voice — and therefore a model — is chosen.
+	// Derived from the selected voice — we persist only the voice id.
 	const selectedModelKey = selectedVoice
 		? voiceModelKey( selectedVoice )
 		: '';
@@ -250,8 +236,7 @@ export function VoiceSection( { withPanel = true } ) {
 
 	const hasVoices = filteredVoices.length > 0;
 
-	// Model gates the Voice list: hide Voice until a model is chosen. The
-	// single-bucket case has no Model dropdown, so Voice shows immediately.
+	// Model gates the Voice list: hide Voice until a model is chosen.
 	const showVoice = hasVoices && ( ! showModel || '' !== selectedModelKey );
 
 	const modelOptions = [
@@ -375,8 +360,7 @@ export function VoiceSection( { withPanel = true } ) {
 		</Stack>
 	);
 
-	// In the document/pre-publish panels we render the fields directly inside the
-	// existing "BeyondWords" panel rather than nesting another panel.
+	// Document/pre-publish panels render the fields without nesting another panel.
 	if ( ! withPanel ) {
 		return fields;
 	}

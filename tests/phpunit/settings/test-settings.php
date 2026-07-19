@@ -16,25 +16,20 @@ class SettingsTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
         delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         delete_transient('beyondwords_settings_errors');
         delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
-        // print_settings_errors() is now screen-gated; reset the screen so a
-        // test that sets it does not leak into the review-notice tests, which
-        // rely on no settings screen being active.
+        // print_settings_errors() is screen-gated; reset the screen so it cannot leak
+        // into the review-notice tests, which rely on no settings screen being active.
         unset($GLOBALS['current_screen']);
 
-        // Then...
         parent::tearDown();
     }
 
@@ -286,15 +281,10 @@ class SettingsTest extends TestCase
     }
 
     /**
-     * Regression: a sanitizer-queued error must reach the notice after the
-     * post-save redirect, even with no persistent object cache.
+     * Regression: a sanitizer-queued error must survive the post-save redirect with no persistent object cache.
      *
-     * Reproduces saving the Authentication tab with an empty API key: the
-     * Settings API runs `Fields::sanitize_api_key()` during the options.php
-     * POST, then `wp_redirect()`s to a fresh request that renders the notice.
-     * We model that request boundary with `wp_cache_flush()` — on a host with
-     * no persistent cache, the in-memory object cache is empty on the next
-     * request, which previously dropped the error. The transient survives it.
+     * wp_cache_flush() models the redirect's request boundary, which previously
+     * dropped the error; the transient survives it.
      *
      * @test
      */
@@ -314,16 +304,10 @@ class SettingsTest extends TestCase
     }
 
     /**
-     * Regression: queued errors are drained once rendered, so the same notice
-     * does not re-appear on the next admin page.
+     * Regression: queued errors are drained once rendered, so the notice does not re-appear.
      *
-     * `print_settings_errors()` is hooked to `admin_notices`, which fires on
-     * every admin screen, and the transient lives for 30s. The fix deletes the
-     * transient as soon as it has rendered, so the next request's
-     * `get_transient()` finds nothing and the notice shows exactly once instead
-     * of lingering on unrelated admin pages. Asserting the transient is gone
-     * after a render is the faithful model of that next request, and locks in
-     * the post-render delete so a future change cannot silently drop it.
+     * print_settings_errors() runs on every admin_notices; deleting the transient post-render
+     * makes the notice show exactly once instead of lingering for its 30s TTL.
      *
      * @test
      */
@@ -342,11 +326,8 @@ class SettingsTest extends TestCase
     }
 
     /**
-     * The notice handler is hooked to `admin_notices` (every admin screen) but
-     * must only act on the BeyondWords settings page — the only screen these
-     * errors are queued for. On any other screen it early-returns without even
-     * reading the transient, so a queued error never paints elsewhere and is
-     * left intact to render once the user reaches the settings page.
+     * The admin_notices handler must act only on the BeyondWords settings screen — elsewhere
+     * it early-returns without reading the transient, leaving it intact to render later.
      *
      * @test
      */
@@ -398,7 +379,6 @@ class SettingsTest extends TestCase
      */
     public function rest_api_init_callback()
     {
-        // Initiating the REST API.
         global $wp_rest_server;
         $server = $wp_rest_server = new \WP_REST_Server;
         do_action('rest_api_init');
@@ -474,15 +454,13 @@ class SettingsTest extends TestCase
         $this->assertArrayHasKey('current', $data['inspectMetaKeys']);
         $this->assertArrayHasKey('deprecated', $data['inspectMetaKeys']);
 
-        // Current keys are passed through verbatim from the canonical source.
         $this->assertSame(
             \BeyondWords\Core\Utils::get_post_meta_keys('current'),
             $data['inspectMetaKeys']['current']
         );
 
-        // Deprecated keys are the canonical deprecated set with the internal-only
-        // keys (player config, voice ids, hashes, timestamps) filtered out, so
-        // the Inspect panel keeps surfacing the same legacy fields it always has.
+        // The canonical deprecated set minus internal-only keys (player config, voice ids,
+        // hashes, timestamps) — the Inspect panel keeps surfacing the same legacy fields.
         $expectedDeprecated = [
             'beyondwords_podcast_id',
             'publish_post_to_speechkit',
@@ -502,8 +480,7 @@ class SettingsTest extends TestCase
         ];
         $this->assertSame($expectedDeprecated, $data['inspectMetaKeys']['deprecated']);
 
-        // …and every surfaced key must be a real deprecated key (guards drift if
-        // a key is ever renamed in the canonical list).
+        // Every surfaced key must be a real deprecated key (guards rename drift).
         $this->assertEmpty(
             array_diff(
                 $data['inspectMetaKeys']['deprecated'],
@@ -533,8 +510,7 @@ class SettingsTest extends TestCase
         $response = $server->dispatch(new \WP_REST_Request('GET', $path));
         $this->assertSame(401, $response->get_status());
 
-        // Editor sees the proxied video_settings payload, including the
-        // `sizes` array the editor uses for the "Video size" dropdown.
+        // Editor sees the proxied payload, including the `sizes` array for the Video size dropdown.
         $userId = self::factory()->user->create(['role' => 'editor']);
         wp_set_current_user($userId);
 

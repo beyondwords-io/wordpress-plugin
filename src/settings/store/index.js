@@ -4,13 +4,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore } from '@wordpress/data';
 
-// Shared editor state, fetched lazily by the resolvers below; each key has a
-// matching selector. Most keys hold a single session-wide value. `voices`,
-// `videoSizes` and `project` are maps keyed by their resolver's argument:
-// @wordpress/data marks resolution finished per selector-args, so each
-// argument's result needs its own slot — with one shared slot, a later fetch
-// (say, another language's voices) would overwrite it while the resolution
-// cache keeps reporting the overwritten entry as fresh.
+// `voices`/`videoSizes`/`project` are keyed by resolver argument: resolution is
+// cached per selector-args, so a shared slot would go stale yet report fresh.
 export const DEFAULT_STATE = {
 	settings: {},
 	languages: [],
@@ -27,8 +22,7 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 		const empty = Array.isArray( DEFAULT_STATE[ action.key ] ) ? [] : {};
 		return { ...state, [ action.key ]: action.value || empty };
 	}
-	// Merge one argument's result into a per-argument key, leaving the other
-	// arguments' entries untouched.
+	// Merge one argument's result, leaving other arguments' entries untouched.
 	if ( action.type === 'SET_BY' && action.key in state ) {
 		return {
 			...state,
@@ -41,8 +35,6 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 	return state;
 };
 
-// The per-argument selectors (voices, video sizes, project) read the entry for
-// the requested argument only, with an empty value while it is unfetched.
 const selectors = {
 	getSettings: ( state ) => state.settings,
 	getLanguages: ( state ) => state.languages,
@@ -53,8 +45,7 @@ const selectors = {
 	getProject: ( state, projectId ) => state.project[ projectId ] ?? {},
 };
 
-// Both action shapes are private to this store — it registers no `actions`,
-// so the resolvers below are the only dispatchers.
+// Private to this store — no registered `actions`; only resolvers dispatch.
 const set = ( key, value ) => ( { type: 'SET', key, value } );
 const setBy = ( key, arg, value ) => ( { type: 'SET_BY', key, arg, value } );
 
@@ -94,8 +85,7 @@ const resolvers = {
 		} );
 		return setBy( 'videoSizes', projectId, r?.sizes ?? [] );
 	},
-	// The project carries the default `language` used to pre-select the Language
-	// dropdown when Customize is enabled. Fetched on demand (behind the toggle).
+	// The project's default `language` pre-selects the Language dropdown.
 	async getProject( projectId ) {
 		if ( ! projectId ) {
 			return setBy( 'project', projectId, {} );

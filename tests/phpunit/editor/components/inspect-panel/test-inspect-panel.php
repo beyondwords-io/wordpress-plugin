@@ -17,10 +17,8 @@ class InspectTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         set_current_screen('index.php');
 
         // save() requires a user who can edit the post.
@@ -32,9 +30,6 @@ class InspectTest extends TestCase
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -94,7 +89,7 @@ class InspectTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Get post meta including meta_ids, needed below
+        // has_meta() includes the meta_ids needed for the input selectors below.
         $meta = has_meta($post->ID);
 
         foreach ($meta as $data) {
@@ -102,7 +97,7 @@ class InspectTest extends TestCase
                 continue;
             }
 
-            // Remove from post meta array so we can check they are all output later
+            // Remove each rendered key so the assertEmpty() below proves all were output.
             unset($postMeta[$data['meta_key']]);
 
             $nameInput = $crawler->filter('input#beyondwords-inspect-'.$data['meta_id'].'-key');
@@ -113,7 +108,6 @@ class InspectTest extends TestCase
             $valueTextarea = $crawler->filter('textarea#beyondwords-inspect-'.$data['meta_id'].'-value');
 
             if ($data['meta_key'] === 'post_id') {
-                // Special case for WordPress Post ID
                 $expect = "$post->ID";
             } else {
                 $expect = get_post_meta($post->ID, $data['meta_key'], true);
@@ -123,7 +117,6 @@ class InspectTest extends TestCase
             $this->assertEquals($expect, html_entity_decode($valueTextarea->html()));
         }
 
-        // Assert all post meta has been output
         $this->assertEmpty($postMeta);
 
         wp_delete_post($post->ID, true);

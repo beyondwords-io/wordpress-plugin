@@ -8,12 +8,10 @@ class ContentTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // A project id is required for Client::get_video_settings() (used when
-        // building the video_settings payload) to resolve a project and return
-        // the mocked defaults rather than false.
+        // Client::get_video_settings() needs a project id to resolve a project and
+        // return the mocked defaults rather than false.
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
@@ -23,7 +21,6 @@ class ContentTest extends TestCase
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -107,9 +104,8 @@ class ContentTest extends TestCase
             'post_content' => $content,
         ]);
 
-        // Newer Gutenberg adds class="wp-block-paragraph" to rendered
-        // paragraphs; strip it so the assertion tracks block-exclusion logic,
-        // not core markup churn.
+        // Newer Gutenberg adds class="wp-block-paragraph"; strip it so the assertion
+        // tracks block-exclusion logic, not core markup churn.
         $actual = str_replace(' class="wp-block-paragraph"', '', Content::get_content_without_excluded_blocks($post));
 
         $this->assertSame($expect, $actual);
@@ -145,12 +141,9 @@ class ContentTest extends TestCase
     /**
      * @test
      *
-     * Passing a post ID (int) must behave identically to passing the WP_Post
-     * object — the method resolves the argument internally like its siblings.
-     *
-     * Regression test: previously an int argument fell straight through to
-     * `$post->post_content`, emitting a PHP warning ("Attempt to read property
-     * on int") and returning an empty string instead of the post content.
+     * Passing a post ID (int) must behave identically to passing the WP_Post object.
+     * Regression: an int fell through to `$post->post_content`, emitting a PHP
+     * warning and returning an empty string instead of the content.
      */
     public function get_content_without_excluded_blocks_accepts_post_id()
     {
@@ -194,7 +187,7 @@ class ContentTest extends TestCase
      */
     public function get_post_body($postType, $postContent, $expected)
     {
-        // A shortcode which tests both attribues and content
+        // A shortcode which tests both attributes and content
         add_shortcode('shortcode_test', function($atts, $content="") {
             return sprintf('<em>%s, %s, %s</em>', strtolower($atts['to_lower']), strtoupper($atts['to_upper']), $content);
         });
@@ -314,19 +307,15 @@ class ContentTest extends TestCase
         ];
     }
 
-    /**
-     *
-     */
     public function exported_data_helper($path)
     {
         $handle = fopen($path, 'r');
 
         $output = [];
 
-        // Ignore first line of CSV
+        // Skip the CSV header line.
         fgetcsv($handle, 0, ',', '"', "\0");
 
-        // Process remaining lines
         while (($data = fgetcsv($handle, 0, ',', '"', "\0")) !== false) {
             // Only test Posts with a state of "Processed"
             if (strtolower($data[11]) == 'processed') {
@@ -337,9 +326,6 @@ class ContentTest extends TestCase
         return $output;
     }
 
-    /**
-     *
-     */
     public function has_generate_audio_provider()
     {
         return [
@@ -362,7 +348,6 @@ class ContentTest extends TestCase
      **/
     public function get_content_params()
     {
-        // Create the user
         $user = self::factory()->user->create_and_get([
             'role' => 'editor',
             'display_name' => 'Jane Smith',
@@ -502,12 +487,10 @@ class ContentTest extends TestCase
         $this->assertArrayHasKey('video_settings', $body);
         $this->assertTrue($body['video_settings']['enabled']);
 
-        // The backend skips generation unless `variants` is non-empty, so we
-        // echo the project defaults.
+        // The backend skips generation unless `variants` is non-empty, so we echo the project defaults.
         $this->assertSame(['article', 'summary'], $body['video_settings']['variants']);
 
-        // The full project `sizes` are sent (each carrying width/height), with
-        // only the chosen size enabled.
+        // Full project `sizes` are sent (with width/height); only the chosen size is enabled.
         $this->assertSame(
             [
                 ['name' => 'landscape', 'width' => 1920, 'height' => 1080, 'enabled' => true],
@@ -571,11 +554,8 @@ class ContentTest extends TestCase
      *
      * @group getContentParams
      *
-     * Regression test: the plugin previously sent a partial payload (only
-     * `enabled` + `template.id` + `sizes[].name`/`enabled`) which left `variants`
-     * empty server-side, so the BeyondWords backend silently skipped video
-     * generation. The full object must always carry non-empty `variants` and
-     * `sizes` whose entries include `width`/`height`.
+     * Regression: a partial payload left `variants` empty server-side, so the backend
+     * silently skipped video generation. Must carry non-empty variants and full sizes.
      **/
     public function get_content_params_video_settings_always_carry_variants_and_sized_entries()
     {
@@ -639,7 +619,6 @@ class ContentTest extends TestCase
      **/
     public function get_content_params_for_pending_review_status()
     {
-        // Create the user
         $user = self::factory()->user->create_and_get([
             'role' => 'editor',
             'display_name' => 'Jane Smith',
@@ -672,13 +651,9 @@ class ContentTest extends TestCase
         $this->assertArrayHasKey('published', $body);
         $this->assertFalse($body['published']);
 
-        /*
-         * Posts with "Pending Review" status will not have a `publish_date` date because
-         * get_post_time() returns `false` for posts which are "Pending Review".
-         */
+        // No `publish_date`: get_post_time() returns false for "Pending Review" posts.
         $this->assertArrayNotHasKey('publish_date', $body);
 
-        // Set auto-publish to false
         update_option('beyondwords_project_auto_publish_enabled', false);
 
         $body = Content::get_content_params($postId);
@@ -707,10 +682,8 @@ class ContentTest extends TestCase
         ]);
 
         $filter = function($params, $postId) {
-            // Custom body
             $params['body'] = '[POST ID: ' . $postId. ']' . $params['body'] . '[ADDED AFTER]';
 
-            // Custom metadata
             $params['metadata']->custom = $postId;
 
             return $params;
@@ -763,13 +736,11 @@ class ContentTest extends TestCase
         $flatTaxonomy = 'flat';
         $hierarchicalTaxonomy = 'hierarchical';
 
-        // Create flat taxonomy & terms (Tag-like)
         register_taxonomy($flatTaxonomy, 'post');
         foreach (['flat1', 'flat2', 'flat3'] as $term) {
             wp_insert_term($term, $flatTaxonomy);
         }
 
-        // Create hierarchical taxonomy & terms (Category-like)
         register_taxonomy($hierarchicalTaxonomy, 'post', ['hierarchical' => true]);
         $hierarchicalTerms = [];
         foreach (['hier1', 'hier2', 'hier3'] as $term) {
@@ -782,7 +753,6 @@ class ContentTest extends TestCase
 
         wp_set_current_user($editor);
 
-        // Create a post with selected terms
         $postId = self::factory()->post->create([
             'post_title' => 'Testing Content::get_all_taxonomies_and_terms()',
             'post_status' => 'publish',
@@ -818,7 +788,6 @@ class ContentTest extends TestCase
     {
         $name = 'Jane Smith';
 
-        // Create the user
         $user = self::factory()->user->create_and_get([
             'role' => 'editor',
             'display_name' => $name,

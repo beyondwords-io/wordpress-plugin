@@ -1,9 +1,6 @@
 <?php
 /**
- * BeyondWords settings page.
- *
- * Owns the admin menu entry, the tabbed settings form, the REST endpoint
- * the editor scripts read, and the admin notices that surround them.
+ * BeyondWords settings page: admin menu, tabbed form, REST endpoints, notices.
  *
  * @package BeyondWords\Settings
  *
@@ -127,8 +124,7 @@ class Settings {
 	}
 
 	/**
-	 * Show a banner directing publishers to the settings page until creds
-	 * are entered.
+	 * Show a banner pointing to the settings page until creds are entered.
 	 */
 	public static function maybe_print_missing_creds_warning(): void {
 		if ( Utils::has_api_creds() ) {
@@ -166,8 +162,7 @@ class Settings {
 	}
 
 	/**
-	 * Show the once-only "leave us a review" notice on the settings page,
-	 * 14+ days after activation.
+	 * Show the once-only review notice 14+ days after activation.
 	 */
 	public static function maybe_print_review_notice(): void {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
@@ -208,16 +203,8 @@ class Settings {
 	/**
 	 * Drain queued settings errors into a notice.
 	 *
-	 * Hooked to `admin_notices`, which fires on every admin screen, so this
-	 * early-returns unless we are on the BeyondWords settings page — the only
-	 * screen these errors are ever queued for (the sanitizers redirect back
-	 * here, and the connection check runs on this page's load hook). Gating it
-	 * this way avoids a transient read on every unrelated admin page and stops
-	 * a queued error from painting on another screen before it is drained.
-	 *
-	 * Errors are queued via `Utils::add_settings_error_message()` into a
-	 * transient that survives the post-save redirect, then drained here and
-	 * rendered as a single `notice notice-error`.
+	 * `admin_notices` fires on every admin screen, so this early-returns off the
+	 * settings page — the only screen the errors are ever queued for.
 	 */
 	public static function print_settings_errors(): void {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
@@ -343,13 +330,8 @@ class Settings {
 	/**
 	 * Meta keys surfaced in the editor Inspect panel.
 	 *
-	 * Sourced from \BeyondWords\Core\Utils::get_post_meta_keys() so the block
-	 * editor never duplicates the canonical key lists — keeping it in step with
-	 * the Classic editor, which calls the same method directly.
-	 *
-	 * The deprecated set is the full deprecated list minus internal-only keys
-	 * (player config, voice ids, hashes, timestamps) that have never been shown
-	 * in the Inspect panel. array_diff preserves the canonical order.
+	 * Sourced from the canonical lists in \BeyondWords\Core\Utils, minus
+	 * internal-only keys that have never been shown in the panel.
 	 *
 	 * @since 7.0.0
 	 *
@@ -393,8 +375,7 @@ class Settings {
 	/**
 	 * Proxy for the BeyondWords video settings endpoint.
 	 *
-	 * Editor scripts use the `sizes` array in the response to populate the
-	 * "Video size" dropdown.
+	 * Editor scripts read the `sizes` array to populate the "Video size" dropdown.
 	 *
 	 * @since 7.0.0
 	 *
@@ -410,8 +391,7 @@ class Settings {
 	/**
 	 * Proxy for the BeyondWords project endpoint.
 	 *
-	 * Editor scripts read the project's default `language` to pre-select the
-	 * Language dropdown when "Customize" is enabled.
+	 * Editor scripts read the project's default `language` for the Language dropdown.
 	 *
 	 * @since 7.0.0
 	 *

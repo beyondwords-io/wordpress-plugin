@@ -2,14 +2,7 @@
 
 /*
  * Classic-editor dynamic behaviour for the Content/Format/Player settings
- * fields. Mirrors the block editor's settings-panel logic
- * (src/editor/components/settings-panel/helpers.js):
- *
- * - Source toggles the Script template field.
- * - Output toggles the Video template + Video size fields.
- * - Embed options are derived from Source × Output and recomputed live.
- *
- * Vanilla JS — no jQuery dependency.
+ * fields (show/hide + Embed recompute). Mirrors settings-panel/helpers.js.
  */
 ( function () {
 	'use strict';

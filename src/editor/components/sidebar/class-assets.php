@@ -2,8 +2,6 @@
 /**
  * BeyondWords Post Sidebar — asset enqueue.
  *
- * Owns the block-editor stylesheet for the post sidebar plugin slot.
- *
  * @package BeyondWords\Editor\Components\Sidebar
  * @since   7.0.0
  */

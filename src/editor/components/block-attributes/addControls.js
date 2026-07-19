@@ -33,8 +33,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 		return ( props ) => {
 			const { name } = props;
 
-			// Skip blocks that shouldn't have controls
-			// Do this check BEFORE accessing attributes to avoid unnecessary processing
+			// Check BEFORE accessing attributes to avoid unnecessary processing.
 			if ( ! isBeyondwordsSupportedBlock( name ) ) {
 				return <BlockEdit { ...props } />;
 			}

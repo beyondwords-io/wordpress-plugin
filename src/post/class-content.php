@@ -20,17 +20,15 @@ class Content {
 	public const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
 
 	/**
-	 * Get the content "body" param for the audio, ready to be sent to the
-	 * BeyondWords API.
+	 * Get the content "body" param for the audio.
 	 *
-	 * From API version 1.1 the "summary" param is going to be used differently,
-	 * so for WordPress we now prepend the WordPress excerpt to the "body" param.
+	 * The excerpt is prepended to the body because API v1.1 repurposed the
+	 * "summary" param.
 	 *
+	 * @since 4.6.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
-	 *
-	 * @since 4.6.0
 	 *
 	 * @return string The content body param.
 	 */
@@ -80,32 +78,26 @@ class Content {
 		$content = self::get_content_without_excluded_blocks( $post );
 
 		if ( has_blocks( $post ) ) {
-			// wpautop breaks our HTML markup when block editor paragraphs are empty
+			// wpautop breaks our HTML markup when block editor paragraphs are empty,
+			// but we still want to remove the empty lines it would have handled.
 			remove_filter( 'the_content', 'wpautop' );
 
-			// But we still want to remove empty lines
 			$content = preg_replace( '/^\h*\v+/m', '', $content );
 		}
 
-		// Apply the_content filters to handle shortcodes etc
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
 		$content = apply_filters( 'the_content', $content );
 
-		// Trim to remove trailing newlines – common for WordPress content
 		return trim( $content );
 	}
 
 	/**
 	 * Get the post summary wrapper format.
 	 *
-	 * This is a <div> with optional attributes depending on the BeyondWords
-	 * data of the post.
-	 *
+	 * @since 4.6.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
-	 *
-	 * @since 4.6.0
 	 *
 	 * @return string The summary wrapper <div>.
 	 */
@@ -122,12 +114,11 @@ class Content {
 	/**
 	 * Get the post summary for the audio content.
 	 *
+	 * @since 4.0.0
+	 * @since 4.6.0 Renamed from Content::getSummary() to Content::get_post_summary()
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
-	 *
-	 * @since 4.0.0
-	 * @since 4.6.0 Renamed from Content::getSummary() to Content::get_post_summary()
 	 *
 	 * @return string The summary.
 	 */
@@ -140,16 +131,12 @@ class Content {
 
 		$summary = null;
 
-		// Optionally send the excerpt to the REST API, if the plugin setting has been checked
 		$prepend_excerpt = get_option( 'beyondwords_prepend_excerpt' );
 
 		if ( $prepend_excerpt && has_excerpt( $post ) ) {
-			// Escape characters
 			$summary = htmlentities( $post->post_excerpt, ENT_QUOTES | ENT_XHTML );
-			// Apply WordPress filters
             // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
 			$summary = apply_filters( 'get_the_excerpt', $summary );
-			// Convert line breaks into paragraphs
 			$summary = trim( wpautop( $summary ) );
 		}
 
@@ -157,20 +144,14 @@ class Content {
 	}
 
 	/**
-	 * Get the post content without blocks which have been filtered.
-	 *
-	 * We have added buttons into the Gutenberg editor to optionally exclude selected
-	 * blocks from the source text for audio.
-	 *
-	 * This method filters all blocks, removing any which have been excluded.
-	 *
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @param int|\WP_Post $post The WordPress post ID, or post object.
+	 * Get the post content without the blocks an editor excluded from audio.
 	 *
 	 * @since 3.8.0
 	 * @since 4.0.0 Replace for loop with array_reduce
 	 * @since 6.0.0 Remove beyondwordsMarker attribute from rendered blocks.
+	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 *
+	 * @param int|\WP_Post $post The WordPress post ID, or post object.
 	 *
 	 * @return string The post body without excluded blocks.
 	 */
@@ -199,12 +180,11 @@ class Content {
 	/**
 	 * Get audio-enabled blocks.
 	 *
+	 * @since 4.0.0
+	 * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
-	 *
-	 * @since 4.0.0
-	 * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
 	 *
 	 * @return array The blocks.
 	 */
@@ -252,7 +232,7 @@ class Content {
 	 * @static
 	 * @param int $post_id WordPress Post ID.
 	 *
-	 * @return string JSON endoded params.
+	 * @return string JSON encoded params.
 	 **/
 	public static function get_content_params( int $post_id ): array|string {
 		$body = [
@@ -269,14 +249,8 @@ class Content {
 
 		$status = get_post_status( $post_id );
 
-		/*
-		 * If the post status is draft/pending then we explicity send
-		 * { published: false } to the BeyondWords API, to prevent the
-		 * generated audio from being published in playlists.
-		 *
-		 * We also omit { publish_date } because get_post_time() returns `false`
-		 * for posts which are "Pending Review".
-		 */
+		// Drafts send { published: false } to keep the audio out of playlists, and
+		// omit publish_date because get_post_time() is false for pending posts.
 		if ( in_array( $status, [ 'draft', 'pending'] ) ) {
 			$body['published'] = false;
 			unset( $body['publish_date'] );
@@ -285,8 +259,6 @@ class Content {
 			 * Filters whether generated content is auto-published to BeyondWords.
 			 *
 			 * Replaces the v6.x `beyondwords_project_auto_publish_enabled` setting.
-			 * Default `true` matches the previous default; sites that need to keep
-			 * generated content as drafts can return `false`.
 			 *
 			 * @since 7.0.0
 			 *
@@ -300,19 +272,15 @@ class Content {
 			}
 		}
 
-		// The post language is never sent to the API. A chosen voice already
-		// implies its language, so sending the voice id is sufficient; when no
-		// voice is chosen ("Customize" off) we send nothing and the BeyondWords
-		// project default applies. `beyondwords_language_code` is retained only as
-		// editor state, used to fetch the per-language voice list.
+		// The language is never sent: a chosen voice implies it, and with no voice
+		// the project default applies. `beyondwords_language_code` is editor state only.
 		$body_voice_id = intval( get_post_meta( $post_id, 'beyondwords_body_voice_id', true ) );
 
 		if ( $body_voice_id > 0 ) {
 			$body['body_voice_id'] = $body_voice_id;
 		}
 
-		// Source = Script or Post + script → enable summarization so the API
-		// generates a script segment alongside the post body. Omitted when
+		// Source = Script or Post + script → enable summarization; omitted when
 		// Source is Post (or unset) so the project default applies.
 		$source = get_post_meta( $post_id, 'beyondwords_source', true );
 
@@ -330,7 +298,6 @@ class Content {
 			}
 		}
 
-		// Output = Video or Audio + video → enable video generation.
 		$output = get_post_meta( $post_id, 'beyondwords_output', true );
 
 		if ( in_array( $output, [ 'video', 'audio_and_video' ], true ) ) {
@@ -354,22 +321,9 @@ class Content {
 	/**
 	 * Build the `video_settings` param sent to the BeyondWords content endpoint.
 	 *
-	 * Choosing "Video" (or "Audio + video") output opts a post into video
-	 * generation, overriding the project's default `video_settings.enabled`.
-	 *
-	 * The BeyondWords backend silently skips video generation unless the payload
-	 * carries `enabled: true` AND a non-empty `variants` array AND a non-empty
-	 * `sizes` array whose entries include `width`/`height`. Earlier versions sent
-	 * only `template.id` and `sizes[].name`/`enabled`, which left `variants` empty
-	 * server-side — so no video was ever produced.
-	 *
-	 * We mirror the BeyondWords dashboard, which sends the full object whenever a
-	 * user customises video: seed the payload from the project's default video
-	 * settings (fetched once and cached by the API client), then layer the post's
-	 * own choices on top — the chosen size becomes the only enabled size, and the
-	 * chosen video template overrides the project default. Anything the post
-	 * doesn't customise (variants, and the size dimensions) is echoed straight
-	 * from the project defaults.
+	 * The backend silently skips video generation unless the payload has `enabled:
+	 * true` plus non-empty `variants` and `sizes` (with dimensions), so we seed
+	 * from the project defaults and layer the post's choices on top. See doc/video-settings-payload.md.
 	 *
 	 * @since 7.0.0
 	 *
@@ -378,25 +332,21 @@ class Content {
 	 * @return array<string, mixed> The `video_settings` param.
 	 */
 	private static function get_video_settings_params( int $post_id ): array {
-		// Fetch the defaults for the project this post publishes to — which may
-		// be a per-post override of the global project — so the variants and size
-		// dimensions match the project the content POST actually targets.
+		// The post's project may be a per-post override of the global one.
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$defaults   = \BeyondWords\Api\Client::get_video_settings( is_numeric( $project_id ) ? (int) $project_id : null );
 		$defaults   = is_array( $defaults ) ? $defaults : [];
 
 		$settings = [ 'enabled' => true ];
 
-		// `variants` — echo the project defaults. The backend needs a non-empty
-		// list here or it skips generation, and the plugin exposes no per-post
-		// variant control, so the project default is the correct value to send.
+		// The backend needs a non-empty `variants`; there is no per-post variant
+		// control, so echo the project defaults.
 		if ( ! empty( $defaults['variants'] ) && is_array( $defaults['variants'] ) ) {
 			$settings['variants'] = array_values( $defaults['variants'] );
 		}
 
-		// `sizes` — echo the project's sizes (carrying the width/height the
-		// backend requires), toggling `enabled` to the post's chosen size when one
-		// is set, otherwise keeping each size's project default.
+		// Echo the project sizes (the backend requires width/height), enabling
+		// only the post's chosen size when one is set.
 		$video_size    = (string) get_post_meta( $post_id, 'beyondwords_video_size', true );
 		$default_sizes = ( isset( $defaults['sizes'] ) && is_array( $defaults['sizes'] ) ) ? $defaults['sizes'] : [];
 
@@ -421,8 +371,7 @@ class Content {
 			$settings['sizes'] = $sizes;
 		}
 
-		// `template` — the post's chosen video template, or omit to defer to the
-		// project default template.
+		// Omit `template` to defer to the project default.
 		$video_template_id = intval( get_post_meta( $post_id, 'beyondwords_video_template_id', true ) );
 
 		if ( $video_template_id > 0 ) {
@@ -435,14 +384,7 @@ class Content {
 	/**
 	 * Get the post metadata to send with BeyondWords API requests.
 	 *
-	 * The metadata key is defined by the BeyondWords API as "A custom object
-	 * for storing meta information".
-	 *
-	 * The metadata values are used to create filters for playlists in the
-	 * BeyondWords dashboard.
-	 *
-	 * We currently only include taxonomies by default, and the output of this
-	 * method can be filtered using the `beyondwords_post_metadata` filter.
+	 * The values are used to create playlist filters in the BeyondWords dashboard.
 	 *
 	 * @since 3.3.0
 	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils.
@@ -467,15 +409,6 @@ class Content {
 
 	/**
 	 * Get all taxonomies, and their selected terms, for a post.
-	 *
-	 * Returns an associative array of taxonomy names and terms.
-	 *
-	 * For example:
-	 *
-	 * array(
-	 *     "categories" => array("Category 1"),
-	 *     "post_tag" => array("Tag 1", "Tag 2", "Tag 3"),
-	 * )
 	 *
 	 * @since 3.3.0
 	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils

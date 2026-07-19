@@ -18,3 +18,18 @@ PHP, custom JavaScript, and SVG files. We do not review HTML, CSS, SASS, many
 popular third-party JavaScript libraries, or built JavaScript files.
 
 See [Developing with VIP](https://wpvip.com/documentation/developing-with-vip)
+
+##  Object-cache notes
+
+On hosts with an external object cache (VIP uses Memcached), transients are not
+stored as `_transient_*` rows in the options table, so they cannot be
+enumerated or bulk-deleted. This is why:
+
+- the uninstaller's transient cleanup only deletes known keys — anything else
+  holds a TTL and self-expires;
+- the API client salts its cache keys with the project ID + API key
+  (`Client::cache_key()`), so changing credentials invalidates the cache
+  implicitly with no flush step.
+
+See also [async-rest-migration.md](./async-rest-migration.md) for the
+VIP-gated background (cron) audio generation.

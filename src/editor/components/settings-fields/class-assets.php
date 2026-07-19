@@ -2,10 +2,6 @@
 /**
  * BeyondWords Settings Fields — asset enqueue.
  *
- * Owns the classic-editor JS that wires up the Content/Format/Player <select>
- * controls (show/hide + Embed option recompute). Split from
- * [class-settings-fields.php](class-settings-fields.php).
- *
  * @package BeyondWords\Editor\Components\SettingsFields
  * @since   7.0.0
  */

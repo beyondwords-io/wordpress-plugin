@@ -117,9 +117,8 @@ class ContentId {
 		}
 
 		if ( isset( $_POST['beyondwords_content_id'] ) ) {
-			// Content IDs are interpolated into BeyondWords API URL paths, so they
-			// need a stricter charset than sanitize_text_field() alone allows —
-			// see \BeyondWords\Post\Meta::sanitize_content_id().
+			// Content IDs are interpolated into API URL paths, so they need a stricter
+			// charset than sanitize_text_field() — see Meta::sanitize_content_id().
 			update_post_meta(
 				$post_id,
 				'beyondwords_content_id',

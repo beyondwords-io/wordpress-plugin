@@ -8,12 +8,8 @@
 /**
  * Block-editor Settings panel: Content, Format, Voice (+ Model), Player.
  *
- * Targets the SelectControl className hooks (`beyondwords--source` etc.), which
- * are unique and only rendered when their control is shown — so a missing
- * control is asserted with `should('not.exist')`. The document-setting panel's
- * Voice/Player sections aren't mounted while the plugin sidebar is open, so the
- * hooks resolve to a single element. `.select()` is forced because the section
- * PanelBody may be collapsed/scrolled.
+ * Asserts via the unique `beyondwords--*` className hooks; `.select()` is
+ * forced because the section PanelBody may be collapsed/scrolled.
  */
 context( 'Block Editor: Settings panel', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
@@ -34,8 +30,7 @@ context( 'Block Editor: Settings panel', () => {
 				cy.createPost( { postType } );
 				cy.openBeyondwordsPluginSidebar();
 
-				// Generate audio toggle sits at the top of the Content panel,
-				// above Source.
+				// Generate audio sits above Source at the top of the Content panel.
 				cy.get( '.beyondwords--generate-audio' ).should( 'exist' );
 				cy.get( '.beyondwords--generate-audio, .beyondwords--source' )
 					.first()
@@ -54,7 +49,6 @@ context( 'Block Editor: Settings panel', () => {
 				// Script template hidden while Source = Post.
 				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
 
-				// Switching to Script reveals it, Project default first.
 				select( 'beyondwords--source' ).select( 'Script', {
 					force: true,
 				} );
@@ -126,8 +120,7 @@ context( 'Block Editor: Settings panel', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'American' );
 
-				// Model is a language-level filter: each ElevenLabs model plus a
-				// "Standard" bucket, "Select a model" first. The Voice list is
+				// Model is a language-level filter; the Voice list stays
 				// hidden until a model is chosen.
 				select( 'beyondwords--model' )
 					.find( 'option' )

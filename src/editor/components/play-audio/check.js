@@ -4,8 +4,7 @@
 import { useHasPlayAudioAction } from './hooks';
 
 /**
- * Renders its children only when the BeyondWords player has everything it
- * needs to load a preview.
+ * Renders its children only when the BeyondWords player can load a preview.
  *
  * @param {Object}  props          Component props.
  * @param {Element} props.children Content to gate behind the play-audio check.

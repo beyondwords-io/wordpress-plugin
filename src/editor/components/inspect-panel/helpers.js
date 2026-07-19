@@ -3,14 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 
-// Diagnostics appended to the copied payload only. These are always present (the
-// plugin/WP versions and the post id), so they are never counted as removable
-// post data when deciding whether the Remove button should be enabled.
-//
-// The current + deprecated *data* keys are NOT defined here on purpose — they are
-// the single source of truth in PHP (\BeyondWords\Core\Utils::get_post_meta_keys)
-// and reach the block editor via the beyondwords/settings store, so the two
-// editors can never drift apart.
+// Always-present diagnostics appended to the copied payload only — never counted
+// as removable post data. The data-key lists stay in PHP (single source of truth).
 export const SYSTEM_META_KEYS = [
 	'plugin_version',
 	'wp_version',
@@ -20,9 +14,8 @@ export const SYSTEM_META_KEYS = [
 /**
  * Does the post hold any BeyondWords data worth removing?
  *
- * Checks the live data fields only (current + deprecated, supplied from PHP),
- * never the always-present system fields, so the Remove button tracks the post's
- * current state rather than a snapshot taken at mount.
+ * Checks the data fields only (never the always-present system fields), so the
+ * Remove button tracks the post's current state, not a mount-time snapshot.
  *
  * @param {Object}   meta     Live custom-field values keyed by field name.
  * @param {string[]} dataKeys Current + deprecated meta keys (sourced from PHP).
@@ -34,9 +27,8 @@ export const hasBeyondwordsData = ( meta, dataKeys = [] ) =>
 /**
  * Build the plain-text diagnostics payload for the Copy button.
  *
- * Reads the same live `meta` object as {@link hasBeyondwordsData} so the Copy and
- * Remove controls can never disagree about the post's data. The key lists are
- * supplied by the caller (sourced from PHP) and rendered in the order given.
+ * Reads the same live `meta` as {@link hasBeyondwordsData} so Copy and Remove
+ * can never disagree; the key lists render in the order supplied.
  *
  * @param {Object}   meta           Live values keyed by field name (incl. system).
  * @param {string[]} currentKeys    Current meta keys, in display order.

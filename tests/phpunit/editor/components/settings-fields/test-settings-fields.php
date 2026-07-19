@@ -272,8 +272,7 @@ class SettingsFieldsTest extends TestCase
         $labels = $crawler->filter('select#beyondwords_embed option')->each(fn ($node) => $node->text());
         $this->assertSame(['None', 'Audio (post)'], $labels);
 
-        // With no stored value the first asset is selected (player shows) rather
-        // than None.
+        // With no stored value the first asset is selected (player shows) rather than None.
         $this->assertSame(
             'audio_post',
             $crawler->filter('select#beyondwords_embed option[selected]')->attr('value')
@@ -393,8 +392,7 @@ class SettingsFieldsTest extends TestCase
     {
         $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::save_cap']);
 
-        // A subscriber cannot edit the post, so nothing is written even with a
-        // valid nonce.
+        // A subscriber cannot edit the post, so nothing is written even with a valid nonce.
         wp_set_current_user(self::factory()->user->create(['role' => 'subscriber']));
 
         $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');

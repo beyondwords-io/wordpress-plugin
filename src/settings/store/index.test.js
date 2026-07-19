@@ -72,8 +72,7 @@ describe( 'beyondwords/settings store', () => {
 				VOICES.fr_FR
 			);
 
-			// Re-reading A must still return A's voices, not B's — no refetch is
-			// dispatched because resolution for [ 'en_US' ] is already finished.
+			// No refetch on re-read — resolution for [ 'en_US' ] is finished.
 			const select = registry.select( STORE );
 			expect( select.getVoices( 'en_US' ) ).toEqual( VOICES.en_US );
 			expect( select.getVoices( 'fr_FR' ) ).toEqual( VOICES.fr_FR );

@@ -6,27 +6,21 @@ use BeyondWords\Player\Renderer\Base;
 use \Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Class Amp
- *
- * Renders the AMP-compatible BeyondWords player.
+ * Class BaseTest
  */
 class BaseTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         delete_option('beyondwords_project_id');
 
-        // Then...
         parent::tearDown();
     }
 

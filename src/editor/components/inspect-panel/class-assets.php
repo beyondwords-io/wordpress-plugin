@@ -2,10 +2,6 @@
 /**
  * BeyondWords Inspect Panel — asset enqueue.
  *
- * Owns the classic-editor JS for the Inspect metabox. Split from
- * [class-inspect-panel.php](class-inspect-panel.php) so each feature folder has
- * a single class responsible for asset registration.
- *
  * @package BeyondWords\Editor\Components\InspectPanel
  * @since   7.0.0
  */

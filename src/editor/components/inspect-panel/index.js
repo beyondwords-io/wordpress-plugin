@@ -20,7 +20,6 @@ import Stack from '../stack';
 import { getTextToCopy, hasBeyondwordsData } from './helpers';
 
 export function PostInspectPanel( {
-	// Current custom fields
 	beyondwordsDeleteContent,
 	beyondwordsGenerateAudio,
 	beyondwordsIntegrationMethod,
@@ -37,16 +36,13 @@ export function PostInspectPanel( {
 	beyondwordsVideoTemplateId,
 	beyondwordsVideoSize,
 	beyondwordsEmbed,
-	// System
 	pluginVersion,
 	wpVersion,
 	wpPostId,
-	// Live post meta + the current/deprecated key lists (sourced from PHP via
-	// the beyondwords/settings store) that drive the Copy and Remove controls.
+	// Live post meta + key lists (from PHP) that drive the Copy/Remove controls.
 	meta,
 	currentMetaKeys,
 	deprecatedMetaKeys,
-	// Other
 	createWarningNotice,
 	removeWarningNotice,
 	setDeleteContent,
@@ -75,10 +71,8 @@ export function PostInspectPanel( {
 		}
 	}, [ didPostSaveRequestSucceed, isAutosavingPost, isSavingPost, removed ] );
 
-	// `meta` is the live post meta (getEditedPostAttribute('meta')); the current
-	// and deprecated key lists come from PHP via the settings store. Deriving both
-	// controls from the same live source means Copy and Remove can never disagree,
-	// and the Remove button tracks edits made after mount (e.g. audio generated).
+	// Copy and Remove derive from the same live meta + PHP-supplied key lists, so
+	// they can never disagree and Remove tracks edits made after mount.
 	const dataKeys = [
 		...( currentMetaKeys ?? [] ),
 		...( deprecatedMetaKeys ?? [] ),
@@ -284,7 +278,6 @@ export default compose( [
 		const { pluginVersion, wpVersion, inspectMetaKeys } = getSettings();
 
 		return {
-			// Current custom fields
 			beyondwordsDeleteContent:
 				getEditedPostAttribute( 'meta' ).beyondwords_delete_content,
 			beyondwordsGenerateAudio:
@@ -317,16 +310,13 @@ export default compose( [
 				getEditedPostAttribute( 'meta' ).beyondwords_video_size,
 			beyondwordsEmbed:
 				getEditedPostAttribute( 'meta' ).beyondwords_embed,
-			// Live post meta + the current/deprecated key lists (from PHP via the
-			// settings store) that drive the Copy and Remove controls.
+			// Live post meta + key lists (from PHP) that drive the Copy/Remove controls.
 			meta: getEditedPostAttribute( 'meta' ),
 			currentMetaKeys: inspectMetaKeys?.current,
 			deprecatedMetaKeys: inspectMetaKeys?.deprecated,
-			// System
 			pluginVersion,
 			wpVersion,
 			wpPostId: getCurrentPostId(),
-			// Other
 			currentPostType: getCurrentPostType(),
 			didPostSaveRequestSucceed: didPostSaveRequestSucceed(),
 			isSavingPost: isSavingPost(),
@@ -354,7 +344,6 @@ export default compose( [
 			removeWarningNotice: () =>
 				removeNotice( 'beyondwords-remove-post-data--warning' ),
 			setDeleteContent: ( deleteContent ) => {
-				// Update the Post Meta (AKA the Custom Field)
 				editPost( {
 					meta: {
 						beyondwords_delete_content: deleteContent ? '1' : '',

@@ -20,7 +20,6 @@ context( 'Plugins: WPGraphQL', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -32,7 +31,6 @@ context( 'Plugins: WPGraphQL', () => {
 
 				cy.visit( '/wp-admin/admin.php?page=graphiql-ide' );
 
-				// Construct GraphQL query
 				cy.get( '.query-editor > .CodeMirror' )
 					.first()
 					.then( ( editor ) => {
@@ -55,10 +53,8 @@ context( 'Plugins: WPGraphQL', () => {
         }` );
 					} );
 
-				// Run the query
 				cy.get( '.execute-button' ).click().wait( 1000 );
 
-				// Test the query results
 				cy.get( '.result-window > .CodeMirror' )
 					.first()
 					.then( ( editor ) => {
