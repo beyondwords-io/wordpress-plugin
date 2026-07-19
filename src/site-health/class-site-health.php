@@ -201,9 +201,9 @@ class SiteHealth {
 	 * diagnostic, so a cached result would keep reporting "unreachable" to an
 	 * admin who has just fixed their credentials, DNS or firewall and hit
 	 * refresh to confirm. The request is instead bounded by the shared
-	 * {@see \BeyondWords\Api\Client::BLOCKING_TIMEOUT} and skipped entirely when
-	 * there are no credentials, which keeps the render cost predictable without
-	 * ever serving stale diagnostics.
+	 * {@see \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT} and skipped
+	 * entirely when there are no credentials, which keeps the render cost
+	 * predictable without ever serving stale diagnostics.
 	 *
 	 * @param string $api_url BeyondWords REST API base URL.
 	 *
@@ -228,7 +228,7 @@ class SiteHealth {
 			$api_url,
 			[
 				'method'  => 'GET',
-				'timeout' => \BeyondWords\Api\Client::BLOCKING_TIMEOUT,
+				'timeout' => \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT,
 			]
 		);
 

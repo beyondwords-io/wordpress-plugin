@@ -60,68 +60,30 @@ class Client {
 	/**
 	 * Default timeout, in seconds, for a BeyondWords API request.
 	 *
-	 * The create/update content calls can be slow, so this is deliberately
-	 * generous. On WordPress VIP those calls are deferred to background cron
-	 * (see `\BeyondWords\Post\Sync::is_async_generation_enabled()`), so the long
-	 * timeout never blocks a web request there.
-	 *
-	 * @since 7.0.0
-	 */
-	const REQUEST_TIMEOUT = 30;
-
-	/**
-	 * Timeout, in seconds, for any request made on a synchronous render path.
-	 *
 	 * VIP's approved ceiling for a blocking remote request — the
 	 * `WordPressVIPMinimum.Performance.RemoteRequestTimeout` sniff errors above
-	 * 3. Every call site that blocks an admin page render shares this single
-	 * value (the constants below, and `Settings\Utils::CONNECTION_CHECK_TIMEOUT`,
-	 * alias it while keeping their own rationale) so the policy can be retuned
-	 * in one place.
+	 * 3 seconds. The API answers fast on every endpoint except voices: content
+	 * create/update returns the content ID immediately and generates the audio
+	 * asynchronously server-side, so even the write paths have no reason to
+	 * wait longer than this.
 	 *
 	 * @since 7.0.0
 	 */
-	const BLOCKING_TIMEOUT = 3;
+	const DEFAULT_REQUEST_TIMEOUT = 3;
 
 	/**
-	 * Timeout, in seconds, for a DELETE request.
+	 * Timeout, in seconds, for the voices GET — the one slow endpoint.
 	 *
-	 * Deletion runs on the synchronous trash/delete admin path — once per post
-	 * on a bulk trash off-VIP — so a long blocking timeout would hang the request
-	 * and can breach VIP request limits. Deletes are best-effort (a timeout just
-	 * leaves the audio in the BeyondWords dashboard), so we cap the wait short.
-	 *
-	 * @since 7.0.0
-	 */
-	const DELETE_TIMEOUT = self::BLOCKING_TIMEOUT;
-
-	/**
-	 * Timeout, in seconds, for a cached render-path GET (editor dropdowns).
-	 *
-	 * These run inline on every classic-editor metabox render, so a long
-	 * blocking timeout would tie up a PHP-FPM worker for the length of an admin
-	 * page load. Short, per VIP guidance (see `vip_safe_wp_remote_get`), and
-	 * paired with negative caching ({@see CACHE_TTL_ON_ERROR}) to bound repeat
-	 * failures.
+	 * Voices is genuinely slow to prepare — ~3.7s p95 in Sentry, against
+	 * ~250ms p95 for every other GET — so the shared `DEFAULT_REQUEST_TIMEOUT`
+	 * would abandon more than 5% of cold-cache fetches. Because a failure is
+	 * then negative-cached, that would blank the Voice dropdown for a whole
+	 * `CACHE_TTL_ON_ERROR` rather than just the one render. Only ever paid on
+	 * a cache miss.
 	 *
 	 * @since 7.0.0
 	 */
-	const RENDER_TIMEOUT = self::BLOCKING_TIMEOUT;
-
-	/**
-	 * Timeout, in seconds, for the voices GET.
-	 *
-	 * Voices is the one editor dropdown that is genuinely slow to prepare —
-	 * ~3.7s p95 in Sentry, against ~250ms p95 for every other editor GET — so
-	 * the shared `RENDER_TIMEOUT` would abandon more than 5% of cold-cache
-	 * fetches. Because a failure is then negative-cached, that would blank the
-	 * Voice dropdown for a whole `CACHE_TTL_ON_ERROR` rather than just the one
-	 * render. Still well under the generous `REQUEST_TIMEOUT` default, and only
-	 * ever paid on a cache miss.
-	 *
-	 * @since 7.0.0
-	 */
-	const VOICES_TIMEOUT = 8;
+	const VOICES_REQUEST_TIMEOUT = 8;
 
 	/**
 	 * Register WordPress hooks.
@@ -276,9 +238,10 @@ class Client {
 	 *
 	 * Split out from `delete_audio()` so the deferred trash/delete cron job can
 	 * delete audio from the project + content IDs captured before the post meta
-	 * was wiped (see `\BeyondWords\Post\Sync::delete_audio_by_ids()`). Uses the
-	 * short `DELETE_TIMEOUT` because deletion runs on the synchronous
-	 * trash/delete admin path.
+	 * was wiped (see `\BeyondWords\Post\Sync::delete_audio_by_ids()`). Deletion
+	 * runs on the synchronous trash/delete admin path and is best-effort (a
+	 * timeout just leaves the audio in the BeyondWords dashboard), so the short
+	 * default timeout applies.
 	 *
 	 * @since 7.0.0
 	 *
@@ -294,7 +257,7 @@ class Client {
 		}
 
 		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
-		$response = self::call_api( 'DELETE', $url, '', $post_id, [], self::DELETE_TIMEOUT );
+		$response = self::call_api( 'DELETE', $url, '', $post_id );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
@@ -407,8 +370,8 @@ class Client {
 	/**
 	 * GET /organization/voices?filter[language.code]=…
 	 *
-	 * Passes the longer `VOICES_TIMEOUT` — this endpoint is materially slower
-	 * than the other editor dropdowns.
+	 * Passes the longer `VOICES_REQUEST_TIMEOUT` — this endpoint is materially
+	 * slower than the other editor dropdowns.
 	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
 	 *
@@ -421,7 +384,7 @@ class Client {
 			rawurlencode( strval( $language_code ) )
 		);
 
-		return self::cached_get( 'voices_' . $language_code, $url, self::VOICES_TIMEOUT );
+		return self::cached_get( 'voices_' . $language_code, $url, self::VOICES_REQUEST_TIMEOUT );
 	}
 
 	/**
@@ -547,9 +510,9 @@ class Client {
 	 * @param string               $body    Request body (already JSON-encoded for write methods).
 	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
 	 * @param array<string,string> $headers Extra per-request headers.
-	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
@@ -584,13 +547,12 @@ class Client {
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
-	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
-	 *                                      DELETEs pass the shorter DELETE_TIMEOUT and cached
-	 *                                      render-path GETs the shorter RENDER_TIMEOUT.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT;
+	 *                                      the voices GET passes the longer VOICES_REQUEST_TIMEOUT.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array {
 		return [
 			'blocking' => true,
 			'body'     => $body,
@@ -628,9 +590,9 @@ class Client {
 	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
 	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
 	 * at most once per interval instead of re-issuing a blocking request on
-	 * every admin render. The request itself defaults to the short
-	 * {@see RENDER_TIMEOUT} for the same reason; the slower voices endpoint
-	 * passes its own {@see VOICES_TIMEOUT}.
+	 * every admin render. The request itself uses the short
+	 * {@see DEFAULT_REQUEST_TIMEOUT} for the same reason; the slower voices
+	 * endpoint passes its own {@see VOICES_REQUEST_TIMEOUT}.
 	 *
 	 * A 401 additionally self-heals: call_api() clears
 	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
@@ -639,13 +601,13 @@ class Client {
 	 *
 	 * @param string $suffix  Cache-key suffix (include any project/language id).
 	 * @param string $url     Absolute endpoint URL.
-	 * @param int    $timeout Request timeout in seconds. Defaults to RENDER_TIMEOUT;
-	 *                        the voices GET passes the longer VOICES_TIMEOUT.
+	 * @param int    $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT;
+	 *                        the voices GET passes the longer VOICES_REQUEST_TIMEOUT.
 	 *
 	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
 	 *                                 value ([] after a cached failure) thereafter.
 	 */
-	private static function cached_get( string $suffix, string $url, int $timeout = self::RENDER_TIMEOUT ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|null|false {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 

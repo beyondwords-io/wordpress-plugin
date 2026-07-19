@@ -214,10 +214,11 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * The probe passes the shared blocking-path timeout, so a slow API cannot
-     * stall the Site Health render and the bound stays within VIP guidance.
+     * The probe passes the client's shared default timeout, so a slow API
+     * cannot stall the Site Health render and the bound stays within VIP
+     * guidance.
      */
-    public function add_rest_api_connection_uses_the_shared_blocking_timeout()
+    public function add_rest_api_connection_uses_the_shared_default_timeout()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -237,7 +238,7 @@ class SiteHealthTest extends TestCase
         remove_filter('pre_http_request', $filter, 0);
 
         $this->assertIsArray($captured);
-        $this->assertSame(Client::BLOCKING_TIMEOUT, $captured['timeout']);
+        $this->assertSame(Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
         $this->assertLessThanOrEqual(3, $captured['timeout'], 'Must stay within VIP guidance (<= 3s)');
 
         delete_option('beyondwords_api_key');

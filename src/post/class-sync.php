@@ -605,7 +605,7 @@ class Sync {
 	 * one remote DELETE per post. We read the IDs before the caller wipes the meta
 	 * (on trash) or WordPress deletes the row (on permanent delete). Off-VIP,
 	 * where WP-Cron is unreliable, we fall back to a synchronous DELETE, bounded
-	 * by the client's short `DELETE_TIMEOUT`.
+	 * by the client's short `DEFAULT_REQUEST_TIMEOUT`.
 	 *
 	 * The caller must have confirmed `Meta::has_content()` first.
 	 *
