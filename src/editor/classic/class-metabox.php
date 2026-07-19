@@ -219,13 +219,22 @@ class Metabox {
 		$content_id    = \BeyondWords\Post\Meta::get_content_id( $post->ID );
 		$preview_token = \BeyondWords\Post\Meta::get_preview_token( $post->ID );
 
-        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		if ( ! empty( $content_id ) ) :
-			// REST-API content may still be processing on the BeyondWords
-			// backend. Embedding the player now would 404 (and CDN-cache that
-			// 404) for content that isn't ready. Render a loading state and let
-			// classic-metabox.js poll GET /content until it is `processed`,
-			// then embed. The data-* attributes carry what the player needs.
+			/*
+			 * REST-API content may still be processing on the BeyondWords backend.
+			 * Embedding the player now would 404 — and the CDN would cache that
+			 * 404 — for content that isn't ready, so render a loading state and
+			 * let classic-metabox.js poll GET /content until the status is
+			 * `processed`, then construct the player.
+			 *
+			 * The Content ID is editable post meta and the preview token comes
+			 * from the REST API, so both are untrusted here. They are emitted as
+			 * esc_attr()'d data-* attributes and read back with getAttribute(),
+			 * so neither is ever interpolated into a JS execution context — the
+			 * stored-XSS vector that the inline `onload` handler has to
+			 * JSON-encode away simply does not exist on this path.
+			 */
 			?>
 			<div
 				id="beyondwords-metabox-player"
@@ -250,29 +259,50 @@ class Metabox {
 			></script>
 			<?php
 		else :
-			// Client-side integration is keyed on the source (post) ID — there
-			// is nothing to poll, so embed immediately as before.
+			/*
+			 * Client-side integration is keyed on the source (post) ID — there is
+			 * nothing to poll, so embed immediately.
+			 *
+			 * Build the player SDK config as a PHP array, then JSON-encode it for
+			 * the inline `onload` handler instead of concatenating the values by
+			 * hand. The preview token is supplied by the REST API, so it is
+			 * untrusted in this output context. The HEX flags escape ' " < > &
+			 * inside every string value as \uXXXX, so a value cannot break out of
+			 * the JS string literal, the single-quoted attribute, or the
+			 * surrounding <script> markup; the structural JSON quotes are left
+			 * intact so the spread object literal stays valid JavaScript, and
+			 * esc_attr() below encodes those for the attribute. Mirrors
+			 * \BeyondWords\Player\Renderer\Javascript::render().
+			 */
+			$config = [
+				'projectId'        => (int) $project_id,
+				'sourceId'         => (string) $post->ID,
+				'previewToken'     => (string) $preview_token,
+				'adverts'          => [],
+				'analyticsConsent' => 'none',
+				'introsOutros'     => [],
+				'playerStyle'      => 'small',
+				'widgetStyle'      => 'none',
+			];
+
+			$onload = sprintf(
+				'const player = new BeyondWords.Player({ target: this.parentElement, ...%s });',
+				wp_json_encode(
+					$config,
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+				)
+			);
 			?>
 			<div id="beyondwords-metabox-player" style="margin: 13px 0;">
 			<script defer
 				src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
-				onload='const player = new BeyondWords.Player({
-					target: this.parentElement,
-					projectId: <?php echo esc_attr( $project_id ); ?>,
-					sourceId: "<?php echo esc_attr( $post->ID ); ?>",
-					previewToken: "<?php echo esc_attr( $preview_token ); ?>",
-					adverts: [],
-					analyticsConsent: "none",
-					introsOutros: [],
-					playerStyle: "small",
-					widgetStyle: "none",
-				});'
+				onload='<?php echo esc_attr( $onload ); ?>'
 			>
 			</script>
 			</div>
 			<?php
 		endif;
-        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 
 	/**
