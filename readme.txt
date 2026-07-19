@@ -126,6 +126,8 @@ Release date: tbc
 * [#544](https://github.com/beyondwords-io/wordpress-plugin/pull/544) Prevent a `TypeError` in the deferred audio-generation cron when a post is deleted.
 * [#543](https://github.com/beyondwords-io/wordpress-plugin/pull/543) Guard a null languages API result in the classic editor voice select.
 * [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
+* [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
+    * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
 
 **Deprecations**
 
