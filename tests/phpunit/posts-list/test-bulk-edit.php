@@ -2,6 +2,7 @@
 
 use BeyondWords\PostsList\BulkEdit;
 use BeyondWords\Core\Plugin;
+use BeyondWords\Post\Sync;
 
 final class BulkEditTest extends TestCase
 {
@@ -528,5 +529,66 @@ final class BulkEditTest extends TestCase
         $this->assertSame('noop-content-id', get_post_meta($otherPostId, 'beyondwords_content_id', true));
 
         wp_delete_post($otherPostId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_defers_beyond_sync_cap()
+    {
+        // The handler gates on current_user_can( 'edit_post', ... ), so run as an
+        // administrator who can edit every selected post.
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
+        // Run off VIP (default) with no API credentials, so the capped posts fail
+        // without a network call and the overflow is deferred. Select two more
+        // than the cap and derive the expectations from the constant.
+        $overflow = 2;
+        $selected = Sync::BULK_GENERATE_SYNC_LIMIT + $overflow;
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $postIds = [];
+        for ($i = 0; $i < $selected; $i++) {
+            $postIds[] = self::factory()->post->create(['post_status' => 'publish']);
+        }
+
+        $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
+        $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, 'https://example.com/wp-admin/edit.php');
+
+        $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $postIds);
+
+        parse_str((string) parse_url($redirect, PHP_URL_QUERY), $args);
+
+        // Capped posts processed (all failed, no creds) + overflow deferred.
+        $this->assertSame('0', $args['beyondwords_bulk_generated']);
+        $this->assertSame((string) Sync::BULK_GENERATE_SYNC_LIMIT, $args['beyondwords_bulk_failed']);
+        $this->assertSame((string) $overflow, $args['beyondwords_bulk_deferred']);
+
+        foreach ($postIds as $postId) {
+            $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
+        }
+
+        foreach ($postIds as $postId) {
+            wp_delete_post($postId, true);
+        }
+    }
+
+    /**
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_ignores_other_actions()
+    {
+        $redirect = 'https://example.com/wp-admin/edit.php';
+
+        // A non-BeyondWords bulk action must be returned untouched.
+        $result = BulkEdit::handle_bulk_generate_action($redirect, 'trash', [1, 2, 3]);
+
+        $this->assertSame($redirect, $result);
     }
 }
