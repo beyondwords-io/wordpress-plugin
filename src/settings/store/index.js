@@ -4,76 +4,57 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore } from '@wordpress/data';
 
-// Shared editor state. Two shapes of key live here:
-//
-//   * Plain keys hold one session-wide value. Adding one gives you a `getKey`
-//     selector for free; its resolver returns `set( 'key', value )`.
-//   * Per-argument keys (listed in `KEYED_BY_ARG`) hold a map from a resolver
-//     argument to its result — e.g. voices per language code. @wordpress/data
-//     memoises resolution per-args, so the *stored* value has to be per-args
-//     too. A single shared slot would let a later fetch (another language or
-//     project) overwrite it while the already-"resolved" selector keeps serving
-//     the wrong list. Their resolvers return `setBy( 'key', arg, value )` and
-//     they get a hand-written, arg-reading selector below.
+// Shared editor state, fetched lazily by the resolvers below; each key has a
+// matching selector. Most keys hold a single session-wide value. `voices`,
+// `videoSizes` and `project` are maps keyed by their resolver's argument:
+// @wordpress/data marks resolution finished per selector-args, so each
+// argument's result needs its own slot — with one shared slot, a later fetch
+// (say, another language's voices) would overwrite it while the resolution
+// cache keeps reporting the overwritten entry as fresh.
 export const DEFAULT_STATE = {
 	settings: {},
 	languages: [],
-	voices: {},
+	voices: {}, // languageCode → voice list
 	scriptTemplates: [],
 	videoTemplates: [],
-	videoSizes: {},
-	project: {},
-};
-
-// Per-argument keys mapped to the value their selector returns for an argument
-// that has not been fetched yet (voices/videoSizes are lists, project a record).
-const KEYED_BY_ARG = {
-	voices: [],
-	videoSizes: [],
-	project: {},
+	videoSizes: {}, // projectId → size list
+	project: {}, // projectId → project record
 };
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
+	// Replace a session-wide key.
 	if ( action.type === 'SET' && action.key in state ) {
 		const empty = Array.isArray( DEFAULT_STATE[ action.key ] ) ? [] : {};
 		return { ...state, [ action.key ]: action.value || empty };
 	}
-	// Merge a per-argument result into its key's map, leaving other arguments'
-	// entries untouched so each language/project keeps its own value.
-	if ( action.type === 'SET_BY' && action.key in KEYED_BY_ARG ) {
+	// Merge one argument's result into a per-argument key, leaving the other
+	// arguments' entries untouched.
+	if ( action.type === 'SET_BY' && action.key in state ) {
 		return {
 			...state,
 			[ action.key ]: {
 				...state[ action.key ],
-				[ action.arg ]: action.value || KEYED_BY_ARG[ action.key ],
+				[ action.arg ]: action.value,
 			},
 		};
 	}
 	return state;
 };
 
-const getterName = ( key ) =>
-	`get${ key[ 0 ].toUpperCase() }${ key.slice( 1 ) }`;
-
+// The per-argument selectors (voices, video sizes, project) read the entry for
+// the requested argument only, with an empty value while it is unfetched.
 const selectors = {
-	// Plain keys read the whole slot: `getKey( state ) => state.key`.
-	...Object.fromEntries(
-		Object.keys( DEFAULT_STATE )
-			.filter( ( key ) => ! ( key in KEYED_BY_ARG ) )
-			.map( ( key ) => [ getterName( key ), ( state ) => state[ key ] ] )
-	),
-	// Per-argument keys read only their own entry: `getKey( state, arg ) =>
-	// state.key[ arg ] ?? empty`. Reading by the argument keeps the selector in
-	// step with @wordpress/data's per-args resolution cache, so a value fetched
-	// for one argument is never served for another.
-	...Object.fromEntries(
-		Object.entries( KEYED_BY_ARG ).map( ( [ key, empty ] ) => [
-			getterName( key ),
-			( state, arg ) => state[ key ][ arg ] ?? empty,
-		] )
-	),
+	getSettings: ( state ) => state.settings,
+	getLanguages: ( state ) => state.languages,
+	getVoices: ( state, languageCode ) => state.voices[ languageCode ] ?? [],
+	getScriptTemplates: ( state ) => state.scriptTemplates,
+	getVideoTemplates: ( state ) => state.videoTemplates,
+	getVideoSizes: ( state, projectId ) => state.videoSizes[ projectId ] ?? [],
+	getProject: ( state, projectId ) => state.project[ projectId ] ?? {},
 };
 
+// Both action shapes are private to this store — it registers no `actions`,
+// so the resolvers below are the only dispatchers.
 const set = ( key, value ) => ( { type: 'SET', key, value } );
 const setBy = ( key, arg, value ) => ( { type: 'SET_BY', key, arg, value } );
 
@@ -90,7 +71,7 @@ const resolvers = {
 		const value = await apiFetch( {
 			path: `/beyondwords/v1/languages/${ languageCode }/voices`,
 		} );
-		return setBy( 'voices', languageCode, value );
+		return setBy( 'voices', languageCode, value || [] );
 	},
 	async getScriptTemplates() {
 		const value = await apiFetch( {
@@ -122,7 +103,7 @@ const resolvers = {
 		const value = await apiFetch( {
 			path: `/beyondwords/v1/projects/${ projectId }`,
 		} );
-		return setBy( 'project', projectId, value );
+		return setBy( 'project', projectId, value || {} );
 	},
 };
 
