@@ -35,6 +35,7 @@ class SyncTest extends TestCase
         $this->assertEquals(10, has_action('wp_trash_post', array(Sync::class, 'on_trash_post')));
         $this->assertEquals(10, has_action('before_delete_post', array(Sync::class, 'on_delete_post')));
         $this->assertEquals(10, has_action(Sync::GENERATE_AUDIO_CRON_HOOK, array(Sync::class, 'generate_audio_for_post')));
+        $this->assertEquals(10, has_action(Sync::DELETE_AUDIO_CRON_HOOK, array(Sync::class, 'delete_audio_by_ids')));
         $this->assertEquals(10, has_action('is_protected_meta', array(Sync::class, 'is_protected_meta')));
         $this->assertEquals(10, has_action('get_post_metadata', array(Sync::class, 'get_lang_code_from_json_if_empty')));
     }
@@ -1350,9 +1351,6 @@ class SyncTest extends TestCase
             $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
         }
 
-        // The bulk path must not leave the lowered-timeout filter registered.
-        $this->assertFalse(has_filter('beyondwords_api_request_timeout'));
-
         foreach ($postIds as $postId) {
             wp_unschedule_event(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]), Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
             wp_delete_post($postId, true);
@@ -1399,8 +1397,9 @@ class SyncTest extends TestCase
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // The lowered-timeout filter is cleaned up even though the batch ran.
-        $this->assertFalse(has_filter('beyondwords_api_request_timeout'));
+        // The capped synchronous batch must use a shorter per-call timeout than a
+        // normal save, so a slow API can't stack up to a request-killing total.
+        $this->assertLessThan(\BeyondWords\Api\Client::REQUEST_TIMEOUT, Sync::BULK_GENERATE_TIMEOUT);
 
         remove_filter('beyondwords_bulk_generate_sync_limit', $limit);
         foreach ($postIds as $postId) {
@@ -1522,5 +1521,195 @@ class SyncTest extends TestCase
         $this->assertFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     * @group trash
+     */
+    public function on_trash_post_defers_delete_to_cron_when_async_enabled()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onTrashPostDefersDeleteToCron',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        // Capture the exact IDs the handler will schedule, before the meta is wiped.
+        $projectId = \BeyondWords\Post\Meta::get_project_id($postId);
+        $contentId = \BeyondWords\Post\Meta::get_content_id($postId, true);
+
+        // No synchronous DELETE may be made on the deferred (schedule-only) path.
+        $apiCalled = false;
+        $filter = function ($preempt, $args, $url) use (&$apiCalled) {
+            if (str_contains((string) $url, '/content/')) {
+                $apiCalled = true;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        Sync::on_trash_post($postId);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // The blocking DELETE is deferred to a single background cron event carrying
+        // the project + content IDs (not the post ID, since the meta is now gone).
+        $this->assertFalse($apiCalled, 'Trash must not make a synchronous DELETE when async is enabled');
+        $this->assertNotFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));
+
+        // Local metadata is still cleared immediately.
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_unschedule_event(
+            wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]),
+            Sync::DELETE_AUDIO_CRON_HOOK,
+            [$projectId, $contentId]
+        );
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group delete
+     */
+    public function on_delete_post_defers_delete_to_cron_when_async_enabled()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        add_filter('beyondwords_async_generate_audio', '__return_true');
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onDeletePostDefersDeleteToCron',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $projectId = \BeyondWords\Post\Meta::get_project_id($postId);
+        $contentId = \BeyondWords\Post\Meta::get_content_id($postId, true);
+
+        $apiCalled = false;
+        $filter = function ($preempt, $args, $url) use (&$apiCalled) {
+            if (str_contains((string) $url, '/content/')) {
+                $apiCalled = true;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        Sync::on_delete_post($postId);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertFalse($apiCalled, 'Permanent delete must not make a synchronous DELETE when async is enabled');
+        $this->assertNotFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));
+
+        wp_unschedule_event(
+            wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]),
+            Sync::DELETE_AUDIO_CRON_HOOK,
+            [$projectId, $contentId]
+        );
+        remove_filter('beyondwords_async_generate_audio', '__return_true');
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group trash
+     */
+    public function on_trash_post_deletes_synchronously_off_vip()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'CoreTest::onTrashPostSyncOffVip',
+            'meta_input' => [
+                'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
+                'beyondwords_content_id' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ],
+        ]);
+
+        $projectId = \BeyondWords\Post\Meta::get_project_id($postId);
+        $contentId = \BeyondWords\Post\Meta::get_content_id($postId, true);
+
+        $captured = ['method' => null, 'timeout' => null];
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/content/')) {
+                $captured['method']  = $args['method'] ?? null;
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        Sync::on_trash_post($postId);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // Off-VIP the DELETE runs inline, bounded by the short delete timeout, and
+        // nothing is queued.
+        $this->assertSame('DELETE', $captured['method']);
+        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group delete
+     */
+    public function delete_audio_by_ids_delegates_to_api_client()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = ['method' => null, 'url' => null, 'timeout' => null];
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/content/')) {
+                $captured['method']  = $args['method'] ?? null;
+                $captured['url']     = $url;
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        // The cron callback deletes by explicit IDs (the meta is already gone).
+        Sync::delete_audio_by_ids(BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertSame('DELETE', $captured['method']);
+        $this->assertStringContainsString(
+            '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
+            (string) $captured['url']
+        );
+        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 }

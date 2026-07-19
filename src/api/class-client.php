@@ -47,6 +47,30 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Default timeout, in seconds, for a BeyondWords API request.
+	 *
+	 * The create/update content calls can be slow, so this is deliberately
+	 * generous. On WordPress VIP those calls are deferred to background cron
+	 * (see `\BeyondWords\Post\Sync::is_async_generation_enabled()`), so the long
+	 * timeout never blocks a web request there.
+	 *
+	 * @since 7.0.0
+	 */
+	const REQUEST_TIMEOUT = 30;
+
+	/**
+	 * Timeout, in seconds, for a DELETE request.
+	 *
+	 * Deletion runs on the synchronous trash/delete admin path — once per post
+	 * on a bulk trash off-VIP — so a long blocking timeout would hang the request
+	 * and can breach VIP request limits. Deletes are best-effort (a timeout just
+	 * leaves the audio in the BeyondWords dashboard), so we cap the wait short.
+	 *
+	 * @since 7.0.0
+	 */
+	const DELETE_TIMEOUT = 3;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -134,11 +158,13 @@ class Client {
 	 * POST /projects/:project/content
 	 *
 	 * @param int $post_id WordPress post ID.
+	 * @param int $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
+	 *                     the bulk generate action passes a shorter one.
 	 *
 	 * @return array<mixed>|null|false Decoded response body, or false when the
 	 *                                 post has no project ID.
 	 */
-	public static function create_audio( int $post_id ): array|null|false {
+	public static function create_audio( int $post_id, int $timeout = self::REQUEST_TIMEOUT ): array|null|false {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 
 		if ( ! $project_id ) {
@@ -147,7 +173,7 @@ class Client {
 
 		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$response = self::call_api( 'POST', $url, $body, $post_id );
+		$response = self::call_api( 'POST', $url, $body, $post_id, [], $timeout );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
@@ -159,10 +185,12 @@ class Client {
 	 * never had a BeyondWords-issued ID.
 	 *
 	 * @param int $post_id WordPress post ID.
+	 * @param int $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
+	 *                     the bulk generate action passes a shorter one.
 	 *
 	 * @return array<mixed>|null|false
 	 */
-	public static function update_audio( int $post_id ): array|null|false {
+	public static function update_audio( int $post_id, int $timeout = self::REQUEST_TIMEOUT ): array|null|false {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
@@ -172,13 +200,16 @@ class Client {
 
 		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$response = self::call_api( 'PUT', $url, $body, $post_id );
+		$response = self::call_api( 'PUT', $url, $body, $post_id, [], $timeout );
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
 	 * DELETE /projects/:project/content/:content_id
+	 *
+	 * Resolves the project + content IDs from the post's meta and delegates to
+	 * `delete_audio_by_ids()`.
 	 *
 	 * @param int $post_id WordPress post ID.
 	 *
@@ -188,12 +219,33 @@ class Client {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
+		return self::delete_audio_by_ids( $project_id, $content_id, $post_id );
+	}
+
+	/**
+	 * DELETE /projects/:project/content/:content_id using explicit IDs.
+	 *
+	 * Split out from `delete_audio()` so the deferred trash/delete cron job can
+	 * delete audio from the project + content IDs captured before the post meta
+	 * was wiped (see `\BeyondWords\Post\Sync::delete_audio_by_ids()`). Uses the
+	 * short `DELETE_TIMEOUT` because deletion runs on the synchronous
+	 * trash/delete admin path.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|string|false $project_id BeyondWords project ID.
+	 * @param int|string|false $content_id BeyondWords content ID.
+	 * @param int|false        $post_id    Optional post ID for error attribution.
+	 *
+	 * @return array<mixed>|null|false `false` when an ID is missing or the request didn't return 204.
+	 */
+	public static function delete_audio_by_ids( int|string|false $project_id, int|string|false $content_id, int|false $post_id = false ): array|null|false {
 		if ( ! $project_id || ! $content_id ) {
 			return false;
 		}
 
 		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
-		$response = self::call_api( 'DELETE', $url, '', $post_id );
+		$response = self::call_api( 'DELETE', $url, '', $post_id, [], self::DELETE_TIMEOUT );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
@@ -443,13 +495,14 @@ class Client {
 	 * @param string               $body    Request body (already JSON-encoded for write methods).
 	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [] ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
 
-		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers ) );
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
@@ -479,52 +532,19 @@ class Client {
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
+	 *                                      DELETEs pass the shorter DELETE_TIMEOUT.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private static function build_args( string $method, string $body = '', array $headers = [] ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array {
 		return [
 			'blocking' => true,
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
-			'timeout'  => self::request_timeout( $method ),
+			'timeout'  => $timeout,
 		];
-	}
-
-	/**
-	 * Per-request timeout (in seconds) for a BeyondWords API call.
-	 *
-	 * BeyondWords write calls (create/update audio) legitimately need longer than
-	 * the 3s VIP guideline, so the default is 30s. The value is exposed through
-	 * the `beyondwords_api_request_timeout` filter so a specific call path can
-	 * lower it — the bulk "Generate audio" action drops it (see
-	 * `\BeyondWords\Post\Sync::bulk_generate_audio_for_posts()`) so a slow or
-	 * unresponsive API can't run the admin request past the PHP/host execution
-	 * limit.
-	 *
-	 * Sourcing the timeout from a filter (rather than a literal in the request
-	 * args) keeps the VIP `RemoteRequestTimeout` sniff satisfied without a
-	 * `phpcs:ignore`, and gives hosts a single knob to tune.
-	 *
-	 * @since 7.0.0
-	 *
-	 * @param string $method HTTP method, passed to the filter as context.
-	 *
-	 * @return int Timeout in seconds (never below 1).
-	 */
-	private static function request_timeout( string $method ): int {
-		/**
-		 * Filters the per-request timeout (in seconds) for BeyondWords API calls.
-		 *
-		 * @since 7.0.0
-		 *
-		 * @param int    $timeout Timeout in seconds. Default 30.
-		 * @param string $method  HTTP method for the request (GET/POST/PUT/DELETE).
-		 */
-		$timeout = (int) apply_filters( 'beyondwords_api_request_timeout', 30, $method );
-
-		return max( 1, $timeout );
 	}
 
 	/**

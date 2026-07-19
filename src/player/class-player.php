@@ -65,7 +65,22 @@ class Player {
 	 * @return string
 	 */
 	public static function auto_prepend_player( $content ) {
-		if ( ! is_singular() || self::has_custom_player( $content ) ) {
+		if ( ! is_singular() ) {
+			return $content;
+		}
+
+		// Bail before the potentially expensive has_custom_player() DOM scan when
+		// no player could render anyway. This mirrors render_player()'s own early
+		// return, so returning $content here is equivalent to prepending its '' —
+		// but it spares every "player disabled / Embed: None" singular pageview
+		// the cost of parsing the post content.
+		$post = get_post();
+
+		if ( ! $post instanceof \WP_Post || ! self::is_enabled( $post ) ) {
+			return $content;
+		}
+
+		if ( self::has_custom_player( $content ) ) {
 			return $content;
 		}
 
@@ -183,9 +198,23 @@ class Player {
 			return true;
 		}
 
+		$js_sdk_url = \BeyondWords\Core\Urls::get_js_sdk_url();
+
+		// Skip the DOM parse below — expensive on large posts, yet run on every
+		// singular pageview — unless a marker substring is actually present. Both
+		// XPath queries require one of these literal strings in the markup (the
+		// attribute name, or the SDK URL inside a script `src`), so if neither
+		// appears the parse cannot match and we can bail cheaply.
+		if (
+			! str_contains( $content, 'data-beyondwords-player' )
+			&& ! str_contains( $content, $js_sdk_url )
+		) {
+			return false;
+		}
+
 		$crawler = new \Symfony\Component\DomCrawler\Crawler( $content );
 
-		$script_xpath = sprintf( '//script[@async][@defer][contains(@src, "%s")]', \BeyondWords\Core\Urls::get_js_sdk_url() );
+		$script_xpath = sprintf( '//script[@async][@defer][contains(@src, "%s")]', $js_sdk_url );
 		if ( $crawler->filterXPath( $script_xpath )->count() > 0 ) {
 			return true;
 		}
