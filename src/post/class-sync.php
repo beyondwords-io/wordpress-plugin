@@ -48,10 +48,64 @@ class Sync {
 	const DELETE_AUDIO_CRON_HOOK = 'beyondwords_delete_audio';
 
 	/**
+	 * Deprecated post-meta keys that still need REST exposure.
+	 *
+	 * On a site upgraded from the legacy SpeechKit plugin these keys can hold a
+	 * post's only BeyondWords data until it is regenerated under v7, so the block
+	 * editor reads them in the authenticated `edit` context as a fallback — the
+	 * error notice, pending notice, play/preview controls, the "Generate audio"
+	 * toggle and the legacy player link all depend on them (see the components
+	 * under [src/editor/components/](src/editor/components/)). They are therefore
+	 * registered with `show_in_rest => true`; every *other* deprecated key —
+	 * including the secret `speechkit_access_key` — is registered
+	 * `show_in_rest => false` and never reaches the REST API.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @var string[]
+	 */
+	const REST_LEGACY_META_KEYS = [
+		'beyondwords_podcast_id',
+		'speechkit_generate_audio',
+		'speechkit_project_id',
+		'speechkit_podcast_id',
+		'speechkit_error_message',
+		'_speechkit_link',
+	];
+
+	/**
+	 * REST-exposed post-meta keys that must never be readable by unauthenticated
+	 * visitors.
+	 *
+	 * The block editor needs these in the authenticated `edit` context, but
+	 * `WP_REST_Meta_Fields` returns `show_in_rest` meta in the public `view`
+	 * context too, with no capability check — so an anonymous
+	 * `GET /wp/v2/posts/:id` would otherwise disclose them. They hold secrets or
+	 * internal data (BeyondWords API error strings, the audio preview token and
+	 * the legacy player URL), so `hide_private_meta_from_rest()` strips them from
+	 * every non-`edit` response.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @var string[]
+	 */
+	const REST_PRIVATE_META_KEYS = [
+		'beyondwords_error_message',
+		'beyondwords_preview_token',
+		'speechkit_error_message',
+		'_speechkit_link',
+	];
+
+	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
 		add_action( 'init', [ self::class, 'register_meta' ], 99, 3 );
+
+		// Strip secret/internal post meta from unauthenticated REST responses.
+		// Registered on `rest_api_init` so the filters only load for REST
+		// requests.
+		add_action( 'rest_api_init', [ self::class, 'register_rest_meta_visibility' ] );
 
 		add_action( 'wp_after_insert_post', [ self::class, 'on_add_or_update_post' ], 99 );
 		add_action( 'wp_trash_post', [ self::class, 'on_trash_post' ] );
@@ -339,7 +393,14 @@ class Sync {
 	 * Register every BeyondWords post-meta key for REST + auth gating.
 	 *
 	 * Registers per-(post_type, meta_key) combination so the meta is exposed
-	 * only on compatible post types.
+	 * only on compatible post types. Every key is registered so writes are
+	 * sanitised and the "Custom Fields" panel stays hidden (see
+	 * `is_protected_meta()`), but only the keys the block editor reads/writes
+	 * over REST get `show_in_rest => true`. Secrets and internal data — the
+	 * legacy `speechkit_access_key`, cached API responses, player/voice config —
+	 * are registered `show_in_rest => false` so they are never exposed via the
+	 * REST API. Sensitive keys the editor *does* need are additionally hidden
+	 * from unauthenticated requests by `hide_private_meta_from_rest()`.
 	 */
 	public static function register_meta(): void {
 		$post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
@@ -350,31 +411,100 @@ class Sync {
 
 		$keys = \BeyondWords\Core\Utils::get_post_meta_keys( 'all' );
 
+		// The current keys plus the handful of deprecated keys the block editor
+		// still reads for back-compat (see REST_LEGACY_META_KEYS).
+		$rest_keys = array_merge(
+			\BeyondWords\Core\Utils::get_post_meta_keys( 'current' ),
+			self::REST_LEGACY_META_KEYS
+		);
+
 		foreach ( $post_types as $post_type ) {
-			$options = [
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-				'default'           => '',
-				'object_subtype'    => $post_type,
-				'prepare_callback'  => 'sanitize_text_field',
-				'sanitize_callback' => 'sanitize_text_field',
-				'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
-			];
-
 			foreach ( $keys as $key ) {
-				$meta_options = $options;
-
 				// Content IDs are interpolated into BeyondWords API URL paths, so
 				// the block-editor / REST write path needs the same strict charset
 				// validation as the classic editor — see Meta::sanitize_content_id().
-				if ( 'beyondwords_content_id' === $key ) {
-					$meta_options['sanitize_callback'] = [ \BeyondWords\Post\Meta::class, 'sanitize_content_id' ];
-				}
+				$sanitize_callback = 'beyondwords_content_id' === $key
+					? [ \BeyondWords\Post\Meta::class, 'sanitize_content_id' ]
+					: 'sanitize_text_field';
 
-				register_meta( 'post', $key, $meta_options );
+				register_meta(
+					'post',
+					$key,
+					[
+						'show_in_rest'      => in_array( $key, $rest_keys, true ),
+						'single'            => true,
+						'type'              => 'string',
+						'default'           => '',
+						'object_subtype'    => $post_type,
+						'prepare_callback'  => 'sanitize_text_field',
+						'sanitize_callback' => $sanitize_callback,
+						'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
+					]
+				);
 			}
 		}
+	}
+
+	/**
+	 * Register the REST response filter that hides private BeyondWords meta from
+	 * unauthenticated requests, for every compatible post type.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function register_rest_meta_visibility(): void {
+		$post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
+
+		if ( ! is_array( $post_types ) ) {
+			return;
+		}
+
+		foreach ( $post_types as $post_type ) {
+			add_filter( "rest_prepare_{$post_type}", [ self::class, 'hide_private_meta_from_rest' ], 10, 3 );
+		}
+	}
+
+	/**
+	 * Strip secret/internal BeyondWords meta from non-`edit` REST responses.
+	 *
+	 * `register_meta()` exposes a handful of keys the block editor needs in the
+	 * authenticated `edit` context (BeyondWords API error messages, the audio
+	 * preview token, the legacy player URL), but `WP_REST_Meta_Fields` returns
+	 * `show_in_rest` meta in the public `view` context too, with no capability
+	 * check. Requesting the `edit` context is itself permission-gated by the
+	 * posts controller, so we keep those keys only for `edit` requests and remove
+	 * them everywhere else — closing the anonymous `GET /wp/v2/posts/:id`
+	 * disclosure while leaving the block editor unaffected.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Response $response The response object.
+	 * @param \WP_Post          $post     The post the response is for.
+	 * @param \WP_REST_Request  $request  The request object.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function hide_private_meta_from_rest( $response, $post, $request ) {
+		if ( ! $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		if ( 'edit' === $request->get_param( 'context' ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		if ( ! is_array( $data ) || empty( $data['meta'] ) || ! is_array( $data['meta'] ) ) {
+			return $response;
+		}
+
+		foreach ( self::REST_PRIVATE_META_KEYS as $key ) {
+			unset( $data['meta'][ $key ] );
+		}
+
+		$response->set_data( $data );
+
+		return $response;
 	}
 
 	/**
