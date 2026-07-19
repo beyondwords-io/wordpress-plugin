@@ -37,22 +37,38 @@ context( 'Classic Editor: Select Voice', () => {
 				cy.get( '#beyondwords_customize' ).check();
 
 				// Enabling Customize fetches the project's default language and
-				// pre-selects it (mock project: en_US).
+				// pre-selects its name + accent (mock project: en_US).
 				cy.get( 'select#beyondwords_language_code' ).should(
 					'have.value',
 					'en_US'
 				);
+				cy.get( 'select#beyondwords_language_name' ).should(
+					'have.value',
+					'English'
+				);
 
+				cy.get( 'select#beyondwords_language_name' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						const values = optionLabels( $els );
+						expect( values ).to.have.length( 80 );
+						expect( values[ 0 ] ).to.eq( 'Select a language…' );
+						expect( values ).to.include( 'English' );
+						expect( values ).to.include( 'Welsh' );
+					} );
+
+				// The Accent select carries the language code, so it is the
+				// field that gets submitted.
+				cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+					'be.visible'
+				);
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// 148 languages + the "Select a language…" placeholder.
-						expect( values ).to.have.length( 149 );
-						expect( values[ 0 ] ).to.eq( 'Select a language…' );
-						expect( values ).to.include( 'English (American)' );
-						expect( values ).to.include( 'English (British)' );
-						expect( values ).to.include( 'Welsh (Welsh)' );
+						expect( values ).to.have.length( 14 );
+						expect( values ).to.include( 'American' );
+						expect( values ).to.include( 'British' );
 					} );
 
 				cy.get( '#beyondwords-metabox-select-voice--model' ).should(
@@ -150,9 +166,13 @@ context( 'Classic Editor: Select Voice', () => {
 				// so the fields are visible after the page refresh.
 				cy.get( '#beyondwords_customize' ).should( 'be.checked' );
 
+				cy.get( 'select#beyondwords_language_name' ).should(
+					'have.value',
+					'English'
+				);
 				cy.get( 'select#beyondwords_language_code' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'American' );
 				cy.get( '#beyondwords-metabox-select-voice--model' ).should(
 					'be.visible'
 				);
@@ -229,6 +249,100 @@ context( 'Classic Editor: Select Voice', () => {
 		);
 	} );
 
+	it( 'picking a language name auto-selects its first accent', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// Welsh has a single accent, so the Accent select hides itself while
+		// still holding the code.
+		cy.get( 'select#beyondwords_language_name' ).select( 'Welsh' );
+		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+			'not.be.visible'
+		);
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'cy_GB'
+		);
+
+		cy.get( 'select#beyondwords_language_name' ).select( 'English' );
+		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
+			'be.visible'
+		);
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_NZ'
+		);
+		cy.get( 'select#beyondwords_language_code' )
+			.find( 'option' )
+			.should( 'have.length', 14 );
+	} );
+
+	it( 'switching accent re-fetches voices and seeds the default voice', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// en_GB's default body voice is Ollie, a Legacy voice.
+		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_GB'
+		);
+
+		// The mock's English voices are all American-primary, so none are
+		// native to en_GB and only "All" lists them.
+		cy.get( 'select#beyondwords_native' ).select( 'All' );
+		cy.get( 'select#beyondwords_model' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Legacy' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option:selected' )
+			.should( 'have.text', 'Ollie (Multilingual)' );
+	} );
+
+	it( 'filters the Voice list by Native', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+
+		// Klaus is German-primary, so Native excludes him from en_US.
+		cy.get( 'select#beyondwords_native' ).should( 'have.value', 'native' );
+		cy.get( 'select#beyondwords_model' ).select( 'Legacy' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+				] );
+			} );
+
+		cy.get( 'select#beyondwords_native' ).select( 'All' );
+		cy.get( 'select#beyondwords_voice_id' )
+			.find( 'option' )
+			.should( ( $els ) => {
+				expect( optionLabels( $els ) ).to.deep.eq( [
+					'Select a voice',
+					'Ada (Multilingual)',
+					'Ava (Multilingual)',
+					'Ollie (Multilingual)',
+					'Klaus (Multilingual)',
+				] );
+			} );
+	} );
+
 	it( 'reverts to project defaults when Customize is turned off', () => {
 		cy.createPost( { postType: edgePostType } );
 		cy.get( '#beyondwords_customize' ).check();
@@ -244,6 +358,7 @@ context( 'Classic Editor: Select Voice', () => {
 		cy.get( '#beyondwords-metabox-select-voice--fields' ).should(
 			'not.be.visible'
 		);
+		cy.get( 'select#beyondwords_language_name' ).should( 'have.value', '' );
 		cy.get( 'select#beyondwords_language_code' ).should( 'have.value', '' );
 		cy.get( 'select#beyondwords_voice_id' ).should( 'have.value', '' );
 
@@ -296,5 +411,41 @@ context( 'Classic Editor: Select Voice', () => {
 					'Caleb',
 				] );
 			} );
+	} );
+
+	it( 'shows the loader in place of Model and Voice while voices resolve', () => {
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'be.visible'
+		);
+
+		// Delay the voices response so the resolving state is observable.
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/languages/*/voices*',
+			( req ) => {
+				req.on( 'response', ( res ) => {
+					res.setDelay( 1500 );
+				} );
+			}
+		);
+
+		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
+		cy.get( '.beyondwords-settings__loader' ).should( 'be.visible' );
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'not.be.visible'
+		);
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
+			'not.be.visible'
+		);
+
+		cy.get( '.beyondwords-settings__loader', { timeout: 10000 } ).should(
+			'not.be.visible'
+		);
 	} );
 } );

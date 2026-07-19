@@ -1126,6 +1126,25 @@ function beyondwords_mock_get_voices() {
 					),
 				),
 			),
+			// Speaks en_US only as a secondary language, so the default Native filter hides it.
+			array(
+				'id'                  => 9500,
+				'name'                => 'Klaus (Multilingual)',
+				'language'            => array( 'code' => 'de_DE' ),
+				'languages'           => array(
+					array(
+						'code'   => 'de_DE',
+						'name'   => 'German',
+						'accent' => 'German',
+					),
+					array(
+						'code'   => 'en_US',
+						'name'   => 'English',
+						'accent' => 'American',
+					),
+				),
+				'secondary_languages' => array( 'en_US' ),
+			),
 		)
 	);
 }

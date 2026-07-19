@@ -1,8 +1,9 @@
 /* global beyondwordsData */
 
 /*
- * Classic-editor Customize + Language + Model + Voice behaviour. Mirrors the
- * block editor's voice-section.js + helpers.js. The selects live in the post
+ * Classic-editor Customize + Language + Accent + Model + Voice behaviour. Mirrors
+ * the block editor's voice-section.js + helpers.js. Language lists names while
+ * Accent carries the submitted language CODE. The selects live in the post
  * <form> and submit on save, so no autosave/Heartbeat hook is needed.
  */
 ( function () {
@@ -11,6 +12,7 @@
 	const data =
 		typeof beyondwordsData !== 'undefined' ? beyondwordsData : null;
 
+	const LANGUAGES = ( data && data.languages ) || [];
 	const ELEVENLABS = ( data && data.elevenLabs ) || 'ElevenLabs';
 	const DEFAULT_MODEL_ID =
 		( data && data.defaultModelId ) || 'eleven_multilingual_v2';
@@ -55,6 +57,45 @@
 			return voice.model_id;
 		}
 		return STANDARD_MODEL_KEY;
+	};
+
+	/**
+	 * A voice's primary (native) language code.
+	 *
+	 * @param {Object} voice A voice record.
+	 *
+	 * @return {string} The primary language code, or ''.
+	 */
+	const voicePrimaryCode = ( voice ) => {
+		const language = voice && voice.language;
+		if ( typeof language === 'string' ) {
+			return language;
+		}
+		if ( language && typeof language === 'object' && language.code ) {
+			return language.code;
+		}
+		return (
+			( voice && voice.languages && voice.languages[ 0 ]
+				? voice.languages[ 0 ].code
+				: '' ) || ''
+		);
+	};
+
+	/**
+	 * Whether a voice is native to a language code. A voice with no
+	 * determinable primary language is treated as native, so it is never hidden.
+	 *
+	 * @param {Object} voice A voice record.
+	 * @param {string} code  The language code.
+	 *
+	 * @return {boolean} Whether the voice is native to the code.
+	 */
+	const voiceIsNative = ( voice, code ) => {
+		const primary = voicePrimaryCode( voice );
+		if ( ! primary ) {
+			return true;
+		}
+		return String( primary ) === String( code );
 	};
 
 	/**
@@ -108,6 +149,45 @@
 
 	const byId = ( id ) => document.getElementById( id );
 
+	/**
+	 * The language rows (accents) for a language name, in API order.
+	 *
+	 * @param {string} name The language name, or ''.
+	 *
+	 * @return {Array<Object>} The matching slim language rows.
+	 */
+	const accentsForName = ( name ) =>
+		name ? LANGUAGES.filter( ( language ) => language.name === name ) : [];
+
+	/**
+	 * Find a slim language row by its code.
+	 *
+	 * @param {string} code The language code.
+	 *
+	 * @return {Object|null} The matching row, or null.
+	 */
+	const findLanguageByCode = ( code ) =>
+		LANGUAGES.find(
+			( language ) => String( language.code ) === String( code )
+		) || null;
+
+	/**
+	 * An Accent <option> for a language row: the CODE as its value, carrying
+	 * the language's default body voice id for the voice-seeding flow.
+	 *
+	 * @param {Object} language A slim language row.
+	 *
+	 * @return {HTMLOptionElement} The option element.
+	 */
+	const accentOption = ( language ) => {
+		const el = option( String( language.code ), language.accent );
+		el.setAttribute(
+			'data-default-voice-id',
+			language.defaultVoiceId ? String( language.defaultVoiceId ) : ''
+		);
+		return el;
+	};
+
 	const toggleLoader = ( show ) => {
 		const loader = document.querySelector(
 			'.beyondwords-settings__loader'
@@ -129,12 +209,27 @@
 			}
 
 			const customize = byId( 'beyondwords_customize' );
+			const languageName = byId( 'beyondwords_language_name' );
 			const language = byId( 'beyondwords_language_code' );
+			const native = byId( 'beyondwords_native' );
 			const model = byId( 'beyondwords_model' );
 
 			if ( customize ) {
 				customize.addEventListener( 'change', ( event ) => {
 					this.toggleCustomize( event.target.checked );
+				} );
+			}
+
+			if ( native ) {
+				native.addEventListener( 'change', () => {
+					const voiceSelect = byId( 'beyondwords_voice_id' );
+					this.renderModels( voiceSelect ? voiceSelect.value : '' );
+				} );
+			}
+
+			if ( languageName ) {
+				languageName.addEventListener( 'change', ( event ) => {
+					this.onLanguageNameChange( event.target.value );
 				} );
 			}
 
@@ -178,13 +273,106 @@
 				return;
 			}
 
-			const language = byId( 'beyondwords_language_code' );
-			if ( language ) {
-				language.value = '';
+			const languageName = byId( 'beyondwords_language_name' );
+			if ( languageName ) {
+				languageName.value = '';
 			}
+
+			// Leaves a single empty option, so it submits '' and save() removes the meta.
+			this.renderAccents( '', '' );
 
 			this.voices = [];
 			this.renderModels( '' );
+		},
+
+		/**
+		 * Pick a language NAME → rebuild the Accent select, auto-select its
+		 * first accent and seed that language's default body voice.
+		 *
+		 * @param {string} name The language name, or '' for the placeholder.
+		 */
+		onLanguageNameChange( name ) {
+			const first = this.renderAccents( name, '' );
+
+			if ( first ) {
+				this.getVoices(
+					String( first.code ),
+					first.defaultVoiceId ? String( first.defaultVoiceId ) : ''
+				);
+			} else {
+				this.getVoices( '', '' );
+			}
+		},
+
+		/**
+		 * Rebuild the Accent select for a language name, selecting selectedCode
+		 * or the first accent. The wrapper is hidden for a single accent, but
+		 * the select stays mounted so it still submits that accent's code.
+		 *
+		 * @param {string} name         The language name, or ''.
+		 * @param {string} selectedCode The language code to select, or ''.
+		 *
+		 * @return {Object|null} The selected slim language row, or null.
+		 */
+		renderAccents( name, selectedCode ) {
+			const wrapper = byId( 'beyondwords-metabox-select-voice--accent' );
+			const accentSelect = byId( 'beyondwords_language_code' );
+			const accents = accentsForName( name );
+
+			let selected = null;
+
+			if ( accents.length ) {
+				selected =
+					accents.find(
+						( language ) =>
+							String( language.code ) === String( selectedCode )
+					) || accents[ 0 ];
+			}
+
+			if ( accentSelect ) {
+				if ( selected ) {
+					accentSelect.replaceChildren(
+						...accents.map( accentOption )
+					);
+					accentSelect.value = String( selected.code );
+				} else {
+					accentSelect.replaceChildren( option( '', '' ) );
+					accentSelect.value = '';
+				}
+			}
+
+			if ( wrapper ) {
+				wrapper.style.display = accents.length > 1 ? '' : 'none';
+			}
+
+			return selected;
+		},
+
+		/**
+		 * Programmatically select a language code across the Language + Accent
+		 * selects and fetch its voices.
+		 *
+		 * @param {string} code        The language code.
+		 * @param {string} seedVoiceId The voice id to seed, or '' for none.
+		 *
+		 * @return {boolean} Whether the code matched a known language.
+		 */
+		selectCode( code, seedVoiceId ) {
+			const row = findLanguageByCode( code );
+
+			if ( ! row ) {
+				return false;
+			}
+
+			const nameSelect = byId( 'beyondwords_language_name' );
+			if ( nameSelect ) {
+				nameSelect.value = row.name;
+			}
+
+			this.renderAccents( row.name, String( code ) );
+			this.getVoices( String( code ), seedVoiceId || '' );
+
+			return true;
 		},
 
 		/**
@@ -225,11 +413,7 @@
 					}
 
 					const lang = project && project.language;
-					if ( lang ) {
-						language.value = lang;
-						// Populate the language's models/voices but seed no voice.
-						this.getVoices( lang, '' );
-					} else {
+					if ( ! lang || ! this.selectCode( String( lang ), '' ) ) {
 						toggleLoader( false );
 					}
 				} )
@@ -371,9 +555,46 @@
 		},
 
 		/**
-		 * Rebuild the Model dropdown from the current voices, then the Voice dropdown.
+		 * The current voices narrowed by the Native filter. keepId is always
+		 * kept, so toggling the filter never drops the current selection.
 		 *
-		 * The Model dropdown is hidden when a language offers a single bucket.
+		 * @param {string} keepId The voice id to always keep, or ''.
+		 *
+		 * @return {Array<Object>} The native-scoped voices.
+		 */
+		scopedVoices( keepId ) {
+			const nativeSelect = byId( 'beyondwords_native' );
+			const codeSelect = byId( 'beyondwords_language_code' );
+			const nativeFilter = nativeSelect ? nativeSelect.value : 'native';
+			const code = codeSelect ? codeSelect.value : '';
+
+			let result =
+				nativeFilter === 'all'
+					? this.voices
+					: this.voices.filter( ( voice ) =>
+							voiceIsNative( voice, code )
+					  );
+
+			if (
+				keepId &&
+				! result.some(
+					( voice ) => String( voice.id ) === String( keepId )
+				)
+			) {
+				const saved = this.voices.find(
+					( voice ) => String( voice.id ) === String( keepId )
+				);
+				if ( saved ) {
+					result = result.concat( [ saved ] );
+				}
+			}
+
+			return result;
+		},
+
+		/**
+		 * Rebuild the Model dropdown from the native-scoped voices, then the Voice
+		 * dropdown. The Model dropdown is hidden when the scoped set offers one bucket.
 		 *
 		 * @param {string} selectedVoiceId The voice id to pre-select, or ''.
 		 */
@@ -383,7 +604,8 @@
 			);
 			const modelSelect = byId( 'beyondwords_model' );
 
-			const models = languageModels( this.voices );
+			const voices = this.scopedVoices( selectedVoiceId );
+			const models = languageModels( voices );
 			const showModel = models.length > 1;
 
 			if ( modelSelect ) {
@@ -396,7 +618,7 @@
 			}
 
 			const selectedVoice = selectedVoiceId
-				? this.voices.find(
+				? voices.find(
 						( voice ) =>
 							String( voice.id ) === String( selectedVoiceId )
 				  )
@@ -412,7 +634,12 @@
 				modelWrapper.style.display = showModel ? '' : 'none';
 			}
 
-			this.renderVoices( selectedKey, selectedVoiceId, showModel );
+			this.renderVoices(
+				selectedKey,
+				selectedVoiceId,
+				showModel,
+				voices
+			);
 		},
 
 		/**
@@ -420,11 +647,12 @@
 		 *
 		 * Hidden while gated with no model chosen; a single bucket lists every voice.
 		 *
-		 * @param {string}  modelKey    The selected model bucket key, or ''.
-		 * @param {string}  preselectId The voice id to select if in the bucket.
-		 * @param {boolean} showModel   Whether the Model dropdown is shown.
+		 * @param {string}        modelKey    The selected model bucket key, or ''.
+		 * @param {string}        preselectId The voice id to select if in the bucket.
+		 * @param {boolean}       showModel   Whether the Model dropdown is shown.
+		 * @param {Array<Object>} voices      The native-scoped voices to list.
 		 */
-		renderVoices( modelKey, preselectId, showModel ) {
+		renderVoices( modelKey, preselectId, showModel, voices ) {
 			const voiceWrapper = byId(
 				'beyondwords-metabox-select-voice--voice-id'
 			);
@@ -442,10 +670,10 @@
 			}
 
 			const bucketVoices = showModel
-				? this.voices.filter(
+				? voices.filter(
 						( voice ) => voiceModelKey( voice ) === modelKey
 				  )
-				: this.voices;
+				: voices;
 
 			if ( voiceSelect ) {
 				voiceSelect.replaceChildren(
@@ -474,17 +702,23 @@
 		 * @param {string} modelKey The selected model bucket key.
 		 */
 		onModelChange( modelKey ) {
+			const voiceSelect = byId( 'beyondwords_voice_id' );
+			const voices = this.scopedVoices(
+				voiceSelect ? voiceSelect.value : ''
+			);
+
 			if ( ! modelKey ) {
-				this.renderVoices( '', '', true );
+				this.renderVoices( '', '', true, voices );
 				return;
 			}
-			const first = this.voices.find(
+			const first = voices.find(
 				( voice ) => voiceModelKey( voice ) === modelKey
 			);
 			this.renderVoices(
 				modelKey,
 				first ? String( first.id ) : '',
-				true
+				true,
+				voices
 			);
 		},
 	};

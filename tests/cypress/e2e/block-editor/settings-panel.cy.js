@@ -111,11 +111,14 @@ context( 'Block Editor: Settings panel', () => {
 					force: true,
 				} );
 
-				// Enabling Customize pre-selects the project default language
-				// (mock: en_US → English (American)); wait for it before picking.
+				// Customize pre-selects the project default (mock en_US) across
+				// both selects; wait for it to land before picking.
 				select( 'beyondwords--language' )
 					.find( 'option:selected' )
-					.should( 'have.text', 'English (American)' );
+					.should( 'have.text', 'English' );
+				select( 'beyondwords--accent' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'American' );
 
 				// Model is a language-level filter; the Voice list stays
 				// hidden until a model is chosen.

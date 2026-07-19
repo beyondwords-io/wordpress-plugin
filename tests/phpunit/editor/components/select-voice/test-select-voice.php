@@ -68,20 +68,54 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-code');
+        $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-name');
         $this->assertEquals('Language', $languageLabel->text());
 
-        $languageSelect = $crawler->filter('#beyondwords_language_code');
-        $this->assertCount(1, $languageSelect);
+        // Client-side control only, so it has no name attribute and isn't submitted.
+        $nameSelect = $crawler->filter('#beyondwords_language_name');
+        $this->assertCount(1, $nameSelect);
+        $this->assertNull($nameSelect->attr('name'));
 
-        $this->assertSame('en_US', $languageSelect->filter('option:nth-child(34)')->attr('value'));
-        $this->assertSame('English (American)', $languageSelect->filter('option:nth-child(34)')->text());
+        // 79 distinct names + the "Select a language…" placeholder.
+        $this->assertCount(80, $nameSelect->filter('option'));
 
-        $this->assertSame('en_GB', $languageSelect->filter('option:nth-child(36)')->attr('value'));
-        $this->assertSame('English (British)', $languageSelect->filter('option:nth-child(36)')->text());
+        $this->assertSame('English', $nameSelect->filter('option:nth-child(4)')->attr('value'));
+        $this->assertSame('English', $nameSelect->filter('option:nth-child(4)')->text());
+        $this->assertNotNull($nameSelect->filter('option:nth-child(4)')->attr('selected'));
 
-        $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(93)')->attr('value'));
-        $this->assertSame('Welsh (Welsh)', $languageSelect->filter('option:nth-child(93)')->text());
+        $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->attr('value'));
+        $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->text());
+
+        // The Accent select carries the language CODE and is the submitted field.
+        $accentLabel = $crawler->filter('#beyondwords-metabox-select-voice--accent label');
+        $this->assertEquals('Accent', $accentLabel->text());
+
+        $accentWrapper = $crawler->filter('#beyondwords-metabox-select-voice--accent');
+        $this->assertStringNotContainsString('display: none', (string) $accentWrapper->attr('style'));
+
+        $accentSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $accentSelect);
+        $this->assertSame('beyondwords_language_code', $accentSelect->attr('name'));
+
+        $this->assertCount(14, $accentSelect->filter('option'));
+
+        $this->assertSame('en_US', $accentSelect->filter('option:nth-child(5)')->attr('value'));
+        $this->assertSame('American', $accentSelect->filter('option:nth-child(5)')->text());
+        $this->assertNotNull($accentSelect->filter('option:nth-child(5)')->attr('selected'));
+
+        $this->assertSame('en_GB', $accentSelect->filter('option:nth-child(6)')->attr('value'));
+        $this->assertSame('British', $accentSelect->filter('option:nth-child(6)')->text());
+
+        $nativeLabel = $crawler->filter('#beyondwords-metabox-select-voice--native label');
+        $this->assertEquals('Native', $nativeLabel->text());
+
+        $nativeSelect = $crawler->filter('#beyondwords_native');
+        $this->assertNull($nativeSelect->attr('name'));
+        $this->assertSame(
+            ['Native', 'All'],
+            $nativeSelect->filter('option')->each(fn ($node) => $node->text())
+        );
+        $this->assertSame('native', $nativeSelect->filter('option[selected]')->attr('value'));
 
         // en_US offers several models, so the Model dropdown is visible.
         $modelLabel = $crawler->filter('#beyondwords-metabox-select-voice--model label');
@@ -197,10 +231,15 @@ class SelectVoiceTest extends TestCase
         $crawler = new Crawler($html);
 
         // Only the empty placeholder option remains — the failed API yields no languages.
-        $languageSelect = $crawler->filter('#beyondwords_language_code');
-        $this->assertCount(1, $languageSelect);
-        $this->assertCount(1, $languageSelect->filter('option'));
-        $this->assertSame('', $languageSelect->filter('option')->attr('value'));
+        $nameSelect = $crawler->filter('#beyondwords_language_name');
+        $this->assertCount(1, $nameSelect);
+        $this->assertCount(1, $nameSelect->filter('option'));
+        $this->assertSame('', $nameSelect->filter('option')->attr('value'));
+
+        $accentSelect = $crawler->filter('#beyondwords_language_code');
+        $this->assertCount(1, $accentSelect);
+        $this->assertCount(1, $accentSelect->filter('option'));
+        $this->assertSame('', $accentSelect->filter('option')->attr('value'));
 
         // Render reached the voice select — no TypeError was thrown.
         $this->assertCount(1, $crawler->filter('#beyondwords_voice_id'));
@@ -265,6 +304,170 @@ class SelectVoiceTest extends TestCase
         $this->assertSame(
             ['Select a voice'],
             $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text())
+        );
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function language_names()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+            ['code' => 'en_GB', 'name' => 'English', 'accent' => 'British'],
+            ['code' => 'cy_GB', 'name' => 'Welsh', 'accent' => 'Welsh'],
+            // Rows missing a code, name or accent are skipped.
+            ['code' => 'xx_XX', 'name' => 'Broken'],
+        ];
+
+        $this->assertSame(['English', 'Welsh'], SelectVoice::language_names($languages));
+    }
+
+    /**
+     * @test
+     */
+    public function accents_for_name()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+            ['code' => 'cy_GB', 'name' => 'Welsh', 'accent' => 'Welsh'],
+            ['code' => 'en_GB', 'name' => 'English', 'accent' => 'British'],
+        ];
+
+        $accents = SelectVoice::accents_for_name($languages, 'English');
+
+        $this->assertSame(['en_US', 'en_GB'], array_column($accents, 'code'));
+        $this->assertSame([], SelectVoice::accents_for_name($languages, ''));
+    }
+
+    /**
+     * @test
+     */
+    public function find_language_by_code()
+    {
+        $languages = [
+            ['code' => 'en_US', 'name' => 'English', 'accent' => 'American'],
+        ];
+
+        $this->assertSame('English', SelectVoice::find_language_by_code($languages, 'en_US')['name']);
+        $this->assertNull(SelectVoice::find_language_by_code($languages, 'xx_XX'));
+        $this->assertNull(SelectVoice::find_language_by_code($languages, false));
+    }
+
+    /**
+     * @test
+     */
+    public function languages_for_script()
+    {
+        $rows = SelectVoice::languages_for_script();
+
+        $this->assertCount(148, $rows);
+        $this->assertSame(
+            ['code', 'name', 'accent', 'defaultVoiceId'],
+            array_keys($rows[0])
+        );
+
+        $en = array_column($rows, null, 'code')['en_US'];
+        $this->assertSame('English', $en['name']);
+        $this->assertSame('American', $en['accent']);
+        $this->assertSame('2517', $en['defaultVoiceId']);
+    }
+
+    /**
+     * @test
+     */
+    public function voice_primary_code()
+    {
+        $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => 'en_US']));
+        $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => ['code' => 'en_US']]));
+        $this->assertSame('de_DE', SelectVoice::voice_primary_code(['languages' => [['code' => 'de_DE']]]));
+        $this->assertSame('', SelectVoice::voice_primary_code(['name' => 'Nobody']));
+    }
+
+    /**
+     * @test
+     */
+    public function voice_is_native()
+    {
+        $this->assertTrue(SelectVoice::voice_is_native(['language' => ['code' => 'en_US']], 'en_US'));
+        $this->assertFalse(SelectVoice::voice_is_native(['language' => ['code' => 'de_DE']], 'en_US'));
+
+        // A voice with no determinable primary language is treated as native.
+        $this->assertTrue(SelectVoice::voice_is_native(['name' => 'Nobody'], 'en_US'));
+    }
+
+    /**
+     * @test
+     */
+    public function filter_voices_by_native()
+    {
+        $native     = ['id' => 1, 'name' => 'Ada', 'language' => ['code' => 'en_US']];
+        $nonNative  = ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']];
+        $voices     = [$native, $nonNative];
+
+        $this->assertSame(
+            [1],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'native', ''), 'id')
+        );
+        $this->assertSame(
+            [1, 2],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'all', ''), 'id')
+        );
+
+        // The kept voice is unioned back in even when native-only would hide it.
+        $this->assertSame(
+            [1, 2],
+            array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'native', '2'), 'id')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function default_native_filter()
+    {
+        $voices = [
+            ['id' => 1, 'name' => 'Ada', 'language' => ['code' => 'en_US']],
+            ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']],
+        ];
+
+        $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', '1'));
+        $this->assertSame('all', SelectVoice::default_native_filter($voices, 'en_US', '2'));
+        $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', ''));
+    }
+
+    /**
+     * A saved voice that is not native to the language opens the picker on the
+     * "All" Native filter so it stays visible in the Voice dropdown.
+     *
+     * @test
+     */
+    public function element_opens_on_all_for_non_native_saved_voice()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'PostSelectVoiceTest::element_non_native',
+            'meta_input' => [
+                'beyondwords_language_code' => 'en_US',
+                // Klaus (9500) is German-primary, non-native to en_US.
+                'beyondwords_body_voice_id' => '9500',
+            ],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            SelectVoice::element($post);
+        });
+
+        $crawler = new Crawler($html);
+
+        $this->assertSame('all', $crawler->filter('#beyondwords_native option[selected]')->attr('value'));
+
+        $voiceOptions = $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text());
+        $this->assertContains('Klaus (Multilingual)', $voiceOptions);
+        $this->assertSame(
+            '9500',
+            $crawler->filter('#beyondwords_voice_id option[selected]')->attr('value')
         );
 
         wp_delete_post($post->ID, true);

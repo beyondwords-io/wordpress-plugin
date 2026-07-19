@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 
 export const SOURCE_POST = 'post';
@@ -23,6 +24,157 @@ export const PROJECT_DEFAULT_VALUE = '';
 
 export function projectDefaultOption() {
 	return { label: __( 'Project default', 'speechkit' ), value: '' };
+}
+
+// A language row is a (name, accent, code) triple: Language selects the name,
+// Accent selects the row, and the row's CODE is the stored value.
+const isValidLanguage = ( language ) =>
+	!! ( language?.code && language?.name && language?.accent );
+
+/**
+ * The distinct language names across the /languages rows, in API order.
+ *
+ * @param {Array<Object>} languages The language rows.
+ *
+ * @return {Array<string>} The decoded language names.
+ */
+export function getLanguageNames( languages ) {
+	const names = [];
+
+	( languages ?? [] ).forEach( ( language ) => {
+		if ( ! isValidLanguage( language ) ) {
+			return;
+		}
+		const name = decodeEntities( language.name );
+		if ( ! names.includes( name ) ) {
+			names.push( name );
+		}
+	} );
+
+	return names;
+}
+
+/**
+ * The accents for a language name, as options carrying the language CODE.
+ *
+ * @param {Array<Object>} languages The language rows.
+ * @param {string}        name      The decoded language name.
+ *
+ * @return {Array<{label: string, value: string}>} The Accent dropdown options.
+ */
+export function getAccentsForName( languages, name ) {
+	if ( ! name ) {
+		return [];
+	}
+
+	return ( languages ?? [] )
+		.filter(
+			( language ) =>
+				isValidLanguage( language ) &&
+				decodeEntities( language.name ) === name
+		)
+		.map( ( language ) => ( {
+			label: decodeEntities( language.accent ),
+			value: decodeEntities( language.code ),
+		} ) );
+}
+
+/**
+ * Find a language row by its code.
+ *
+ * @param {Array<Object>} languages The language rows.
+ * @param {string}        code      The language code.
+ *
+ * @return {Object|null} The matching row, or null.
+ */
+export function findLanguageByCode( languages, code ) {
+	if ( ! code ) {
+		return null;
+	}
+
+	return (
+		( languages ?? [] ).find(
+			( language ) =>
+				isValidLanguage( language ) &&
+				decodeEntities( language.code ) === code
+		) ?? null
+	);
+}
+
+// Native = the language is the voice's primary one; multilingual voices merely
+// support it as a secondary language and only show under "All".
+export const NATIVE_ONLY = 'native';
+export const NATIVE_ALL = 'all';
+
+/**
+ * A voice's primary (native) language code.
+ *
+ * @param {Object} voice A voice record.
+ *
+ * @return {string} The primary language code, or '' when unknown.
+ */
+export function voicePrimaryCode( voice ) {
+	const language = voice?.language;
+
+	if ( typeof language === 'string' ) {
+		return language;
+	}
+	if ( language && typeof language === 'object' && language.code ) {
+		return language.code;
+	}
+	return voice?.languages?.[ 0 ]?.code || '';
+}
+
+/**
+ * Whether a voice is native to a language code. A voice with no determinable
+ * primary language counts as native, so we never hide what we cannot classify.
+ *
+ * @param {Object} voice A voice record.
+ * @param {string} code  The language code.
+ *
+ * @return {boolean} Whether the voice is native to the code.
+ */
+export function voiceIsNative( voice, code ) {
+	const primary = voicePrimaryCode( voice );
+	if ( ! primary ) {
+		return true;
+	}
+	return String( primary ) === String( code );
+}
+
+/**
+ * Apply the Native filter to a language's voices.
+ *
+ * `keepId` is always kept, so changing the filter never drops the saved voice.
+ *
+ * @param {Array<Object>} voices       All fetched voices for the language.
+ * @param {string}        code         The selected language code.
+ * @param {string}        nativeFilter NATIVE_ONLY or NATIVE_ALL.
+ * @param {string}        keepId       The voice id to always keep, or ''.
+ *
+ * @return {Array<Object>} The filtered voices.
+ */
+export function filterVoicesByNative( voices, code, nativeFilter, keepId ) {
+	const list = voices ?? [];
+
+	let result =
+		nativeFilter === NATIVE_ALL
+			? list
+			: list.filter( ( voice ) => voiceIsNative( voice, code ) );
+
+	if (
+		keepId &&
+		! result.some( ( voice ) => String( voice.id ) === String( keepId ) )
+	) {
+		const saved = list.find(
+			( voice ) => String( voice.id ) === String( keepId )
+		);
+		if ( saved ) {
+			result = [ ...result, saved ];
+		}
+	}
+
+	return result;
 }
 
 // Voice "models" only exist for ElevenLabs voices; each (name, model_id) pair is

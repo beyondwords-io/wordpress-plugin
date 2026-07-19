@@ -46,6 +46,10 @@ class SelectVoiceAssetsTest extends TestCase
 
         $this->assertTrue(wp_script_is('beyondwords-metabox--select-voice', 'enqueued'));
 
+        // The script rebuilds the Accent dropdown client-side, so the language rows must be localized.
+        $data = wp_scripts()->get_data('beyondwords-metabox--select-voice', 'data');
+        $this->assertStringContainsString('"languages":', (string) $data);
+
         wp_delete_post($post->ID, true);
     }
 
