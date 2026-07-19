@@ -47,6 +47,69 @@ class Client {
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long to negative-cache a *failed* editor-dropdown fetch (WP_Error /
+	 * timeout, 5xx, 4xx, non-JSON). Much shorter than CACHE_TTL so a transient
+	 * outage self-heals within minutes, but long enough that a slow or
+	 * unreachable API is probed at most once per interval rather than blocking
+	 * every admin edit-screen render.
+	 *
+	 * @since 7.0.0
+	 */
+	const CACHE_TTL_ON_ERROR = 2 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Default timeout, in seconds, for a BeyondWords API request.
+	 *
+	 * The create/update content calls can be slow, so this is deliberately
+	 * generous. On WordPress VIP those calls are deferred to background cron
+	 * (see `\BeyondWords\Post\Sync::is_async_generation_enabled()`), so the long
+	 * timeout never blocks a web request there.
+	 *
+	 * @since 7.0.0
+	 */
+	const REQUEST_TIMEOUT = 30;
+
+	/**
+	 * Timeout, in seconds, for a DELETE request.
+	 *
+	 * Deletion runs on the synchronous trash/delete admin path — once per post
+	 * on a bulk trash off-VIP — so a long blocking timeout would hang the request
+	 * and can breach VIP request limits. Deletes are best-effort (a timeout just
+	 * leaves the audio in the BeyondWords dashboard), so we cap the wait short.
+	 *
+	 * @since 7.0.0
+	 */
+	const DELETE_TIMEOUT = 3;
+
+	/**
+	 * Timeout, in seconds, for a cached render-path GET (editor dropdowns).
+	 *
+	 * These run inline on every classic-editor metabox render, so a long
+	 * blocking timeout would tie up a PHP-FPM worker for the length of an admin
+	 * page load. Short, per VIP guidance (see `vip_safe_wp_remote_get`), and
+	 * paired with negative caching ({@see CACHE_TTL_ON_ERROR}) to bound repeat
+	 * failures.
+	 *
+	 * @since 7.0.0
+	 */
+	const RENDER_TIMEOUT = 3;
+
+	/**
+	 * Timeout, in seconds, for the voices GET.
+	 *
+	 * Voices is the one editor dropdown that is genuinely slow to prepare —
+	 * ~3.7s p95 in Sentry, against ~250ms p95 for every other editor GET — so
+	 * the shared `RENDER_TIMEOUT` would abandon more than 5% of cold-cache
+	 * fetches. Because a failure is then negative-cached, that would blank the
+	 * Voice dropdown for a whole `CACHE_TTL_ON_ERROR` rather than just the one
+	 * render. Still well under the generous `REQUEST_TIMEOUT` default, and only
+	 * ever paid on a cache miss.
+	 *
+	 * @since 7.0.0
+	 */
+	const VOICES_TIMEOUT = 8;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -125,7 +188,7 @@ class Client {
 			return false;
 		}
 
-		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
+		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 
 		return self::call_api( 'GET', $url );
 	}
@@ -170,7 +233,7 @@ class Client {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'PUT', $url, $body, $post_id );
 
@@ -180,6 +243,9 @@ class Client {
 	/**
 	 * DELETE /projects/:project/content/:content_id
 	 *
+	 * Resolves the project + content IDs from the post's meta and delegates to
+	 * `delete_audio_by_ids()`.
+	 *
 	 * @param int $post_id WordPress post ID.
 	 *
 	 * @return array<mixed>|null|false `false` when the request didn't return 204.
@@ -188,12 +254,33 @@ class Client {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
+		return self::delete_audio_by_ids( $project_id, $content_id, $post_id );
+	}
+
+	/**
+	 * DELETE /projects/:project/content/:content_id using explicit IDs.
+	 *
+	 * Split out from `delete_audio()` so the deferred trash/delete cron job can
+	 * delete audio from the project + content IDs captured before the post meta
+	 * was wiped (see `\BeyondWords\Post\Sync::delete_audio_by_ids()`). Uses the
+	 * short `DELETE_TIMEOUT` because deletion runs on the synchronous
+	 * trash/delete admin path.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|string|false $project_id BeyondWords project ID.
+	 * @param int|string|false $content_id BeyondWords content ID.
+	 * @param int|false        $post_id    Optional post ID for error attribution.
+	 *
+	 * @return array<mixed>|null|false `false` when an ID is missing or the request didn't return 204.
+	 */
+	public static function delete_audio_by_ids( int|string|false $project_id, int|string|false $content_id, int|false $post_id = false ): array|null|false {
 		if ( ! $project_id || ! $content_id ) {
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, $content_id );
-		$response = self::call_api( 'DELETE', $url, '', $post_id );
+		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
+		$response = self::call_api( 'DELETE', $url, '', $post_id, [], self::DELETE_TIMEOUT );
 
 		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
@@ -306,6 +393,9 @@ class Client {
 	/**
 	 * GET /organization/voices?filter[language.code]=…
 	 *
+	 * Passes the longer `VOICES_TIMEOUT` — this endpoint is materially slower
+	 * than the other editor dropdowns.
+	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
 	 *
 	 * @return array<mixed>|null|false
@@ -317,7 +407,7 @@ class Client {
 			rawurlencode( strval( $language_code ) )
 		);
 
-		return self::cached_get( 'voices_' . $language_code, $url );
+		return self::cached_get( 'voices_' . $language_code, $url, self::VOICES_TIMEOUT );
 	}
 
 	/**
@@ -443,13 +533,14 @@ class Client {
 	 * @param string               $body    Request body (already JSON-encoded for write methods).
 	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [] ): array|\WP_Error {
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array|\WP_Error {
 		$post = get_post( $post_id );
 
 		self::delete_errors( $post_id );
 
-		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers ) );
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
@@ -479,17 +570,19 @@ class Client {
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to REQUEST_TIMEOUT;
+	 *                                      DELETEs pass the shorter DELETE_TIMEOUT and cached
+	 *                                      render-path GETs the shorter RENDER_TIMEOUT.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private static function build_args( string $method, string $body = '', array $headers = [] ): array {
+	private static function build_args( string $method, string $body = '', array $headers = [], int $timeout = self::REQUEST_TIMEOUT ): array {
 		return [
 			'blocking' => true,
 			'body'     => $body,
 			'headers'  => $headers,
 			'method'   => strtoupper( $method ),
-			// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			'timeout'  => 30,
+			'timeout'  => $timeout,
 		];
 	}
 
@@ -515,19 +608,30 @@ class Client {
 	}
 
 	/**
-	 * GET an endpoint, caching successful list/object responses.
+	 * GET an editor-render-path endpoint, caching both hits and failures.
 	 *
-	 * Only 2xx array responses are cached, so a transient API error retries on
-	 * the next call rather than caching an empty/error payload for the full TTL.
+	 * Successful 2xx array responses are cached for {@see CACHE_TTL}. Failures
+	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
+	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
+	 * at most once per interval instead of re-issuing a blocking request on
+	 * every admin render. The request itself defaults to the short
+	 * {@see RENDER_TIMEOUT} for the same reason; the slower voices endpoint
+	 * passes its own {@see VOICES_TIMEOUT}.
+	 *
+	 * A 401 additionally self-heals: call_api() clears
+	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param string $suffix Cache-key suffix (include any project/language id).
-	 * @param string $url    Absolute endpoint URL.
+	 * @param string $suffix  Cache-key suffix (include any project/language id).
+	 * @param string $url     Absolute endpoint URL.
+	 * @param int    $timeout Request timeout in seconds. Defaults to RENDER_TIMEOUT;
+	 *                        the voices GET passes the longer VOICES_TIMEOUT.
 	 *
-	 * @return array<mixed>|null|false
+	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
+	 *                                 value ([] after a cached failure) thereafter.
 	 */
-	private static function cached_get( string $suffix, string $url ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::RENDER_TIMEOUT ): array|null|false {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 
@@ -535,7 +639,7 @@ class Client {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url );
+		$response = self::call_api( 'GET', $url, '', false, [], $timeout );
 		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if (
@@ -544,7 +648,13 @@ class Client {
 			&& is_array( $decoded )
 		) {
 			set_transient( $key, $decoded, self::CACHE_TTL );
+
+			return $decoded;
 		}
+
+		// Negative-cache the failure so the next render is served from the
+		// transient instead of blocking on another remote round-trip.
+		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
 
 		return $decoded;
 	}

@@ -223,6 +223,69 @@ class ClientTest extends TestCase
     /**
      * @test
      */
+    public function delete_audio_by_ids_returns_false_when_ids_missing()
+    {
+        // A missing project or content ID short-circuits before any HTTP request.
+        $apiCalled = false;
+        $filter = function ($preempt, $args, $url) use (&$apiCalled) {
+            $apiCalled = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $this->assertFalse(Client::delete_audio_by_ids(false, 'abc-123'));
+        $this->assertFalse(Client::delete_audio_by_ids(1234, false));
+        $this->assertFalse(Client::delete_audio_by_ids(0, 0));
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertFalse($apiCalled, 'No HTTP request should be made when an ID is missing');
+    }
+
+    /**
+     * @test
+     *
+     * The deferred trash/delete cron job deletes audio by explicit IDs (the post
+     * meta is already gone), using the short DELETE_TIMEOUT so it never blocks a
+     * request for long.
+     */
+    public function delete_audio_by_ids_issues_delete_with_short_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = ['method' => null, 'url' => null, 'timeout' => null];
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/content/')) {
+                $captured['method']  = $args['method'] ?? null;
+                $captured['url']     = $url;
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $response = Client::delete_audio_by_ids(BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // 204 with an empty body decodes to null.
+        $this->assertNull($response);
+        $this->assertSame('DELETE', $captured['method']);
+        $this->assertStringContainsString(
+            '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
+            (string) $captured['url']
+        );
+        $this->assertSame(Client::DELETE_TIMEOUT, $captured['timeout']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
     public function batch_delete_audio()
     {
         $numPosts = 20;
@@ -478,12 +541,58 @@ class ClientTest extends TestCase
      * @test
      * @group settings
      *
-     * A non-2xx response is not cached, so the next call retries the API rather
-     * than serving a cached error for the full TTL.
+     * Voices is materially slower to prepare than the other dropdowns (~3.7s p95
+     * vs ~250ms), so it gets its own longer bound — the shared RENDER_TIMEOUT
+     * would abandon cold-cache fetches and, because failures are negative-cached,
+     * blank the Voice dropdown for a whole CACHE_TTL_ON_ERROR.
      */
-    public function failed_responses_are_not_cached()
+    public function voices_get_uses_longer_timeout()
     {
-        // No API key → the mock returns a 401, which must not be cached.
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = null;
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/organization/voices')) {
+                $captured = $args['timeout'] ?? null;
+            }
+            return $preempt; // Pass through — let the mock supply the response.
+        };
+        add_filter('pre_http_request', $filter, 0, 3);
+
+        Client::get_voices('en_US');
+
+        remove_filter('pre_http_request', $filter, 0);
+
+        $this->assertSame(Client::VOICES_TIMEOUT, $captured);
+        $this->assertGreaterThan(
+            Client::RENDER_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices needs a longer bound than the other editor GETs'
+        );
+        $this->assertLessThan(
+            Client::REQUEST_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices still runs during page generation, so it must stay well under the default'
+        );
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * A failed editor-dropdown fetch is negative-cached for a short TTL, so a
+     * slow or unreachable API is probed at most once per interval instead of
+     * blocking every admin edit-screen render. The second call within the TTL
+     * is served from the transient (the empty-array sentinel) and makes no HTTP
+     * request.
+     */
+    public function failed_responses_are_negative_cached()
+    {
+        // No API key → the mock returns a 401, which is negative-cached.
         $calls   = 0;
         $counter = function ($preempt, $args, $url) use (&$calls) {
             if (str_contains((string) $url, '/summarization_settings_templates')) {
@@ -493,12 +602,58 @@ class ClientTest extends TestCase
         };
         add_filter('pre_http_request', $counter, 0, 3);
 
-        Client::get_summarization_settings_templates();
-        Client::get_summarization_settings_templates();
+        $first  = Client::get_summarization_settings_templates();
+        $second = Client::get_summarization_settings_templates();
 
         remove_filter('pre_http_request', $counter, 0);
 
-        $this->assertSame(2, $calls, 'Errors should not be cached');
+        $this->assertSame(1, $calls, 'A failed response should be negative-cached, so the second call is served from the transient');
+        $this->assertSame([], $second, 'The negative-cache sentinel is an empty array');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * Cached editor-dropdown GETs render on the admin edit screen, so they use
+     * a short (<= 3s) timeout to avoid tying up a PHP worker when the API is
+     * slow. Write-path (and other direct call_api) requests keep the longer
+     * timeout so user-initiated saves aren't dropped mid-generation.
+     */
+    public function render_path_gets_use_a_short_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $timeouts = [];
+        $capture  = function ($preempt, $args, $url) use (&$timeouts) {
+            $timeouts[(string) $url] = $args['timeout'] ?? null;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $capture, 0, 3);
+
+        Client::get_summarization_settings_templates();      // cached_get → short timeout
+        Client::get_content(BEYONDWORDS_TESTS_CONTENT_ID);   // call_api  → long timeout
+
+        remove_filter('pre_http_request', $capture, 0);
+
+        $render_timeout = null;
+        $write_timeout  = null;
+        foreach ($timeouts as $url => $timeout) {
+            if (str_contains($url, '/summarization_settings_templates')) {
+                $render_timeout = $timeout;
+            } elseif (str_contains($url, '/content/')) {
+                $write_timeout = $timeout;
+            }
+        }
+
+        $this->assertNotNull($render_timeout, 'Expected a render-path request to be captured');
+        $this->assertSame(Client::RENDER_TIMEOUT, $render_timeout, 'Render-path GETs should use the short RENDER_TIMEOUT');
+        $this->assertLessThanOrEqual(3, $render_timeout, 'RENDER_TIMEOUT must stay within VIP guidance (<= 3s)');
+        $this->assertSame(Client::REQUEST_TIMEOUT, $write_timeout, 'Direct/write-path requests keep the longer default timeout');
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**
@@ -871,6 +1026,38 @@ class ClientTest extends TestCase
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
             (string) $captured_url
         );
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * The Content ID is charset-validated before storage, but Client must still
+     * defensively rawurlencode() it so any value that reaches the URL builder
+     * can't inject extra path or query segments into the authenticated request.
+     *
+     * @test
+     */
+    public function get_content_rawurlencodes_the_content_id()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured_url = null;
+        $filter = function ($preempt, $args, $url) use (&$captured_url) {
+            $captured_url = $url;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        Client::get_content('a/b?c=1');
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // The slash and query characters are percent-encoded, so the URL keeps
+        // its intended `/content/<id>` shape instead of gaining an attacker path.
+        $this->assertStringContainsString('/content/a%2Fb%3Fc%3D1', (string) $captured_url);
+        $this->assertStringNotContainsString('/content/a/b?c=1', (string) $captured_url);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

@@ -170,6 +170,25 @@ class ContentIdTest extends TestCase
                 'postValue' => 'abc<b>def</b>ghi',
                 'expect'    => 'abcdefghi',
             ],
+            // A crafted Content ID must not be able to inject path/query segments
+            // into the authenticated BeyondWords API URL — see the fix in
+            // Meta::sanitize_content_id().
+            'Path traversal + query blanked' => [
+                'postValue' => 'x/../../projects/999/content/abc?force=1',
+                'expect'    => '',
+            ],
+            'Forward slash blanked' => [
+                'postValue' => 'a/b',
+                'expect'    => '',
+            ],
+            'Query string blanked' => [
+                'postValue' => 'abc?force=1',
+                'expect'    => '',
+            ],
+            'Ampersand blanked' => [
+                'postValue' => 'a&b',
+                'expect'    => '',
+            ],
         ];
     }
 

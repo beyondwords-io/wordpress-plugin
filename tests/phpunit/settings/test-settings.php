@@ -21,12 +21,14 @@ class SettingsTest extends TestCase
 
         // Your set up methods here.
         delete_transient('beyondwords_settings_errors');
+        delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
     }
 
     public function tearDown(): void
     {
         // Your tear down methods here.
         delete_transient('beyondwords_settings_errors');
+        delete_transient(Utils::CONNECTION_CHECK_TRANSIENT);
         // print_settings_errors() is now screen-gated; reset the screen so a
         // test that sets it does not leak into the review-notice tests, which
         // rely on no settings screen being active.

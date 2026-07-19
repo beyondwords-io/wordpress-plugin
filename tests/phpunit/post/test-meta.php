@@ -186,6 +186,45 @@ class MetaTest extends TestCase
     }
 
     /**
+     * A Content ID is interpolated into BeyondWords API URL paths, so only the
+     * `[a-zA-Z0-9\-]+` charset the inspect REST route allows may be stored —
+     * anything with path/query characters is blanked to defeat URL injection.
+     *
+     * @test
+     * @dataProvider sanitize_content_id_provider
+     *
+     * @param mixed  $input    Raw submitted Content ID.
+     * @param string $expected Expected sanitized value.
+     */
+    public function sanitize_content_id($input, $expected)
+    {
+        $this->assertSame($expected, Meta::sanitize_content_id($input));
+    }
+
+    public function sanitize_content_id_provider()
+    {
+        return [
+            // Legitimate values pass through unchanged.
+            'UUID'                    => ['9279c9e0-e0b5-4789-9040-f44478ed3e9e', '9279c9e0-e0b5-4789-9040-f44478ed3e9e'],
+            'numeric id'              => ['1234567', '1234567'],
+            'all-zero UUID'           => ['00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000'],
+            'empty string'           => ['', ''],
+            'surrounding whitespace'  => ['  9279c9e0-e0b5  ', '9279c9e0-e0b5'],
+            // Anything outside [a-zA-Z0-9-] is blanked.
+            'path traversal + query'  => ['x/../../projects/999/content/abc?force=1', ''],
+            'forward slash'           => ['abc/def', ''],
+            'dot segment'             => ['abc.def', ''],
+            'query string'            => ['abc?force=1', ''],
+            'fragment'                => ['abc#frag', ''],
+            'ampersand'               => ['a&b', ''],
+            'colon'                   => ['abc:def', ''],
+            'underscore'              => ['content_id', ''],
+            'space'                   => ['a b', ''],
+            'script tag'              => ['<script>alert(1)</script>', ''],
+        ];
+    }
+
+    /**
      * Get API response body from post meta field.
      *
      * @test
@@ -218,6 +257,71 @@ class MetaTest extends TestCase
             'Missing'             => ['',    ['post_title' => 'UtilsTest:getHttpResponseBodyFromPostMetaProvider']],
             'Empty string'        => ['',    ['post_title' => 'UtilsTest:getHttpResponseBodyFromPostMetaProvider', 'meta_input' => ['speechkit_response' => '']]],
             'String'              => [$json, ['post_title' => 'UtilsTest:getHttpResponseBodyFromPostMetaProvider', 'meta_input' => ['speechkit_response' => $json]]],
+        ];
+    }
+
+    /**
+     * Legacy `speechkit_response` meta that was stored as a WordPress HTTP response
+     * array or a WP_Error object (plugin ~3.x) must be read back without a fatal error.
+     *
+     * These non-scalar shapes cannot be seeded via `meta_input` / update_post_meta,
+     * because Sync::register_meta() registers `speechkit_response` with a
+     * `sanitize_text_field` sanitize_callback that coerces any write to a string. Real
+     * legacy rows predate that registration, so we reproduce them by writing the
+     * serialized value straight to wp_postmeta — exactly as an old plugin version did.
+     *
+     * @test
+     * @dataProvider get_http_response_body_from_post_meta_legacy_provider
+     *
+     * @param string $expected  Expected return value.
+     * @param mixed  $metaValue Raw (unserialized) legacy meta value to seed.
+     */
+    public function get_http_response_body_from_post_meta_with_legacy_data($expected, $metaValue)
+    {
+        global $wpdb;
+
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create(['post_title' => 'MetaTest:getHttpResponseBodyFromPostMetaLegacy']);
+
+        // Write the serialized value directly, bypassing the registered sanitize_callback,
+        // to mimic a legacy row already present in the database.
+        $wpdb->insert(
+            $wpdb->postmeta,
+            [
+                'post_id'    => $postId,
+                'meta_key'   => 'speechkit_response',
+                'meta_value' => maybe_serialize($metaValue),
+            ]
+        );
+        wp_cache_delete($postId, 'post_meta');
+
+        $this->assertSame($expected, Meta::get_http_response_body_from_post_meta($postId, 'speechkit_response'));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     *
+     */
+    public function get_http_response_body_from_post_meta_legacy_provider()
+    {
+        $json = '{"foo":"bar","baz":42}';
+
+        return [
+            // is_array() branch: return the 'body' of the stored HTTP response.
+            'HTTP response array' => [
+                $json,
+                ['body' => $json, 'response' => ['code' => 500, 'message' => 'Internal Server Error']],
+            ],
+            // is_wp_error() branch: the regression case — instance methods must not be
+            // called statically, else PHP 8 throws an uncaught Error (white-screen fatal).
+            'WP_Error object'     => [
+                'WP_Error [http_request_failed] A valid URL was not provided.',
+                new \WP_Error('http_request_failed', 'A valid URL was not provided.'),
+            ],
         ];
     }
 
@@ -300,11 +404,13 @@ class MetaTest extends TestCase
             'post_title' => 'MetaTest:removeAllBeyondwordsMetadata',
         ]);
 
-        // Set all BeyondWords meta keys
+        // Set all BeyondWords meta keys. Use a hyphen rather than an underscore so
+        // the value survives beyondwords_content_id's strict sanitiser
+        // (Meta::sanitize_content_id) while remaining valid for every other key.
         $beyondwordsKeys = Utils::get_post_meta_keys('all');
 
         foreach ($beyondwordsKeys as $key) {
-            update_post_meta($postId, $key, 'test_value');
+            update_post_meta($postId, $key, 'test-value');
         }
 
         // Set a non-BeyondWords meta key that should NOT be removed
