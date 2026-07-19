@@ -117,9 +117,8 @@ context( 'Block Editor: Settings panel', () => {
 					force: true,
 				} );
 
-				// Enabling Customize pre-selects the project default language,
-				// split across the Language (name) + Accent selects (mock:
-				// en_US → English + American); wait for it before picking.
+				// Customize pre-selects the project default (mock en_US) across
+				// both selects; wait for it to land before picking.
 				select( 'beyondwords--language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English' );

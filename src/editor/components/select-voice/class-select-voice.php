@@ -88,9 +88,6 @@ class SelectVoice {
 		$languages     = self::get_languages();
 		$voices        = self::get_voices_for_language( $language_code );
 
-		// The Native filter defaults to native-only, but opens on "All" when the
-		// saved voice is not native to the language so it stays visible. Model +
-		// Voice are then rendered from the native-scoped set.
 		$native_filter   = self::default_native_filter( $voices, $language_code, $voice_id );
 		$filtered_voices = self::filter_voices_by_native( $voices, $language_code, $native_filter, $voice_id );
 
@@ -253,8 +250,6 @@ class SelectVoice {
 
 	/**
 	 * The distinct language names across the language rows, in API order.
-	 * Mirrors `getLanguageNames()` in
-	 * src/editor/components/settings-panel/helpers.js.
 	 *
 	 * @since 7.0.0
 	 *
@@ -278,8 +273,7 @@ class SelectVoice {
 	}
 
 	/**
-	 * The language rows (accents) for a language name, in API order. Mirrors
-	 * `getAccentsForName()` in src/editor/components/settings-panel/helpers.js.
+	 * The language rows (accents) for a language name, in API order.
 	 *
 	 * @since 7.0.0
 	 *
@@ -304,8 +298,7 @@ class SelectVoice {
 	}
 
 	/**
-	 * Find a language row by its code. Mirrors `findLanguageByCode()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * Find a language row by its code.
 	 *
 	 * @since 7.0.0
 	 *
@@ -325,9 +318,8 @@ class SelectVoice {
 	}
 
 	/**
-	 * Slim language rows for the classic-editor script: enough to rebuild the
-	 * Accent dropdown (and seed the default body voice) when the user picks a
-	 * language name, without another API round-trip.
+	 * Slim language rows for the classic-editor script, so it can rebuild the
+	 * Accent dropdown client-side without another API round-trip.
 	 *
 	 * @since 7.0.0
 	 *
@@ -354,11 +346,8 @@ class SelectVoice {
 
 	/**
 	 * Render the Language select: one entry per language NAME (e.g. "English").
-	 *
-	 * The name select is a client-side control only — it carries no `name`
-	 * attribute and is not submitted. Its companion Accent select (which keeps
-	 * the `beyondwords_language_code` field) resolves the (name, accent) pair
-	 * to the stored language code.
+	 * Carries no `name` attribute, so it is not submitted — the Accent select
+	 * holds the `beyondwords_language_code` field.
 	 *
 	 * @since 6.0.0 As render_language_select, combining name + accent.
 	 * @since 7.0.0 Split into Language (name) + Accent selects.
@@ -399,14 +388,10 @@ class SelectVoice {
 	}
 
 	/**
-	 * Render the Accent select: the accents for the selected language name.
-	 *
-	 * This is the submitted field (`beyondwords_language_code`) — a (name,
-	 * accent) pair maps to exactly one language code, so the Accent select
-	 * carries the code. Hidden when the language offers a single accent
-	 * (nothing to choose), while still submitting that accent's code. Always
-	 * renders at least one option so the field posts (save() requires the key
-	 * to be present; an empty value means "no language chosen").
+	 * Render the Accent select — the submitted `beyondwords_language_code` field,
+	 * since a (name, accent) pair maps to exactly one language code. Hidden, not
+	 * omitted, for single-accent languages, and always renders an option because
+	 * save() requires the key to be posted.
 	 *
 	 * @since 7.0.0
 	 *
@@ -453,12 +438,7 @@ class SelectVoice {
 
 	/**
 	 * Render the Native select: filter the Voice list to voices native to the
-	 * language, or all (multilingual) voices.
-	 *
-	 * A client-side filter only — it carries no `name` and is not submitted. The
-	 * persisted value is the voice id from the Voice select. Mirrors the
-	 * `beyondwords--native` control in
-	 * src/editor/components/settings-panel/voice-section.js.
+	 * language, or all. Carries no `name`, so it is not submitted.
 	 *
 	 * @since 7.0.0
 	 *
@@ -640,10 +620,8 @@ class SelectVoice {
 	}
 
 	/**
-	 * A voice's primary (native) language code. Handles the API `language`
-	 * string, the `{ code }` object form, and falls back to the first entry of
-	 * `languages[]`. Mirrors `voicePrimaryCode()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * A voice's primary (native) language code. The API returns `language` as
+	 * either a string or a `{ code }` object, with `languages[]` as a fallback.
 	 *
 	 * @since 7.0.0
 	 *
@@ -664,10 +642,8 @@ class SelectVoice {
 	}
 
 	/**
-	 * Whether a voice is native to a language code — that code is its primary
-	 * language. A voice with no determinable primary language is treated as
-	 * native (never hidden). Mirrors `voiceIsNative()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * Whether a language code is a voice's primary language. A voice with no
+	 * determinable primary language counts as native, so it is never hidden.
 	 *
 	 * @since 7.0.0
 	 *
@@ -685,10 +661,8 @@ class SelectVoice {
 	}
 
 	/**
-	 * Apply the Native filter to a language's voices — native-only, or all. The
-	 * voice identified by `$keep_id` (the current selection) is always kept, so
-	 * the saved voice is never dropped. Mirrors `filterVoicesByNative()` in
-	 * src/editor/components/settings-panel/helpers.js.
+	 * Apply the Native filter to a language's voices. `$keep_id` is always kept
+	 * so the saved voice is never dropped from the list.
 	 *
 	 * @since 7.0.0
 	 *

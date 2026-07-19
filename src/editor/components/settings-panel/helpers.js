@@ -27,12 +27,8 @@ export function projectDefaultOption() {
 	return { label: __( 'Project default', 'speechkit' ), value: '' };
 }
 
-// A language row from /organization/languages is a (name, accent, code)
-// combination — e.g. English has one row per accent. The editor splits the
-// pair across two selects: Language lists the distinct NAMES, Accent lists the
-// rows for the chosen name, and the chosen row's CODE is the stored value.
-// Rows missing a code, name or accent are skipped (mirrors the PHP guard in
-// src/editor/components/select-voice/class-select-voice.php).
+// A language row is a (name, accent, code) triple: Language selects the name,
+// Accent selects the row, and the row's CODE is the stored value.
 const isValidLanguage = ( language ) =>
 	!! ( language?.code && language?.name && language?.accent );
 
@@ -60,8 +56,7 @@ export function getLanguageNames( languages ) {
 }
 
 /**
- * The accents for a language name, as Accent dropdown options carrying the
- * language CODE as their value, in API order.
+ * The accents for a language name, as options carrying the language CODE.
  *
  * @param {Array<Object>} languages The language rows.
  * @param {string}        name      The decoded language name.
@@ -107,18 +102,13 @@ export function findLanguageByCode( languages, code ) {
 	);
 }
 
-// The "Native" filter narrows the Voice list to voices that speak the selected
-// language natively (their primary language), versus multilingual voices that
-// merely support it as a secondary language. Default is native-only; "All" adds
-// the non-native voices back in.
+// Native = the language is the voice's primary one; multilingual voices merely
+// support it as a secondary language and only show under "All".
 export const NATIVE_ONLY = 'native';
 export const NATIVE_ALL = 'all';
 
 /**
  * A voice's primary (native) language code.
- *
- * Handles the API's `language` string, the mock's `{ code }` object, and falls
- * back to the first entry of `languages[]`.
  *
  * @param {Object} voice A voice record.
  *
@@ -137,9 +127,8 @@ export function voicePrimaryCode( voice ) {
 }
 
 /**
- * Whether a voice is native to a language code — i.e. that code is its primary
- * language. A voice with no determinable primary language is treated as native
- * (we never hide a voice we cannot classify).
+ * Whether a voice is native to a language code. A voice with no determinable
+ * primary language counts as native, so we never hide what we cannot classify.
  *
  * @param {Object} voice A voice record.
  * @param {string} code  The language code.
@@ -157,10 +146,7 @@ export function voiceIsNative( voice, code ) {
 /**
  * Apply the Native filter to a language's voices.
  *
- * With NATIVE_ONLY only voices native to `code` are kept; with NATIVE_ALL every
- * fetched voice is kept. The voice identified by `keepId` (the current
- * selection) is always kept, so changing the filter never drops the saved voice
- * from the list.
+ * `keepId` is always kept, so changing the filter never drops the saved voice.
  *
  * @param {Array<Object>} voices       All fetched voices for the language.
  * @param {string}        code         The selected language code.

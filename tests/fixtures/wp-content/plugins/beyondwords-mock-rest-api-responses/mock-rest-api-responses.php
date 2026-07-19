@@ -1126,9 +1126,7 @@ function beyondwords_mock_get_voices() {
 					),
 				),
 			),
-			// Non-native voice: primary language is German, but it also speaks
-			// English (American) as a secondary language. The default Native
-			// filter hides it for en_US; setting Native to "All" reveals it.
+			// Speaks en_US only as a secondary language, so the default Native filter hides it.
 			array(
 				'id'                  => 9500,
 				'name'                => 'Klaus (Multilingual)',

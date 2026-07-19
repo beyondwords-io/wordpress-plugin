@@ -116,11 +116,8 @@ export function VoiceSection( { withPanel = true } ) {
 		[ customize, languageCode ]
 	);
 
-	// Resolution flags drive the progressive Spinner: the Spinner always follows
-	// the last resolved control and stands in for everything still loading below
-	// it. We use `hasFinishedResolution` (monotonic false→true per argument set)
-	// rather than `isResolving` (which flips on and off and leaves a one-frame
-	// gap where stale data shows) so the fields never flash stale content.
+	// `hasFinishedResolution` is monotonic; `isResolving` flip-flops and leaves a
+	// one-frame gap where stale voices show.
 	const languagesResolving = useSelect(
 		( s ) =>
 			customize &&
@@ -131,9 +128,6 @@ export function VoiceSection( { withPanel = true } ) {
 		[ customize ]
 	);
 
-	// Changing the Language re-fetches its voices; the Model + Voice dropdowns
-	// depend on them, so they are hidden and the Spinner takes their place until
-	// this resolves.
 	const voicesResolving = useSelect(
 		( s ) =>
 			customize &&
@@ -144,14 +138,10 @@ export function VoiceSection( { withPanel = true } ) {
 		[ customize, languageCode ]
 	);
 
-	// The Native filter narrows the Voice list to voices native to the selected
-	// language; "All" adds the multilingual (non-native) voices back. Held in
-	// local UI state — it is a filter, not a persisted choice.
 	const [ nativeFilter, setNativeFilter ] = useState( NATIVE_ONLY );
 
-	// Seed the filter from the saved voice on load: if the saved voice is not
-	// native to the language (e.g. a multilingual voice, or an older post), open
-	// on "All" so it stays visible. Runs once, once the voices have resolved.
+	// Open on "All" when the saved voice is not native to the language, so that
+	// voice stays visible in the list.
 	const nativeSeeded = useRef( false );
 	useEffect( () => {
 		if ( nativeSeeded.current || ! customize || voicesResolving ) {
@@ -160,7 +150,6 @@ export function VoiceSection( { withPanel = true } ) {
 		const saved = ( voices ?? [] ).find(
 			( voice ) => String( voice.id ) === String( voiceId )
 		);
-		// Wait for the voices to load before deciding.
 		if ( voiceId && ! saved ) {
 			return;
 		}
@@ -174,11 +163,8 @@ export function VoiceSection( { withPanel = true } ) {
 		setMeta( { ...meta, beyondwords_body_voice_id: value } );
 	};
 
-	// Picking an Accent (or auto-picking one via a Language name change) sets
-	// the language code *and* seeds the voice with that language's default
-	// body voice, so a concrete voice is always stored (we never send the
-	// language itself — the voice carries it). Languages with no default voice
-	// fall back to the "Select a voice" placeholder.
+	// Seeds the default body voice too: we never send the language itself, so a
+	// concrete voice must always be stored.
 	const setLanguageCode = ( value ) => {
 		const language = ( languages ?? [] ).find(
 			( item ) => decodeEntities( item.code ) === value
@@ -194,8 +180,6 @@ export function VoiceSection( { withPanel = true } ) {
 		} );
 	};
 
-	// Picking a language NAME auto-selects its first accent, which resolves
-	// the stored language code.
 	const setLanguageName = ( name ) => {
 		const first = getAccentsForName( languages, name )[ 0 ];
 		setLanguageCode( first ? first.value : '' );
@@ -216,10 +200,8 @@ export function VoiceSection( { withPanel = true } ) {
 		}
 	};
 
-	// The Language dropdown lists each distinct language NAME; the Accent
-	// dropdown lists the accents for that name and carries the language CODE
-	// (the stored value — a (name, accent) pair maps to exactly one code).
-	// Both derive from the stored code, so no extra state is persisted.
+	// The Accent select carries the language CODE — it is the stored value, and
+	// a (name, accent) pair maps to exactly one code.
 	const selectedLanguage = findLanguageByCode( languages, languageCode );
 	const languageName = selectedLanguage
 		? decodeEntities( selectedLanguage.name )
@@ -235,11 +217,8 @@ export function VoiceSection( { withPanel = true } ) {
 
 	const accentOptions = getAccentsForName( languages, languageName );
 
-	// The Accent dropdown only appears when the language offers a choice.
 	const showAccent = accentOptions.length > 1;
 
-	// Apply the Native filter first: everything below (Model buckets, Voice list)
-	// derives from the native-scoped set. The current voice is always kept.
 	const filteredVoices = filterVoicesByNative(
 		voices,
 		languageCode,
@@ -300,15 +279,9 @@ export function VoiceSection( { withPanel = true } ) {
 		setVoiceId( first ? String( first.id ) : '' );
 	};
 
-	// The picker resolves progressively: the Spinner always follows the last
-	// resolved control and stands in for everything still loading below it.
-	//   1. While the languages (and project default) load, only a Spinner shows.
-	//   2. Language + Accent + Native show; while their voices resolve the
-	//      Model + Voice group is hidden and the Spinner takes its place.
-	//   3. Once the voices resolve, Model + Voice show and the Spinner is gone.
-	// The Model + Voice group stays mounted and is hidden with an inline style,
-	// so the <select> keeps its DOM identity (no detach mid-interaction) and the
-	// hide can't lose a specificity battle with the component's own CSS.
+	// The Model + Voice group is hidden with an inline style rather than
+	// unmounted, so the <select> can't detach mid-interaction or lose to
+	// component CSS specificity.
 	const fieldsReady = customize && ! loadingProject && ! languagesResolving;
 
 	const fields = (

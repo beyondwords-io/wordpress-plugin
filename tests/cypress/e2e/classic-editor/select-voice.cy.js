@@ -48,21 +48,18 @@ context( 'Classic Editor: Select Voice', () => {
 					'English'
 				);
 
-				// The Language select lists each language NAME once,
-				// placeholder first.
 				cy.get( 'select#beyondwords_language_name' )
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// 79 language names + the "Select a language…" placeholder.
 						expect( values ).to.have.length( 80 );
 						expect( values[ 0 ] ).to.eq( 'Select a language…' );
 						expect( values ).to.include( 'English' );
 						expect( values ).to.include( 'Welsh' );
 					} );
 
-				// The Accent select lists the accents for the chosen name and
-				// carries the language code (the submitted field).
+				// The Accent select carries the language code, and is the
+				// field that gets submitted.
 				cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
 					'be.visible'
 				);
@@ -70,7 +67,6 @@ context( 'Classic Editor: Select Voice', () => {
 					.find( 'option' )
 					.should( ( $els ) => {
 						const values = optionLabels( $els );
-						// English has 14 accents.
 						expect( values ).to.have.length( 14 );
 						expect( values ).to.include( 'American' );
 						expect( values ).to.include( 'British' );
@@ -271,8 +267,8 @@ context( 'Classic Editor: Select Voice', () => {
 			'en_US'
 		);
 
-		// Welsh offers a single accent: it is auto-selected and the Accent
-		// select hides (nothing to choose), while still holding the code.
+		// Welsh has a single accent, so the Accent select hides itself while
+		// still holding the code.
 		cy.get( 'select#beyondwords_language_name' ).select( 'Welsh' );
 		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
 			'not.be.visible'
@@ -282,8 +278,6 @@ context( 'Classic Editor: Select Voice', () => {
 			'cy_GB'
 		);
 
-		// Back to English: its first accent (New Zealand) is auto-selected
-		// and the Accent select reappears with every English accent.
 		cy.get( 'select#beyondwords_language_name' ).select( 'English' );
 		cy.get( '#beyondwords-metabox-select-voice--accent' ).should(
 			'be.visible'
@@ -305,17 +299,15 @@ context( 'Classic Editor: Select Voice', () => {
 			'en_US'
 		);
 
-		// en_GB's default body voice is Ollie (a Legacy voice), so switching
-		// accent seeds its model + voice.
+		// en_GB's default body voice is Ollie, a Legacy voice.
 		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
 		cy.get( 'select#beyondwords_language_code' ).should(
 			'have.value',
 			'en_GB'
 		);
 
-		// The mock's English voices are all American-primary multilingual
-		// voices, so none are native to British English. Set Native to "All"
-		// to list them; the seeded default (Ollie) is shown either way.
+		// The mock's English voices are all American-primary, so none are
+		// native to en_GB and only "All" lists them.
 		cy.get( 'select#beyondwords_native' ).select( 'All' );
 		cy.get( 'select#beyondwords_model' )
 			.find( 'option:selected' )
@@ -333,8 +325,7 @@ context( 'Classic Editor: Select Voice', () => {
 			'en_US'
 		);
 
-		// Default is Native: the non-native Klaus (German primary, speaks
-		// American English) is excluded from the Legacy bucket.
+		// Klaus is German-primary, so Native excludes him from en_US.
 		cy.get( 'select#beyondwords_native' ).should( 'have.value', 'native' );
 		cy.get( 'select#beyondwords_model' ).select( 'Legacy' );
 		cy.get( 'select#beyondwords_voice_id' )
@@ -348,7 +339,6 @@ context( 'Classic Editor: Select Voice', () => {
 				] );
 			} );
 
-		// Switching to All adds the non-native Klaus to the Legacy bucket.
 		cy.get( 'select#beyondwords_native' ).select( 'All' );
 		cy.get( 'select#beyondwords_voice_id' )
 			.find( 'option' )
@@ -440,7 +430,6 @@ context( 'Classic Editor: Select Voice', () => {
 			'have.value',
 			'en_US'
 		);
-		// Wait for the default language's voices to load (Model appears).
 		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
 			'be.visible'
 		);
@@ -456,8 +445,6 @@ context( 'Classic Editor: Select Voice', () => {
 			}
 		);
 
-		// Switching accent clears the Model + Voice dropdowns and shows the
-		// loader in their place until the new voices resolve.
 		cy.get( 'select#beyondwords_language_code' ).select( 'British' );
 		cy.get( '.beyondwords-settings__loader' ).should( 'be.visible' );
 		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
@@ -467,7 +454,6 @@ context( 'Classic Editor: Select Voice', () => {
 			'not.be.visible'
 		);
 
-		// Once the (delayed) fetch resolves, the loader hides again.
 		cy.get( '.beyondwords-settings__loader', { timeout: 10000 } ).should(
 			'not.be.visible'
 		);

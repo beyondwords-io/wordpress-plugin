@@ -9,12 +9,9 @@
  * seeds the language's default voice (we never send the language itself — the
  * voice carries it).
  *
- * "Language" lists language NAMES (e.g. English); "Accent" lists the accents
- * for the chosen name and is the submitted field (`beyondwords_language_code`)
- * — a (name, accent) pair maps to exactly one language code. Picking a name
- * auto-selects its first accent, which fetches that language's voices and
- * seeds its default body voice. The Accent select is hidden when a language
- * offers a single accent (nothing to choose).
+ * "Language" lists language NAMES; "Accent" carries the language CODE and is
+ * the submitted field (`beyondwords_language_code`) — a (name, accent) pair
+ * maps to exactly one code.
  *
  * "Model" is a language-level filter: each ElevenLabs model_id, plus a single
  * "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
@@ -82,9 +79,7 @@
 	};
 
 	/**
-	 * A voice's primary (native) language code. Handles the API `language`
-	 * string, the `{ code }` object form, and falls back to the first entry of
-	 * `languages[]`.
+	 * A voice's primary (native) language code.
 	 *
 	 * @param {Object} voice A voice record.
 	 *
@@ -106,9 +101,8 @@
 	};
 
 	/**
-	 * Whether a voice is native to a language code (that code is its primary
-	 * language). A voice with no determinable primary language is treated as
-	 * native (never hidden).
+	 * Whether a voice is native to a language code. A voice with no
+	 * determinable primary language is treated as native, so it is never hidden.
 	 *
 	 * @param {Object} voice A voice record.
 	 * @param {string} code  The language code.
@@ -249,7 +243,6 @@
 			if ( native ) {
 				native.addEventListener( 'change', () => {
 					const voiceSelect = byId( 'beyondwords_voice_id' );
-					// Re-scope the Model + Voice lists; keep the current voice.
 					this.renderModels( voiceSelect ? voiceSelect.value : '' );
 				} );
 			}
@@ -306,8 +299,7 @@
 				languageName.value = '';
 			}
 
-			// Resets the Accent select to a single empty option, so it submits
-			// empty and save() removes the meta.
+			// Leaves a single empty option, so it submits '' and save() removes the meta.
 			this.renderAccents( '', '' );
 
 			this.voices = [];
@@ -315,10 +307,8 @@
 		},
 
 		/**
-		 * Pick a language NAME → rebuild the Accent select and auto-select its
-		 * first accent, which resolves the stored language code: fetch that
-		 * language's voices and seed its default body voice. The placeholder
-		 * clears the selection (the Accent select submits empty).
+		 * Pick a language NAME → rebuild the Accent select, auto-select its
+		 * first accent and seed that language's default body voice.
 		 *
 		 * @param {string} name The language name, or '' for the placeholder.
 		 */
@@ -336,12 +326,9 @@
 		},
 
 		/**
-		 * Rebuild the Accent select for a language name and select an accent —
-		 * the row matching selectedCode, falling back to the name's first
-		 * accent. The wrapper is hidden when the language offers a single
-		 * accent (nothing to choose); the select still submits that accent's
-		 * code. With no name, a single empty option keeps the field posting
-		 * ('' = no language chosen).
+		 * Rebuild the Accent select for a language name, selecting selectedCode
+		 * or the first accent. The wrapper is hidden for a single accent, but
+		 * the select stays mounted so it still submits that accent's code.
 		 *
 		 * @param {string} name         The language name, or ''.
 		 * @param {string} selectedCode The language code to select, or ''.
@@ -383,9 +370,8 @@
 		},
 
 		/**
-		 * Programmatically select a language code: set the Language (name)
-		 * select, rebuild its Accent options with the code selected, and fetch
-		 * the voices. Used by the project-default flow.
+		 * Programmatically select a language code across the Language + Accent
+		 * selects and fetch its voices.
 		 *
 		 * @param {string} code        The language code.
 		 * @param {string} seedVoiceId The voice id to seed, or '' for none.
@@ -450,8 +436,6 @@
 					}
 
 					const lang = project && project.language;
-					// Select the name + accent for the default code and
-					// populate the language's models/voices, seeding no voice.
 					if ( ! lang || ! this.selectCode( String( lang ), '' ) ) {
 						toggleLoader( false );
 					}
@@ -602,10 +586,8 @@
 		},
 
 		/**
-		 * The current voices narrowed by the Native filter (native-only, or all).
-		 * The voice identified by keepId (the current selection) is always kept,
-		 * so toggling the filter never drops it. Mirrors `filterVoicesByNative()`
-		 * in src/editor/components/settings-panel/helpers.js.
+		 * The current voices narrowed by the Native filter. keepId is always
+		 * kept, so toggling the filter never drops the current selection.
 		 *
 		 * @param {string} keepId The voice id to always keep, or ''.
 		 *

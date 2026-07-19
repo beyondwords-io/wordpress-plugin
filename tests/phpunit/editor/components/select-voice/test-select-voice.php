@@ -75,8 +75,7 @@ class SelectVoiceTest extends TestCase
         $languageLabel = $crawler->filter('p#beyondwords-metabox-select-voice--language-name');
         $this->assertEquals('Language', $languageLabel->text());
 
-        // The Language select lists each language NAME once, placeholder
-        // first. It is a client-side control only — no name attribute.
+        // Client-side control only, so it has no name attribute and isn't submitted.
         $nameSelect = $crawler->filter('#beyondwords_language_name');
         $this->assertCount(1, $nameSelect);
         $this->assertNull($nameSelect->attr('name'));
@@ -91,9 +90,7 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->attr('value'));
         $this->assertSame('Welsh', $nameSelect->filter('option:nth-child(53)')->text());
 
-        // The Accent select is the submitted field and carries the language
-        // CODE; the post's saved en_US stays selected. English offers several
-        // accents, so the field is visible.
+        // The Accent select carries the language CODE and is the submitted field.
         $accentLabel = $crawler->filter('#beyondwords-metabox-select-voice--accent label');
         $this->assertEquals('Accent', $accentLabel->text());
 
@@ -104,7 +101,6 @@ class SelectVoiceTest extends TestCase
         $this->assertCount(1, $accentSelect);
         $this->assertSame('beyondwords_language_code', $accentSelect->attr('name'));
 
-        // The 14 English accents, in API order.
         $this->assertCount(14, $accentSelect->filter('option'));
 
         $this->assertSame('en_US', $accentSelect->filter('option:nth-child(5)')->attr('value'));
@@ -114,8 +110,6 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('en_GB', $accentSelect->filter('option:nth-child(6)')->attr('value'));
         $this->assertSame('British', $accentSelect->filter('option:nth-child(6)')->text());
 
-        // The Native select is a client-side filter (no name); it defaults to
-        // "native" and offers "Native" + "All".
         $nativeLabel = $crawler->filter('#beyondwords-metabox-select-voice--native label');
         $this->assertEquals('Native', $nativeLabel->text());
 
@@ -255,8 +249,7 @@ class SelectVoiceTest extends TestCase
         $this->assertCount(1, $nameSelect->filter('option'));
         $this->assertSame('', $nameSelect->filter('option')->attr('value'));
 
-        // The Accent select renders a single empty option, so the field still
-        // submits ('' = no language chosen).
+        // The Accent select still submits a single empty option ('' = no language chosen).
         $accentSelect = $crawler->filter('#beyondwords_language_code');
         $this->assertCount(1, $accentSelect);
         $this->assertCount(1, $accentSelect->filter('option'));
@@ -392,8 +385,6 @@ class SelectVoiceTest extends TestCase
     {
         $rows = SelectVoice::languages_for_script();
 
-        // Slim rows: code/name/accent plus the default body voice id used to
-        // seed the Voice select when a language is picked.
         $this->assertCount(148, $rows);
         $this->assertSame(
             ['code', 'name', 'accent', 'defaultVoiceId'],
@@ -411,7 +402,6 @@ class SelectVoiceTest extends TestCase
      */
     public function voice_primary_code()
     {
-        // API string form, mock object form, and languages[] fallback.
         $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => 'en_US']));
         $this->assertSame('en_US', SelectVoice::voice_primary_code(['language' => ['code' => 'en_US']]));
         $this->assertSame('de_DE', SelectVoice::voice_primary_code(['languages' => [['code' => 'de_DE']]]));
@@ -439,7 +429,6 @@ class SelectVoiceTest extends TestCase
         $nonNative  = ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']];
         $voices     = [$native, $nonNative];
 
-        // Native-only drops the non-native voice; "all" keeps both.
         $this->assertSame(
             [1],
             array_column(SelectVoice::filter_voices_by_native($voices, 'en_US', 'native', ''), 'id')
@@ -466,7 +455,6 @@ class SelectVoiceTest extends TestCase
             ['id' => 2, 'name' => 'Klaus', 'language' => ['code' => 'de_DE']],
         ];
 
-        // Opens on "all" only when the saved voice is not native to the language.
         $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', '1'));
         $this->assertSame('all', SelectVoice::default_native_filter($voices, 'en_US', '2'));
         $this->assertSame('native', SelectVoice::default_native_filter($voices, 'en_US', ''));
@@ -495,10 +483,8 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Native opens on "all".
         $this->assertSame('all', $crawler->filter('#beyondwords_native option[selected]')->attr('value'));
 
-        // Klaus is present and selected in the Voice dropdown.
         $voiceOptions = $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text());
         $this->assertContains('Klaus (Multilingual)', $voiceOptions);
         $this->assertSame(

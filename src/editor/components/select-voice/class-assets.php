@@ -62,8 +62,7 @@ class Assets {
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'root'             => esc_url_raw( rest_url() ),
 				'projectId'        => (string) get_option( 'beyondwords_project_id', '' ),
-				// Slim language rows so the script can rebuild the Accent
-				// dropdown when a language name is picked (cached upstream).
+				// Lets the script rebuild the Accent dropdown when a language name is picked.
 				'languages'        => \BeyondWords\Editor\Components\SelectVoice::languages_for_script(),
 				'selectVoice'      => __( 'Select a voice', 'speechkit' ),
 				'selectModel'      => __( 'Select a model', 'speechkit' ),
