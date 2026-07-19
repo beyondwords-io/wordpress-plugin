@@ -223,6 +223,69 @@ class ClientTest extends TestCase
     /**
      * @test
      */
+    public function delete_audio_by_ids_returns_false_when_ids_missing()
+    {
+        // A missing project or content ID short-circuits before any HTTP request.
+        $apiCalled = false;
+        $filter = function ($preempt, $args, $url) use (&$apiCalled) {
+            $apiCalled = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $this->assertFalse(Client::delete_audio_by_ids(false, 'abc-123'));
+        $this->assertFalse(Client::delete_audio_by_ids(1234, false));
+        $this->assertFalse(Client::delete_audio_by_ids(0, 0));
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertFalse($apiCalled, 'No HTTP request should be made when an ID is missing');
+    }
+
+    /**
+     * @test
+     *
+     * The deferred trash/delete cron job deletes audio by explicit IDs (the post
+     * meta is already gone), using the short DELETE_TIMEOUT so it never blocks a
+     * request for long.
+     */
+    public function delete_audio_by_ids_issues_delete_with_short_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = ['method' => null, 'url' => null, 'timeout' => null];
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/content/')) {
+                $captured['method']  = $args['method'] ?? null;
+                $captured['url']     = $url;
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 204, 'message' => 'No Content'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $response = Client::delete_audio_by_ids(BEYONDWORDS_TESTS_PROJECT_ID, BEYONDWORDS_TESTS_CONTENT_ID);
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        // 204 with an empty body decodes to null.
+        $this->assertNull($response);
+        $this->assertSame('DELETE', $captured['method']);
+        $this->assertStringContainsString(
+            '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
+            (string) $captured['url']
+        );
+        $this->assertSame(Client::DELETE_TIMEOUT, $captured['timeout']);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
     public function batch_delete_audio()
     {
         $numPosts = 20;
@@ -542,8 +605,9 @@ class ClientTest extends TestCase
         }
 
         $this->assertNotNull($render_timeout, 'Expected a render-path request to be captured');
-        $this->assertLessThanOrEqual(3, $render_timeout, 'Render-path GETs should use a short (<= 3s) timeout');
-        $this->assertSame(30, $write_timeout, 'Direct/write-path requests keep the longer timeout');
+        $this->assertSame(Client::RENDER_TIMEOUT, $render_timeout, 'Render-path GETs should use the short RENDER_TIMEOUT');
+        $this->assertLessThanOrEqual(3, $render_timeout, 'RENDER_TIMEOUT must stay within VIP guidance (<= 3s)');
+        $this->assertSame(Client::REQUEST_TIMEOUT, $write_timeout, 'Direct/write-path requests keep the longer default timeout');
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');

@@ -36,6 +36,18 @@ class Sync {
 	const GENERATE_AUDIO_CRON_HOOK = 'beyondwords_generate_audio';
 
 	/**
+	 * Cron hook that runs a deferred audio deletion.
+	 *
+	 * Like GENERATE_AUDIO_CRON_HOOK, only scheduled when async is enabled (VIP).
+	 * The event args carry the BeyondWords project + content IDs — not a post ID —
+	 * because the post meta is wiped (on trash) or the post row is gone (on
+	 * permanent delete) by the time the job runs.
+	 *
+	 * @since 7.0.0
+	 */
+	const DELETE_AUDIO_CRON_HOOK = 'beyondwords_delete_audio';
+
+	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
@@ -49,6 +61,12 @@ class Sync {
 		// the hook is always registered so a queued event still runs after a
 		// config change.
 		add_action( self::GENERATE_AUDIO_CRON_HOOK, [ self::class, 'generate_audio_for_post' ] );
+
+		// Background audio deletion — the deferred counterpart to the trash/delete
+		// handlers. Registered unconditionally (like the generation hook) so a
+		// queued event still runs after a config change. Takes the project +
+		// content IDs as args because the post meta is gone by the time it fires.
+		add_action( self::DELETE_AUDIO_CRON_HOOK, [ self::class, 'delete_audio_by_ids' ], 10, 2 );
 
 		add_filter( 'is_protected_meta', [ self::class, 'is_protected_meta' ], 10, 2 );
 
@@ -262,6 +280,24 @@ class Sync {
 	}
 
 	/**
+	 * Run a deferred audio deletion queued by the trash/delete handlers.
+	 *
+	 * The `DELETE_AUDIO_CRON_HOOK` cron event carries the BeyondWords project +
+	 * content IDs directly (not a post ID) because the post meta has already been
+	 * wiped — or the post row deleted — by the time this fires. Only reached on
+	 * the async path, which is VIP-only by default (see
+	 * `is_async_generation_enabled()`).
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|string $project_id BeyondWords project ID.
+	 * @param int|string $content_id BeyondWords content ID.
+	 */
+	public static function delete_audio_by_ids( int|string $project_id, int|string $content_id ): array|false|null {
+		return \BeyondWords\Api\Client::delete_audio_by_ids( $project_id, $content_id );
+	}
+
+	/**
 	 * Persist relevant fields from a BeyondWords API response into post meta.
 	 *
 	 * @param mixed            $response   API response (typically an associative array).
@@ -381,6 +417,32 @@ class Sync {
 	}
 
 	/**
+	 * Schedule a deferred audio-deletion cron event.
+	 *
+	 * Mirrors `schedule_audio_generation()`: VIP-only in practice, prefers the
+	 * VIP wrapper when present, and no-ops when an identical event is already
+	 * queued so repeated trashing can't stack duplicate jobs. The project +
+	 * content IDs are the event args (rather than a post ID) because the meta is
+	 * gone by the time the job runs.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function schedule_audio_deletion( int|string $project_id, int|string $content_id ): void {
+		$args = [ $project_id, $content_id ];
+
+		if ( wp_next_scheduled( self::DELETE_AUDIO_CRON_HOOK, $args ) ) {
+			return;
+		}
+
+		if ( function_exists( 'wpcom_vip_schedule_single_event' ) ) {
+			wpcom_vip_schedule_single_event( time(), self::DELETE_AUDIO_CRON_HOOK, $args );
+			return;
+		}
+
+		wp_schedule_single_event( time(), self::DELETE_AUDIO_CRON_HOOK, $args );
+	}
+
+	/**
 	 * Clear any pending deferred audio-generation cron event for a post.
 	 *
 	 * Called when a post is trashed or deleted so a job queued by
@@ -396,6 +458,36 @@ class Sync {
 	}
 
 	/**
+	 * Delete a post's BeyondWords audio, deferring to background cron on VIP.
+	 *
+	 * On VIP (async enabled) we capture the project + content IDs now and
+	 * schedule a single background event, so the trash/delete request — which may
+	 * be removing many posts at once — returns immediately instead of blocking on
+	 * one remote DELETE per post. We read the IDs before the caller wipes the meta
+	 * (on trash) or WordPress deletes the row (on permanent delete). Off-VIP,
+	 * where WP-Cron is unreliable, we fall back to a synchronous DELETE, bounded
+	 * by the client's short `DELETE_TIMEOUT`.
+	 *
+	 * The caller must have confirmed `Meta::has_content()` first.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function delete_audio_for_post_or_defer( int $post_id ): void {
+		if ( self::is_async_generation_enabled() ) {
+			$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
+			$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
+
+			if ( $project_id && $content_id ) {
+				self::schedule_audio_deletion( $project_id, $content_id );
+			}
+
+			return;
+		}
+
+		self::delete_audio_for_post( $post_id );
+	}
+
+	/**
 	 * Trash hook — DELETE the audio so it disappears from the dashboard, then
 	 * remove our local metadata.
 	 */
@@ -408,7 +500,7 @@ class Sync {
 			return;
 		}
 
-		\BeyondWords\Api\Client::delete_audio( $post_id );
+		self::delete_audio_for_post_or_defer( $post_id );
 		\BeyondWords\Post\Meta::remove_all_beyondwords_metadata( $post_id );
 	}
 
@@ -425,7 +517,7 @@ class Sync {
 			return;
 		}
 
-		\BeyondWords\Api\Client::delete_audio( $post_id );
+		self::delete_audio_for_post_or_defer( $post_id );
 	}
 
 	/**
