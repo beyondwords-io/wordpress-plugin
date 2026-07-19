@@ -31,9 +31,7 @@ function beyondwords_uninstall() {
 
 	require BEYONDWORDS__PLUGIN_DIR . 'vendor/autoload.php';
 
-	Uninstaller::cleanup_plugin_transients();
-	Uninstaller::cleanup_plugin_options();
-	Uninstaller::cleanup_custom_fields();
+	Uninstaller::run();
 }
 
 // phpcs:disable

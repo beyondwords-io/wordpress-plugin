@@ -3,7 +3,10 @@
  * Uninstall cleanup.
  *
  * Invoked from `uninstall.php` when WordPress removes the plugin. Deletes
- * every option, transient, and post-meta key recorded in `Utils`.
+ * every option, transient, and post-meta key recorded in `Utils`. On
+ * multisite each site is cleaned in turn, since `uninstall.php` only runs
+ * once — in the network's main-site context — and every value is stored
+ * per-site.
  *
  * @package BeyondWords\Core
  * @since   3.7.0
@@ -22,6 +25,58 @@ defined( 'ABSPATH' ) || exit;
  * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
  */
 class Uninstaller {
+
+	/**
+	 * Run the full uninstall cleanup for every site on the install.
+	 *
+	 * WordPress executes `uninstall.php` a single time, in the context of the
+	 * network's main site. Every BeyondWords value — options, transients and
+	 * post-meta — is stored per-site (`update_option()` and the per-site
+	 * `options`/`postmeta` tables); the plugin never writes network/site
+	 * options. So on multisite we must visit each site in turn, otherwise only
+	 * the main site is cleaned and every subsite keeps its settings, including
+	 * the `beyondwords_api_key` secret. Single-site installs are cleaned in one
+	 * pass.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return void
+	 */
+	public static function run(): void {
+		if ( ! is_multisite() ) {
+			self::cleanup_site();
+			return;
+		}
+
+		// `number => 0` lifts the default 100-site cap so no site is skipped on
+		// large networks.
+		$site_ids = get_sites(
+			[
+				'fields' => 'ids',
+				'number' => 0,
+			]
+		);
+
+		foreach ( $site_ids as $site_id ) {
+			switch_to_blog( (int) $site_id );
+			self::cleanup_site();
+			restore_current_blog();
+		}
+	}
+
+	/**
+	 * Delete every BeyondWords option, transient and post-meta value for the
+	 * current site.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return void
+	 */
+	private static function cleanup_site(): void {
+		self::cleanup_plugin_transients();
+		self::cleanup_plugin_options();
+		self::cleanup_custom_fields();
+	}
 
 	/**
 	 * Delete every BeyondWords transient.
@@ -59,10 +114,21 @@ class Uninstaller {
 		$total   = 0;
 
 		foreach ( $options as $option ) {
-			$deleted = is_multisite() ? delete_site_option( $option ) : delete_option( $option );
-
-			if ( $deleted ) {
+			// Every option is stored per-site via `update_option()`, so
+			// `delete_option()` is the correct call on both single-site and
+			// multisite. The previous `delete_site_option()`-only branch swept
+			// `wp_sitemeta` rows that were never written and left every real
+			// option — including the `beyondwords_api_key` secret — in place on
+			// multisite.
+			if ( delete_option( $option ) ) {
 				++$total;
+			}
+
+			// Defensive: a legacy install may have stored a matching network
+			// (site) option. This is network-global and idempotent, so it is a
+			// harmless no-op when nothing was stored.
+			if ( is_multisite() ) {
+				delete_site_option( $option );
 			}
 		}
 

@@ -36,10 +36,76 @@ class Sync {
 	const GENERATE_AUDIO_CRON_HOOK = 'beyondwords_generate_audio';
 
 	/**
+	 * Cron hook that runs a deferred audio deletion.
+	 *
+	 * Like GENERATE_AUDIO_CRON_HOOK, only scheduled when async is enabled (VIP).
+	 * The event args carry the BeyondWords project + content IDs — not a post ID —
+	 * because the post meta is wiped (on trash) or the post row is gone (on
+	 * permanent delete) by the time the job runs.
+	 *
+	 * @since 7.0.0
+	 */
+	const DELETE_AUDIO_CRON_HOOK = 'beyondwords_delete_audio';
+
+	/**
+	 * Deprecated post-meta keys that still need REST exposure.
+	 *
+	 * On a site upgraded from the legacy SpeechKit plugin these keys can hold a
+	 * post's only BeyondWords data until it is regenerated under v7, so the block
+	 * editor reads them in the authenticated `edit` context as a fallback — the
+	 * error notice, pending notice, play/preview controls, the "Generate audio"
+	 * toggle and the legacy player link all depend on them (see the components
+	 * under [src/editor/components/](src/editor/components/)). They are therefore
+	 * registered with `show_in_rest => true`; every *other* deprecated key —
+	 * including the secret `speechkit_access_key` — is registered
+	 * `show_in_rest => false` and never reaches the REST API.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @var string[]
+	 */
+	const REST_LEGACY_META_KEYS = [
+		'beyondwords_podcast_id',
+		'speechkit_generate_audio',
+		'speechkit_project_id',
+		'speechkit_podcast_id',
+		'speechkit_error_message',
+		'_speechkit_link',
+	];
+
+	/**
+	 * REST-exposed post-meta keys that must never be readable by unauthenticated
+	 * visitors.
+	 *
+	 * The block editor needs these in the authenticated `edit` context, but
+	 * `WP_REST_Meta_Fields` returns `show_in_rest` meta in the public `view`
+	 * context too, with no capability check — so an anonymous
+	 * `GET /wp/v2/posts/:id` would otherwise disclose them. They hold secrets or
+	 * internal data (BeyondWords API error strings, the audio preview token and
+	 * the legacy player URL), so `hide_private_meta_from_rest()` strips them from
+	 * every non-`edit` response.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @var string[]
+	 */
+	const REST_PRIVATE_META_KEYS = [
+		'beyondwords_error_message',
+		'beyondwords_preview_token',
+		'speechkit_error_message',
+		'_speechkit_link',
+	];
+
+	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
 		add_action( 'init', [ self::class, 'register_meta' ], 99, 3 );
+
+		// Strip secret/internal post meta from unauthenticated REST responses.
+		// Registered on `rest_api_init` so the filters only load for REST
+		// requests.
+		add_action( 'rest_api_init', [ self::class, 'register_rest_meta_visibility' ] );
 
 		add_action( 'wp_after_insert_post', [ self::class, 'on_add_or_update_post' ], 99 );
 		add_action( 'wp_trash_post', [ self::class, 'on_trash_post' ] );
@@ -49,6 +115,12 @@ class Sync {
 		// the hook is always registered so a queued event still runs after a
 		// config change.
 		add_action( self::GENERATE_AUDIO_CRON_HOOK, [ self::class, 'generate_audio_for_post' ] );
+
+		// Background audio deletion — the deferred counterpart to the trash/delete
+		// handlers. Registered unconditionally (like the generation hook) so a
+		// queued event still runs after a config change. Takes the project +
+		// content IDs as args because the post meta is gone by the time it fires.
+		add_action( self::DELETE_AUDIO_CRON_HOOK, [ self::class, 'delete_audio_by_ids' ], 10, 2 );
 
 		add_filter( 'is_protected_meta', [ self::class, 'is_protected_meta' ], 10, 2 );
 
@@ -262,6 +334,24 @@ class Sync {
 	}
 
 	/**
+	 * Run a deferred audio deletion queued by the trash/delete handlers.
+	 *
+	 * The `DELETE_AUDIO_CRON_HOOK` cron event carries the BeyondWords project +
+	 * content IDs directly (not a post ID) because the post meta has already been
+	 * wiped — or the post row deleted — by the time this fires. Only reached on
+	 * the async path, which is VIP-only by default (see
+	 * `is_async_generation_enabled()`).
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|string $project_id BeyondWords project ID.
+	 * @param int|string $content_id BeyondWords content ID.
+	 */
+	public static function delete_audio_by_ids( int|string $project_id, int|string $content_id ): array|false|null {
+		return \BeyondWords\Api\Client::delete_audio_by_ids( $project_id, $content_id );
+	}
+
+	/**
 	 * Persist relevant fields from a BeyondWords API response into post meta.
 	 *
 	 * @param mixed            $response   API response (typically an associative array).
@@ -303,7 +393,14 @@ class Sync {
 	 * Register every BeyondWords post-meta key for REST + auth gating.
 	 *
 	 * Registers per-(post_type, meta_key) combination so the meta is exposed
-	 * only on compatible post types.
+	 * only on compatible post types. Every key is registered so writes are
+	 * sanitised and the "Custom Fields" panel stays hidden (see
+	 * `is_protected_meta()`), but only the keys the block editor reads/writes
+	 * over REST get `show_in_rest => true`. Secrets and internal data — the
+	 * legacy `speechkit_access_key`, cached API responses, player/voice config —
+	 * are registered `show_in_rest => false` so they are never exposed via the
+	 * REST API. Sensitive keys the editor *does* need are additionally hidden
+	 * from unauthenticated requests by `hide_private_meta_from_rest()`.
 	 */
 	public static function register_meta(): void {
 		$post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
@@ -314,22 +411,100 @@ class Sync {
 
 		$keys = \BeyondWords\Core\Utils::get_post_meta_keys( 'all' );
 
-		foreach ( $post_types as $post_type ) {
-			$options = [
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-				'default'           => '',
-				'object_subtype'    => $post_type,
-				'prepare_callback'  => 'sanitize_text_field',
-				'sanitize_callback' => 'sanitize_text_field',
-				'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
-			];
+		// The current keys plus the handful of deprecated keys the block editor
+		// still reads for back-compat (see REST_LEGACY_META_KEYS).
+		$rest_keys = array_merge(
+			\BeyondWords\Core\Utils::get_post_meta_keys( 'current' ),
+			self::REST_LEGACY_META_KEYS
+		);
 
+		foreach ( $post_types as $post_type ) {
 			foreach ( $keys as $key ) {
-				register_meta( 'post', $key, $options );
+				// Content IDs are interpolated into BeyondWords API URL paths, so
+				// the block-editor / REST write path needs the same strict charset
+				// validation as the classic editor — see Meta::sanitize_content_id().
+				$sanitize_callback = 'beyondwords_content_id' === $key
+					? [ \BeyondWords\Post\Meta::class, 'sanitize_content_id' ]
+					: 'sanitize_text_field';
+
+				register_meta(
+					'post',
+					$key,
+					[
+						'show_in_rest'      => in_array( $key, $rest_keys, true ),
+						'single'            => true,
+						'type'              => 'string',
+						'default'           => '',
+						'object_subtype'    => $post_type,
+						'prepare_callback'  => 'sanitize_text_field',
+						'sanitize_callback' => $sanitize_callback,
+						'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
+					]
+				);
 			}
 		}
+	}
+
+	/**
+	 * Register the REST response filter that hides private BeyondWords meta from
+	 * unauthenticated requests, for every compatible post type.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function register_rest_meta_visibility(): void {
+		$post_types = \BeyondWords\Settings\Utils::get_compatible_post_types();
+
+		if ( ! is_array( $post_types ) ) {
+			return;
+		}
+
+		foreach ( $post_types as $post_type ) {
+			add_filter( "rest_prepare_{$post_type}", [ self::class, 'hide_private_meta_from_rest' ], 10, 3 );
+		}
+	}
+
+	/**
+	 * Strip secret/internal BeyondWords meta from non-`edit` REST responses.
+	 *
+	 * `register_meta()` exposes a handful of keys the block editor needs in the
+	 * authenticated `edit` context (BeyondWords API error messages, the audio
+	 * preview token, the legacy player URL), but `WP_REST_Meta_Fields` returns
+	 * `show_in_rest` meta in the public `view` context too, with no capability
+	 * check. Requesting the `edit` context is itself permission-gated by the
+	 * posts controller, so we keep those keys only for `edit` requests and remove
+	 * them everywhere else — closing the anonymous `GET /wp/v2/posts/:id`
+	 * disclosure while leaving the block editor unaffected.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param \WP_REST_Response $response The response object.
+	 * @param \WP_Post          $post     The post the response is for.
+	 * @param \WP_REST_Request  $request  The request object.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function hide_private_meta_from_rest( $response, $post, $request ) {
+		if ( ! $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		if ( 'edit' === $request->get_param( 'context' ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		if ( ! is_array( $data ) || empty( $data['meta'] ) || ! is_array( $data['meta'] ) ) {
+			return $response;
+		}
+
+		foreach ( self::REST_PRIVATE_META_KEYS as $key ) {
+			unset( $data['meta'][ $key ] );
+		}
+
+		$response->set_data( $data );
+
+		return $response;
 	}
 
 	/**
@@ -381,6 +556,32 @@ class Sync {
 	}
 
 	/**
+	 * Schedule a deferred audio-deletion cron event.
+	 *
+	 * Mirrors `schedule_audio_generation()`: VIP-only in practice, prefers the
+	 * VIP wrapper when present, and no-ops when an identical event is already
+	 * queued so repeated trashing can't stack duplicate jobs. The project +
+	 * content IDs are the event args (rather than a post ID) because the meta is
+	 * gone by the time the job runs.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function schedule_audio_deletion( int|string $project_id, int|string $content_id ): void {
+		$args = [ $project_id, $content_id ];
+
+		if ( wp_next_scheduled( self::DELETE_AUDIO_CRON_HOOK, $args ) ) {
+			return;
+		}
+
+		if ( function_exists( 'wpcom_vip_schedule_single_event' ) ) {
+			wpcom_vip_schedule_single_event( time(), self::DELETE_AUDIO_CRON_HOOK, $args );
+			return;
+		}
+
+		wp_schedule_single_event( time(), self::DELETE_AUDIO_CRON_HOOK, $args );
+	}
+
+	/**
 	 * Clear any pending deferred audio-generation cron event for a post.
 	 *
 	 * Called when a post is trashed or deleted so a job queued by
@@ -396,6 +597,36 @@ class Sync {
 	}
 
 	/**
+	 * Delete a post's BeyondWords audio, deferring to background cron on VIP.
+	 *
+	 * On VIP (async enabled) we capture the project + content IDs now and
+	 * schedule a single background event, so the trash/delete request — which may
+	 * be removing many posts at once — returns immediately instead of blocking on
+	 * one remote DELETE per post. We read the IDs before the caller wipes the meta
+	 * (on trash) or WordPress deletes the row (on permanent delete). Off-VIP,
+	 * where WP-Cron is unreliable, we fall back to a synchronous DELETE, bounded
+	 * by the client's short `DELETE_TIMEOUT`.
+	 *
+	 * The caller must have confirmed `Meta::has_content()` first.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function delete_audio_for_post_or_defer( int $post_id ): void {
+		if ( self::is_async_generation_enabled() ) {
+			$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
+			$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
+
+			if ( $project_id && $content_id ) {
+				self::schedule_audio_deletion( $project_id, $content_id );
+			}
+
+			return;
+		}
+
+		self::delete_audio_for_post( $post_id );
+	}
+
+	/**
 	 * Trash hook — DELETE the audio so it disappears from the dashboard, then
 	 * remove our local metadata.
 	 */
@@ -408,7 +639,7 @@ class Sync {
 			return;
 		}
 
-		\BeyondWords\Api\Client::delete_audio( $post_id );
+		self::delete_audio_for_post_or_defer( $post_id );
 		\BeyondWords\Post\Meta::remove_all_beyondwords_metadata( $post_id );
 	}
 
@@ -425,7 +656,7 @@ class Sync {
 			return;
 		}
 
-		\BeyondWords\Api\Client::delete_audio( $post_id );
+		self::delete_audio_for_post_or_defer( $post_id );
 	}
 
 	/**

@@ -161,6 +161,89 @@ class MetaboxTest extends TestCase
     }
 
     /**
+     * A crafted Content ID must not break out of the inline player onload handler.
+     *
+     * Regression test for a stored XSS. The Content ID is editable post meta,
+     * saved with only sanitize_text_field() (which keeps double quotes), and was
+     * emitted into the `onload` JS string with esc_attr(). esc_attr() encodes `"`
+     * as `&quot;`, but the browser HTML-decodes the attribute before compiling the
+     * handler, so `&quot;` became a real `"` that closed the JS string literal and
+     * ran the rest of the value as code. player_embed() now JSON-encodes the
+     * config with the HEX flags, so an injected quote is hex-encoded and stays
+     * inside the string literal instead of closing it.
+     *
+     * @test
+     */
+    public function player_embed_neutralises_content_id_xss()
+    {
+        $payload = '"});alert(document.domain);({"';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'MetaboxTest::player_embed_neutralises_content_id_xss',
+        ]);
+
+        // Set the meta after creation so no save_post handler can overwrite the
+        // payload before we render — this keeps the assertions meaningful.
+        update_post_meta($postId, 'beyondwords_project_id', 12345);
+
+        // Content IDs are charset-validated on save (Meta::sanitize_content_id), so
+        // update_post_meta() would blank this payload and nothing would render. Write
+        // it straight to the DB instead — a hostile value can now only reach the
+        // renderer via a raw row (legacy data, a direct DB write, or a future
+        // regression), which is exactly the case this escaping defence must survive.
+        $this->store_raw_content_id($postId, $payload);
+
+        $html = $this->capture_output(function () use ($postId) {
+            Metabox::player_embed($postId);
+        });
+
+        $crawler = new Crawler($html);
+
+        // The injected markup must not spawn extra elements: exactly one player <script>.
+        $script = $crawler->filter('#beyondwords-metabox-player script');
+        $this->assertCount(1, $script);
+
+        // Crawler::attr() returns the HTML-decoded attribute — exactly what the
+        // browser hands to the JS engine when the onload handler fires.
+        $onload = $script->attr('onload');
+
+        // The Content ID is still passed to the player, but wp_json_encode() has
+        // hex-encoded its quotes so they stay inside the JS string literal. Assert
+        // the exact encoded value (structural quotes included) is present verbatim.
+        $encoded = wp_json_encode(
+            $payload,
+            JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        );
+        $this->assertStringContainsString($encoded, $onload);
+
+        // The raw break-out sequence (a bare " closing the string) must be absent.
+        $this->assertStringNotContainsString('"});alert(document.domain)', $onload);
+
+        // The player is still initialised with the real (decoded) Content ID value.
+        $this->assertStringContainsString('new BeyondWords.Player(', $onload);
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * Write a Content ID straight into post meta, bypassing the
+     * Meta::sanitize_content_id() callback registered on the meta key, so a
+     * hostile value can still be put in front of the renderer.
+     */
+    private function store_raw_content_id($post_id, $value)
+    {
+        global $wpdb;
+
+        $wpdb->insert($wpdb->postmeta, [
+            'post_id'    => $post_id,
+            'meta_key'   => 'beyondwords_content_id',
+            'meta_value' => $value,
+        ]);
+
+        wp_cache_delete($post_id, 'post_meta');
+    }
+
+    /**
      * @test
      * @dataProvider errors_provider
      */
