@@ -451,7 +451,7 @@ class Meta {
 		}
 
 		if ( is_wp_error( $post_meta ) ) {
-			return sprintf( self::WP_ERROR_FORMAT, $post_meta::get_error_code(), $post_meta::get_error_message() );
+			return sprintf( self::WP_ERROR_FORMAT, $post_meta->get_error_code(), $post_meta->get_error_message() );
 		}
 
 		return (string) $post_meta;
