@@ -17,24 +17,20 @@ class SelectVoiceTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
         // save() requires a user who can edit the post.
         wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
 
-        // Your set up methods here.
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -87,8 +83,7 @@ class SelectVoiceTest extends TestCase
         $this->assertSame('cy_GB', $languageSelect->filter('option:nth-child(93)')->attr('value'));
         $this->assertSame('Welsh (Welsh)', $languageSelect->filter('option:nth-child(93)')->text());
 
-        // en_US offers several models, so the Model dropdown is visible with a
-        // "Select a model" placeholder leading the buckets (Standard last).
+        // en_US offers several models, so the Model dropdown is visible.
         $modelLabel = $crawler->filter('#beyondwords-metabox-select-voice--model label');
         $this->assertEquals('Model', $modelLabel->text());
 
@@ -142,7 +137,6 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Model dropdown is visible with every bucket; Bridget's model selected.
         $modelWrapper = $crawler->filter('#beyondwords-metabox-select-voice--model');
         $this->assertStringNotContainsString('display: none', (string) $modelWrapper->attr('style'));
 
@@ -156,15 +150,12 @@ class SelectVoiceTest extends TestCase
             $crawler->filter('#beyondwords_model option[selected]')->attr('value')
         );
 
-        // Voice dropdown is visible and scoped to the selected model: only
-        // Bridget offers Multilingual v2.
         $voiceWrapper = $crawler->filter('#beyondwords-metabox-select-voice--voice-id');
         $this->assertStringNotContainsString('display: none', (string) $voiceWrapper->attr('style'));
 
         $voiceOptions = $crawler->filter('#beyondwords_voice_id option')->each(fn ($node) => $node->text());
         $this->assertSame(['Select a voice', 'Bridget'], $voiceOptions);
 
-        // The persisted voice id stays selected.
         $this->assertSame(
             '9001',
             $crawler->filter('#beyondwords_voice_id option[selected]')->attr('value')
@@ -174,18 +165,16 @@ class SelectVoiceTest extends TestCase
     }
 
     /**
-     * Regression: a failed languages API call returns null (network error,
-     * WP_Error, non-2xx, empty body or invalid JSON). Passed unguarded into
-     * render_language_select()'s array-typed parameter under strict_types this
-     * threw an uncatchable TypeError, crashing the classic-editor metabox. The
-     * language dropdown must now render empty instead of fataling.
+     * Regression: a failed languages API call returns null, which crashed the classic-editor metabox.
+     *
+     * Null hit render_language_select()'s array-typed parameter — an uncatchable
+     * TypeError under strict_types. The dropdown must render empty instead.
      *
      * @test
      */
     public function element_degrades_gracefully_when_languages_api_fails()
     {
-        // Simulate the languages API being unreachable. Priority 1 short-circuits
-        // before the mock API filter, which respects an earlier preempt.
+        // Priority 1 short-circuits before the mock API filter, which respects an earlier preempt.
         $filter = function ($preempt, $args, $url) {
             if (str_contains($url, '/organization/languages')) {
                 return new \WP_Error('http_request_failed', 'Connection refused');
@@ -194,8 +183,7 @@ class SelectVoiceTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        // No language code, so no voices API call is made — the languages call
-        // is the only one exercised here.
+        // No language code → no voices API call; only the languages call is exercised.
         $post = self::factory()->post->create_and_get([
             'post_title' => 'PostSelectVoiceTest::element_languages_api_fails',
         ]);
@@ -208,38 +196,30 @@ class SelectVoiceTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // The language dropdown still renders, with only the empty "Select a
-        // language…" placeholder option — the failed API yields no languages.
+        // Only the empty placeholder option remains — the failed API yields no languages.
         $languageSelect = $crawler->filter('#beyondwords_language_code');
         $this->assertCount(1, $languageSelect);
         $this->assertCount(1, $languageSelect->filter('option'));
         $this->assertSame('', $languageSelect->filter('option')->attr('value'));
 
-        // Render continued past the language select to the voice select, proving
-        // no TypeError was thrown.
+        // Render reached the voice select — no TypeError was thrown.
         $this->assertCount(1, $crawler->filter('#beyondwords_voice_id'));
 
         wp_delete_post($post->ID, true);
     }
 
     /**
-     * Regression: a non-2xx voices response can carry the BeyondWords API's own
-     * error shape — e.g. {"message": "Too many requests"} on a 429 — which
-     * json_decode()s to ['message' => '<string>']. That passed the top-level
-     * is_array() check, so the string element flowed into the render helpers
-     * (find_voice() / voice_model_key()), which are typed for arrays, and threw
-     * an uncatchable TypeError under strict_types — crashing the classic-editor
-     * metabox mid-render on every load for the duration of an API incident. The
-     * Model/Voice dropdowns must now degrade to empty instead of fataling.
+     * Regression: a voices error body like {"message": "…"} crashed the classic-editor metabox.
+     *
+     * It passes the top-level is_array() check, so its string element hit array-typed
+     * render helpers — an uncatchable TypeError. Dropdowns must degrade to empty.
      *
      * @test
      */
     public function element_degrades_gracefully_when_voices_api_returns_error_object()
     {
-        // Answer the voices request with the API's {"message": ...} error body
-        // and a 429. Priority 1 short-circuits before the mock API filter, which
-        // respects an earlier preempt; the languages request is left to the mock
-        // so only the voices path is exercised here.
+        // Priority 1 short-circuits before the mock API filter; the languages request
+        // stays with the mock so only the voices path is exercised here.
         $filter = function ($preempt, $args, $url) {
             if (str_contains($url, '/organization/voices')) {
                 return [
@@ -272,8 +252,7 @@ class SelectVoiceTest extends TestCase
         // Render reached the Voice select — no TypeError was thrown.
         $this->assertCount(1, $crawler->filter('#beyondwords_voice_id'));
 
-        // The error body yields no voice records, so both dropdowns hide and
-        // carry only their placeholder option.
+        // The error body yields no voice records, so both dropdowns hide with only placeholders.
         $modelWrapper = $crawler->filter('#beyondwords-metabox-select-voice--model');
         $this->assertStringContainsString('display: none', (string) $modelWrapper->attr('style'));
         $this->assertSame(
@@ -301,15 +280,13 @@ class SelectVoiceTest extends TestCase
             SelectVoice::voice_model_key(['service' => 'ElevenLabs', 'model_id' => 'eleven_v3'])
         );
 
-        // Non-ElevenLabs voices, and ElevenLabs voices without a string
-        // model_id, fall into the shared Standard bucket.
+        // Non-ElevenLabs voices, and ElevenLabs voices without a string model_id, bucket as Standard.
         $this->assertSame('standard', SelectVoice::voice_model_key(['name' => 'Ada (Multilingual)']));
         $this->assertSame('standard', SelectVoice::voice_model_key(['service' => 'Azure', 'model_id' => null]));
         $this->assertSame('standard', SelectVoice::voice_model_key(['service' => 'ElevenLabs']));
 
-        // Defensive: a non-record value — e.g. a scalar left by a decoded API
-        // error body — buckets as Standard rather than fataling against the
-        // parameter type. Mirrors the JS `voice?.` guard.
+        // Defensive: a non-record value (e.g. from a decoded API error body) buckets
+        // as Standard rather than fataling. Mirrors the JS `voice?.` guard.
         $this->assertSame('standard', SelectVoice::voice_model_key('Too many requests'));
         $this->assertSame('standard', SelectVoice::voice_model_key(null));
     }

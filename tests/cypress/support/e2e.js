@@ -1,30 +1,12 @@
 /* global Cypress, cy, before, beforeEach */
 
-// ***********************************************************
-// This example support/e2e.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
+// Loaded automatically before every spec; global Cypress configuration lives here.
 
-// Import commands.js using ES2015 syntax:
 import './commands';
 
 // Cypress fail-fast support (v8+ requires explicit import)
 import 'cypress-fail-fast';
 
-// Alternatively you can use CommonJS syntax:
-// require( './commands' )
-
-// MochAwesome Reporting
 import addContext from 'mochawesome/addContext';
 
 // Extra Cypress query commands for v12+
@@ -52,13 +34,11 @@ Cypress.on( 'uncaught:exception', () => {
 } );
 
 before( () => {
-	// Clean up test posts from previous test (fast - 100-500ms)
 	cy.task( 'setupDatabase' );
 } );
 
 beforeEach( () => {
 	cy.resetPluginSettings();
-	// Clean up test posts from previous test (fast - 100-500ms)
 	cy.cleanupTestPosts();
 	// disable Cypress's default behavior of logging all XMLHttpRequests and fetches
 	cy.intercept( { resourceType: /xhr|fetch/ }, { log: false } );

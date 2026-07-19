@@ -65,10 +65,8 @@ context( 'Classic Editor: term-gated Generate audio', () => {
 		} );
 		cy.createPost( { postType: { slug: 'post' } } );
 
-		// New post has no matching term → not preselected.
 		cy.get( 'input#beyondwords_generate_audio' ).should( 'not.be.checked' );
 
-		// Tick the matching category → JS checks Generate audio.
 		cy.get( `input[name="post_category[]"][value="${ newsId }"]` ).check();
 		cy.get( 'input#beyondwords_generate_audio' ).should( 'be.checked' );
 
@@ -85,14 +83,12 @@ context( 'Classic Editor: term-gated Generate audio', () => {
 		} );
 		cy.createPost( { postType: { slug: 'post' } } );
 
-		// Auto-check via the matching term.
 		cy.get( `input[name="post_category[]"][value="${ newsId }"]` ).check();
 		cy.get( 'input#beyondwords_generate_audio' ).should( 'be.checked' );
 
 		// Manually override → freezes auto-management.
 		cy.get( 'input#beyondwords_generate_audio' ).uncheck();
 
-		// Re-toggling the term no longer changes Generate audio.
 		cy.get(
 			`input[name="post_category[]"][value="${ newsId }"]`
 		).uncheck();

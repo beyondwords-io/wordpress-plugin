@@ -9,17 +9,11 @@ class SyncTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -229,9 +223,6 @@ class SyncTest extends TestCase
         delete_option('beyondwords_project_id');
     }
 
-    /**
-     *
-     */
     public function should_process_post_status_provider() {
         return [
             'draft' => [
@@ -415,9 +406,6 @@ class SyncTest extends TestCase
         remove_filter('beyondwords_settings_post_statuses', $filter);
     }
 
-    /**
-     *
-     */
     public function post_statuses_to_process_provider() {
         return [
             'pending' => ['pending'],
@@ -427,9 +415,6 @@ class SyncTest extends TestCase
         ];
     }
 
-    /**
-     *
-     */
     public function post_statuses_to_exclude_provider() {
         return [
             'draft' => ['draft'],
@@ -518,9 +503,8 @@ class SyncTest extends TestCase
         $this->assertSame($language, get_post_meta($postId, 'beyondwords_language_code', true));
         $this->assertSame($bodyVoiceId, get_post_meta($postId, 'beyondwords_body_voice_id', true));
 
-        // `language` and `body_voice_id` are no longer copied back from the API
-        // response — those meta keys hold the editor's explicit choices, so the
-        // resolved project defaults must not overwrite them (asserted above).
+        // `language`/`body_voice_id` are not copied back from the response — those keys
+        // hold the editor's explicit choices, which project defaults must not overwrite.
 
         // Deprecated keys are no longer copied from the API response.
         $this->assertSame('', get_post_meta($postId, 'beyondwords_summary_voice_id', true));
@@ -627,12 +611,8 @@ class SyncTest extends TestCase
     }
 
     /**
-     * Meta registered with `show_in_rest` is readable by anyone in the `view`
-     * context — WP performs no capability check there. This test locks in that
-     * secrets and internal data never reach the REST API (registered
-     * `show_in_rest => false`), that the sensitive keys the block editor does
-     * need are stripped from unauthenticated responses, and that an authenticated
-     * editor still sees them via the `edit` context.
+     * Meta with `show_in_rest` is readable by anyone in the `view` context (no capability
+     * check) — secrets stay unregistered or stripped publicly; `edit` context keeps them.
      *
      * @test
      */
@@ -709,18 +689,15 @@ class SyncTest extends TestCase
         // But the secret access key is never exposed, even to editors.
         $this->assertArrayNotHasKey('speechkit_access_key', $meta);
 
-        // Reset the current user before deleting it, so we don't leave the
-        // global pointing at a user row that no longer exists.
+        // Reset the current user before deleting it so the global doesn't point at a missing row.
         wp_set_current_user(0);
         wp_delete_user($editorId);
         wp_delete_post($postId, true);
     }
 
     /**
-     * The beyondwords_content_id meta is registered with a strict sanitize
-     * callback so the block-editor / REST write path can't persist a Content ID
-     * that would inject path or query segments into an authenticated BeyondWords
-     * API URL (see Meta::sanitize_content_id).
+     * beyondwords_content_id has a strict sanitize callback so the REST write path can't
+     * persist a Content ID that injects URL path/query segments (Meta::sanitize_content_id).
      *
      * @test
      */
@@ -744,7 +721,6 @@ class SyncTest extends TestCase
     }
 
     function remove_delete_actions($core) {
-        // Actions for deleting/trashing/restoring posts
         remove_action('before_delete_post', array($core, 'onDeletePost'));
     }
 
@@ -841,8 +817,7 @@ class SyncTest extends TestCase
             ],
         ]);
 
-        // When meta_key is null (e.g. when get_post_meta is called without a key),
-        // the function should return the value unchanged
+        // A null meta_key (get_post_meta without a key) must return the value unchanged.
         $this->assertNull(Sync::get_lang_code_from_json_if_empty(null, $postId, null));
         $this->assertSame('foo', Sync::get_lang_code_from_json_if_empty('foo', $postId, null));
         $this->assertSame(['bar'], Sync::get_lang_code_from_json_if_empty(['bar'], $postId, null));
@@ -980,7 +955,6 @@ class SyncTest extends TestCase
             ],
         ]);
 
-        // Save the original state to restore later
         $hadMetaBoxLoader = isset($_REQUEST['meta-box-loader']);
         $originalMetaBoxLoader = $hadMetaBoxLoader ? $_REQUEST['meta-box-loader'] : null;
 
@@ -990,10 +964,8 @@ class SyncTest extends TestCase
 
             $result = Sync::on_add_or_update_post($postId);
 
-            // Should return false without making any API calls
             $this->assertFalse($result);
         } finally {
-            // Restore original state
             if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
             } else {
@@ -1023,20 +995,16 @@ class SyncTest extends TestCase
             ],
         ]);
 
-        // Save the original state to restore later
         $hadMetaBoxLoader = isset($_REQUEST['meta-box-loader']);
         $originalMetaBoxLoader = $hadMetaBoxLoader ? $_REQUEST['meta-box-loader'] : null;
 
         try {
-            // Ensure meta-box-loader is not set
             unset($_REQUEST['meta-box-loader']);
 
             $result = Sync::on_add_or_update_post($postId);
 
-            // Should not be false — the method should proceed to generateAudioForPost
             $this->assertTrue($result);
         } finally {
-            // Restore original state
             if ($hadMetaBoxLoader) {
                 $_REQUEST['meta-box-loader'] = $originalMetaBoxLoader;
             } else {
@@ -1069,7 +1037,7 @@ class SyncTest extends TestCase
 
         $revisionId = wp_save_post_revision($postId);
 
-        // Intercept any HTTP request — if deleteAudio fires, this will record it
+        // Spy on HTTP — if deleteAudio fires, this records it.
         $apiCalled = false;
         $filter = function () use (&$apiCalled) {
             $apiCalled = true;
@@ -1081,7 +1049,7 @@ class SyncTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        // The revision has no BeyondWords content, so no API call should have been made
+        // Revisions are skipped, so no API call should have been made.
         $this->assertFalse($apiCalled);
 
         wp_delete_post($postId, true);
@@ -1170,7 +1138,6 @@ class SyncTest extends TestCase
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        // Post with no BeyondWords meta
         $postId = self::factory()->post->create([
             'post_title' => 'CoreTest::onTrashPostSkipsPostsWithoutContent',
         ]);
@@ -1221,16 +1188,13 @@ class SyncTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        // Should have recovered by creating new content
         $this->assertIsArray($response);
         $this->assertArrayHasKey('id', $response);
 
-        // The stale content ID should have been replaced with a new one
         $newContentId = get_post_meta($postId, 'beyondwords_content_id', true);
         $this->assertNotEmpty($newContentId);
         $this->assertNotEquals($staleContentId, $newContentId);
 
-        // No error message should remain
         $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
@@ -1268,11 +1232,9 @@ class SyncTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        // Legacy ID fields should be cleared
         $this->assertEmpty(get_post_meta($postId, 'beyondwords_podcast_id', true));
         $this->assertEmpty(get_post_meta($postId, 'speechkit_podcast_id', true));
 
-        // New content ID should be set
         $newContentId = get_post_meta($postId, 'beyondwords_content_id', true);
         $this->assertNotEmpty($newContentId);
         $this->assertNotEquals($staleContentId, $newContentId);
@@ -1427,8 +1389,7 @@ class SyncTest extends TestCase
 
         $result = Sync::on_add_or_update_post($postId);
 
-        // The save returns immediately: the job is queued and no content ID is
-        // written yet.
+        // The save returns immediately: the job is queued and no content ID is written yet.
         $this->assertTrue($result);
         $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
         $this->assertSame('', get_post_meta($postId, 'beyondwords_content_id', true));
@@ -1462,9 +1423,8 @@ class SyncTest extends TestCase
         // trashed/deleted between a deferred job being queued and the cron firing.
         wp_delete_post($postId, true);
 
-        // Regression: this previously threw an uncaught TypeError under
-        // strict_types because get_post_status() returns false for a missing post
-        // and should_process_post_status() requires a non-nullable string.
+        // Regression: an uncaught TypeError under strict_types — get_post_status() returns
+        // false for a missing post but should_process_post_status() requires a string.
         $this->assertFalse(Sync::should_generate_audio_for_post($postId));
 
         delete_option('beyondwords_api_key');
@@ -1487,8 +1447,7 @@ class SyncTest extends TestCase
 
         wp_delete_post($postId, true);
 
-        // The deferred cron callback must no-op rather than fatal when its post
-        // has already been removed.
+        // The deferred cron callback must no-op rather than fatal when its post is gone.
         $this->assertFalse(Sync::generate_audio_for_post($postId));
 
         delete_option('beyondwords_api_key');
@@ -1679,8 +1638,7 @@ class SyncTest extends TestCase
 
         remove_filter('pre_http_request', $filter, 1);
 
-        // Off-VIP the DELETE runs inline, bounded by the short delete timeout, and
-        // nothing is queued.
+        // Off-VIP the DELETE runs inline, bounded by the short timeout; nothing is queued.
         $this->assertSame('DELETE', $captured['method']);
         $this->assertSame(\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
         $this->assertFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));

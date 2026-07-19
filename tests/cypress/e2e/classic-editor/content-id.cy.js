@@ -57,21 +57,16 @@ context( 'Classic Editor: Content ID', () => {
 		} ).then( ( postId ) => {
 			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
 
-			// Spy on the REST API save call
 			cy.intercept( 'POST', '**/wp/v2/posts/**' ).as( 'savePostMeta' );
 
-			// Type a content ID into the field
 			cy.get( '#beyondwords_content_id' )
 				.clear()
 				.type( testContentId );
 
-			// Click Fetch
 			cy.get( '#beyondwords__content-id--fetch' ).click();
 
-			// Wait for the REST API save to complete
 			cy.wait( '@savePostMeta', { timeout: 30000 } );
 
-			// Verify post meta was updated
 			cy.task( 'getPostMeta', {
 				postId,
 				metaKey: 'beyondwords_content_id',
@@ -112,7 +107,6 @@ context( 'Classic Editor: Content ID', () => {
 		} ).then( ( postId ) => {
 			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
 
-			// Intercept the fetch request and return 404
 			cy.intercept(
 				'GET',
 				'**/beyondwords/v1/projects/*/content/not-found-content-id',
@@ -122,23 +116,19 @@ context( 'Classic Editor: Content ID', () => {
 				}
 			).as( 'fetchContent' );
 
-			// Spy on the error meta save
 			cy.intercept( 'POST', '**/wp/v2/posts/**' ).as(
 				'saveErrorMeta'
 			);
 
-			// Type the "not found" content ID
 			cy.get( '#beyondwords_content_id' )
 				.clear()
 				.type( 'not-found-content-id' );
 
-			// Click Fetch
 			cy.get( '#beyondwords__content-id--fetch' ).click();
 
 			cy.wait( '@fetchContent' );
 			cy.wait( '@saveErrorMeta', { timeout: 30000 } );
 
-			// Verify error message was saved
 			cy.task( 'getPostMeta', {
 				postId,
 				metaKey: 'beyondwords_error_message',

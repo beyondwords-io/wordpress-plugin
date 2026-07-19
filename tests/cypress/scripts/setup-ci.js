@@ -1,7 +1,5 @@
 /**
- * One-time setup script for CI environment
- * Run this ONCE before the Cypress test suite starts
- * This ensures the WordPress database is initialized properly
+ * One-time CI setup: initialise the WordPress database before the Cypress suite runs.
  */
 
 const util = require( 'util' );

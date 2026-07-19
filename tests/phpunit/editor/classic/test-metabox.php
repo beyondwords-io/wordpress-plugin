@@ -12,10 +12,7 @@ class MetaboxTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
 
         global $wp_meta_boxes;
         $wp_meta_boxes = null;
@@ -23,9 +20,6 @@ class MetaboxTest extends TestCase
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -62,7 +56,6 @@ class MetaboxTest extends TestCase
      */
     public function render_meta_box_content($expectPlayer, $postArgs)
     {
-        // Set up API credentials for metabox rendering
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -74,15 +67,12 @@ class MetaboxTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Generate audio checkbox is always rendered.
         $this->assertCount(1, $crawler->filter('p#beyondwords-metabox-generate-audio'));
 
-        // The sections render as headings in the required order.
         $headings = $crawler->filter('h4.beyondwords-metabox__heading')
             ->each(fn ($node) => $node->text());
         $this->assertSame(['Player', 'Content', 'Format', 'Voice', 'Data'], $headings);
 
-        // Each section's primary control is present.
         $this->assertCount(1, $crawler->filter('select#beyondwords_embed'));
         $this->assertCount(1, $crawler->filter('select#beyondwords_source'));
         $this->assertCount(1, $crawler->filter('select#beyondwords_output'));
@@ -93,7 +83,6 @@ class MetaboxTest extends TestCase
 
         wp_delete_post($postId, true);
 
-        // Clean up
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
@@ -144,7 +133,6 @@ class MetaboxTest extends TestCase
      */
     public function render_meta_box_content_with_invalid_post()
     {
-        // Set up API credentials
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
@@ -155,7 +143,6 @@ class MetaboxTest extends TestCase
 
         $this->assertEmpty($html);
 
-        // Clean up
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
@@ -163,14 +150,8 @@ class MetaboxTest extends TestCase
     /**
      * A crafted Content ID must not break out of the inline player onload handler.
      *
-     * Regression test for a stored XSS. The Content ID is editable post meta,
-     * saved with only sanitize_text_field() (which keeps double quotes), and was
-     * emitted into the `onload` JS string with esc_attr(). esc_attr() encodes `"`
-     * as `&quot;`, but the browser HTML-decodes the attribute before compiling the
-     * handler, so `&quot;` became a real `"` that closed the JS string literal and
-     * ran the rest of the value as code. player_embed() now JSON-encodes the
-     * config with the HEX flags, so an injected quote is hex-encoded and stays
-     * inside the string literal instead of closing it.
+     * Stored-XSS regression: the browser HTML-decodes the attribute before compiling the
+     * handler, so esc_attr()'s &quot; became a real " — the HEX-flag JSON encoding must hold.
      *
      * @test
      */
@@ -182,15 +163,11 @@ class MetaboxTest extends TestCase
             'post_title' => 'MetaboxTest::player_embed_neutralises_content_id_xss',
         ]);
 
-        // Set the meta after creation so no save_post handler can overwrite the
-        // payload before we render — this keeps the assertions meaningful.
+        // Set meta after creation so no save_post handler can overwrite it before render.
         update_post_meta($postId, 'beyondwords_project_id', 12345);
 
-        // Content IDs are charset-validated on save (Meta::sanitize_content_id), so
-        // update_post_meta() would blank this payload and nothing would render. Write
-        // it straight to the DB instead — a hostile value can now only reach the
-        // renderer via a raw row (legacy data, a direct DB write, or a future
-        // regression), which is exactly the case this escaping defence must survive.
+        // Meta::sanitize_content_id() would blank this payload, so write it straight to
+        // the DB — a raw legacy row is exactly the case this escaping defence must survive.
         $this->store_raw_content_id($postId, $payload);
 
         $html = $this->capture_output(function () use ($postId) {
@@ -203,13 +180,11 @@ class MetaboxTest extends TestCase
         $script = $crawler->filter('#beyondwords-metabox-player script');
         $this->assertCount(1, $script);
 
-        // Crawler::attr() returns the HTML-decoded attribute — exactly what the
-        // browser hands to the JS engine when the onload handler fires.
+        // Crawler::attr() HTML-decodes — exactly what the browser hands the JS engine.
         $onload = $script->attr('onload');
 
-        // The Content ID is still passed to the player, but wp_json_encode() has
-        // hex-encoded its quotes so they stay inside the JS string literal. Assert
-        // the exact encoded value (structural quotes included) is present verbatim.
+        // Quotes are hex-encoded so they stay inside the JS string literal; assert
+        // the exact encoded value is present verbatim.
         $encoded = wp_json_encode(
             $payload,
             JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
@@ -219,16 +194,13 @@ class MetaboxTest extends TestCase
         // The raw break-out sequence (a bare " closing the string) must be absent.
         $this->assertStringNotContainsString('"});alert(document.domain)', $onload);
 
-        // The player is still initialised with the real (decoded) Content ID value.
         $this->assertStringContainsString('new BeyondWords.Player(', $onload);
 
         wp_delete_post($postId, true);
     }
 
     /**
-     * Write a Content ID straight into post meta, bypassing the
-     * Meta::sanitize_content_id() callback registered on the meta key, so a
-     * hostile value can still be put in front of the renderer.
+     * Write a Content ID straight into post meta, bypassing Meta::sanitize_content_id().
      */
     private function store_raw_content_id($post_id, $value)
     {

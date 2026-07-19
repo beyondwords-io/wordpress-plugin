@@ -36,11 +36,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -49,11 +47,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -62,17 +58,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Generate audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
 				cy.get( '#doaction' ).click();
 
@@ -83,11 +76,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -96,11 +87,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -109,17 +98,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Generate audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
@@ -133,7 +119,6 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
@@ -146,7 +131,6 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
@@ -159,7 +143,6 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
@@ -169,7 +152,6 @@ context( 'Bulk Actions', () => {
 						).check();
 					} );
 
-				// "Bulk actions" > "Delete audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
 				cy.get( '#doaction' ).click();
 
@@ -181,17 +163,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Generate audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
@@ -205,11 +184,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -218,11 +195,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -231,17 +206,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Generate audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select(
 					'Generate audio'
 				);
@@ -255,17 +227,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Delete audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
 				cy.get( '#doaction' ).click();
 
@@ -277,11 +246,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -290,11 +257,9 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 1 )
 					.within( () => {
-						// See a [—] in the BeyondWords column
 						cy.get( 'td.beyondwords.column-beyondwords' ).contains(
 							'—'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
@@ -303,17 +268,14 @@ context( 'Bulk Actions', () => {
 				cy.get( 'tbody tr' )
 					.eq( 2 )
 					.within( () => {
-						// See a [tick] in the BeyondWords column
 						cy.get(
 							'td.beyondwords.column-beyondwords > span.dashicons.dashicons-yes'
 						);
-						// Check the checkbox
 						cy.get(
 							'input[type="checkbox"][name="post[]"]'
 						).check();
 					} );
 
-				// "Bulk actions" > "Delete audio" > "Apply"
 				cy.get( '#bulk-action-selector-top' ).select( 'Delete audio' );
 				cy.get( '#doaction' ).click();
 

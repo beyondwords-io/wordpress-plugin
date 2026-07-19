@@ -6,9 +6,8 @@
 /* global cy, before, beforeEach, after, context, it */
 
 /*
- * The "Display player" checkbox was removed in v7 — the Player "Embed" dropdown
- * now controls front-end visibility, where "None" hides the player (equivalent
- * to the old unchecked box). This spec exercises that visibility behaviour.
+ * The v7 Player "Embed" dropdown replaced the "Display player" checkbox;
+ * Embed "None" hides the player. This spec exercises that behaviour.
  */
 context( 'Classic Editor: Player visibility (Embed)', () => {
 	before( () => {
@@ -25,7 +24,6 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -57,7 +55,6 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				// Set Embed = None to hide the player.
 				cy.get( 'select#beyondwords_embed' ).select( 'None' );
 
 				cy.get( '#publish' ).click(); // Click "Update" Button
@@ -73,7 +70,6 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] and "Disabled" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -87,7 +83,6 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				// Pick an asset again to reshow the player.
 				cy.get( 'select#beyondwords_embed' ).select( 'Audio (post)' );
 
 				cy.get( '#publish' ).click(); // Click "Update" Button

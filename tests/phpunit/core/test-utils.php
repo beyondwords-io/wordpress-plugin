@@ -8,15 +8,11 @@ class UtilsTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -36,9 +32,6 @@ class UtilsTest extends TestCase
         $this->assertEquals($expected, Utils::is_gutenberg_page());
     }
 
-    /**
-     *
-     */
     public function is_gutenberg_page_provider()
     {
         return [
@@ -49,8 +42,6 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * Get the BeyondWords post meta keys.
-     *
      * @since 4.1.0
      *
      * @test
@@ -82,8 +73,6 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * Get the BeyondWords post meta keys.
-     *
      * @since 4.1.0
      *
      * @test
@@ -91,7 +80,6 @@ class UtilsTest extends TestCase
     public function get_post_meta_keys_deprecated()
     {
         $keys = [
-            // Deprecated
             'beyondwords_player_content',
             'beyondwords_player_style',
             'beyondwords_title_voice_id',
@@ -121,8 +109,6 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * Get the BeyondWords post meta keys.
-     *
      * @since 4.1.0
      *
      * @test

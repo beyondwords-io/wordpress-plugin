@@ -6,9 +6,8 @@
 /* global cy, beforeEach, context, it */
 
 /*
- * The "Display player" checkbox was removed in v7 — the Player "Embed" dropdown
- * now controls front-end visibility, where "None" hides the player (equivalent
- * to the old unchecked box). This spec exercises that visibility behaviour.
+ * The v7 Player "Embed" dropdown replaced the "Display player" checkbox;
+ * Embed "None" hides the player. This spec exercises that behaviour.
  */
 context( 'Block Editor: Player visibility (Embed)', () => {
 	beforeEach( () => {
@@ -20,7 +19,6 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 	// The Embed dropdown now lives only in the plugin sidebar.
 	const embedSelect = () => cy.get( '.beyondwords--embed select' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -36,8 +34,7 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 
 				cy.publishWithConfirmation();
 
-				// "View post" — player shows by default (Embed defaults to the
-				// first asset).
+				// Player shows by default — Embed defaults to the first asset.
 				cy.viewPostViaSnackbar();
 
 				cy.getPlayerScriptTag().should( 'exist' );
@@ -47,7 +44,6 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] and no "Disabled" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -60,15 +56,12 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 						cy.get( 'a.row-title' ).click();
 					} );
 
-				// Open the plugin sidebar (the Embed dropdown lives here).
 				cy.openBeyondwordsPluginSidebar();
 
-				// Set Embed = None to hide the player.
 				embedSelect().select( 'None', { force: true } );
 
 				cy.savePost();
 
-				// "View post"
 				cy.viewPostViaSnackbar();
 
 				cy.hasPlayerInstances( 0 );
@@ -77,7 +70,6 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] and "Disabled" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -93,12 +85,10 @@ context( 'Block Editor: Player visibility (Embed)', () => {
 
 				cy.openBeyondwordsPluginSidebar();
 
-				// Pick an asset again to reshow the player.
 				embedSelect().select( 'Audio (post)', { force: true } );
 
 				cy.savePost();
 
-				// "View post"
 				cy.viewPostViaSnackbar();
 
 				cy.getPlayerScriptTag().should( 'exist' );

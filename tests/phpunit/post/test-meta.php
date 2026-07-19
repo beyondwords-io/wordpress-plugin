@@ -14,17 +14,11 @@ class MetaTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -50,9 +44,6 @@ class MetaTest extends TestCase
         wp_delete_post($postId, true);
     }
 
-    /**
-     *
-     */
     public function get_project_id_with_plugin_setting_provider()
     {
         return [
@@ -84,9 +75,6 @@ class MetaTest extends TestCase
         wp_delete_post($postId, true);
     }
 
-    /**
-     *
-     */
     public function get_project_id_without_plugin_setting_provider()
     {
         return [
@@ -103,8 +91,7 @@ class MetaTest extends TestCase
     }
 
     /**
-     * Test a Post's Project ID remains fixed after the plugin
-     * Project ID setting changes.
+     * A Post's Project ID remains fixed after the plugin Project ID setting changes.
      *
      * @test
      */
@@ -125,10 +112,8 @@ class MetaTest extends TestCase
             'post_title' => 'UtilsTest:getProjectIdWhenSettingChanges::2',
         ]);
 
-        // The first Post should still have the original Project ID
         $this->assertEquals(1234, Meta::get_project_id($firstPostId));
 
-        // The second Post should be using the updated plugin setting
         $this->assertEquals(5678, Meta::get_project_id($secondPostId));
 
         delete_option('beyondwords_project_id');
@@ -155,9 +140,6 @@ class MetaTest extends TestCase
         wp_delete_post($postId, true);
     }
 
-    /**
-     *
-     */
     public function get_content_id_provider()
     {
         return [
@@ -186,9 +168,8 @@ class MetaTest extends TestCase
     }
 
     /**
-     * A Content ID is interpolated into BeyondWords API URL paths, so only the
-     * `[a-zA-Z0-9\-]+` charset the inspect REST route allows may be stored —
-     * anything with path/query characters is blanked to defeat URL injection.
+     * Content IDs are interpolated into API URL paths, so only `[a-zA-Z0-9\-]+` may be
+     * stored — path/query characters are blanked to defeat URL injection.
      *
      * @test
      * @dataProvider sanitize_content_id_provider
@@ -246,9 +227,6 @@ class MetaTest extends TestCase
         delete_option('beyondwords_project_id');
     }
 
-    /**
-     *
-     */
     public function get_http_response_body_from_post_meta_provider()
     {
         $json = '{"foo":"bar","baz":42}';
@@ -261,14 +239,7 @@ class MetaTest extends TestCase
     }
 
     /**
-     * Legacy `speechkit_response` meta that was stored as a WordPress HTTP response
-     * array or a WP_Error object (plugin ~3.x) must be read back without a fatal error.
-     *
-     * These non-scalar shapes cannot be seeded via `meta_input` / update_post_meta,
-     * because Sync::register_meta() registers `speechkit_response` with a
-     * `sanitize_text_field` sanitize_callback that coerces any write to a string. Real
-     * legacy rows predate that registration, so we reproduce them by writing the
-     * serialized value straight to wp_postmeta — exactly as an old plugin version did.
+     * Legacy `speechkit_response` meta stored as an HTTP response array or WP_Error (~3.x) must read back without fataling.
      *
      * @test
      * @dataProvider get_http_response_body_from_post_meta_legacy_provider
@@ -284,8 +255,8 @@ class MetaTest extends TestCase
 
         $postId = self::factory()->post->create(['post_title' => 'MetaTest:getHttpResponseBodyFromPostMetaLegacy']);
 
-        // Write the serialized value directly, bypassing the registered sanitize_callback,
-        // to mimic a legacy row already present in the database.
+        // Write the serialized value directly — Sync::register_meta()'s sanitize_callback
+        // coerces update_post_meta() writes to strings, but real legacy rows predate it.
         $wpdb->insert(
             $wpdb->postmeta,
             [
@@ -303,9 +274,6 @@ class MetaTest extends TestCase
         delete_option('beyondwords_project_id');
     }
 
-    /**
-     *
-     */
     public function get_http_response_body_from_post_meta_legacy_provider()
     {
         $json = '{"foo":"bar","baz":42}';
@@ -325,19 +293,15 @@ class MetaTest extends TestCase
         ];
     }
 
-    /**
-     *
-     */
     public function exported_data_helper($path)
     {
         $handle = fopen($path, 'r');
 
         $output = [];
 
-        // Ignore first line of CSV
+        // Skip the CSV header line.
         fgetcsv($handle, 0, ',', '"', "\0");
 
-        // Process remaining lines
         while (($data = fgetcsv($handle, 0, ',', '"', "\0")) !== false) {
             // Only test Posts with a state of "Processed"
             if (strtolower($data[11]) == 'processed') {
@@ -349,8 +313,6 @@ class MetaTest extends TestCase
     }
 
     /**
-     * Test if we can get a content ID from all the various places it can be.
-     *
      * @test
      * @dataProvider has_generate_audio_provider
      *
@@ -359,9 +321,8 @@ class MetaTest extends TestCase
      */
     public function has_generate_audio($expected, $postArgs)
     {
-        // Isolate the meta-reading + fallback from the preselect setting, whose
-        // default ('post' => all) would otherwise make an empty-meta post
-        // preselect. Preselect-driven behaviour is covered in PreselectTest.
+        // Isolate the meta fallback from the preselect setting, whose default ('post' => all)
+        // would otherwise make an empty-meta post preselect. PreselectTest covers that path.
         update_option('beyondwords_preselect', []);
 
         $postId = self::factory()->post->create($postArgs);
@@ -372,9 +333,6 @@ class MetaTest extends TestCase
         delete_option('beyondwords_preselect');
     }
 
-    /**
-     *
-     */
     public function has_generate_audio_provider()
     {
         return [
@@ -391,8 +349,7 @@ class MetaTest extends TestCase
     }
 
     /**
-     * Test removeAllBeyondwordsMetadata removes all BeyondWords keys
-     * without affecting other post meta.
+     * removeAllBeyondwordsMetadata removes all BeyondWords keys without touching other post meta.
      *
      * @since 6.0.1
      *
@@ -404,9 +361,8 @@ class MetaTest extends TestCase
             'post_title' => 'MetaTest:removeAllBeyondwordsMetadata',
         ]);
 
-        // Set all BeyondWords meta keys. Use a hyphen rather than an underscore so
-        // the value survives beyondwords_content_id's strict sanitiser
-        // (Meta::sanitize_content_id) while remaining valid for every other key.
+        // 'test-value' uses a hyphen so it survives beyondwords_content_id's strict
+        // sanitiser (Meta::sanitize_content_id) while staying valid for every other key.
         $beyondwordsKeys = Utils::get_post_meta_keys('all');
 
         foreach ($beyondwordsKeys as $key) {
@@ -417,7 +373,6 @@ class MetaTest extends TestCase
         $customKey = 'my_custom_meta_key';
         update_post_meta($postId, $customKey, 'custom_value');
 
-        // Verify all keys are set
         foreach ($beyondwordsKeys as $key) {
             $this->assertNotEmpty(
                 get_post_meta($postId, $key, true),
@@ -426,10 +381,8 @@ class MetaTest extends TestCase
         }
         $this->assertEquals('custom_value', get_post_meta($postId, $customKey, true));
 
-        // Remove all BeyondWords metadata
         Meta::remove_all_beyondwords_metadata($postId);
 
-        // Verify all BeyondWords keys are removed
         foreach ($beyondwordsKeys as $key) {
             $this->assertEmpty(
                 get_post_meta($postId, $key, true),
@@ -437,7 +390,6 @@ class MetaTest extends TestCase
             );
         }
 
-        // Verify non-BeyondWords key is still present
         $this->assertEquals(
             'custom_value',
             get_post_meta($postId, $customKey, true),

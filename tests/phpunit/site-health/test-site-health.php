@@ -15,19 +15,15 @@ class SiteHealthTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         $this->info = [];
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         $this->info = null;
 
-        // Then...
         parent::tearDown();
     }
 
@@ -120,8 +116,7 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * With credentials configured the probe runs and reports the API as
-     * reachable (the mock returns a non-error response for the API root).
+     * With credentials configured the probe reports the API reachable (mock returns non-error).
      */
     public function add_rest_api_connection_reports_reachable_when_configured()
     {
@@ -146,8 +141,7 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * On an unconfigured install the probe is skipped entirely — no blocking
-     * HTTP request is made when there are no API credentials.
+     * Unconfigured installs skip the probe — no blocking HTTP request without credentials.
      */
     public function add_rest_api_connection_skips_probe_without_credentials()
     {
@@ -176,11 +170,8 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * The probe is deliberately NOT cached. Site Health is a diagnostic, so
-     * every render must re-check — a cached result would keep reporting
-     * "unreachable" to an admin who just fixed the problem and hit refresh.
-     * This mirrors WordPress core's own dotorg_communication field, which
-     * probes wordpress.org on every Info-screen render.
+     * Deliberately NOT cached: a diagnostic must re-probe on every render, else it keeps
+     * reporting "unreachable" after a fix (mirrors core's dotorg_communication field).
      */
     public function add_rest_api_connection_is_not_cached()
     {
@@ -214,9 +205,7 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * The probe passes the client's shared default timeout, so a slow API
-     * cannot stall the Site Health render and the bound stays within VIP
-     * guidance.
+     * The probe passes the client's shared default timeout, keeping a slow API within VIP guidance.
      */
     public function add_rest_api_connection_uses_the_shared_default_timeout()
     {
@@ -248,8 +237,7 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * A transport-level failure is reported as unreachable, surfacing the
-     * error message returned by the request.
+     * A transport-level failure is reported as unreachable, surfacing the request's error message.
      */
     public function add_rest_api_connection_reports_unreachable_on_error()
     {

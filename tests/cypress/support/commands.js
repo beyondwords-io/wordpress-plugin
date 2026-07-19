@@ -1,13 +1,11 @@
 /* global cy, Cypress, expect */
 
 // Custom Cypress commands for the BeyondWords test suite.
-// See https://on.cypress.io/custom-commands
 
 import _ from 'lodash';
 
 const postTypes = require( '../../fixtures/post-types.json' );
 
-// Set keystroke delay
 Cypress.Commands.overwrite(
 	'type',
 	( originalFn, subject, text, options = {} ) => {
@@ -19,22 +17,12 @@ Cypress.Commands.overwrite(
 /**
  * Get the block editor canvas body.
  *
- * WordPress 6.8+ renders the editor inside an iframe. This command
- * checks for the iframe first and falls back to the top-level document
- * for older versions.
+ * WordPress 6.8+ renders the editor inside an iframe; falls back to the
+ * top-level document for older versions.
  */
 Cypress.Commands.add( 'getEditorCanvasBody', () => {
-	// WordPress 6.8+ renders the editor inside an iframe. Whether that iframe
-	// exists is stable for a given WP version, so detect it once synchronously
-	// and return a *retryable query chain* for the canvas <body> — note there is
-	// no `.then( cy.wrap )` boundary at the end.
-	//
-	// That boundary matters: it would pin the resolved <body> as a static
-	// subject, so a caller's chained `.find()`/`.type()` could not re-query. The
-	// block editor re-renders its iframe during hydration, which detaches that
-	// pinned <body> and fails the chain ("subject is no longer attached to the
-	// DOM") — flaky on slower PHP/CI (seen on PHP 8.0). Keeping it a pure query
-	// chain lets Cypress re-read a fresh canvas <body> on every retry.
+	// Deliberately no `.then( cy.wrap )` boundary: pinning the resolved <body>
+	// breaks retries when the iframe re-renders during hydration (flaky on slow CI).
 	if ( Cypress.$( 'iframe[name="editor-canvas"]' ).length ) {
 		return cy
 			.get( 'iframe[name="editor-canvas"]' )
@@ -45,18 +33,12 @@ Cypress.Commands.add( 'getEditorCanvasBody', () => {
 } );
 
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {
-	// get the iframe > document > body
-	// and retry until the body element is not empty
 	return (
 		cy
 			.get( '#content_ifr' )
 			.its( '0.contentDocument.body' )
 			.should( 'not.be.empty' )
-			/*
-			 * Wraps "body" DOM element to allow
-			 * chaining more Cypress commands, like ".find(...)"
-			 * https://on.cypress.io/wrap
-			 */
+			// Wrap the body element so further commands can chain from it.
 			.then( cy.wrap )
 	);
 } );
@@ -64,9 +46,8 @@ Cypress.Commands.add( 'getTinyMceIframeBody', () => {
 Cypress.Commands.add( 'login', () => {
 	cy.env( [ 'wpUsername', 'wpPassword' ] ).then(
 		( { wpUsername, wpPassword } ) => {
-			// Visiting from a dirty editor (a prior test that opened the
-			// pre-publish panel) can otherwise trip the unsaved-changes
-			// prompt; auto-confirm so navigation isn't blocked.
+			// A dirty editor from a prior test can trip the unsaved-changes
+			// prompt; clear onbeforeunload so navigation isn't blocked.
 			cy.window().then( ( win ) => {
 				win.onbeforeunload = null;
 			} );
@@ -121,7 +102,6 @@ Cypress.Commands.add( 'visitPostEditorById', ( postId ) => {
 } );
 
 Cypress.Commands.add( 'disableWelcomeGuides', () => {
-	// Wait for editor and dismiss welcome modal if it appears
 	cy.window()
 		.its( 'wp.data' )
 		.then( ( data ) => {
@@ -192,7 +172,6 @@ Cypress.Commands.add( 'dismissPointers', () => {
 	// Dismiss WordPress admin pointers/tooltips that may be covering elements
 	cy.get( 'body' ).then( ( $body ) => {
 		if ( $body.find( '.wp-pointer' ).length > 0 ) {
-			// Try clicking the close button (X in top right)
 			cy.get(
 				'.wp-pointer .wp-pointer-buttons a.close, .wp-pointer button.wp-pointer-close'
 			).each( ( $closeBtn ) => {
@@ -217,9 +196,8 @@ Cypress.Commands.add( 'getSiteHealthValue', ( label, ...args ) => {
 		.then( ( $el ) => cy.wrap( $el, args ) );
 } );
 
-// Use the className selector instead of the label text — the GenerateAudio
-// caption flips between "Generation enabled" and "Generation disabled" to
-// reflect the toggle state, so it can't be used to locate the control.
+// The GenerateAudio caption flips between "Generation enabled/disabled" to
+// reflect state, so locate the control by className rather than label text.
 const GENERATE_AUDIO_CHECKBOX =
 	'.beyondwords--generate-audio input[type="checkbox"]';
 const GENERATE_AUDIO_LABEL = '.beyondwords--generate-audio label';
@@ -334,8 +312,7 @@ Cypress.Commands.add( 'openBeyondwordsPluginSidebar', () => {
 
 Cypress.Commands.add( 'openBeyondwordsDataPanel', () => {
 	cy.openBeyondwordsPluginSidebar();
-	// The Data panel is collapsed by default; expand it to reach the Content
-	// ID field and the Fetch button.
+	// The Data panel is collapsed by default; expand it.
 	cy.get( '.beyondwords-sidebar__data' ).then( ( $panel ) => {
 		if ( ! $panel.hasClass( 'is-opened' ) ) {
 			cy.wrap( $panel ).contains( 'button', 'Data' ).click();
@@ -352,8 +329,6 @@ Cypress.Commands.add( 'getBlockEditorCheckbox', ( text, ...args ) => {
 		.then( ( $el ) => cy.wrap( $el ) );
 } );
 
-// The GenerateAudio caption is state-reflecting ("Generation enabled/disabled"),
-// so locate its checkbox by the stable className rather than by label text.
 Cypress.Commands.add( 'getGenerateAudioCheckbox', () => {
 	return cy.get( GENERATE_AUDIO_CHECKBOX );
 } );
@@ -375,10 +350,8 @@ Cypress.Commands.add( 'setPostStatus', ( status ) => {
 } );
 
 Cypress.Commands.add( 'publishWithConfirmation', () => {
-	// "Publish" in top bar
 	cy.get( '.editor-post-publish-button__button' ).click();
 
-	// Confirm "Publish" in the Prepublish panel
 	cy.get(
 		'.editor-post-publish-panel__header-publish-button > .components-button'
 	).click();
@@ -396,7 +369,6 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 		}
 	} );
 
-	// Close Prepublish panel if it's still open
 	cy.get( 'body' ).then( ( $body ) => {
 		if ( $body.find( 'button[aria-label="Close panel"]' ).length ) {
 			cy.get( 'button[aria-label="Close panel"]' ).click();
@@ -420,12 +392,10 @@ Cypress.Commands.add( 'viewPostViaSnackbar', () => {
 		.click();
 } );
 
-// Get label element from text
 Cypress.Commands.add( 'getLabel', ( text, ...args ) => {
 	return cy.get( 'label', ...args ).contains( text );
 } );
 
-// Check for a number of admin player instances.
 Cypress.Commands.add( 'hasAdminPlayerInstances', ( num = 1 ) => {
 	if ( num < 0 ) {
 		throw new Error( 'Number of player instances cannot be negative.' );
@@ -439,9 +409,7 @@ Cypress.Commands.add( 'hasAdminPlayerInstances', ( num = 1 ) => {
 	cy.get( '.beyondwords-player-box-wrapper' ).should( 'exist' );
 } );
 
-// Check for a number of player instances.
 Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
-	// Ensure the player script tag count matches the expected number of instances.
 	if ( num < 0 ) {
 		throw new Error( 'Number of player instances cannot be negative.' );
 	}
@@ -458,7 +426,7 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 		return;
 	}
 
-	// Check params exist in the params of the player script tag's onload init object.
+	// Assert each expected param appears in the script tag's onload init object.
 	cy.getPlayerScriptTag().each( ( $el ) => {
 		const onload = $el.attr( 'onload' );
 		const match = onload.match( /\{target:this, \.\.\.(.+)\}\)/ );
@@ -490,7 +458,6 @@ Cypress.Commands.add( 'hasPlayerInstances', ( num = 1, params = {} ) => {
 	} );
 } );
 
-// Check for no Beyondwords Player object.
 Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 	cy.window( { timeout: 4000 } ).should( ( win ) => {
 		if ( 'BeyondWords' in win ) {
@@ -501,7 +468,6 @@ Cypress.Commands.add( 'hasNoBeyondwordsWindowObject', () => {
 	} );
 } );
 
-// Get frontend audio player script tag.
 Cypress.Commands.add( 'getPlayerScriptTag', ( ...args ) => {
 	return cy.get(
 		// eslint-disable-next-line max-len
@@ -557,7 +523,7 @@ Cypress.Commands.add( 'cleanupTestPosts', () => {
 
 /**
  * Reset BeyondWords plugin settings to defaults.
- * This ensures tests start with a clean slate for plugin configuration.
+ *
  * Preserves infrastructure options set by setupDatabase: API credentials
  * (to avoid 403 errors) and preselect (whose PHP default excludes cpt_active).
  */
@@ -568,9 +534,8 @@ Cypress.Commands.add( 'resetPluginSettings', () => {
 			'beyondwords_api_key',
 			'beyondwords_project_id',
 			'beyondwords_preselect',
-			// Keep the validation flag so Integration/Preferences tabs stay
-			// visible between tests — Tabs::get_visible_tabs() hides them
-			// when this option is missing.
+			// Tabs::get_visible_tabs() hides Integration/Preferences when this
+			// validation flag is missing; keep the tabs visible between tests.
 			'beyondwords_valid_api_connection',
 		],
 	} );
@@ -585,7 +550,6 @@ Cypress.Commands.add( 'resetPluginSettings', () => {
  */
 Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
 	if ( 'future' === options.postStatus ) {
-		// Set future date 10 years from now
 		const futureDate = new Date();
 		const year = futureDate.getFullYear() + 10;
 		options.postDate = `${ year }-01-01T00:00:00Z`;
@@ -601,7 +565,6 @@ Cypress.Commands.add( 'createTestPost', ( options = {} ) => {
  */
 Cypress.Commands.add( 'createTestPostWithAudio', ( options = {} ) => {
 	return cy.createTestPost( options ).then( ( postId ) => {
-		// Set the meta to generate audio for this post
 		return cy
 			.task( 'setPostMeta', {
 				postId,
