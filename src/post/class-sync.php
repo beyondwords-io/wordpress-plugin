@@ -48,14 +48,15 @@ class Sync {
 	const DELETE_AUDIO_CRON_HOOK = 'beyondwords_delete_audio';
 
 	/**
-	 * Default maximum number of posts the bulk "Generate audio" action processes
+	 * Maximum number of posts the bulk "Generate audio" action processes
 	 * synchronously in a single admin request when async generation is
 	 * unavailable (i.e. off VIP).
 	 *
 	 * Off VIP each post is a blocking API call, so an unbounded loop over a large
 	 * selection could run the request past the PHP/host execution limit. We cap
-	 * the count and defer the remainder (the caller surfaces a notice). Tune with
-	 * the `beyondwords_bulk_generate_sync_limit` filter.
+	 * the count and defer the remainder (the caller surfaces a notice). Sized
+	 * against `\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT` so the whole
+	 * batch stays well inside a typical execution limit even in the worst case.
 	 *
 	 * @since 7.0.0
 	 */
@@ -361,7 +362,7 @@ class Sync {
 	 *   the request returns immediately and no API call runs inline. All selected
 	 *   posts are reported as "generated" (i.e. requested).
 	 * - Off VIP (async disabled) we can't rely on WP-Cron, so generation runs
-	 *   inline — but capped at `bulk_generate_sync_limit()` posts, so a slow API
+	 *   inline — but capped at `BULK_GENERATE_SYNC_LIMIT` posts, so a slow API
 	 *   can't run the request past the execution limit. Each call is already
 	 *   bounded by `\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT`, so the cap
 	 *   is what keeps the total bounded. Posts still missing audio are processed
@@ -404,7 +405,7 @@ class Sync {
 		// the batch total bounded. Posts still missing audio are processed before
 		// regenerations so re-running the action on a large selection converges.
 		$ordered    = self::order_posts_for_bulk_generation( $post_ids );
-		$limit      = self::bulk_generate_sync_limit();
+		$limit      = self::BULK_GENERATE_SYNC_LIMIT;
 		$to_process = array_slice( $ordered, 0, $limit );
 		$deferred   = count( $ordered ) - count( $to_process );
 
@@ -451,30 +452,6 @@ class Sync {
 		}
 
 		return array_merge( $needs_create, $needs_update );
-	}
-
-	/**
-	 * Resolve the synchronous bulk-generation cap, honouring the
-	 * `beyondwords_bulk_generate_sync_limit` filter and guarding against a
-	 * non-positive override.
-	 *
-	 * @since 7.0.0
-	 *
-	 * @return int
-	 */
-	private static function bulk_generate_sync_limit(): int {
-		/**
-		 * Filters the maximum number of posts the bulk "Generate audio" action
-		 * processes synchronously per request when async generation is off (VIP
-		 * is the async path). Non-positive values fall back to the default.
-		 *
-		 * @since 7.0.0
-		 *
-		 * @param int $limit Maximum posts to process synchronously. Default 10.
-		 */
-		$limit = (int) apply_filters( 'beyondwords_bulk_generate_sync_limit', self::BULK_GENERATE_SYNC_LIMIT );
-
-		return $limit > 0 ? $limit : self::BULK_GENERATE_SYNC_LIMIT;
 	}
 
 	/**

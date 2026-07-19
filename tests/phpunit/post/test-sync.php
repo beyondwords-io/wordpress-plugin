@@ -1484,33 +1484,36 @@ class SyncTest extends TestCase
      */
     public function bulk_generate_audio_for_posts_caps_synchronous_batch_off_vip()
     {
-        // Off VIP (no async): cap the synchronous batch so a large selection
-        // can't run an unbounded blocking loop. Keep the limit tiny for the test.
-        $limit = static fn(): int => 2;
-        add_filter('beyondwords_bulk_generate_sync_limit', $limit);
+        // Off VIP (no async) the synchronous batch is capped so a large selection
+        // can't run an unbounded blocking loop. Select two more than the cap and
+        // derive the expectations from the constant, so this still holds if the
+        // cap is ever retuned.
+        $overflow = 2;
+        $selected = Sync::BULK_GENERATE_SYNC_LIMIT + $overflow;
 
         // No credentials → each processed post fails before any (mock) API call,
         // giving a deterministic count without hitting the network.
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
 
-        // Four posts, one of which already has audio (exercises the "needs
-        // update" ordering branch, which is deferred behind fresh generations).
-        $postIds = [
-            self::factory()->post->create(['post_status' => 'publish']),
-            self::factory()->post->create(['post_status' => 'publish']),
-            self::factory()->post->create(['post_status' => 'publish']),
-            self::factory()->post->create(['post_status' => 'publish']),
-        ];
-        update_post_meta($postIds[3], 'beyondwords_content_id', 'existing-content-id');
+        $postIds = [];
+        for ($i = 0; $i < $selected; $i++) {
+            $postIds[] = self::factory()->post->create(['post_status' => 'publish']);
+        }
 
-        // No API credentials → each processed post fails without a network call,
-        // which is exactly what we want for a deterministic unit test of the cap.
+        // Give the last post existing audio so the "needs update" ordering branch
+        // is exercised — it must be deferred behind the fresh generations.
+        update_post_meta($postIds[$selected - 1], 'beyondwords_content_id', 'existing-content-id');
+
         $counts = Sync::bulk_generate_audio_for_posts($postIds);
 
-        $this->assertSame(2, $counts['failed']);
+        $this->assertSame(Sync::BULK_GENERATE_SYNC_LIMIT, $counts['failed']);
         $this->assertSame(0, $counts['generated']);
-        $this->assertSame(2, $counts['deferred']);
+        $this->assertSame($overflow, $counts['deferred']);
+
+        // The already-generated post is ordered last, so it is one of the deferred
+        // ones and keeps its content ID untouched.
+        $this->assertSame('existing-content-id', get_post_meta($postIds[$selected - 1], 'beyondwords_content_id', true));
 
         // Every selected post is flagged, including the deferred ones.
         foreach ($postIds as $postId) {
@@ -1527,7 +1530,6 @@ class SyncTest extends TestCase
             'Worst-case bulk generate (cap x per-call timeout) must stay within a 60s execution limit.'
         );
 
-        remove_filter('beyondwords_bulk_generate_sync_limit', $limit);
         foreach ($postIds as $postId) {
             wp_delete_post($postId, true);
         }
