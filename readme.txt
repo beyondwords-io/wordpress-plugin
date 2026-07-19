@@ -83,6 +83,8 @@ Release date: tbc
 
 **Enhancements**
 
+* [#566](https://github.com/beyondwords-io/wordpress-plugin/pull/566) Poll the content status before embedding the player.
+    * The block and classic editor previews now wait until content has finished processing — showing a loading spinner meanwhile — instead of embedding the player immediately and caching a 404 when the audio or video isn't ready yet.
 * [#520](https://github.com/beyondwords-io/wordpress-plugin/pull/520) New settings page and project-wide rewrite.
     * Simplifies the plugin settings — removing many tabs, fields and options — so that audio/video generation and player display are managed from your BeyondWords project settings.
     * Standardises the codebase to WordPress VIP coding standards and migrates CI tooling from Yarn to npm.
