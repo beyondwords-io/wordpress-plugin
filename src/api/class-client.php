@@ -85,6 +85,19 @@ class Client {
 	const CACHED_GET_TIMEOUT = 3;
 
 	/**
+	 * Timeout, in seconds, for the voices GET.
+	 *
+	 * Voices is the one editor dropdown that is genuinely slow to prepare —
+	 * ~3.7s p95 in Sentry, against ~250ms p95 for every other editor GET — so
+	 * the shared `CACHED_GET_TIMEOUT` would abandon more than 5% of cold-cache
+	 * fetches and leave the Voice dropdown empty. Bounded well under the
+	 * generous `REQUEST_TIMEOUT` default, and only ever paid on a cache miss.
+	 *
+	 * @since 7.0.0
+	 */
+	const VOICES_TIMEOUT = 8;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the plugin bootstrap so the `http_request_args` filter
@@ -368,6 +381,9 @@ class Client {
 	/**
 	 * GET /organization/voices?filter[language.code]=…
 	 *
+	 * Passes the longer `VOICES_TIMEOUT` — this endpoint is materially slower
+	 * than the other editor dropdowns.
+	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
 	 *
 	 * @return array<mixed>|null|false
@@ -379,7 +395,7 @@ class Client {
 			rawurlencode( strval( $language_code ) )
 		);
 
-		return self::cached_get( 'voices_' . $language_code, $url );
+		return self::cached_get( 'voices_' . $language_code, $url, self::VOICES_TIMEOUT );
 	}
 
 	/**
@@ -584,17 +600,19 @@ class Client {
 	 * Only 2xx array responses are cached, so a transient API error retries on
 	 * the next call rather than caching an empty/error payload for the full TTL.
 	 *
-	 * Uses the short `CACHED_GET_TIMEOUT` because these run while the classic
-	 * editor renders.
+	 * Defaults to the short `CACHED_GET_TIMEOUT` because these run while the
+	 * classic editor renders; the slower voices endpoint passes its own bound.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param string $suffix Cache-key suffix (include any project/language id).
-	 * @param string $url    Absolute endpoint URL.
+	 * @param string $suffix  Cache-key suffix (include any project/language id).
+	 * @param string $url     Absolute endpoint URL.
+	 * @param int    $timeout Request timeout in seconds. Defaults to CACHED_GET_TIMEOUT;
+	 *                        the voices GET passes the longer VOICES_TIMEOUT.
 	 *
 	 * @return array<mixed>|null|false
 	 */
-	private static function cached_get( string $suffix, string $url ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::CACHED_GET_TIMEOUT ): array|null|false {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 
@@ -602,7 +620,7 @@ class Client {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url, '', false, [], self::CACHED_GET_TIMEOUT );
+		$response = self::call_api( 'GET', $url, '', false, [], $timeout );
 		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if (

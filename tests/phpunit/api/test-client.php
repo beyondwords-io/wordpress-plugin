@@ -544,6 +544,7 @@ class ClientTest extends TestCase
      * Editor-dropdown GETs run while the classic editor renders — up to five
      * sequentially on a cold cache — so they must be bounded by the short
      * CACHED_GET_TIMEOUT rather than the generous default REQUEST_TIMEOUT.
+     * Voices is the one exception (see voices_get_uses_longer_timeout).
      */
     public function editor_dropdown_gets_use_short_timeout()
     {
@@ -568,6 +569,48 @@ class ClientTest extends TestCase
             3,
             Client::CACHED_GET_TIMEOUT,
             'WordPress VIP requires <=3s on blocking requests that run during page generation'
+        );
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * Voices is materially slower to prepare than the other dropdowns (~3.7s p95
+     * vs ~250ms), so it gets its own longer bound — the shared CACHED_GET_TIMEOUT
+     * would abandon cold-cache fetches and leave the Voice dropdown empty.
+     */
+    public function voices_get_uses_longer_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = null;
+        $filter = function ($preempt, $args, $url) use (&$captured) {
+            if (str_contains((string) $url, '/organization/voices')) {
+                $captured = $args['timeout'] ?? null;
+            }
+            return $preempt; // Pass through — let the mock supply the response.
+        };
+        add_filter('pre_http_request', $filter, 0, 3);
+
+        Client::get_voices('en_US');
+
+        remove_filter('pre_http_request', $filter, 0);
+
+        $this->assertSame(Client::VOICES_TIMEOUT, $captured);
+        $this->assertGreaterThan(
+            Client::CACHED_GET_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices needs a longer bound than the other editor GETs'
+        );
+        $this->assertLessThan(
+            Client::REQUEST_TIMEOUT,
+            Client::VOICES_TIMEOUT,
+            'Voices still runs during page generation, so it must stay well under the default'
         );
 
         delete_option('beyondwords_api_key');
