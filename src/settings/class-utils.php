@@ -57,6 +57,26 @@ class Utils {
 	const REQUIRED_FEATURES = [ 'title', 'editor', 'custom-fields' ];
 
 	/**
+	 * How long a connection check is trusted before the settings page
+	 * re-validates. Throttles the API call to once per window per credential
+	 * set, keeping it off the admin render hot path.
+	 */
+	const CONNECTION_CHECK_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Timeout (seconds) for the connection-check GET. Kept at the VIP-approved
+	 * 3-second ceiling so a slow API can't stall the settings page render.
+	 */
+	const CONNECTION_CHECK_TIMEOUT = 3;
+
+	/**
+	 * Transient that throttles connection re-validation. Its value is a
+	 * fingerprint of the credentials last checked, so changing the API key or
+	 * project ID busts the throttle and forces an immediate re-check.
+	 */
+	const CONNECTION_CHECK_TRANSIENT = 'beyondwords_api_connection_checked';
+
+	/**
 	 * Get the post types eligible for BeyondWords audio generation.
 	 *
 	 * Filterable via `beyondwords_settings_post_types` so a site can opt
@@ -133,31 +153,68 @@ class Utils {
 	/**
 	 * Validate the BeyondWords REST API connection and persist the result.
 	 *
-	 * Stores the successful timestamp in `beyondwords_valid_api_connection`
-	 * so subsequent admin page loads can short-circuit without an API call.
+	 * The last successful check is recorded as a timestamp in the
+	 * `beyondwords_valid_api_connection` option, which gates the visibility of
+	 * the Integration and Preferences tabs (see `Tabs::get_visible_tabs()`).
+	 *
+	 * This runs on every settings-page load, so the network call is
+	 * short-circuited to keep it off the admin render hot path:
+	 *
+	 * 1. A throttle transient ({@see self::CONNECTION_CHECK_TRANSIENT}), keyed to
+	 *    a fingerprint of the current credentials, limits re-validation to once
+	 *    per {@see self::CONNECTION_CHECK_TTL}. Changing the API key or project ID
+	 *    changes the fingerprint, so saving new credentials re-validates
+	 *    immediately rather than waiting out the throttle window.
+	 * 2. The request uses a short {@see self::CONNECTION_CHECK_TIMEOUT} timeout so
+	 *    a slow API can't block the page render.
+	 *
+	 * The stored flag is only cleared on a definitive auth failure (401/403) —
+	 * `Client::call_api()` clears it on 401 and we mirror that for 403 here. A
+	 * transient failure (timeout, DNS error, 5xx, `WP_Error`) leaves the last
+	 * known-good flag intact so an API blip can't hide the other settings tabs.
 	 */
 	public static function validate_api_connection(): bool {
-		delete_transient( 'beyondwords_validate_api_connection' );
-		delete_option( 'beyondwords_valid_api_connection' );
-
 		$project_id = get_option( 'beyondwords_project_id' );
 		$api_key    = get_option( 'beyondwords_api_key' );
 
 		if ( ! $project_id || ! $api_key ) {
+			// No credentials means no connection — reflect that in the flag.
+			delete_option( 'beyondwords_valid_api_connection' );
 			return false;
 		}
 
-		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
+		$fingerprint = md5( (string) $project_id . '|' . (string) $api_key );
 
-		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+		// Throttle: within the window, trust the last recorded result for these
+		// exact credentials and skip the network call entirely.
+		if ( get_transient( self::CONNECTION_CHECK_TRANSIENT ) === $fingerprint ) {
+			return self::has_valid_api_connection();
+		}
+
+		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
+		$response = \BeyondWords\Api\Client::call_api( 'GET', $url, '', false, [], self::CONNECTION_CHECK_TIMEOUT );
+
+		// Record the attempt whatever the outcome, so repeated page loads don't
+		// re-issue the request — a down API is throttled just like a healthy one.
+		set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === (int) $response_code ) {
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );
 			return true;
 		}
 
+		// 403 is a definitive auth failure (revoked key or wrong project), so
+		// clear the flag; call_api() has already done so for 401. Every other
+		// response is treated as transient and leaves the flag untouched.
+		if ( 403 === (int) $response_code ) {
+			delete_option( 'beyondwords_valid_api_connection' );
+		}
+
 		$debug = sprintf(
 			'<code>%s</code>: <code>%s</code>',
-			wp_remote_retrieve_response_code( $response ),
+			$response_code,
 			wp_remote_retrieve_body( $response )
 		);
 
