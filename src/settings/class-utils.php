@@ -64,10 +64,11 @@ class Utils {
 	const CONNECTION_CHECK_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Timeout (seconds) for the connection-check GET. Kept at the VIP-approved
-	 * 3-second ceiling so a slow API can't stall the settings page render.
+	 * Timeout (seconds) for the connection-check GET. Aliases the shared
+	 * {@see \BeyondWords\Api\Client::BLOCKING_TIMEOUT} — the VIP-approved
+	 * 3-second ceiling — so a slow API can't stall the settings page render.
 	 */
-	const CONNECTION_CHECK_TIMEOUT = 3;
+	const CONNECTION_CHECK_TIMEOUT = \BeyondWords\Api\Client::BLOCKING_TIMEOUT;
 
 	/**
 	 * Transient that throttles connection re-validation. Its value is a

@@ -70,6 +70,20 @@ class Client {
 	const REQUEST_TIMEOUT = 30;
 
 	/**
+	 * Timeout, in seconds, for any request made on a synchronous render path.
+	 *
+	 * VIP's approved ceiling for a blocking remote request — the
+	 * `WordPressVIPMinimum.Performance.RemoteRequestTimeout` sniff errors above
+	 * 3. Every call site that blocks an admin page render shares this single
+	 * value (the constants below, and `Settings\Utils::CONNECTION_CHECK_TIMEOUT`,
+	 * alias it while keeping their own rationale) so the policy can be retuned
+	 * in one place.
+	 *
+	 * @since 7.0.0
+	 */
+	const BLOCKING_TIMEOUT = 3;
+
+	/**
 	 * Timeout, in seconds, for a DELETE request.
 	 *
 	 * Deletion runs on the synchronous trash/delete admin path — once per post
@@ -79,7 +93,7 @@ class Client {
 	 *
 	 * @since 7.0.0
 	 */
-	const DELETE_TIMEOUT = 3;
+	const DELETE_TIMEOUT = self::BLOCKING_TIMEOUT;
 
 	/**
 	 * Timeout, in seconds, for a cached render-path GET (editor dropdowns).
@@ -92,7 +106,7 @@ class Client {
 	 *
 	 * @since 7.0.0
 	 */
-	const RENDER_TIMEOUT = 3;
+	const RENDER_TIMEOUT = self::BLOCKING_TIMEOUT;
 
 	/**
 	 * Timeout, in seconds, for the voices GET.

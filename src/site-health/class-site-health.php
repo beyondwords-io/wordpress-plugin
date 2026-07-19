@@ -74,36 +74,6 @@ class SiteHealth {
 	];
 
 	/**
-	 * Transient key holding the cached REST API reachability result.
-	 *
-	 * @var string
-	 */
-	const REACHABILITY_TRANSIENT = 'beyondwords_site_health_api_status';
-
-	/**
-	 * How long to cache the REST API reachability probe.
-	 *
-	 * Site Health renders this section on every Info-screen view (and again
-	 * when an admin clicks "Copy site info to clipboard"), so the probe result
-	 * is cached to keep the page render off the network. The TTL is short so a
-	 * recovered connection self-heals quickly, while meeting VIP's 300-second
-	 * minimum cache-expiry guidance.
-	 *
-	 * @var int
-	 */
-	const REACHABILITY_TTL = 5 * MINUTE_IN_SECONDS;
-
-	/**
-	 * Bounded timeout (seconds) for the reachability probe.
-	 *
-	 * Kept well under VIP's 3-second ceiling so a slow or unreachable API can't
-	 * block the Site Health render.
-	 *
-	 * @var int
-	 */
-	const REACHABILITY_TIMEOUT = 2;
-
-	/**
 	 * Register WordPress hooks.
 	 */
 	public static function init(): void {
@@ -225,9 +195,15 @@ class SiteHealth {
 	/**
 	 * Resolve the "Communication with REST API" value/debug pair.
 	 *
-	 * Skips the network entirely on unconfigured installs and serves a cached
-	 * result on configured ones, so rendering the Site Health screen never
-	 * blocks on an uncached external request.
+	 * Deliberately **not** cached. This mirrors WordPress core's own
+	 * `dotorg_communication` field ({@see \WP_Debug_Data::get_wp_core()}), which
+	 * probes wordpress.org on every Info-screen render: Site Health is a
+	 * diagnostic, so a cached result would keep reporting "unreachable" to an
+	 * admin who has just fixed their credentials, DNS or firewall and hit
+	 * refresh to confirm. The request is instead bounded by the shared
+	 * {@see \BeyondWords\Api\Client::BLOCKING_TIMEOUT} and skipped entirely when
+	 * there are no credentials, which keeps the render cost predictable without
+	 * ever serving stale diagnostics.
 	 *
 	 * @param string $api_url BeyondWords REST API base URL.
 	 *
@@ -243,47 +219,18 @@ class SiteHealth {
 			];
 		}
 
-		$cached = get_transient( self::REACHABILITY_TRANSIENT );
-
-		if ( is_array( $cached ) && isset( $cached['value'], $cached['debug'] ) ) {
-			return $cached;
-		}
-
-		$result = self::probe_api_reachability( $api_url );
-
-		set_transient( self::REACHABILITY_TRANSIENT, $result, self::REACHABILITY_TTL );
-
-		return $result;
-	}
-
-	/**
-	 * Perform the bounded reachability request and format the result.
-	 *
-	 * Prefers `vip_safe_wp_remote_get()` (VIP's circuit-breaking wrapper) and
-	 * falls back to `wp_remote_request()` with an explicit low timeout
-	 * elsewhere, so a slow or unreachable API can't hang the render.
-	 *
-	 * @param string $api_url BeyondWords REST API base URL.
-	 *
-	 * @return array<string,string>
-	 */
-	private static function probe_api_reachability( string $api_url ): array {
-		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
-			$fallback = new \WP_Error(
-				'beyondwords_api_unreachable',
-				__( 'Request skipped after repeated failures', 'speechkit' )
-			);
-
-			$response = vip_safe_wp_remote_get( $api_url, $fallback, 3, self::REACHABILITY_TIMEOUT );
-		} else {
-			$response = wp_remote_request(
-				$api_url,
-				[
-					'method'  => 'GET',
-					'timeout' => self::REACHABILITY_TIMEOUT,
-				]
-			);
-		}
+		// A plain request, not `Client::call_api()`: this is a passive probe, and
+		// `call_api()` would clear `beyondwords_valid_api_connection` on a 401 as
+		// a side effect of merely viewing Site Health. `vip_safe_wp_remote_get()`
+		// is avoided for the same reason — its circuit breaker reports a failure
+		// without actually retrying, which would make the diagnostic lie.
+		$response = wp_remote_request(
+			$api_url,
+			[
+				'method'  => 'GET',
+				'timeout' => \BeyondWords\Api\Client::BLOCKING_TIMEOUT,
+			]
+		);
 
 		if ( ! is_wp_error( $response ) ) {
 			return [

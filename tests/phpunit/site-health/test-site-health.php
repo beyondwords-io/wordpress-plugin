@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use BeyondWords\SiteHealth\SiteHealth;
+use BeyondWords\Api\Client;
 use BeyondWords\Core\Urls;
 
 class SiteHealthTest extends TestCase
@@ -126,7 +127,6 @@ class SiteHealthTest extends TestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
 
         $siteHealth = new SiteHealth();
 
@@ -139,7 +139,6 @@ class SiteHealthTest extends TestCase
         $this->assertSame('BeyondWords API is reachable', $this->info['beyondwords']['fields']['api-communication']['value']);
         $this->assertSame('true', $this->info['beyondwords']['fields']['api-communication']['debug']);
 
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
@@ -154,7 +153,6 @@ class SiteHealthTest extends TestCase
     {
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
 
         $calls   = 0;
         $counter = function ($preempt, $args, $url) use (&$calls) {
@@ -178,14 +176,16 @@ class SiteHealthTest extends TestCase
     /**
      * @test
      *
-     * The reachability result is cached in a transient, so a second render
-     * within the TTL is served from cache and makes no HTTP request.
+     * The probe is deliberately NOT cached. Site Health is a diagnostic, so
+     * every render must re-check — a cached result would keep reporting
+     * "unreachable" to an admin who just fixed the problem and hit refresh.
+     * This mirrors WordPress core's own dotorg_communication field, which
+     * probes wordpress.org on every Info-screen render.
      */
-    public function add_rest_api_connection_caches_the_probe_result()
+    public function add_rest_api_connection_is_not_cached()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
 
         $calls   = 0;
         $counter = function ($preempt, $args, $url) use (&$calls) {
@@ -205,13 +205,41 @@ class SiteHealthTest extends TestCase
 
         remove_filter('pre_http_request', $counter, 0);
 
-        $this->assertSame(1, $calls, 'Second render should be served from the transient cache');
-        $this->assertSame(
-            $first['beyondwords']['fields']['api-communication'],
-            $second['beyondwords']['fields']['api-communication']
-        );
+        $this->assertSame(2, $calls, 'Every render must re-probe so the diagnostic is never stale');
 
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     *
+     * The probe passes the shared blocking-path timeout, so a slow API cannot
+     * stall the Site Health render and the bound stays within VIP guidance.
+     */
+    public function add_rest_api_connection_uses_the_shared_blocking_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $captured = null;
+        $filter   = function ($preempt, $args, $url) use (&$captured) {
+            if (str_starts_with((string) $url, Urls::get_api_url())) {
+                $captured = $args;
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 0, 3);
+
+        $siteHealth = new SiteHealth();
+        $siteHealth->add_rest_api_connection($this->info);
+
+        remove_filter('pre_http_request', $filter, 0);
+
+        $this->assertIsArray($captured);
+        $this->assertSame(Client::BLOCKING_TIMEOUT, $captured['timeout']);
+        $this->assertLessThanOrEqual(3, $captured['timeout'], 'Must stay within VIP guidance (<= 3s)');
+
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
@@ -226,7 +254,6 @@ class SiteHealthTest extends TestCase
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
 
         $filter = function ($preempt, $args, $url) {
             if (str_starts_with((string) $url, Urls::get_api_url())) {
@@ -246,7 +273,6 @@ class SiteHealthTest extends TestCase
         $this->assertStringContainsString('Connection timed out', $value);
         $this->assertSame('Connection timed out', $this->info['beyondwords']['fields']['api-communication']['debug']);
 
-        delete_transient(SiteHealth::REACHABILITY_TRANSIENT);
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
     }
