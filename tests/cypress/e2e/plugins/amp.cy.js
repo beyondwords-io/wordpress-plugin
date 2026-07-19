@@ -20,7 +20,6 @@ context( 'Plugins: AMP', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => [ 'post', 'page' ].includes( x.slug ) )
 		.forEach( ( postType ) => {
@@ -30,7 +29,6 @@ context( 'Plugins: AMP', () => {
 					title: `A ${ postType.slug } has an AMP iframe player`,
 				} );
 
-				// "View post"
 				cy.viewPostViaSnackbar();
 
 				// Non-AMP requests have a JS player.

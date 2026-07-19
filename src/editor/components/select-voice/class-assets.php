@@ -2,9 +2,6 @@
 /**
  * BeyondWords Select Voice — asset enqueue.
  *
- * Owns the classic-editor JS that wires up the language/voice select boxes.
- * Split from [class-select-voice.php](class-select-voice.php).
- *
  * @package BeyondWords\Editor\Components\SelectVoice
  * @since   7.0.0
  */

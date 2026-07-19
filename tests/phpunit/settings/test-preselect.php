@@ -35,8 +35,7 @@ class PreselectTest extends TestCase
     }
 
     /**
-     * Register a hierarchical taxonomy attached to the given post type and
-     * remember it for teardown.
+     * Register a hierarchical taxonomy attached to the given post type; unregistered in tearDown.
      */
     private function register_hierarchical_taxonomy(string $taxonomy, string $post_type = 'post', bool $show_ui = true): void
     {
@@ -357,7 +356,6 @@ class PreselectTest extends TestCase
      */
     public function sanitize_stores_all_mode()
     {
-        // Post-type enabled + "All" ticked.
         $clean = Preselect::sanitize(['post' => ['enabled' => '1', 'all' => '1']]);
         $this->assertSame(['mode' => 'all'], $clean['post']);
     }
@@ -393,7 +391,6 @@ class PreselectTest extends TestCase
      */
     public function sanitize_all_checkbox_wins_over_ticked_terms()
     {
-        // Both "All" and some terms ticked → "All" wins.
         $clean = Preselect::sanitize([
             'post' => ['enabled' => '1', 'all' => '1', 'terms' => ['category' => [1]]],
         ]);
@@ -406,7 +403,6 @@ class PreselectTest extends TestCase
      */
     public function sanitize_enabled_without_all_or_terms_is_empty_terms_mode()
     {
-        // Enabled, "All" unticked, no terms picked → terms mode, no terms.
         $clean = Preselect::sanitize(['post' => ['enabled' => '1']]);
 
         $this->assertSame(['mode' => 'terms', 'terms' => []], $clean['post']);
@@ -454,7 +450,6 @@ class PreselectTest extends TestCase
             'post' => ['enabled' => '1', 'terms' => ['category' => [2]]],
         ]);
 
-        // genre is preserved; category is updated from the form.
         $this->assertSame([7], $clean['post']['terms']['genre']);
         $this->assertSame([2], $clean['post']['terms']['category']);
     }
@@ -464,7 +459,6 @@ class PreselectTest extends TestCase
      */
     public function sanitize_preserves_config_for_currently_incompatible_post_type()
     {
-        // A CPT that is not registered in this request must keep its config.
         update_option(Preselect::OPTION_NAME, [
             'post'    => ['mode' => 'all'],
             'cpt_gone' => ['mode' => 'all'],
@@ -571,7 +565,6 @@ class PreselectTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // 'post' is mode 'all' → enabled + All both checked.
         $enabled = $crawler->filter('input[type="checkbox"][name="' . Preselect::OPTION_NAME . '[post][enabled]"]');
         $this->assertCount(1, $enabled);
         $this->assertSame('checked', $enabled->attr('checked'));
@@ -580,7 +573,6 @@ class PreselectTest extends TestCase
         $this->assertCount(1, $all);
         $this->assertSame('checked', $all->attr('checked'));
 
-        // 'page' is not preselected → its post-type checkbox is unchecked.
         $pageEnabled = $crawler->filter('input[type="checkbox"][name="' . Preselect::OPTION_NAME . '[page][enabled]"]');
         $this->assertCount(1, $pageEnabled);
         $this->assertNull($pageEnabled->attr('checked'));
@@ -603,7 +595,6 @@ class PreselectTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // Terms mode → enabled checked, All unchecked.
         $enabled = $crawler->filter('input[type="checkbox"][name="' . Preselect::OPTION_NAME . '[post][enabled]"]');
         $this->assertSame('checked', $enabled->attr('checked'));
 

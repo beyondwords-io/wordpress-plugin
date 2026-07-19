@@ -99,6 +99,31 @@ To run the coverage gate standalone (without re-running the suite):
 npm run composer:tests -- test:coverage-check
 ```
 
+##  PHPUnit lore
+
+- **AJAX handler tests** extend `WP_Ajax_UnitTestCase`, which pretends
+  `DOING_AJAX` is true, routes `wp_die()` to a handler that captures the JSON
+  body into `$this->_last_response` and throws a `WPAjaxDie*Exception`, and
+  suppresses the "headers already sent" warning. See
+  `tests/phpunit/posts-list/test-bulk-edit-ajax.php`.
+
+##  Flaky-test lore
+
+Hard-won details behind some non-obvious patterns in the Cypress suite:
+
+- **`cy.getEditorCanvasBody()`** (`tests/cypress/support/commands.js`) must not
+  introduce a `.then( cy.wrap )` boundary. Pinning the resolved `<body>`
+  subject breaks Cypress's retry-ability when the block-editor iframe
+  re-renders during hydration — it fails as *"subject is no longer attached to
+  the DOM"*, seen mostly on slower PHP 8.0 CI runs. Whether the editor canvas
+  is an iframe is stable for a given WordPress version, so it is detected once
+  synchronously via `Cypress.$` instead.
+- **Stubbing voices in the block editor doesn't work**: `cy.intercept` on the
+  REST voices route stubs fine in the classic editor, but the block editor's
+  `wp.data` store ends up empty. Branches that depend on voice-list contents
+  (e.g. the single-bucket Model/Voice case) are covered by the classic-editor
+  spec plus Jest unit tests instead.
+
 ##  Further reading
 
 * [Xdebug IDE support](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/#xdebug-ide-support).

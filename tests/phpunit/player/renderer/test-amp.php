@@ -7,27 +7,22 @@ use \Symfony\Component\DomCrawler\Crawler;
 /**
  * Test the Amp player renderer.
  *
- * Note that we are are not testing Amp::check() here due to limitations
- * with mocking the amp_is_request() function in the current test environment.
- * The Amp::check() method is covered by integration tests when the AMP plugin is active.
+ * Amp::check() isn't tested here — amp_is_request() can't be mocked in this
+ * environment; integration tests with the AMP plugin active cover it.
  */
 class AmpTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         delete_option('beyondwords_project_id');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -50,7 +45,6 @@ class AmpTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // <amp-iframe>
         $iframe = $crawler->filter('amp-iframe');
         $this->assertCount(1, $iframe);
         $this->assertSame('0', $iframe->attr('frameborder'));
@@ -61,7 +55,6 @@ class AmpTest extends TestCase
         $this->assertSame($src, $iframe->attr('src'));
         $this->assertSame('295', $iframe->attr('width'));
 
-        // <amp-img>
         $img = $iframe->filter('amp-img');
         $this->assertCount(1, $img);
         $this->assertSame('150', $img->attr('height'));

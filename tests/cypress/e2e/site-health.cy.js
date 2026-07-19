@@ -28,30 +28,25 @@ context( 'Site Health', () => {
 		cy.visitPluginSiteHealth();
 
 		cy.get( '#health-check-accordion-block-beyondwords' ).within( () => {
-			// Plugin version
 			cy.getSiteHealthValue( 'Plugin version' )
 				.invoke( 'text' )
 				.should( 'match', semverRegex );
 
-			// REST API URL
 			cy.getSiteHealthValue( 'REST API URL' ).should(
 				'have.text',
 				Cypress.expose('apiUrl')
 			);
 
-			// Communication with REST API
 			cy.getSiteHealthValue( 'Communication with REST API' ).should(
 				'have.text',
 				'BeyondWords API is reachable'
 			);
 
-			// Compatible post types
 			cy.getSiteHealthValue( 'Compatible post types' ).should(
 				'have.text',
 				'post, page, cpt_active, cpt_inactive'
 			);
 
-			// Integration method
 			cy.getSiteHealthValue( 'Integration method' ).should(
 				'have.text',
 				'rest-api'
@@ -64,31 +59,26 @@ context( 'Site Health', () => {
 					.should( 'match', new RegExp( `[X]+${ apiKey.slice( -4 ) }$` ) );
 			} );
 
-			// Project ID
 			cy.getSiteHealthValue( 'Project ID' ).should(
 				'have.text',
 				Cypress.expose('projectId')
 			);
 
-			// Include excerpt (Preferences tab)
 			cy.getSiteHealthValue( 'Include excerpt' ).should(
 				'have.text',
 				'No'
 			);
 
-			// Player UI (Preferences tab)
 			cy.getSiteHealthValue( 'Player UI' ).should(
 				'have.text',
 				'enabled'
 			);
 
-			// Preselect 'Generate audio' (Preferences tab)
 			cy.getSiteHealthValue( 'Preselect ‘Generate audio’' ).should(
 				'have.text',
 				'{\n    "post": {\n        "mode": "all"\n    },\n    "page": {\n        "mode": "all"\n    },\n    "cpt_active": {\n        "mode": "all"\n    }\n}'
 			);
 
-			// Filter registries
 			cy.getSiteHealthValue( 'Registered filters' ).should(
 				'have.text',
 				'None'
@@ -98,7 +88,6 @@ context( 'Site Health', () => {
 				'None'
 			);
 
-			// Notice timestamps
 			cy.getSiteHealthValue( 'Date Activated' )
 				.invoke( 'text' )
 				.should( 'satisfy', ( val ) => ! isNaN( Date.parse( val ) ) );

@@ -6,17 +6,11 @@ class AddPlayerTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -93,11 +87,9 @@ class AddPlayerTest extends TestCase
      */
     public function filter_tiny_mce_settings()
     {
-        // No existing styles
         $settings = AddPlayer::filter_tiny_mce_settings([]);
         $this->assertSame(AddPlayer::player_preview_i18n_styles() . ' ', $settings['content_style']);
 
-        // Existing styles
         $settings = AddPlayer::filter_tiny_mce_settings(['content_style' => 'p { color: red; }']);
         $this->assertSame('p { color: red; } ' . AddPlayer::player_preview_i18n_styles() . ' ', $settings['content_style']);
     }

@@ -2,8 +2,7 @@
 
 /*
  * Classic-editor Inspect panel: copy-to-clipboard confirmation + "Remove all
- * BeyondWords data" toggle. Vanilla JS — no jQuery dependency. ClipboardJS is a
- * standalone library (not jQuery).
+ * BeyondWords data" toggle.
  */
 ( function () {
 	'use strict';

@@ -6,10 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * The BeyondWords brand mark, used for the editor sidebar / panel icons.
  *
- * Uses `currentColor` so it inherits the surrounding text colour (e.g. the
- * active/!active states of the plugin sidebar button). The 30×30 mark is inset
- * within a larger viewBox so it carries padding and renders at ~79% of the box
- * — closer in size to the standard WordPress dashicons.
+ * Uses `currentColor` to inherit the surrounding text colour; the mark is inset
+ * in a larger viewBox so it renders at a dashicon-like size.
  *
  * @return {Element} The icon SVG.
  */
@@ -33,8 +31,7 @@ export function BeyondwordsIcon() {
 }
 
 /**
- * The brand mark followed by the "BeyondWords" label, for a consistent panel
- * title — the icon sits before the text with a small, fixed gap.
+ * The brand mark followed by the "BeyondWords" label, for a consistent panel title.
  *
  * @return {Element} The title element.
  */

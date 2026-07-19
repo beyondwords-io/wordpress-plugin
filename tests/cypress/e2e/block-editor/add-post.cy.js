@@ -12,10 +12,7 @@ context( 'Block Editor: Add Post', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// @todo add tests for 'draft', 'pending', 'trash' statuses
-	// as these have different flows for publishing
-	// e.g. 'draft' and 'pending' use the Publish panel
-	// For now, we just statuses that use a standard "Publish" flow
+	// @todo add tests for 'draft', 'pending', 'trash' statuses (different publish flows)
 	const postStatuses = [ 'publish', 'future', 'private' ];
 
 	postTypes
@@ -36,7 +33,6 @@ context( 'Block Editor: Add Post', () => {
 
 					cy.publishWithConfirmation();
 
-					// "View post"
 					cy.viewPostViaSnackbar();
 
 					cy.getPlayerScriptTag().should( 'not.exist' );
@@ -46,7 +42,6 @@ context( 'Block Editor: Add Post', () => {
 						`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 					);
 
-					// See a [-] in the BeyondWords column
 					cy.get( 'tbody tr' )
 						.eq( 0 )
 						.within( () => {
@@ -71,7 +66,6 @@ context( 'Block Editor: Add Post', () => {
 
 					cy.publishWithConfirmation();
 
-					// "View post"
 					cy.viewPostViaSnackbar();
 
 					cy.getPlayerScriptTag().should( 'exist' );
@@ -81,7 +75,6 @@ context( 'Block Editor: Add Post', () => {
 						`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 					);
 
-					// See a [tick] in the BeyondWords column
 					cy.get( 'tbody tr' )
 						.eq( 0 )
 						.within( () => {
@@ -115,7 +108,6 @@ context( 'Block Editor: Add Post', () => {
 								`${ postType.slug }&orderby=date&order=desc`
 						);
 
-						// See a [-] in the BeyondWords column
 						cy.get( 'tbody tr' )
 							.eq( 0 )
 							.within( () => {
@@ -134,7 +126,6 @@ context( 'Block Editor: Add Post', () => {
 							status: postStatus,
 							postType: postType.slug,
 						} ).then( ( postId ) => {
-							// Explicitly save generate_audio as '0'
 							cy.task( 'setPostMeta', {
 								postId,
 								metaKey: 'beyondwords_generate_audio',
@@ -145,12 +136,10 @@ context( 'Block Editor: Add Post', () => {
 
 							cy.openBeyondwordsEditorPanel();
 
-							// Checkbox must stay unchecked despite preselect being enabled
 							cy.getGenerateAudioCheckbox().should(
 								'not.be.checked'
 							);
 
-							// Save and verify no audio was generated
 							cy.savePost();
 
 							cy.viewPostById( postId );
@@ -197,7 +186,6 @@ context( 'Block Editor: Add Post', () => {
 								`${ postType.slug }&orderby=date&order=desc`
 						);
 
-						// See a [tick] in the BeyondWords column
 						cy.get( 'tbody tr' )
 							.eq( 0 )
 							.within( () => {
@@ -227,7 +215,6 @@ context( 'Block Editor: Add Post', () => {
 
 				cy.hasAdminPlayerInstances( 0 );
 
-				// "Generate Audio" is replaced by "Pending" message'
 				cy.get( 'input#beyondwords_generate_audio' ).should(
 					'not.exist'
 				);
@@ -236,7 +223,6 @@ context( 'Block Editor: Add Post', () => {
 					'Listen to content saved as “Pending” in the BeyondWords dashboard.'
 				);
 
-				// "Pending review" message contains link to project
 				cy.get( '.beyondwords-sidebar a' )
 					.eq( 0 )
 					.invoke( 'attr', 'href' )
@@ -251,7 +237,6 @@ context( 'Block Editor: Add Post', () => {
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
 
-				// See a [tick] and "Pending" in the BeyondWords column
 				cy.get( 'tbody tr' )
 					.eq( 0 )
 					.within( () => {
@@ -267,7 +252,6 @@ context( 'Block Editor: Add Post', () => {
 		.filter( ( x ) => ! x.supported )
 		.forEach( ( postType ) => {
 			it( `${ postType.name } has no BeyondWords support`, () => {
-				// BeyondWords column should not exist
 				cy.visit(
 					`/wp-admin/edit.php?post_type=${ postType.slug }&orderby=date&order=desc`
 				);
@@ -276,7 +260,6 @@ context( 'Block Editor: Add Post', () => {
 					'not.exist'
 				);
 
-				// BeyondWords metabox should not exist
 				cy.createPost( {
 					postType,
 				} );

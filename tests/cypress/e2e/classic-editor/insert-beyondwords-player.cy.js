@@ -20,7 +20,6 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 
 	const postTypes = require( '../../../../tests/fixtures/post-types.json' );
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -31,7 +30,6 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 
 				cy.get( 'input#beyondwords_generate_audio' ).check();
 
-				// Add 3x players
 				cy.get( 'div[aria-label="Insert BeyondWords player"]' )
 					.children( 'button' )
 					.click();
@@ -42,7 +40,6 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 					.children( 'button' )
 					.click();
 
-				// Count 3x players in editor iframe
 				cy.getTinyMceIframeBody()
 					.find(
 						'div[data-beyondwords-player="true"][contenteditable="false"]'
@@ -56,7 +53,6 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				// Count 3x players in frontend
 				cy.hasPlayerInstances( 3 );
 			} );
 
@@ -67,10 +63,8 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 
 				cy.get( 'input#beyondwords_generate_audio' ).check();
 
-				// Focus TinyMCE
 				cy.getTinyMceIframeBody().click();
 
-				// Add 3x shortcodes
 				cy.getTinyMceIframeBody().type(
 					// eslint-disable-next-line max-len
 					'Shortcode 1:{enter}[beyondwords_player]{enter}Shortcode 2:{enter}[beyondwords_player]{enter}Shortcode 3:{enter}[beyondwords_player]{enter}'
@@ -83,7 +77,6 @@ context( 'Classic Editor: Insert BeyondWords Player', () => {
 
 				cy.get( '#sample-permalink' ).click();
 
-				// Count 3x players in frontend
 				cy.hasPlayerInstances( 3 );
 			} );
 		} );

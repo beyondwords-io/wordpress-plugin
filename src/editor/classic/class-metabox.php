@@ -87,7 +87,6 @@ class Metabox {
 		// Single nonce guarding the Content/Format/Player <select> fields.
 		\BeyondWords\Editor\Components\SettingsFields::nonce();
 
-		// Player section: player/errors, Embed, Generate audio.
 		self::heading( __( 'Player', 'speechkit' ) );
 
 		self::errors( $post );
@@ -100,27 +99,22 @@ class Metabox {
 			}
 		}
 
-		// The Embed dropdown ("None" = no player) replaces the old Display
-		// player checkbox.
+		// The Embed dropdown ("None" = no player) replaces the old Display player checkbox.
 		\BeyondWords\Editor\Components\SettingsFields::render_player_section( $post );
 		( new \BeyondWords\Editor\Components\GenerateAudio() )::element( $post );
 
-		// Content section: Source + Script template.
 		echo '<hr />';
 		self::heading( __( 'Content', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_content_section( $post );
 
-		// Format section: Output + Video template + Video size.
 		echo '<hr />';
 		self::heading( __( 'Format', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_format_section( $post );
 
-		// Voice section: Language + Voice + Model.
 		echo '<hr />';
 		self::heading( __( 'Voice', 'speechkit' ) );
 		( new \BeyondWords\Editor\Components\SelectVoice() )::element( $post );
 
-		// Data section: Content ID + Fetch button.
 		echo '<hr />';
 		self::heading( __( 'Data', 'speechkit' ) );
 		\BeyondWords\Editor\Components\ContentId::element( $post );
@@ -131,10 +125,6 @@ class Metabox {
 
 	/**
 	 * Print a settings-section heading.
-	 *
-	 * The sections mirror the block editor's Player/Content/Format/Voice panels.
-	 * A heading gives each group a label because the individual field labels
-	 * (Source, Output, Embed…) aren't self-explanatory on their own.
 	 *
 	 * @since 7.0.0
 	 *
@@ -148,12 +138,10 @@ class Metabox {
 	}
 
 	/**
-	 * The "Pending review" message, shown instead of the audio player
-	 * if the post status in WordPress is "pending".
+	 * The "Pending review" message for posts with "pending" status.
 	 *
-	 * This message is displayed instead of the player because the player
-	 * cannot be rendered for audio which has been created
-	 * with { published: false }.
+	 * Shown instead of the player, which cannot render audio created with
+	 * { published: false }.
 	 *
 	 * @since 3.7.0
 	 * @since 6.0.0 Make static.
@@ -222,18 +210,10 @@ class Metabox {
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		if ( ! empty( $content_id ) ) :
 			/*
-			 * REST-API content may still be processing on the BeyondWords backend.
-			 * Embedding the player now would 404 — and the CDN would cache that
-			 * 404 — for content that isn't ready, so render a loading state and
-			 * let classic-metabox.js poll GET /content until the status is
-			 * `processed`, then construct the player.
-			 *
-			 * The Content ID is editable post meta and the preview token comes
-			 * from the REST API, so both are untrusted here. They are emitted as
-			 * esc_attr()'d data-* attributes and read back with getAttribute(),
-			 * so neither is ever interpolated into a JS execution context — the
-			 * stored-XSS vector that the inline `onload` handler has to
-			 * JSON-encode away simply does not exist on this path.
+			 * Still-processing content would 404 (and the CDN would cache it), so
+			 * render a loading state and let classic-metabox.js poll until `processed`.
+			 * The untrusted content ID / preview token travel as esc_attr()'d data-*
+			 * attributes — never interpolated into a JS execution context.
 			 */
 			?>
 			<div
@@ -260,19 +240,9 @@ class Metabox {
 			<?php
 		else :
 			/*
-			 * Client-side integration is keyed on the source (post) ID — there is
-			 * nothing to poll, so embed immediately.
-			 *
-			 * Build the player SDK config as a PHP array, then JSON-encode it for
-			 * the inline `onload` handler instead of concatenating the values by
-			 * hand. The preview token is supplied by the REST API, so it is
-			 * untrusted in this output context. The HEX flags escape ' " < > &
-			 * inside every string value as \uXXXX, so a value cannot break out of
-			 * the JS string literal, the single-quoted attribute, or the
-			 * surrounding <script> markup; the structural JSON quotes are left
-			 * intact so the spread object literal stays valid JavaScript, and
-			 * esc_attr() below encodes those for the attribute. Mirrors
-			 * \BeyondWords\Player\Renderer\Javascript::render().
+			 * Client-side integration is keyed on the source ID — nothing to poll, so
+			 * embed immediately. The untrusted preview token is JSON_HEX_*-encoded so
+			 * no value breaks out of the onload attribute. Mirrors Javascript::render().
 			 */
 			$config = [
 				'projectId'        => (int) $project_id,

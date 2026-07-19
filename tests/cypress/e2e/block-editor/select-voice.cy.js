@@ -25,7 +25,6 @@ context( 'Block Editor: Select Voice', () => {
 		'Legacy',
 	];
 
-	// Only test priority post types
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
@@ -39,7 +38,6 @@ context( 'Block Editor: Select Voice', () => {
 				// switching to the plugin sidebar, where the Voice settings live.
 				cy.checkGenerateAudio( postType );
 
-				// Voice/Language are exposed only in the plugin sidebar now.
 				cy.openBeyondwordsPluginSidebar();
 
 				// "Customize" is opt-in and off by default, so the Language/Model/
@@ -81,7 +79,6 @@ context( 'Block Editor: Select Voice', () => {
 					'Voice'
 				).should( 'not.exist' );
 
-				// The Language dropdown still lists every language, placeholder first.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option' )
 					.should( ( $els ) => {
@@ -92,9 +89,8 @@ context( 'Block Editor: Select Voice', () => {
 						expect( values ).to.include( 'English (British)' );
 					} );
 
-				// Changing the Language re-fetches its voices and seeds that
-				// language's default body voice (en_GB → Ollie, a Standard voice),
-				// so the Model resolves to Standard and the Voice to Ollie.
+				// Changing the Language re-fetches voices and seeds that
+				// language's default body voice, resolving Model + Voice.
 				cy.getBlockEditorSelect( 'Language' ).select(
 					'English (British)',
 					{ force: true }
@@ -127,7 +123,6 @@ context( 'Block Editor: Select Voice', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'Bridget' );
 
-				// Pick a specific Voice within the model.
 				cy.getBlockEditorSelect( 'Voice' ).select( 'Caleb', {
 					force: true,
 				} );
@@ -151,14 +146,11 @@ context( 'Block Editor: Select Voice', () => {
 
 				cy.publishWithConfirmation();
 
-				// "View post"
 				cy.viewPostViaSnackbar();
 
-				// Check Player appears frontend
 				cy.getPlayerScriptTag().should( 'exist' );
 				cy.hasPlayerInstances( 1 );
 
-				// Check Player content has also been saved in admin
 				cy.get( '#wp-admin-bar-edit' ).find( 'a' ).click();
 				cy.openBeyondwordsPluginSidebar();
 
@@ -182,8 +174,7 @@ context( 'Block Editor: Select Voice', () => {
 					'.beyondwords--customize input[type="checkbox"]'
 				).should( 'be.checked' );
 
-				// Language, Model and Voice persist after reload (derived from the
-				// saved voice id).
+				// Language/Model/Voice persist after reload, derived from the saved voice id.
 				cy.getBlockEditorSelect( 'Language' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'English (British)' );
@@ -258,7 +249,6 @@ context( 'Block Editor: Select Voice', () => {
 			.find( 'option:selected' )
 			.should( 'have.text', 'Bridget' );
 
-		// Returning to the placeholder clears the voice and hides the Voice list.
 		cy.getBlockEditorSelect( 'Model' ).select( 'Select a model', {
 			force: true,
 		} );
@@ -283,8 +273,7 @@ context( 'Block Editor: Select Voice', () => {
 			expect( meta?.beyondwords_body_voice_id || '' ).to.not.eq( '' );
 		} );
 
-		// Turning Customize off reverts to the project defaults: meta is cleared
-		// and the fields are hidden.
+		// Turning Customize off reverts to the project defaults.
 		cy.get( '.beyondwords--customize label' ).click( { force: true } );
 		cy.contains( '.components-select-control label', 'Language' ).should(
 			'not.exist'
@@ -295,10 +284,6 @@ context( 'Block Editor: Select Voice', () => {
 		} );
 	} );
 
-	// The single-bucket branch (a language offering one model, so the Model
-	// dropdown is hidden and the Voice list shows directly) is covered
-	// end-to-end by the classic-editor spec and by the getLanguageModels()
-	// jest unit tests. The block editor reads voices through the wp.data
-	// store, which cy.intercept does not stub reliably, so it is not
-	// duplicated here.
+	// The single-bucket branch (Model dropdown hidden) is covered by the
+	// classic-editor spec and jest — cy.intercept can't stub the wp.data voices store.
 } );

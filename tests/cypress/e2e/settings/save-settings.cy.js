@@ -8,11 +8,8 @@
 /**
  * Exercises the settings-form submission paths end-to-end.
  *
- * Most tests bypass the UI and write options directly via WP-CLI tasks. This
- * spec is the single place that drives the actual <form> submissions, so the
- * sanitisers, validators, and `register_setting` callbacks all get hit. Keep
- * the tab-by-tab structure — if a new tab/field lands in the settings page,
- * it should be wired in here, not duplicated into other specs.
+ * The single spec driving real <form> submissions (sanitisers, validators,
+ * register_setting callbacks) — wire new tabs/fields in here, not other specs.
  */
 context( 'Settings: form submission', () => {
 	beforeEach( () => {
@@ -34,7 +31,6 @@ context( 'Settings: form submission', () => {
 			cy.get( 'input[type=submit]' ).click();
 			cy.get( '.notice-success' );
 
-			// Verify written values are reflected back into the form.
 			cy.get( 'input[name="beyondwords_api_key"]' ).should(
 				'have.value',
 				apiKey
@@ -72,7 +68,6 @@ context( 'Settings: form submission', () => {
 			cy.get( 'input[type=submit]' ).click();
 			cy.get( '.notice-success' );
 
-			// Re-load and verify Preferences persisted.
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
 			);
@@ -112,7 +107,6 @@ context( 'Settings: form submission', () => {
 			);
 			cy.dismissPointers();
 
-			// Term-gate posts: untick the whole-post-type box, tick a term.
 			cy.get(
 				'input[name="beyondwords_preselect[post][all]"]'
 			).uncheck();
@@ -123,7 +117,6 @@ context( 'Settings: form submission', () => {
 			cy.get( 'input[type=submit]' ).click();
 			cy.get( '.notice-success' );
 
-			// Reload and verify the post-type box is off and the term persisted.
 			cy.visit(
 				'/wp-admin/options-general.php?page=beyondwords&tab=preferences'
 			);

@@ -7,10 +7,10 @@
 /* global cy, before, beforeEach, after, context, expect, it */
 
 /**
- * Classic-editor Content/Format/Player settings fields — the metabox
- * counterparts of the block editor's settings panel. Mirrors
- * tests/cypress/e2e/block-editor/settings-panel.cy.js using native <select>
- * controls and their #id hooks.
+ * Classic-editor Content/Format/Player settings fields.
+ *
+ * Mirrors tests/cypress/e2e/block-editor/settings-panel.cy.js using native
+ * <select> controls and their #id hooks.
  */
 context( 'Classic Editor: Settings fields', () => {
 	const postTypes = require( '../../../fixtures/post-types.json' );
@@ -51,7 +51,6 @@ context( 'Classic Editor: Settings fields', () => {
 					'#beyondwords-metabox-settings--beyondwords-script-template-id'
 				).should( 'not.be.visible' );
 
-				// Switching to Script reveals it, Project default first.
 				cy.get( 'select#beyondwords_source' ).select( 'Script' );
 				cy.get(
 					'#beyondwords-metabox-settings--beyondwords-script-template-id'
@@ -161,7 +160,6 @@ context( 'Classic Editor: Settings fields', () => {
 
 				cy.contains( 'input[type="submit"]', 'Publish' ).click();
 
-				// Selections persist after a page refresh.
 				cy.get( 'select#beyondwords_source' )
 					.find( 'option:selected' )
 					.should( 'have.text', 'Post + script' );

@@ -1,21 +1,13 @@
 <?php
 /**
- * BeyondWords REST API client.
+ * BeyondWords REST API client: one method per endpoint, errors normalised into post meta.
  *
- * Thin wrapper around `wp_remote_request()` that exposes one method per
- * endpoint we touch and normalises errors into post meta for the editor UI.
- *
- * Auth (`X-Api-Key`) and JSON `Content-Type` are injected automatically via
- * the `http_request_args` filter registered in `init()` — but only for
- * outbound requests targeting the BeyondWords API host, so other plugins'
- * HTTP traffic is untouched.
+ * Auth and Content-Type headers are injected via the `http_request_args`
+ * filter, only for requests targeting the BeyondWords API host.
  *
  * @package BeyondWords\Api
  * @since   3.0.0
- * @since   7.0.0 Refactored to BeyondWords namespace with snake_case methods.
- *                Moved from BeyondWords\Core\ApiClient to BeyondWords\Api\Client.
- *                Replaced the `Request` value object with a `http_request_args`
- *                filter for header injection.
+ * @since   7.0.0 Moved from BeyondWords\Core\ApiClient to BeyondWords\Api\Client.
  */
 
 declare( strict_types = 1 );
@@ -32,26 +24,23 @@ defined( 'ABSPATH' ) || exit;
 class Client {
 
 	/**
-	 * Format used for the value stored in `beyondwords_error_message` post meta.
+	 * Format for the `beyondwords_error_message` post meta value.
 	 *
-	 * Keeping the HTTP status as the prefix lets `Sync::update_or_recreate_audio()`
-	 * recognise 404s by string-matching `#404:` without parsing the body.
+	 * The HTTP-status prefix lets `Sync::update_or_recreate_audio()` recognise
+	 * 404s by matching `#404:` without parsing the body.
 	 */
 	const ERROR_FORMAT = '#%s: %s';
 
 	/**
-	 * How long to cache editor dropdown data (languages, voices, templates,
-	 * project settings). These change rarely, so a short TTL keeps the editor
-	 * render off the network on the hot path while self-healing quickly.
+	 * How long to cache editor dropdown data (languages, voices, templates, project settings).
 	 */
 	const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
 	/**
-	 * How long to negative-cache a *failed* editor-dropdown fetch (WP_Error /
-	 * timeout, 5xx, 4xx, non-JSON). Much shorter than CACHE_TTL so a transient
-	 * outage self-heals within minutes, but long enough that a slow or
-	 * unreachable API is probed at most once per interval rather than blocking
-	 * every admin edit-screen render.
+	 * How long to negative-cache a failed editor-dropdown fetch.
+	 *
+	 * Short enough that an outage self-heals within minutes, long enough that an
+	 * unreachable API doesn't block every admin edit-screen render.
 	 *
 	 * @since 7.0.0
 	 */
@@ -60,12 +49,8 @@ class Client {
 	/**
 	 * Default timeout, in seconds, for a BeyondWords API request.
 	 *
-	 * VIP's approved ceiling for a blocking remote request — the
-	 * `WordPressVIPMinimum.Performance.RemoteRequestTimeout` sniff errors above
-	 * 3 seconds. The API answers fast on every endpoint except voices: content
-	 * create/update returns the content ID immediately and generates the audio
-	 * asynchronously server-side, so even the write paths have no reason to
-	 * wait longer than this.
+	 * VIP's approved ceiling for a blocking remote request; content writes return
+	 * immediately and generate audio server-side, so nothing needs longer.
 	 *
 	 * @since 7.0.0
 	 */
@@ -74,12 +59,8 @@ class Client {
 	/**
 	 * Timeout, in seconds, for the voices GET — the one slow endpoint.
 	 *
-	 * Voices is genuinely slow to prepare — ~3.7s p95 in Sentry, against
-	 * ~250ms p95 for every other GET — so the shared `DEFAULT_REQUEST_TIMEOUT`
-	 * would abandon more than 5% of cold-cache fetches. Because a failure is
-	 * then negative-cached, that would blank the Voice dropdown for a whole
-	 * `CACHE_TTL_ON_ERROR` rather than just the one render. Only ever paid on
-	 * a cache miss.
+	 * Voices is ~3.7s p95 against ~250ms for every other GET, so the default
+	 * timeout would abandon (and then negative-cache) many cold-cache fetches.
 	 *
 	 * @since 7.0.0
 	 */
@@ -88,20 +69,16 @@ class Client {
 	/**
 	 * Register WordPress hooks.
 	 *
-	 * Must run early in the plugin bootstrap so the `http_request_args` filter
-	 * is in place before any code makes a BeyondWords API call.
+	 * Must run early in the bootstrap so the filter precedes any API call.
 	 */
 	public static function init(): void {
-		// The VIP "manual inspection" warning on this filter is for code that
-		// raises the request timeout — `filter_http_request_args()` only adds
-		// headers and never touches the timeout, so the warning is suppressed.
+		// The VIP warning targets raised timeouts; this filter only adds headers.
 		// phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
 		add_filter( 'http_request_args', [ self::class, 'filter_http_request_args' ], 10, 2 );
 	}
 
 	/**
-	 * Inject the BeyondWords `X-Api-Key` and `Content-Type: application/json`
-	 * headers, but only for outbound requests targeting the BeyondWords API.
+	 * Inject `X-Api-Key` and JSON `Content-Type` headers for BeyondWords API requests only.
 	 *
 	 * @param array<string,mixed> $args WordPress HTTP args.
 	 * @param string              $url  Outbound request URL.
@@ -143,17 +120,11 @@ class Client {
 	/**
 	 * GET /projects/:project/content/:content_id
 	 *
-	 * Falls back to the global `beyondwords_project_id` option when no project
-	 * ID is supplied.
-	 *
 	 * @param string          $content_id BeyondWords content ID.
 	 * @param int|string|null $project_id Optional project ID override.
 	 *
-	 * @return array<mixed>|\WP_Error|false Raw HTTP response array, a `\WP_Error`
-	 *                                      on transport-level failure (unreachable
-	 *                                      host, timeout) which the caller surfaces
-	 *                                      as a connection error, or false when the
-	 *                                      project/content ID is missing.
+	 * @return array<mixed>|\WP_Error|false Raw HTTP response, WP_Error on transport
+	 *                                      failure, or false when an ID is missing.
 	 */
 	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|\WP_Error|false {
 		if ( ! $project_id ) {
@@ -199,7 +170,7 @@ class Client {
 	 *
 	 * @param int $post_id WordPress post ID.
 	 *
-	 * @return array<mixed>|null|false
+	 * @return array<mixed>|null|false Decoded response body, or false when an ID is missing.
 	 */
 	public static function update_audio( int $post_id ): array|null|false {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -219,9 +190,6 @@ class Client {
 	/**
 	 * DELETE /projects/:project/content/:content_id
 	 *
-	 * Resolves the project + content IDs from the post's meta and delegates to
-	 * `delete_audio_by_ids()`.
-	 *
 	 * @param int $post_id WordPress post ID.
 	 *
 	 * @return array<mixed>|null|false `false` when the request didn't return 204.
@@ -237,11 +205,7 @@ class Client {
 	 * DELETE /projects/:project/content/:content_id using explicit IDs.
 	 *
 	 * Split out from `delete_audio()` so the deferred trash/delete cron job can
-	 * delete audio from the project + content IDs captured before the post meta
-	 * was wiped (see `\BeyondWords\Post\Sync::delete_audio_by_ids()`). Deletion
-	 * runs on the synchronous trash/delete admin path and is best-effort (a
-	 * timeout just leaves the audio in the BeyondWords dashboard), so the short
-	 * default timeout applies.
+	 * still delete after the post meta has been wiped.
 	 *
 	 * @since 7.0.0
 	 *
@@ -269,9 +233,7 @@ class Client {
 	/**
 	 * POST /projects/:project/content/batch_delete
 	 *
-	 * Accepts a heterogeneous list of WordPress post IDs, groups them by
-	 * BeyondWords project, and refuses cross-project batches (the API only
-	 * supports one project per request).
+	 * Refuses cross-project batches — the API only supports one project per request.
 	 *
 	 * @param int[] $post_ids WordPress post IDs.
 	 *
@@ -322,17 +284,14 @@ class Client {
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
-		// 2xx means the API accepted the batch — return the IDs we sent so the
-		// caller can clear local meta. Anything else: refuse to clear meta so
-		// the operator can retry.
+		// On failure, return no IDs so the caller keeps local meta and can retry.
 		return $response_code <= 299 ? $updated_post_ids : [];
 	}
 
 	/**
 	 * GET /projects/:project/player/by_source_id/:post_id
 	 *
-	 * Magic Embed (client-side) bootstrap: tells BeyondWords to look up — or
-	 * create — content for the given source URL, returning the player blob.
+	 * Magic Embed bootstrap: BeyondWords looks up or creates content for the source URL.
 	 *
 	 * @param int $post_id WordPress post ID used as the source ID.
 	 *
@@ -369,9 +328,6 @@ class Client {
 
 	/**
 	 * GET /organization/voices?filter[language.code]=…
-	 *
-	 * Passes the longer `VOICES_REQUEST_TIMEOUT` — this endpoint is materially
-	 * slower than the other editor dropdowns.
 	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
 	 *
@@ -435,9 +391,6 @@ class Client {
 	/**
 	 * GET /projects/:id
 	 *
-	 * Returns the project, including its default `language` code. Editor scripts
-	 * read it to pre-select the Language dropdown when "Customize" is enabled.
-	 *
 	 * @since 7.0.0
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
@@ -461,9 +414,6 @@ class Client {
 	/**
 	 * GET /summarization_settings_templates
 	 *
-	 * The list of script templates available to the organization. Editor
-	 * scripts use this to populate the "Script template" dropdown.
-	 *
 	 * @since 7.0.0
 	 *
 	 * @return array<mixed>|null|false
@@ -477,9 +427,6 @@ class Client {
 	/**
 	 * GET /video_settings_templates
 	 *
-	 * The list of video templates available to the organization. Editor
-	 * scripts use this to populate the "Video template" dropdown.
-	 *
 	 * @since 7.0.0
 	 *
 	 * @return array<mixed>|null|false
@@ -491,19 +438,10 @@ class Client {
 	}
 
 	/**
-	 * Make the API call, normalising errors into post meta when a post is
-	 * supplied.
+	 * Make the API call, normalising errors into post meta when a post is supplied.
 	 *
-	 * For 401 responses we also clear the cached `beyondwords_valid_api_connection`
-	 * so the settings page re-runs validation.
-	 *
-	 * Magic Embed (client-side) errors are not persisted because the SDK
-	 * regenerates content lazily — surfacing those errors in the editor would
-	 * be misleading.
-	 *
-	 * Headers `X-Api-Key` and `Content-Type` are injected automatically by the
-	 * `http_request_args` filter registered in `init()` — pass `$headers`
-	 * here for any *additional* per-request headers.
+	 * A 401 also clears `beyondwords_valid_api_connection` so the settings page
+	 * re-runs validation.
 	 *
 	 * @param string               $method  HTTP method.
 	 * @param string               $url     Absolute URL.
@@ -540,15 +478,13 @@ class Client {
 	/**
 	 * Build the WordPress HTTP args for a BeyondWords API call.
 	 *
-	 * Auth and Content-Type headers are *not* added here — they're injected
-	 * by `filter_http_request_args()` so the same logic applies to any other
-	 * code that calls `wp_remote_request()` against the BeyondWords API.
+	 * Auth and Content-Type headers are added by `filter_http_request_args()`,
+	 * not here, so they also apply to third-party calls against the API.
 	 *
 	 * @param string               $method  HTTP method.
 	 * @param string               $body    Request body.
 	 * @param array<string,string> $headers Extra per-request headers.
-	 * @param int                  $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT;
-	 *                                      the voices GET passes the longer VOICES_REQUEST_TIMEOUT.
+	 * @param int                  $timeout Request timeout in seconds.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -565,9 +501,8 @@ class Client {
 	/**
 	 * Build a transient key for a cached GET.
 	 *
-	 * Salted with the project ID + API key so changing either invalidates the
-	 * cache implicitly — no explicit flush needed, which matters on object-cache
-	 * hosts (e.g. VIP) where `_transient_*` rows can't be enumerated.
+	 * Salted with the project ID + API key so changing either invalidates
+	 * implicitly — no flush needed, which object-cache hosts can't do anyway.
 	 *
 	 * @since 7.0.0
 	 *
@@ -586,23 +521,14 @@ class Client {
 	/**
 	 * GET an editor-render-path endpoint, caching both hits and failures.
 	 *
-	 * Successful 2xx array responses are cached for {@see CACHE_TTL}. Failures
-	 * (WP_Error / timeout, 5xx, 4xx, non-JSON) are negative-cached for the much
-	 * shorter {@see CACHE_TTL_ON_ERROR}, so a slow or unreachable API is probed
-	 * at most once per interval instead of re-issuing a blocking request on
-	 * every admin render. The request itself uses the short
-	 * {@see DEFAULT_REQUEST_TIMEOUT} for the same reason; the slower voices
-	 * endpoint passes its own {@see VOICES_REQUEST_TIMEOUT}.
-	 *
-	 * A 401 additionally self-heals: call_api() clears
-	 * `beyondwords_valid_api_connection`, which ungates the metabox next load.
+	 * Failures are negative-cached for the shorter {@see CACHE_TTL_ON_ERROR} so
+	 * an unreachable API is probed at most once per interval, not every render.
 	 *
 	 * @since 7.0.0
 	 *
 	 * @param string $suffix  Cache-key suffix (include any project/language id).
 	 * @param string $url     Absolute endpoint URL.
-	 * @param int    $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT;
-	 *                        the voices GET passes the longer VOICES_REQUEST_TIMEOUT.
+	 * @param int    $timeout Request timeout in seconds.
 	 *
 	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
 	 *                                 value ([] after a cached failure) thereafter.
@@ -628,8 +554,6 @@ class Client {
 			return $decoded;
 		}
 
-		// Negative-cache the failure so the next render is served from the
-		// transient instead of blocking on another remote round-trip.
 		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
 
 		return $decoded;
@@ -653,9 +577,8 @@ class Client {
 				}
 				$message = implode( ', ', $messages );
 			} elseif ( array_key_exists( 'message', $body ) ) {
-				// The API body is arbitrary JSON, so `message` may be null, a
-				// number, or a nested structure. Coerce to a string so the
-				// `: string` return type holds under strict_types.
+				// `message` is arbitrary JSON; coerce so the `: string` return
+				// type holds under strict_types.
 				$message = is_string( $body['message'] )
 					? $body['message']
 					: (string) wp_json_encode( $body['message'] );

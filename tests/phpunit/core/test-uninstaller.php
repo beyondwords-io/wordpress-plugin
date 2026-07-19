@@ -8,17 +8,11 @@ class UninstallerTest extends TestCase
 {
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
-
-        // Your set up methods here.
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
-
-        // Then...
         parent::tearDown();
     }
 
@@ -36,9 +30,6 @@ class UninstallerTest extends TestCase
         $this->assertFalse(get_option($name));
     }
 
-    /**
-     * Option names provider.
-     */
     public function option_names_provider()
     {
         return [
@@ -183,9 +174,8 @@ class UninstallerTest extends TestCase
         set_transient('beyondwords_voices_en', ['voice1'], 60);
         set_transient('unrelated_transient', 'keep-me', 60);
 
-        // Each expiring transient writes a value row AND a `_transient_timeout_`
-        // row; the cleanup must sweep both. Confirm the timeout rows exist up
-        // front so the post-cleanup assertion below isn't vacuous.
+        // Each expiring transient also writes a `_transient_timeout_` row; confirm those
+        // exist up front so the post-cleanup assertion below isn't vacuous.
         $timeoutsBefore = (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_beyondwords_%'"
         );
@@ -193,14 +183,12 @@ class UninstallerTest extends TestCase
 
         $count = Uninstaller::cleanup_plugin_transients();
 
-        // The Uninstaller does a raw SQL delete; clear the object cache so the
-        // next get_transient() reads from the database (not stale cache).
+        // The Uninstaller deletes with raw SQL; flush so get_transient() re-reads the DB.
         wp_cache_flush();
 
         // 2 beyondwords transients × (value + timeout) = 4 rows deleted.
         $this->assertGreaterThanOrEqual(4, $count);
 
-        // Neither the value rows nor the timeout rows should remain.
         $remaining = $wpdb->get_var(
             "SELECT COUNT(*) FROM {$wpdb->options}
              WHERE option_name LIKE '_transient_beyondwords_%'
@@ -208,7 +196,6 @@ class UninstallerTest extends TestCase
         );
         $this->assertSame('0', (string) $remaining);
 
-        // Unrelated transient (and its own timeout row) left untouched.
         $this->assertSame('keep-me', get_transient('unrelated_transient'));
 
         delete_transient('unrelated_transient');
@@ -216,9 +203,6 @@ class UninstallerTest extends TestCase
 
     /**
      * @test
-     *
-     * run() performs the whole cleanup in a single call on a single-site
-     * install: options, transients and post-meta are all removed.
      */
     public function run_cleans_options_transients_and_meta_on_single_site()
     {
@@ -234,8 +218,7 @@ class UninstallerTest extends TestCase
 
         Uninstaller::run();
 
-        // The Uninstaller deletes transients/meta with raw SQL, so drop the
-        // caches before re-reading from the database.
+        // The Uninstaller deletes with raw SQL; drop caches before re-reading the DB.
         wp_cache_flush();
         clean_post_cache($postId);
 
@@ -249,14 +232,8 @@ class UninstallerTest extends TestCase
     /**
      * @test
      *
-     * run() must visit EVERY site on a multisite network: the API key and other
-     * per-site values must not survive on any site, not just the main one.
-     *
-     * Regression test for the multisite uninstall leak — cleanup previously
-     * called delete_site_option() (which targets wp_sitemeta) while every
-     * option is stored per-site via update_option(), so nothing was deleted and
-     * the beyondwords_api_key secret survived. Skipped on single-site installs
-     * because it needs a real network (WP_TESTS_MULTISITE=1).
+     * run() must visit EVERY site on the network. Regression for the multisite uninstall
+     * leak: delete_site_option() targets wp_sitemeta, but every option is stored per-site.
      */
     public function run_cleans_every_site_on_multisite()
     {
@@ -267,8 +244,7 @@ class UninstallerTest extends TestCase
         $blogId  = self::factory()->blog->create();
         $siteIds = [get_current_blog_id(), $blogId];
 
-        // Seed an option (the API key), a transient and a post-meta value on
-        // each site so we can prove all three are cleaned everywhere.
+        // Seed all three value types on each site to prove cleanup reaches every site.
         $postIds = [];
         foreach ($siteIds as $siteId) {
             switch_to_blog($siteId);

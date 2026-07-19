@@ -79,7 +79,6 @@ context( 'Settings > Authentication', () => {
 			cy.get( '.notice.notice-info' ).should( 'not.exist' );
 			cy.showsAllSettingsTabs();
 
-			// No notices
 			cy.get( '.notice-error' ).should( 'not.exist' );
 
 			cy.contains(

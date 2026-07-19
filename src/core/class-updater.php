@@ -1,10 +1,6 @@
 <?php
 /**
- * Plugin update routines.
- *
- * Runs on every page load; cheap when nothing's changed because `run()` bails
- * as soon as the recorded version matches this build. Each migration is gated
- * on a version bump so it executes at most once per upgrade path.
+ * Plugin update routines: version-gated migrations run on every page load.
  *
  * @package BeyondWords\Core
  * @since   3.0.0
@@ -27,20 +23,12 @@ class Updater {
 	/**
 	 * Run any pending migrations and update the recorded plugin version.
 	 *
-	 * Bails immediately once the recorded version matches this build, so the
-	 * migrations run at most once per version change instead of on every
-	 * request. That guard — not the per-migration `version_compare` gates — is
-	 * what makes the common path cheap: a pre-release build such as
-	 * `7.0.0-beta.1` compares `< 7.0.0`, so those gates never close on it and
-	 * would otherwise re-run the v7 migrations (~40 uncached queries plus a slow
-	 * postmeta JOIN) on every page load, front end included.
+	 * The exact-version bail — not the `version_compare` gates — keeps the common
+	 * path cheap: a pre-release like `7.0.0-beta.1` compares `< 7.0.0` forever.
 	 */
 	public static function run(): void {
 		$version = get_option( 'beyondwords_version', '1.0.0' );
 
-		// Already up to date: nothing to migrate, and the version write below
-		// would be a no-op. Bail before touching the database. This is the hot
-		// path — it runs on every request once the plugin has booted once.
 		if ( BEYONDWORDS__PLUGIN_VERSION === $version ) {
 			return;
 		}
@@ -69,14 +57,8 @@ class Updater {
 	/**
 	 * Convert the legacy preselect option to the 7.0.0 mode-based format.
 	 *
-	 * Pre-7.0.0 stored either `'1'` (whole post type) or
-	 * `[ taxonomy => [ term ids ] ]` (term-gated) per post type. 7.0.0 stores
-	 * `[ 'mode' => 'all' ]` or `[ 'mode' => 'terms', 'terms' => [...] ]`.
-	 *
-	 * Reuses the tolerant readers on `Preselect`, so it is idempotent: already
-	 * mode-based values pass through unchanged. Pre-release builds compare
-	 * `< 7.0.0`, so this can re-run once on each dev-version bump — idempotency
-	 * keeps those re-runs safe.
+	 * Reuses the tolerant readers on `Preselect`, so it is idempotent — which
+	 * keeps the re-runs pre-release builds trigger (`< 7.0.0` forever) safe.
 	 *
 	 * @since 7.0.0
 	 */
@@ -116,10 +98,7 @@ class Updater {
 	/**
 	 * v7.0.0: remove every option marked deprecated in `Utils::get_options()`.
 	 *
-	 * Targets the player styling, voice, and project options that v7.0.0 dropped
-	 * (audio/video output now sourced from the BeyondWords project, not WP), as
-	 * well as long-stale pre-v3 `speechkit_*` options. Multisite-aware because
-	 * legacy installs may have stored these as site options.
+	 * Multisite-aware because legacy installs may have stored these as site options.
 	 *
 	 * @since 7.0.0
 	 */
@@ -134,13 +113,10 @@ class Updater {
 	}
 
 	/**
-	 * v7.0.0: the per-post "Display player" opt-out (`beyondwords_disabled`) is
-	 * replaced by the Embed dropdown's "None" option.
+	 * v7.0.0: migrate the legacy `beyondwords_disabled` opt-out to Embed "None".
 	 *
-	 * Carry the flag forward so previously-hidden players stay hidden, then drop
-	 * the legacy key. Only posts that explicitly disabled the player carry the
-	 * flag, so the set is small; we still batch to keep memory bounded. We never
-	 * overwrite an Embed value the post already has.
+	 * Carries the flag forward so previously-hidden players stay hidden; never
+	 * overwrites an existing Embed value, and batches to keep memory bounded.
 	 *
 	 * @since 7.0.0
 	 */
@@ -182,8 +158,6 @@ class Updater {
 
 	/**
 	 * v3.0.0: migrate `speechkit_settings.*` array values to top-level options.
-	 *
-	 * Skipped when `speechkit_settings` is empty (already migrated or never set).
 	 */
 	public static function migrate_settings(): void {
 		$old_settings = get_option( 'speechkit_settings', [] );
@@ -210,8 +184,7 @@ class Updater {
 	}
 
 	/**
-	 * Build a v3 preselect array from the v2 `speechkit_select_post_types` +
-	 * `speechkit_selected_categories` fields.
+	 * Build a v3 preselect array from the v2 post-type + category settings.
 	 *
 	 * @return array<string,mixed>|false `false` when the legacy `speechkit_settings` option is missing.
 	 */
@@ -250,8 +223,9 @@ class Updater {
 	}
 
 	/**
-	 * v3.7.0: copy `speechkit_*` option keys to `beyondwords_*` while leaving
-	 * the originals in place so plugin downgrades remain safe.
+	 * v3.7.0: copy `speechkit_*` option keys to `beyondwords_*`.
+	 *
+	 * Originals are left in place so plugin downgrades remain safe.
 	 */
 	public static function rename_plugin_settings(): void {
 		$api_key         = get_option( 'speechkit_api_key' );

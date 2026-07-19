@@ -35,7 +35,6 @@ class SettingsUtilsTest extends TestCase
         $this->assertContains('attachment', $postTypes);
         $this->assertContains('revision', $postTypes);
 
-        // Set the filter
         $filter = function($supportedPostTypes) {
             return [
                 $supportedPostTypes[1],
@@ -243,9 +242,8 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * A transient failure (5xx, timeout, DNS error) must NOT clear a
-     * previously-valid connection flag — otherwise a brief API blip hides the
-     * Integration and Preferences tabs and locks the operator out.
+     * A transient failure (5xx, timeout, DNS) must NOT clear a previously-valid flag —
+     * a brief API blip would hide the Integration and Preferences tabs.
      *
      * @test
      */
@@ -273,8 +271,7 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * A transport-level failure returns a WP_Error (no HTTP status). It is
-     * transient, so the connection flag must be preserved.
+     * A transport-level WP_Error (no HTTP status) is transient, so the flag must be preserved.
      *
      * @test
      */
@@ -296,8 +293,7 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * A 403 is a definitive auth failure (revoked key or wrong project), so it
-     * clears the connection flag just like a 401.
+     * A 403 is a definitive auth failure, so it clears the connection flag just like a 401.
      *
      * @test
      */
@@ -324,8 +320,7 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * Removing credentials clears the connection flag — no creds, no
-     * connection — without issuing an API request.
+     * Removing credentials clears the connection flag without issuing an API request.
      *
      * @test
      */
@@ -340,9 +335,7 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * Within the throttle window the check is served from the last result
-     * without issuing a second API request — this keeps the uncached remote
-     * call off every settings-page render.
+     * Within the throttle window the last result is reused — keeping the remote call off every settings-page render.
      *
      * @test
      */
@@ -372,8 +365,7 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
-     * Changing credentials busts the throttle so the new creds are validated
-     * immediately rather than waiting out the window.
+     * Changing credentials busts the throttle so the new creds are validated immediately.
      *
      * @test
      */
@@ -449,11 +441,8 @@ class SettingsUtilsTest extends TestCase
     /**
      * Regression: queued errors must survive a non-persistent object cache.
      *
-     * The default WordPress object cache is request-scoped, so the queue lives
-     * in a transient (which falls back to the options table), not `wp_cache_*`,
-     * to survive the redirect after a settings save. Flushing the object cache
-     * models the fresh request the redirect triggers on a host with no
-     * persistent cache drop-in; the error must still be readable afterwards.
+     * The queue lives in a transient (falls back to the options table), not `wp_cache_*`,
+     * to survive the fresh request after the settings-save redirect.
      *
      * @test
      */

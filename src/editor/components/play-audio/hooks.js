@@ -24,11 +24,8 @@ export function useBeyondWordsNamespace() {
 	} );
 
 	useEffect( () => {
-		// The script can finish loading in the gap between the render-phase
-		// useState initializer (which may have seen no namespace) and this
-		// post-paint effect. Re-read the namespace synchronously so we don't
-		// attach a 'load' listener to an already-loaded script — that listener
-		// would never fire again, leaving value null and the player uncreated.
+		// The script can finish loading between the useState initializer and this
+		// effect; re-read now so we don't listen on an already-loaded script.
 		if ( window?.BeyondWords ) {
 			setValue( window.BeyondWords );
 			return;
@@ -68,19 +65,8 @@ export function useBeyondWordsNamespace() {
 /**
  * Create a (preview) BeyondWords player once its content is ready.
  *
- * When a `contentId` appears or changes *during* this session (REST-API
- * integration — e.g. the post was just generated/regenerated), the content may
- * still be processing on the BeyondWords backend. Embedding the player before it
- * is `processed` makes the player's first asset request 404, and that 404 gets
- * CDN-cached — so we poll the content object and only instantiate the player
- * once the backend reports `processed`. While polling, `isPolling` is true so
- * the caller can show a spinner + "Generating…" text; on a terminal
- * `error`/`skipped`/timeout the caller surfaces a short message instead.
- *
- * Content already present when the player mounted has long since finished
- * processing, so it is embedded immediately (no poll). Likewise when there is no
- * `contentId` (client-side integration, keyed on `sourceId`) there is nothing to
- * poll, so the player is created immediately as before.
+ * A contentId that appears during this session may still be processing, so it
+ * polls until `processed` before embedding (see lib/poll-content-status.js).
  *
  * @param {Object}      options              Options.
  * @param {HTMLElement} options.target       Player mount node.
@@ -108,11 +94,8 @@ export function useBeyondWordsPlayer( {
 		timedOut: false,
 	} );
 
-	// The contentId present when the player first mounted. Content that already
-	// existed at mount finished processing in an earlier session/save, so it can
-	// embed immediately — no poll, no spinner, no extra API call. Only a
-	// contentId that appears or changes *during* this session can still be
-	// processing and risk caching a 404, so only that case polls.
+	// Content that existed at mount finished processing long ago and embeds
+	// immediately; only a contentId appearing during this session polls first.
 	const mountContentIdRef = useRef( contentId );
 
 	useEffect( () => {
@@ -163,9 +146,8 @@ export function useBeyondWordsPlayer( {
 		};
 
 		if ( contentId && contentId !== mountContentIdRef.current ) {
-			// Session-fresh (or regenerated) content: poll the content object
-			// until the backend finishes processing, then embed. Avoids caching
-			// a 404 for still-processing content.
+			// Session-fresh content: poll until processed, then embed, so a 404
+			// is never CDN-cached for still-processing content.
 			setPollState( {
 				status: undefined,
 				isPolling: true,
@@ -241,14 +223,10 @@ export function useBeyondWordsPlayer( {
 }
 
 /**
- * Whether the post has everything the BeyondWords player needs to load a
- * preview.
+ * Whether the post has everything the BeyondWords player needs to load a preview.
  *
- * Pure selector so it can be called inside `useSelect`/`withSelect` (and unit
- * tested without a React render). Shared by the `beyondwords/player` block and
- * the `PlayAudioCheck` gate via `useHasPlayAudioAction()`. Legacy `podcast_id`
- * keys are recognised so posts upgraded from older plugin versions still
- * preview correctly.
+ * Pure selector (usable in `useSelect`/`withSelect`, unit-testable). Legacy
+ * `podcast_id` keys are recognised so upgraded posts still preview.
  *
  * @param {Function} select Redux-style select() from `@wordpress/data`.
  *
@@ -262,7 +240,6 @@ export function selectHasPlayAudioAction( select ) {
 	const integrationMethod =
 		getEditedPostAttribute( 'meta' ).beyondwords_integration_method;
 
-	// Get Content ID, inc fallbacks for legacy field names.
 	const beyondwordsContentId =
 		getEditedPostAttribute( 'meta' ).beyondwords_content_id;
 	const beyondwordsPodcastId =
@@ -285,8 +262,7 @@ export function selectHasPlayAudioAction( select ) {
 }
 
 /**
- * Hook wrapper around {@link selectHasPlayAudioAction} for use in function
- * components — the block preview and the `PlayAudioCheck` gate.
+ * Hook wrapper around {@link selectHasPlayAudioAction} for function components.
  *
  * @return {boolean} True when the player can load.
  */

@@ -19,7 +19,6 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Enabled" Player UI' } );
 
-		// Frontend should have a player div
 		cy.viewPostViaSnackbar();
 
 		cy.hasPlayerInstances( 1, {
@@ -38,7 +37,6 @@ context( 'Settings > Player UI', () => {
 
 		cy.viewPostViaSnackbar();
 
-		// Frontend should have a player with showUserInterface set to false
 		cy.hasPlayerInstances( 1, {
 			showUserInterface: false,
 		} );
@@ -53,7 +51,6 @@ context( 'Settings > Player UI', () => {
 
 		cy.publishPostWithAudio( { title: '"Disabled" Player UI' } );
 
-		// Frontend should not have a player div
 		cy.viewPostViaSnackbar();
 		cy.hasPlayerInstances( 0 );
 	} );

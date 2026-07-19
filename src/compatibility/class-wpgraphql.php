@@ -1,9 +1,6 @@
 <?php
 /**
- * WPGraphQL compatibility.
- *
- * Exposes BeyondWords audio metadata as a GraphQL type and field on every
- * BeyondWords-compatible post type.
+ * WPGraphQL compatibility: a BeyondWords GraphQL type + field on compatible post types.
  *
  * @package BeyondWords\Compatibility
  * @since   3.6.0

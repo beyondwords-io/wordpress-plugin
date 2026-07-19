@@ -23,10 +23,6 @@ class Javascript extends Base {
 	/**
 	 * Render the JavaScript player HTML.
 	 *
-	 * Returns an empty string when Player UI is set to "Disabled" — the post
-	 * is otherwise eligible (per `Base::check()`), the publisher has just
-	 * opted out of the visible player UI.
-	 *
 	 * @param \WP_Post $post    Post object.
 	 * @param string   $context Rendering context: 'auto' or 'shortcode'.
 	 */
@@ -37,14 +33,8 @@ class Javascript extends Base {
 
 		$params = \BeyondWords\Player\ConfigBuilder::build( $post );
 
-		/*
-		 * Encode the SDK params for safe embedding inside the inline `onload` handler.
-		 * The HEX flags escape ', ", <, >, & within any string value, so attacker- or
-		 * filter-controlled params (e.g. the Content ID post meta, or values injected
-		 * via the beyondwords_player_sdk_params filter) cannot break out of the
-		 * single-quoted attribute or the surrounding markup. The structural JSON quotes
-		 * are left intact, so the spread object literal remains valid JavaScript.
-		 */
+		// The HEX flags escape ', ", <, >, & inside string values so attacker- or
+		// filter-controlled params can't break out of the quoted onload attribute.
 		$json_params = wp_json_encode(
 			$params,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP

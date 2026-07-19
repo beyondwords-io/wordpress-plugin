@@ -2,9 +2,6 @@
 /**
  * BeyondWords Content ID — asset enqueue.
  *
- * Owns the classic-editor JS that powers the "Fetch" button next to the
- * Content ID input. Split from [class-content-id.php](class-content-id.php).
- *
  * @package BeyondWords\Editor\Components\ContentId
  * @since   7.0.0
  */

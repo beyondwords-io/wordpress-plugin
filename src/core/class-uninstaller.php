@@ -1,12 +1,6 @@
 <?php
 /**
- * Uninstall cleanup.
- *
- * Invoked from `uninstall.php` when WordPress removes the plugin. Deletes
- * every option, transient, and post-meta key recorded in `Utils`. On
- * multisite each site is cleaned in turn, since `uninstall.php` only runs
- * once — in the network's main-site context — and every value is stored
- * per-site.
+ * Uninstall cleanup: deletes every BeyondWords option, transient and post-meta row.
  *
  * @package BeyondWords\Core
  * @since   3.7.0
@@ -29,14 +23,8 @@ class Uninstaller {
 	/**
 	 * Run the full uninstall cleanup for every site on the install.
 	 *
-	 * WordPress executes `uninstall.php` a single time, in the context of the
-	 * network's main site. Every BeyondWords value — options, transients and
-	 * post-meta — is stored per-site (`update_option()` and the per-site
-	 * `options`/`postmeta` tables); the plugin never writes network/site
-	 * options. So on multisite we must visit each site in turn, otherwise only
-	 * the main site is cleaned and every subsite keeps its settings, including
-	 * the `beyondwords_api_key` secret. Single-site installs are cleaned in one
-	 * pass.
+	 * `uninstall.php` runs once, in the main site's context, yet every value is
+	 * stored per-site — so on multisite each site must be visited in turn.
 	 *
 	 * @since 7.0.0
 	 *
@@ -48,8 +36,7 @@ class Uninstaller {
 			return;
 		}
 
-		// `number => 0` lifts the default 100-site cap so no site is skipped on
-		// large networks.
+		// `number => 0` lifts the default 100-site cap.
 		$site_ids = get_sites(
 			[
 				'fields' => 'ids',
@@ -65,8 +52,7 @@ class Uninstaller {
 	}
 
 	/**
-	 * Delete every BeyondWords option, transient and post-meta value for the
-	 * current site.
+	 * Delete every BeyondWords value for the current site.
 	 *
 	 * @since 7.0.0
 	 *
@@ -86,11 +72,8 @@ class Uninstaller {
 	public static function cleanup_plugin_transients(): int {
 		global $wpdb;
 
-		// Each transient is stored as a pair of options — `_transient_<key>` and
-		// `_transient_timeout_<key>` — so both prefixes must be swept, otherwise
-		// the timeout rows are left orphaned. (On external-object-cache hosts,
-		// e.g. VIP, there are no option rows to delete; those entries hold a TTL
-		// and self-expire.)
+		// Transients are stored as `_transient_<key>` + `_transient_timeout_<key>`
+		// option pairs; sweep both prefixes or the timeout rows are orphaned.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$count = $wpdb->query(
 			"DELETE FROM $wpdb->options
@@ -104,9 +87,6 @@ class Uninstaller {
 	/**
 	 * Delete every BeyondWords plugin option (current + deprecated).
 	 *
-	 * Iterates the list from `Utils::get_options( 'all' )` so this stays
-	 * in sync with new keys without uninstall code changes.
-	 *
 	 * @return int Options deleted.
 	 */
 	public static function cleanup_plugin_options(): int {
@@ -114,19 +94,13 @@ class Uninstaller {
 		$total   = 0;
 
 		foreach ( $options as $option ) {
-			// Every option is stored per-site via `update_option()`, so
-			// `delete_option()` is the correct call on both single-site and
-			// multisite. The previous `delete_site_option()`-only branch swept
-			// `wp_sitemeta` rows that were never written and left every real
-			// option — including the `beyondwords_api_key` secret — in place on
-			// multisite.
+			// Options are stored per-site via `update_option()`, so `delete_option()`
+			// is the correct call on both single-site and multisite.
 			if ( delete_option( $option ) ) {
 				++$total;
 			}
 
-			// Defensive: a legacy install may have stored a matching network
-			// (site) option. This is network-global and idempotent, so it is a
-			// harmless no-op when nothing was stored.
+			// Defensive: a legacy install may have stored a matching network option.
 			if ( is_multisite() ) {
 				delete_site_option( $option );
 			}
@@ -138,9 +112,8 @@ class Uninstaller {
 	/**
 	 * Delete every BeyondWords post-meta value.
 	 *
-	 * Done one meta_id at a time to keep individual queries fast on sites with
-	 * many posts — the alternative `DELETE … WHERE meta_key IN (…)` can lock
-	 * the postmeta table for unacceptably long.
+	 * Deletes by meta_id in per-key batches — a single `DELETE … WHERE meta_key
+	 * IN (…)` can lock the postmeta table for unacceptably long.
 	 *
 	 * @return int Meta rows deleted.
 	 */

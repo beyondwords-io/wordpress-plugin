@@ -29,14 +29,9 @@ class Head {
 
 	/**
 	 * Sets meta[beyondwords-*] tags in the head tag of singular pages.
-	 * We set both the [content] attribute and a custom data attribute for compatibility.
 	 *
-	 * Only emitted for the client-side ("Magic Embed") integration: those tags
-	 * are hints for the BeyondWords crawler/SDK, which reads them off the page to
-	 * detect content. With the REST API integration the platform already has the
-	 * title, author, voice and language from the content payload, so emitting
-	 * them — and exposing internal voice IDs in the page source — serves no
-	 * purpose.
+	 * Magic Embed only: the tags are hints for the BeyondWords crawler/SDK. The
+	 * REST API integration already sends these values in the content payload.
 	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.

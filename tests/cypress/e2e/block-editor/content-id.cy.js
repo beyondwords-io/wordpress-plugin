@@ -59,8 +59,7 @@ context( 'Block Editor: Content ID', () => {
 			status: 'draft',
 			postType: 'post',
 		} ).then( ( postId ) => {
-			// Explicitly set generate_audio so the preselect useEffect
-			// does not race with the Fetch editPost call.
+			// Explicit generate_audio stops the preselect useEffect racing the Fetch editPost call.
 			cy.task( 'setPostMeta', {
 				postId,
 				metaKey: 'beyondwords_generate_audio',
@@ -70,22 +69,18 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsDataPanel();
 
-			// Type a content ID into the field
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
 				.clear( { force: true } )
 				.type( testContentId, { force: true } );
 
-			// Click Fetch
 			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
-			// Wait for the fetch to complete and verify meta fields.
-			// Note: beyondwords_generate_audio is verified after reload
-			// because the GenerateAudio preselect useEffect can race
-			// with the Fetch editPost() call in-session.
+			// generate_audio is asserted after reload: the preselect
+			// useEffect can race the Fetch editPost() call in-session.
 			cy.window()
 				.its( 'wp.data' )
 				.should( ( data ) => {
@@ -107,8 +102,6 @@ context( 'Block Editor: Content ID', () => {
 					expect( meta.beyondwords_error_message ).to.equal( '' );
 				} );
 
-			// Verify persists after reload — including generate_audio,
-			// which is only reliably testable after a fresh page load.
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsDataPanel();
 
@@ -138,7 +131,6 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsDataPanel();
 
-			// Intercept the fetch request at browser level and return 404
 			cy.intercept(
 				'GET',
 				'**/beyondwords/v1/projects/*/content/not-found-content-id',
@@ -148,21 +140,18 @@ context( 'Block Editor: Content ID', () => {
 				}
 			).as( 'fetchContent' );
 
-			// Type the "not found" content ID
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
 				.clear( { force: true } )
 				.type( 'not-found-content-id', { force: true } );
 
-			// Click Fetch
 			cy.get( '.beyondwords-sidebar__data' )
 				.contains( 'button', 'Fetch' )
 				.click( { force: true } );
 
 			cy.wait( '@fetchContent' );
 
-			// Verify error message is set in editor state
 			cy.window()
 				.its( 'wp.data' )
 				.should( ( data ) => {
@@ -175,7 +164,6 @@ context( 'Block Editor: Content ID', () => {
 					);
 				} );
 
-			// Verify error persists after reload
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsDataPanel();
 
@@ -201,7 +189,6 @@ context( 'Block Editor: Content ID', () => {
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsDataPanel();
 
-			// Type a content ID and fetch
 			cy.getLabel( 'Content ID' )
 				.parent()
 				.find( 'input' )
@@ -224,10 +211,8 @@ context( 'Block Editor: Content ID', () => {
 					);
 				} );
 
-			// View the post on the frontend
 			cy.viewPostById( postId );
 
-			// The player script tag should include the fetched content ID
 			cy.getPlayerScriptTag()
 				.should( 'have.attr', 'onload' )
 				.and( 'include', testContentId );

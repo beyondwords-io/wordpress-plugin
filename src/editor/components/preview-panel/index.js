@@ -14,10 +14,8 @@ import PlayAudio from '../play-audio';
 /**
  * Whether the post has audio/video ready to preview.
  *
- * Matches PlayAudioCheck so the panel hides itself when PlayAudio would also
- * have nothing to render — i.e. before the first successful generation. Legacy
- * `podcast_id` keys are recognised so existing posts upgraded from older plugin
- * versions still preview correctly.
+ * Matches PlayAudioCheck so the panel hides when PlayAudio would render nothing;
+ * legacy `podcast_id` keys are recognised for upgraded posts.
  *
  * @param {Function} select Redux-style select() from `@wordpress/data`.
  *
@@ -47,8 +45,7 @@ function hasError( select ) {
 }
 
 export function PreviewPanel() {
-	// Show the panel when there's something to preview *or* an error to surface,
-	// mirroring the error display in the document-settings panel.
+	// An error alone also shows the panel, mirroring the document-settings display.
 	const showPanel = useSelect(
 		( select ) => hasGeneratedContent( select ) || hasError( select ),
 		[]

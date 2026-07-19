@@ -13,11 +13,8 @@
 	/**
 	 * Poll `fetchStatus` until the content reaches a terminal status.
 	 *
-	 * Mirror of src/editor/lib/poll-content-status.js (which the block editor
-	 * imports and jest covers). Inlined here because this classic-editor script
-	 * is enqueued raw — it is not built, so it cannot `import`. Resolves
-	 * { status, timedOut }; a cancelled poll (superseded by a newer one) simply
-	 * stops without resolving.
+	 * Mirror of src/editor/lib/poll-content-status.js, inlined because this
+	 * classic-editor script is enqueued raw (not built) and cannot `import`.
 	 *
 	 * @param {Object}   options               Options.
 	 * @param {Function} options.fetchStatus   () => Promise<{ status }>.
@@ -26,7 +23,8 @@
 	 * @param {Function} [options.isCancelled] () => boolean; stop polling when true.
 	 * @param {number}   [options.intervalMs]  Delay between polls.
 	 * @param {number}   [options.timeoutMs]   Overall time budget.
-	 * @return {Promise<{status: (string|undefined), timedOut: boolean}>} Result.
+	 * @return {Promise<{status: (string|undefined), timedOut: boolean}>} Result;
+	 *         a superseded (cancelled) poll stops without resolving.
 	 */
 	function pollContentStatus( options ) {
 		const fetchStatus = options.fetchStatus;
@@ -189,11 +187,8 @@
 	/**
 	 * Poll the content status, then embed the player once it is `processed`.
 	 *
-	 * Reads projectId / contentId / previewToken from the container's data-*
-	 * attributes, shows a spinner while the content is still processing, and only
-	 * constructs the player on `processed` — so the player never requests (and
-	 * CDN-caches a 404 for) unprocessed content. A terminal error / skipped /
-	 * timeout shows a short message instead.
+	 * Constructing the player only on `processed` means a 404 is never
+	 * CDN-cached; terminal error / skipped / timeout shows a message instead.
 	 *
 	 * @param {HTMLElement} container The #beyondwords-metabox-player element.
 	 */
@@ -235,11 +230,8 @@
 					typeof BeyondWords === 'undefined' ||
 					typeof BeyondWords.Player !== 'function'
 				) {
-					// SDK unavailable — either it was never emitted on this page
-					// (the post had no content at load, so player_embed() didn't
-					// run) or it failed to load within the bounded wait.
-					// Generation itself succeeded; clear the spinner so it isn't
-					// left stuck. A page refresh re-loads the SDK.
+					// SDK never emitted on this page or failed its bounded wait; generation
+					// itself succeeded, so clear the spinner. A refresh re-loads the SDK.
 					container.innerHTML = '';
 					return;
 				}
@@ -417,7 +409,6 @@
 	 * @param {Object} meta The meta values that were saved.
 	 */
 	function updateMetaboxUI( meta ) {
-		// Content ID input.
 		const contentIdInput = document.getElementById(
 			'beyondwords_content_id'
 		);
@@ -425,7 +416,6 @@
 			contentIdInput.value = meta.beyondwords_content_id;
 		}
 
-		// Generate audio checkbox — fetched content sets this to '0'.
 		const generateAudioCheckbox = document.getElementById(
 			'beyondwords_generate_audio'
 		);
@@ -434,7 +424,6 @@
 				meta.beyondwords_generate_audio === '1';
 		}
 
-		// Language select — only update if the value exists as an option.
 		// Match option values directly so a malformed API value can't throw.
 		const languageSelect = document.getElementById(
 			'beyondwords_language_code'
@@ -456,10 +445,8 @@
 			errorContainer.remove();
 		}
 
-		// Re-initialise the player preview with the fetched content. Route
-		// through initMetaboxPlayer so a just-fetched-but-still-processing
-		// content is polled until `processed` rather than embedded straight
-		// away (which would request — and CDN-cache a 404 for — unready content).
+		// Route through initMetaboxPlayer so still-processing content is polled
+		// until `processed`, not embedded straight away (which would CDN-cache a 404).
 		if ( meta.beyondwords_content_id && meta.beyondwords_project_id ) {
 			let playerContainer = document.getElementById(
 				'beyondwords-metabox-player'
@@ -552,7 +539,6 @@
 		clearNotice();
 		let spinner = setLoading( button, input, true );
 
-		// Fetch content from the BeyondWords API.
 		fetch(
 			beyondwordsData.root +
 				'beyondwords/v1/projects/' +
@@ -589,9 +575,8 @@
 
 				return savePostMeta( restBase, postId, meta ).then(
 					function () {
-						// Save succeeded. Refreshing the UI is best-effort —
-						// contain failures so they can't reject the chain and
-						// divert into the .catch, overwriting the saved meta.
+						// UI refresh is best-effort — contain failures so they can't
+						// reject the chain into the .catch and overwrite the saved meta.
 						try {
 							updateMetaboxUI( meta );
 						} catch {
@@ -619,7 +604,6 @@
 					return;
 				}
 
-				// Persist the error message to post meta.
 				const errorMeta = {
 					beyondwords_content_id: contentId,
 					beyondwords_error_message: wp.i18n.__(

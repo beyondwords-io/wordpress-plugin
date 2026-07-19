@@ -5,10 +5,7 @@ import { Flex, FlexBlock, FlexItem, FormToggle } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 
 /**
- * BeyondWords toggle control.
- *
- * Standardised layout: the switch sits on the left and the label fills the row
- * to its right, laid out with the Flex primitives.
+ * BeyondWords toggle control: switch on the left, clickable label to its right.
  *
  * @param {Object}   props
  * @param {string}   [props.className] Extra class for the Flex wrapper.

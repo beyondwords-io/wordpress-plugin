@@ -9,9 +9,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class PlayerTest extends TestCase
 {
-    // The structural JSON quotes are emitted as &quot; because the renderer now
-    // esc_attr()s the onload value (the browser decodes them back to " for the JS
-    // engine). See BeyondWords\Player\Renderer\Javascript::render().
+    // Structural JSON quotes appear as &quot; — the renderer esc_attr()s the onload value
+    // and the browser decodes them back. See BeyondWords\Player\Renderer\Javascript::render().
     public const PLAYER_HTML_FORMAT = '<script data-beyondwords-player-context="%s" async defer src="https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js" onload=\'new BeyondWords.Player({target:this, ...{&quot;projectId&quot;:9969,&quot;contentId&quot;:&quot;9279c9e0-e0b5-4789-9040-f44478ed3e9e&quot;}});\'></script>';
 
     /**
@@ -24,10 +23,8 @@ class PlayerTest extends TestCase
 
         do_action('wp_loaded');
 
-        // Actions
         $this->assertEquals(10, has_action('init', array(Player::class, 'register_shortcodes')));
 
-        // Filters
         $this->assertEquals(1000000, has_filter('the_content', array(Player::class, 'auto_prepend_player')));
         $this->assertEquals(10, has_filter('newsstand_the_content', array(Player::class, 'auto_prepend_player')));
     }
@@ -123,12 +120,10 @@ class PlayerTest extends TestCase
 
         $output = Player::auto_prepend_player($content);
 
-        // We are now is_singular() so player should be prepended
         $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'auto') . $content, $output);
 
-        // Player UI = Disabled makes is_enabled() false, so auto_prepend_player()
-        // now short-circuits (before the has_custom_player() DOM scan) and returns
-        // the content unchanged — no player is prepended.
+        // Player UI = Disabled makes is_enabled() false, so auto_prepend_player() short-circuits
+        // (before the has_custom_player() DOM scan) and returns the content unchanged.
         update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_DISABLED);
         $this->assertSame($content, Player::auto_prepend_player($content));
         delete_option(Fields::OPTION_PLAYER_UI);
@@ -168,7 +163,6 @@ class PlayerTest extends TestCase
 
         $output = Player::replace_legacy_custom_player($content);
 
-        // We are now is_singular() so player div should be replaced with player shortcode
         $this->assertSame($expected, $output);
 
         wp_reset_postdata();
@@ -274,10 +268,8 @@ class PlayerTest extends TestCase
                 "<p>Before</p>\n<div data-foo=\"data-beyondwords-player\"></div>\n<p>After</p>",
                 "<p>Before</p>\n<div data-foo=\"data-beyondwords-player\"></div>\n<p>After</p>",
             ],
-            // Note: HTML comments are NOT handled specially by the regex.
-            // This is a known limitation but is acceptable because:
-            // 1. It's extremely unlikely someone would put a player div in a comment
-            // 2. Even if replaced, the shortcode in a comment won't render (invisible to users)
+            // HTML comments are NOT handled specially by the regex — an acceptable known
+            // limitation: a shortcode inside a comment never renders anyway.
             'HTML comment with player div - known limitation' => [
                 "<p>Before</p>\n<!-- <div data-beyondwords-player=\"true\"></div> -->\n<p>After</p>",
                 "<p>Before</p>\n<!-- [beyondwords_player] -->\n<p>After</p>",
@@ -365,7 +357,6 @@ class PlayerTest extends TestCase
 
         $crawler = new Crawler($html);
 
-        // <div id="wrapper">
         $wrapper = $crawler->filter('#wrapper');
         $this->assertCount(1, $wrapper);
         $this->assertSame("$post->ID", $wrapper->attr('data-post-id'));
@@ -440,13 +431,11 @@ class PlayerTest extends TestCase
             'Legacy player with contenteditable attribute' => [true, '<p>Before.</p><div data-beyondwords-player="true" contenteditable="false"></div><p>After.</p>'],
             'New player shortcode' => [true, '<p>Before.</p>[beyondwords_player]<p>After.</p>'],
             'New player shortcode with project_id attribute' => [true, '<p>Before.</p>[beyondwords_player project_id="1234"]<p>After.</p>'],
-            // SDK <script> markup counts as a custom player — this is the only path
-            // gated by the get_js_sdk_url() substring in the has_custom_player()
-            // fast-path guard, so keep it covered.
+            // SDK <script> markup is the only path gated by the get_js_sdk_url() substring
+            // in the has_custom_player() fast-path guard, so keep it covered.
             'JS SDK player script' => [true, '<p>Before.</p><script async defer src="' . $sdkUrl . '"></script><p>After.</p>'],
-            // The SDK URL appearing as plain text passes the cheap substring guard
-            // but must still resolve to false via the XPath — proving the guard is a
-            // pre-filter, not a replacement for the parse.
+            // The SDK URL as plain text passes the cheap substring guard but must still
+            // resolve to false via the XPath — the guard is a pre-filter, not the parse.
             'SDK URL in text only, no script tag' => [false, '<p>Listen via ' . $sdkUrl . '</p>'],
         ];
     }

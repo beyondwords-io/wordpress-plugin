@@ -9,8 +9,6 @@ use BeyondWords\Core\Uninstaller;
 /**
  * Uninstall script for BeyondWords.
  *
- * Executed when BeyondWords is uninstalled via built-in WordPress commands.
- *
  * @since 3.7.0
  *
  * @SuppressWarnings(PHPMD.ExitExpression)

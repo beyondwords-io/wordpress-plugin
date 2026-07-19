@@ -11,7 +11,6 @@ class GenerateAudioTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
         unset($_POST, $_REQUEST);
 
@@ -21,7 +20,6 @@ class GenerateAudioTest extends TestCase
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         unset($_POST, $_REQUEST);
 
         wp_dequeue_script('beyondwords-metabox--generate-audio');
@@ -32,7 +30,6 @@ class GenerateAudioTest extends TestCase
 
         delete_option('beyondwords_preselect');
 
-        // Then...
         parent::tearDown();
     }
 
@@ -51,8 +48,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * The classic term-gating script is enqueued (and localized) only for
-     * post types configured with 'terms' mode.
+     * The classic term-gating script is enqueued (and localized) only for 'terms'-mode post types.
      *
      * @test
      */
@@ -73,7 +69,6 @@ class GenerateAudioTest extends TestCase
 
         $this->assertTrue(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
 
-        // The localized payload carries the mode + resolved selected terms.
         $data = wp_scripts()->get_data('beyondwords-metabox--generate-audio', 'data');
         $this->assertStringContainsString('"mode":"terms"', $data);
         $this->assertStringContainsString('"category":[1]', $data);
@@ -82,8 +77,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * 'all' mode still enqueues the script — the state-reflecting caption needs
-     * it — but carries no term-gating preselect payload.
+     * 'all' mode still enqueues the script (the caption needs it) but carries no preselect payload.
      *
      * @test
      */
@@ -102,7 +96,6 @@ class GenerateAudioTest extends TestCase
 
         $this->assertTrue(wp_script_is('beyondwords-metabox--generate-audio', 'enqueued'));
 
-        // No term-gating payload in 'all' mode.
         $data = wp_scripts()->get_data('beyondwords-metabox--generate-audio', 'data');
         $this->assertStringNotContainsString('beyondwordsPreselect', (string) $data);
 
@@ -110,8 +103,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * The block editor handles preselect in React, so the classic script is
-     * never enqueued on a Gutenberg screen.
+     * The block editor handles preselect in React, so the classic script never enqueues there.
      *
      * @test
      */
@@ -136,8 +128,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * 'terms' mode with no usable terms still enqueues the script (for the
-     * caption) but adds no term-gating payload.
+     * 'terms' mode with no usable terms still enqueues the script (for the caption) but no payload.
      *
      * @test
      */
@@ -259,8 +250,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * Delegates to Preselect::should_preselect_for_post, which now honours
-     * both whole-post-type ('all') and term-gated ('terms') preselection.
+     * Delegates to Preselect::should_preselect_for_post, honouring both 'all' and 'terms' modes.
      *
      * @test
      */
@@ -302,8 +292,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * The classic metabox checkbox is checked when preselect matches and no
-     * explicit meta is stored — via Meta::has_generate_audio.
+     * The checkbox is checked when preselect matches and no explicit meta is stored (Meta::has_generate_audio).
      *
      * @test
      */
@@ -326,8 +315,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * The classic metabox checkbox is unchecked when preselect is off and no
-     * explicit meta is stored.
+     * The checkbox is unchecked when preselect is off and no explicit meta is stored.
      *
      * @test
      */
@@ -350,8 +338,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * Terms mode: the classic checkbox is checked when the post has a listed
-     * term, and unchecked when it does not.
+     * Terms mode: the checkbox is checked only when the post has a listed term.
      *
      * @test
      */
@@ -405,8 +392,7 @@ class GenerateAudioTest extends TestCase
     }
 
     /**
-     * The caption reads out the checked state and exposes both label variants
-     * as data attributes for classic-metabox.js to swap between when toggled.
+     * The caption reads the checked state and exposes both label variants for classic-metabox.js to swap.
      *
      * @test
      */
@@ -419,11 +405,9 @@ class GenerateAudioTest extends TestCase
             GenerateAudio::element($post);
         });
 
-        // Both label variants are exposed as data attributes.
         $this->assertStringContainsString('data-label-enabled="Generation enabled"', $html);
         $this->assertStringContainsString('data-label-disabled="Generation disabled"', $html);
 
-        // The rendered caption reads out the (checked) state.
         $this->assertMatchesRegularExpression(
             '/id="beyondwords-generate-audio-label"[^>]*>Generation enabled</s',
             $html

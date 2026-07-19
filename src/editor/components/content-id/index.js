@@ -13,7 +13,6 @@ import { useSelect, useDispatch, select } from '@wordpress/data';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
-// Internal utilities
 const updatePostMeta = ( postId, meta ) => {
 	const postType = select( 'core/editor' ).getCurrentPostType();
 	const postTypeInfo = select( 'core' ).getPostType( postType );
@@ -120,7 +119,6 @@ export function ContentId( { wrapper } ) {
 			await updatePostMeta( postId, meta );
 			editPost( { meta } );
 
-			// Update local state with the returned content ID.
 			setContentId( id || '' );
 		} catch {
 			const errorMeta = {

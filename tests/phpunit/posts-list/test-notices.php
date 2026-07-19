@@ -12,19 +12,15 @@ final class NoticesTest extends TestCase
 
     public function setUp(): void
     {
-        // Before...
         parent::setUp();
 
-        // Your set up methods here.
         unset($_POST, $_GET);
     }
 
     public function tearDown(): void
     {
-        // Your tear down methods here.
         unset($_POST, $_GET);
 
-        // Then...
         parent::tearDown();
     }
 
@@ -177,9 +173,6 @@ final class NoticesTest extends TestCase
         $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
     }
 
-    /**
-     *
-     */
     public function generated_notice_provider() {
         return [
             '1 post' => [
@@ -219,9 +212,6 @@ final class NoticesTest extends TestCase
         $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
     }
 
-    /**
-     *
-     */
     public function deleted_notice_provider() {
         return [
             '1 post' => [
@@ -261,9 +251,6 @@ final class NoticesTest extends TestCase
         $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
     }
 
-    /**
-     *
-     */
     public function deferred_notice_provider() {
         return [
             '1 post' => [
@@ -303,9 +290,6 @@ final class NoticesTest extends TestCase
         $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
     }
 
-    /**
-     *
-     */
     public function failed_notice_provider() {
         return [
             '1 post' => [
@@ -348,9 +332,6 @@ final class NoticesTest extends TestCase
         unset($_GET['beyondwords_bulk_error']);
     }
 
-    /**
-     *
-     */
     public function error_notice_provider() {
         return [
             'Unknown error' => [

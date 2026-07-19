@@ -1,9 +1,6 @@
 <?php
 /**
- * BeyondWords URL registry.
- *
- * Each accessor returns the override defined in `wp-config.php` if present,
- * falling back to the production constant baked into the class.
+ * BeyondWords URL registry: production defaults with optional `wp-config.php` overrides.
  *
  * @package BeyondWords\Core
  * @since   3.0.0

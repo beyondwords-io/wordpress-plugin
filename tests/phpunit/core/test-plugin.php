@@ -32,10 +32,6 @@ class PluginTest extends TestCase
     {
         Plugin::init();
 
-        // Verify that various hooks have been registered by components
-        // These prove that the Plugin::init() method is initializing all components
-
-        // Core components
         $this->assertTrue(
             has_action('init') !== false,
             'Should register Core component hooks'
@@ -51,7 +47,6 @@ class PluginTest extends TestCase
             'Should register Settings component hooks'
         );
 
-        // Verify components with valid API connection are initialized
         $this->assertTrue(
             has_action('admin_enqueue_scripts') !== false,
             'Should register admin scripts when API connection is valid'

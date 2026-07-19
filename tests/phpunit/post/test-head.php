@@ -15,7 +15,6 @@ class HeadTest extends TestCase
     {
         parent::setUp();
 
-        // Create a test post
         $this->postId = self::factory()->post->create([
             'post_title' => 'Test Post Title',
             'post_author' => 1,
@@ -54,7 +53,6 @@ class HeadTest extends TestCase
      */
     public function add_meta_tags_does_nothing_on_non_singular_page(): void
     {
-        // Simulate archive page
         $this->go_to('/');
 
         $html = $this->capture_output(function () {
@@ -69,11 +67,9 @@ class HeadTest extends TestCase
      */
     public function add_meta_tags_does_nothing_without_project_id(): void
     {
-        // Ensure no project ID is set
         delete_post_meta($this->postId, 'beyondwords_project_id');
         delete_option('beyondwords_project_id');
 
-        // Go to singular post
         $this->go_to(get_permalink($this->postId));
 
         $html = $this->capture_output(function () {
@@ -136,7 +132,6 @@ class HeadTest extends TestCase
 
         $this->assertStringContainsString('name="beyondwords-author"', $html);
         $this->assertStringContainsString('data-beyondwords-author=', $html);
-        // Should contain the author's display name
         $this->assertNotEmpty($html);
     }
 
@@ -155,7 +150,7 @@ class HeadTest extends TestCase
 
         $this->assertStringContainsString('name="beyondwords-publish-date"', $html);
         $this->assertStringContainsString('data-beyondwords-publish-date=', $html);
-        // Date should be in ISO 8601 format (contains 'T' for time separator)
+        // ISO 8601 expected — the 'T' is the date/time separator.
         $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2}T/', $html);
     }
 
@@ -250,9 +245,8 @@ class HeadTest extends TestCase
             Head::add_meta_tags();
         });
 
-        // Should escape HTML entities (WordPress may use smart quotes &#8220; instead of literal quotes)
+        // No exact-string match: WordPress may swap in smart quotes (&#8220;) while escaping.
         $this->assertStringNotContainsString('<script>', $html, 'Should not contain unescaped script tag');
-        // The escaped output should be safe for HTML attributes
         $this->assertMatchesRegularExpression('/content="[^"]*alert[^"]*"/', $html, 'Should have escaped content in attribute');
     }
 
@@ -261,7 +255,6 @@ class HeadTest extends TestCase
      */
     public function integration_full_meta_tags_output(): void
     {
-        // Set up all possible meta values
         update_post_meta($this->postId, 'beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
         update_post_meta($this->postId, 'beyondwords_body_voice_id', 222);
         update_post_meta($this->postId, 'beyondwords_language_code', 'en');
@@ -272,14 +265,12 @@ class HeadTest extends TestCase
             Head::add_meta_tags();
         });
 
-        // Should contain all meta tags
         $this->assertStringContainsString('beyondwords-title', $html);
         $this->assertStringContainsString('beyondwords-author', $html);
         $this->assertStringContainsString('beyondwords-publish-date', $html);
         $this->assertStringContainsString('beyondwords-body-voice-id', $html);
         $this->assertStringContainsString('beyondwords-article-language', $html);
 
-        // Should have the body voice value
         $this->assertStringContainsString('222', $html);
     }
 }

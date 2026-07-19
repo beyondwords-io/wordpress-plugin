@@ -253,8 +253,7 @@ class InspectPanel {
 	 * @param array $metadata Post metadata.
 	 *
 	 * @since 3.0.0
-	 * @since 3.9.0 Output all post meta data from the earlier has_meta() call instead of
-	 *              the previous multiple get_post_meta() calls.
+	 * @since 3.9.0 Output all post meta data from the earlier has_meta() call.
 	 * @since 6.0.0 Make static.
 	 *
 	 * @return string
@@ -274,15 +273,8 @@ class InspectPanel {
 	/**
 	 * Runs when a post is saved.
 	 *
-	 * If "Remove" has been pressed in the Classic Editor we set the `beyondwords_delete_content`
-	 * custom field. At a later priority we check for this custom field and if it's set
-	 * we make a DELETE request to the BeyondWords REST API, keeping WordPress and the
-	 * REST API in sync.
-	 *
-	 * If we don't perform a DELETE REST API request to keep them in sync then the
-	 * API will respond with a "source_id is already in use" error message whenver we
-	 * attempt to regenerate audio for a post that has audio content "Removed" in
-	 * WordPress but still exists in the REST API.
+	 * "Remove" sets the `beyondwords_delete_content` custom field; a later-priority
+	 * hook then DELETEs at the API — else regeneration fails with "source_id is already in use".
 	 *
 	 * @since 4.0.7
 	 * @since 6.0.0 Make static.
@@ -319,8 +311,6 @@ class InspectPanel {
 	}
 
 	/**
-	 * REST API init.
-	 *
 	 * Register REST API routes.
 	 *
 	 * @since 6.0.0 Make static.
@@ -338,8 +328,6 @@ class InspectPanel {
 	}
 
 	/**
-	 * REST API response.
-	 *
 	 * Fetches a content object from the BeyondWords REST API.
 	 *
 	 * @since 6.0.0 Make static.
@@ -374,7 +362,6 @@ class InspectPanel {
 
 		$response = \BeyondWords\Api\Client::get_content( $beyondwords_id, $project_id );
 
-		// Check for REST API connection errors.
 		if ( is_wp_error( $response ) ) {
 			return rest_ensure_response(
 				new \WP_Error(
@@ -388,7 +375,6 @@ class InspectPanel {
 		$code = wp_remote_retrieve_response_code( $response );
 		$body = wp_remote_retrieve_body( $response );
 
-		// Check for REST API response errors.
 		if ( $code < 200 || $code >= 300 ) {
 			return rest_ensure_response(
 				new \WP_Error(
@@ -404,7 +390,6 @@ class InspectPanel {
 
 		$data = json_decode( $body, true );
 
-		// Check for REST API JSON response.
 		if ( ! is_array( $data ) ) {
 			return rest_ensure_response(
 				new \WP_Error(
@@ -414,7 +399,6 @@ class InspectPanel {
 			);
 		}
 
-		// Return the project ID in the response.
 		$data['project_id'] = $project_id;
 
 		return rest_ensure_response( $data );

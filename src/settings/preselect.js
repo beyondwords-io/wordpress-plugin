@@ -1,18 +1,8 @@
 /*
- * Preferences → "Preselect 'Generate audio'" settings field.
+ * Preferences → "Preselect 'Generate audio'" field: progressive disclosure.
  *
- * Progressive disclosure:
- *   - the post-type checkbox reveals an "All" checkbox (and hides everything
- *     when unticked);
- *   - "All" ticked = preselect the whole post type, so the taxonomy term trees
- *     are hidden;
- *   - unticking "All" reveals the term trees so specific terms can be picked;
- *   - re-ticking "All" hides the term trees again WITHOUT clearing them.
- *
- * The server stores the resulting mode (all wins over terms). Checkboxes are
- * rendered with their correct initial visibility, so this is enhancement only.
- *
- * Vanilla JS — no jQuery.
+ * Checkboxes render server-side with their correct initial visibility, so this
+ * is enhancement only; hiding the term trees never clears their selections.
  */
 ( function () {
 	'use strict';

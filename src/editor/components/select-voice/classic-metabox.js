@@ -1,24 +1,9 @@
 /* global beyondwordsData */
 
 /*
- * Classic-editor Customize + Language + Model + Voice behaviour.
- *
- * "Customize" is opt-in. While off, the post uses the project default language
- * and voice: the fields stay hidden and the selects submit empty so save()
- * removes the meta. While on, the Language dropdown drives a voices fetch and
- * seeds the language's default voice (we never send the language itself — the
- * voice carries it).
- *
- * "Model" is a language-level filter: each ElevenLabs model_id, plus a single
- * "Standard" bucket for non-ElevenLabs voices. Picking a model narrows the
- * Voice dropdown to the voices that offer it. The Voice dropdown is the saved
- * field (`beyondwords_voice_id`) — it submits the chosen voice id, which carries
- * the model. When a language offers a single bucket the Model dropdown is hidden
- * and every voice is listed. Mirrors the block editor's voice-section.js +
- * helpers.js.
- *
- * Vanilla JS — no jQuery dependency. The selects live in the post <form>, so
- * their values submit on save; no autosave/Heartbeat hook is needed.
+ * Classic-editor Customize + Language + Model + Voice behaviour. Mirrors the
+ * block editor's voice-section.js + helpers.js. The selects live in the post
+ * <form> and submit on save, so no autosave/Heartbeat hook is needed.
  */
 ( function () {
 	'use strict';
@@ -55,8 +40,7 @@
 	};
 
 	/**
-	 * The model bucket key for a voice: its ElevenLabs model_id, or the shared
-	 * Standard bucket for any other service.
+	 * The model bucket key for a voice: its ElevenLabs model_id, else Standard.
 	 *
 	 * @param {Object} voice A voice record.
 	 *
@@ -74,8 +58,7 @@
 	};
 
 	/**
-	 * The distinct model buckets across a language's voices, ElevenLabs models
-	 * first (the default leading), then a single Standard bucket if present.
+	 * The distinct model buckets across a language's voices, for the Model dropdown.
 	 *
 	 * @param {Array<Object>} voices All voices for the current language.
 	 *
@@ -172,16 +155,15 @@
 				} );
 			}
 
-			// A saved customized post is server-rendered with its Model + Voice
-			// dropdowns populated, but this.voices starts empty; hydrate it so the
-			// Model filter has data before the user interacts.
+			// Seed this.voices so the Model filter has data before the user interacts.
 			this.hydrate();
 		},
 
 		/**
-		 * Show/hide the language/model/voice fields. Turning Customize off reverts
-		 * the post to the project defaults by clearing the selects, so they submit
-		 * empty and save() removes the meta.
+		 * Show/hide the language/model/voice fields.
+		 *
+		 * Customize off clears the selects so they submit empty and save()
+		 * removes the meta, reverting the post to the project defaults.
 		 *
 		 * @param {boolean} on Whether Customize is enabled.
 		 */
@@ -206,10 +188,10 @@
 		},
 
 		/**
-		 * On Customize-on, fetch the project's default language and pre-select it
-		 * — only the language; the user picks the Model + Voice. A spinner shows
-		 * while the language and its voices resolve. On failure, or when the post
-		 * already has a language, fall back to the manual "pick a language" flow.
+		 * On Customize-on, fetch the project's default language and pre-select it.
+		 *
+		 * Only the language is seeded — the user picks the Model + Voice; on
+		 * failure we fall back to the manual "pick a language" flow.
 		 */
 		applyProjectDefaultLanguage() {
 			const language = byId( 'beyondwords_language_code' );
@@ -230,10 +212,8 @@
 				} )
 				.then( ( response ) => response.json() )
 				.then( ( project ) => {
-					// Bail if Customize was switched off, or a language was
-					// chosen, while the request was in flight — otherwise we'd
-					// re-show the fields and persist a language on a post the
-					// user left un-customised.
+					// Bail if Customize was switched off, or a language chosen, while
+					// in flight — else we'd persist a language on an un-customised post.
 					const customize = byId( 'beyondwords_customize' );
 					if (
 						! customize ||
@@ -259,20 +239,17 @@
 		},
 
 		/**
-		 * Hydrate this.voices for an already-customized saved post so the Model
-		 * filter has data before the user interacts. The PHP element() server-
-		 * renders the correct Model + Voice dropdowns, but this.voices starts
-		 * empty; without this the first Model change finds no voices, empties the
-		 * Voice select, and save() then drops the stored voice. Loads WITHOUT
-		 * clearing first, so the correct server-rendered dropdowns stay put until
-		 * the fetch resolves and re-renders to the same selection.
+		 * Hydrate this.voices for an already-customized saved post.
+		 *
+		 * Without it the first Model change runs against empty state and save()
+		 * drops the stored voice. Loads without clearing, so the server-rendered
+		 * dropdowns stay put until the fetch re-renders the same selection.
 		 */
 		hydrate() {
 			const customize = byId( 'beyondwords_customize' );
 			const language = byId( 'beyondwords_language_code' );
 
-			// A fresh, un-customized post has no language yet; toggling Customize
-			// fetches on demand. Only a saved customized post needs hydrating.
+			// Only a saved customized post needs hydrating; a fresh one fetches on demand.
 			if (
 				! customize ||
 				! customize.checked ||
@@ -285,10 +262,8 @@
 			const voiceSelect = byId( 'beyondwords_voice_id' );
 			const savedVoiceId = voiceSelect ? voiceSelect.value : '';
 
-			// Disable the Model filter until the in-memory voices load, so a Model
-			// change during the fetch can't run against empty state (which would
-			// blank the Voice select). The Model select carries no name, so
-			// disabling it has no effect on what the form submits.
+			// Disable the Model filter until voices load so a change can't run
+			// against empty state; it carries no name, so submits are unaffected.
 			const modelSelect = byId( 'beyondwords_model' );
 			if ( modelSelect ) {
 				modelSelect.disabled = true;
@@ -309,10 +284,9 @@
 
 		/**
 		 * Get voices for a language, then rebuild the Model + Voice dropdowns.
-		 * When a default voice id is supplied (the language's default body voice,
-		 * set when the user picks a language) its model is pre-selected and the
-		 * voice chosen; otherwise the Model dropdown opens on its placeholder and
-		 * the Voice dropdown stays hidden until a model is picked.
+		 *
+		 * A supplied default voice pre-selects its model and voice; otherwise the
+		 * Model opens on its placeholder and Voice stays hidden until one is picked.
 		 *
 		 * @param {string} languageCode   The language code.
 		 * @param {string} defaultVoiceId The language's default body voice id.
@@ -330,10 +304,10 @@
 		},
 
 		/**
-		 * Fetch a language's voices into this.voices, serialising concurrent
-		 * fetches so only the latest applies. Does not render — the caller decides
-		 * how. Resolves true when this (latest) fetch succeeded and this.voices was
-		 * updated; false when superseded, on error, or when no language is given.
+		 * Fetch a language's voices into this.voices. Does not render.
+		 *
+		 * Resolves true when this (latest) fetch applied; false when superseded,
+		 * on error, or when no language is given.
 		 *
 		 * @param {string} languageCode The language code.
 		 *
@@ -358,10 +332,8 @@
 					headers: { 'X-WP-Nonce': data.nonce },
 				} )
 				.then( ( response ) => {
-					// window.fetch does not reject on HTTP error statuses. A
-					// WordPress REST error (e.g. an expired nonce returning 403)
-					// resolves with a JSON error *object*, not a voices array,
-					// so surface it through the catch below.
+					// fetch doesn't reject on HTTP errors; a REST error (e.g. expired
+					// nonce → 403) resolves with a JSON object, so throw into the catch.
 					if ( ! response.ok ) {
 						return response
 							.json()
@@ -399,10 +371,9 @@
 		},
 
 		/**
-		 * Rebuild the Model dropdown from the current voices and select the model
-		 * for the supplied voice (if any), then rebuild the Voice dropdown for
-		 * that model. The Model dropdown is hidden when a language offers a single
-		 * bucket.
+		 * Rebuild the Model dropdown from the current voices, then the Voice dropdown.
+		 *
+		 * The Model dropdown is hidden when a language offers a single bucket.
 		 *
 		 * @param {string} selectedVoiceId The voice id to pre-select, or ''.
 		 */
@@ -445,9 +416,9 @@
 		},
 
 		/**
-		 * Rebuild the Voice dropdown for a model bucket and select a voice. With a
-		 * Model gate and no model chosen, the Voice dropdown is hidden; with a
-		 * single bucket every voice is listed.
+		 * Rebuild the Voice dropdown for a model bucket and select a voice.
+		 *
+		 * Hidden while gated with no model chosen; a single bucket lists every voice.
 		 *
 		 * @param {string}  modelKey    The selected model bucket key, or ''.
 		 * @param {string}  preselectId The voice id to select if in the bucket.
@@ -459,7 +430,6 @@
 			);
 			const voiceSelect = byId( 'beyondwords_voice_id' );
 
-			// Gated and no model chosen yet → hide the (empty) Voice dropdown.
 			if ( showModel && '' === modelKey ) {
 				if ( voiceSelect ) {
 					voiceSelect.replaceChildren( option( '', SELECT_VOICE ) );
@@ -497,8 +467,9 @@
 		},
 
 		/**
-		 * Pick a model → list that bucket's voices and select the first, so a
-		 * concrete voice id is always submitted (the voice carries the model).
+		 * Pick a model: list that bucket's voices and select the first.
+		 *
+		 * A concrete voice id is always submitted (the voice carries the model).
 		 *
 		 * @param {string} modelKey The selected model bucket key.
 		 */
