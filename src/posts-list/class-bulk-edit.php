@@ -289,8 +289,8 @@ class BulkEdit {
 		}
 
 		// Dispatch through Sync, which offloads to background cron on VIP and
-		// runs a hard-capped, lower-timeout synchronous batch off VIP — so this
-		// admin request never blocks on an unbounded run of remote API calls.
+		// runs a hard-capped synchronous batch off VIP — so this admin request
+		// never blocks on an unbounded run of remote API calls.
 		// Sync normalises and sorts the IDs, so no sort() is needed here.
 		try {
 			$counts   = \BeyondWords\Post\Sync::bulk_generate_audio_for_posts( $object_ids );

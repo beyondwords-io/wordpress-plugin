@@ -62,19 +62,6 @@ class Sync {
 	const BULK_GENERATE_SYNC_LIMIT = 10;
 
 	/**
-	 * Per-call API timeout (in seconds) used while the bulk "Generate audio"
-	 * action runs synchronously off VIP.
-	 *
-	 * Lower than `\BeyondWords\Api\Client::REQUEST_TIMEOUT` so a slow or
-	 * unresponsive API can't stack up to a request-killing total across the
-	 * capped batch. Still generous enough for a create/update, which is why this
-	 * sits above the short `Client::DELETE_TIMEOUT`.
-	 *
-	 * @since 7.0.0
-	 */
-	const BULK_GENERATE_TIMEOUT = 15;
-
-	/**
 	 * Deprecated post-meta keys that still need REST exposure.
 	 *
 	 * On a site upgraded from the legacy SpeechKit plugin these keys can hold a
@@ -278,13 +265,10 @@ class Sync {
 	 * fresh content.
 	 *
 	 * @param int $post_id WordPress post ID.
-	 * @param int $timeout Per-call API timeout in seconds. Defaults to
-	 *                     `Client::REQUEST_TIMEOUT`; the capped synchronous bulk
-	 *                     path passes the shorter `BULK_GENERATE_TIMEOUT`.
 	 *
 	 * @return array<mixed>|false|null Response from the API, or false when audio wasn't generated.
 	 */
-	public static function generate_audio_for_post( int $post_id, int $timeout = \BeyondWords\Api\Client::REQUEST_TIMEOUT ): array|false|null {
+	public static function generate_audio_for_post( int $post_id ): array|false|null {
 		if ( ! self::should_generate_audio_for_post( $post_id ) ) {
 			return false;
 		}
@@ -314,9 +298,9 @@ class Sync {
 				return false;
 			}
 
-			$response = self::update_or_recreate_audio( $post_id, $timeout );
+			$response = self::update_or_recreate_audio( $post_id );
 		} else {
-			$response = \BeyondWords\Api\Client::create_audio( $post_id, $timeout );
+			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 		}
 
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -334,11 +318,9 @@ class Sync {
 	 * POST so the post recovers automatically.
 	 *
 	 * @param int $post_id WordPress post ID.
-	 * @param int $timeout Per-call API timeout in seconds, forwarded to both the
-	 *                     update and any recovery create.
 	 */
-	private static function update_or_recreate_audio( int $post_id, int $timeout = \BeyondWords\Api\Client::REQUEST_TIMEOUT ): array|null|false {
-		$response = \BeyondWords\Api\Client::update_audio( $post_id, $timeout );
+	private static function update_or_recreate_audio( int $post_id ): array|null|false {
+		$response = \BeyondWords\Api\Client::update_audio( $post_id );
 
 		$error_message = (string) get_post_meta( $post_id, 'beyondwords_error_message', true );
 
@@ -347,7 +329,7 @@ class Sync {
 			delete_post_meta( $post_id, 'beyondwords_podcast_id' );
 			delete_post_meta( $post_id, 'speechkit_podcast_id' );
 
-			$response = \BeyondWords\Api\Client::create_audio( $post_id, $timeout );
+			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 		}
 
 		return $response;
@@ -379,10 +361,12 @@ class Sync {
 	 *   the request returns immediately and no API call runs inline. All selected
 	 *   posts are reported as "generated" (i.e. requested).
 	 * - Off VIP (async disabled) we can't rely on WP-Cron, so generation runs
-	 *   inline — but capped at `bulk_generate_sync_limit()` posts and with a lower
-	 *   per-call timeout, so a slow API can't run the request past the execution
-	 *   limit. Posts still missing audio are processed before regenerations, and
-	 *   any beyond the cap are returned as "deferred" for the caller to surface.
+	 *   inline — but capped at `bulk_generate_sync_limit()` posts, so a slow API
+	 *   can't run the request past the execution limit. Each call is already
+	 *   bounded by `\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT`, so the cap
+	 *   is what keeps the total bounded. Posts still missing audio are processed
+	 *   before regenerations, and any beyond the cap are returned as "deferred"
+	 *   for the caller to surface.
 	 *
 	 * @since 7.0.0
 	 *
@@ -415,8 +399,9 @@ class Sync {
 			];
 		}
 
-		// Off VIP: process synchronously, but hard-capped and with a lower
-		// per-call timeout. Posts still missing audio are processed before
+		// Off VIP: process synchronously, but hard-capped — each call is already
+		// bounded by the client's short default timeout, so the cap is what keeps
+		// the batch total bounded. Posts still missing audio are processed before
 		// regenerations so re-running the action on a large selection converges.
 		$ordered    = self::order_posts_for_bulk_generation( $post_ids );
 		$limit      = self::bulk_generate_sync_limit();
@@ -427,7 +412,7 @@ class Sync {
 		$failed    = 0;
 
 		foreach ( $to_process as $post_id ) {
-			if ( self::generate_audio_for_post( $post_id, self::BULK_GENERATE_TIMEOUT ) ) {
+			if ( self::generate_audio_for_post( $post_id ) ) {
 				++$generated;
 			} else {
 				++$failed;
@@ -764,7 +749,7 @@ class Sync {
 	 * one remote DELETE per post. We read the IDs before the caller wipes the meta
 	 * (on trash) or WordPress deletes the row (on permanent delete). Off-VIP,
 	 * where WP-Cron is unreliable, we fall back to a synchronous DELETE, bounded
-	 * by the client's short `DELETE_TIMEOUT`.
+	 * by the client's short `DEFAULT_REQUEST_TIMEOUT`.
 	 *
 	 * The caller must have confirmed `Meta::has_content()` first.
 	 *

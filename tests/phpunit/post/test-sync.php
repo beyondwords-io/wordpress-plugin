@@ -1517,9 +1517,15 @@ class SyncTest extends TestCase
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // The capped synchronous batch must use a shorter per-call timeout than a
-        // normal save, so a slow API can't stack up to a request-killing total.
-        $this->assertLessThan(\BeyondWords\Api\Client::REQUEST_TIMEOUT, Sync::BULK_GENERATE_TIMEOUT);
+        // The whole point of the cap is that the synchronous batch stays inside a
+        // typical PHP/VIP execution limit even if every call burns its full
+        // timeout. Guards against a future change raising either the cap or the
+        // shared request timeout to an unsafe combination.
+        $this->assertLessThanOrEqual(
+            60,
+            Sync::BULK_GENERATE_SYNC_LIMIT * \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT,
+            'Worst-case bulk generate (cap x per-call timeout) must stay within a 60s execution limit.'
+        );
 
         remove_filter('beyondwords_bulk_generate_sync_limit', $limit);
         foreach ($postIds as $postId) {
@@ -1788,7 +1794,7 @@ class SyncTest extends TestCase
         // Off-VIP the DELETE runs inline, bounded by the short delete timeout, and
         // nothing is queued.
         $this->assertSame('DELETE', $captured['method']);
-        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertSame(\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
         $this->assertFalse(wp_next_scheduled(Sync::DELETE_AUDIO_CRON_HOOK, [$projectId, $contentId]));
 
         wp_delete_post($postId, true);
@@ -1827,7 +1833,7 @@ class SyncTest extends TestCase
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
             (string) $captured['url']
         );
-        $this->assertSame(\BeyondWords\Api\Client::DELETE_TIMEOUT, $captured['timeout']);
+        $this->assertSame(\BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT, $captured['timeout']);
 
         delete_option('beyondwords_api_key');
         delete_option('beyondwords_project_id');
