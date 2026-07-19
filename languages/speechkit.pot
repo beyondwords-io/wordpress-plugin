@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: BeyondWords - Text-to-Speech 7.0.0-dev-3.0\n"
+"Project-Id-Version: BeyondWords - Text-to-Speech 7.0.0-beta.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/speechkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-06T05:27:34+00:00\n"
+"POT-Creation-Date: 2026-07-19T07:29:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: speechkit\n"
@@ -44,8 +44,8 @@ msgstr ""
 #: src/posts-list/class-bulk-edit.php:72
 #: src/posts-list/class-column.php:71
 #: src/settings/class-settings.php:50
+#: build/index.js:1
 #: src/editor/block/sidebar/index.js:26
-#: src/editor/components/add-player/index.js:38
 #: src/editor/components/icon/index.js:51
 msgid "BeyondWords"
 msgstr ""
@@ -346,6 +346,7 @@ msgstr ""
 
 #: plugins/beyondwords-import-tool/src/class-page.php:297
 #: src/editor/components/content-id/class-content-id.php:67
+#: build/index.js:1
 #: src/editor/components/content-id/index.js:150
 msgid "Content ID"
 msgstr ""
@@ -380,16 +381,16 @@ msgstr ""
 msgid "Download Export File"
 msgstr ""
 
-#: src/api/class-client.php:239
+#: src/api/class-client.php:287
 msgid "None of the selected posts had valid BeyondWords audio data."
 msgstr ""
 
-#: src/api/class-client.php:245
+#: src/api/class-client.php:293
 msgid "Batch delete can only be performed on audio belonging a single project."
 msgstr ""
 
 #. translators: %s is replaced with the support email link
-#: src/api/class-client.php:624
+#: src/api/class-client.php:674
 #, php-format
 msgid "API request error. Please contact %s."
 msgstr ""
@@ -419,28 +420,33 @@ msgid "BeyondWords audio details"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:91
+#: build/index.js:1
 #: src/editor/components/settings-panel/player-section.js:87
 msgid "Player"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:110
+#: build/index.js:1
 #: src/editor/components/settings-panel/content-section.js:60
 msgid "Content"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:115
+#: build/index.js:1
 #: src/editor/components/settings-panel/format-section.js:90
 msgid "Format"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:120
-#: src/editor/components/select-voice/class-select-voice.php:353
+#: src/editor/components/select-voice/class-select-voice.php:375
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:259
 #: src/editor/components/settings-panel/voice-section.js:277
 msgid "Voice"
 msgstr ""
 
 #: src/editor/classic/class-metabox.php:125
+#: build/index.js:1
 #: src/editor/components/data-panel/index.js:15
 msgid "Data"
 msgstr ""
@@ -455,13 +461,20 @@ msgstr ""
 msgid "BeyondWords dashboard"
 msgstr ""
 
+#: src/editor/classic/class-metabox.php:253
+#: build/index.js:1
+#: src/editor/components/content-id/classic-metabox.js:152
+#: src/editor/components/play-audio/index.js:75
+msgid "Generating…"
+msgstr ""
+
 #. translators: %s is replaced with the link to the support email address
-#: src/editor/classic/class-metabox.php:284
+#: src/editor/classic/class-metabox.php:343
 #, php-format
 msgid "Need help? Email our support team on %s"
 msgstr ""
 
-#: src/editor/classic/class-metabox.php:303
+#: src/editor/classic/class-metabox.php:362
 msgid "To create audio, resolve the error above then select ‘Update’ with ‘Generate audio’ checked."
 msgstr ""
 
@@ -470,33 +483,39 @@ msgid "Player placeholder: The position of the audio player."
 msgstr ""
 
 #: src/editor/components/content-id/class-content-id.php:85
+#: build/index.js:1
 #: src/editor/components/content-id/index.js:168
 msgid "Fetch"
 msgstr ""
 
 #: src/editor/components/generate-audio/class-generate-audio.php:138
+#: build/index.js:1
 #: src/editor/components/block-attributes/addControls.js:54
 #: src/editor/components/generate-audio/index.js:199
 msgid "Generation enabled"
 msgstr ""
 
 #: src/editor/components/generate-audio/class-generate-audio.php:139
+#: build/index.js:1
 #: src/editor/components/block-attributes/addControls.js:55
 #: src/editor/components/generate-audio/index.js:200
 msgid "Generation disabled"
 msgstr ""
 
 #: src/editor/components/inspect-panel/class-inspect-panel.php:84
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:126
 msgid "Inspect"
 msgstr ""
 
 #: src/editor/components/inspect-panel/class-inspect-panel.php:115
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:253
 msgid "Copy"
 msgstr ""
 
 #: src/editor/components/inspect-panel/class-inspect-panel.php:129
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:265
 msgid "Remove"
 msgstr ""
@@ -541,63 +560,74 @@ msgid "Invalid response from BeyondWords API"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:65
-#: src/editor/components/select-voice/class-select-voice.php:361
+#: src/editor/components/select-voice/class-select-voice.php:383
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:206
 msgid "Select a voice"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:66
-#: src/editor/components/select-voice/class-select-voice.php:289
+#: src/editor/components/select-voice/class-select-voice.php:311
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:198
 msgid "Select a model"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:67
-#: src/editor/components/select-voice/class-select-voice.php:470
+#: src/editor/components/select-voice/class-select-voice.php:495
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:132
 msgid "Legacy"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:71
-#: src/editor/components/select-voice/class-select-voice.php:490
+#: src/editor/components/select-voice/class-select-voice.php:515
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:46
 msgid "v3"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:72
-#: src/editor/components/select-voice/class-select-voice.php:491
+#: src/editor/components/select-voice/class-select-voice.php:516
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:47
 msgid "Multilingual v2"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:73
-#: src/editor/components/select-voice/class-select-voice.php:492
+#: src/editor/components/select-voice/class-select-voice.php:517
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:48
 msgid "Flash v2.5"
 msgstr ""
 
 #: src/editor/components/select-voice/class-assets.php:74
-#: src/editor/components/select-voice/class-select-voice.php:493
+#: src/editor/components/select-voice/class-select-voice.php:518
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:49
 msgid "Turbo v2.5"
 msgstr ""
 
 #: src/editor/components/select-voice/class-select-voice.php:130
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:226
 msgid "Customize"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:224
+#: src/editor/components/select-voice/class-select-voice.php:246
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:234
 msgid "Language"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:232
+#: src/editor/components/select-voice/class-select-voice.php:254
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:160
 msgid "Select a language…"
 msgstr ""
 
-#: src/editor/components/select-voice/class-select-voice.php:281
+#: src/editor/components/select-voice/class-select-voice.php:303
+#: build/index.js:1
 #: src/editor/components/settings-panel/voice-section.js:248
 msgid "Model"
 msgstr ""
@@ -606,100 +636,119 @@ msgstr ""
 #: src/editor/components/settings-fields/class-settings-fields.php:205
 #: src/site-health/class-site-health.php:229
 #: src/site-health/class-site-health.php:237
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:190
 msgid "None"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-assets.php:65
 #: src/editor/components/settings-fields/class-settings-fields.php:213
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:195
 msgid "Audio (post)"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-assets.php:66
 #: src/editor/components/settings-fields/class-settings-fields.php:219
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:201
 msgid "Audio (script)"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-assets.php:67
 #: src/editor/components/settings-fields/class-settings-fields.php:228
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:210
 msgid "Video (post)"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-assets.php:68
 #: src/editor/components/settings-fields/class-settings-fields.php:234
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:216
 msgid "Video (script)"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:92
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:26
 msgid "Project default"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:107
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:141
 msgid "Post"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:111
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:142
 msgid "Script"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:115
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:144
 msgid "Post + script"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:131
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:152
 msgid "Audio"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:135
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:153
 msgid "Video"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:139
+#: build/index.js:1
 #: src/editor/components/settings-panel/helpers.js:155
 msgid "Audio + video"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:363
+#: build/index.js:1
 #: src/editor/components/settings-panel/content-section.js:65
 msgid "Source"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:370
+#: build/index.js:1
 #: src/editor/components/settings-panel/content-section.js:75
 msgid "Script template"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:404
+#: build/index.js:1
 #: src/editor/components/settings-panel/format-section.js:94
 msgid "Output"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:411
+#: build/index.js:1
 #: src/editor/components/settings-panel/format-section.js:105
 msgid "Video template"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:422
+#: build/index.js:1
 #: src/editor/components/settings-panel/format-section.js:114
 msgid "Video size"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:446
+#: build/index.js:1
 #: src/editor/components/settings-panel/player-section.js:67
 msgid "Embed"
 msgstr ""
 
 #: src/editor/components/settings-fields/class-settings-fields.php:450
+#: build/index.js:1
 #: src/editor/components/settings-panel/player-section.js:68
 msgid "Pick which generated asset is shown on this post. All other generated assets stay available in BeyondWords."
 msgstr ""
@@ -975,116 +1024,167 @@ msgstr ""
 msgid "Undefined"
 msgstr ""
 
-#: src/editor/components/add-player/index.js:39
+#: build/index.js:1
+#: src/editor/components/add-player/index.js:27
+msgid "BeyondWords Player"
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/add-player/index.js:28
 msgid "The BeyondWords audio player will appear here."
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/block-attributes/addControls.js:50
 msgid "Disable generation"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/block-attributes/addControls.js:51
 msgid "Enable generation"
 msgstr ""
 
-#: src/editor/components/content-id/classic-metabox.js:303
-msgid "Content fetched and saved successfully."
-msgstr ""
-
-#: src/editor/components/content-id/classic-metabox.js:315
-msgid "Failed to save fetched content."
-msgstr ""
-
-#: src/editor/components/content-id/classic-metabox.js:327
-#: src/editor/components/content-id/classic-metabox.js:339
+#: build/index.js:1
+#: src/editor/components/content-id/classic-metabox.js:625
+#: src/editor/components/content-id/classic-metabox.js:637
 #: src/editor/components/content-id/index.js:91
 #: src/editor/components/content-id/index.js:128
 msgid "Failed to fetch content. Please check the Content ID."
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/help-panel/index.js:16
 msgid "Help"
 msgstr ""
 
+#: build/index.js:1
+msgid "For setup instructions, troubleshooting, and FAQs, see our BeyondWords for WordPress guide."
+msgstr ""
+
+#: build/index.js:1
 #: src/editor/components/help-panel/index.js:36
 msgid "Setup guide"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/help-panel/index.js:41
 msgid "Need help? Email our support team."
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/help-panel/index.js:46
 msgid "Email BeyondWords"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/helpers.js:56
 msgid "Deprecated"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/helpers.js:58
 msgid "System"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/helpers.js:60
 msgid "Copied using the Block Editor"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:115
 msgid "Copied data to clipboard."
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:264
 msgid "Restore"
 msgstr ""
 
+#: build/index.js:1
 #: src/editor/components/inspect-panel/index.js:344
 msgid "The BeyondWords data for this post will be removed when the post is saved."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/open-sidebar/index.js:15
+msgid "Open the"
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/open-sidebar/index.js:22
+msgid "BeyondWords sidebar"
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/open-sidebar/index.js:24
+msgid "for additional options and features."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/pending-notice/index.js:23
+msgid "Listen to content saved as “Pending” in the BeyondWords dashboard."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/pending-notice/index.js:29
+msgid "BeyondWords dashboard."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/content-id/classic-metabox.js:169
+#: src/editor/components/play-audio/index.js:26
+msgid "Generation is taking longer than expected. Refresh to check again."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/content-id/classic-metabox.js:174
+#: src/editor/components/play-audio/index.js:32
+msgid "Generation failed."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/content-id/classic-metabox.js:176
+#: src/editor/components/play-audio/index.js:35
+msgid "No content was generated."
+msgstr ""
+
+#: build/index.js:1
+#: src/editor/components/preview-panel/index.js:63
+msgid "Preview"
+msgstr ""
+
+#: src/editor/components/content-id/classic-metabox.js:601
+msgid "Content fetched and saved successfully."
+msgstr ""
+
+#: src/editor/components/content-id/classic-metabox.js:613
+msgid "Failed to save fetched content."
 msgstr ""
 
 #: src/editor/components/inspect-panel/js/inspect.js:36
 msgid "Remove all BeyondWords data when the post is saved?"
 msgstr ""
 
-#: src/editor/components/open-sidebar/index.js:15
-msgid "Open the"
-msgstr ""
-
-#: src/editor/components/open-sidebar/index.js:22
-msgid "BeyondWords sidebar"
-msgstr ""
-
-#: src/editor/components/open-sidebar/index.js:24
-msgid "for additional options and features."
-msgstr ""
-
-#: src/editor/components/pending-notice/index.js:23
-msgid "Listen to content saved as “Pending” in the BeyondWords dashboard."
-msgstr ""
-
-#: src/editor/components/pending-notice/index.js:29
-msgid "BeyondWords dashboard."
-msgstr ""
-
-#: src/editor/components/preview-panel/index.js:63
-msgid "Preview"
-msgstr ""
-
+#: build/editor/components/add-player/block.json
 #: src/editor/components/add-player/block.json
 msgctxt "block title"
 msgid "BeyondWords"
 msgstr ""
 
+#: build/editor/components/add-player/block.json
 #: src/editor/components/add-player/block.json
 msgctxt "block description"
 msgid "Embed the BeyondWords audio player. This will override the default player location."
 msgstr ""
 
+#: build/editor/components/add-player/block.json
 #: src/editor/components/add-player/block.json
 msgctxt "block keyword"
 msgid "audio"
 msgstr ""
 
+#: build/editor/components/add-player/block.json
 #: src/editor/components/add-player/block.json
 msgctxt "block keyword"
 msgid "text-to-speech"

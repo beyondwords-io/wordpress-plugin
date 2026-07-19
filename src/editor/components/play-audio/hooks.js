@@ -3,16 +3,20 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import {
+	pollContentStatus,
+	PROCESSED_STATUS,
+} from '../../lib/poll-content-status';
+
 const PLAYER_SCRIPT_SRC =
 	'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
-
-// Delay first player load after a contentId appears so the CDN doesn't cache a
-// 404 for content it hasn't published yet. Matches the implicit delay the
-// Classic Editor gets from its post-save page reload.
-const NEW_CONTENT_DELAY_MS = 2000;
 
 export function useBeyondWordsNamespace() {
 	const [ value, setValue ] = useState( () => {
@@ -61,6 +65,33 @@ export function useBeyondWordsNamespace() {
 	return value;
 }
 
+/**
+ * Create a (preview) BeyondWords player once its content is ready.
+ *
+ * When a `contentId` appears or changes *during* this session (REST-API
+ * integration — e.g. the post was just generated/regenerated), the content may
+ * still be processing on the BeyondWords backend. Embedding the player before it
+ * is `processed` makes the player's first asset request 404, and that 404 gets
+ * CDN-cached — so we poll the content object and only instantiate the player
+ * once the backend reports `processed`. While polling, `isPolling` is true so
+ * the caller can show a spinner + "Generating…" text; on a terminal
+ * `error`/`skipped`/timeout the caller surfaces a short message instead.
+ *
+ * Content already present when the player mounted has long since finished
+ * processing, so it is embedded immediately (no poll). Likewise when there is no
+ * `contentId` (client-side integration, keyed on `sourceId`) there is nothing to
+ * poll, so the player is created immediately as before.
+ *
+ * @param {Object}      options              Options.
+ * @param {HTMLElement} options.target       Player mount node.
+ * @param {number}      options.projectId    BeyondWords project ID.
+ * @param {number}      options.sourceId     Post ID (client-side integration).
+ * @param {string}      options.contentId    BeyondWords content ID, if any.
+ * @param {string}      options.previewToken Preview token, if any.
+ *
+ * @return {{player: (Object|null), status: (string|undefined), isPolling: boolean, timedOut: boolean}}
+ *         The player instance and the current polling state.
+ */
 export function useBeyondWordsPlayer( {
 	target,
 	projectId,
@@ -71,18 +102,33 @@ export function useBeyondWordsPlayer( {
 	const BeyondWords = useBeyondWordsNamespace();
 
 	const [ player, setPlayer ] = useState( null );
+	const [ pollState, setPollState ] = useState( {
+		status: undefined,
+		isPolling: false,
+		timedOut: false,
+	} );
 
-	// Initialized from the mount-time contentId so existing posts skip the delay.
-	const hasSeenContentIdRef = useRef( !! contentId );
+	// The contentId present when the player first mounted. Content that already
+	// existed at mount finished processing in an earlier session/save, so it can
+	// embed immediately — no poll, no spinner, no extra API call. Only a
+	// contentId that appears or changes *during* this session can still be
+	// processing and risk caching a 404, so only that case polls.
+	const mountContentIdRef = useRef( contentId );
 
 	useEffect( () => {
 		if ( ! BeyondWords?.Player || ! target ) {
 			setPlayer( null );
+			setPollState( {
+				status: undefined,
+				isPolling: false,
+				timedOut: false,
+			} );
 			return;
 		}
 
 		let newPlayer;
-		let timeoutId;
+		let cancelled = false;
+		const controller = new AbortController();
 
 		const initPlayer = () => {
 			try {
@@ -113,23 +159,65 @@ export function useBeyondWordsPlayer( {
 				return;
 			}
 
-			if ( contentId ) {
-				hasSeenContentIdRef.current = true;
-			}
-
 			setPlayer( newPlayer );
 		};
 
-		if ( contentId && ! hasSeenContentIdRef.current ) {
-			timeoutId = setTimeout( initPlayer, NEW_CONTENT_DELAY_MS );
+		if ( contentId && contentId !== mountContentIdRef.current ) {
+			// Session-fresh (or regenerated) content: poll the content object
+			// until the backend finishes processing, then embed. Avoids caching
+			// a 404 for still-processing content.
+			setPollState( {
+				status: undefined,
+				isPolling: true,
+				timedOut: false,
+			} );
+
+			pollContentStatus( {
+				fetchStatus: async () => {
+					const data = await apiFetch( {
+						path: `/beyondwords/v1/projects/${ projectId }/content/${ contentId }`,
+						signal: controller.signal,
+					} );
+					return { status: data?.status };
+				},
+				onTick: ( status ) => {
+					if ( ! cancelled ) {
+						setPollState( {
+							status,
+							isPolling: true,
+							timedOut: false,
+						} );
+					}
+				},
+				isHidden: () => document.hidden,
+				signal: controller.signal,
+			} )
+				.then( ( { status, timedOut } ) => {
+					if ( cancelled ) {
+						return;
+					}
+					setPollState( { status, isPolling: false, timedOut } );
+					if ( ! timedOut && status === PROCESSED_STATUS ) {
+						initPlayer();
+					}
+				} )
+				.catch( () => {
+					// Aborted (unmount or dependency change) — nothing to do.
+				} );
 		} else {
+			// Already-processed content (present at mount) or client-side
+			// integration (keyed on sourceId): nothing to poll, embed now.
+			setPollState( {
+				status: undefined,
+				isPolling: false,
+				timedOut: false,
+			} );
 			initPlayer();
 		}
 
 		return () => {
-			if ( timeoutId ) {
-				clearTimeout( timeoutId );
-			}
+			cancelled = true;
+			controller.abort();
 			setPlayer( null );
 			if ( newPlayer ) {
 				newPlayer.destroy();
@@ -144,7 +232,12 @@ export function useBeyondWordsPlayer( {
 		previewToken,
 	] );
 
-	return player;
+	return {
+		player,
+		status: pollState.status,
+		isPolling: pollState.isPolling,
+		timedOut: pollState.timedOut,
+	};
 }
 
 /**
