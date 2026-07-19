@@ -3,15 +3,13 @@
  */
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Disabled, Placeholder } from '@wordpress/components';
+import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { BeyondwordsIcon } from '../icon';
-import PlayAudio from '../play-audio';
-import { useHasPlayAudioAction } from '../play-audio/hooks';
 
 // Register the block
 registerBlockType( 'beyondwords/player', {
@@ -19,29 +17,19 @@ registerBlockType( 'beyondwords/player', {
 	edit: function Edit() {
 		const blockProps = useBlockProps();
 
-		// Mirror the sidebar Preview panel: render a live (but non-interactive)
-		// player once the post has everything the player needs, otherwise a
-		// placeholder describing where the player will appear.
-		const canPreview = useHasPlayAudioAction();
-
+		// The live player is not embedded in the editor preview — it only
+		// renders on the front end. Show a static Placeholder marking where
+		// the player will appear in the published post.
 		return (
 			<div { ...blockProps }>
-				{ canPreview ? (
-					// <Disabled> keeps the player visible and rendered but
-					// non-interactive, so the block stays selectable/movable.
-					<Disabled>
-						<PlayAudio />
-					</Disabled>
-				) : (
-					<Placeholder
-						icon={ <BeyondwordsIcon /> }
-						label={ __( 'BeyondWords', 'speechkit' ) }
-						instructions={ __(
-							'The BeyondWords audio player will appear here.',
-							'speechkit'
-						) }
-					/>
-				) }
+				<Placeholder
+					icon={ <BeyondwordsIcon /> }
+					label={ __( 'BeyondWords Player', 'speechkit' ) }
+					instructions={ __(
+						'The BeyondWords audio player will appear here.',
+						'speechkit'
+					) }
+				/>
 			</div>
 		);
 	},

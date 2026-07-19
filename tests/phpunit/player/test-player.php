@@ -126,6 +126,13 @@ class PlayerTest extends TestCase
         // We are now is_singular() so player should be prepended
         $this->assertSame(sprintf(self::PLAYER_HTML_FORMAT, 'auto') . $content, $output);
 
+        // Player UI = Disabled makes is_enabled() false, so auto_prepend_player()
+        // now short-circuits (before the has_custom_player() DOM scan) and returns
+        // the content unchanged — no player is prepended.
+        update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_DISABLED);
+        $this->assertSame($content, Player::auto_prepend_player($content));
+        delete_option(Fields::OPTION_PLAYER_UI);
+
         wp_reset_postdata();
 
         wp_delete_post($post->ID, true);
@@ -425,12 +432,22 @@ class PlayerTest extends TestCase
 
     public function content_provider()
     {
+        $sdkUrl = Urls::get_js_sdk_url();
+
         return [
             'No player' => [false, '<p>No player.</p>'],
             'Legacy player' => [true, '<p>Before.</p><div data-beyondwords-player="true"></div><p>After.</p>'],
             'Legacy player with contenteditable attribute' => [true, '<p>Before.</p><div data-beyondwords-player="true" contenteditable="false"></div><p>After.</p>'],
             'New player shortcode' => [true, '<p>Before.</p>[beyondwords_player]<p>After.</p>'],
             'New player shortcode with project_id attribute' => [true, '<p>Before.</p>[beyondwords_player project_id="1234"]<p>After.</p>'],
+            // SDK <script> markup counts as a custom player — this is the only path
+            // gated by the get_js_sdk_url() substring in the has_custom_player()
+            // fast-path guard, so keep it covered.
+            'JS SDK player script' => [true, '<p>Before.</p><script async defer src="' . $sdkUrl . '"></script><p>After.</p>'],
+            // The SDK URL appearing as plain text passes the cheap substring guard
+            // but must still resolve to false via the XPath — proving the guard is a
+            // pre-filter, not a replacement for the parse.
+            'SDK URL in text only, no script tag' => [false, '<p>Listen via ' . $sdkUrl . '</p>'],
         ];
     }
 }

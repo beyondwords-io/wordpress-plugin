@@ -213,4 +213,100 @@ class UninstallerTest extends TestCase
 
         delete_transient('unrelated_transient');
     }
+
+    /**
+     * @test
+     *
+     * run() performs the whole cleanup in a single call on a single-site
+     * install: options, transients and post-meta are all removed.
+     */
+    public function run_cleans_options_transients_and_meta_on_single_site()
+    {
+        if (is_multisite()) {
+            $this->markTestSkipped('Single-site variant; multisite is covered separately.');
+        }
+
+        update_option('beyondwords_api_key', 'secret');
+        set_transient('beyondwords_languages', ['en', 'fr'], 60);
+        $postId = self::factory()->post->create([
+            'meta_input' => ['beyondwords_project_id' => '123'],
+        ]);
+
+        Uninstaller::run();
+
+        // The Uninstaller deletes transients/meta with raw SQL, so drop the
+        // caches before re-reading from the database.
+        wp_cache_flush();
+        clean_post_cache($postId);
+
+        $this->assertFalse(get_option('beyondwords_api_key'));
+        $this->assertFalse(get_transient('beyondwords_languages'));
+        $this->assertFalse(metadata_exists('post', $postId, 'beyondwords_project_id'));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * run() must visit EVERY site on a multisite network: the API key and other
+     * per-site values must not survive on any site, not just the main one.
+     *
+     * Regression test for the multisite uninstall leak — cleanup previously
+     * called delete_site_option() (which targets wp_sitemeta) while every
+     * option is stored per-site via update_option(), so nothing was deleted and
+     * the beyondwords_api_key secret survived. Skipped on single-site installs
+     * because it needs a real network (WP_TESTS_MULTISITE=1).
+     */
+    public function run_cleans_every_site_on_multisite()
+    {
+        if (!is_multisite()) {
+            $this->markTestSkipped('Requires a multisite install (WP_TESTS_MULTISITE=1).');
+        }
+
+        $blogId  = self::factory()->blog->create();
+        $siteIds = [get_current_blog_id(), $blogId];
+
+        // Seed an option (the API key), a transient and a post-meta value on
+        // each site so we can prove all three are cleaned everywhere.
+        $postIds = [];
+        foreach ($siteIds as $siteId) {
+            switch_to_blog($siteId);
+            update_option('beyondwords_api_key', 'secret-' . $siteId);
+            set_transient('beyondwords_languages', ['en'], 60);
+            $postIds[$siteId] = self::factory()->post->create([
+                'meta_input' => ['beyondwords_project_id' => '123'],
+            ]);
+            restore_current_blog();
+        }
+
+        Uninstaller::run();
+
+        foreach ($siteIds as $siteId) {
+            switch_to_blog($siteId);
+            wp_cache_flush();
+            clean_post_cache($postIds[$siteId]);
+
+            $this->assertFalse(
+                get_option('beyondwords_api_key'),
+                "API key survived on site {$siteId}"
+            );
+            $this->assertFalse(
+                get_transient('beyondwords_languages'),
+                "Transient survived on site {$siteId}"
+            );
+            $this->assertFalse(
+                metadata_exists('post', $postIds[$siteId], 'beyondwords_project_id'),
+                "Post meta survived on site {$siteId}"
+            );
+            restore_current_blog();
+        }
+
+        // Best-effort teardown of the extra site created for this test.
+        if (function_exists('wp_delete_site')) {
+            wp_delete_site(get_site($blogId));
+        } elseif (function_exists('wpmu_delete_blog')) {
+            wpmu_delete_blog($blogId, true);
+        }
+    }
 }

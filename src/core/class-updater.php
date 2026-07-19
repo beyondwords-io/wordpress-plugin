@@ -2,9 +2,9 @@
 /**
  * Plugin update routines.
  *
- * Runs on every page load; cheap when nothing's changed (the version compare
- * short-circuits). Each migration is gated on a version bump so it executes
- * exactly once per upgrade path.
+ * Runs on every page load; cheap when nothing's changed because `run()` bails
+ * as soon as the recorded version matches this build. Each migration is gated
+ * on a version bump so it executes at most once per upgrade path.
  *
  * @package BeyondWords\Core
  * @since   3.0.0
@@ -27,10 +27,23 @@ class Updater {
 	/**
 	 * Run any pending migrations and update the recorded plugin version.
 	 *
-	 * Always runs — version checks inside skip the migrations on no-op upgrades.
+	 * Bails immediately once the recorded version matches this build, so the
+	 * migrations run at most once per version change instead of on every
+	 * request. That guard — not the per-migration `version_compare` gates — is
+	 * what makes the common path cheap: a pre-release build such as
+	 * `7.0.0-beta.1` compares `< 7.0.0`, so those gates never close on it and
+	 * would otherwise re-run the v7 migrations (~40 uncached queries plus a slow
+	 * postmeta JOIN) on every page load, front end included.
 	 */
 	public static function run(): void {
 		$version = get_option( 'beyondwords_version', '1.0.0' );
+
+		// Already up to date: nothing to migrate, and the version write below
+		// would be a no-op. Bail before touching the database. This is the hot
+		// path — it runs on every request once the plugin has booted once.
+		if ( BEYONDWORDS__PLUGIN_VERSION === $version ) {
+			return;
+		}
 
 		if ( version_compare( $version, '3.0.0', '<' ) ) {
 			self::migrate_settings();
@@ -61,8 +74,9 @@ class Updater {
 	 * `[ 'mode' => 'all' ]` or `[ 'mode' => 'terms', 'terms' => [...] ]`.
 	 *
 	 * Reuses the tolerant readers on `Preselect`, so it is idempotent: already
-	 * mode-based values pass through unchanged. The `-dev` plugin version keeps
-	 * the `< 7.0.0` gate firing on every load, so the no-op path matters.
+	 * mode-based values pass through unchanged. Pre-release builds compare
+	 * `< 7.0.0`, so this can re-run once on each dev-version bump — idempotency
+	 * keeps those re-runs safe.
 	 *
 	 * @since 7.0.0
 	 */
