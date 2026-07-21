@@ -25,8 +25,13 @@ On hosts with an external object cache (VIP uses Memcached), transients are not
 stored as `_transient_*` rows in the options table, so they cannot be
 enumerated or bulk-deleted. This is why:
 
-- the uninstaller's transient cleanup only deletes known keys — anything else
-  holds a TTL and self-expires;
+- the uninstaller's transient cleanup
+  ([src/core/class-uninstaller.php](../src/core/class-uninstaller.php),
+  `cleanup_plugin_transients()`) is a direct SQL sweep of the options table
+  by prefix, deleting both the `_transient_beyondwords_%` value rows and the
+  `_transient_timeout_beyondwords_%` timeout rows. With an external object
+  cache there are no such rows to match, so the query deletes nothing and the
+  cached entries expire via their TTL instead;
 - the API client salts its cache keys with the project ID + API key
   (`Client::cache_key()`), so changing credentials invalidates the cache
   implicitly with no flush step.
