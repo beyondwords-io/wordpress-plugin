@@ -145,6 +145,7 @@ Release date: tbc
 
 **Codebase Enhancements**
 
+* [#600](https://github.com/beyondwords-io/wordpress-plugin/pull/600) Add must-follow documentation and changelog rules to `AGENTS.md`, with `CLAUDE.md` and Copilot pointer files.
 * [#533](https://github.com/beyondwords-io/wordpress-plugin/pull/533) Fix failing Cypress tests for v7.
 * [#538](https://github.com/beyondwords-io/wordpress-plugin/pull/538) Remove the unused `updatePostMeta` util from the Inspect panel.
 * [#562](https://github.com/beyondwords-io/wordpress-plugin/pull/562) Re-enable Plugin Check on `plugin-check-action` v1.1.7.
