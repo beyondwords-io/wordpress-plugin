@@ -25,11 +25,7 @@ export default class Sidebar extends Component {
 				>
 					{ __( 'BeyondWords', 'speechkit' ) }
 				</PluginSidebarMoreMenuItem>
-				{ /*
-				   `title` must stay a plain string: it becomes the pinned toolbar
-				   button's aria-label and tooltip, where an element stringifies to
-				   "[object Object]". The header's brand mark is drawn in CSS instead.
-				*/ }
+				{ /* Must stay a string — it becomes the pinned button's aria-label. */ }
 				<PluginSidebar
 					name="plugin-sidebar"
 					title={ __( 'BeyondWords', 'speechkit' ) }

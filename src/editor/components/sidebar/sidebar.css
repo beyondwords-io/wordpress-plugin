@@ -18,9 +18,7 @@
   margin-right: 5px;
 }
 
-/* PluginSidebar feeds `title` to the pinned toolbar button's
-   aria-label, so it has to stay a plain string. The brand mark the
-   panel titles render inline is drawn here instead, to match. */
+/* The header title must stay a plain string — brand mark drawn here. */
 .beyondwords-sidebar__header .interface-complementary-area-header__title {
   display: inline-flex;
   align-items: center;
