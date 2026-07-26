@@ -227,6 +227,19 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		// Queue the deferred generation job the async (VIP) path would create.
+		// Scheduled far enough ahead that WP-Cron can't run it mid-test — the
+		// metabox only needs wp_next_scheduled() to be truthy.
+		async scheduleAudioGeneration( postId ) {
+			await execWp(
+				`eval 'wp_schedule_single_event( time() + 3600, "beyondwords_generate_audio", [ ${ parseInt(
+					postId,
+					10
+				) } ] );'`
+			);
+			return null;
+		},
+
 		async getPostMeta( options ) {
 			const { postId, metaKey } = options;
 			try {
