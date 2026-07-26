@@ -12,7 +12,6 @@
 /.wp-env.override.json
 /.wp-env.tests.override.json
 /build
-/CLAUDE.md
 /cypress.env.json
 /log
 /node_modules
