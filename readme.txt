@@ -144,6 +144,7 @@ Release date: tbc
 
 **Codebase Enhancements**
 
+* [#602](https://github.com/beyondwords-io/wordpress-plugin/pull/602) Align the player-visibility docs and Cypress specs with the "Embed" setting.
 * [#533](https://github.com/beyondwords-io/wordpress-plugin/pull/533) Fix failing Cypress tests for v7.
 * [#538](https://github.com/beyondwords-io/wordpress-plugin/pull/538) Remove the unused `updatePostMeta` util from the Inspect panel.
 * [#562](https://github.com/beyondwords-io/wordpress-plugin/pull/562) Re-enable Plugin Check on `plugin-check-action` v1.1.7.

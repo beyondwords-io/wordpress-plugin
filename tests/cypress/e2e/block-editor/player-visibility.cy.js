@@ -8,10 +8,7 @@
 
 /* global cy, beforeEach, context, it */
 
-/*
- * The v7 Player "Embed" dropdown replaced the "Display player" checkbox;
- * Embed "None" hides the player. This spec exercises that behaviour.
- */
+// Embed "None" is the v7 replacement for the removed "Display player" checkbox.
 context( 'Block Editor: Player visibility (Embed)', () => {
 	beforeEach( () => {
 		cy.login();
