@@ -361,16 +361,45 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * A stored Embed that no longer fits the current Source × Output falls back to None.
+     * A stored Embed that no longer fits the current Source × Output falls back to the
+     * default asset, so the post keeps a player.
+     *
+     * Source=Script × Output=Video can only produce "video_script", which sets both
+     * params — a regression to None (or to any other asset) fails this assertion
+     * rather than passing on absence.
      *
      * @test
      */
-    public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_none()
+    public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_default_asset()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'post',
-            'beyondwords_output' => 'audio',
-            'beyondwords_embed'  => 'video_script',
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'audio_post',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['video']);
+        $this->assertTrue($params['summary']);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * An explicit None is not an invalid value, so an Output change never re-derives it.
+     *
+     * The counterpart to the test above: same Source × Output, where the default asset
+     * would have set video/summary.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_none_survives_an_invalidating_output()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'none',
         ]);
 
         $params = ConfigBuilder::merge_post_settings($post, []);

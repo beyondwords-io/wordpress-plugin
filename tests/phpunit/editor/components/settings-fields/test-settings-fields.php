@@ -35,7 +35,8 @@ class SettingsFieldsTest extends TestCase
             $_POST['beyondwords_output'],
             $_POST['beyondwords_video_template_id'],
             $_POST['beyondwords_video_size'],
-            $_POST['beyondwords_embed']
+            $_POST['beyondwords_embed'],
+            $_POST['beyondwords_embed_touched']
         );
 
         parent::tearDown();
@@ -320,9 +321,10 @@ class SettingsFieldsTest extends TestCase
      * @test
      * @group integration
      */
-    public function render_player_section_falls_back_to_none_when_embed_invalid()
+    public function render_player_section_falls_back_to_default_asset_when_embed_invalid()
     {
-        // Embed = video_post is invalid for Post + Audio → falls back to None.
+        // Embed = video_post is invalid for Post + Audio → falls back to the first
+        // produced asset, so the post keeps a player instead of silently losing one.
         $post = self::factory()->post->create_and_get([
             'post_title' => 'SettingsFieldsTest::player::invalid',
             'meta_input' => ['beyondwords_embed' => 'video_post'],
@@ -333,11 +335,110 @@ class SettingsFieldsTest extends TestCase
         }));
 
         $this->assertSame(
-            'none',
+            'audio_post',
             $crawler->filter('select#beyondwords_embed option[selected]')->attr('value')
         );
 
         wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     * @group integration
+     */
+    public function render_player_section_outputs_an_untouched_embed_flag()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'SettingsFieldsTest::player::touched',
+        ]);
+
+        $crawler = new Crawler($this->capture_output(function () use ($post) {
+            SettingsFields::render_player_section($post);
+        }));
+
+        // The select always submits a value, so save() reads this flag to tell a
+        // real choice from the rendered default. It ships empty; JS sets it on change.
+        $flag = $crawler->filter('input#beyondwords_embed_touched');
+        $this->assertCount(1, $flag);
+        $this->assertSame('hidden', $flag->attr('type'));
+        $this->assertSame('beyondwords_embed_touched', $flag->attr('name'));
+        $this->assertSame('', $flag->attr('value'));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_falls_back_to_the_default_asset_when_invalid()
+    {
+        // Output was changed to Video after audio_post was stored.
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::invalid',
+            'meta_input' => [
+                'beyondwords_output' => 'video',
+                'beyondwords_embed'  => 'audio_post',
+            ],
+        ]);
+
+        $this->assertSame(SettingsFields::EMBED_VIDEO_POST, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_keeps_an_explicit_none()
+    {
+        // None is valid for every Source × Output, so the deliberate opt-out is never
+        // re-derived into an asset — this is what separates it from a stale value.
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::none',
+            'meta_input' => [
+                'beyondwords_output' => 'video',
+                'beyondwords_embed'  => 'none',
+            ],
+        ]);
+
+        $this->assertSame(SettingsFields::EMBED_NONE, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_resolves_an_unset_value_via_the_legacy_flag()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::legacy',
+            'meta_input' => ['beyondwords_disabled' => '1'],
+        ]);
+
+        // Pre-v7 opt-out with no Embed stored → None.
+        $this->assertSame(SettingsFields::EMBED_NONE, SettingsFields::get_effective_embed($postId));
+
+        // An explicit asset outranks the legacy flag.
+        update_post_meta($postId, 'beyondwords_embed', SettingsFields::EMBED_AUDIO_POST);
+        $this->assertSame(SettingsFields::EMBED_AUDIO_POST, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_defaults_an_unset_value_to_the_first_asset()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::unset',
+            'meta_input' => ['beyondwords_source' => 'script'],
+        ]);
+
+        $this->assertSame(SettingsFields::EMBED_AUDIO_SCRIPT, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
     }
 
     /**
@@ -360,6 +461,7 @@ class SettingsFieldsTest extends TestCase
         $_POST['beyondwords_video_template_id']     = '3';
         $_POST['beyondwords_video_size']            = 'landscape';
         $_POST['beyondwords_embed']                 = 'audio_post';
+        $_POST['beyondwords_embed_touched']         = '1';
 
         SettingsFields::save($postId);
 
@@ -381,6 +483,45 @@ class SettingsFieldsTest extends TestCase
         SettingsFields::save($postId);
         $this->assertSame('post_and_script', get_post_meta($postId, 'beyondwords_source', true));
         $this->assertSame('3', get_post_meta($postId, 'beyondwords_video_template_id', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function save_only_persists_the_embed_the_user_chose()
+    {
+        $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::save_embed']);
+
+        $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');
+        $_POST['beyondwords_output']                = 'video';
+
+        // Untouched: the select still submits the rendered default, but storing it
+        // would pin the post to a publish-time value the user never picked.
+        $_POST['beyondwords_embed'] = 'video_post';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('video', get_post_meta($postId, 'beyondwords_output', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_embed', true));
+
+        // Touched → persisted.
+        $_POST['beyondwords_embed_touched'] = '1';
+        $_POST['beyondwords_embed']         = 'none';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('none', get_post_meta($postId, 'beyondwords_embed', true));
+
+        // An untouched later save leaves the stored choice alone rather than
+        // overwriting it with the default asset.
+        unset($_POST['beyondwords_embed_touched']);
+        $_POST['beyondwords_embed'] = 'video_post';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('none', get_post_meta($postId, 'beyondwords_embed', true));
 
         wp_delete_post($postId, true);
     }

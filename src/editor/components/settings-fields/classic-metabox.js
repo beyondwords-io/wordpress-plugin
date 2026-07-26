@@ -91,11 +91,39 @@
 		return options;
 	};
 
+	/**
+	 * The default Embed for a post that hasn't chosen one: the first produced asset.
+	 *
+	 * Mirrors getDefaultEmbed() in settings-panel/helpers.js, but takes the options
+	 * the caller has already derived.
+	 *
+	 * @param {Array<{label: string, value: string}>} options The Embed options.
+	 *
+	 * @return {string} The default embed value.
+	 */
+	const getDefaultEmbed = ( options ) => {
+		const asset = options.find( ( option ) => option.value !== EMBED_NONE );
+
+		return asset ? asset.value : EMBED_NONE;
+	};
+
 	const settingsFields = {
 		init() {
 			this.source = document.getElementById( 'beyondwords_source' );
 			this.output = document.getElementById( 'beyondwords_output' );
 			this.embed = document.getElementById( 'beyondwords_embed' );
+			this.embedTouched = document.getElementById(
+				'beyondwords_embed_touched'
+			);
+
+			// Wired ahead of the guard below because this flag decides whether
+			// SettingsFields::save() persists the Embed at all — an untouched Embed
+			// stays unset in meta, matching the block editor.
+			if ( this.embed && this.embedTouched ) {
+				this.embed.addEventListener( 'change', () => {
+					this.embedTouched.value = '1';
+				} );
+			}
 
 			if ( ! this.source && ! this.output ) {
 				return;
@@ -154,7 +182,10 @@
 			const options = getEmbedOptions( source, output );
 			const previous = this.embed.value;
 			const stillValid = options.some( ( o ) => o.value === previous );
-			const selected = stillValid ? previous : EMBED_NONE;
+			// A value the new Source × Output cannot produce becomes the default
+			// asset, not None: None is always a valid option, so an explicit
+			// opt-out is never rebuilt away.
+			const selected = stillValid ? previous : getDefaultEmbed( options );
 
 			this.embed.replaceChildren(
 				...options.map( ( option ) => {

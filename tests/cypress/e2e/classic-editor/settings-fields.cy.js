@@ -140,6 +140,77 @@ context( 'Classic Editor: Settings fields', () => {
 					} );
 			} );
 
+			it( `Player Embed keeps a player when Output invalidates it for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+
+				cy.get( 'select#beyondwords_embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Audio (post)' );
+
+				// Post × Video cannot produce Audio (post), so the rebuild lands on
+				// the default asset — publishing here must not silently drop the player.
+				cy.get( 'select#beyondwords_output' ).select( 'Video' );
+
+				cy.get( 'select#beyondwords_embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Video (post)' );
+			} );
+
+			it( `Player Embed keeps an explicit None across an Output change for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+
+				// None is offered by every Source × Output, so it is never invalid
+				// and the deliberate opt-out survives the rebuild.
+				cy.get( 'select#beyondwords_embed' ).select( 'None' );
+				cy.get( 'select#beyondwords_output' ).select( 'Video' );
+
+				cy.get( 'select#beyondwords_embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'None' );
+			} );
+
+			it( `only persists a chosen Embed for a ${ postType.name }`, () => {
+				cy.createTestPost( {
+					title: `Cypress Test: untouched Embed for a ${ postType.name }`,
+					status: 'draft',
+					postType: postType.slug,
+				} ).then( ( postId ) => {
+					cy.visit(
+						`/wp-admin/post.php?post=${ postId }&action=edit`
+					);
+
+					// Change Output only. The Embed select rebuilds to Video (post),
+					// but the user never picked it.
+					cy.get( 'select#beyondwords_output' ).select( 'Video' );
+					cy.get( 'select#beyondwords_embed' )
+						.find( 'option:selected' )
+						.should( 'have.text', 'Video (post)' );
+
+					cy.contains( 'input[type="submit"]', 'Publish' ).click();
+
+					cy.task( 'getPostMeta', {
+						postId,
+						metaKey: 'beyondwords_output',
+					} ).should( 'equal', 'video' );
+
+					// Left unset, matching the block editor, so a later Source/Output
+					// change re-derives the default rather than fighting a stored value.
+					cy.task( 'getPostMeta', {
+						postId,
+						metaKey: 'beyondwords_embed',
+					} ).should( 'equal', '' );
+
+					// An actual choice is persisted.
+					cy.get( 'select#beyondwords_embed' ).select( 'None' );
+					cy.contains( 'input[type="submit"]', 'Update' ).click();
+
+					cy.task( 'getPostMeta', {
+						postId,
+						metaKey: 'beyondwords_embed',
+					} ).should( 'equal', 'none' );
+				} );
+			} );
+
 			it( `persists Content/Format/Player selections for a ${ postType.name }`, () => {
 				cy.createPost( { postType } );
 
