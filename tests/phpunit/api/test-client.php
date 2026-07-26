@@ -164,6 +164,171 @@ class ClientTest extends TestCase
     }
 
     /**
+     * See doc/source-id-race.md.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_adopts_existing_content_on_duplicate_source_id()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioAdoptsExistingContentOnDuplicateSourceId',
+        ]);
+
+        $filter = $this->add_duplicate_source_id_filter($existingContentId);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        // The content ID from the lookup, not the source ID we sent.
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+        $this->assertSame('a-preview-token', $response['preview_token']);
+
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * The lookup is what proves the content exists, so without it the 422 stands.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_keeps_the_error_when_the_lookup_fails()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioKeepsTheErrorWhenTheLookupFails',
+        ]);
+
+        $duplicateFilter = $this->add_duplicate_source_id_filter();
+        $notFoundFilter  = $this->add_not_found_filter((string) $postId, ['GET']);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $duplicateFilter);
+        remove_filter('pre_http_request', $notFoundFilter);
+
+        $this->assertIsArray($response);
+        $this->assertArrayNotHasKey('id', $response);
+
+        $this->assertSame(
+            '#422: source_id has already been taken',
+            get_post_meta($postId, 'beyondwords_error_message', true)
+        );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * Two installs on one project collide on every post ID; see doc/source-id-race.md.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_does_not_adopt_another_sites_content()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioDoesNotAdoptAnotherSitesContent',
+        ]);
+
+        $filter = $this->add_duplicate_source_id_filter(
+            'effef870-2fbf-41e2-ab92-c68168628e9f',
+            'https://another-site.example.com/?p=' . $postId
+        );
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertArrayNotHasKey('id', $response);
+
+        $this->assertSame(
+            '#422: source_id has already been taken',
+            get_post_meta($postId, 'beyondwords_error_message', true)
+        );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A 422 about any other field is a real validation failure, not a collision.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_ignores_an_unrelated422()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioIgnoresAnUnrelated422',
+        ]);
+
+        $requestedMethods = [];
+
+        $filter = function ($preempt, $args, $url) use (&$requestedMethods) {
+            $requestedMethods[] = $args['method'] ?? '';
+
+            if (str_ends_with($url, '/content')) {
+                return [
+                    'response' => ['code' => 422, 'message' => 'Unprocessable Entity'],
+                    'body'     => '{"code":422,"message":"Invalid request body","errors":[{"location":"body","message":"is too short"}]}',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertArrayNotHasKey('id', $response);
+
+        // No lookup was attempted.
+        $this->assertSame(['POST'], $requestedMethods);
+
+        $this->assertSame(
+            '#422: body is too short',
+            get_post_meta($postId, 'beyondwords_error_message', true)
+        );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * @test
      */
     public function update_audio()

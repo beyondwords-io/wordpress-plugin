@@ -37,6 +37,8 @@ sends a full `video_settings` object to the content endpoint.
 setting's stored format and how the editor and save path honour it.
 12. [Settings internals](./doc/settings-internals.md): Settings-error
 transport and the API connection check.
+13. [Duplicate `source_id` on create](./doc/source-id-race.md): The two guards
+against a publish race creating content for the same post twice.
 
 ##  Links
 

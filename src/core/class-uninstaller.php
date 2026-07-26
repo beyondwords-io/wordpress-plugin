@@ -120,7 +120,8 @@ class Uninstaller {
 	public static function cleanup_custom_fields(): int {
 		global $wpdb;
 
-		$fields = Utils::get_post_meta_keys( 'all' );
+		// The create lock is absent from the key list, but a fatal can strand a row.
+		$fields = array_merge( Utils::get_post_meta_keys( 'all' ), [ \BeyondWords\Post\Sync::CREATE_LOCK_META_KEY ] );
 		$total  = 0;
 
 		foreach ( $fields as $field ) {

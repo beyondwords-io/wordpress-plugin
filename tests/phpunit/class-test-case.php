@@ -55,4 +55,52 @@ abstract class TestCase extends WP_UnitTestCase
 
         return $filter;
     }
+
+    /**
+     * Reject a content create the way the API rejects an already-used `source_id`.
+     *
+     * @param string|null $existingContentId Answers the follow-up lookup; null lets the GET fall through.
+     * @param string|null $sourceUrl         Source URL on that content; defaults to this site's.
+     *
+     * @return \Closure Filter callback (save a reference to remove it later).
+     */
+    protected function add_duplicate_source_id_filter(
+        ?string $existingContentId = null,
+        ?string $sourceUrl = null
+    ): \Closure {
+        $sourceUrl = $sourceUrl ?? home_url('/?p=1');
+
+        $filter = function ($preempt, $parsedArgs, $url) use ($existingContentId, $sourceUrl) {
+            $method = $parsedArgs['method'] ?? '';
+
+            if ($method === 'POST' && str_ends_with($url, '/content')) {
+                return [
+                    'response' => ['code' => 422, 'message' => 'Unprocessable Entity'],
+                    'body'     => '{"code":422,"message":"Invalid request body","errors":[{"location":"source_id","message":"has already been taken"}]}',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+
+            if ($existingContentId !== null && $method === 'GET' && str_contains($url, '/content/')) {
+                return [
+                    'response' => ['code' => 200, 'message' => 'OK'],
+                    'body'     => wp_json_encode([
+                        'id'            => $existingContentId,
+                        'source_url'    => $sourceUrl,
+                        'status'        => 'processed',
+                        'preview_token' => 'a-preview-token',
+                    ]),
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+
+            return $preempt;
+        };
+
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        return $filter;
+    }
 }
