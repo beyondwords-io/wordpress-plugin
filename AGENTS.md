@@ -9,6 +9,8 @@ Conventions for working in the BeyondWords WordPress plugin codebase. These appl
 3. **Keep documentation minimal — comments explain *why*, never *how*.** One line per inline comment; anything longer belongs in a [doc/](doc/) markdown file. Over-documenting is a defect, not diligence. See [Documentation](#documentation) — this rule applies to every edit you make.
 4. **Every PR is listed in the changelog before it merges into `main`.** One bullet in the current unreleased block of [readme.txt](readme.txt): the PR link and a one-line title. The linked PR carries the full detail. See [Documentation rule 5](#5-every-pr-gets-one-changelog-entry-before-it-merges).
 
+These four are deliberately restated in [CLAUDE.md](CLAUDE.md) and [.github/copilot-instructions.md](.github/copilot-instructions.md), which agents load when they never see this file. This file is the source of truth: change a non-negotiable here first, then update those two in the same PR.
+
 ## File structure
 
 All PHP under `src/` follows the same WordPress-style layout:
