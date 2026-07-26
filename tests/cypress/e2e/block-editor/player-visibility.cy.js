@@ -1,6 +1,9 @@
 /**
  * @group block-editor
- * @covers src/editor/components/settings-panel/,src/editor/components/preview-panel/
+ * @covers src/editor/components/settings-panel/
+ * @covers src/editor/components/settings-fields/class-settings-fields.php
+ * @covers src/posts-list/class-column.php
+ * @covers src/player/class-player.php
  */
 
 /* global cy, beforeEach, context, it */

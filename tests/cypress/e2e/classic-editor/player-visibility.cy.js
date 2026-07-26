@@ -1,6 +1,8 @@
 /**
  * @group classic-editor
  * @covers src/editor/components/settings-fields/
+ * @covers src/posts-list/class-column.php
+ * @covers src/player/class-player.php
  */
 
 /* global cy, before, beforeEach, after, context, it */
