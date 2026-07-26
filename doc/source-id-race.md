@@ -74,5 +74,10 @@ and overwrite it on the next update. The check is against the site root rather
 than the post's permalink because the two racing saves can straddle the
 draft → published permalink change.
 
+Schemes are ignored in that comparison, so a site that has moved from `http` to
+`https` still recognises content it created before the move. Host and path still
+have to match, which is what separates a staging clone or a sibling subsite —
+`example.com/site-a` doesn't match `example.com/site-b`.
+
 Content that can't be confirmed as this site's leaves the 422 stored, which is
 the pre-fix behaviour.

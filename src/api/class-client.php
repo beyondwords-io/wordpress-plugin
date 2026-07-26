@@ -198,9 +198,11 @@ class Client {
 		}
 
 		// Source IDs are bare post IDs, so a second install on this project collides.
-		$source_url = isset( $content['source_url'] ) ? (string) $content['source_url'] : '';
+		$site_root  = (string) preg_replace( '#^https?://#', '', trailingslashit( home_url() ) );
+		$source_url = (string) preg_replace( '#^https?://#', '', (string) ( $content['source_url'] ?? '' ) );
 
-		if ( ! str_starts_with( $source_url, trailingslashit( home_url() ) ) ) {
+		// Scheme-insensitive: an http to https move leaves the old scheme stored.
+		if ( '' === $site_root || ! str_starts_with( $source_url, $site_root ) ) {
 			return null;
 		}
 

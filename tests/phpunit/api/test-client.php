@@ -237,6 +237,42 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A site moved from http to https still owns the content it created before the move.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_adopts_content_stored_under_another_scheme()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioAdoptsContentStoredUnderAnotherScheme',
+        ]);
+
+        $otherScheme = str_replace('http://', 'https://', home_url('/?p=' . $postId));
+        $this->assertStringStartsWith('https://', $otherScheme);
+
+        $filter = $this->add_duplicate_source_id_filter($existingContentId, $otherScheme);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * Two installs on one project collide on every post ID; see doc/source-id-race.md.
      *
      * @test
