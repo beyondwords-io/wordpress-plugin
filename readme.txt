@@ -128,6 +128,9 @@ Release date: tbc
 * [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
 * [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
     * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
+* [#601](https://github.com/beyondwords-io/wordpress-plugin/pull/601) Remove the "Script" option from the post Source setting, which offers "Post" or "Post + script".
+    * A script is written from the post, so the post's own audio and video were always generated (and billed) alongside it — while the Embed setting offered only the script assets, hiding the post assets that existed.
+    * Posts already saved as "Script" are migrated to "Post + script" on upgrade, and keep embedding their script asset.
 
 **Deprecations**
 
