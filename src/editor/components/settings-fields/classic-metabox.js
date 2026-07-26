@@ -92,10 +92,7 @@
 	};
 
 	/**
-	 * The default Embed for a post that hasn't chosen one: the first produced asset.
-	 *
-	 * Mirrors getDefaultEmbed() in settings-panel/helpers.js, but takes the options
-	 * the caller has already derived.
+	 * The first produced asset, or None when the options hold no asset.
 	 *
 	 * @param {Array<{label: string, value: string}>} options The Embed options.
 	 *
@@ -116,9 +113,7 @@
 				'beyondwords_embed_touched'
 			);
 
-			// Wired ahead of the guard below because this flag decides whether
-			// SettingsFields::save() persists the Embed at all — an untouched Embed
-			// stays unset in meta, matching the block editor.
+			// Set before the guard below: the flag gates the whole save() write.
 			if ( this.embed && this.embedTouched ) {
 				this.embed.addEventListener( 'change', () => {
 					this.embedTouched.value = '1';
@@ -182,9 +177,7 @@
 			const options = getEmbedOptions( source, output );
 			const previous = this.embed.value;
 			const stillValid = options.some( ( o ) => o.value === previous );
-			// A value the new Source × Output cannot produce becomes the default
-			// asset, not None: None is always a valid option, so an explicit
-			// opt-out is never rebuilt away.
+			// Only a stale value lands here — None is valid for every combination.
 			const selected = stillValid ? previous : getDefaultEmbed( options );
 
 			this.embed.replaceChildren(

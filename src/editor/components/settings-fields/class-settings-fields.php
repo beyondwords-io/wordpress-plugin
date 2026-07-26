@@ -280,10 +280,8 @@ class SettingsFields {
 	/**
 	 * Resolve the effective Embed value for a post.
 	 *
-	 * Centralised so the shown default and the rendered player (ConfigBuilder)
-	 * never diverge. Legacy opt-outs resolve to None; a value that no longer fits
-	 * the current Source × Output falls back to the default asset, because only an
-	 * explicit "None" — always a valid option — means "show no player".
+	 * Centralised so the shown default and the rendered player (ConfigBuilder) never
+	 * diverge; legacy opt-outs resolve to None, stale values to the default asset.
 	 *
 	 * @since 7.0.0
 	 *
@@ -419,9 +417,6 @@ class SettingsFields {
 	/**
 	 * Render the Player section fields: Embed.
 	 *
-	 * The select shows the effective value, which for an unset Embed is the derived
-	 * default — so the accompanying flag records whether the user actually chose one.
-	 *
 	 * @since 7.0.0
 	 *
 	 * @param \WP_Post $post The post object.
@@ -442,6 +437,7 @@ class SettingsFields {
 				'speechkit'
 			)
 		);
+		// Lets save() tell a real choice from the rendered default.
 		?>
 		<input type="hidden" id="beyondwords_embed_touched" name="beyondwords_embed_touched" value="" />
 		<?php
@@ -607,10 +603,7 @@ class SettingsFields {
 			'beyondwords_embed',
 		];
 
-		// The Embed is only persisted once the user picks one, because the select
-		// always submits a value — the derived default when untouched. Leaving it
-		// unset keeps classic posts in step with block posts and lets a later
-		// Source/Output change re-derive the default asset.
+		// Only a real choice is stored; an unset Embed is re-derived at render.
 		if ( empty( $_POST['beyondwords_embed_touched'] ) ) {
 			$keys = array_values( array_diff( $keys, [ 'beyondwords_embed' ] ) );
 		}

@@ -361,12 +361,8 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * A stored Embed that no longer fits the current Source × Output falls back to the
-     * default asset, so the post keeps a player.
-     *
-     * Source=Script × Output=Video can only produce "video_script", which sets both
-     * params — a regression to None (or to any other asset) fails this assertion
-     * rather than passing on absence.
+     * Script × Video only produces "video_script", so a regression fails positively
+     * here rather than passing on key absence.
      *
      * @test
      */
@@ -387,10 +383,7 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * An explicit None is not an invalid value, so an Output change never re-derives it.
-     *
-     * The counterpart to the test above: same Source × Output, where the default asset
-     * would have set video/summary.
+     * Counterpart to the test above, where the default asset would have set both params.
      *
      * @test
      */

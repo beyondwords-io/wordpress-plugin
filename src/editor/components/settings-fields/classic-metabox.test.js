@@ -1,9 +1,8 @@
 /* global describe, it, expect, beforeEach, jest */
 
 /*
- * classic-metabox.js is a bare IIFE that wires itself to the rendered metabox, so
- * these tests build the markup PHP would emit, re-run the module against it, and
- * drive it through the same `change` events a user would.
+ * The module is a bare IIFE, so each test rebuilds the markup PHP emits, re-runs
+ * the module against it, and drives it with real `change` events.
  */
 
 const SOURCE_VALUES = [ 'post', 'script', 'post_and_script' ];
@@ -19,18 +18,6 @@ const renderSelect = ( id, values, selected ) =>
 		)
 		.join( '' ) }</select>`;
 
-/**
- * Render the metabox fields and boot the module against them.
- *
- * @param {Object}        options              Fixture options.
- * @param {string}        options.source       The selected Source.
- * @param {string}        options.output       The selected Output.
- * @param {Array<string>} options.embedOptions The Embed options PHP rendered.
- * @param {string}        options.embed        The selected Embed.
- * @param {boolean}       options.withTouched  Whether the touched flag is present.
- *
- * @return {Object} The wired elements.
- */
 const boot = ( {
 	source = 'post',
 	output = 'audio',
@@ -79,8 +66,7 @@ describe( 'classic-metabox recomputeEmbed', () => {
 
 		change( output, 'video' );
 
-		// audio_post cannot be produced by Post × Video, so the post keeps a
-		// player on the default asset rather than falling through to None.
+		// Post × Video cannot produce audio_post, so the post keeps a player.
 		expect( optionValues( embed ) ).toEqual( [ 'none', 'video_post' ] );
 		expect( embed.value ).toBe( 'video_post' );
 	} );
@@ -106,8 +92,7 @@ describe( 'classic-metabox recomputeEmbed', () => {
 	} );
 
 	it( 'falls back to None when no asset can be produced', () => {
-		// Defensive: the rendered option list always has at least one asset, but
-		// getDefaultEmbed must still yield a selectable value if it ever does not.
+		// Defensive: the rendered list always has an asset, but must not break if not.
 		const { output, embed } = boot( {
 			embedOptions: [ 'none' ],
 			embed: 'none',
@@ -139,8 +124,7 @@ describe( 'classic-metabox embed touched flag', () => {
 
 		change( output, 'video' );
 
-		// The rebuild picked video_post, but the user never chose it — so save()
-		// leaves the meta unset and re-derives it, matching the block editor.
+		// The rebuild picked video_post, but the user never chose it.
 		expect( embed.value ).toBe( 'video_post' );
 		expect( touched.value ).toBe( '' );
 	} );

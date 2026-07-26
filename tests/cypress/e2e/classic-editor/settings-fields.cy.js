@@ -147,8 +147,7 @@ context( 'Classic Editor: Settings fields', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'Audio (post)' );
 
-				// Post × Video cannot produce Audio (post), so the rebuild lands on
-				// the default asset — publishing here must not silently drop the player.
+				// Publishing here must not silently drop the player.
 				cy.get( 'select#beyondwords_output' ).select( 'Video' );
 
 				cy.get( 'select#beyondwords_embed' )
@@ -159,8 +158,7 @@ context( 'Classic Editor: Settings fields', () => {
 			it( `Player Embed keeps an explicit None across an Output change for a ${ postType.name }`, () => {
 				cy.createPost( { postType } );
 
-				// None is offered by every Source × Output, so it is never invalid
-				// and the deliberate opt-out survives the rebuild.
+				// None is never invalid, so the deliberate opt-out survives.
 				cy.get( 'select#beyondwords_embed' ).select( 'None' );
 				cy.get( 'select#beyondwords_output' ).select( 'Video' );
 
@@ -179,8 +177,7 @@ context( 'Classic Editor: Settings fields', () => {
 						`/wp-admin/post.php?post=${ postId }&action=edit`
 					);
 
-					// Change Output only. The Embed select rebuilds to Video (post),
-					// but the user never picked it.
+					// The select rebuilds to Video (post), but the user never picked it.
 					cy.get( 'select#beyondwords_output' ).select( 'Video' );
 					cy.get( 'select#beyondwords_embed' )
 						.find( 'option:selected' )
@@ -193,8 +190,7 @@ context( 'Classic Editor: Settings fields', () => {
 						metaKey: 'beyondwords_output',
 					} ).should( 'equal', 'video' );
 
-					// Left unset, matching the block editor, so a later Source/Output
-					// change re-derives the default rather than fighting a stored value.
+					// Left unset, matching the block editor.
 					cy.task( 'getPostMeta', {
 						postId,
 						metaKey: 'beyondwords_embed',

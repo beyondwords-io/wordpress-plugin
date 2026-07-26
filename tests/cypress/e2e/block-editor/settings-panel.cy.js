@@ -196,8 +196,7 @@ context( 'Block Editor: Settings panel', () => {
 					force: true,
 				} );
 
-				// Video (post) cannot be produced by Post × Audio, so the effect
-				// rewrites it to the default asset rather than to None.
+				// Post × Audio cannot produce Video (post), so the effect rewrites it.
 				select( 'beyondwords--output' ).select( 'Audio', {
 					force: true,
 				} );

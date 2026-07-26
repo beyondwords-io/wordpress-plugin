@@ -323,8 +323,7 @@ class SettingsFieldsTest extends TestCase
      */
     public function render_player_section_falls_back_to_default_asset_when_embed_invalid()
     {
-        // Embed = video_post is invalid for Post + Audio → falls back to the first
-        // produced asset, so the post keeps a player instead of silently losing one.
+        // video_post is invalid for Post + Audio, so the post keeps a player.
         $post = self::factory()->post->create_and_get([
             'post_title' => 'SettingsFieldsTest::player::invalid',
             'meta_input' => ['beyondwords_embed' => 'video_post'],
@@ -356,8 +355,7 @@ class SettingsFieldsTest extends TestCase
             SettingsFields::render_player_section($post);
         }));
 
-        // The select always submits a value, so save() reads this flag to tell a
-        // real choice from the rendered default. It ships empty; JS sets it on change.
+        // Ships empty; JS sets it on change.
         $flag = $crawler->filter('input#beyondwords_embed_touched');
         $this->assertCount(1, $flag);
         $this->assertSame('hidden', $flag->attr('type'));
@@ -391,8 +389,7 @@ class SettingsFieldsTest extends TestCase
      */
     public function get_effective_embed_keeps_an_explicit_none()
     {
-        // None is valid for every Source × Output, so the deliberate opt-out is never
-        // re-derived into an asset — this is what separates it from a stale value.
+        // None is valid everywhere, which is what separates it from a stale value.
         $postId = self::factory()->post->create([
             'post_title' => 'SettingsFieldsTest::effective::none',
             'meta_input' => [
@@ -497,8 +494,7 @@ class SettingsFieldsTest extends TestCase
         $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');
         $_POST['beyondwords_output']                = 'video';
 
-        // Untouched: the select still submits the rendered default, but storing it
-        // would pin the post to a publish-time value the user never picked.
+        // Untouched: the select still submits the rendered default.
         $_POST['beyondwords_embed'] = 'video_post';
 
         SettingsFields::save($postId);
@@ -514,8 +510,7 @@ class SettingsFieldsTest extends TestCase
 
         $this->assertSame('none', get_post_meta($postId, 'beyondwords_embed', true));
 
-        // An untouched later save leaves the stored choice alone rather than
-        // overwriting it with the default asset.
+        // An untouched later save leaves the stored choice alone.
         unset($_POST['beyondwords_embed_touched']);
         $_POST['beyondwords_embed'] = 'video_post';
 

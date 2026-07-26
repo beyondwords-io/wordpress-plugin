@@ -45,8 +45,7 @@ export function PlayerSection( { withPanel = true } ) {
 
 	// Never write meta on mount: an unset value already means "show", and a
 	// mount-time write races the other panels' preselect writes (e.g. Generate audio).
-	// A stored value the new Source × Output cannot produce becomes the default
-	// asset, not None — None is always valid, so an explicit opt-out never lands here.
+	// Only a stale value lands here — None is valid for every combination.
 	useEffect( () => {
 		if ( stored && ! isEmbedValid( stored, source, output ) ) {
 			setEmbed( getDefaultEmbed( source, output ) );
