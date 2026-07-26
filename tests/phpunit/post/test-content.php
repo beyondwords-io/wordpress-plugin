@@ -386,7 +386,8 @@ class ContentTest extends TestCase
         $thumbnailUrl = strval(wp_get_original_image_url(get_post_thumbnail_id($postId)));
         $this->assertNotEmpty($thumbnailUrl);
         $this->assertSame($thumbnailUrl, $body['image_url']);
-        $this->assertSame('{"taxonomy":{"category":["Uncategorized"]}}', wp_json_encode($body['metadata']));
+        $this->assertSame('["Uncategorized"]', wp_json_encode($body['tags']));
+        $this->assertArrayNotHasKey('metadata', $body);
         $this->assertSame($args['post_date'], $body['publish_date']);
 
         // { published: true } should be sent because the `beyondwords_auto_publish` filter defaults to true
@@ -684,7 +685,7 @@ class ContentTest extends TestCase
         $filter = function($params, $postId) {
             $params['body'] = '[POST ID: ' . $postId. ']' . $params['body'] . '[ADDED AFTER]';
 
-            $params['metadata']->custom = $postId;
+            $params['tags'][] = 'Custom ' . $postId;
 
             return $params;
         };
@@ -698,30 +699,7 @@ class ContentTest extends TestCase
         $params = json_decode($params, true);
 
         $this->assertSame('[POST ID: ' . $postId. ']<p>Baz bar foo.</p>[ADDED AFTER]', $params['body']);
-        $this->assertSame($postId, $params['metadata']['custom']);
-
-        wp_delete_post($postId, true);
-    }
-
-    /**
-     * @test
-     **/
-    public function get_metadata_test()
-    {
-        $postId = self::factory()->post->create([
-            'post_title' => 'Testing Content::get_metadata()',
-            'post_status' => 'publish'
-        ]);
-
-        $metadata = Content::get_metadata($postId);
-
-        $this->assertIsObject($metadata);
-
-        $this->assertTrue(property_exists($metadata, 'taxonomy'));
-        $this->assertIsObject($metadata->taxonomy);
-
-        $this->assertTrue(property_exists($metadata->taxonomy, 'category'));
-        $this->assertIsArray($metadata->taxonomy->category);
+        $this->assertSame(['Uncategorized', 'Custom ' . $postId], $params['tags']);
 
         wp_delete_post($postId, true);
     }
@@ -729,9 +707,26 @@ class ContentTest extends TestCase
     /**
      * @test
      *
-     * @group metadata
+     * @group tags
      **/
-    public function get_all_taxonomies_and_terms()
+    public function get_tags_test()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'Testing Content::get_tags()',
+            'post_status' => 'publish'
+        ]);
+
+        $this->assertSame(['Uncategorized'], Content::get_tags($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group tags
+     **/
+    public function get_tags_returns_a_flat_list_of_term_names()
     {
         $flatTaxonomy = 'flat';
         $hierarchicalTaxonomy = 'hierarchical';
@@ -754,7 +749,7 @@ class ContentTest extends TestCase
         wp_set_current_user($editor);
 
         $postId = self::factory()->post->create([
-            'post_title' => 'Testing Content::get_all_taxonomies_and_terms()',
+            'post_title' => 'Testing Content::get_tags()',
             'post_status' => 'publish',
             'tax_input' => [
                 $flatTaxonomy => 'flat1, flat2, flat3',
@@ -762,23 +757,80 @@ class ContentTest extends TestCase
             ]
         ]);
 
-        $taxonomies = Content::get_all_taxonomies_and_terms($postId);
+        $tags = Content::get_tags($postId);
 
-        $this->assertIsObject($taxonomies);
+        $this->assertSame([
+            'Uncategorized',
+            'flat1',
+            'flat2',
+            'flat3',
+            'hier1',
+            'hier2',
+            'hier3',
+        ], $tags);
 
-        $this->assertTrue(property_exists($taxonomies, $flatTaxonomy));
-        $this->assertIsArray($taxonomies->{$flatTaxonomy});
-        $this->assertSame('flat1', $taxonomies->{$flatTaxonomy}[0]);
-        $this->assertSame('flat2', $taxonomies->{$flatTaxonomy}[1]);
-        $this->assertSame('flat3', $taxonomies->{$flatTaxonomy}[2]);
-
-        $this->assertTrue(property_exists($taxonomies, $hierarchicalTaxonomy));
-        $this->assertIsArray($taxonomies->{$hierarchicalTaxonomy});
-        $this->assertSame('hier1', $taxonomies->{$hierarchicalTaxonomy}[0]);
-        $this->assertSame('hier2', $taxonomies->{$hierarchicalTaxonomy}[1]);
-        $this->assertSame('hier3', $taxonomies->{$hierarchicalTaxonomy}[2]);
+        // The JSON encodes as an array, not an object.
+        $this->assertSame(
+            '["Uncategorized","flat1","flat2","flat3","hier1","hier2","hier3"]',
+            wp_json_encode($tags)
+        );
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group tags
+     **/
+    public function get_tags_deduplicates_term_names_shared_across_taxonomies()
+    {
+        $taxonomy = 'duplicated';
+
+        register_taxonomy($taxonomy, 'post');
+        wp_insert_term('Uncategorized', $taxonomy);
+
+        $editor = self::factory()->user->create(['role' => 'editor']);
+
+        wp_set_current_user($editor);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'Testing Content::get_tags() deduplication',
+            'post_status' => 'publish',
+            'tax_input' => [
+                $taxonomy => 'Uncategorized',
+            ]
+        ]);
+
+        // The post is also in the default "Uncategorized" category.
+        $this->assertSame(['Uncategorized'], Content::get_tags($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group tags
+     **/
+    public function get_tags_returns_an_empty_array_when_a_post_has_no_terms()
+    {
+        $pageId = self::factory()->post->create([
+            'post_title' => 'Testing Content::get_tags() with no terms',
+            'post_type' => 'page',
+            'post_status' => 'publish'
+        ]);
+
+        $tags = Content::get_tags($pageId);
+
+        $this->assertSame([], $tags);
+
+        // An empty list is still sent, so that clearing the terms clears the tags.
+        $body = json_decode(Content::get_content_params($pageId), true);
+
+        $this->assertSame([], $body['tags']);
+
+        wp_delete_post($pageId, true);
     }
 
     /**

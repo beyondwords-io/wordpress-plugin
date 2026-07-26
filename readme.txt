@@ -106,6 +106,8 @@ Release date: tbc
     * The "Generate audio" toggle now reads "Generation enabled" / "Generation disabled"; the "Standard" voice model bucket is relabelled "Legacy".
 * [#532](https://github.com/beyondwords-io/wordpress-plugin/pull/532) Cache API reads and defer audio generation on WordPress VIP.
     * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
+* Send taxonomy terms as `tags`.
+    * Categories, tags and custom taxonomy terms are now sent to the content endpoint as a flat list of term names, replacing the nested `metadata.taxonomy` object.
 
 **Fixes**
 
@@ -134,6 +136,8 @@ Release date: tbc
 * Removed the `beyondwords_player_style`, `beyondwords_player_content`, `beyondwords_title_voice_id`, `beyondwords_summary_voice_id` and `beyondwords_disabled` post meta keys.
     * Existing values are preserved in the database and only removed on full uninstall; `beyondwords_disabled` is migrated to the new "Embed" setting on upgrade.
 * The `beyondwords-*` `<head>` meta tags are now only emitted for the client-side (Magic Embed) integration.
+* **Breaking:** the `metadata` param is no longer sent to the content endpoint, and `Content::get_metadata()` and `Content::get_all_taxonomies_and_terms()` have been removed.
+    * Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead — the key no longer exists, so an assignment such as `$params['metadata']->my_key = 'value'` now raises a fatal error.
 
 **Compatibility**
 
