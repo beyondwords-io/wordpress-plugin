@@ -6,6 +6,7 @@ Conventions for working in the BeyondWords WordPress plugin codebase. These appl
 
 1. **WordPress VIP compatibility is paramount.** All new and modified code must pass the `WordPress-VIP-Go` PHPCS ruleset without `phpcs:ignore` exceptions. If a sniff fires, fix the underlying code, not the comment.
 2. **WordPress coding standards must be followed for both PHP and JavaScript — no exceptions.** Format new code accordingly; reformat surrounding code when you touch it.
+3. **Keep documentation minimal — comments explain *why*, never *how*.** One line per inline comment; anything longer belongs in a [doc/](doc/) markdown file. Over-documenting is a defect, not diligence. See [Documentation](#documentation) — this rule applies to every edit you make.
 
 ## File structure
 
@@ -98,7 +99,7 @@ Rules:
 - **`init()` is the entry point.** It owns all `add_action`/`add_filter` registrations for the class. It must be idempotent.
 - **No bottom-of-file `Class::init();` self-call.** Autoloading wouldn't load the file until the class is referenced anyway, so `init()` is invoked explicitly from the plugin bootstrap ([src/core/class-plugin.php](src/core/class-plugin.php)).
 - **snake_case for methods, variables, hook names, option keys.** Class names stay PascalCase to match WordPress conventions for class identifiers.
-- **PHPDoc blocks on every public method.** Param/return types are required where they aren't obvious from signature.
+- **PHPDoc blocks are a one-line summary, and only where the name doesn't already say it.** Never restate a typed signature. See [Documentation](#documentation) — it governs every comment you write.
 
 ## Class references
 
@@ -183,6 +184,51 @@ npm run lint:js
 npm run lint:css
 npm run format
 ```
+
+## Documentation
+
+**This section is a must-follow rule for every edit, in every language (PHP, JS, CSS), on new and touched code alike.**
+
+Write the minimum documentation that answers a question the code cannot answer for itself. Over-documenting is a defect here, not diligence: every redundant line is one more thing that drifts out of sync with the code, and a comment that lies is worse than no comment at all. **Default to no comment.** Add one only when a competent reader of the language still couldn't work out *why* the code is the way it is.
+
+### 1. Explain *why*, never *how*
+
+The code already states how. A comment earns its place only by recording a reason a reader can't recover from the source: a constraint, a workaround, a non-obvious ordering, a bug it defends against, a deliberate deviation from the obvious approach.
+
+```php
+// Bad — restates the code.
+// Loop through the posts and get the content ID for each one.
+
+// Good — records a reason the code can't state.
+// VIP's object cache silently drops keys over 250 chars, so hash the query args.
+```
+
+### 2. One line per inline comment
+
+Aim for a single line. If the explanation genuinely doesn't fit on one, it does not belong in the source — see rule 4. Never narrate a block of code line by line, and never leave commented-out code behind; git has it.
+
+### 3. Docblocks are a one-line summary, not a transcript of the signature
+
+PHPDoc and JSDoc blocks go on public methods where the purpose isn't already obvious from the name. Keep them to a one-line summary, and:
+
+- **Omit `@param` / `@return` that only restate a typed signature.** `@param int $post_id Post ID.` on `foo( int $post_id )` adds nothing.
+- **Keep a `@param` / `@return` only when it carries what the type can't:** units, the shape of an array, allowed values, or what an empty/null return means.
+- **Keep `@since` on files that already use it** — that's release history, not description. Don't add `@package`, `@subpackage`, or `@author` to new files; they're unmaintained boilerplate.
+- **A drifted docblock is a bug.** [src/post/class-meta.php](src/post/class-meta.php) `get_renamed_post_meta()` still declares `@return string` on a `: mixed` signature — exactly the failure mode signature-restating docblocks invite. Fix or delete these when you touch them.
+
+### 4. Anything needing a detailed explanation goes in `doc/`
+
+Long-form rationale, migration rules, data shapes, architecture and cross-file flows belong in a markdown file under [doc/](doc/) — not in a comment header. Link to it from the code in one line:
+
+```php
+// Legacy rows may hold non-scalars; see doc/legacy-meta-migration.md.
+```
+
+Extend an existing `doc/` file rather than starting a near-duplicate. If the explanation is a *convention* rather than a one-off, it belongs in this file (AGENTS.md) instead.
+
+### 5. Self-review before you finish
+
+**PHPCS will not catch any of this** — the docblock sniffs are deliberately switched off in [.phpcs.xml](.phpcs.xml), so there is no automated gate. It is a review rule, and reviewers will hold you to it. Before you call a change done, re-read every comment line in your own diff and delete the ones that restate the code.
 
 ## Cypress test groups
 
