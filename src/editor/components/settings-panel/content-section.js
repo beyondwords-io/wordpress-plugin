@@ -12,8 +12,8 @@ import { decodeEntities } from '@wordpress/html-entities';
  */
 import {
 	getSourceOptions,
+	normalizeSource,
 	sourceIncludesScript,
-	SOURCE_POST,
 	projectDefaultOption,
 } from './helpers';
 import GenerateAudio from '../generate-audio';
@@ -34,7 +34,7 @@ export function ContentSection() {
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = rawMeta ?? {};
 
-	const source = meta.beyondwords_source || SOURCE_POST;
+	const source = normalizeSource( meta.beyondwords_source );
 	const scriptTemplateId = meta.beyondwords_script_template_id || '';
 
 	const setSource = ( value ) => {

@@ -441,7 +441,7 @@ class ContentTest extends TestCase
         $postId = self::factory()->post->create([
             'post_title' => 'ContentTest::summarizationEnabled',
             'meta_input' => [
-                'beyondwords_source'             => 'script',
+                'beyondwords_source'             => 'post_and_script',
                 'beyondwords_script_template_id' => '42',
             ],
         ]);
@@ -452,8 +452,8 @@ class ContentTest extends TestCase
         $this->assertTrue($body['summarization_settings']['enabled']);
         $this->assertSame(42, $body['summarization_settings']['template']['id']);
 
-        // Source = post_and_script enables it too.
-        update_post_meta($postId, 'beyondwords_source', 'post_and_script');
+        // The removed script-only value normalises to post_and_script.
+        update_post_meta($postId, 'beyondwords_source', 'script');
         $body = json_decode(Content::get_content_params($postId), true);
 
         $this->assertTrue($body['summarization_settings']['enabled']);

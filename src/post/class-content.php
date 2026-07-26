@@ -280,11 +280,10 @@ class Content {
 			$body['body_voice_id'] = $body_voice_id;
 		}
 
-		// Source = Script or Post + script → enable summarization; omitted when
-		// Source is Post (or unset) so the project default applies.
-		$source = get_post_meta( $post_id, 'beyondwords_source', true );
+		// Omitted when Source is Post (or unset) so the project default applies.
+		$source = \BeyondWords\Editor\Components\SettingsFields::get_source( $post_id );
 
-		if ( in_array( $source, [ 'script', 'post_and_script' ], true ) ) {
+		if ( \BeyondWords\Editor\Components\SettingsFields::source_includes_script( $source ) ) {
 			$body['summarization_settings'] = [ 'enabled' => true ];
 
 			$script_template_id = intval(

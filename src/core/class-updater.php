@@ -45,6 +45,7 @@ class Updater {
 			self::migrate_preselect_format();
 			self::delete_deprecated_options();
 			self::migrate_disabled_to_embed_none();
+			self::migrate_source_script_to_post_and_script();
 		}
 
 		// Record the activation timestamp the first time we run.
@@ -150,6 +151,62 @@ class Updater {
 				}
 
 				delete_post_meta( $post_id, 'beyondwords_disabled' );
+			}
+
+			$found = count( $post_ids );
+		} while ( $found === $batch );
+	}
+
+	/**
+	 * v7.0.0: normalise the removed script-only Source to Post + script.
+	 *
+	 * See doc/legacy-meta-migration.md. Batched to keep memory bounded, and
+	 * idempotent because a migrated post no longer matches the query.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function migrate_source_script_to_post_and_script(): void {
+		$batch = 100;
+
+		do {
+			$post_ids = get_posts(
+				[
+					'post_type'   => 'any',
+					'post_status' => 'any',
+					'numberposts' => $batch,
+					'fields'      => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'meta_query'  => [
+						[
+							'key'   => 'beyondwords_source',
+							'value' => \BeyondWords\Editor\Components\SettingsFields::LEGACY_SOURCE_SCRIPT,
+						],
+					],
+				]
+			);
+
+			foreach ( $post_ids as $post_id ) {
+				// Pin the asset script-only was showing, so the player doesn't switch.
+				if ( '' === (string) get_post_meta( $post_id, 'beyondwords_embed', true ) ) {
+					$output = (string) get_post_meta( $post_id, 'beyondwords_output', true );
+
+					$audio = '' === $output
+						|| \BeyondWords\Editor\Components\SettingsFields::output_includes_audio( $output );
+
+					update_post_meta(
+						$post_id,
+						'beyondwords_embed',
+						$audio
+							? \BeyondWords\Editor\Components\SettingsFields::EMBED_AUDIO_SCRIPT
+							: \BeyondWords\Editor\Components\SettingsFields::EMBED_VIDEO_SCRIPT
+					);
+				}
+
+				update_post_meta(
+					$post_id,
+					'beyondwords_source',
+					\BeyondWords\Editor\Components\SettingsFields::SOURCE_POST_AND_SCRIPT
+				);
 			}
 
 			$found = count( $post_ids );

@@ -5,8 +5,8 @@
  */
 import {
 	SOURCE_POST,
-	SOURCE_SCRIPT,
 	SOURCE_POST_AND_SCRIPT,
+	LEGACY_SOURCE_SCRIPT,
 	OUTPUT_AUDIO,
 	OUTPUT_VIDEO,
 	OUTPUT_AUDIO_AND_VIDEO,
@@ -23,7 +23,7 @@ import {
 	getLanguageModels,
 	getSourceOptions,
 	getOutputOptions,
-	sourceIncludesPost,
+	normalizeSource,
 	sourceIncludesScript,
 	outputIncludesAudio,
 	outputIncludesVideo,
@@ -149,15 +149,25 @@ describe( 'getLanguageModels', () => {
 } );
 
 describe( 'source/output predicates', () => {
-	it( 'sourceIncludesPost', () => {
-		expect( sourceIncludesPost( SOURCE_POST ) ).toBe( true );
-		expect( sourceIncludesPost( SOURCE_POST_AND_SCRIPT ) ).toBe( true );
-		expect( sourceIncludesPost( SOURCE_SCRIPT ) ).toBe( false );
+	it( 'normalizeSource maps the removed script-only value to Post + script', () => {
+		expect( normalizeSource( LEGACY_SOURCE_SCRIPT ) ).toBe(
+			SOURCE_POST_AND_SCRIPT
+		);
+		expect( normalizeSource( SOURCE_POST_AND_SCRIPT ) ).toBe(
+			SOURCE_POST_AND_SCRIPT
+		);
+	} );
+
+	it( 'normalizeSource falls back to Post for unset and unknown values', () => {
+		expect( normalizeSource( SOURCE_POST ) ).toBe( SOURCE_POST );
+		expect( normalizeSource( '' ) ).toBe( SOURCE_POST );
+		expect( normalizeSource( undefined ) ).toBe( SOURCE_POST );
+		expect( normalizeSource( 'not-a-real-source' ) ).toBe( SOURCE_POST );
 	} );
 
 	it( 'sourceIncludesScript', () => {
-		expect( sourceIncludesScript( SOURCE_SCRIPT ) ).toBe( true );
 		expect( sourceIncludesScript( SOURCE_POST_AND_SCRIPT ) ).toBe( true );
+		expect( sourceIncludesScript( LEGACY_SOURCE_SCRIPT ) ).toBe( true );
 		expect( sourceIncludesScript( SOURCE_POST ) ).toBe( false );
 	} );
 
@@ -176,7 +186,6 @@ describe( 'source/output predicates', () => {
 	it( 'getSourceOptions / getOutputOptions expose the expected values', () => {
 		expect( getSourceOptions().map( ( o ) => o.value ) ).toEqual( [
 			SOURCE_POST,
-			SOURCE_SCRIPT,
 			SOURCE_POST_AND_SCRIPT,
 		] );
 		expect( getOutputOptions().map( ( o ) => o.value ) ).toEqual( [
@@ -210,11 +219,19 @@ describe( 'getEmbedOptions', () => {
 		] );
 	} );
 
-	it( 'Script + Video → None / Video (script)', () => {
-		expect( values( SOURCE_SCRIPT, OUTPUT_VIDEO ) ).toEqual( [
+	it( 'Post + script + Video → None / Video (post) / Video (script)', () => {
+		expect( values( SOURCE_POST_AND_SCRIPT, OUTPUT_VIDEO ) ).toEqual( [
 			EMBED_NONE,
+			EMBED_VIDEO_POST,
 			EMBED_VIDEO_SCRIPT,
 		] );
+	} );
+
+	// Those posts have the post assets too, so hiding them was the v7 bug.
+	it( 'the removed script-only value derives the Post + script options', () => {
+		expect( values( LEGACY_SOURCE_SCRIPT, OUTPUT_AUDIO ) ).toEqual(
+			values( SOURCE_POST_AND_SCRIPT, OUTPUT_AUDIO )
+		);
 	} );
 
 	it( 'always includes None first', () => {
@@ -256,16 +273,14 @@ describe( 'getDefaultEmbed', () => {
 	} );
 
 	it( 'returns a non-None value for every source/output combination', () => {
-		[ SOURCE_POST, SOURCE_SCRIPT, SOURCE_POST_AND_SCRIPT ].forEach(
-			( source ) => {
-				[ OUTPUT_AUDIO, OUTPUT_VIDEO, OUTPUT_AUDIO_AND_VIDEO ].forEach(
-					( output ) => {
-						expect( getDefaultEmbed( source, output ) ).not.toBe(
-							EMBED_NONE
-						);
-					}
-				);
-			}
-		);
+		[ SOURCE_POST, SOURCE_POST_AND_SCRIPT ].forEach( ( source ) => {
+			[ OUTPUT_AUDIO, OUTPUT_VIDEO, OUTPUT_AUDIO_AND_VIDEO ].forEach(
+				( output ) => {
+					expect( getDefaultEmbed( source, output ) ).not.toBe(
+						EMBED_NONE
+					);
+				}
+			);
+		} );
 	} );
 } );

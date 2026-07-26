@@ -41,7 +41,6 @@ context( 'Classic Editor: Settings fields', () => {
 					.should( ( $els ) => {
 						expect( optionLabels( $els ) ).to.deep.eq( [
 							'Post',
-							'Script',
 							'Post + script',
 						] );
 					} );
@@ -51,7 +50,7 @@ context( 'Classic Editor: Settings fields', () => {
 					'#beyondwords-metabox-settings--beyondwords-script-template-id'
 				).should( 'not.be.visible' );
 
-				cy.get( 'select#beyondwords_source' ).select( 'Script' );
+				cy.get( 'select#beyondwords_source' ).select( 'Post + script' );
 				cy.get(
 					'#beyondwords-metabox-settings--beyondwords-script-template-id'
 				).should( 'be.visible' );

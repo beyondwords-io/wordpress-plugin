@@ -41,7 +41,6 @@ context( 'Block Editor: Settings panel', () => {
 					.should( ( $els ) => {
 						expect( optionLabels( $els ) ).to.deep.eq( [
 							'Post',
-							'Script',
 							'Post + script',
 						] );
 					} );
@@ -49,7 +48,7 @@ context( 'Block Editor: Settings panel', () => {
 				// Script template hidden while Source = Post.
 				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
 
-				select( 'beyondwords--source' ).select( 'Script', {
+				select( 'beyondwords--source' ).select( 'Post + script', {
 					force: true,
 				} );
 				select( 'beyondwords--script-template' )

@@ -25,8 +25,10 @@ defined( 'ABSPATH' ) || exit;
 class SettingsFields {
 
 	public const SOURCE_POST            = 'post';
-	public const SOURCE_SCRIPT          = 'script';
 	public const SOURCE_POST_AND_SCRIPT = 'post_and_script';
+
+	// Source removed in 7.0.0; see doc/legacy-meta-migration.md.
+	public const LEGACY_SOURCE_SCRIPT = 'script';
 
 	public const OUTPUT_AUDIO           = 'audio';
 	public const OUTPUT_VIDEO           = 'video';
@@ -103,10 +105,6 @@ class SettingsFields {
 				'value' => self::SOURCE_POST,
 			],
 			[
-				'label' => __( 'Script', 'speechkit' ),
-				'value' => self::SOURCE_SCRIPT,
-			],
-			[
 				'label' => __( 'Post + script', 'speechkit' ),
 				'value' => self::SOURCE_POST_AND_SCRIPT,
 			],
@@ -138,14 +136,23 @@ class SettingsFields {
 	}
 
 	/**
-	 * Whether the source includes the post body.
+	 * Resolve a stored source to SOURCE_POST or SOURCE_POST_AND_SCRIPT.
 	 *
 	 * @since 7.0.0
-	 *
-	 * @param string $source One of the SOURCE_* constants.
 	 */
-	public static function source_includes_post( string $source ): bool {
-		return in_array( $source, [ self::SOURCE_POST, self::SOURCE_POST_AND_SCRIPT ], true );
+	public static function normalize_source( string $source ): string {
+		return in_array( $source, [ self::SOURCE_POST_AND_SCRIPT, self::LEGACY_SOURCE_SCRIPT ], true )
+			? self::SOURCE_POST_AND_SCRIPT
+			: self::SOURCE_POST;
+	}
+
+	/**
+	 * The effective Source for a post.
+	 *
+	 * @since 7.0.0
+	 */
+	public static function get_source( int $post_id ): string {
+		return self::normalize_source( self::get_meta( $post_id, 'beyondwords_source', self::SOURCE_POST ) );
 	}
 
 	/**
@@ -156,7 +163,7 @@ class SettingsFields {
 	 * @param string $source One of the SOURCE_* constants.
 	 */
 	public static function source_includes_script( string $source ): bool {
-		return in_array( $source, [ self::SOURCE_SCRIPT, self::SOURCE_POST_AND_SCRIPT ], true );
+		return self::SOURCE_POST_AND_SCRIPT === self::normalize_source( $source );
 	}
 
 	/**
@@ -185,7 +192,8 @@ class SettingsFields {
 	 * Derive the valid "Embed" dropdown options from the current Source × Output.
 	 *
 	 * Returns None plus one entry for each asset combination the current
-	 * source/output would produce.
+	 * source/output would produce. Post assets are unconditional — every source
+	 * generates the post.
 	 *
 	 * @since 7.0.0
 	 *
@@ -202,14 +210,14 @@ class SettingsFields {
 			],
 		];
 
+		$includes_script = self::source_includes_script( $source );
+
 		if ( self::output_includes_audio( $output ) ) {
-			if ( self::source_includes_post( $source ) ) {
-				$options[] = [
-					'label' => __( 'Audio (post)', 'speechkit' ),
-					'value' => self::EMBED_AUDIO_POST,
-				];
-			}
-			if ( self::source_includes_script( $source ) ) {
+			$options[] = [
+				'label' => __( 'Audio (post)', 'speechkit' ),
+				'value' => self::EMBED_AUDIO_POST,
+			];
+			if ( $includes_script ) {
 				$options[] = [
 					'label' => __( 'Audio (script)', 'speechkit' ),
 					'value' => self::EMBED_AUDIO_SCRIPT,
@@ -218,13 +226,11 @@ class SettingsFields {
 		}
 
 		if ( self::output_includes_video( $output ) ) {
-			if ( self::source_includes_post( $source ) ) {
-				$options[] = [
-					'label' => __( 'Video (post)', 'speechkit' ),
-					'value' => self::EMBED_VIDEO_POST,
-				];
-			}
-			if ( self::source_includes_script( $source ) ) {
+			$options[] = [
+				'label' => __( 'Video (post)', 'speechkit' ),
+				'value' => self::EMBED_VIDEO_POST,
+			];
+			if ( $includes_script ) {
 				$options[] = [
 					'label' => __( 'Video (script)', 'speechkit' ),
 					'value' => self::EMBED_VIDEO_SCRIPT,
@@ -290,7 +296,7 @@ class SettingsFields {
 	 * @return string One of the EMBED_* constants.
 	 */
 	public static function get_effective_embed( int $post_id ): string {
-		$source = self::get_meta( $post_id, 'beyondwords_source', self::SOURCE_POST );
+		$source = self::get_source( $post_id );
 		$output = self::get_meta( $post_id, 'beyondwords_output', self::OUTPUT_AUDIO );
 		$embed  = get_post_meta( $post_id, 'beyondwords_embed', true );
 
@@ -337,7 +343,7 @@ class SettingsFields {
 	 * @param \WP_Post $post The post object.
 	 */
 	public static function render_content_section( $post ): void {
-		$source             = self::get_meta( $post->ID, 'beyondwords_source', self::SOURCE_POST );
+		$source             = self::get_source( $post->ID );
 		$script_template_id = self::get_meta( $post->ID, 'beyondwords_script_template_id', '' );
 
 		$templates = \BeyondWords\Api\Client::get_summarization_settings_templates();
@@ -422,7 +428,7 @@ class SettingsFields {
 	 * @param \WP_Post $post The post object.
 	 */
 	public static function render_player_section( $post ): void {
-		$source = self::get_meta( $post->ID, 'beyondwords_source', self::SOURCE_POST );
+		$source = self::get_source( $post->ID );
 		$output = self::get_meta( $post->ID, 'beyondwords_output', self::OUTPUT_AUDIO );
 		$embed  = self::get_effective_embed( $post->ID );
 

@@ -250,7 +250,7 @@ class ConfigBuilderTest extends TestCase
     public function merge_post_settings_embed_audio_script_sets_summary()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'audio',
             'beyondwords_embed'  => 'audio_script',
         ]);
@@ -288,7 +288,7 @@ class ConfigBuilderTest extends TestCase
     public function merge_post_settings_embed_video_script_sets_video_and_summary()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'video',
             'beyondwords_embed'  => 'video_script',
         ]);
@@ -391,7 +391,7 @@ class ConfigBuilderTest extends TestCase
         update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
 
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'video',
             'beyondwords_embed'  => 'video_script',
         ]);
@@ -419,7 +419,7 @@ class ConfigBuilderTest extends TestCase
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_source'     => 'script',
+                'beyondwords_source'     => 'post_and_script',
                 'beyondwords_output'     => 'audio',
                 'beyondwords_embed'      => 'audio_script',
             ],
