@@ -280,12 +280,7 @@ class Metabox {
 	/**
 	 * Render a loading state while deferred audio generation is still queued.
 	 *
-	 * Async generation (Sync::is_async_generation_enabled()) writes no content ID
-	 * during the save, so the post-publish page load has nothing for the
-	 * content-status poll to query and the Player section would otherwise be
-	 * blank until the author reloads. classic-metabox.js polls the post's own
-	 * meta from here, then hands off to the content-status poll once the cron
-	 * job writes the ID.
+	 * See doc/async-rest-migration.md.
 	 *
 	 * @since 7.0.0
 	 *
@@ -298,8 +293,7 @@ class Metabox {
 			return;
 		}
 
-		// A post with no queued job has no audio coming, so stay silent rather
-		// than showing a spinner that would never resolve.
+		// No queued job means no audio is coming, so a spinner would never resolve.
 		if ( ! wp_next_scheduled( \BeyondWords\Post\Sync::GENERATE_AUDIO_CRON_HOOK, [ $post->ID ] ) ) {
 			return;
 		}

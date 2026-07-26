@@ -305,10 +305,7 @@
 	/**
 	 * Poll the post's own meta until deferred generation writes a content ID.
 	 *
-	 * Async generation queues a cron job instead of calling the API during the
-	 * save, so right after publish there is no content ID for initMetaboxPlayer()
-	 * to query. Poll `wp/v2` until the job writes one, then hand off so the
-	 * player still waits for `processed` rather than embedding immediately.
+	 * See doc/async-rest-migration.md.
 	 *
 	 * @param {HTMLElement} container The #beyondwords-metabox-player element.
 	 */
@@ -363,8 +360,7 @@
 					.then( function ( data ) {
 						meta = ( data && data.meta ) || {};
 
-						// 'queued' is non-terminal, so the poll keeps running
-						// until the job lands an ID or the budget runs out.
+						// 'queued' is non-terminal, so polling continues.
 						return {
 							status: meta.beyondwords_content_id
 								? 'found'
@@ -402,8 +398,7 @@
 			}
 			container.removeAttribute( 'data-await-content' );
 
-			// Generation has only just started, so poll for `processed` rather
-			// than embedding a 404 the CDN would cache.
+			// Poll for `processed`, else the player 404s and the CDN caches it.
 			initMetaboxPlayer( container );
 		} );
 	}

@@ -109,6 +109,7 @@ Release date: tbc
 
 **Fixes**
 
+* [#603](https://github.com/beyondwords-io/wordpress-plugin/pull/603) Show a loading state in the classic editor while audio generation is still queued.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Send the full `video_settings` payload so videos generate.
     * Selecting "Video" or "Audio + video" output now sends the complete video settings (seeded from the project defaults), fixing posts that produced no video.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.

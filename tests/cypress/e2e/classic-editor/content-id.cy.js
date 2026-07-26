@@ -174,9 +174,7 @@ context( 'Classic Editor: Content ID', () => {
 	} );
 
 	it( 'shows a Generating state while deferred generation is still queued', () => {
-		// Async generation writes no content ID during the save, so the metabox
-		// polls the post meta instead. Keep it empty: the spinner must stay up
-		// rather than the Player section rendering blank until a manual reload.
+		// Empty meta = job still queued: the spinner must stay up, not go blank.
 		cy.intercept( 'GET', '**/wp/v2/posts/*', {
 			statusCode: 200,
 			body: { meta: { beyondwords_content_id: '' } },

@@ -257,8 +257,7 @@ class MetaboxTest extends TestCase
     }
 
     /**
-     * Deferred generation writes no Content ID during the save, so the Player
-     * section must still show a status instead of rendering empty until reload.
+     * A queued job must still show a status, not render the Player section empty.
      *
      * @test
      */
@@ -282,8 +281,7 @@ class MetaboxTest extends TestCase
         $container = $crawler->filter('#beyondwords-metabox-player');
         $this->assertCount(1, $container);
 
-        // No Content ID yet, so the JS must poll the post's own meta instead of
-        // the content-status route.
+        // No Content ID yet, so the JS must poll post meta, not the content route.
         $this->assertSame('1', $container->attr('data-await-content'));
         $this->assertSame((string) $postId, $container->attr('data-post-id'));
         $this->assertNull($container->attr('data-content-id'));
