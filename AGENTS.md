@@ -7,6 +7,7 @@ Conventions for working in the BeyondWords WordPress plugin codebase. These appl
 1. **WordPress VIP compatibility is paramount.** All new and modified code must pass the `WordPress-VIP-Go` PHPCS ruleset without `phpcs:ignore` exceptions. If a sniff fires, fix the underlying code, not the comment.
 2. **WordPress coding standards must be followed for both PHP and JavaScript — no exceptions.** Format new code accordingly; reformat surrounding code when you touch it.
 3. **Keep documentation minimal — comments explain *why*, never *how*.** One line per inline comment; anything longer belongs in a [doc/](doc/) markdown file. Over-documenting is a defect, not diligence. See [Documentation](#documentation) — this rule applies to every edit you make.
+4. **Every PR is listed in the changelog before it merges into `main`.** One bullet in the current unreleased block of [readme.txt](readme.txt): the PR link and a one-line title. The linked PR carries the full detail. See [Documentation rule 5](#5-every-pr-gets-one-changelog-entry-before-it-merges).
 
 ## File structure
 
@@ -187,7 +188,7 @@ npm run format
 
 ## Documentation
 
-**This section is a must-follow rule for every edit, in every language (PHP, JS, CSS), on new and touched code alike.**
+**This section is a must-follow rule for every edit, in every language (PHP, JS, CSS), on new and touched code alike — and it governs the changelog entry every PR ships with (rule 5).**
 
 Write the minimum documentation that answers a question the code cannot answer for itself. Over-documenting is a defect here, not diligence: every redundant line is one more thing that drifts out of sync with the code, and a comment that lies is worse than no comment at all. **Default to no comment.** Add one only when a competent reader of the language still couldn't work out *why* the code is the way it is.
 
@@ -226,9 +227,42 @@ Long-form rationale, migration rules, data shapes, architecture and cross-file f
 
 Extend an existing `doc/` file rather than starting a near-duplicate. If the explanation is a *convention* rather than a one-off, it belongs in this file (AGENTS.md) instead.
 
-### 5. Self-review before you finish
+### 5. Every PR gets one changelog entry before it merges
 
-**PHPCS will not catch any of this** — the docblock sniffs are deliberately switched off in [.phpcs.xml](.phpcs.xml), so there is no automated gate. It is a review rule, and reviewers will hold you to it. Before you call a change done, re-read every comment line in your own diff and delete the ones that restate the code.
+**No PR merges into `main` without being listed in the changelog.** These are the release notes users read, so they're written for users — not as a summary of the work.
+
+Add the entry to the **current, unreleased version block** in [readme.txt](readme.txt) under `== Changelog ==`. Not [changelog.txt](changelog.txt) — that holds already-released versions only. File it under the heading it belongs to:
+
+| Heading | For |
+| --- | --- |
+| `**Enhancements**` | New or improved user-facing behaviour |
+| `**Fixes**` | Bugs a user could hit |
+| `**Deprecations**` | Removed or superseded settings, meta keys, filters |
+| `**Compatibility**` | Supported WordPress/PHP versions |
+| `**Codebase Enhancements**` | Internal work with no user-visible effect — tooling, CI, tests, refactors, dependency bumps, docs |
+
+A PR with no user-visible effect still gets a line — it goes under `**Codebase Enhancements**`, usually as a bare one-liner.
+
+One bullet, one line — the PR link and a plain-English title:
+
+```
+* [#566](https://github.com/beyondwords-io/wordpress-plugin/pull/566) Poll the content status before embedding the player.
+```
+
+**The linked PR is the complete detail.** The changelog entry is a title/overview and nothing more. Don't restate the implementation, name the files or classes touched, or explain how the fix works — anyone who wants that follows the link.
+
+Add an indented sub-bullet **only** when there is something the reader must know or act on that the title can't carry: a breaking change, a migration or upgrade step, a changed default, or a security fix and its CVE. Most fixes need none — look at the existing `**Fixes**` list, where the majority are a single line.
+
+```
+* [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
+    * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
+```
+
+If you can't justify the sub-bullet against that list, leave it out. The same rule as everywhere else in this section: the minimum that answers a question the link doesn't.
+
+### 6. Self-review before you finish
+
+**PHPCS will not catch any of this** — the docblock sniffs are deliberately switched off in [.phpcs.xml](.phpcs.xml), so there is no automated gate. It is a review rule, and reviewers will hold you to it. Before you call a change done, re-read every comment line in your own diff and delete the ones that restate the code, and confirm your changelog entry is in place.
 
 ## Cypress test groups
 
@@ -328,7 +362,8 @@ scripts/bump-version.sh 7.0.0-beta.1
 ```
 
 It sets the version everywhere it lives (and verifies each one), then you review
-the diff and commit. It does not commit, tag, or touch the changelog.
+the diff and commit. It does not commit, tag, or touch the changelog — changelog
+entries are added per PR as it merges, see [Documentation rule 5](#5-every-pr-gets-one-changelog-entry-before-it-merges).
 
 The version lives in five places, all kept in sync by the script:
 
