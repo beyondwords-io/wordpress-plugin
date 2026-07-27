@@ -496,7 +496,8 @@ class SettingsFieldsTest extends TestCase
             'meta_input' => ['beyondwords_source' => 'script'],
         ]);
 
-        $this->assertSame(SettingsFields::EMBED_AUDIO_SCRIPT, SettingsFields::get_effective_embed($postId));
+        // The post asset comes first even for a legacy script source.
+        $this->assertSame(SettingsFields::EMBED_AUDIO_POST, SettingsFields::get_effective_embed($postId));
 
         wp_delete_post($postId, true);
     }
