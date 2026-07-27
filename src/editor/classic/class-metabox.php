@@ -97,6 +97,8 @@ class Metabox {
 			} else {
 				self::player_embed( $post );
 			}
+		} else {
+			self::awaiting_generation_embed( $post );
 		}
 
 		// The Embed dropdown ("None" = no player) replaces the old Display player checkbox.
@@ -272,6 +274,60 @@ class Metabox {
 			</div>
 			<?php
 		endif;
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	}
+
+	/**
+	 * Render a loading state while deferred audio generation is still queued.
+	 *
+	 * See doc/async-rest-migration.md.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int|\WP_Post|null $post (Optional) Post ID, or WP_Post object, or null.
+	 */
+	public static function awaiting_generation_embed( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! ( $post instanceof \WP_Post ) ) {
+			return;
+		}
+
+		// No queued job means no audio is coming, so a spinner would never resolve.
+		if ( ! wp_next_scheduled( \BeyondWords\Post\Sync::GENERATE_AUDIO_CRON_HOOK, [ $post->ID ] ) ) {
+			return;
+		}
+
+		$project_id = \BeyondWords\Post\Meta::get_project_id( $post->ID );
+
+		if ( ! $project_id ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		?>
+		<div
+			id="beyondwords-metabox-player"
+			role="status"
+			aria-live="polite"
+			style="margin: 13px 0;"
+			data-project-id="<?php echo esc_attr( $project_id ); ?>"
+			data-post-id="<?php echo esc_attr( $post->ID ); ?>"
+			data-await-content="1"
+		>
+			<span
+				class="spinner is-active"
+				style="float: none; margin: 0 8px 0 0;"
+			></span>
+			<span class="beyondwords-player-loading-text">
+				<?php esc_html_e( 'Generating…', 'speechkit' ); ?>
+			</span>
+		</div>
+		<script
+			defer
+			src='<?php echo esc_url( \BeyondWords\Core\Urls::get_js_sdk_url() ); ?>'
+		></script>
+		<?php
 		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 

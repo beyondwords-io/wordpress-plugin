@@ -303,6 +303,107 @@
 	}
 
 	/**
+	 * Poll the post's own meta until deferred generation writes a content ID.
+	 *
+	 * See doc/async-rest-migration.md.
+	 *
+	 * @param {HTMLElement} container The #beyondwords-metabox-player element.
+	 */
+	function awaitContentId( container ) {
+		if (
+			typeof beyondwordsData === 'undefined' ||
+			! beyondwordsData.root
+		) {
+			return;
+		}
+
+		const postId = container.getAttribute( 'data-post-id' );
+
+		if ( ! postId ) {
+			return;
+		}
+
+		// A newer init for this container supersedes any in-flight poll.
+		const token = {};
+		container.beyondwordsPollToken = token;
+		const isCancelled = function () {
+			return container.beyondwordsPollToken !== token;
+		};
+
+		const restBase = getRestBase();
+		let meta = {};
+
+		showMetaboxLoading( container );
+
+		pollContentStatus( {
+			fetchStatus() {
+				return fetch(
+					beyondwordsData.root +
+						'wp/v2/' +
+						restBase +
+						'/' +
+						encodeURIComponent( postId ) +
+						'?context=edit',
+					{
+						credentials: 'same-origin',
+						headers: {
+							'X-WP-Nonce': beyondwordsData.nonce,
+						},
+					}
+				)
+					.then( function ( response ) {
+						if ( ! response.ok ) {
+							throw new Error( response.statusText );
+						}
+						return response.json();
+					} )
+					.then( function ( data ) {
+						meta = ( data && data.meta ) || {};
+
+						// 'queued' is non-terminal, so polling continues.
+						return {
+							status: meta.beyondwords_content_id
+								? 'found'
+								: 'queued',
+						};
+					} );
+			},
+			isHidden() {
+				return document.hidden;
+			},
+			isCancelled,
+		} ).then( function ( result ) {
+			if ( isCancelled() ) {
+				return;
+			}
+
+			if ( result.timedOut || result.status !== 'found' ) {
+				showMetaboxMessage( container, result );
+				return;
+			}
+
+			container.setAttribute(
+				'data-content-id',
+				meta.beyondwords_content_id
+			);
+			container.setAttribute(
+				'data-preview-token',
+				meta.beyondwords_preview_token || ''
+			);
+			if ( meta.beyondwords_project_id ) {
+				container.setAttribute(
+					'data-project-id',
+					meta.beyondwords_project_id
+				);
+			}
+			container.removeAttribute( 'data-await-content' );
+
+			// Poll for `processed`, else the player 404s and the CDN caches it.
+			initMetaboxPlayer( container );
+		} );
+	}
+
+	/**
 	 * Remove any existing notice from the metabox.
 	 */
 	function clearNotice() {
@@ -358,7 +459,7 @@
 	 * @return {string} The REST base slug.
 	 */
 	function getRestBase( button ) {
-		const base = button.getAttribute( 'data-rest-base' );
+		const base = button && button.getAttribute( 'data-rest-base' );
 		if ( base ) {
 			return base;
 		}
@@ -638,11 +739,12 @@
 		const playerContainer = document.getElementById(
 			'beyondwords-metabox-player'
 		);
-		if (
-			playerContainer &&
-			playerContainer.getAttribute( 'data-content-id' )
-		) {
-			initMetaboxPlayer( playerContainer );
+		if ( playerContainer ) {
+			if ( playerContainer.getAttribute( 'data-content-id' ) ) {
+				initMetaboxPlayer( playerContainer );
+			} else if ( playerContainer.getAttribute( 'data-await-content' ) ) {
+				awaitContentId( playerContainer );
+			}
 		}
 	}
 
