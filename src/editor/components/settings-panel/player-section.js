@@ -15,8 +15,8 @@ import {
 	getDefaultEmbed,
 	getEmbedOptions,
 	isEmbedValid,
+	normalizeSource,
 	OUTPUT_AUDIO,
-	SOURCE_POST,
 } from './helpers';
 import Stack from '../stack';
 
@@ -30,7 +30,7 @@ export function PlayerSection( { withPanel = true } ) {
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = rawMeta ?? {};
 
-	const source = meta.beyondwords_source || SOURCE_POST;
+	const source = normalizeSource( meta.beyondwords_source );
 	const output = meta.beyondwords_output || OUTPUT_AUDIO;
 
 	const stored = meta.beyondwords_embed;

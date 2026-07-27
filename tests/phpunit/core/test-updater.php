@@ -216,6 +216,49 @@ class UpdaterTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function migrate_source_script_to_post_and_script()
+    {
+        // Script-only with no Embed choice: was showing the script asset.
+        $audioPost = self::factory()->post->create();
+        update_post_meta($audioPost, 'beyondwords_source', 'script');
+
+        // Script-only, Video output, no Embed choice: was showing Video (script).
+        $videoPost = self::factory()->post->create();
+        update_post_meta($videoPost, 'beyondwords_source', 'script');
+        update_post_meta($videoPost, 'beyondwords_output', 'video');
+
+        // An explicit Embed choice must not be overwritten.
+        $embedPost = self::factory()->post->create();
+        update_post_meta($embedPost, 'beyondwords_source', 'script');
+        update_post_meta($embedPost, 'beyondwords_embed', 'none');
+
+        // A post on a supported source — must be left untouched.
+        $untouchedPost = self::factory()->post->create();
+        update_post_meta($untouchedPost, 'beyondwords_source', 'post');
+
+        Updater::migrate_source_script_to_post_and_script();
+
+        $this->assertSame('post_and_script', get_post_meta($audioPost, 'beyondwords_source', true));
+        $this->assertSame('audio_script', get_post_meta($audioPost, 'beyondwords_embed', true));
+
+        $this->assertSame('post_and_script', get_post_meta($videoPost, 'beyondwords_source', true));
+        $this->assertSame('video_script', get_post_meta($videoPost, 'beyondwords_embed', true));
+
+        $this->assertSame('post_and_script', get_post_meta($embedPost, 'beyondwords_source', true));
+        $this->assertSame('none', get_post_meta($embedPost, 'beyondwords_embed', true));
+
+        $this->assertSame('post', get_post_meta($untouchedPost, 'beyondwords_source', true));
+        $this->assertSame('', get_post_meta($untouchedPost, 'beyondwords_embed', true));
+
+        wp_delete_post($audioPost, true);
+        wp_delete_post($videoPost, true);
+        wp_delete_post($embedPost, true);
+        wp_delete_post($untouchedPost, true);
+    }
+
+    /**
      * The gate must close once the recorded version matches this build, else the pre-release `< 7.0.0` comparison re-fires v7 migrations every request.
      *
      * @test

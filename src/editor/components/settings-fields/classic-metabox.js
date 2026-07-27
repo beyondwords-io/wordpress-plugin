@@ -8,7 +8,6 @@
 	'use strict';
 
 	const SOURCE_POST = 'post';
-	const SOURCE_SCRIPT = 'script';
 	const SOURCE_POST_AND_SCRIPT = 'post_and_script';
 
 	const OUTPUT_AUDIO = 'audio';
@@ -22,11 +21,9 @@
 			beyondwordsSettingsFields.embedLabels ) ||
 		{};
 
-	const sourceIncludesPost = ( source ) =>
-		source === SOURCE_POST || source === SOURCE_POST_AND_SCRIPT;
-
+	// PHP normalises the rendered value, so the select only holds an offered source.
 	const sourceIncludesScript = ( source ) =>
-		source === SOURCE_SCRIPT || source === SOURCE_POST_AND_SCRIPT;
+		source === SOURCE_POST_AND_SCRIPT;
 
 	const outputIncludesAudio = ( output ) =>
 		output === OUTPUT_AUDIO || output === OUTPUT_AUDIO_AND_VIDEO;
@@ -57,15 +54,14 @@
 	 */
 	const getEmbedOptions = ( source, output ) => {
 		const options = [ { label: labels.none || 'None', value: EMBED_NONE } ];
+		const includesScript = sourceIncludesScript( source );
 
 		if ( outputIncludesAudio( output ) ) {
-			if ( sourceIncludesPost( source ) ) {
-				options.push( {
-					label: labels.audio_post || 'Audio (post)',
-					value: 'audio_post',
-				} );
-			}
-			if ( sourceIncludesScript( source ) ) {
+			options.push( {
+				label: labels.audio_post || 'Audio (post)',
+				value: 'audio_post',
+			} );
+			if ( includesScript ) {
 				options.push( {
 					label: labels.audio_script || 'Audio (script)',
 					value: 'audio_script',
@@ -74,13 +70,11 @@
 		}
 
 		if ( outputIncludesVideo( output ) ) {
-			if ( sourceIncludesPost( source ) ) {
-				options.push( {
-					label: labels.video_post || 'Video (post)',
-					value: 'video_post',
-				} );
-			}
-			if ( sourceIncludesScript( source ) ) {
+			options.push( {
+				label: labels.video_post || 'Video (post)',
+				value: 'video_post',
+			} );
+			if ( includesScript ) {
 				options.push( {
 					label: labels.video_script || 'Video (script)',
 					value: 'video_script',

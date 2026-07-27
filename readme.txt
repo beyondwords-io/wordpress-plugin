@@ -136,6 +136,8 @@ Release date: tbc
 * Removed the `beyondwords_player_style`, `beyondwords_player_content`, `beyondwords_title_voice_id`, `beyondwords_summary_voice_id` and `beyondwords_disabled` post meta keys.
     * Existing values are preserved in the database and only removed on full uninstall; `beyondwords_disabled` is migrated to the new "Embed" setting on upgrade.
 * The `beyondwords-*` `<head>` meta tags are now only emitted for the client-side (Magic Embed) integration.
+* [#601](https://github.com/beyondwords-io/wordpress-plugin/pull/601) Removed the "Script" option from the post Source setting, which now offers "Post" or "Post + script".
+    * Posts saved as "Script" are migrated to "Post + script" on upgrade, and keep embedding their script asset.
 
 **Compatibility**
 
