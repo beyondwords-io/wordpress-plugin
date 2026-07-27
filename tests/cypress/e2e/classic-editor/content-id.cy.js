@@ -173,6 +173,78 @@ context( 'Classic Editor: Content ID', () => {
 		} );
 	} );
 
+	it( 'shows a Generating state while deferred generation is still queued', () => {
+		// Empty meta = job still queued: the spinner must stay up, not go blank.
+		cy.intercept( 'GET', '**/wp/v2/posts/*', {
+			statusCode: 200,
+			body: { meta: { beyondwords_content_id: '' } },
+		} ).as( 'pollMeta' );
+
+		cy.createTestPost( {
+			title: 'Cypress Test: classic queued generation spinner',
+			postStatus: 'publish',
+			postType: 'post',
+		} ).then( ( postId ) => {
+			cy.task( 'scheduleAudioGeneration', postId );
+
+			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
+
+			cy.wait( '@pollMeta' );
+
+			cy.get( '#beyondwords-metabox-player' ).should(
+				'have.attr',
+				'data-await-content',
+				'1'
+			);
+			cy.get( '#beyondwords-metabox-player .spinner.is-active' ).should(
+				'exist'
+			);
+			cy.get( '#beyondwords-metabox-player' ).should(
+				'contain',
+				'Generating'
+			);
+		} );
+	} );
+
+	it( 'hands off to the content-status poll once the queued job writes an ID', () => {
+		cy.intercept( 'GET', '**/wp/v2/posts/*', {
+			statusCode: 200,
+			body: {
+				meta: {
+					beyondwords_content_id: Cypress.expose( 'contentId' ),
+					beyondwords_project_id: Cypress.expose( 'projectId' ),
+				},
+			},
+		} ).as( 'pollMeta' );
+
+		// Terminal status, so reaching this route at all proves the handoff.
+		cy.intercept( 'GET', '**/beyondwords/v1/projects/*/content/*', {
+			statusCode: 200,
+			body: { status: 'error' },
+		} ).as( 'pollContent' );
+
+		cy.createTestPost( {
+			title: 'Cypress Test: classic queued generation handoff',
+			postStatus: 'publish',
+			postType: 'post',
+		} ).then( ( postId ) => {
+			cy.task( 'scheduleAudioGeneration', postId );
+
+			cy.visit( `/wp-admin/post.php?post=${ postId }&action=edit` );
+
+			cy.wait( '@pollMeta' );
+			cy.wait( '@pollContent' );
+
+			cy.get( '#beyondwords-metabox-player' ).should(
+				'contain',
+				'Generation failed.'
+			);
+			cy.get( '#beyondwords-metabox-player .spinner.is-active' ).should(
+				'not.exist'
+			);
+		} );
+	} );
+
 	it( 'shows a failure message and no spinner when generation errored', () => {
 		cy.intercept(
 			'GET',

@@ -10,7 +10,7 @@
 | Posts     | Bulk action                        | ‘Generate audio’ for multiple posts at once. |
 | Post Edit | ‘Generate audio’                   | Optionally select to ‘Generate audio’ for the current post. |
 | Post Edit | Player preview                     | Display a preview of the audio player, or the processing status if the player is not available. |
-| Post Edit | Display player                     | Show/hide the player for the current post. |
+| Post Edit | Player ‘Embed’                     | Which asset the player embeds for the current post, or ‘None’ for no player. |
 | Post Edit | BeyondWords sidebar                | All plugin functionality and support in one place (Block Editor only). |
 | Post Edit | Prepublish panel                   | Confirm ‘Generate audio’ immediately before publishing. |
 | Post Edit | ‘Insert BeyondWords player’ button | Customize the audio player location while using the Classic Editor. |

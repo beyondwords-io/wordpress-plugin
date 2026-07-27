@@ -257,6 +257,70 @@ class MetaboxTest extends TestCase
     }
 
     /**
+     * A queued job must still show a status, not render the Player section empty.
+     *
+     * @test
+     */
+    public function awaiting_generation_embed_renders_a_loading_state_when_queued()
+    {
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'post_title'  => 'MetaboxTest::awaiting_generation_embed_renders_a_loading_state_when_queued',
+        ]);
+
+        update_post_meta($postId, 'beyondwords_project_id', 12345);
+
+        wp_schedule_single_event(time(), \BeyondWords\Post\Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]);
+
+        $html = $this->capture_output(function () use ($postId) {
+            Metabox::awaiting_generation_embed($postId);
+        });
+
+        $crawler = new Crawler($html);
+
+        $container = $crawler->filter('#beyondwords-metabox-player');
+        $this->assertCount(1, $container);
+
+        // No Content ID yet, so the JS must poll post meta, not the content route.
+        $this->assertSame('1', $container->attr('data-await-content'));
+        $this->assertSame((string) $postId, $container->attr('data-post-id'));
+        $this->assertNull($container->attr('data-content-id'));
+
+        $this->assertCount(1, $container->filter('.spinner.is-active'));
+        $this->assertStringContainsString('Generating', $container->text());
+
+        wp_unschedule_event(
+            wp_next_scheduled(\BeyondWords\Post\Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]),
+            \BeyondWords\Post\Sync::GENERATE_AUDIO_CRON_HOOK,
+            [$postId]
+        );
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * A post with nothing queued has no audio coming, so a spinner would hang forever.
+     *
+     * @test
+     */
+    public function awaiting_generation_embed_renders_nothing_when_no_job_is_queued()
+    {
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'post_title'  => 'MetaboxTest::awaiting_generation_embed_renders_nothing_when_no_job_is_queued',
+        ]);
+
+        update_post_meta($postId, 'beyondwords_project_id', 12345);
+
+        $html = $this->capture_output(function () use ($postId) {
+            Metabox::awaiting_generation_embed($postId);
+        });
+
+        $this->assertSame('', trim($html));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
      * Write a Content ID straight into post meta, bypassing Meta::sanitize_content_id().
      */
     private function store_raw_content_id($post_id, $value)

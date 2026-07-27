@@ -8,7 +8,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { BeyondwordsIcon, BeyondwordsTitle } from '../../components/icon';
+import { BeyondwordsIcon } from '../../components/icon';
 import DataPanel from '../../components/data-panel';
 import HelpPanel from '../../components/help-panel';
 import InspectPanel from '../../components/inspect-panel';
@@ -25,10 +25,12 @@ export default class Sidebar extends Component {
 				>
 					{ __( 'BeyondWords', 'speechkit' ) }
 				</PluginSidebarMoreMenuItem>
+				{ /* Must stay a string — it becomes the pinned button's aria-label. */ }
 				<PluginSidebar
 					name="plugin-sidebar"
-					title={ <BeyondwordsTitle /> }
+					title={ __( 'BeyondWords', 'speechkit' ) }
 					icon={ <BeyondwordsIcon /> }
+					headerClassName="beyondwords-sidebar__header"
 				>
 					<PreviewPanel />
 					<SettingsPanel />

@@ -250,7 +250,7 @@ class ConfigBuilderTest extends TestCase
     public function merge_post_settings_embed_audio_script_sets_summary()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'audio',
             'beyondwords_embed'  => 'audio_script',
         ]);
@@ -288,7 +288,7 @@ class ConfigBuilderTest extends TestCase
     public function merge_post_settings_embed_video_script_sets_video_and_summary()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'video',
             'beyondwords_embed'  => 'video_script',
         ]);
@@ -361,16 +361,38 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * A stored Embed that no longer fits the current Source × Output falls back to None.
+     * Script × Video only produces "video_script", so a regression fails positively
+     * here rather than passing on key absence.
      *
      * @test
      */
-    public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_none()
+    public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_default_asset()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'post',
-            'beyondwords_output' => 'audio',
-            'beyondwords_embed'  => 'video_script',
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'audio_post',
+        ]);
+
+        $params = ConfigBuilder::merge_post_settings($post, []);
+
+        $this->assertTrue($params['video']);
+        $this->assertTrue($params['summary']);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Counterpart to the test above, where the default asset would have set both params.
+     *
+     * @test
+     */
+    public function merge_post_settings_embed_none_survives_an_invalidating_output()
+    {
+        $post = $this->createEmbedPost([
+            'beyondwords_source' => 'script',
+            'beyondwords_output' => 'video',
+            'beyondwords_embed'  => 'none',
         ]);
 
         $params = ConfigBuilder::merge_post_settings($post, []);
@@ -391,7 +413,7 @@ class ConfigBuilderTest extends TestCase
         update_option(Fields::OPTION_PLAYER_UI, Fields::PLAYER_UI_HEADLESS);
 
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post_and_script',
             'beyondwords_output' => 'video',
             'beyondwords_embed'  => 'video_script',
         ]);
@@ -419,7 +441,7 @@ class ConfigBuilderTest extends TestCase
         $post = self::factory()->post->create_and_get([
             'meta_input' => [
                 'beyondwords_project_id' => BEYONDWORDS_TESTS_PROJECT_ID,
-                'beyondwords_source'     => 'script',
+                'beyondwords_source'     => 'post_and_script',
                 'beyondwords_output'     => 'audio',
                 'beyondwords_embed'      => 'audio_script',
             ],
