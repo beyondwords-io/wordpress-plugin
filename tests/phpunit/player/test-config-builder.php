@@ -361,29 +361,29 @@ class ConfigBuilderTest extends TestCase
     }
 
     /**
-     * Script × Video only produces "video_script", so a regression fails positively
-     * here rather than passing on key absence.
+     * Source = Post produces no script asset, so honouring the stale "video_script"
+     * would set summary — a regression fails positively rather than on key absence.
      *
      * @test
      */
     public function merge_post_settings_embed_invalid_for_source_output_falls_back_to_default_asset()
     {
         $post = $this->createEmbedPost([
-            'beyondwords_source' => 'script',
+            'beyondwords_source' => 'post',
             'beyondwords_output' => 'video',
-            'beyondwords_embed'  => 'audio_post',
+            'beyondwords_embed'  => 'video_script',
         ]);
 
         $params = ConfigBuilder::merge_post_settings($post, []);
 
         $this->assertTrue($params['video']);
-        $this->assertTrue($params['summary']);
+        $this->assertArrayNotHasKey('summary', $params);
 
         wp_delete_post($post->ID, true);
     }
 
     /**
-     * Counterpart to the test above, where the default asset would have set both params.
+     * Counterpart to the test above, where the default asset would have set video.
      *
      * @test
      */
