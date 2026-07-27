@@ -11,7 +11,6 @@ import { useEffect } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	EMBED_NONE,
 	getDefaultEmbed,
 	getEmbedOptions,
 	isEmbedValid,
@@ -46,9 +45,10 @@ export function PlayerSection( { withPanel = true } ) {
 
 	// Never write meta on mount: an unset value already means "show", and a
 	// mount-time write races the other panels' preselect writes (e.g. Generate audio).
+	// Only a stale value lands here — None is valid for every combination.
 	useEffect( () => {
 		if ( stored && ! isEmbedValid( stored, source, output ) ) {
-			setEmbed( EMBED_NONE );
+			setEmbed( getDefaultEmbed( source, output ) );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ source, output ] );

@@ -286,8 +286,8 @@ class SettingsFields {
 	/**
 	 * Resolve the effective Embed value for a post.
 	 *
-	 * Centralised so the shown default and the rendered player (ConfigBuilder)
-	 * never diverge; legacy opt-outs and no-longer-valid values resolve to None.
+	 * Centralised so the shown default and the rendered player (ConfigBuilder) never
+	 * diverge; legacy opt-outs resolve to None, stale values to the default asset.
 	 *
 	 * @since 7.0.0
 	 *
@@ -307,7 +307,7 @@ class SettingsFields {
 		}
 
 		if ( ! self::is_embed_valid( $embed, $source, $output ) ) {
-			$embed = self::EMBED_NONE;
+			$embed = self::default_embed( $source, $output );
 		}
 
 		return $embed;
@@ -443,6 +443,10 @@ class SettingsFields {
 				'speechkit'
 			)
 		);
+		// Lets save() tell a real choice from the rendered default.
+		?>
+		<input type="hidden" id="beyondwords_embed_touched" name="beyondwords_embed_touched" value="" />
+		<?php
 	}
 
 	/**
@@ -604,6 +608,11 @@ class SettingsFields {
 			'beyondwords_video_size',
 			'beyondwords_embed',
 		];
+
+		// Only a real choice is stored; an unset Embed is re-derived at render.
+		if ( empty( $_POST['beyondwords_embed_touched'] ) ) {
+			$keys = array_values( array_diff( $keys, [ 'beyondwords_embed' ] ) );
+		}
 
 		foreach ( $keys as $key ) {
 			if ( ! isset( $_POST[ $key ] ) ) {

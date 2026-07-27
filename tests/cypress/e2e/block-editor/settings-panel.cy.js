@@ -182,5 +182,44 @@ context( 'Block Editor: Settings panel', () => {
 						] );
 					} );
 			} );
+
+			it( `Player Embed keeps a player when Output invalidates it for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				// Store an explicit choice, which is what the cleanup effect acts on.
+				select( 'beyondwords--output' ).select( 'Audio + video', {
+					force: true,
+				} );
+				select( 'beyondwords--embed' ).select( 'Video (post)', {
+					force: true,
+				} );
+
+				// Post × Audio cannot produce Video (post), so the effect rewrites it.
+				select( 'beyondwords--output' ).select( 'Audio', {
+					force: true,
+				} );
+
+				select( 'beyondwords--embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Audio (post)' );
+			} );
+
+			it( `Player Embed keeps an explicit None across an Output change for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				select( 'beyondwords--embed' ).select( 'None', {
+					force: true,
+				} );
+				select( 'beyondwords--output' ).select( 'Video', {
+					force: true,
+				} );
+
+				// None is valid for every Source × Output, so it is never rewritten.
+				select( 'beyondwords--embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'None' );
+			} );
 		} );
 } );

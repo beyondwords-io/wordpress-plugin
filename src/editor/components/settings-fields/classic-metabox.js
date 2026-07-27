@@ -85,11 +85,34 @@
 		return options;
 	};
 
+	/**
+	 * The first produced asset, or None when the options hold no asset.
+	 *
+	 * @param {Array<{label: string, value: string}>} options The Embed options.
+	 *
+	 * @return {string} The default embed value.
+	 */
+	const getDefaultEmbed = ( options ) => {
+		const asset = options.find( ( option ) => option.value !== EMBED_NONE );
+
+		return asset ? asset.value : EMBED_NONE;
+	};
+
 	const settingsFields = {
 		init() {
 			this.source = document.getElementById( 'beyondwords_source' );
 			this.output = document.getElementById( 'beyondwords_output' );
 			this.embed = document.getElementById( 'beyondwords_embed' );
+			this.embedTouched = document.getElementById(
+				'beyondwords_embed_touched'
+			);
+
+			// Set before the guard below: the flag gates the whole save() write.
+			if ( this.embed && this.embedTouched ) {
+				this.embed.addEventListener( 'change', () => {
+					this.embedTouched.value = '1';
+				} );
+			}
 
 			if ( ! this.source && ! this.output ) {
 				return;
@@ -148,7 +171,8 @@
 			const options = getEmbedOptions( source, output );
 			const previous = this.embed.value;
 			const stillValid = options.some( ( o ) => o.value === previous );
-			const selected = stillValid ? previous : EMBED_NONE;
+			// Only a stale value lands here — None is valid for every combination.
+			const selected = stillValid ? previous : getDefaultEmbed( options );
 
 			this.embed.replaceChildren(
 				...options.map( ( option ) => {
