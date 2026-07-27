@@ -227,6 +227,17 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		// An hour out, so WP-Cron can't actually run the job mid-test.
+		async scheduleAudioGeneration( postId ) {
+			await execWp(
+				`eval 'wp_schedule_single_event( time() + 3600, "beyondwords_generate_audio", [ ${ parseInt(
+					postId,
+					10
+				) } ] );'`
+			);
+			return null;
+		},
+
 		async getPostMeta( options ) {
 			const { postId, metaKey } = options;
 			try {

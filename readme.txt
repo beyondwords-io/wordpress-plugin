@@ -106,9 +106,14 @@ Release date: tbc
     * The "Generate audio" toggle now reads "Generation enabled" / "Generation disabled"; the "Standard" voice model bucket is relabelled "Legacy".
 * [#532](https://github.com/beyondwords-io/wordpress-plugin/pull/532) Cache API reads and defer audio generation on WordPress VIP.
     * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
+* [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
+    * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
 
 **Fixes**
 
+* [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
+* [#604](https://github.com/beyondwords-io/wordpress-plugin/pull/604) Restore the pinned BeyondWords sidebar button's tooltip and accessible name.
+* [#603](https://github.com/beyondwords-io/wordpress-plugin/pull/603) Show a loading state in the classic editor while audio generation is still queued.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Send the full `video_settings` payload so videos generate.
     * Selecting "Video" or "Audio + video" output now sends the complete video settings (seeded from the project defaults), fixing posts that produced no video.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
@@ -128,12 +133,16 @@ Release date: tbc
 * [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
 * [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
     * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
+* [#599](https://github.com/beyondwords-io/wordpress-plugin/pull/599) Keep the player when a Source or Output change invalidates the stored "Embed".
+    * In the classic editor an "Embed" you never chose is no longer saved with the post, so those posts now follow later Source and Output changes.
 
 **Deprecations**
 
 * Removed the `beyondwords_player_style`, `beyondwords_player_content`, `beyondwords_title_voice_id`, `beyondwords_summary_voice_id` and `beyondwords_disabled` post meta keys.
     * Existing values are preserved in the database and only removed on full uninstall; `beyondwords_disabled` is migrated to the new "Embed" setting on upgrade.
 * The `beyondwords-*` `<head>` meta tags are now only emitted for the client-side (Magic Embed) integration.
+* [#601](https://github.com/beyondwords-io/wordpress-plugin/pull/601) Removed the "Script" option from the post Source setting, which now offers "Post" or "Post + script".
+    * Posts saved as "Script" are migrated to "Post + script" on upgrade, and keep embedding their script asset.
 
 **Compatibility**
 
@@ -144,6 +153,9 @@ Release date: tbc
 
 **Codebase Enhancements**
 
+* [#608](https://github.com/beyondwords-io/wordpress-plugin/pull/608) Fix the intermittent detached-DOM failures in the block editor Cypress specs.
+* [#607](https://github.com/beyondwords-io/wordpress-plugin/pull/607) Update two PHPUnit tests left stale by the Script-only Source removal.
+* [#602](https://github.com/beyondwords-io/wordpress-plugin/pull/602) Align the player-visibility docs and Cypress specs with the "Embed" setting.
 * [#600](https://github.com/beyondwords-io/wordpress-plugin/pull/600) Add must-follow documentation and changelog rules to `AGENTS.md`, with `CLAUDE.md` and Copilot pointer files.
 * [#533](https://github.com/beyondwords-io/wordpress-plugin/pull/533) Fix failing Cypress tests for v7.
 * [#538](https://github.com/beyondwords-io/wordpress-plugin/pull/538) Remove the unused `updatePostMeta` util from the Inspect panel.

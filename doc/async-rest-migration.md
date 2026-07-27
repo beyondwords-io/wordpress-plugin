@@ -58,6 +58,26 @@ returns immediately: [src/post/class-sync.php](../src/post/class-sync.php).
 - Error meta is written when the job runs (≈1 cron tick later) rather than
   inline, so the editor surfaces an API error on its next load.
 
+### Editor state while the job is queued
+
+Deferral means the post-publish page load has **no content ID at all**, so there
+is nothing for the content-status poll (`#566`) to query. Left alone the classic
+metabox rendered the "Player" heading and nothing else — no player, no spinner,
+no message — until the author reloaded.
+
+`Metabox::awaiting_generation_embed()` covers that window: when
+`wp_next_scheduled( Sync::GENERATE_AUDIO_CRON_HOOK, … )` is set but no content ID
+exists, it renders the loading container with `data-post-id` /
+`data-await-content`. `awaitContentId()` in `content-id/classic-metabox.js` then
+polls the post's own meta over `wp/v2` until the cron job writes an ID, sets the
+data attributes and hands off to `initMetaboxPlayer()` — so the player still
+waits for `processed` rather than embedding a 404 the CDN would cache.
+
+It reuses `pollContentStatus()` by reporting `queued` (already a non-terminal
+status) until the ID lands, inheriting the time budget, hidden-tab handling and
+supersede token. Gating on the scheduled job matters: a post with nothing queued
+has no audio coming, so a spinner there would never resolve.
+
 ### Background delete (VIP only)
 
 The trash and permanent-delete handlers use the same mechanism.

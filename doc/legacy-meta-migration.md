@@ -62,6 +62,21 @@ any post the migration hasn't reached (e.g. after a downgrade/re-upgrade). It
 delegates to `SettingsFields::is_player_disabled_for_post()`, which prefers a
 non-empty `beyondwords_embed` and only falls back to `Meta::get_disabled()`.
 
+### `beyondwords_source = script` → `post_and_script`
+
+Source offered Post / Script / Post + script during the 7.0.0 betas, but
+script-only was never a real mode: the script is derived from the post body, so
+the platform generates the post assets either way (verified on staging — every
+Source = Script post produced article assets). The Embed dropdown then derived
+script assets only, hiding post assets that existed on the content item.
+
+Script was dropped from the option list. `SettingsFields::normalize_source()`
+and `normalizeSource()` (settings-panel/helpers.js) resolve `script`, unknown,
+and unset values to a source the dropdown offers, and the v7.0.0 migration
+`migrate_source_script_to_post_and_script()` rewrites the meta. Posts with no
+explicit Embed get one pinned to the script asset first, so the upgrade doesn't
+switch which asset the front-end player shows.
+
 ### Components removed
 
 - `src/editor/components/player-style/`

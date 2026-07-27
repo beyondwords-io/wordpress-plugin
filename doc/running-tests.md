@@ -91,30 +91,9 @@ npm run cypress:open
 
 ###  Run only the affected specs
 
-The full suite takes 20+ minutes, so the normal workflow is to run just the
-specs that exercise the source you changed. Every spec starts with a `@group`
-and one or more `@covers` header tags, so grep for them:
-
-```bash
-# Specs that cover a file or directory
-grep -rl '@covers .*content-id' tests/cypress/e2e/
-
-# All specs in a group
-grep -rl '@group block-editor' tests/cypress/e2e/
-```
-
-Then run only those:
-
-```bash
-# One spec
-npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/block-editor/content-id.cy.js'
-
-# Multiple (comma-separated, no spaces)
-npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/block-editor/content-id.cy.js,tests/cypress/e2e/classic-editor/content-id.cy.js'
-
-# Whole group via glob
-npm run cypress:run -- --browser chrome --spec 'tests/cypress/e2e/settings/*.cy.js'
-```
+The full suite takes 20+ minutes, so run just the specs covering the source you
+changed. [AGENTS.md](../AGENTS.md#cypress-test-groups) has the `@group` /
+`@covers` lookup and the `--spec` invocations, plus the groups in use.
 
 The groups in use, and the header convention for new specs, are listed in
 [AGENTS.md](../AGENTS.md).
@@ -180,13 +159,15 @@ npm run composer:tests -- test:coverage-check
 
 Hard-won details behind some non-obvious patterns in the Cypress suite:
 
-- **`cy.getEditorCanvasBody()`** (`tests/cypress/support/commands.js`) must not
-  introduce a `.then( cy.wrap )` boundary. Pinning the resolved `<body>`
-  subject breaks Cypress's retry-ability when the block-editor iframe
-  re-renders during hydration — it fails as *"subject is no longer attached to
-  the DOM"*, seen mostly on slower PHP 8.0 CI runs. Whether the editor canvas
-  is an iframe is stable for a given WordPress version, so it is detected once
-  synchronously via `Cypress.$` instead.
+- **`cy.getEditorCanvasBody()`** (`tests/cypress/support/commands.js`) is
+  registered with `addQuery`, not `add`: only a query chain re-resolves when the
+  block editor re-mounts its iframe during hydration. Anything that pins the
+  resolved `<body>` — a command, or a `.then( cy.wrap )` boundary — fails as
+  *"subject is no longer attached to the DOM"* on slower CI runs. For the same
+  reason it throws when the body is empty rather than yielding it, so the query
+  retries. Actions are not requeryable, so re-resolve the body instead of
+  chaining off one (`cy.getEditorCanvasBody().find( … ).clear()`, then a fresh
+  `cy.getEditorCanvasBody()` for the next step).
 - **Stubbing voices in the block editor doesn't work**: `cy.intercept` on the
   REST voices route stubs fine in the classic editor, but the block editor's
   `wp.data` store ends up empty. Branches that depend on voice-list contents

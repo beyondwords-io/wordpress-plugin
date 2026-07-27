@@ -1,14 +1,13 @@
 /**
  * @group classic-editor
  * @covers src/editor/components/settings-fields/
+ * @covers src/posts-list/class-column.php
+ * @covers src/player/class-player.php
  */
 
 /* global cy, before, beforeEach, after, context, it */
 
-/*
- * The v7 Player "Embed" dropdown replaced the "Display player" checkbox;
- * Embed "None" hides the player. This spec exercises that behaviour.
- */
+// Embed "None" is the v7 replacement for the removed "Display player" checkbox.
 context( 'Classic Editor: Player visibility (Embed)', () => {
 	before( () => {
 		cy.task( 'activatePlugin', 'classic-editor' );
@@ -57,9 +56,8 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 
 				cy.get( 'select#beyondwords_embed' ).select( 'None' );
 
-				cy.get( '#publish' ).click(); // Click "Update" Button
+				cy.get( '#publish' ).click();
 
-				// Wait for success message
 				cy.get( '#message.notice-success' );
 
 				cy.get( '#sample-permalink' ).click();
@@ -85,9 +83,8 @@ context( 'Classic Editor: Player visibility (Embed)', () => {
 
 				cy.get( 'select#beyondwords_embed' ).select( 'Audio (post)' );
 
-				cy.get( '#publish' ).click(); // Click "Update" Button
+				cy.get( '#publish' ).click();
 
-				// Wait for success message
 				cy.get( '#message.notice-success' );
 
 				cy.get( '#sample-permalink' ).click();

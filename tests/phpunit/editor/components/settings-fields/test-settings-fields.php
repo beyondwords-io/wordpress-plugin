@@ -35,7 +35,8 @@ class SettingsFieldsTest extends TestCase
             $_POST['beyondwords_output'],
             $_POST['beyondwords_video_template_id'],
             $_POST['beyondwords_video_size'],
-            $_POST['beyondwords_embed']
+            $_POST['beyondwords_embed'],
+            $_POST['beyondwords_embed_touched']
         );
 
         parent::tearDown();
@@ -74,7 +75,7 @@ class SettingsFieldsTest extends TestCase
     public function source_and_output_options()
     {
         $this->assertSame(
-            ['post', 'script', 'post_and_script'],
+            ['post', 'post_and_script'],
             array_column(SettingsFields::source_options(), 'value')
         );
 
@@ -89,12 +90,8 @@ class SettingsFieldsTest extends TestCase
      */
     public function source_and_output_predicates()
     {
-        $this->assertTrue(SettingsFields::source_includes_post('post'));
-        $this->assertTrue(SettingsFields::source_includes_post('post_and_script'));
-        $this->assertFalse(SettingsFields::source_includes_post('script'));
-
-        $this->assertTrue(SettingsFields::source_includes_script('script'));
         $this->assertTrue(SettingsFields::source_includes_script('post_and_script'));
+        $this->assertTrue(SettingsFields::source_includes_script('script'));
         $this->assertFalse(SettingsFields::source_includes_script('post'));
 
         $this->assertTrue(SettingsFields::output_includes_audio('audio'));
@@ -104,6 +101,41 @@ class SettingsFieldsTest extends TestCase
         $this->assertTrue(SettingsFields::output_includes_video('video'));
         $this->assertTrue(SettingsFields::output_includes_video('audio_and_video'));
         $this->assertFalse(SettingsFields::output_includes_video('audio'));
+    }
+
+    /**
+     * @test
+     */
+    public function normalize_source_resolves_legacy_and_unknown_values()
+    {
+        $this->assertSame('post_and_script', SettingsFields::normalize_source('post_and_script'));
+
+        // Script-only was removed in 7.0.0 — it always generated the post too.
+        $this->assertSame('post_and_script', SettingsFields::normalize_source('script'));
+
+        $this->assertSame('post', SettingsFields::normalize_source('post'));
+        $this->assertSame('post', SettingsFields::normalize_source(''));
+        $this->assertSame('post', SettingsFields::normalize_source('not-a-real-source'));
+    }
+
+    /**
+     * @test
+     * @group integration
+     */
+    public function get_source_normalizes_the_stored_meta()
+    {
+        $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::get_source']);
+
+        // Unset → Post.
+        $this->assertSame('post', SettingsFields::get_source($postId));
+
+        update_post_meta($postId, 'beyondwords_source', 'script');
+        $this->assertSame('post_and_script', SettingsFields::get_source($postId));
+
+        update_post_meta($postId, 'beyondwords_source', 'post_and_script');
+        $this->assertSame('post_and_script', SettingsFields::get_source($postId));
+
+        wp_delete_post($postId, true);
     }
 
     /**
@@ -128,8 +160,9 @@ class SettingsFieldsTest extends TestCase
     {
         return [
             'Post + Audio'                => ['post', 'audio', ['none', 'audio_post']],
-            'Script + Audio'              => ['script', 'audio', ['none', 'audio_script']],
             'Post+script + Audio'         => ['post_and_script', 'audio', ['none', 'audio_post', 'audio_script']],
+            // Legacy script-only posts have the post assets too, so they are offered.
+            'Legacy script + Audio'       => ['script', 'audio', ['none', 'audio_post', 'audio_script']],
             'Post + Video'                => ['post', 'video', ['none', 'video_post']],
             'Post + Audio+video'          => ['post', 'audio_and_video', ['none', 'audio_post', 'video_post']],
             'Post+script + Audio+video'   => [
@@ -166,7 +199,10 @@ class SettingsFieldsTest extends TestCase
         }));
 
         $this->assertCount(1, $crawler->filter('select#beyondwords_source'));
-        $this->assertCount(3, $crawler->filter('select#beyondwords_source option'));
+        $this->assertSame(
+            ['Post', 'Post + script'],
+            $crawler->filter('select#beyondwords_source option')->each(fn ($node) => $node->text())
+        );
         $this->assertStringContainsString(
             'display: none',
             (string) $crawler->filter('#beyondwords-metabox-settings--beyondwords-script-template-id')->attr('style')
@@ -183,7 +219,7 @@ class SettingsFieldsTest extends TestCase
     {
         $post = self::factory()->post->create_and_get([
             'post_title' => 'SettingsFieldsTest::content::script',
-            'meta_input' => ['beyondwords_source' => 'script'],
+            'meta_input' => ['beyondwords_source' => 'post_and_script'],
         ]);
 
         $crawler = new Crawler($this->capture_output(function () use ($post) {
@@ -196,6 +232,34 @@ class SettingsFieldsTest extends TestCase
         $options = $crawler->filter('select#beyondwords_script_template_id option');
         $this->assertSame('Project default', $options->eq(0)->text());
         $this->assertGreaterThan(1, $options->count());
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * An un-normalised read would leave the select with nothing selected.
+     *
+     * @test
+     * @group integration
+     */
+    public function render_content_section_normalizes_legacy_script_source()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'SettingsFieldsTest::content::legacy-script',
+            'meta_input' => ['beyondwords_source' => 'script'],
+        ]);
+
+        $crawler = new Crawler($this->capture_output(function () use ($post) {
+            SettingsFields::render_content_section($post);
+        }));
+
+        $this->assertSame(
+            'post_and_script',
+            $crawler->filter('select#beyondwords_source option[selected]')->attr('value')
+        );
+
+        $wrapper = $crawler->filter('#beyondwords-metabox-settings--beyondwords-script-template-id');
+        $this->assertStringNotContainsString('display: none', (string) $wrapper->attr('style'));
 
         wp_delete_post($post->ID, true);
     }
@@ -320,9 +384,9 @@ class SettingsFieldsTest extends TestCase
      * @test
      * @group integration
      */
-    public function render_player_section_falls_back_to_none_when_embed_invalid()
+    public function render_player_section_falls_back_to_default_asset_when_embed_invalid()
     {
-        // Embed = video_post is invalid for Post + Audio → falls back to None.
+        // video_post is invalid for Post + Audio, so the post keeps a player.
         $post = self::factory()->post->create_and_get([
             'post_title' => 'SettingsFieldsTest::player::invalid',
             'meta_input' => ['beyondwords_embed' => 'video_post'],
@@ -333,11 +397,109 @@ class SettingsFieldsTest extends TestCase
         }));
 
         $this->assertSame(
-            'none',
+            'audio_post',
             $crawler->filter('select#beyondwords_embed option[selected]')->attr('value')
         );
 
         wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     * @group integration
+     */
+    public function render_player_section_outputs_an_untouched_embed_flag()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'SettingsFieldsTest::player::touched',
+        ]);
+
+        $crawler = new Crawler($this->capture_output(function () use ($post) {
+            SettingsFields::render_player_section($post);
+        }));
+
+        // Ships empty; JS sets it on change.
+        $flag = $crawler->filter('input#beyondwords_embed_touched');
+        $this->assertCount(1, $flag);
+        $this->assertSame('hidden', $flag->attr('type'));
+        $this->assertSame('beyondwords_embed_touched', $flag->attr('name'));
+        $this->assertSame('', $flag->attr('value'));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_falls_back_to_the_default_asset_when_invalid()
+    {
+        // Output was changed to Video after audio_post was stored.
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::invalid',
+            'meta_input' => [
+                'beyondwords_output' => 'video',
+                'beyondwords_embed'  => 'audio_post',
+            ],
+        ]);
+
+        $this->assertSame(SettingsFields::EMBED_VIDEO_POST, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_keeps_an_explicit_none()
+    {
+        // None is valid everywhere, which is what separates it from a stale value.
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::none',
+            'meta_input' => [
+                'beyondwords_output' => 'video',
+                'beyondwords_embed'  => 'none',
+            ],
+        ]);
+
+        $this->assertSame(SettingsFields::EMBED_NONE, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_resolves_an_unset_value_via_the_legacy_flag()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::legacy',
+            'meta_input' => ['beyondwords_disabled' => '1'],
+        ]);
+
+        // Pre-v7 opt-out with no Embed stored → None.
+        $this->assertSame(SettingsFields::EMBED_NONE, SettingsFields::get_effective_embed($postId));
+
+        // An explicit asset outranks the legacy flag.
+        update_post_meta($postId, 'beyondwords_embed', SettingsFields::EMBED_AUDIO_POST);
+        $this->assertSame(SettingsFields::EMBED_AUDIO_POST, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function get_effective_embed_defaults_an_unset_value_to_the_first_asset()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SettingsFieldsTest::effective::unset',
+            'meta_input' => ['beyondwords_source' => 'script'],
+        ]);
+
+        // The post asset comes first even for a legacy script source.
+        $this->assertSame(SettingsFields::EMBED_AUDIO_POST, SettingsFields::get_effective_embed($postId));
+
+        wp_delete_post($postId, true);
     }
 
     /**
@@ -348,7 +510,7 @@ class SettingsFieldsTest extends TestCase
         $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::save']);
 
         // No nonce → nothing saved.
-        $_POST['beyondwords_source'] = 'script';
+        $_POST['beyondwords_source'] = 'post_and_script';
         SettingsFields::save($postId);
         $this->assertSame('', get_post_meta($postId, 'beyondwords_source', true));
 
@@ -360,6 +522,7 @@ class SettingsFieldsTest extends TestCase
         $_POST['beyondwords_video_template_id']     = '3';
         $_POST['beyondwords_video_size']            = 'landscape';
         $_POST['beyondwords_embed']                 = 'audio_post';
+        $_POST['beyondwords_embed_touched']         = '1';
 
         SettingsFields::save($postId);
 
@@ -382,6 +545,48 @@ class SettingsFieldsTest extends TestCase
         $this->assertSame('post_and_script', get_post_meta($postId, 'beyondwords_source', true));
         $this->assertSame('3', get_post_meta($postId, 'beyondwords_video_template_id', true));
 
+        // Not an option any more, so a stale form cannot write it back.
+        $_POST['beyondwords_source'] = 'script';
+        SettingsFields::save($postId);
+        $this->assertSame('post_and_script', get_post_meta($postId, 'beyondwords_source', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function save_only_persists_the_embed_the_user_chose()
+    {
+        $postId = self::factory()->post->create(['post_title' => 'SettingsFieldsTest::save_embed']);
+
+        $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');
+        $_POST['beyondwords_output']                = 'video';
+
+        // Untouched: the select still submits the rendered default.
+        $_POST['beyondwords_embed'] = 'video_post';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('video', get_post_meta($postId, 'beyondwords_output', true));
+        $this->assertSame('', get_post_meta($postId, 'beyondwords_embed', true));
+
+        // Touched → persisted.
+        $_POST['beyondwords_embed_touched'] = '1';
+        $_POST['beyondwords_embed']         = 'none';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('none', get_post_meta($postId, 'beyondwords_embed', true));
+
+        // An untouched later save leaves the stored choice alone.
+        unset($_POST['beyondwords_embed_touched']);
+        $_POST['beyondwords_embed'] = 'video_post';
+
+        SettingsFields::save($postId);
+
+        $this->assertSame('none', get_post_meta($postId, 'beyondwords_embed', true));
+
         wp_delete_post($postId, true);
     }
 
@@ -396,7 +601,7 @@ class SettingsFieldsTest extends TestCase
         wp_set_current_user(self::factory()->user->create(['role' => 'subscriber']));
 
         $_POST['beyondwords_settings_fields_nonce'] = wp_create_nonce('beyondwords_settings_fields');
-        $_POST['beyondwords_source']                = 'script';
+        $_POST['beyondwords_source']                = 'post_and_script';
 
         SettingsFields::save($postId);
 

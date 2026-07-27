@@ -18,7 +18,7 @@ against the API — Integration and Preferences appear after that.
 | Post Edit | Generate audio toggle              | Turn audio generation on or off for the current post. The caption reflects the state: ‘Generation enabled’ or ‘Generation disabled’. |
 | Post Edit | Player preview                     | Display a preview of the audio player, or the processing status if the player is not available. |
 | Post Edit | ‘Embed’                            | Pick which generated asset is shown on the post — ‘None’ shows no player. Replaces the ‘Display player’ checkbox removed in 7.0.0; see [legacy-meta-migration.md](./legacy-meta-migration.md). |
-| Post Edit | ‘Source’ and ‘Script template’     | Generate from the ‘Post’, a ‘Script’, or ‘Post + script’. ‘Script template’ is shown only when the source includes a script, and defaults to ‘Project default’. |
+| Post Edit | ‘Source’ and ‘Script template’     | Generate from the ‘Post’ or ‘Post + script’. ‘Script template’ is shown only when the source includes a script, and defaults to ‘Project default’. |
 | Post Edit | ‘Output’                           | Generate ‘Audio’, ‘Video’, or ‘Audio + video’. |
 | Post Edit | ‘Video template’ and ‘Video size’  | Per-post video options, shown when the output includes video. Each defaults to ‘Project default’. |
 | Post Edit | ‘Voice’                            | Toggle ‘Customize’ to override the project defaults with a ‘Language’ and a ‘Voice’. ‘Accent’, ‘Native’ and ‘Model’ narrow the voice list; they are filters only and are not saved — the post stores just the language code and voice id. |

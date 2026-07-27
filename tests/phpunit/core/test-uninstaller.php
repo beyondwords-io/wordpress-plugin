@@ -133,6 +133,8 @@ class UninstallerTest extends TestCase
             'speechkit_status'          => 'speechkit_status',
             '_speechkit_link'           => '_speechkit_link',
             '_speechkit_text'           => '_speechkit_text',
+            // Left behind by a request that fatalled mid-create.
+            \BeyondWords\Post\Sync::CREATE_LOCK_META_KEY => '1234567890',
         ];
 
         $postIds = self::factory()->post->create_many($numPosts, [
