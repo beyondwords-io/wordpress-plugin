@@ -106,6 +106,8 @@ Release date: tbc
     * The "Generate audio" toggle now reads "Generation enabled" / "Generation disabled"; the "Standard" voice model bucket is relabelled "Legacy".
 * [#532](https://github.com/beyondwords-io/wordpress-plugin/pull/532) Cache API reads and defer audio generation on WordPress VIP.
     * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
+* [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
+    * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
 
 **Fixes**
 
