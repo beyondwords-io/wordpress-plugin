@@ -48,6 +48,24 @@ class Sync {
 	const BULK_GENERATE_SYNC_LIMIT = 10;
 
 	/**
+	 * Post meta key for the per-post "a create is in flight" lock.
+	 *
+	 * Underscore-prefixed so core protects it: request bookkeeping, not post data.
+	 *
+	 * @since 7.0.0
+	 */
+	const CREATE_LOCK_META_KEY = '_beyondwords_create_lock';
+
+	/**
+	 * Seconds after which an unreleased create lock is treated as abandoned.
+	 *
+	 * Longer than the client's request timeout, so only a dead request's lock is stolen.
+	 *
+	 * @since 7.0.0
+	 */
+	const CREATE_LOCK_TIMEOUT = 30;
+
+	/**
 	 * Deprecated post-meta keys still exposed to the block editor over REST.
 	 *
 	 * On sites upgraded from legacy SpeechKit these can hold a post's only
@@ -228,13 +246,76 @@ class Sync {
 
 			$response = self::update_or_recreate_audio( $post_id );
 		} else {
-			$response = \BeyondWords\Api\Client::create_audio( $post_id );
+			// Returns early: create_audio_once() stores its own response, under the lock.
+			return self::create_audio_once( $post_id );
 		}
 
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		self::process_response( $response, $project_id, $post_id );
 
 		return $response;
+	}
+
+	/**
+	 * Create audio for a post unless another request is already creating it.
+	 *
+	 * Stores its own response, so the content ID lands before the lock lifts.
+	 * See doc/source-id-race.md.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array<mixed>|null|false False when another request has the create covered.
+	 */
+	private static function create_audio_once( int $post_id ): array|null|false {
+		if ( ! self::acquire_create_lock( $post_id ) ) {
+			return false;
+		}
+
+		try {
+			// The winner may have finished while we waited; the meta cache predates it.
+			wp_cache_delete( $post_id, 'post_meta' );
+
+			if ( \BeyondWords\Post\Meta::get_content_id( $post_id ) ) {
+				return false;
+			}
+
+			$response = \BeyondWords\Api\Client::create_audio( $post_id );
+
+			self::process_response( $response, \BeyondWords\Post\Meta::get_project_id( $post_id ), $post_id );
+
+			return $response;
+		} finally {
+			delete_post_meta( $post_id, self::CREATE_LOCK_META_KEY );
+		}
+	}
+
+	/**
+	 * Take the create lock for a post, stealing one left behind by a dead request.
+	 *
+	 * See doc/source-id-race.md.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function acquire_create_lock( int $post_id ): bool {
+		$now = time();
+
+		// `$unique` tests for an existing row uncached, so the window is one statement.
+		if ( add_post_meta( $post_id, self::CREATE_LOCK_META_KEY, (string) $now, true ) ) {
+			return true;
+		}
+
+		// A meta cache predating the holder's write would read empty and steal a live lock.
+		wp_cache_delete( $post_id, 'post_meta' );
+
+		$locked_at = (int) get_post_meta( $post_id, self::CREATE_LOCK_META_KEY, true );
+
+		if ( $now - $locked_at < self::CREATE_LOCK_TIMEOUT ) {
+			return false;
+		}
+
+		update_post_meta( $post_id, self::CREATE_LOCK_META_KEY, (string) $now );
+
+		return true;
 	}
 
 	/**

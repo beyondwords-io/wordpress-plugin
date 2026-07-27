@@ -159,7 +159,83 @@ class Client {
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
 		$response = self::call_api( 'POST', $url, $body, $post_id );
 
+		$existing = self::adopt_existing_content( $response, $post_id, $project_id );
+
+		if ( null !== $existing ) {
+			return $existing;
+		}
+
 		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Recover the content record a duplicate-`source_id` create collided with.
+	 *
+	 * See doc/source-id-race.md.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param int $post_id WordPress post ID, which is also the content's source ID.
+	 *
+	 * @return array<mixed>|null Null when the create didn't collide, or the content
+	 *                           couldn't be confirmed as this site's.
+	 */
+	private static function adopt_existing_content( array|\WP_Error $response, int $post_id, int|string $project_id ): ?array {
+		if ( ! self::is_duplicate_source_id( $response ) ) {
+			return null;
+		}
+
+		$existing = self::get_content( $post_id, $project_id );
+
+		if ( ! is_array( $existing ) || wp_remote_retrieve_response_code( $existing ) > 299 ) {
+			return null;
+		}
+
+		$content = json_decode( wp_remote_retrieve_body( $existing ), true );
+
+		if ( ! is_array( $content ) || empty( $content['id'] ) ) {
+			return null;
+		}
+
+		// Source IDs are bare post IDs, so a second install on this project collides.
+		$site_root  = (string) preg_replace( '#^https?://#', '', trailingslashit( home_url() ) );
+		$source_url = (string) preg_replace( '#^https?://#', '', (string) ( $content['source_url'] ?? '' ) );
+
+		// Scheme-insensitive: an http to https move leaves the old scheme stored.
+		if ( '' === $site_root || ! str_starts_with( $source_url, $site_root ) ) {
+			return null;
+		}
+
+		// The create only failed because the content already exists.
+		self::delete_errors( $post_id );
+
+		return $content;
+	}
+
+	/**
+	 * Whether a create response is the API rejecting an already-used `source_id`.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function is_duplicate_source_id( array|\WP_Error $response ): bool {
+		if ( 422 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $body ) || ! is_array( $body['errors'] ?? null ) ) {
+			return false;
+		}
+
+		foreach ( $body['errors'] as $error ) {
+			// Matched on `location`; the message beside it is free-form.
+			if ( is_array( $error ) && 'source_id' === ( $error['location'] ?? '' ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

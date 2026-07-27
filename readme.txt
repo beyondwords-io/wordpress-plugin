@@ -111,6 +111,8 @@ Release date: tbc
 
 **Fixes**
 
+* [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
+* [#604](https://github.com/beyondwords-io/wordpress-plugin/pull/604) Restore the pinned BeyondWords sidebar button's tooltip and accessible name.
 * [#603](https://github.com/beyondwords-io/wordpress-plugin/pull/603) Show a loading state in the classic editor while audio generation is still queued.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Send the full `video_settings` payload so videos generate.
     * Selecting "Video" or "Audio + video" output now sends the complete video settings (seeded from the project defaults), fixing posts that produced no video.
@@ -131,7 +133,6 @@ Release date: tbc
 * [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
 * [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
     * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
-* [#604](https://github.com/beyondwords-io/wordpress-plugin/pull/604) Restore the pinned BeyondWords sidebar button's tooltip and accessible name.
 * [#599](https://github.com/beyondwords-io/wordpress-plugin/pull/599) Keep the player when a Source or Output change invalidates the stored "Embed".
     * In the classic editor an "Embed" you never chose is no longer saved with the post, so those posts now follow later Source and Output changes.
 

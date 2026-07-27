@@ -1246,6 +1246,241 @@ class SyncTest extends TestCase
     }
 
     /**
+     * End-to-end cover for the reported bug; see doc/source-id-race.md.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_recovers_from_duplicate_source_id()
+    {
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostRecoversFromDuplicateSourceId',
+            'post_content' => '<p>Test content for source_id recovery.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = $this->add_duplicate_source_id_filter($existingContentId);
+
+        $response = Sync::generate_audio_for_post($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame('a-preview-token', get_post_meta($postId, 'beyondwords_preview_token', true));
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_skips_create_while_the_lock_is_held()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostSkipsCreateWhileTheLockIsHeld',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+                Sync::CREATE_LOCK_META_KEY => (string) time(),
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $requested = false;
+        $filter = function ($preempt, $args, $url) use (&$requested) {
+            $requested = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $this->assertFalse(Sync::generate_audio_for_post($postId));
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertFalse($requested);
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_content_id', true));
+
+        // The holder's lock is left for the holder to release.
+        $this->assertNotEmpty(get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A request that dies mid-create must not lock the post out of audio forever.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_steals_an_abandoned_create_lock()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostStealsAnAbandonedCreateLock',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+                Sync::CREATE_LOCK_META_KEY => (string) (time() - Sync::CREATE_LOCK_TIMEOUT - 1),
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $this->assertIsArray(Sync::generate_audio_for_post($postId));
+
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertEmpty(get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_releases_the_create_lock()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostReleasesTheCreateLock',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        Sync::generate_audio_for_post($postId);
+
+        $this->assertEmpty(get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A request arriving after the lock lifted but before the write would create again.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_stores_the_content_id_before_releasing_the_lock()
+    {
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostStoresTheContentIdBeforeReleasingTheLock',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $lockHeldAtWrite = null;
+
+        $observer = function ($metaId, $objectId, $metaKey) use ($postId, &$lockHeldAtWrite) {
+            if ($objectId === $postId && $metaKey === 'beyondwords_content_id') {
+                $lockHeldAtWrite = (bool) get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true);
+            }
+        };
+        add_action('added_post_meta', $observer, 10, 3);
+        add_action('updated_post_meta', $observer, 10, 3);
+
+        Sync::generate_audio_for_post($postId);
+
+        remove_action('added_post_meta', $observer, 10);
+        remove_action('updated_post_meta', $observer, 10);
+
+        $this->assertTrue($lockHeldAtWrite, 'The content ID was stored after the lock was released.');
+        $this->assertSame(BEYONDWORDS_TESTS_CONTENT_ID, get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * The winner finishes between this request's content-ID read and it taking the lock.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_skips_create_when_content_appeared_under_the_lock()
+    {
+        global $wpdb;
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostSkipsCreateWhenContentAppearedUnderTheLock',
+            'post_content' => '<p>Test content.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+                // Pre-set so generate_audio_for_post()'s own write can't flush the cache.
+                'beyondwords_integration_method' => Fields::INTEGRATION_REST_API,
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        // Prime the meta cache, then write behind it.
+        get_post_meta($postId, 'beyondwords_content_id', true);
+
+        $wpdb->insert(
+            $wpdb->postmeta,
+            [
+                'post_id'    => $postId,
+                'meta_key'   => 'beyondwords_content_id',
+                'meta_value' => BEYONDWORDS_TESTS_CONTENT_ID,
+            ]
+        );
+
+        $requested = false;
+        $filter = function ($preempt, $args, $url) use (&$requested) {
+            $requested = true;
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 1, 3);
+
+        $this->assertFalse(Sync::generate_audio_for_post($postId));
+
+        remove_filter('pre_http_request', $filter, 1);
+
+        $this->assertFalse($requested);
+        $this->assertEmpty(get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * @test
      */
     public function delete_audio_for_post_delegates_to_api_client()
