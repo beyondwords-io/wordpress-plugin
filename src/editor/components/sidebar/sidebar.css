@@ -17,3 +17,20 @@
 .beyondwords .components-button.is-secondary .dashicon {
   margin-right: 5px;
 }
+
+/* The header title must stay a plain string — brand mark drawn here. */
+.beyondwords-sidebar__header .interface-complementary-area-header__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.beyondwords-sidebar__header .interface-complementary-area-header__title::before {
+  content: "";
+  flex: none;
+  width: 24px;
+  height: 24px;
+  background-color: currentcolor;
+  -webkit-mask: url(../icon/beyondwords.svg) center / contain no-repeat;
+  mask: url(../icon/beyondwords.svg) center / contain no-repeat;
+}
