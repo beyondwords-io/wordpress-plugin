@@ -228,6 +228,7 @@ class Content {
 	 * @since 4.6.0  Remove summary param & prepend body with summary.
 	 * @since 5.0.0  Remove beyondwords_body_params filter.
 	 * @since 6.0.0  Cast return value to string.
+	 * @since 7.0.0  Replace the `metadata` param with a flat `tags` array.
 	 *
 	 * @static
 	 * @param int $post_id WordPress Post ID.
@@ -243,7 +244,7 @@ class Content {
 			'source_id'    => strval( $post_id ),
 			'author'       => self::get_author_name( $post_id ),
 			'image_url'    => strval( wp_get_original_image_url( get_post_thumbnail_id( $post_id ) ) ),
-			'metadata'     => self::get_metadata( $post_id ),
+			'tags'         => self::get_tags( $post_id ),
 			'publish_date' => get_post_time( self::DATE_FORMAT, true, $post_id ),
 		];
 
@@ -280,11 +281,10 @@ class Content {
 			$body['body_voice_id'] = $body_voice_id;
 		}
 
-		// Source = Script or Post + script → enable summarization; omitted when
-		// Source is Post (or unset) so the project default applies.
-		$source = get_post_meta( $post_id, 'beyondwords_source', true );
+		// Omitted when Source is Post (or unset) so the project default applies.
+		$source = \BeyondWords\Editor\Components\SettingsFields::get_source( $post_id );
 
-		if ( in_array( $source, [ 'script', 'post_and_script' ], true ) ) {
+		if ( \BeyondWords\Editor\Components\SettingsFields::source_includes_script( $source ) ) {
 			$body['summarization_settings'] = [ 'enabled' => true ];
 
 			$script_template_id = intval(
@@ -382,58 +382,32 @@ class Content {
 	}
 
 	/**
-	 * Get the post metadata to send with BeyondWords API requests.
+	 * Get the taxonomy terms to send as the `tags` param.
 	 *
 	 * The values are used to create playlist filters in the BeyondWords dashboard.
 	 *
-	 * @since 3.3.0
+	 * @since 3.3.0 Introduced as get_metadata(), sending a metadata.taxonomy object.
 	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils.
 	 * @since 5.0.0 Remove beyondwords_post_metadata filter.
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Renamed to get_tags(), returning a flat array of term names.
 	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return object The metadata object (empty if no metadata).
+	 * @return string[] Term names from every taxonomy of the post type.
 	 */
-	public static function get_metadata( int $post_id ): array|object {
-		$metadata = new \stdClass();
+	public static function get_tags( int $post_id ): array {
+		$taxonomies = get_object_taxonomies( (string) get_post_type( $post_id ) );
 
-		$taxonomy = self::get_all_taxonomies_and_terms( $post_id );
+		$tags = [];
 
-		if ( count( (array) $taxonomy ) ) {
-			$metadata->taxonomy = $taxonomy;
-		}
-
-		return $metadata;
-	}
-
-	/**
-	 * Get all taxonomies, and their selected terms, for a post.
-	 *
-	 * @since 3.3.0
-	 * @since 3.5.0 Moved from Core\Utils to Component\Post\PostUtils
-	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @param int $post_id Post ID.
-	 *
-	 * @return object The taxonomies object (empty if no taxonomies).
-	 */
-	public static function get_all_taxonomies_and_terms( int $post_id ): array|object {
-		$post_type = get_post_type( $post_id );
-
-		$post_type_taxonomies = get_object_taxonomies( $post_type );
-
-		$taxonomies = new \stdClass();
-
-		foreach ( $post_type_taxonomies as $post_type_taxonomy ) {
-			$terms = get_the_terms( $post_id, $post_type_taxonomy );
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = get_the_terms( $post_id, $taxonomy );
 
 			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
-				$taxonomies->{ (string) $post_type_taxonomy} = wp_list_pluck( $terms, 'name' );
+				$tags = array_merge( $tags, wp_list_pluck( $terms, 'name' ) );
 			}
 		}
 
-		return $taxonomies;
+		// Terms in different taxonomies can share a name, and the API wants each tag once.
+		return array_values( array_unique( $tags ) );
 	}
 
 	/**

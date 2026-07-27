@@ -41,7 +41,6 @@ context( 'Block Editor: Settings panel', () => {
 					.should( ( $els ) => {
 						expect( optionLabels( $els ) ).to.deep.eq( [
 							'Post',
-							'Script',
 							'Post + script',
 						] );
 					} );
@@ -49,7 +48,7 @@ context( 'Block Editor: Settings panel', () => {
 				// Script template hidden while Source = Post.
 				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
 
-				select( 'beyondwords--source' ).select( 'Script', {
+				select( 'beyondwords--source' ).select( 'Post + script', {
 					force: true,
 				} );
 				select( 'beyondwords--script-template' )
@@ -182,6 +181,45 @@ context( 'Block Editor: Settings panel', () => {
 							'Video (script)',
 						] );
 					} );
+			} );
+
+			it( `Player Embed keeps a player when Output invalidates it for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				// Store an explicit choice, which is what the cleanup effect acts on.
+				select( 'beyondwords--output' ).select( 'Audio + video', {
+					force: true,
+				} );
+				select( 'beyondwords--embed' ).select( 'Video (post)', {
+					force: true,
+				} );
+
+				// Post × Audio cannot produce Video (post), so the effect rewrites it.
+				select( 'beyondwords--output' ).select( 'Audio', {
+					force: true,
+				} );
+
+				select( 'beyondwords--embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'Audio (post)' );
+			} );
+
+			it( `Player Embed keeps an explicit None across an Output change for a ${ postType.name }`, () => {
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				select( 'beyondwords--embed' ).select( 'None', {
+					force: true,
+				} );
+				select( 'beyondwords--output' ).select( 'Video', {
+					force: true,
+				} );
+
+				// None is valid for every Source × Output, so it is never rewritten.
+				select( 'beyondwords--embed' )
+					.find( 'option:selected' )
+					.should( 'have.text', 'None' );
 			} );
 		} );
 } );

@@ -5,8 +5,10 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 
 export const SOURCE_POST = 'post';
-export const SOURCE_SCRIPT = 'script';
 export const SOURCE_POST_AND_SCRIPT = 'post_and_script';
+
+// Source removed in 7.0.0; see doc/legacy-meta-migration.md.
+export const LEGACY_SOURCE_SCRIPT = 'script';
 
 export const OUTPUT_AUDIO = 'audio';
 export const OUTPUT_VIDEO = 'video';
@@ -282,7 +284,6 @@ export function getLanguageModels( voices ) {
 export function getSourceOptions() {
 	return [
 		{ label: __( 'Post', 'speechkit' ), value: SOURCE_POST },
-		{ label: __( 'Script', 'speechkit' ), value: SOURCE_SCRIPT },
 		{
 			label: __( 'Post + script', 'speechkit' ),
 			value: SOURCE_POST_AND_SCRIPT,
@@ -301,12 +302,21 @@ export function getOutputOptions() {
 	];
 }
 
-export function sourceIncludesPost( source ) {
-	return source === SOURCE_POST || source === SOURCE_POST_AND_SCRIPT;
+/**
+ * Resolve a stored source to one the dropdown offers, so it never shows blank.
+ *
+ * @param {string} source The stored value.
+ *
+ * @return {string} SOURCE_POST or SOURCE_POST_AND_SCRIPT.
+ */
+export function normalizeSource( source ) {
+	return source === SOURCE_POST_AND_SCRIPT || source === LEGACY_SOURCE_SCRIPT
+		? SOURCE_POST_AND_SCRIPT
+		: SOURCE_POST;
 }
 
 export function sourceIncludesScript( source ) {
-	return source === SOURCE_SCRIPT || source === SOURCE_POST_AND_SCRIPT;
+	return normalizeSource( source ) === SOURCE_POST_AND_SCRIPT;
 }
 
 export function outputIncludesAudio( output ) {
@@ -321,6 +331,7 @@ export function outputIncludesVideo( output ) {
  * Derive the valid "Embed" dropdown options from the current Source × Output.
  *
  * Returns None plus one entry per asset the current source/output would produce.
+ * Post assets are unconditional — every source generates the post.
  *
  * @param {string} source One of SOURCE_*.
  * @param {string} output One of OUTPUT_*.
@@ -329,15 +340,14 @@ export function outputIncludesVideo( output ) {
  */
 export function getEmbedOptions( source, output ) {
 	const options = [ { label: __( 'None', 'speechkit' ), value: EMBED_NONE } ];
+	const includesScript = sourceIncludesScript( source );
 
 	if ( outputIncludesAudio( output ) ) {
-		if ( sourceIncludesPost( source ) ) {
-			options.push( {
-				label: __( 'Audio (post)', 'speechkit' ),
-				value: EMBED_AUDIO_POST,
-			} );
-		}
-		if ( sourceIncludesScript( source ) ) {
+		options.push( {
+			label: __( 'Audio (post)', 'speechkit' ),
+			value: EMBED_AUDIO_POST,
+		} );
+		if ( includesScript ) {
 			options.push( {
 				label: __( 'Audio (script)', 'speechkit' ),
 				value: EMBED_AUDIO_SCRIPT,
@@ -346,13 +356,11 @@ export function getEmbedOptions( source, output ) {
 	}
 
 	if ( outputIncludesVideo( output ) ) {
-		if ( sourceIncludesPost( source ) ) {
-			options.push( {
-				label: __( 'Video (post)', 'speechkit' ),
-				value: EMBED_VIDEO_POST,
-			} );
-		}
-		if ( sourceIncludesScript( source ) ) {
+		options.push( {
+			label: __( 'Video (post)', 'speechkit' ),
+			value: EMBED_VIDEO_POST,
+		} );
+		if ( includesScript ) {
 			options.push( {
 				label: __( 'Video (script)', 'speechkit' ),
 				value: EMBED_VIDEO_SCRIPT,
