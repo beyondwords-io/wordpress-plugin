@@ -20,16 +20,24 @@ Cypress.Commands.overwrite(
  * WordPress 6.8+ renders the editor inside an iframe; falls back to the
  * top-level document for older versions.
  */
-Cypress.Commands.add( 'getEditorCanvasBody', () => {
-	// Deliberately no `.then( cy.wrap )` boundary: pinning the resolved <body>
-	// breaks retries when the iframe re-renders during hydration (flaky on slow CI).
-	if ( Cypress.$( 'iframe[name="editor-canvas"]' ).length ) {
-		return cy
-			.get( 'iframe[name="editor-canvas"]' )
-			.its( '0.contentDocument.body' )
-			.should( 'not.be.empty' );
-	}
-	return cy.get( 'body' );
+Cypress.Commands.addQuery( 'getEditorCanvasBody', function () {
+	// A query, not a command: only query chains survive an iframe re-mount.
+	return () => {
+		const $iframe = Cypress.$( 'iframe[name="editor-canvas"]' );
+
+		if ( ! $iframe.length ) {
+			return Cypress.$( 'body' );
+		}
+
+		const body = $iframe[ 0 ].contentDocument?.body;
+
+		// Throw rather than yield an empty body: it makes the query retry.
+		if ( ! body || ! body.firstChild ) {
+			throw new Error( 'The editor canvas has not rendered a body yet.' );
+		}
+
+		return Cypress.$( body );
+	};
 } );
 
 Cypress.Commands.add( 'getTinyMceIframeBody', () => {
@@ -84,9 +92,11 @@ Cypress.Commands.add( 'createPost', ( options = {} ) => {
 
 Cypress.Commands.add( 'setPostTitle', ( title ) => {
 	if ( title ) {
+		cy.getEditorCanvasBody().find( '.editor-post-title__input' ).clear();
+
+		// Re-resolve rather than chain off `.clear()`: actions aren't requeryable.
 		cy.getEditorCanvasBody()
 			.find( '.editor-post-title__input' )
-			.clear()
 			.type( title );
 	}
 } );

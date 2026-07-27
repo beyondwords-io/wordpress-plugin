@@ -153,6 +153,7 @@ Release date: tbc
 
 **Codebase Enhancements**
 
+* [#608](https://github.com/beyondwords-io/wordpress-plugin/pull/608) Fix the intermittent detached-DOM failures in the block editor Cypress specs.
 * [#607](https://github.com/beyondwords-io/wordpress-plugin/pull/607) Update two PHPUnit tests left stale by the Script-only Source removal.
 * [#602](https://github.com/beyondwords-io/wordpress-plugin/pull/602) Align the player-visibility docs and Cypress specs with the "Embed" setting.
 * [#600](https://github.com/beyondwords-io/wordpress-plugin/pull/600) Add must-follow documentation and changelog rules to `AGENTS.md`, with `CLAUDE.md` and Copilot pointer files.
