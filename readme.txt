@@ -112,6 +112,7 @@ Release date: tbc
 
 **Fixes**
 
+* [#612](https://github.com/beyondwords-io/wordpress-plugin/pull/612) Fix tags with an ampersand showing as `r&amp;d` in the BeyondWords dashboard.
 * [#610](https://github.com/beyondwords-io/wordpress-plugin/pull/610) Stop the bulk "Generate audio" notice counting skipped posts as failures.
 * [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
