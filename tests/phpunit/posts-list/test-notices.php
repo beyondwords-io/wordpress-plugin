@@ -34,6 +34,7 @@ final class NoticesTest extends TestCase
         do_action('wp_loaded');
 
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'generated_notice')));
+        $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'skipped_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'deferred_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'deleted_notice')));
         $this->assertEquals(10, has_action('admin_notices', array(Notices::class, 'failed_notice')));
@@ -115,6 +116,21 @@ final class NoticesTest extends TestCase
         $this->expectException(\WPDieException::class);
 
         Notices::deferred_notice();
+    }
+
+    /**
+     * @test
+     */
+    public function skipped_notice_with_invalid_nonce()
+    {
+        set_current_screen('edit-post');
+
+        $_GET['beyondwords_bulk_edit_result_nonce'] = 'foo';
+        $_GET['beyondwords_bulk_skipped'] = '42';
+
+        $this->expectException(\WPDieException::class);
+
+        Notices::skipped_notice();
     }
 
     /**
@@ -260,6 +276,45 @@ final class NoticesTest extends TestCase
             '42 posts' => [
                 'numDeferred' => 42,
                 'expectMessage' => '42 posts still need audio — run Generate audio again to continue.',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider skipped_notice_provider
+     */
+    public function skipped_notice($numSkipped, $expectMessage)
+    {
+        set_current_screen('edit-post');
+
+        $_GET['beyondwords_bulk_edit_result_nonce'] = wp_create_nonce('beyondwords_bulk_edit_result');
+        $_GET['beyondwords_bulk_skipped'] = $numSkipped;
+
+        $html = $this->capture_output(function () {
+            Notices::skipped_notice();
+        });
+
+        $crawler = new Crawler($html);
+
+        $notice = $crawler->filter('div');
+
+        $this->assertEquals('beyondwords-bulk-edit-notice-skipped', $notice->getNode(0)->getAttribute('id'));
+        $this->assertEquals('notice notice-info is-dismissible', $notice->getNode(0)->getAttribute('class'));
+
+        $this->assertStringContainsString($expectMessage, $notice->filter('p:first-of-type')->text());
+    }
+
+    public function skipped_notice_provider() {
+        return [
+            '1 post' => [
+                'numSkipped' => 1,
+                'expectMessage' => '1 post was skipped because no audio change was needed.',
+            ],
+            '42 posts' => [
+                'numSkipped' => 42,
+                'expectMessage' => '42 posts were skipped because no audio change was needed.',
             ],
         ];
     }
