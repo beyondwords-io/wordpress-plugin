@@ -70,9 +70,9 @@ table tr th#speechkit_status {
 	text-align: right;
 }
 
-/* Keeps the button flush right while the floated core spinner is shown. */
+/* Core floats spinners right, which would displace the button. */
 .beyondwords-metabox-content-id__actions .spinner {
 	float: none;
-	margin: 0 0 0 4px;
+	margin: 0 4px 0 0;
 	vertical-align: middle;
 }

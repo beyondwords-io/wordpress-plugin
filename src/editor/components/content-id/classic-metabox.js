@@ -600,7 +600,8 @@
 		if ( loading && ! spinner ) {
 			const s = document.createElement( 'span' );
 			s.className = 'spinner is-active';
-			button.parentNode.insertBefore( s, button.nextSibling );
+			// Left of the button, so the right-aligned button doesn't shift.
+			button.parentNode.insertBefore( s, button );
 			return s;
 		}
 
