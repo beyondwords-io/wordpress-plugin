@@ -108,6 +108,7 @@ Release date: tbc
     * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
 * [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
     * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
+* [#611](https://github.com/beyondwords-io/wordpress-plugin/pull/611) Tidy the classic editor metabox spacing and Content ID layout.
 
 **Fixes**
 

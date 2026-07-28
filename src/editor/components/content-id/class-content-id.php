@@ -61,20 +61,20 @@ class ContentId {
 
 		wp_nonce_field( 'beyondwords_content_id', 'beyondwords_content_id_nonce' );
 		?>
-		<div id="beyondwords-metabox-content-id" style="margin: 8px 0 13px;">
+		<div id="beyondwords-metabox-content-id">
 			<p class="post-attributes-label-wrapper">
 				<label for="beyondwords_content_id" class="post-attributes-label">
 					<?php esc_html_e( 'Content ID', 'speechkit' ); ?>
 				</label>
 			</p>
-			<div style="display: flex; gap: 4px; align-items: center;">
-				<input
-					type="text"
-					id="beyondwords_content_id"
-					name="beyondwords_content_id"
-					value="<?php echo esc_attr( $content_id ); ?>"
-					style="flex: 1;"
-				/>
+			<input
+				type="text"
+				id="beyondwords_content_id"
+				name="beyondwords_content_id"
+				class="beyondwords-metabox-content-id__input"
+				value="<?php echo esc_attr( $content_id ); ?>"
+			/>
+			<div class="beyondwords-metabox-content-id__actions">
 				<button
 					type="button"
 					id="beyondwords__content-id--fetch"

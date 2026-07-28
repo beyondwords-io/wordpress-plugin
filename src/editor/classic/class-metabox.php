@@ -105,23 +105,23 @@ class Metabox {
 		\BeyondWords\Editor\Components\SettingsFields::render_player_section( $post );
 		( new \BeyondWords\Editor\Components\GenerateAudio() )::element( $post );
 
-		echo '<hr />';
+		echo '<hr class="beyondwords-metabox__divider" />';
 		self::heading( __( 'Content', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_content_section( $post );
 
-		echo '<hr />';
+		echo '<hr class="beyondwords-metabox__divider" />';
 		self::heading( __( 'Format', 'speechkit' ) );
 		\BeyondWords\Editor\Components\SettingsFields::render_format_section( $post );
 
-		echo '<hr />';
+		echo '<hr class="beyondwords-metabox__divider" />';
 		self::heading( __( 'Voice', 'speechkit' ) );
 		( new \BeyondWords\Editor\Components\SelectVoice() )::element( $post );
 
-		echo '<hr />';
+		echo '<hr class="beyondwords-metabox__divider" />';
 		self::heading( __( 'Data', 'speechkit' ) );
 		\BeyondWords\Editor\Components\ContentId::element( $post );
 
-		echo '<hr />';
+		echo '<hr class="beyondwords-metabox__divider" />';
 		self::help();
 	}
 
