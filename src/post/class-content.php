@@ -424,6 +424,9 @@ class Content {
 	public static function get_author_name( int $post_id ): string {
 		$author_id = get_post_field( 'post_author', $post_id );
 
-		return get_the_author_meta( 'display_name', $author_id );
+		$name = get_the_author_meta( 'display_name', $author_id );
+
+		// Core stores display names HTML-encoded, so "Smith & Sons" would reach the API as "Smith &amp; Sons".
+		return wp_specialchars_decode( $name, ENT_QUOTES );
 	}
 }

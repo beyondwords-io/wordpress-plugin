@@ -112,6 +112,7 @@ Release date: tbc
 
 **Fixes**
 
+* [#613](https://github.com/beyondwords-io/wordpress-plugin/pull/613) Fix author names with an ampersand showing as `Smith &amp; Sons` in the BeyondWords dashboard.
 * [#612](https://github.com/beyondwords-io/wordpress-plugin/pull/612) Fix tags with an ampersand showing as `r&amp;d` in the BeyondWords dashboard.
 * [#610](https://github.com/beyondwords-io/wordpress-plugin/pull/610) Stop the bulk "Generate audio" notice counting skipped posts as failures.
 * [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
