@@ -406,6 +406,9 @@ class Content {
 			}
 		}
 
+		// Core stores term names HTML-encoded, so "R&D" would reach the API as "R&amp;D".
+		$tags = array_map( fn( $tag ) => wp_specialchars_decode( $tag, ENT_QUOTES ), $tags );
+
 		// Terms in different taxonomies can share a name, and the API wants each tag once.
 		return array_values( array_unique( $tags ) );
 	}
@@ -421,6 +424,9 @@ class Content {
 	public static function get_author_name( int $post_id ): string {
 		$author_id = get_post_field( 'post_author', $post_id );
 
-		return get_the_author_meta( 'display_name', $author_id );
+		$name = get_the_author_meta( 'display_name', $author_id );
+
+		// Core stores display names HTML-encoded, so "Smith & Sons" would reach the API as "Smith &amp; Sons".
+		return wp_specialchars_decode( $name, ENT_QUOTES );
 	}
 }

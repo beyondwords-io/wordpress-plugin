@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 7.0.0-beta.1
+Stable tag: 7.0.0-rc.1
 Requires at least: 6.6
 Requires PHP: 8.0
 Tested up to: 7.0
@@ -108,9 +108,13 @@ Release date: tbc
     * Editor dropdown data is cached in 15-minute transients; on VIP, audio create/update is deferred to WP-Cron so the save request returns immediately.
 * [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
     * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
+* [#611](https://github.com/beyondwords-io/wordpress-plugin/pull/611) Tidy the classic editor metabox spacing and Content ID layout.
 
 **Fixes**
 
+* [#613](https://github.com/beyondwords-io/wordpress-plugin/pull/613) Fix author names with an ampersand showing as `Smith &amp; Sons` in the BeyondWords dashboard.
+* [#612](https://github.com/beyondwords-io/wordpress-plugin/pull/612) Fix tags with an ampersand showing as `r&amp;d` in the BeyondWords dashboard.
+* [#610](https://github.com/beyondwords-io/wordpress-plugin/pull/610) Stop the bulk "Generate audio" notice counting skipped posts as failures.
 * [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
 * [#540](https://github.com/beyondwords-io/wordpress-plugin/pull/540) Escape the player `onload` attribute to prevent stored XSS via the Content ID.

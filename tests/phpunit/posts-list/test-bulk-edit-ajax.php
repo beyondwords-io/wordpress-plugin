@@ -156,6 +156,44 @@ final class BulkEditAjaxTest extends WP_Ajax_UnitTestCase
     }
 
     /**
+     * The inline bulk edit only flags posts for the next save — it never generates,
+     * so the generate/skip/fail outcomes the bulk action counts don't apply here.
+     *
+     * @test
+     */
+    public function save_bulk_edit_generate_flags_posts_it_would_not_generate_for()
+    {
+        // A draft is not a status BeyondWords processes, so the bulk *action* would
+        // skip it; the inline edit still flags it for when it is published.
+        $postId = self::factory()->post->create([
+            'post_status' => 'draft',
+            'post_title'  => 'BulkEditAjaxTest::generate-draft',
+        ]);
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $_POST['beyondwords_bulk_edit_nonce'] = wp_create_nonce('beyondwords_bulk_edit');
+        $_POST['beyondwords_bulk_edit'] = 'generate';
+        $_POST['post_ids'] = [$postId];
+
+        $response = $this->getJsonResponse();
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertTrue($response['success']);
+        $this->assertSame([$postId], $response['data']);
+        $this->assertSame('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
+        $this->assertFalse($httpAttempted, 'The inline bulk edit should not call the API.');
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
      * Regression test for the AJAX delete path.
      *
      * With no post carrying both project_id and content_id, Client::batch_delete_audio() throws

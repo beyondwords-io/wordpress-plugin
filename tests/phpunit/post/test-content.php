@@ -813,6 +813,64 @@ class ContentTest extends TestCase
      *
      * @group tags
      **/
+    public function get_tags_decodes_html_entities_in_term_names()
+    {
+        $taxonomy = 'ampersands';
+
+        register_taxonomy($taxonomy, 'post');
+
+        $term = wp_insert_term('R&D', $taxonomy);
+
+        // Core encodes term names on insert, which is what get_tags() undoes.
+        $this->assertSame('R&amp;D', get_term($term['term_id'])->name);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'Testing Content::get_tags() with an ampersand',
+            'post_status' => 'publish'
+        ]);
+
+        wp_set_post_terms($postId, [$term['term_id']], $taxonomy);
+
+        $this->assertSame(['Uncategorized', 'R&D'], Content::get_tags($postId));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group tags
+     **/
+    public function get_tags_preserves_utf8_accents_in_term_names()
+    {
+        $taxonomy = 'accents';
+
+        register_taxonomy($taxonomy, 'post');
+
+        $term = wp_insert_term('café culture', $taxonomy);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'Testing Content::get_tags() with an accent',
+            'post_status' => 'publish'
+        ]);
+
+        wp_set_post_terms($postId, [$term['term_id']], $taxonomy);
+
+        $tags = Content::get_tags($postId);
+
+        $this->assertSame(['Uncategorized', 'café culture'], $tags);
+
+        // wp_json_encode() escapes the accent, so check it survives the round trip.
+        $this->assertSame($tags, json_decode(wp_json_encode($tags), true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     *
+     * @group tags
+     **/
     public function get_tags_returns_an_empty_array_when_a_post_has_no_terms()
     {
         $pageId = self::factory()->post->create([
@@ -857,6 +915,35 @@ class ContentTest extends TestCase
         ]);
 
         $this->assertSame($name, Content::get_author_name($post->ID));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     **/
+    public function get_author_name_decodes_html_entities_in_display_names()
+    {
+        $user = self::factory()->user->create_and_get([
+            'role' => 'editor',
+            'display_name' => 'Smith & Sons',
+        ]);
+
+        // Core encodes display names on insert, which is what get_author_name() undoes.
+        $this->assertSame('Smith &amp; Sons', get_userdata($user->ID)->display_name);
+
+        wp_set_current_user($user->ID);
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'Testing Content::get_author_name() with an ampersand',
+            'post_status' => 'publish',
+        ]);
+
+        $this->assertSame('Smith & Sons', Content::get_author_name($post->ID));
+
+        $body = json_decode(Content::get_content_params($post->ID), true);
+
+        $this->assertSame('Smith & Sons', $body['author']);
 
         wp_delete_post($post->ID, true);
     }
