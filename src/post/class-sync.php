@@ -48,6 +48,15 @@ class Sync {
 	const BULK_GENERATE_SYNC_LIMIT = 10;
 
 	/**
+	 * Outcome of one generate attempt: audio requested, nothing to do, or the API call failed.
+	 *
+	 * @since 7.0.0
+	 */
+	const OUTCOME_GENERATED = 'generated';
+	const OUTCOME_SKIPPED   = 'skipped';
+	const OUTCOME_FAILED    = 'failed';
+
+	/**
 	 * Post meta key for the per-post "a create is in flight" lock.
 	 *
 	 * Underscore-prefixed so core protects it: request bookkeeping, not post data.
@@ -216,13 +225,27 @@ class Sync {
 	 * @return array<mixed>|false|null Response from the API, or false when audio wasn't generated.
 	 */
 	public static function generate_audio_for_post( int $post_id ): array|false|null {
+		return self::generate_audio_result( $post_id )['response'];
+	}
+
+	/**
+	 * Generate audio for a post, reporting whether it ran, was skipped, or failed.
+	 *
+	 * A falsy response on its own can't tell a post that had nothing to do from
+	 * one whose API call failed. See doc/async-rest-migration.md.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array{outcome:string, response:array<mixed>|false|null}
+	 */
+	private static function generate_audio_result( int $post_id ): array {
 		if ( ! self::should_generate_audio_for_post( $post_id ) ) {
-			return false;
+			return self::skipped_result();
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return false;
+			return self::skipped_result();
 		}
 
 		$integration_method = \BeyondWords\Settings\Fields::get_integration_method( $post );
@@ -232,7 +255,7 @@ class Sync {
 			update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE );
 			update_post_meta( $post_id, 'beyondwords_project_id', get_option( 'beyondwords_project_id' ) );
 
-			return \BeyondWords\Api\Client::get_player_by_source_id( $post_id );
+			return self::attempted_result( \BeyondWords\Api\Client::get_player_by_source_id( $post_id ) );
 		}
 
 		update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_REST_API );
@@ -241,7 +264,7 @@ class Sync {
 
 		if ( $content_id ) {
 			if ( defined( 'BEYONDWORDS_AUTOREGENERATE' ) && ! BEYONDWORDS_AUTOREGENERATE ) {
-				return false;
+				return self::skipped_result();
 			}
 
 			$response = self::update_or_recreate_audio( $post_id );
@@ -253,7 +276,35 @@ class Sync {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		self::process_response( $response, $project_id, $post_id );
 
-		return $response;
+		return self::attempted_result( $response );
+	}
+
+	/**
+	 * Result for a post that needed no work — never counted as a failure.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array{outcome:string, response:false}
+	 */
+	private static function skipped_result(): array {
+		return [
+			'outcome'  => self::OUTCOME_SKIPPED,
+			'response' => false,
+		];
+	}
+
+	/**
+	 * Result for an API call we actually made, where a falsy response is the failure signal.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @return array{outcome:string, response:array<mixed>|false|null}
+	 */
+	private static function attempted_result( array|false|null $response ): array {
+		return [
+			'outcome'  => $response ? self::OUTCOME_GENERATED : self::OUTCOME_FAILED,
+			'response' => $response,
+		];
 	}
 
 	/**
@@ -264,11 +315,11 @@ class Sync {
 	 *
 	 * @since 7.0.0
 	 *
-	 * @return array<mixed>|null|false False when another request has the create covered.
+	 * @return array{outcome:string, response:array<mixed>|false|null} Skipped when another request has the create covered.
 	 */
-	private static function create_audio_once( int $post_id ): array|null|false {
+	private static function create_audio_once( int $post_id ): array {
 		if ( ! self::acquire_create_lock( $post_id ) ) {
-			return false;
+			return self::skipped_result();
 		}
 
 		try {
@@ -276,14 +327,14 @@ class Sync {
 			wp_cache_delete( $post_id, 'post_meta' );
 
 			if ( \BeyondWords\Post\Meta::get_content_id( $post_id ) ) {
-				return false;
+				return self::skipped_result();
 			}
 
 			$response = \BeyondWords\Api\Client::create_audio( $post_id );
 
 			self::process_response( $response, \BeyondWords\Post\Meta::get_project_id( $post_id ), $post_id );
 
-			return $response;
+			return self::attempted_result( $response );
 		} finally {
 			delete_post_meta( $post_id, self::CREATE_LOCK_META_KEY );
 		}
@@ -368,7 +419,7 @@ class Sync {
 	 *
 	 * @param int[] $post_ids WordPress post IDs from the bulk selection.
 	 *
-	 * @return array{generated:int, failed:int, deferred:int} Per-outcome counts.
+	 * @return array{generated:int, failed:int, skipped:int, deferred:int} Per-outcome counts.
 	 */
 	public static function bulk_generate_audio_for_posts( array $post_ids ): array {
 		$post_ids = array_map( 'intval', $post_ids );
@@ -389,6 +440,7 @@ class Sync {
 			return [
 				'generated' => count( $post_ids ),
 				'failed'    => 0,
+				'skipped'   => 0,
 				'deferred'  => 0,
 			];
 		}
@@ -402,10 +454,15 @@ class Sync {
 
 		$generated = 0;
 		$failed    = 0;
+		$skipped   = 0;
 
 		foreach ( $to_process as $post_id ) {
-			if ( self::generate_audio_for_post( $post_id ) ) {
+			$outcome = self::generate_audio_result( $post_id )['outcome'];
+
+			if ( self::OUTCOME_GENERATED === $outcome ) {
 				++$generated;
+			} elseif ( self::OUTCOME_SKIPPED === $outcome ) {
+				++$skipped;
 			} else {
 				++$failed;
 			}
@@ -414,6 +471,7 @@ class Sync {
 		return [
 			'generated' => $generated,
 			'failed'    => $failed,
+			'skipped'   => $skipped,
 			'deferred'  => $deferred,
 		];
 	}

@@ -284,5 +284,37 @@ context( 'Bulk Actions', () => {
 				);
 				cy.get( 'div.notice.notice-error' ).should( 'not.be.visible' );
 			} );
+
+			it( `reports skipped, not failed, for draft ${ postType.name }s`, () => {
+				// A draft is a post status BeyondWords does not process, so the
+				// bulk action has nothing to generate for it.
+				const title = `Bulk skip for ${ postType.name }s`;
+
+				cy.createTestPost( {
+					title,
+					postType: postType.slug,
+					status: 'draft',
+				} );
+
+				cy.visit(
+					`/wp-admin/edit.php?post_type=${ postType.slug }&post_status=draft`
+				);
+
+				cy.contains( 'tbody tr', title ).within( () => {
+					cy.get( 'input[type="checkbox"][name="post[]"]' ).check();
+				} );
+
+				cy.get( '#bulk-action-selector-top' ).select(
+					'Generate audio'
+				);
+				cy.get( '#doaction' ).click();
+
+				cy.get( '#beyondwords-bulk-edit-notice-skipped' ).contains(
+					'1 post was skipped because no audio change was needed.'
+				);
+				cy.get( '#beyondwords-bulk-edit-notice-failed' ).should(
+					'not.exist'
+				);
+			} );
 		} );
 } );

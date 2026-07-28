@@ -241,7 +241,7 @@ final class BulkEditTest extends TestCase
         delete_option('beyondwords_project_id');
 
         $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
-        $redirect = 'https://example.com/wp-admin/posts?beyondwords_bulk_generated=99';
+        $redirect = 'https://example.com/wp-admin/posts?beyondwords_bulk_generated=99&beyondwords_bulk_skipped=99';
         $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, $redirect);
 
         $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $postIds);
@@ -255,6 +255,9 @@ final class BulkEditTest extends TestCase
 
         $this->assertEquals(0, $args['beyondwords_bulk_generated']);
         $this->assertEquals(count($postIds), $args['beyondwords_bulk_failed']);
+
+        // Nothing was skipped, so the stale count from the incoming URL is dropped.
+        $this->assertArrayNotHasKey('beyondwords_bulk_skipped', $args);
 
         // The generate_audio flag is set even though generation failed.
         foreach ($postIds as $postId) {
@@ -529,10 +532,56 @@ final class BulkEditTest extends TestCase
         $this->assertSame('0', $args['beyondwords_bulk_generated']);
         $this->assertSame((string) Sync::BULK_GENERATE_SYNC_LIMIT, $args['beyondwords_bulk_failed']);
         $this->assertSame((string) $overflow, $args['beyondwords_bulk_deferred']);
+        $this->assertArrayNotHasKey('beyondwords_bulk_skipped', $args);
 
         foreach ($postIds as $postId) {
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
+
+        foreach ($postIds as $postId) {
+            wp_delete_post($postId, true);
+        }
+    }
+
+    /**
+     * Posts with nothing to generate are reported separately from real failures,
+     * so the notice no longer claims a failure the user cannot act on.
+     *
+     * @test
+     *
+     * @backupGlobals disabled
+     */
+    public function handle_bulk_generate_action_reports_skipped_posts()
+    {
+        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+
+        // Drafts are not a status BeyondWords processes, so each one is skipped.
+        $postIds = [
+            self::factory()->post->create(['post_status' => 'draft']),
+            self::factory()->post->create(['post_status' => 'draft']),
+        ];
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $nonce = wp_create_nonce('beyondwords_bulk_edit_result');
+        $redirect = add_query_arg('beyondwords_bulk_edit_result_nonce', $nonce, 'https://example.com/wp-admin/edit.php');
+
+        $redirect = BulkEdit::handle_bulk_generate_action($redirect, 'beyondwords_generate_audio', $postIds);
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        parse_str((string) parse_url($redirect, PHP_URL_QUERY), $args);
+
+        $this->assertSame((string) count($postIds), $args['beyondwords_bulk_skipped']);
+        $this->assertSame('0', $args['beyondwords_bulk_failed']);
+        $this->assertSame('0', $args['beyondwords_bulk_generated']);
+        $this->assertArrayNotHasKey('beyondwords_bulk_deferred', $args);
+        $this->assertFalse($httpAttempted, 'A skipped post should not reach the API.');
 
         foreach ($postIds as $postId) {
             wp_delete_post($postId, true);

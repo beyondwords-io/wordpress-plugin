@@ -110,6 +110,15 @@ It sets `beyondwords_generate_audio` meta on every selected post, then:
   ([src/posts-list/class-notices.php](../src/posts-list/class-notices.php));
   their generate flag is already set, so re-running the action completes them.
 
+Each inline generate is counted as `generated`, `skipped` or `failed`. Skipped
+means there was nothing to do, not that anything went wrong: an ineligible post
+status, an existing recording with `BEYONDWORDS_AUTOREGENERATE` off, or another
+request already creating the audio ([source-id-race.md](source-id-race.md)).
+`Sync::generate_audio_result()` carries that outcome alongside the API response,
+because a falsy response alone can't tell the two apart —
+`Sync::generate_audio_for_post()` still returns just the response, so the save
+and cron callers are unaffected. `Notices::skipped_notice()` surfaces the count.
+
 ## Known limitations
 
 ### Classic-editor server-side reads
