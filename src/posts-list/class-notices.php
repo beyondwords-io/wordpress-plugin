@@ -25,6 +25,7 @@ class Notices {
 	 */
 	public static function init(): void {
 		add_action( 'admin_notices', [ self::class, 'generated_notice' ] );
+		add_action( 'admin_notices', [ self::class, 'skipped_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'deferred_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'deleted_notice' ] );
 		add_action( 'admin_notices', [ self::class, 'failed_notice' ] );
@@ -53,6 +54,36 @@ class Notices {
 		);
 		?>
 		<div id="beyondwords-bulk-edit-notice-generated" class="notice notice-info is-dismissible">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * "N posts were skipped" notice after a Generate Audio bulk action.
+	 *
+	 * Skipped posts had nothing to generate — an ineligible post status, an
+	 * existing recording with autoregeneration off, or a concurrent create.
+	 */
+	public static function skipped_notice(): void {
+		$count = self::get_query_count( 'beyondwords_bulk_skipped' );
+
+		if ( null === $count ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: %d is replaced with the number of posts that were skipped */
+			_n(
+				'%d post was skipped because no audio change was needed.',
+				'%d posts were skipped because no audio change was needed.',
+				$count,
+				'speechkit'
+			),
+			$count
+		);
+		?>
+		<div id="beyondwords-bulk-edit-notice-skipped" class="notice notice-info is-dismissible">
 			<p><?php echo esc_html( $message ); ?></p>
 		</div>
 		<?php
@@ -126,7 +157,7 @@ class Notices {
 		}
 
 		$message = sprintf(
-			/* translators: %d is replaced with the number of posts that were skipped */
+			/* translators: %d is replaced with the number of posts that failed */
 			_n(
 				'%d post failed, check for errors in the BeyondWords column below.',
 				'%d posts failed, check for errors in the BeyondWords column below.',

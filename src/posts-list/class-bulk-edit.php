@@ -239,6 +239,7 @@ class BulkEdit {
 				'beyondwords_bulk_deferred',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
+				'beyondwords_bulk_skipped',
 				'beyondwords_bulk_error',
 			],
 			$redirect
@@ -270,6 +271,10 @@ class BulkEdit {
 			$redirect = add_query_arg( 'beyondwords_bulk_generated', $counts['generated'], $redirect );
 			$redirect = add_query_arg( 'beyondwords_bulk_failed', $counts['failed'], $redirect );
 
+			if ( $counts['skipped'] > 0 ) {
+				$redirect = add_query_arg( 'beyondwords_bulk_skipped', $counts['skipped'], $redirect );
+			}
+
 			if ( $counts['deferred'] > 0 ) {
 				$redirect = add_query_arg( 'beyondwords_bulk_deferred', $counts['deferred'], $redirect );
 			}
@@ -300,6 +305,7 @@ class BulkEdit {
 				'beyondwords_bulk_deferred',
 				'beyondwords_bulk_deleted',
 				'beyondwords_bulk_failed',
+				'beyondwords_bulk_skipped',
 				'beyondwords_bulk_error',
 			],
 			$redirect

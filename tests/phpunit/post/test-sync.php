@@ -1659,6 +1659,7 @@ class SyncTest extends TestCase
         // Every post is queued and reported as requested; nothing runs inline.
         $this->assertSame(count($postIds), $counts['generated']);
         $this->assertSame(0, $counts['failed']);
+        $this->assertSame(0, $counts['skipped']);
         $this->assertSame(0, $counts['deferred']);
 
         foreach ($postIds as $postId) {
@@ -1703,6 +1704,7 @@ class SyncTest extends TestCase
 
         $this->assertSame(Sync::BULK_GENERATE_SYNC_LIMIT, $counts['failed']);
         $this->assertSame(0, $counts['generated']);
+        $this->assertSame(0, $counts['skipped']);
         $this->assertSame($overflow, $counts['deferred']);
 
         // The already-generated post is ordered last, so it is one of the deferred
@@ -1728,6 +1730,87 @@ class SyncTest extends TestCase
     }
 
     /**
+     * A post BeyondWords doesn't process — here a draft — is nothing to do rather
+     * than a failure, so the notice can't report failures that never happened.
+     *
+     * @test
+     * @group generateAudio
+     */
+    public function bulk_generate_audio_for_posts_counts_ineligible_posts_as_skipped()
+    {
+        $postIds = [
+            self::factory()->post->create(['post_status' => 'draft']),
+            self::factory()->post->create(['post_status' => 'draft']),
+        ];
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $counts = Sync::bulk_generate_audio_for_posts($postIds);
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertSame(0, $counts['generated']);
+        $this->assertSame(0, $counts['failed']);
+        $this->assertSame(count($postIds), $counts['skipped']);
+        $this->assertSame(0, $counts['deferred']);
+        $this->assertFalse($httpAttempted, 'An ineligible post should not reach the API.');
+
+        // The single-post entry point still reports falsy, so on_add_or_update_post()
+        // and the cron callback are unaffected by the outcome split.
+        $this->assertFalse(Sync::generate_audio_for_post($postIds[0]));
+
+        foreach ($postIds as $postId) {
+            wp_delete_post($postId, true);
+        }
+    }
+
+    /**
+     * The request that loses the create lock did no work, so it must not inflate
+     * the failure count either.
+     *
+     * @test
+     * @group generateAudio
+     */
+    public function bulk_generate_audio_for_posts_counts_a_locked_create_as_skipped()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create(['post_status' => 'publish']);
+
+        // Stand in for another request that is mid-create with a fresh lock.
+        add_post_meta($postId, Sync::CREATE_LOCK_META_KEY, (string) time(), true);
+
+        $httpAttempted = false;
+        $filter = function ($preempt) use (&$httpAttempted) {
+            $httpAttempted = true;
+            return new WP_Error('blocked', 'No HTTP expected in this test.');
+        };
+        add_filter('pre_http_request', $filter, 10, 1);
+
+        $counts = Sync::bulk_generate_audio_for_posts([$postId]);
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertSame(0, $counts['generated']);
+        $this->assertSame(0, $counts['failed']);
+        $this->assertSame(1, $counts['skipped']);
+        $this->assertFalse($httpAttempted, 'The lock holder is creating the audio; this request should not.');
+
+        // The lock belongs to the other request, so this one leaves it in place.
+        $this->assertNotEmpty(get_post_meta($postId, Sync::CREATE_LOCK_META_KEY, true));
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * @test
      * @group generateAudio
      */
@@ -1742,6 +1825,7 @@ class SyncTest extends TestCase
 
         $this->assertSame(1, $counts['generated']);
         $this->assertSame(0, $counts['failed']);
+        $this->assertSame(0, $counts['skipped']);
         $this->assertSame(0, $counts['deferred']);
         $this->assertNotFalse(wp_next_scheduled(Sync::GENERATE_AUDIO_CRON_HOOK, [$postId]));
 

@@ -111,6 +111,7 @@ Release date: tbc
 
 **Fixes**
 
+* [#610](https://github.com/beyondwords-io/wordpress-plugin/pull/610) Stop the bulk "Generate audio" notice counting skipped posts as failures.
 * [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
 * [#540](https://github.com/beyondwords-io/wordpress-plugin/pull/540) Escape the player `onload` attribute to prevent stored XSS via the Content ID.
