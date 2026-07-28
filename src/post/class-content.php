@@ -406,6 +406,9 @@ class Content {
 			}
 		}
 
+		// Core stores term names HTML-encoded, so "R&D" would reach the API as "R&amp;D".
+		$tags = array_map( fn( $tag ) => wp_specialchars_decode( $tag, ENT_QUOTES ), $tags );
+
 		// Terms in different taxonomies can share a name, and the API wants each tag once.
 		return array_values( array_unique( $tags ) );
 	}
