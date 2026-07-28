@@ -860,4 +860,33 @@ class ContentTest extends TestCase
 
         wp_delete_post($post->ID, true);
     }
+
+    /**
+     * @test
+     **/
+    public function get_author_name_decodes_html_entities_in_display_names()
+    {
+        $user = self::factory()->user->create_and_get([
+            'role' => 'editor',
+            'display_name' => 'Smith & Sons',
+        ]);
+
+        // Core encodes display names on insert, which is what get_author_name() undoes.
+        $this->assertSame('Smith &amp; Sons', get_userdata($user->ID)->display_name);
+
+        wp_set_current_user($user->ID);
+
+        $post = self::factory()->post->create_and_get([
+            'post_title' => 'Testing Content::get_author_name() with an ampersand',
+            'post_status' => 'publish',
+        ]);
+
+        $this->assertSame('Smith & Sons', Content::get_author_name($post->ID));
+
+        $body = json_decode(Content::get_content_params($post->ID), true);
+
+        $this->assertSame('Smith & Sons', $body['author']);
+
+        wp_delete_post($post->ID, true);
+    }
 }
