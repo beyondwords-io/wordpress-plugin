@@ -112,29 +112,18 @@ Release date: tbc
 **Fixes**
 
 * [#606](https://github.com/beyondwords-io/wordpress-plugin/pull/606) Fix posts published with no player when two saves race to create audio.
-* [#604](https://github.com/beyondwords-io/wordpress-plugin/pull/604) Restore the pinned BeyondWords sidebar button's tooltip and accessible name.
-* [#603](https://github.com/beyondwords-io/wordpress-plugin/pull/603) Show a loading state in the classic editor while audio generation is still queued.
-* [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Send the full `video_settings` payload so videos generate.
-    * Selecting "Video" or "Audio + video" output now sends the complete video settings (seeded from the project defaults), fixing posts that produced no video.
 * [#564](https://github.com/beyondwords-io/wordpress-plugin/pull/564) Sweep the paired `_transient_timeout_beyondwords_*` rows on uninstall, so no orphaned option rows are left behind.
 * [#540](https://github.com/beyondwords-io/wordpress-plugin/pull/540) Escape the player `onload` attribute to prevent stored XSS via the Content ID.
 * [#539](https://github.com/beyondwords-io/wordpress-plugin/pull/539) Add capability checks to the bulk-edit AJAX handler.
 * [#541](https://github.com/beyondwords-io/wordpress-plugin/pull/541) Prevent a player SDK error from clobbering saved content on Fetch.
-* [#546](https://github.com/beyondwords-io/wordpress-plugin/pull/546) Prevent the classic editor Voice/Model dropdowns breaking on a voices REST error.
-* [#545](https://github.com/beyondwords-io/wordpress-plugin/pull/545) Persist settings-validation errors across the save redirect.
 * [#554](https://github.com/beyondwords-io/wordpress-plugin/pull/554) Return JSON from the bulk-edit AJAX handler and catch delete errors.
 * [#553](https://github.com/beyondwords-io/wordpress-plugin/pull/553) Resolve the post ID in `Content::get_content_without_excluded_blocks`.
-* [#552](https://github.com/beyondwords-io/wordpress-plugin/pull/552) Re-check the BeyondWords namespace in an effect to avoid a player init race.
 * [#551](https://github.com/beyondwords-io/wordpress-plugin/pull/551) Track live meta for the Inspect panel Remove button.
 * [#550](https://github.com/beyondwords-io/wordpress-plugin/pull/550) Coerce non-string API error messages to avoid a fatal `TypeError`.
-* [#548](https://github.com/beyondwords-io/wordpress-plugin/pull/548) Guard against undefined post meta in the settings-panel sections.
-* [#544](https://github.com/beyondwords-io/wordpress-plugin/pull/544) Prevent a `TypeError` in the deferred audio-generation cron when a post is deleted.
 * [#543](https://github.com/beyondwords-io/wordpress-plugin/pull/543) Guard a null languages API result in the classic editor voice select.
 * [#542](https://github.com/beyondwords-io/wordpress-plugin/pull/542) Surface a `WP_Error` from `get_content()` instead of a fatal `TypeError`.
 * [#588](https://github.com/beyondwords-io/wordpress-plugin/pull/588) Ship `symfony/dom-crawler` 5.4.52 to fix CVE-2026-45071 (XXE / local file disclosure).
     * The composer constraint now floors at the patched release, so a vulnerable version can no longer be bundled.
-* [#599](https://github.com/beyondwords-io/wordpress-plugin/pull/599) Keep the player when a Source or Output change invalidates the stored "Embed".
-    * In the classic editor an "Embed" you never chose is no longer saved with the post, so those posts now follow later Source and Output changes.
 
 **Deprecations**
 
@@ -153,6 +142,8 @@ Release date: tbc
 
 **Codebase Enhancements**
 
+* [#591](https://github.com/beyondwords-io/wordpress-plugin/pull/591) Refresh the developer documentation in `doc/` against the v7 codebase.
+* [#608](https://github.com/beyondwords-io/wordpress-plugin/pull/608) Fix the intermittent detached-DOM failures in the block editor Cypress specs.
 * [#607](https://github.com/beyondwords-io/wordpress-plugin/pull/607) Update two PHPUnit tests left stale by the Script-only Source removal.
 * [#602](https://github.com/beyondwords-io/wordpress-plugin/pull/602) Align the player-visibility docs and Cypress specs with the "Embed" setting.
 * [#600](https://github.com/beyondwords-io/wordpress-plugin/pull/600) Add must-follow documentation and changelog rules to `AGENTS.md`, with `CLAUDE.md` and Copilot pointer files.
