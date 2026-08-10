@@ -830,8 +830,7 @@ class Sync {
 			return $value;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$lang_codes = json_decode( file_get_contents( BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json' ), true );
+		$lang_codes = wp_json_file_decode( BEYONDWORDS__PLUGIN_DIR . 'assets/lang-codes.json', [ 'associative' => true ] );
 
 		if ( is_array( $lang_codes ) && array_key_exists( $language_id, $lang_codes ) ) {
 			return [ $lang_codes[ $language_id ] ];
