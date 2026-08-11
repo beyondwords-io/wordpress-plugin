@@ -5,30 +5,43 @@
 
 /* global Cypress, cy, beforeEach, context, it, expect */
 
-const PLAYER_SCRIPT_SRC =
-	'https://proxy.beyondwords.io/npm/@beyondwords/player@latest/dist/umd.js';
+/**
+ * Stub the BeyondWords player SDK before the editor boots.
+ *
+ * With the namespace already present the plugin never appends the CDN script,
+ * so `window.BeyondWords.Player` calls can be asserted on directly without
+ * depending on a cross-origin load — which cy.intercept cannot stub reliably
+ * once an earlier spec has left the script in the browser cache.
+ */
+function stubPlayerSdk() {
+	cy.on( 'window:before:load', ( win ) => {
+		win.__beyondwordsPlayerCalls = [];
+		win.BeyondWords = {
+			Player: function ( params ) {
+				win.__beyondwordsPlayerCalls.push( params );
+				this.destroy = function () {};
+			},
+		};
+	} );
+}
 
 /**
- * Stub the BeyondWords player SDK instead of loading the real CDN script.
+ * Match the plugin's content-status route under either permalink structure.
  *
- * The real script's load time isn't deterministic in CI, which is why the
- * poll-before-embed behaviour (src/editor/components/play-audio/hooks.js)
- * wasn't covered here before; stubbing it removes that non-determinism so
- * `window.BeyondWords.Player` calls can be asserted on directly.
+ * `apiFetch` percent-encodes the path into `rest_route` when permalinks are
+ * plain, so a slash-separated glob never matches.
+ *
+ * @param {string} projectId BeyondWords project ID.
+ * @param {string} contentId BeyondWords content ID.
+ *
+ * @return {RegExp} Matcher for the content-status REST route.
  */
-function stubPlayerScript() {
-	cy.intercept( 'GET', PLAYER_SCRIPT_SRC, {
-		headers: { 'content-type': 'application/javascript' },
-		body: `
-			window.__beyondwordsPlayerCalls = [];
-			window.BeyondWords = {
-				Player: function ( params ) {
-					window.__beyondwordsPlayerCalls.push( params );
-					this.destroy = function () {};
-				},
-			};
-		`,
-	} ).as( 'playerScript' );
+function contentStatusRoute( projectId, contentId ) {
+	const sep = '(?:/|%2F)';
+
+	return new RegExp(
+		`beyondwords${ sep }v1${ sep }projects${ sep }${ projectId }${ sep }content${ sep }${ contentId }`
+	);
 }
 
 context( 'Block Editor: Preview panel', () => {
@@ -92,14 +105,12 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept(
-				'GET',
-				// apiFetch appends `_locale`, hence the trailing wildcard.
-				`**/beyondwords/v1/projects/${ projectId }/content/${ contentId }*`,
-				{ statusCode: 200, body: { status: 'processing' } }
-			).as( 'statusCheck' );
+			cy.intercept( 'GET', contentStatusRoute( projectId, contentId ), {
+				statusCode: 200,
+				body: { status: 'processing' },
+			} ).as( 'statusCheck' );
 
-			stubPlayerScript();
+			stubPlayerSdk();
 
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsPluginSidebar();
@@ -148,14 +159,12 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept(
-				'GET',
-				// apiFetch appends `_locale`, hence the trailing wildcard.
-				`**/beyondwords/v1/projects/${ projectId }/content/${ contentId }*`,
-				{ statusCode: 200, body: { status: 'processed' } }
-			).as( 'statusCheck' );
+			cy.intercept( 'GET', contentStatusRoute( projectId, contentId ), {
+				statusCode: 200,
+				body: { status: 'processed' },
+			} ).as( 'statusCheck' );
 
-			stubPlayerScript();
+			stubPlayerSdk();
 
 			cy.visitPostEditorById( postId );
 			cy.openBeyondwordsPluginSidebar();
