@@ -5,7 +5,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -65,8 +65,12 @@ export function useBeyondWordsNamespace() {
 /**
  * Create a (preview) BeyondWords player once its content is ready.
  *
- * A contentId that appears during this session may still be processing, so it
- * polls until `processed` before embedding (see lib/poll-content-status.js).
+ * Always confirms `processed` before embedding a contentId, whether it just
+ * appeared this session or was already on the post when the editor opened —
+ * a just-published, still-processing post (e.g. a slower voice/model
+ * override) is otherwise indistinguishable from a long-finished one. Mirrors
+ * the classic editor metabox, which polls unconditionally for the same
+ * reason. See lib/poll-content-status.js.
  *
  * @param {Object}      options              Options.
  * @param {HTMLElement} options.target       Player mount node.
@@ -93,10 +97,6 @@ export function useBeyondWordsPlayer( {
 		isPolling: false,
 		timedOut: false,
 	} );
-
-	// Content that existed at mount finished processing long ago and embeds
-	// immediately; only a contentId appearing during this session polls first.
-	const mountContentIdRef = useRef( contentId );
 
 	useEffect( () => {
 		if ( ! BeyondWords?.Player || ! target ) {
@@ -145,9 +145,9 @@ export function useBeyondWordsPlayer( {
 			setPlayer( newPlayer );
 		};
 
-		if ( contentId && contentId !== mountContentIdRef.current ) {
-			// Session-fresh content: poll until processed, then embed, so a 404
-			// is never CDN-cached for still-processing content.
+		if ( contentId ) {
+			// Poll until processed, then embed, so a 404 is never CDN-cached
+			// for content that's still processing.
 			setPollState( {
 				status: undefined,
 				isPolling: true,
@@ -187,8 +187,8 @@ export function useBeyondWordsPlayer( {
 					// Aborted (unmount or dependency change) — nothing to do.
 				} );
 		} else {
-			// Already-processed content (present at mount) or client-side
-			// integration (keyed on sourceId): nothing to poll, embed now.
+			// Client-side integration, keyed on sourceId: nothing to poll,
+			// embed now.
 			setPollState( {
 				status: undefined,
 				isPolling: false,
