@@ -174,6 +174,7 @@ Release date: 11th August 2026
 
 **Codebase Enhancements**
 
+* [#619](https://github.com/beyondwords-io/wordpress-plugin/pull/619) Fix the block editor Preview panel Cypress spec failing on the content-status poll.
 * [#591](https://github.com/beyondwords-io/wordpress-plugin/pull/591) Refresh the developer documentation in `doc/` against the v7 codebase.
 * [#608](https://github.com/beyondwords-io/wordpress-plugin/pull/608) Fix the intermittent detached-DOM failures in the block editor Cypress specs.
 * [#607](https://github.com/beyondwords-io/wordpress-plugin/pull/607) Update two PHPUnit tests left stale by the Script-only Source removal.
