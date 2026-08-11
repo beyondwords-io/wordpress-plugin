@@ -3,7 +3,7 @@
  * @covers src/player/renderer/class-amp.php
  */
 
-/* global cy, before, beforeEach, after, context, it */
+/* global cy, before, beforeEach, after, context, it, URL */
 
 context( 'Plugins: AMP', () => {
 	before( () => {
@@ -37,8 +37,10 @@ context( 'Plugins: AMP', () => {
 				cy.hasPlayerInstances( 1 );
 
 				cy.url().then( ( url ) => {
-					// View post as AMP by appending &amp=1
-					cy.visit( `${ url }&amp=1` );
+					// Pretty permalinks carry no query string to append to.
+					const ampUrl = new URL( url );
+					ampUrl.searchParams.set( 'amp', '1' );
+					cy.visit( ampUrl.toString() );
 				} );
 
 				cy.get( 'amp-iframe' ).should( 'exist' );
