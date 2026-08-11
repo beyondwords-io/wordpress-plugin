@@ -26,22 +26,18 @@ function stubPlayerSdk() {
 }
 
 /**
- * Match the plugin's content-status route under either permalink structure.
+ * Match the content-status poll by its content ID.
  *
- * `apiFetch` percent-encodes the path into `rest_route` when permalinks are
- * plain, so a slash-separated glob never matches.
+ * `apiFetch` percent-encodes the REST path into `rest_route` under the test
+ * site's plain permalinks, so a slash-separated glob never matches — the ID
+ * is the one part of the URL that survives either form intact.
  *
- * @param {string} projectId BeyondWords project ID.
  * @param {string} contentId BeyondWords content ID.
  *
- * @return {RegExp} Matcher for the content-status REST route.
+ * @return {RegExp} Matcher for the content-status request.
  */
-function contentStatusRoute( projectId, contentId ) {
-	const sep = '(?:/|%2F)';
-
-	return new RegExp(
-		`beyondwords${ sep }v1${ sep }projects${ sep }${ projectId }${ sep }content${ sep }${ contentId }`
-	);
+function contentStatusRoute( contentId ) {
+	return new RegExp( contentId );
 }
 
 context( 'Block Editor: Preview panel', () => {
@@ -105,7 +101,7 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept( 'GET', contentStatusRoute( projectId, contentId ), {
+			cy.intercept( 'GET', contentStatusRoute( contentId ), {
 				statusCode: 200,
 				body: { status: 'processing' },
 			} ).as( 'statusCheck' );
@@ -159,7 +155,7 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept( 'GET', contentStatusRoute( projectId, contentId ), {
+			cy.intercept( 'GET', contentStatusRoute( contentId ), {
 				statusCode: 200,
 				body: { status: 'processed' },
 			} ).as( 'statusCheck' );
