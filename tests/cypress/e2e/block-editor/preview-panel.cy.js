@@ -26,18 +26,18 @@ function stubPlayerSdk() {
 }
 
 /**
- * Match the content-status poll by its content ID.
+ * Match the content-status REST call for a content ID.
  *
- * `apiFetch` percent-encodes the REST path into `rest_route` under the test
- * site's plain permalinks, so a slash-separated glob never matches — the ID
- * is the one part of the URL that survives either form intact.
+ * The gaps are loose because `apiFetch` percent-encodes the path into
+ * `rest_route` under the test site's plain permalinks, so the slashes between
+ * `beyondwords`, `content` and the ID arrive as `%2F`.
  *
  * @param {string} contentId BeyondWords content ID.
  *
  * @return {RegExp} Matcher for the content-status request.
  */
 function contentStatusRoute( contentId ) {
-	return new RegExp( contentId );
+	return new RegExp( `beyondwords.+content.+${ contentId }` );
 }
 
 context( 'Block Editor: Preview panel', () => {
