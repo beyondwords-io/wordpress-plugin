@@ -25,21 +25,6 @@ function stubPlayerSdk() {
 	} );
 }
 
-/**
- * Match the content-status REST call for a content ID.
- *
- * The gaps are loose because `apiFetch` percent-encodes the path into
- * `rest_route` under the test site's plain permalinks, so the slashes between
- * `beyondwords`, `content` and the ID arrive as `%2F`.
- *
- * @param {string} contentId BeyondWords content ID.
- *
- * @return {RegExp} Matcher for the content-status request.
- */
-function contentStatusRoute( contentId ) {
-	return new RegExp( `beyondwords.+content.+${ contentId }` );
-}
-
 context( 'Block Editor: Preview panel', () => {
 	beforeEach( () => {
 		cy.login();
@@ -101,10 +86,12 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept( 'GET', contentStatusRoute( contentId ), {
-				statusCode: 200,
-				body: { status: 'processing' },
-			} ).as( 'statusCheck' );
+			// apiFetch appends `_locale`, hence the trailing wildcard.
+			cy.intercept(
+				'GET',
+				`**/beyondwords/v1/projects/${ projectId }/content/${ contentId }*`,
+				{ statusCode: 200, body: { status: 'processing' } }
+			).as( 'statusCheck' );
 
 			stubPlayerSdk();
 
@@ -155,10 +142,12 @@ context( 'Block Editor: Preview panel', () => {
 				metaValue: '9001',
 			} );
 
-			cy.intercept( 'GET', contentStatusRoute( contentId ), {
-				statusCode: 200,
-				body: { status: 'processed' },
-			} ).as( 'statusCheck' );
+			// apiFetch appends `_locale`, hence the trailing wildcard.
+			cy.intercept(
+				'GET',
+				`**/beyondwords/v1/projects/${ projectId }/content/${ contentId }*`,
+				{ statusCode: 200, body: { status: 'processed' } }
+			).as( 'statusCheck' );
 
 			stubPlayerSdk();
 
