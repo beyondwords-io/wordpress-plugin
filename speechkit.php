@@ -10,12 +10,12 @@ declare( strict_types = 1 );
  * @package           Beyondwords\Wordpress
  *
  * @wordpress-plugin
- * Plugin Name:       BeyondWords - Text-to-Speech
+ * Plugin Name:       BeyondWords - AI audio for publishers
  * Plugin URI:        https://beyondwords.io
- * Description:       The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player.
+ * Description:       Turn WordPress articles into audio as you publish, with tools for distribution, monetization, and analytics.
  * Author:            BeyondWords
  * Author URI:        https://beyondwords.io
- * Version:           7.0.0-rc.1
+ * Version:           7.0.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // phpcs:disable
-define('BEYONDWORDS__PLUGIN_VERSION', '7.0.0-rc.1');
+define('BEYONDWORDS__PLUGIN_VERSION', '7.0.0');
 define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable
