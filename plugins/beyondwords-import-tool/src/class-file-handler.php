@@ -150,21 +150,15 @@ class FileHandler {
 			return false;
 		}
 
-		$json_content = file_get_contents( $file['tmp_name'] );
-
-		if ( $json_content === false ) {
+		if ( ! is_readable( $file['tmp_name'] ) ) {
 			Notices::add( __( 'Could not read the uploaded file. Please try again.', 'speechkit' ), 'error' );
 			return false;
 		}
 
-		$data = json_decode( $json_content, true );
+		$data = wp_json_file_decode( $file['tmp_name'], [ 'associative' => true ] );
 
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			Notices::add(
-				// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a JSON error message.
-				sprintf( __( 'Invalid JSON: %s', 'speechkit' ), json_last_error_msg() ),
-				'error'
-			);
+		if ( null === $data ) {
+			Notices::add( __( 'Invalid JSON in the uploaded file. Please try again.', 'speechkit' ), 'error' );
 			return false;
 		}
 

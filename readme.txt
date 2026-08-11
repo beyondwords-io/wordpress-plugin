@@ -157,7 +157,7 @@ Release date: tbc
 * [#560](https://github.com/beyondwords-io/wordpress-plugin/pull/560) Cancel superseded CI runs via a concurrency group.
 * [#516](https://github.com/beyondwords-io/wordpress-plugin/pull/516) Remove `environment` from the GitHub workflows.
 * [#517](https://github.com/beyondwords-io/wordpress-plugin/pull/517), [#535](https://github.com/beyondwords-io/wordpress-plugin/pull/535) Update GitHub Actions dependencies.
-* [#514](https://github.com/beyondwords-io/wordpress-plugin/pull/514), [#529](https://github.com/beyondwords-io/wordpress-plugin/pull/529), [#534](https://github.com/beyondwords-io/wordpress-plugin/pull/534) Dependency upgrades.
+* [#514](https://github.com/beyondwords-io/wordpress-plugin/pull/514), [#529](https://github.com/beyondwords-io/wordpress-plugin/pull/529), [#534](https://github.com/beyondwords-io/wordpress-plugin/pull/534), [#616](https://github.com/beyondwords-io/wordpress-plugin/pull/616) Dependency upgrades.
 * Various dependency updates to clear Dependabot security warnings.
 
 --------
