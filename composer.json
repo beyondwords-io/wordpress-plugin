@@ -1,6 +1,6 @@
 {
     "name": "beyondwords/wordpress",
-    "description": "The effortless way to make content listenable. Automatically create audio versions and embed via our customizable player.",
+    "description": "Turn WordPress articles into audio as you publish, with tools for distribution, monetization, and analytics.",
     "license": "GPL-2.0-or-later",
     "type": "project",
     "homepage": "https://beyondwords.io",

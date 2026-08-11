@@ -1,85 +1,112 @@
-=== BeyondWords - Text-to-Speech ===
+=== BeyondWords - AI audio for publishers ===
 
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 7.0.0-rc.1
+Stable tag: 7.0.0
 Requires at least: 6.6
 Requires PHP: 8.0
 Tested up to: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-BeyondWords is the AI voice platform that brings frictionless audio publishing to newsrooms, writers, and businesses.
+
+Turn WordPress articles into audio as you publish, with tools for distribution, monetization, and analytics.
 
 == Description ==
 
-[BeyondWords](https://beyondwords.io/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) is the AI audio and video platform built for publishers. Connect the plugin to automatically generate audio and video versions of your WordPress posts, which can be instantly embedded into your pages or distributed across third-party platforms.
+Turn WordPress articles into audio as you publish, with tools for distribution, monetization, and analytics.
 
-Choose from a variety of ElevenLabs and Azure voices to power your narration, or create your own hyper-realistic [voice clones](https://beyondwords.io/voice-cloning/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin).
+= Let audiences listen to your articles =
 
+BeyondWords turns selected WordPress posts and pages into audio automatically.
 
-== GET STARTED WITH BEYONDWORDS ==
+Your editors keep working in WordPress. BeyondWords generates the audio, adds a customizable player, and automatically update audio when articles changes.
 
-To get started with BeyondWords for WordPress, [book a demo](https://beyondwords.io/book-a-demo/?utm_source=wordpress&utm_medium=referral&utm_campaign=&utm_content=plugin) with our team.
+Choose from premade voices, generate a voice from a prompt, or create Instant and Professional voice clones. Voices are powered by ElevenLabs.
 
-We’ll walk you through the platform, discuss your goals, and help set up your account so you can begin converting your WordPress content into audio and/or video.
+= What you can do =
 
-== Key features of our text-to-speech plugin for WordPress: ==
+* Choose which posts and pages become audio
+* Create full audio articles or shorter audio summaries
+* Add a customizable player with automatic word highlighting
+* Correct pronunciations and review audio before publishing
+* Build playlists and podcast feeds
+* Monetize listening through advertising and subscriptions
+* Measure plays, engagement, listening time, and completion
 
-* Easily pick which pages and posts are converted into audio and/or video
-* Automatic content extraction ensures only editorial content is converted
-* Powerful and versatile player options to fit your web and mobile experience
+= Distribute in WordPress and beyond =
 
+Embed audio in your articles, create playlists, publish podcast feeds to services such as Spotify and Apple Podcasts, share audio via URL, or share and download audio files.
 
-== Key features of your BeyondWords dashboard: ==
+= Built for WordPress workflows =
 
-* Choose from hundreds of premade AI voices or create lifelike voice clones
-* Configure audio, video, and player settings to suit your publication’s needs
-* Curate your own playlists and podcast feeds
-* Monitor engagement through BeyondWords Analytics or third-party platforms
-* Monetize your content with audio and video advertising or subscriptions
+Set defaults for your publication, then override them on individual posts.
 
-Join hundreds of WordPress publishers already using our text-to-speech plugin and platform to increase engagement, boost subscriptions, and generate revenue.
+BeyondWords can regenerate audio when an article changes. You can also use WordPress bulk actions to generate audio for existing articles.
 
-If you have any questions or feedback, please email <support@beyondwords.io>.
+For page-builder setups such as Elementor, Magic Embed provides an alternative to the standard REST API integration.
 
+= Monetize listening =
 
-== CUSTOMER TESTIMONIAL ==
+Make audio a subscriber benefit with full, ad-free listening, while using previews or ad-supported audio to encourage other readers to register or subscribe.
 
-> "We've been using BeyondWords to convert our articles into audio for over a year. Overall, we are very impressed with the service. The quality of the audio is consistently the best we've found available, the plugin and dashboard provides all the functionality we need, processing and delivery of the audio is fast and the players fit nicely on our page. We've had great customer feedback and the team have been quick to make adjustments based on our suggestions."
+Upload your own audio ads or connect your existing ad server through VAST, the common standard for audio advertising.
+
+= What publishers say =
+
+> "We've had great customer feedback and the team have been quick to make adjustments based on our suggestions."
 >
-> &mdash; Kenneth Creamer, Creamer Media
+> Kenneth Creamer, Creamer Media
 
+= Get started =
 
-== HYPER-REALISTIC VOICES ==
+Book a demo and we'll help you choose the right setup, voices, player, and monetization options for your publication.
 
-BeyondWords offers a curated selection of AI voices from ElevenLabs and Azure, making it easy for you to find the right sound for your newsroom. You can also create Instant voice clones from just a few seconds of audio, or invest in a top-quality Professional clone for consistent, on-brand narration.
+[Book a demo](https://beyondwords.io/book-a-demo/)
 
-Our AI preprocessing system automatically handles numbers, abbreviations, scores, and other non-standard text, converting them into the optimal spoken form for audio or video. For those rare exceptions, you can define custom pronunciations directly in your dashboard.
+For questions or support, email <support@beyondwords.io>.
 
-The result is natural-sounding narration that engages your audience—at a fraction of the cost of traditional voice recording.
+== Installation ==
 
+1. Install and activate the BeyondWords plugin.
+2. Connect it to your BeyondWords project.
+3. Choose which posts and pages should become audio.
+4. Set your default voice and player preferences.
+5. Publish as usual.
 
-== EFFORTLESS DISTRIBUTION ==
+== Frequently asked questions ==
 
-With the BeyondWords for WordPress plugin, you can automatically embed audio and video versions into your posts using our customizable player. Enable playback-by-paragraph to let readers click anywhere to start listening, and update the color scheme to match your publication’s branding.
+= Can I choose which articles become audio? =
 
-In your BeyondWords dashboard, you can create custom playlists that keep audiences listening for longer. Embed these on your website or turn them into podcast feeds, ready for submission to platforms like Spotify, Apple Podcasts, and YouTube.
+Yes. Set defaults for posts and pages, then change the settings for individual articles from the WordPress editor.
 
-You can also download your audio/video files and share them via URL.
+= What happens when I update an article? =
 
+BeyondWords can regenerate the audio using the updated article text. You can also keep the existing audio when an update doesn't require a new version.
 
-== MONETIZATION AND ANALYTICS ==
+= Can we use our own voices? =
 
-Monetize your BeyondWords audio and video by uploading your own advertising assets, or connect to an ad network through VAST integration. Our plugin is also compatible with subscriptions, allowing you to hide the player from non-logged-in users when needed.
+Yes. You can create Instant or Professional voice clones for journalists, authors, analysts, presenters, or other speakers. You must have the speaker's permission.
 
-Keep on top of performance with BeyondWords Analytics or by forwarding events to your own analytics tools. You can track plays, engagement rate, unique listeners, listening time, retention, and other key audio and video metrics.
+You can also choose a premade voice or generate a voice from a prompt.
+
+= Can we monetize the audio? =
+
+Yes. Upload your own audio ads, connect an existing ad server, or use access tiers to create different listening experiences for visitors, registered readers, and subscribers.
+
+= Can we publish the audio as a podcast? =
+
+Yes. BeyondWords lets you create podcast feeds for services such as Spotify and Apple Podcasts.
+
+= Does it work with Elementor and other page builders? =
+
+Yes. The plugin normally connects WordPress to BeyondWords through our REST API. For Elementor and other page-builder setups where that approach isn’t suitable, Magic Embed uses a script on your site to extract and sync the article content instead.
 
 == Changelog ==
 
 = 7.0.0 =
 
-Release date: tbc
+Release date: 11th August 2026
 
 **Enhancements**
 
