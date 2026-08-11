@@ -139,6 +139,7 @@ Release date: 11th August 2026
 
 **Fixes**
 
+* [#618](https://github.com/beyondwords-io/wordpress-plugin/pull/618) Poll content status before embedding the block-editor Preview panel player, so a still-processing post (more likely with a customised voice/model) no longer shows a broken preview.
 * [#613](https://github.com/beyondwords-io/wordpress-plugin/pull/613) Fix author names with an ampersand showing as `Smith &amp; Sons` in the BeyondWords dashboard.
 * [#612](https://github.com/beyondwords-io/wordpress-plugin/pull/612) Fix tags with an ampersand showing as `r&amp;d` in the BeyondWords dashboard.
 * [#610](https://github.com/beyondwords-io/wordpress-plugin/pull/610) Stop the bulk "Generate audio" notice counting skipped posts as failures.
