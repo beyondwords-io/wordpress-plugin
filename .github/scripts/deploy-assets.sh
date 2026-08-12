@@ -33,10 +33,13 @@ PLUGIN_SVN_PATH="/tmp/svn"
 svn co -q "http://svn.wp-plugins.org/$WP_ORG_PLUGIN_NAME" $PLUGIN_SVN_PATH
 
 # Delete the wordpress.org assets directory
-rm -rf $PLUGIN_SVN_PATH/.wordpress-org
+rm -rf $PLUGIN_SVN_PATH/assets
 
-# Copy our plugin assets as the new assets directory
-cp -r ./.wordpress-org $PLUGIN_SVN_PATH/.wordpress-org
+# WordPress.org serves directory artwork from SVN /assets, not from our repo's dot-directory name.
+cp -r ./.wordpress-org $PLUGIN_SVN_PATH/assets
+
+# Drop the mistargeted directory left behind by earlier deploys
+rm -rf $PLUGIN_SVN_PATH/.wordpress-org
 
 # Move into SVN directory
 cd $PLUGIN_SVN_PATH
@@ -48,7 +51,7 @@ svn stat | grep '^?' | awk '{print $2}' | xargs -I x svn add x@
 svn stat | grep '^!' | awk '{print $2}' | xargs -I x svn rm --force x@
 
 # Debugging
-ls -la $PLUGIN_SVN_PATH/.wordpress-org
+ls -la $PLUGIN_SVN_PATH/assets
 
 # Commit to SVN
 svn ci --no-auth-cache --username $WP_ORG_USERNAME --password $WP_ORG_PASSWORD -m "Deploy wordpress.org assets"
