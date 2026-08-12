@@ -42,6 +42,48 @@ class ClientTest extends TestCase
     /**
      * @test
      */
+    public function init_loads_the_urls_class()
+    {
+        Client::init();
+
+        // Autoload disabled: Urls must already be in memory, so the filter never
+        // hits the filesystem mid-upgrade — see doc/plugin-upgrades.md.
+        $this->assertTrue(class_exists(Urls::class, false));
+    }
+
+    /**
+     * @test
+     */
+    public function filter_http_request_args_uses_the_url_resolved_at_init()
+    {
+        update_option('beyondwords_api_key', 'SECRET-API-KEY');
+
+        $property = new ReflectionProperty(Client::class, 'api_url');
+        $property->setAccessible(true);
+        $property->setValue(null, 'https://api.example.test/v1');
+
+        $args = Client::filter_http_request_args(
+            ['method' => 'GET', 'headers' => []],
+            'https://api.example.test/v1/projects/1234'
+        );
+
+        $this->assertSame('SECRET-API-KEY', $args['headers']['X-Api-Key']);
+
+        $args = Client::filter_http_request_args(
+            ['method' => 'GET', 'headers' => []],
+            Urls::get_api_url() . '/projects/1234'
+        );
+
+        $this->assertArrayNotHasKey('X-Api-Key', $args['headers']);
+
+        Client::init();
+
+        delete_option('beyondwords_api_key');
+    }
+
+    /**
+     * @test
+     */
     public function filter_http_request_args_skips_non_beyondwords_urls()
     {
         update_option('beyondwords_api_key', 'SECRET-API-KEY');
