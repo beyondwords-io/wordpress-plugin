@@ -109,6 +109,10 @@ function setupNodeEvents( on, config ) {
 				'plugin deactivate --all',
 				// eslint-disable-next-line max-len
 				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses/mock-rest-api-responses.php',
+				// Match how real sites run: the reset above restores plain
+				// permalinks, which serve REST as `?rest_route=` instead of
+				// `/wp-json/`.
+				"rewrite structure '/%postname%/'",
 				// Configure plugin credentials for most tests
 				`option update beyondwords_api_key '${ apiKey }'`,
 				`option update beyondwords_project_id '${ projectId }'`,
@@ -139,6 +143,7 @@ function setupNodeEvents( on, config ) {
 				'plugin deactivate --all',
 				// eslint-disable-next-line max-len
 				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
+				"rewrite structure '/%postname%/'",
 			] );
 
 			hasSetupDatabase = false;

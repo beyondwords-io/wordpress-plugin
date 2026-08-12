@@ -636,13 +636,11 @@ jobs:
 
       - run: wp plugin list
 
-      - name: Set permalinks
-        run: |
-          wp rewrite structure '/%postname%/' --hard
-          wp rewrite flush --hard
-
+      # cypress.config.js `setupDatabase` owns the permalink structure: its
+      # wp-reset call would wipe anything set here. The router is what lets
+      # `php -S`, which cannot rewrite, serve those pretty URLs.
       - name: Start PHP web server
-        run: sudo php -S localhost:8889 -t /usr/share/nginx/html &
+        run: sudo php -S localhost:8889 -t /usr/share/nginx/html ${{ github.workspace }}/tests/cypress/scripts/router.php &
 
       - name: Cypress run
         uses: cypress-io/github-action@v7
