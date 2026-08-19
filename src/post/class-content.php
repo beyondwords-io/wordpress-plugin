@@ -150,6 +150,7 @@ class Content {
 	 * @since 4.0.0 Replace for loop with array_reduce
 	 * @since 6.0.0 Remove beyondwordsMarker attribute from rendered blocks.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.0.0 Render the per-block language and voice data attributes.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
 	 *
@@ -170,8 +171,17 @@ class Content {
 
 		$blocks = self::get_audio_enabled_blocks( $post );
 
-		foreach ( $blocks as $block ) {
-			$output .= render_block( $block );
+		$segment_attributes = [ \BeyondWords\Editor\Components\BlockAttributes::class, 'add_segment_attributes' ];
+
+		// Per-block voices ride in the API body only, so the front end renders unchanged.
+		add_filter( 'render_block', $segment_attributes, 10, 2 );
+
+		try {
+			foreach ( $blocks as $block ) {
+				$output .= render_block( $block );
+			}
+		} finally {
+			remove_filter( 'render_block', $segment_attributes, 10 );
 		}
 
 		return $output;

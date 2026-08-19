@@ -140,6 +140,112 @@ class ContentTest extends TestCase
 
     /**
      * @test
+     * @dataProvider get_content_without_excluded_blocks_with_overrides_provider
+     */
+    public function get_content_without_excluded_blocks_with_overrides($content, $expect)
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:getContentWithoutExcludedBlocksWithOverrides',
+            'post_content' => $content,
+        ]);
+
+        $actual = str_replace(' class="wp-block-paragraph"', '', Content::get_content_without_excluded_blocks($post));
+
+        $this->assertSame($expect, $actual);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    public function get_content_without_excluded_blocks_with_overrides_provider()
+    {
+        $overrides = '{"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"}';
+
+        return [
+            'Block with a language and voice' => [
+                '<!-- wp:paragraph ' . $overrides . ' --><p>Bonjour tout le monde.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour tout le monde.</p>',
+            ],
+            'Block with a voice only' => [
+                '<!-- wp:paragraph {"beyondwordsVoiceId":"784"} --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-voice-id="784">Hello world.</p>',
+            ],
+            'Mixed languages, with the untouched block left alone' => [
+                '<!-- wp:paragraph ' . $overrides . ' --><p>Bonjour tout le monde.</p><!-- /wp:paragraph -->' .
+                '<!-- wp:paragraph --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour tout le monde.</p>' .
+                '<p>Hello world.</p>',
+            ],
+            'Excluded blocks are still dropped' => [
+                '<!-- wp:paragraph {"beyondwordsAudio":false,"beyondwordsVoiceId":"784"} --><p>No audio.</p><!-- /wp:paragraph -->' .
+                '<!-- wp:paragraph --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p>Hello world.</p>',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * A container carries its own override and the API cascades it to the inner
+     * blocks, each of which can override it again.
+     */
+    public function get_content_without_excluded_blocks_with_nested_overrides()
+    {
+        $content = '<!-- wp:group {"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"} -->' .
+                   '<div class="wp-block-group">' .
+                   '<!-- wp:paragraph --><p>Bonjour.</p><!-- /wp:paragraph -->' .
+                   '<!-- wp:paragraph {"beyondwordsVoiceId":"123"} --><p>Hallo.</p><!-- /wp:paragraph -->' .
+                   '</div>' .
+                   '<!-- /wp:group -->';
+
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:getContentWithoutExcludedBlocksWithNestedOverrides',
+            'post_content' => $content,
+        ]);
+
+        $actual = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertStringContainsString(
+            '<div data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784" class="wp-block-group">',
+            $actual
+        );
+        $this->assertStringContainsString('data-beyondwords-voice-id="123">Hallo.', $actual);
+        $this->assertStringNotContainsString('data-beyondwords-voice-id="123">Bonjour.', $actual);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     *
+     * The data attributes belong to the API body only — `the_content` on the
+     * front end must render exactly what it rendered before.
+     */
+    public function block_overrides_do_not_reach_the_front_end()
+    {
+        $content = '<!-- wp:paragraph {"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"} -->' .
+                   '<p>Bonjour tout le monde.</p>' .
+                   '<!-- /wp:paragraph -->';
+
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:blockOverridesDoNotReachTheFrontEnd',
+            'post_content' => $content,
+        ]);
+
+        $body = Content::get_content_body($post);
+
+        $this->assertStringContainsString('data-beyondwords-language="fr_FR"', $body);
+
+        $rendered = apply_filters('the_content', $post->post_content);
+
+        $this->assertStringNotContainsString('data-beyondwords', $rendered);
+        $this->assertFalse(has_filter('render_block', [\BeyondWords\Editor\Components\BlockAttributes::class, 'add_segment_attributes']));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
      *
      * Passing a post ID (int) must behave identically to passing the WP_Post object.
      * Regression: an int fell through to `$post->post_content`, emitting a PHP
