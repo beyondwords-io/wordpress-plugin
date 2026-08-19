@@ -136,6 +136,7 @@ Release date: 12th August 2026
 * [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
     * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
 * [#611](https://github.com/beyondwords-io/wordpress-plugin/pull/611) Tidy the classic editor metabox spacing and Content ID layout.
+* [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Per-block language and voice in the block editor.
 
 **Fixes**
 
