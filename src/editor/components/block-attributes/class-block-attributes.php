@@ -128,11 +128,7 @@ class BlockAttributes {
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param mixed  $args   The `register_block_type_args` args.
-	 * @param string $name   The attribute name.
-	 * @param array  $schema The attribute definition.
-	 *
-	 * @return array The args, with the attribute registered.
+	 * @param mixed $args The `register_block_type_args` args, which may be null.
 	 */
 	private static function register_attribute( $args, string $name, array $schema ): array {
 		if ( ! isset( $args['attributes'] ) ) {
@@ -156,8 +152,6 @@ class BlockAttributes {
 	 *
 	 * @param string $block_content The rendered block HTML.
 	 * @param array  $block         The parsed block.
-	 *
-	 * @return string The rendered block HTML, carrying any per-block overrides.
 	 */
 	public static function add_segment_attributes( $block_content, $block ): string {
 		$block_content = (string) $block_content;
@@ -193,9 +187,6 @@ class BlockAttributes {
 	 * A block attribute as a trimmed string.
 	 *
 	 * @since 7.0.0
-	 *
-	 * @param array  $attrs The parsed block attributes.
-	 * @param string $name  The attribute name.
 	 *
 	 * @return string The value, or '' when unset or non-scalar.
 	 */
