@@ -258,6 +258,22 @@ function setupNodeEvents( on, config ) {
 			}
 		},
 
+		// getPostMeta keeps only the last line of output, so a multi-line value
+		// (e.g. a rendered post body) has to come back JSON-encoded.
+		async getPostMetaJson( options ) {
+			const { postId, metaKey } = options;
+			try {
+				const result = await execWp(
+					`post meta get ${ postId } ${ metaKey } --format=json`,
+					{ returnResult: true }
+				);
+				const value = result.stdout.trim().split( '\n' ).pop();
+				return value ? JSON.parse( value ) : '';
+			} catch ( error ) {
+				return '';
+			}
+		},
+
 		async updateOption( args ) {
 			const { name, value } = args;
 			await execWp( `option update ${ name } '${ value }'` );
