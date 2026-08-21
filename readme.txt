@@ -6,7 +6,7 @@ Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 7.0.0
 Requires at least: 6.6
 Requires PHP: 8.0
-Tested up to: 7.0
+Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
