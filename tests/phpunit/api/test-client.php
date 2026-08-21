@@ -47,7 +47,7 @@ class ClientTest extends TestCase
         Client::init();
 
         // Autoload disabled: Urls must already be in memory, so the filter never
-        // hits the filesystem mid-upgrade — see doc/plugin-upgrades.md.
+        // hits the filesystem mid-upgrade, after the plugin files were replaced.
         $this->assertTrue(class_exists(Urls::class, false));
     }
 

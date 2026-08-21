@@ -82,7 +82,7 @@ class Client {
 	 */
 	public static function init(): void {
 		// WordPress fires http_request_args mid-upgrade, after the plugin files have
-		// been replaced, so resolve (and load) Urls now — see doc/plugin-upgrades.md.
+		// been replaced, so resolve (and load) Urls now — a lazy autoload would fatal.
 		self::$api_url = \BeyondWords\Core\Urls::get_api_url();
 
 		// The VIP warning targets raised timeouts; this filter only adds headers.
