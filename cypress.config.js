@@ -64,6 +64,9 @@ module.exports = defineConfig( {
 		contentId: BW_CONTENT_ID,
 		apiUrl: BW_API_URL,
 	},
+	// WordPress 7.1's block editor never reports its load event to Chrome's
+	// Cypress driver while web security is on; see doc/running-tests.md.
+	chromeWebSecurity: false,
 	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,

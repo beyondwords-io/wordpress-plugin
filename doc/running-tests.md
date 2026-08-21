@@ -168,6 +168,18 @@ Hard-won details behind some non-obvious patterns in the Cypress suite:
   retries. Actions are not requeryable, so re-resolve the body instead of
   chaining off one (`cy.getEditorCanvasBody().find( … ).clear()`, then a fresh
   `cy.getEditorCanvasBody()` for the next step).
+- **`chromeWebSecurity: false`** (`cypress.config.js`) is what keeps the block
+  editor testable on WordPress 7.1. With web security on, every `cy.visit` of a
+  block editor screen fails as *"Timed out after waiting `60000ms` for your
+  remote page to load"* — even though the page itself finishes: inside it
+  `document.readyState` is `complete`, `window.onload` has fired at ~800ms and
+  no request is outstanding, but Cypress's Chrome driver never sees the load and
+  `window:before:load` never fires. WordPress 7.0.4 is unaffected, as is the
+  Electron browser, so the trigger is the 7.1 editor's blob-URL canvas iframe
+  meeting Chrome's cross-origin rules under Cypress's proxy. Classic editor and
+  settings screens have no such iframe and pass either way. Drop the setting
+  once [cypress-io/cypress#28235](https://github.com/cypress-io/cypress/issues/28235)
+  is fixed — re-test by removing it and running a block editor spec in Chrome.
 - **Stubbing voices in the block editor doesn't work**: `cy.intercept` on the
   REST voices route stubs fine in the classic editor, but the block editor's
   `wp.data` store ends up empty. Branches that depend on voice-list contents

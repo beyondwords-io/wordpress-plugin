@@ -6,7 +6,7 @@ Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 7.0.0
 Requires at least: 6.6
 Requires PHP: 8.0
-Tested up to: 7.0
+Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,16 @@ Yes. BeyondWords lets you create podcast feeds for services such as Spotify and 
 Yes. The plugin normally connects WordPress to BeyondWords through our REST API. For Elementor and other page-builder setups where that approach isn’t suitable, Magic Embed uses a script on your site to extract and sync the article content instead.
 
 == Changelog ==
+
+= 7.0.1 =
+
+**Compatibility**
+
+* [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Tested up to WordPress 7.1.
+
+**Codebase Enhancements**
+
+* [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Turn off Cypress web security so the block editor specs run on WordPress 7.1.
 
 = 7.0.0 =
 
