@@ -21,6 +21,21 @@ npm run env -- run cli wp option get siteurl
 npm run env:tests -- run cli wp option get siteurl
 ```
 
+###  Why the plugin is mounted, not listed as a plugin
+
+Both configs mount this directory at `wp-content/plugins/speechkit` via `mappings` rather than
+listing `"./"` in `plugins`. A `plugins` entry takes its slug from the directory's basename, which
+is only `speechkit` in the main checkout — in a git worktree (`.claude/worktrees/<name>`) it would
+mount under the worktree's name instead, breaking `npm run composer:tests` and the Cypress
+`wp plugin activate speechkit` step. A mapping names its destination outright, so every checkout
+behaves the same. It has to be a swap, not an addition: keeping `"./"` alongside the mapping mounts
+this directory at two slugs, wp-env activates both copies, and every wp-cli call then dies with
+`Cannot redeclare class ComposerAutoloaderInit…`.
+
+Mapped plugins are mounted but not activated, so `.wp-env.json` activates the plugin from an
+`afterStart` lifecycle script. The tests env needs no equivalent: Cypress activates the plugin in
+`setupDatabase`, and the PHPUnit bootstrap loads `speechkit.php` directly.
+
 ##  Prerequisites
 
 ###  1. Ensure Mock API is enabled

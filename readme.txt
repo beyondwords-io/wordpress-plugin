@@ -174,6 +174,7 @@ Release date: 12th August 2026
 
 **Codebase Enhancements**
 
+* [#625](https://github.com/beyondwords-io/wordpress-plugin/pull/625) Mount the plugin at a fixed `speechkit` slug in the local wp-env environments.
 * [#619](https://github.com/beyondwords-io/wordpress-plugin/pull/619) Run the Cypress suite with pretty permalinks, fixing the block editor Preview panel content-status poll spec.
 * [#591](https://github.com/beyondwords-io/wordpress-plugin/pull/591) Refresh the developer documentation in `doc/` against the v7 codebase.
 * [#608](https://github.com/beyondwords-io/wordpress-plugin/pull/608) Fix the intermittent detached-DOM failures in the block editor Cypress specs.
