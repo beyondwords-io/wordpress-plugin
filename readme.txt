@@ -111,6 +111,7 @@ Release date: TBC
 **Enhancements**
 
 * [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
+    * "Generation disabled" is now honoured on blocks nested inside a Group, Columns or other container, where it was previously ignored — audio regenerated for such a post will no longer include those blocks.
 
 **Fixes**
 
