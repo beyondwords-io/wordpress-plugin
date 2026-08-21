@@ -6,7 +6,7 @@ Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 7.0.0
 Requires at least: 6.6
 Requires PHP: 8.0
-Tested up to: 7.0
+Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -113,6 +113,15 @@ Release date: TBC
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
     * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.0.1 or later for the fix to apply.
 
+**Compatibility**
+
+* [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Tested up to WordPress 7.1.
+
+**Codebase Enhancements**
+
+* [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Turn off Cypress web security so the block editor specs run on WordPress 7.1.
+* [#568](https://github.com/beyondwords-io/wordpress-plugin/pull/568) Correct the 7.0.0 changelog: the live player preview for the "Add Player" block was reverted before release, and the block shows a static placeholder in the editor.
+
 = 7.0.0 =
 
 Release date: 12th August 2026
@@ -136,8 +145,7 @@ Release date: 12th August 2026
     * "Model" is now a language-level filter that narrows the Voice list.
 * [#557](https://github.com/beyondwords-io/wordpress-plugin/pull/557) Preselect "Generate audio" by taxonomy term.
     * Reinstates preselecting audio generation for posts assigned specific terms, now across all hierarchical taxonomies and without marking posts as having unsaved changes.
-* [#555](https://github.com/beyondwords-io/wordpress-plugin/pull/555) Live player preview for the "Add Player" block.
-    * The block renders a non-interactive preview of the actual player, or a prompt to generate audio when none exists.
+* [#555](https://github.com/beyondwords-io/wordpress-plugin/pull/555) Live player preview for the "Add Player" block. (Reverted in [#568](https://github.com/beyondwords-io/wordpress-plugin/pull/568) before 7.0.0 shipped — the block shows a static placeholder in the editor; the player still renders on the front end.)
 * [#563](https://github.com/beyondwords-io/wordpress-plugin/pull/563) State-reflecting generation labels and "Legacy" model rename.
     * The "Generate audio" toggle now reads "Generation enabled" / "Generation disabled"; the "Standard" voice model bucket is relabelled "Legacy".
 * [#532](https://github.com/beyondwords-io/wordpress-plugin/pull/532) Cache API reads and defer audio generation on WordPress VIP.
