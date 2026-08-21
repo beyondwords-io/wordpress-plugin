@@ -14,7 +14,7 @@ declare( strict_types = 1 );
  * Description:       Adds the "Import BeyondWords Data" tool.
  * Author:            BeyondWords
  * Author URI:        https://beyondwords.io
- * Version:           1.0.0
+ * Version:           1.1.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
@@ -25,6 +25,7 @@ defined( 'ABSPATH' ) || exit;
 
 require_once plugin_dir_path( __FILE__ ) . 'src/class-ajax.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-assets.php';
+require_once plugin_dir_path( __FILE__ ) . 'src/class-compat.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-file-handler.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-helpers.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-notices.php';
