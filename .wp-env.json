@@ -3,7 +3,6 @@
     "port": 8888,
     "phpVersion": "8.5",
     "plugins": [
-        "./",
         "WP-API/Basic-Auth",
         "https://downloads.wordpress.org/plugin/wordpress-importer.zip"
     ],
@@ -17,6 +16,7 @@
         "WP_PHP_BINARY": "php"
     },
     "mappings": {
+        "wp-content/plugins/speechkit": "./",
         "wp-content/debug.log": "./log/debug.log",
         "wp-content/plugins": "./tests/fixtures/wp-content/plugins",
         "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
@@ -30,5 +30,8 @@
         "wp-content/plugins/beyondwords-remove-auto-player": "./plugins/beyondwords-remove-auto-player",
         "wp-content/plugins/speechkit-export-tool": "./plugins/speechkit-export-tool"
     },
-    "testsEnvironment": false
+    "testsEnvironment": false,
+    "lifecycleScripts": {
+        "afterStart": "wp-env run cli wp plugin activate speechkit"
+    }
 }

@@ -3,7 +3,6 @@
     "port": 8889,
     "phpVersion": "8.5",
     "plugins": [
-        "./",
         "WP-API/Basic-Auth",
         "https://downloads.wordpress.org/plugin/wordpress-importer.zip"
     ],
@@ -19,6 +18,7 @@
         "BEYONDWORDS_AUTO_SYNC_SETTINGS": false
     },
     "mappings": {
+        "wp-content/plugins/speechkit": "./",
         "wp-content/debug.log": "./log/debug.log",
         "wp-content/plugins": "./tests/fixtures/wp-content/plugins",
         "wp-content/plugins/amp": "https://downloads.wordpress.org/plugin/amp.zip",
