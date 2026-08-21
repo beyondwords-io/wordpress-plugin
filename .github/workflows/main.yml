@@ -543,6 +543,13 @@ jobs:
           name: ${{ vars.WP_ORG_PLUGIN_NAME }}.zip
           path: /tmp
 
+      - name: Download extension plugin artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: beyondwords-*.zip
+          merge-multiple: true
+          path: /tmp
+
       - name: Download WP-API/Basic-Auth plugin
         run: |
           mkdir -p /tmp/Basic-Auth
@@ -609,6 +616,24 @@ jobs:
 
             # Install plugin
             wp plugin install "$TEMP_ZIP_DIR/${plugin_basename}.zip" --force
+          done
+
+      # The e2e job installs from the built ZIPs so the specs exercise the
+      # artefacts we actually attach to a release, not the working tree.
+      - name: Install extension plugins
+        run: |
+          set -e
+          wp plugin install /tmp/beyondwords-import-tool.zip --force
+          wp plugin install /tmp/beyondwords-debug-tool.zip --force
+          wp plugin install /tmp/beyondwords-remove-auto-player.zip --force
+
+      # Activating each one is the smoke test: a fatal on load fails the step.
+      - name: Smoke-test extension plugin activation
+        run: |
+          set -e
+          for plugin in beyondwords-import-tool beyondwords-debug-tool beyondwords-remove-auto-player; do
+            wp plugin activate "$plugin"
+            wp plugin deactivate "$plugin"
           done
 
       - name: Activate selected standalone plugins
