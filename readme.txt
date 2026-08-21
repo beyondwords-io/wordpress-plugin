@@ -111,10 +111,11 @@ Release date: TBC
 **Enhancements**
 
 * [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
-    * "Generation disabled" is now honoured on blocks nested inside a Group, Columns or other container, where it was previously ignored — audio regenerated for such a post will no longer include those blocks.
 
 **Fixes**
 
+* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Fix "Generation disabled" being ignored on blocks nested inside a Group, Columns or other container.
+    * Audio regenerated for an affected post no longer includes those blocks.
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
     * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.1.0 or later for the fix to apply.
 

@@ -217,10 +217,6 @@ class Content {
 	 * Drop the blocks an editor excluded from the audio, at every depth.
 	 *
 	 * @since 7.1.0
-	 *
-	 * @param array $blocks Parsed blocks.
-	 *
-	 * @return array The blocks that are still included.
 	 */
 	private static function filter_audio_enabled_blocks( array $blocks ): array {
 		$kept = [];
@@ -242,8 +238,6 @@ class Content {
 	 * Whether a parsed block is included in the audio.
 	 *
 	 * @since 7.1.0
-	 *
-	 * @param mixed $block A parsed block.
 	 */
 	private static function is_audio_enabled_block( $block ): bool {
 		if ( ! is_array( $block ) || ! is_array( $block['attrs'] ?? null ) ) {
@@ -265,10 +259,6 @@ class Content {
 	 * too, or the remaining children render in the wrong places.
 	 *
 	 * @since 7.1.0
-	 *
-	 * @param array $block A parsed block with inner blocks.
-	 *
-	 * @return array The block, without its excluded descendants.
 	 */
 	private static function without_excluded_inner_blocks( array $block ): array {
 		$inner_blocks  = [];

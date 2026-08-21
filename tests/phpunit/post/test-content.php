@@ -233,8 +233,6 @@ class ContentTest extends TestCase
 
     /**
      * @test
-     *
-     * Every block in a deep tree still reaches the API body, captions included.
      */
     public function deeply_nested_blocks_all_reach_the_body()
     {
@@ -258,9 +256,6 @@ class ContentTest extends TestCase
 
     /**
      * @test
-     *
-     * An override set at any depth is rendered onto that block, whatever kind
-     * of block it is and however deeply it is nested.
      */
     public function deeply_nested_blocks_carry_their_own_overrides()
     {
@@ -289,8 +284,7 @@ class ContentTest extends TestCase
     /**
      * @test
      *
-     * A container's override cascades to its descendants, so only the container
-     * carries the attributes.
+     * The API cascades a container's override, so it is not repeated below it.
      */
     public function an_ancestor_override_is_not_copied_onto_descendants()
     {
@@ -306,8 +300,6 @@ class ContentTest extends TestCase
 
     /**
      * @test
-     *
-     * Disabling generation on an ancestor excludes everything inside it.
      */
     public function disabling_an_ancestor_excludes_its_descendants()
     {
@@ -328,9 +320,6 @@ class ContentTest extends TestCase
     /**
      * @test
      * @dataProvider disabled_descendant_provider
-     *
-     * Disabling generation on a descendant excludes just that block, however
-     * deeply it is nested.
      */
     public function disabling_a_descendant_excludes_only_that_block($key, $excluded, $kept)
     {

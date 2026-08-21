@@ -92,12 +92,8 @@ context( 'Block Editor: Block Voices', () => {
 				flatten( data.select( 'core/block-editor' ).getBlocks() )
 			);
 
-	// Selection is not what is under test, and clicking a block four levels
-	// deep in the canvas is the flakiest way to reach it.
-	//
-	// `title` is the block's name in the inspector's block card: the store
-	// updates before the inspector re-renders, so without waiting for the card
-	// the next assertion reads the previously selected block's panel.
+	// The store updates before the inspector re-renders, so without waiting for
+	// the block card the next assertion reads the previous block's panel.
 	const selectBlock = ( match, title ) => {
 		cy.window()
 			.its( 'wp.data' )
@@ -147,8 +143,6 @@ context( 'Block Editor: Block Voices', () => {
 
 					selectBlock( byText( 'Top paragraph.' ), 'Paragraph' );
 
-					// "Customize" is opt-in and off by default, so a block
-					// inherits the post language and voice until it is enabled.
 					customize()
 						.find( 'input[type="checkbox"]' )
 						.should( 'not.be.checked' );
@@ -202,7 +196,6 @@ context( 'Block Editor: Block Voices', () => {
 					selectBlock( byText( 'Deep paragraph.' ), 'Paragraph' );
 					setToggle( generation, false );
 
-					// With generation off there is nothing to customise.
 					customize().should( 'not.exist' );
 					blockPanel()
 						.contains( 'label', 'Language' )
@@ -221,7 +214,6 @@ context( 'Block Editor: Block Voices', () => {
 							CALEB_VOICE_ID
 						);
 
-						// A block at depth stores its own pair...
 						const heading = find( byText( 'Deep heading.' ) );
 						expect(
 							heading.attributes.beyondwordsLanguageCode
@@ -230,8 +222,8 @@ context( 'Block Editor: Block Voices', () => {
 						expect( heading.attributes.beyondwordsVoiceId ).to.not
 							.be.empty;
 
-						// ...and the container stores a language of its own,
-						// which the blocks inside it inherit or override.
+						// The container stores its own language; the blocks
+						// inside it inherit or override it.
 						const group = find( byName( 'core/group' ) );
 						expect(
 							group.attributes.beyondwordsLanguageCode
@@ -240,13 +232,11 @@ context( 'Block Editor: Block Voices', () => {
 						expect( group.attributes.beyondwordsVoiceId ).to.not.be
 							.empty;
 
-						// Generation off is stored on the block at depth.
 						expect(
 							find( byText( 'Deep paragraph.' ) ).attributes
 								.beyondwordsAudio
 						).to.eq( false );
 
-						// Untouched blocks stay bare.
 						const item = find( byText( 'Deep list item.' ) );
 						expect(
 							item.attributes.beyondwordsLanguageCode || ''
@@ -255,7 +245,6 @@ context( 'Block Editor: Block Voices', () => {
 							item.attributes.beyondwordsVoiceId || ''
 						).to.eq( '' );
 
-						// Nothing was invalidated by the added attributes.
 						all.forEach( ( block ) => {
 							expect(
 								block.isValid,
@@ -272,15 +261,14 @@ context( 'Block Editor: Block Voices', () => {
 						postId,
 						metaKey: SENT_BODY_META,
 					} ).should( ( body ) => {
-						// The top-level override.
 						expect( body ).to.match(
 							new RegExp(
 								`<p[^>]*data-beyondwords-voice-id="${ CALEB_VOICE_ID }"[^>]*>Top paragraph`
 							)
 						);
 
-						// The container carries its own, and the heading inside
-						// it overrides that — the API resolves the cascade.
+						// Only the container and the heading carry attributes;
+						// the API resolves the cascade between them.
 						expect( body ).to.match(
 							/<div[^>]*data-beyondwords-language="fr_[A-Z]{2}"/
 						);
@@ -288,13 +276,10 @@ context( 'Block Editor: Block Voices', () => {
 							/<h2[^>]*data-beyondwords-(language|voice-id)=/
 						);
 
-						// A block excluded three levels down is dropped, while
-						// its siblings survive.
 						expect( body ).to.not.contain( 'Deep paragraph.' );
 						expect( body ).to.contain( 'Deep list item.' );
 						expect( body ).to.contain( 'Deep image caption.' );
 
-						// An untouched block emits no attributes of its own.
 						expect( body ).to.match(
 							/<li(?![^>]*data-beyondwords)[^>]*>Deep list item\./
 						);
@@ -330,8 +315,6 @@ context( 'Block Editor: Block Voices', () => {
 						.find( 'option:selected' )
 						.should( 'have.text', 'Caleb' );
 
-					// Turning Customize off returns the block to the post-level
-					// language and voice.
 					setToggle( customize, false );
 
 					blocks().then( ( all ) => {
