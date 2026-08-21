@@ -13,7 +13,7 @@ import { isBeyondwordsSupportedBlock } from './isBeyondwordsSupportedBlock';
  *
  * @since 4.0.4 Remove settings.attributes undefined check, to match official docs.
  * @since 6.0.1 Skip internal/UI blocks to prevent breaking the block inserter.
- * @since 7.0.0 Add the per-block language and voice attributes.
+ * @since 7.1.0 Add the per-block language and voice attributes.
  *
  * @param {Object} settings Settings for the block.
  * @param {string} name     Block name.

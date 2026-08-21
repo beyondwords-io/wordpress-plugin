@@ -150,7 +150,7 @@ class Content {
 	 * @since 4.0.0 Replace for loop with array_reduce
 	 * @since 6.0.0 Remove beyondwordsMarker attribute from rendered blocks.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 * @since 7.0.0 Render the per-block language and voice data attributes.
+	 * @since 7.1.0 Render the per-block language and voice data attributes.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
 	 *

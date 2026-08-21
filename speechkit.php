@@ -15,7 +15,7 @@ declare( strict_types = 1 );
  * Description:       Turn WordPress articles into audio as you publish, with tools for distribution, monetization, and analytics.
  * Author:            BeyondWords
  * Author URI:        https://beyondwords.io
- * Version:           7.0.0
+ * Version:           7.1.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       speechkit
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // phpcs:disable
-define('BEYONDWORDS__PLUGIN_VERSION', '7.0.0');
+define('BEYONDWORDS__PLUGIN_VERSION', '7.1.0');
 define('BEYONDWORDS__PLUGIN_DIR',     plugin_dir_path(__FILE__));
 define('BEYONDWORDS__PLUGIN_URI',     plugin_dir_url(__FILE__));
 // phpcs:enable

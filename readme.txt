@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 7.0.0
+Stable tag: 7.1.0
 Requires at least: 6.6
 Requires PHP: 8.0
 Tested up to: 7.1
@@ -104,14 +104,18 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 == Changelog ==
 
-= 7.0.1 =
+= 7.1.0 =
 
 Release date: TBC
+
+**Enhancements**
+
+* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
 
 **Fixes**
 
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
-    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.0.1 or later for the fix to apply.
+    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.1.0 or later for the fix to apply.
 
 **Compatibility**
 
@@ -153,7 +157,6 @@ Release date: 12th August 2026
 * [#598](https://github.com/beyondwords-io/wordpress-plugin/pull/598) Send taxonomy terms as `tags`.
     * Breaking: the `metadata` param is no longer sent. Code hooking `beyondwords_content_params` to write `$params['metadata']` must append to `$params['tags']` instead, or it will raise a fatal error.
 * [#611](https://github.com/beyondwords-io/wordpress-plugin/pull/611) Tidy the classic editor metabox spacing and Content ID layout.
-* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
 
 **Fixes**
 

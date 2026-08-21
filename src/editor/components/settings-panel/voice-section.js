@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody, Spinner } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { select, useSelect } from '@wordpress/data';
+import { useRegistry, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
@@ -15,8 +15,10 @@ import Toggle from '../toggle';
 import VoicePicker from '../voice-picker';
 
 export function VoiceSection( { withPanel = true } ) {
+	const registry = useRegistry();
+
 	const postType = useSelect(
-		( s ) => s( 'core/editor' ).getCurrentPostType(),
+		( select ) => select( 'core/editor' ).getCurrentPostType(),
 		[]
 	);
 
@@ -34,10 +36,10 @@ export function VoiceSection( { withPanel = true } ) {
 	);
 
 	const projectId = useSelect(
-		( s ) =>
-			s( 'core/editor' ).getEditedPostAttribute( 'meta' )
+		( select ) =>
+			select( 'core/editor' ).getEditedPostAttribute( 'meta' )
 				?.beyondwords_project_id ||
-			s( 'beyondwords/settings' ).getSettings()?.projectId,
+			select( 'beyondwords/settings' ).getSettings()?.projectId,
 		[]
 	);
 
@@ -46,9 +48,9 @@ export function VoiceSection( { withPanel = true } ) {
 	const needsDefault = customize && ! languageCode && ! voiceId;
 
 	const project = useSelect(
-		( s ) =>
+		( select ) =>
 			needsDefault
-				? s( 'beyondwords/settings' ).getProject( projectId )
+				? select( 'beyondwords/settings' ).getProject( projectId )
 				: null,
 		[ needsDefault, projectId ]
 	);
@@ -56,11 +58,12 @@ export function VoiceSection( { withPanel = true } ) {
 	// True once the project fetch has settled; keeps the spinner up until then to
 	// avoid a one-frame "empty dropdown then spinner" flicker.
 	const projectResolved = useSelect(
-		( s ) =>
+		( select ) =>
 			! needsDefault ||
-			s( 'beyondwords/settings' ).hasFinishedResolution( 'getProject', [
-				projectId,
-			] ),
+			select( 'beyondwords/settings' ).hasFinishedResolution(
+				'getProject',
+				[ projectId ]
+			),
 		[ needsDefault, projectId ]
 	);
 
@@ -68,8 +71,9 @@ export function VoiceSection( { withPanel = true } ) {
 	// closure's — so a concurrent edit during the async fetch isn't clobbered.
 	useEffect( () => {
 		if ( needsDefault && project?.language ) {
-			const current =
-				select( 'core/editor' ).getEditedPostAttribute( 'meta' );
+			const current = registry
+				.select( 'core/editor' )
+				.getEditedPostAttribute( 'meta' );
 			setMeta( {
 				...current,
 				beyondwords_language_code: project.language,

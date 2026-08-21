@@ -29,14 +29,14 @@ class BlockAttributes {
 	/**
 	 * Block attribute holding the per-block language code (e.g. `en_GB`).
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 */
 	public const LANGUAGE_ATTRIBUTE = 'beyondwordsLanguageCode';
 
 	/**
 	 * Block attribute holding the per-block voice id, which also carries the model.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 */
 	public const VOICE_ATTRIBUTE = 'beyondwordsVoiceId';
 
@@ -94,7 +94,7 @@ class BlockAttributes {
 	/**
 	 * Register the per-block "Language" attribute for Gutenberg blocks.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 */
 	public static function register_language_attribute( $args ) {
 		return self::register_attribute(
@@ -110,7 +110,7 @@ class BlockAttributes {
 	/**
 	 * Register the per-block "Voice" attribute for Gutenberg blocks.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 */
 	public static function register_voice_attribute( $args ) {
 		return self::register_attribute(
@@ -126,7 +126,7 @@ class BlockAttributes {
 	/**
 	 * Add a block attribute, leaving an existing definition of the same name alone.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 *
 	 * @param mixed $args The `register_block_type_args` args, which may be null.
 	 */
@@ -146,9 +146,9 @@ class BlockAttributes {
 	 * Add the segment-scoped voice data attributes to a rendered block.
 	 *
 	 * Not registered in init(): it is added around the API body build only, so
-	 * front-end output is untouched. See doc/block-level-voices.md.
+	 * front-end output is untouched.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 *
 	 * @param string $block_content The rendered block HTML.
 	 * @param array  $block         The parsed block.
@@ -186,7 +186,7 @@ class BlockAttributes {
 	/**
 	 * A block attribute as a trimmed string.
 	 *
-	 * @since 7.0.0
+	 * @since 7.1.0
 	 *
 	 * @return string The value, or '' when unset or non-scalar.
 	 */

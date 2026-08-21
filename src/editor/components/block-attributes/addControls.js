@@ -21,7 +21,7 @@ import { BeyondwordsTitle } from '../icon';
  * Add BeyondWords controls to Gutenberg Blocks.
  *
  * @since 6.0.1 Skip internal/UI blocks to prevent breaking the block inserter.
- * @since 7.0.0 Add the per-block Language and Voice pickers.
+ * @since 7.1.0 Add the per-block Language and Voice pickers.
  *
  * @param {Function} BlockEdit Block edit component.
  *

@@ -45,14 +45,15 @@ export function VoicePicker( {
 } ) {
 	// Fetched lazily behind `enabled` — a default post makes no language/voice API calls.
 	const languages = useSelect(
-		( s ) => ( enabled ? s( 'beyondwords/settings' ).getLanguages() : [] ),
+		( select ) =>
+			enabled ? select( 'beyondwords/settings' ).getLanguages() : [],
 		[ enabled ]
 	);
 
 	const voices = useSelect(
-		( s ) =>
+		( select ) =>
 			enabled && languageCode
-				? s( 'beyondwords/settings' ).getVoices( languageCode )
+				? select( 'beyondwords/settings' ).getVoices( languageCode )
 				: [],
 		[ enabled, languageCode ]
 	);
@@ -60,9 +61,9 @@ export function VoicePicker( {
 	// `hasFinishedResolution` is monotonic; `isResolving` flip-flops and leaves a
 	// one-frame gap where stale voices show.
 	const languagesResolving = useSelect(
-		( s ) =>
+		( select ) =>
 			enabled &&
-			! s( 'beyondwords/settings' ).hasFinishedResolution(
+			! select( 'beyondwords/settings' ).hasFinishedResolution(
 				'getLanguages',
 				[]
 			),
@@ -70,12 +71,13 @@ export function VoicePicker( {
 	);
 
 	const voicesResolving = useSelect(
-		( s ) =>
+		( select ) =>
 			enabled &&
 			!! languageCode &&
-			! s( 'beyondwords/settings' ).hasFinishedResolution( 'getVoices', [
-				languageCode,
-			] ),
+			! select( 'beyondwords/settings' ).hasFinishedResolution(
+				'getVoices',
+				[ languageCode ]
+			),
 		[ enabled, languageCode ]
 	);
 
