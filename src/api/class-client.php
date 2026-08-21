@@ -67,11 +67,24 @@ class Client {
 	const VOICES_REQUEST_TIMEOUT = 8;
 
 	/**
+	 * API base URL, resolved once at bootstrap.
+	 *
+	 * @since 7.0.1
+	 *
+	 * @var string|null Null until `init()` runs.
+	 */
+	private static ?string $api_url = null;
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Must run early in the bootstrap so the filter precedes any API call.
 	 */
 	public static function init(): void {
+		// WordPress fires http_request_args mid-upgrade, after the plugin files have
+		// been replaced, so resolve (and load) Urls now — a lazy autoload would fatal.
+		self::$api_url = \BeyondWords\Core\Urls::get_api_url();
+
 		// The VIP warning targets raised timeouts; this filter only adds headers.
 		// phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
 		add_filter( 'http_request_args', [ self::class, 'filter_http_request_args' ], 10, 2 );
@@ -90,7 +103,7 @@ class Client {
 			return $args;
 		}
 
-		$api_url = \BeyondWords\Core\Urls::get_api_url();
+		$api_url = (string) self::$api_url;
 
 		if ( '' === $api_url || ! str_starts_with( $url, $api_url ) ) {
 			return $args;

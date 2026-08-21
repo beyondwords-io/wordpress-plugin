@@ -106,6 +106,13 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 = 7.0.1 =
 
+Release date: TBC
+
+**Fixes**
+
+* [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
+    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.0.1 or later for the fix to apply.
+
 **Compatibility**
 
 * [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Tested up to WordPress 7.1.
