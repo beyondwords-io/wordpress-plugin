@@ -177,7 +177,9 @@ Hard-won details behind some non-obvious patterns in the Cypress suite:
   `window:before:load` never fires. WordPress 7.0.4 is unaffected, as is the
   Electron browser, so the trigger is the 7.1 editor's blob-URL canvas iframe
   meeting Chrome's cross-origin rules under Cypress's proxy. Classic editor and
-  settings screens have no such iframe and pass either way.
+  settings screens have no such iframe and pass either way. Drop the setting
+  once [cypress-io/cypress#28235](https://github.com/cypress-io/cypress/issues/28235)
+  is fixed — re-test by removing it and running a block editor spec in Chrome.
 - **Stubbing voices in the block editor doesn't work**: `cy.intercept` on the
   REST voices route stubs fine in the classic editor, but the block editor's
   `wp.data` store ends up empty. Branches that depend on voice-list contents
