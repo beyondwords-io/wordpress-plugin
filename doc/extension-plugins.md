@@ -71,21 +71,37 @@ and each coupling is deliberate:
 
 ##  Post meta written by the import tool
 
-`PostMeta::update_for_record()` writes four keys per record:
+`PostMeta::update_for_record()` writes three keys per record:
 
 | Key | Value |
 | --- | --- |
 | `beyondwords_generate_audio` | `'1'` |
 | `beyondwords_project_id` | The record's `project_id` |
 | `beyondwords_content_id` | The record's `content_id` |
-| `beyondwords_integration_method` | `rest-api` |
 
-The integration method matters: a Content ID is only read under the REST API
-integration. `Player\Renderer\Base::check()` treats a client-side ("Magic
-Embed") post as renderable regardless of Content ID, resolving the player by
-source ID instead — so without this key an import onto a Magic Embed site
-writes Content IDs that nothing ever reads. The main plugin writes the same
-pair together in `Post\Sync::generate_audio_result()`.
+### Why `beyondwords_integration_method` is not among them
+
+It is tempting to write it, because a Content ID is only read under the REST
+API integration: `Player\Renderer\Base::check()` treats a client-side ("Magic
+Embed") post as renderable regardless of Content ID and resolves the player by
+source ID instead, so on a Magic Embed site the imported IDs go unread.
+
+Writing it would be a trap. `Settings\Fields::get_integration_method( $post )`
+reads post meta *before* the site option, and
+`Sync::generate_audio_result()` re-writes whichever value it just read on every
+save. A value written here is therefore permanent: the post would keep
+resolving as REST API no matter what the site owner later chose in Settings,
+with no way back from the admin.
+
+The main plugin writes that key as a receipt of a generation it performed on
+that code path. The import tool performs no generation — it links content
+created in the BeyondWords dashboard — so it has no such fact to record. Left
+unwritten, `get_integration_method()` falls through to the site option, which
+is reversible and stays the site owner's decision.
+
+An import onto a Magic Embed site is therefore a no-op for playback, by
+design. The IDs are still written, still visible in the Inspect panel, and
+still take effect if the site later switches to the REST API integration.
 
 Imports are restricted to `Settings\Utils::get_compatible_post_types()`, which
 is what `Post\Sync::register_meta()` registers the meta keys against. Writing

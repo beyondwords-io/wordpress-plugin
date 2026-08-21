@@ -22,7 +22,7 @@ class Page {
 	 *
 	 * Keep in step with PostMeta::update_for_record().
 	 */
-	const META_WRITES_PER_RECORD = 4;
+	const META_WRITES_PER_RECORD = 3;
 
 	/**
 	 * Whether the import confirmation nonce was verified for this request.

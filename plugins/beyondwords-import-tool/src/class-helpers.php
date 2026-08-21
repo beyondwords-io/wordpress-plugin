@@ -160,13 +160,6 @@ class Helpers {
 				sanitize_text_field( $record['content_id'] ),
 				$comment
 			);
-			$lines[] = sprintf(
-				"update_post_meta(%s, '%s', '%s');%s",
-				$post_id,
-				PostMeta::KEY_INTEGRATION_METHOD,
-				Compat::get_integration_method(),
-				$comment
-			);
 		}
 		unset( $record );
 

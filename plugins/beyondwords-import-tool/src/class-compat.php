@@ -16,13 +16,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class Compat {
 	/**
-	 * Fallback integration method when the main plugin is inactive.
-	 *
-	 * Mirrors `BeyondWords\Settings\Fields::INTEGRATION_REST_API`.
-	 */
-	const INTEGRATION_REST_API = 'rest-api';
-
-	/**
 	 * Post types the main plugin registers BeyondWords post meta for.
 	 *
 	 * Importing to any other type writes meta that `Sync::register_meta()`
@@ -43,20 +36,5 @@ class Compat {
 		}
 
 		return get_post_types_by_support( 'custom-fields' );
-	}
-
-	/**
-	 * Integration method to record against an imported post.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return string
-	 */
-	public static function get_integration_method() {
-		if ( defined( '\BeyondWords\Settings\Fields::INTEGRATION_REST_API' ) ) {
-			return \BeyondWords\Settings\Fields::INTEGRATION_REST_API;
-		}
-
-		return self::INTEGRATION_REST_API;
 	}
 }
