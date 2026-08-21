@@ -104,6 +104,12 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 == Changelog ==
 
+= 7.0.1 =
+
+**Compatibility**
+
+* [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Tested up to WordPress 7.1.
+
 = 7.0.0 =
 
 Release date: 12th August 2026
