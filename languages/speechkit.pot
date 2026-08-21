@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-11T09:12:19+00:00\n"
+"POT-Creation-Date: 2026-08-21T13:24:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: speechkit\n"
@@ -359,38 +359,16 @@ msgstr ""
 msgid "Try Again"
 msgstr ""
 
-#: plugins/speechkit-export-tool/src/class-page.php:36
-#: plugins/speechkit-export-tool/src/class-page.php:37
-#: plugins/speechkit-export-tool/src/class-page.php:54
-msgid "Export SpeechKit Data"
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:55
-msgid "This tool helps site owners export a sample of their SpeechKit data."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:56
-msgid "The exported file should be sent to the SpeechKit team to enable them to replicate your SpeechKit data."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:57
-msgid "It is safe for you to send this file using email, because no sensitive information is present in the file."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:61
-msgid "Download Export File"
-msgstr ""
-
-#: src/api/class-client.php:341
+#: src/api/class-client.php:354
 msgid "None of the selected posts had valid BeyondWords audio data."
 msgstr ""
 
-#: src/api/class-client.php:347
+#: src/api/class-client.php:360
 msgid "Batch delete can only be performed on audio belonging a single project."
 msgstr ""
 
 #. translators: %s is replaced with the support email link
-#: src/api/class-client.php:709
+#: src/api/class-client.php:722
 #, php-format
 msgid "API request error. Please contact %s."
 msgstr ""
