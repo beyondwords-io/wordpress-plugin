@@ -32,3 +32,10 @@ require_once plugin_dir_path( __FILE__ ) . 'src/class-notices.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-post-meta.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-transients.php';
+
+// Called here rather than at the foot of each class file, so registration
+// never depends on the require order above.
+Beyondwords\Wordpress\Import\Ajax::init();
+Beyondwords\Wordpress\Import\FileHandler::init();
+Beyondwords\Wordpress\Import\Notices::init();
+Beyondwords\Wordpress\Import\Page::init();

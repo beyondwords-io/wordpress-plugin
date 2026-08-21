@@ -305,5 +305,3 @@ class LogFile {
 		delete_option( self::TOKEN_OPTION );
 	}
 }
-
-LogFile::init();

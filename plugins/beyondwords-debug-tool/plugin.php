@@ -28,6 +28,13 @@ require_once plugin_dir_path( __FILE__ ) . 'src/class-logger.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/class-settings.php';
 
+// Called here rather than at the foot of each class file: Logger::init() reads
+// Settings, so a self-init would depend on the require order above.
+Beyondwords\Wordpress\Debug\Settings::init();
+Beyondwords\Wordpress\Debug\LogFile::init();
+Beyondwords\Wordpress\Debug\Logger::init();
+Beyondwords\Wordpress\Debug\Page::init();
+
 register_deactivation_hook(
 	__FILE__,
 	function (): void {

@@ -328,5 +328,3 @@ class Page {
 		Assets::enqueue_batch_script( $total_records );
 	}
 }
-
-Page::init();

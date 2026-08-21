@@ -300,5 +300,3 @@ class Logger {
 		return empty( $lines ) ? '  (no stack trace available)' : implode( "\n", $lines );
 	}
 }
-
-Logger::init();

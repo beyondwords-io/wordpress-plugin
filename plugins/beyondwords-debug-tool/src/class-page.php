@@ -141,5 +141,3 @@ class Page {
 		<?php
 	}
 }
-
-Page::init();

@@ -108,5 +108,3 @@ class Ajax {
 		return PostMeta::verify_for_record( $post_id, $record );
 	}
 }
-
-Ajax::init();

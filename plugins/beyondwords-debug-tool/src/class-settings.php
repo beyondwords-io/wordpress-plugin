@@ -63,5 +63,3 @@ class Settings {
 		delete_option( self::OPTION_NAME );
 	}
 }
-
-Settings::init();
