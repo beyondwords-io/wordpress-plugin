@@ -18,6 +18,9 @@ class LogFile {
 	 * The token is appended to the log filename to make it unguessable,
 	 * preventing direct URL access on servers that don't support .htaccess
 	 * (e.g. Nginx, Caddy, LiteSpeed).
+	 *
+	 * The main plugin lists this key in `Core\Utils::get_options()`, so
+	 * uninstalling it also deletes this token — see doc/extension-plugins.md.
 	 */
 	const TOKEN_OPTION = 'beyondwords_debug_log_token';
 
@@ -89,20 +92,20 @@ class LogFile {
 		$log_dir  = dirname( $log_file );
 
 		// Try to create the directory if it doesn't exist.
-		if ( ! is_dir( $log_dir ) ) {
-			if ( ! wp_mkdir_p( $log_dir ) ) {
-				return [
-					'writable' => false,
-					'message'  => sprintf(
-						// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a directory path.
-						__( 'Could not create directory: %s. Please create it manually with write permissions.', 'speechkit' ),
-						$log_dir
-					),
-				];
-			}
-
-			self::protect_log_directory( $log_dir );
+		if ( ! is_dir( $log_dir ) && ! wp_mkdir_p( $log_dir ) ) {
+			return [
+				'writable' => false,
+				'message'  => sprintf(
+					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a directory path.
+					__( 'Could not create directory: %s. Please create it manually with write permissions.', 'speechkit' ),
+					$log_dir
+				),
+			];
 		}
+
+		// Runs for a pre-existing directory too — it may have been created by
+		// something else, without the guard files.
+		self::protect_log_directory( $log_dir );
 
 		// Try to create the log file if it doesn't exist.
 		if ( ! file_exists( $log_file ) ) {
@@ -125,7 +128,7 @@ class LogFile {
 		if ( ! is_writable( $log_file ) ) {
 			return [
 				'writable' => false,
-					'message'  => sprintf(
+				'message'  => sprintf(
 					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %s is a file path.
 					__( 'Log file is not writable: %s. Please ensure PHP has write permissions.', 'speechkit' ),
 					$log_file

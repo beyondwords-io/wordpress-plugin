@@ -47,10 +47,15 @@ class Settings {
 	 * Check if debug logging is enabled.
 	 *
 	 * @since 1.0.0
+	 * @since 1.1.0 Always false where the host can't support file logging.
 	 *
 	 * @return bool
 	 */
 	public static function is_debug_enabled() {
+		if ( ! Environment::supports_file_logging() ) {
+			return false;
+		}
+
 		return (bool) get_option( self::OPTION_NAME, false );
 	}
 
