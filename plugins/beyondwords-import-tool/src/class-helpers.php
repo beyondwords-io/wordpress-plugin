@@ -65,6 +65,42 @@ class Helpers {
 	}
 
 	/**
+	 * Human-readable explanation for a skipped record.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $reason A `skip_reason` set by generate_preview_code().
+	 *
+	 * @return string
+	 */
+	public static function get_skip_reason_label( $reason ) {
+		if ( $reason === 'post_type' ) {
+			return __( 'Post type not supported by BeyondWords', 'speechkit' );
+		}
+
+		return __( 'No matching WordPress post', 'speechkit' );
+	}
+
+	/**
+	 * Whether a resolved post exists and is a type BeyondWords supports.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $post_id The WordPress post ID.
+	 *
+	 * @return bool
+	 */
+	public static function is_importable_post( $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return false;
+		}
+
+		return in_array( $post->post_type, Compat::get_allowed_post_types(), true );
+	}
+
+	/**
 	 * Generate the preview code and cache resolved post IDs in the import data.
 	 *
 	 * Resolves each record's post ID once during preview and stores the result
@@ -72,6 +108,7 @@ class Helpers {
 	 * to call url_to_postid() again.
 	 *
 	 * @since 1.0.0
+	 * @since 1.1.0 Skipped records carry a `skip_reason` of `not_found` or `post_type`.
 	 *
 	 * @param array &$import_data The parsed and validated import data (modified in place).
 	 *
@@ -87,14 +124,15 @@ class Helpers {
 			// Cache the resolved post ID so the AJAX import can skip url_to_postid().
 			$record['resolved_post_id'] = $post_id !== false ? $post_id : 0;
 
-			if ( $post_id === false ) {
-				$skipped[] = $record;
+			if ( $post_id === false || ! get_post( $post_id ) ) {
+				$record['skip_reason'] = 'not_found';
+				$skipped[]             = $record;
 				continue;
 			}
 
-			// Verify the post exists.
-			if ( ! get_post( $post_id ) ) {
-				$skipped[] = $record;
+			if ( ! self::is_importable_post( $post_id ) ) {
+				$record['skip_reason'] = 'post_type';
+				$skipped[]             = $record;
 				continue;
 			}
 

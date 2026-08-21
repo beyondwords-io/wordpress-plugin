@@ -1,6 +1,7 @@
 /**
  * @group posts-list
  * @covers src/player/class-player.php,src/player/class-config-builder.php,src/post/class-content.php,src/posts-list/class-column.php
+ * @covers plugins/beyondwords-remove-auto-player/
  */
 
 /* global Cypress, cy, beforeEach, describe, expect, it */
@@ -65,6 +66,39 @@ describe( 'WordPress Filters', () => {
 				} );
 
 				cy.task( 'deactivatePlugin', 'beyondwords-filter-player-script-onload' );
+			} );
+		} );
+
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			it( `can suppress only the auto-prepended player for a ${ postType.name }`, () => {
+				// The beyondwords-remove-auto-player extension plugin, shipped as
+				// its own release ZIP — it returns '' when $context is 'auto'.
+				cy.task( 'activatePlugin', 'beyondwords-remove-auto-player' );
+				cy.task( 'activatePlugin', 'beyondwords-shortcode-in-footer' );
+
+				cy.publishPostWithAudio( {
+					postType,
+					title: `I can remove the auto player for a ${ postType.name }`,
+				} );
+
+				cy.viewPostViaSnackbar();
+
+				// The shortcode player survives; the auto-prepended one does not.
+				cy.hasPlayerInstances( 1 );
+				cy.get( '[data-beyondwords-player-context="auto"]' ).should(
+					'not.exist'
+				);
+				cy.get(
+					'[data-beyondwords-player-context="shortcode"]'
+				).should( 'have.length', 1 );
+
+				cy.task(
+					'deactivatePlugin',
+					'beyondwords-shortcode-in-footer'
+				);
+				cy.task( 'deactivatePlugin', 'beyondwords-remove-auto-player' );
 			} );
 		} );
 

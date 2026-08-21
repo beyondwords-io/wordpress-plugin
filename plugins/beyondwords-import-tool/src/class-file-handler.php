@@ -267,5 +267,3 @@ class FileHandler {
 		exit;
 	}
 }
-
-FileHandler::init();

@@ -46,7 +46,7 @@ class Assets {
 			'beyondwords-import-batch',
 			plugins_url( 'assets/js/import-batch.js', __DIR__ ),
 			[ 'jquery', 'wp-i18n' ],
-			'1.0.0',
+			'1.1.0',
 			true
 		);
 
@@ -54,16 +54,17 @@ class Assets {
 			'beyondwords-import-batch',
 			'beyondwordsImportBatch',
 			[
-				'totalRecords' => intval( $total_records ),
-				'batchSize'    => 50,
-				'nonce'        => wp_create_nonce( 'beyondwords_import_batch' ),
-				'i18n'         => [
+				'totalRecords'         => intval( $total_records ),
+				'batchSize'            => 50,
+				'metaWritesPerRecord'  => Page::META_WRITES_PER_RECORD,
+				'nonce'                => wp_create_nonce( 'beyondwords_import_batch' ),
+				'i18n'                 => [
 					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %1$d and %2$d are numeric counts.
 					'processing'     => __( 'Processing %1$d of %2$d records...', 'speechkit' ),
 					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %1$d and %2$d are numeric counts.
 					'successSummary' => __( 'Successfully updated %1$d records (%2$d meta values).', 'speechkit' ),
 					// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count.
-					'failedSummary'  => __( '%d record(s) could not be imported because a matching WordPress post could not be found:', 'speechkit' ),
+					'failedSummary'  => __( '%d record(s) could not be imported:', 'speechkit' ),
 					'ajaxError'      => __( 'An error occurred during import.', 'speechkit' ),
 					'networkError'   => __( 'A network error occurred. Please try again.', 'speechkit' ),
 					'copiedMessage'  => __( 'Failed records copied to clipboard.', 'speechkit' ),

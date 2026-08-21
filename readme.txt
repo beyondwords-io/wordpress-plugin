@@ -110,21 +110,31 @@ Release date: TBC
 
 **Enhancements**
 
+* [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Import Tool: only offer to import to post types BeyondWords supports, and say why each skipped record was skipped.
 * [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
 
 **Fixes**
 
+* [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Debug Tool: fix the fatal error raised when activating the plugin.
+    * Download the updated ZIP from this release — every earlier build fails on activation.
 * [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Fix "Generation disabled" being ignored on blocks nested inside a Group, Columns or other container.
     * Audio regenerated for an affected post no longer includes those blocks.
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
     * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.1.0 or later for the fix to apply.
 
+**Deprecations**
+
+* [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Removed the SpeechKit Export Tool, which only exported post meta the plugin stopped writing in v4.0.
+    * Site Health and the editor's Inspect panel report the same data for current installs.
+
 **Compatibility**
 
+* [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Debug Tool: request logging is now switched off on WordPress VIP, where it could not append to its log file safely.
 * [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Tested up to WordPress 7.1.
 
 **Codebase Enhancements**
 
+* [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Install and smoke-test the extension plugins in CI, and document them in `doc/extension-plugins.md`.
 * [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Turn off Cypress web security so the block editor specs run on WordPress 7.1.
 * [#568](https://github.com/beyondwords-io/wordpress-plugin/pull/568) Correct the 7.0.0 changelog: the live player preview for the "Add Player" block was reverted before release, and the block shows a static placeholder in the editor.
 

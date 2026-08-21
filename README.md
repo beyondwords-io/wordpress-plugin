@@ -39,6 +39,8 @@ setting's stored format and how the editor and save path honour it.
 transport and the API connection check.
 13. [Duplicate `source_id` on create](./doc/source-id-race.md): The two guards
 against a publish race creating content for the same post twice.
+14. [Extension plugins](./doc/extension-plugins.md): The standalone tools
+shipped as separate ZIPs on each release.
 
 ##  Links
 
