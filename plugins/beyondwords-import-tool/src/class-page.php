@@ -18,6 +18,13 @@ class Page {
 	const MENU_SLUG = 'beyondwords-tools';
 
 	/**
+	 * Meta keys written per imported record, for the preview's operation count.
+	 *
+	 * Keep in step with PostMeta::update_for_record().
+	 */
+	const META_WRITES_PER_RECORD = 3;
+
+	/**
 	 * Whether the import confirmation nonce was verified for this request.
 	 *
 	 * @var bool
@@ -207,7 +214,7 @@ class Page {
 		<?php // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count. ?>
 		<p><?php printf( esc_html__( 'Processing %d records...', 'speechkit' ), intval( $total_records ) ); ?></p>
 		<?php // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %1$d and %2$d are numeric counts. ?>
-		<p><?php printf( esc_html__( 'Found %1$d records to import (%2$d post meta operations).', 'speechkit' ), intval( $importable ), intval( $importable ) * 3 ); ?></p>
+		<p><?php printf( esc_html__( 'Found %1$d records to import (%2$d post meta operations).', 'speechkit' ), intval( $importable ), intval( $importable ) * self::META_WRITES_PER_RECORD ); ?></p>
 
 		<?php if ( $skipped_count > 0 ) : ?>
 			<div class="notice notice-warning inline" style="margin: 10px 0;">
@@ -215,7 +222,7 @@ class Page {
 					<?php
 					printf(
 						// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- %d is a numeric count.
-						esc_html__( '%d record(s) will be skipped because a matching WordPress post could not be found:', 'speechkit' ),
+						esc_html__( '%d record(s) will be skipped:', 'speechkit' ),
 						intval( $skipped_count )
 					);
 					?>
@@ -225,6 +232,7 @@ class Page {
 						<tr>
 							<th><?php esc_html_e( 'Source ID', 'speechkit' ); ?></th>
 							<th><?php esc_html_e( 'Source URL', 'speechkit' ); ?></th>
+							<th><?php esc_html_e( 'Reason', 'speechkit' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -232,6 +240,7 @@ class Page {
 							<tr>
 								<td><?php echo esc_html( $record['source_id'] ); ?></td>
 								<td><?php echo esc_html( $record['source_url'] ); ?></td>
+								<td><?php echo esc_html( Helpers::get_skip_reason_label( $record['skip_reason'] ?? '' ) ); ?></td>
 							</tr>
 						<?php endforeach; ?>
 					</tbody>
@@ -319,5 +328,3 @@ class Page {
 		Assets::enqueue_batch_script( $total_records );
 	}
 }
-
-Page::init();

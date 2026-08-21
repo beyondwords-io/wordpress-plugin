@@ -3,6 +3,7 @@ jQuery(document).ready(function($) {
 	var config = beyondwordsImportBatch;
 	var totalRecords = config.totalRecords;
 	var batchSize = config.batchSize;
+	var metaWritesPerRecord = config.metaWritesPerRecord;
 	var processed = 0;
 	var nonce = config.nonce;
 	var isRunning = false;
@@ -42,7 +43,7 @@ jQuery(document).ready(function($) {
 
 						var successCount = response.data.success_count || 0;
 						var failedCount = response.data.failed_count || 0;
-						$('#beyondwords-import-summary').text(wp.i18n.sprintf(config.i18n.successSummary, successCount, successCount * 3));
+						$('#beyondwords-import-summary').text(wp.i18n.sprintf(config.i18n.successSummary, successCount, successCount * metaWritesPerRecord));
 
 						if (failedCount > 0 && response.data.failed) {
 							$('#beyondwords-import-failed-summary').text(wp.i18n.sprintf(config.i18n.failedSummary, failedCount));

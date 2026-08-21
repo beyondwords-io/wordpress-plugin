@@ -93,26 +93,13 @@ class Ajax {
 	 * @return bool True on success, false on failure.
 	 */
 	private static function import_record( array $record ): bool {
-		static $allowed_types = null;
-
-		if ( $allowed_types === null ) {
-			$allowed_types = get_post_types_by_support( 'custom-fields' );
-		}
-
 		$post_id = Helpers::get_post_id_for_record( $record );
 
 		if ( $post_id === false ) {
 			return false;
 		}
 
-		$post = get_post( $post_id );
-
-		if ( ! $post ) {
-			return false;
-		}
-
-		// Only import to post types that support custom fields.
-		if ( ! in_array( $post->post_type, $allowed_types, true ) ) {
+		if ( ! Helpers::is_importable_post( $post_id ) ) {
 			return false;
 		}
 
@@ -121,5 +108,3 @@ class Ajax {
 		return PostMeta::verify_for_record( $post_id, $record );
 	}
 }
-
-Ajax::init();

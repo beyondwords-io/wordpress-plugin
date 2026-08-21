@@ -21,6 +21,9 @@ class PostMeta {
 	/**
 	 * Write the BeyondWords meta fields for a single post.
 	 *
+	 * `beyondwords_integration_method` is deliberately not written here — see
+	 * doc/extension-plugins.md in the main plugin repository.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param int   $post_id The WordPress post ID.

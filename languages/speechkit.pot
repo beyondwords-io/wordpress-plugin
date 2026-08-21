@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-11T09:12:19+00:00\n"
+"POT-Creation-Date: 2026-08-21T15:59:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: speechkit\n"
@@ -36,9 +36,9 @@ msgstr ""
 #: plugins/beyondwords-debug-tool/src/class-page.php:44
 #: plugins/beyondwords-debug-tool/src/class-page.php:45
 #: plugins/beyondwords-debug-tool/src/class-page.php:60
-#: plugins/beyondwords-import-tool/src/class-page.php:52
-#: plugins/beyondwords-import-tool/src/class-page.php:53
-#: plugins/beyondwords-import-tool/src/class-page.php:68
+#: plugins/beyondwords-import-tool/src/class-page.php:59
+#: plugins/beyondwords-import-tool/src/class-page.php:60
+#: plugins/beyondwords-import-tool/src/class-page.php:75
 #: src/editor/classic/class-metabox.php:54
 #: src/editor/components/inspect-panel/class-inspect-panel.php:84
 #: src/posts-list/class-bulk-edit.php:69
@@ -51,83 +51,92 @@ msgstr ""
 msgid "BeyondWords"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:98
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:100
 #, php-format
 msgid "Could not create directory: %s. Please create it manually with write permissions."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:116
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:119
 #, php-format
 msgid "Could not create log file: %s. Please create it manually with write permissions."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:130
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:133
 #, php-format
 msgid "Log file is not writable: %s. Please ensure PHP has write permissions."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:178
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:181
 msgid "You do not have permission to download this file."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:184
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:187
 msgid "Security check failed."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:191
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:194
 msgid "Log file does not exist."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-log-file.php:210
+#: plugins/beyondwords-debug-tool/src/class-log-file.php:213
 msgid "Failed to open log file for reading."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:78
+#: plugins/beyondwords-debug-tool/src/class-page.php:92
+#: plugins/beyondwords-debug-tool/src/class-page.php:166
 msgid "Debug Tool"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:79
+#: plugins/beyondwords-debug-tool/src/class-page.php:93
 msgid "Log BeyondWords REST API requests and responses for debugging purposes."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:83
+#: plugins/beyondwords-debug-tool/src/class-page.php:97
 msgid "Important:"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:84
+#: plugins/beyondwords-debug-tool/src/class-page.php:98
 msgid "The log file is stored in a publicly accessible location. We mask API keys, but the log may contain other sensitive information. You are responsible for deleting the log file when debugging is complete."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:93
+#: plugins/beyondwords-debug-tool/src/class-page.php:107
 msgid "Debug REST API Requests"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:97
+#: plugins/beyondwords-debug-tool/src/class-page.php:111
 msgid "Enable logging of BeyondWords API requests and responses"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:100
+#: plugins/beyondwords-debug-tool/src/class-page.php:114
 msgid "When enabled, all requests to and responses from the BeyondWords API will be logged."
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:109
+#: plugins/beyondwords-debug-tool/src/class-page.php:123
 msgid "API URL Being Monitored"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:115
+#: plugins/beyondwords-debug-tool/src/class-page.php:129
 msgid "Log File Location"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:120
+#: plugins/beyondwords-debug-tool/src/class-page.php:134
 msgid "Writable"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:129
+#: plugins/beyondwords-debug-tool/src/class-page.php:143
 msgid "Download"
 msgstr ""
 
-#: plugins/beyondwords-debug-tool/src/class-page.php:138
+#: plugins/beyondwords-debug-tool/src/class-page.php:152
 msgid "Save Debug Settings"
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:169
+msgid "Request logging is unavailable on WordPress VIP, where uploads are served through a stream wrapper that cannot lock a file for appending."
+msgstr ""
+
+#: plugins/beyondwords-debug-tool/src/class-page.php:172
+msgid "Use the VIP request logs or Query Monitor to inspect BeyondWords API traffic instead."
 msgstr ""
 
 #: plugins/beyondwords-import-tool/src/class-ajax.php:40
@@ -138,30 +147,30 @@ msgstr ""
 msgid "Import data not found. Please start over."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-assets.php:62
+#: plugins/beyondwords-import-tool/src/class-assets.php:63
 #, php-format
 msgid "Processing %1$d of %2$d records..."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-assets.php:64
+#: plugins/beyondwords-import-tool/src/class-assets.php:65
 #, php-format
 msgid "Successfully updated %1$d records (%2$d meta values)."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-assets.php:66
-#, php-format
-msgid "%d record(s) could not be imported because a matching WordPress post could not be found:"
-msgstr ""
-
 #: plugins/beyondwords-import-tool/src/class-assets.php:67
-msgid "An error occurred during import."
+#, php-format
+msgid "%d record(s) could not be imported:"
 msgstr ""
 
 #: plugins/beyondwords-import-tool/src/class-assets.php:68
-msgid "A network error occurred. Please try again."
+msgid "An error occurred during import."
 msgstr ""
 
 #: plugins/beyondwords-import-tool/src/class-assets.php:69
+msgid "A network error occurred. Please try again."
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-assets.php:70
 msgid "Failed records copied to clipboard."
 msgstr ""
 
@@ -216,181 +225,171 @@ msgstr ""
 msgid "Row %1$d: Missing required field \"%2$s\"."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:86
+#: plugins/beyondwords-import-tool/src/class-helpers.php:78
+msgid "Post type not supported by BeyondWords"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-helpers.php:81
+msgid "No matching WordPress post"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:93
 msgid "Import Tool"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:128
+#: plugins/beyondwords-import-tool/src/class-page.php:135
 msgid "Your import session has expired. Please upload the file again."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:132
+#: plugins/beyondwords-import-tool/src/class-page.php:139
 msgid "Start Over"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:145
+#: plugins/beyondwords-import-tool/src/class-page.php:152
 msgid "Import BeyondWords data from a JSON file."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:147
+#: plugins/beyondwords-import-tool/src/class-page.php:154
 msgid "This tool allows you to bulk import BeyondWords audio assignments from a JSON file supplied by BeyondWords."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:148
+#: plugins/beyondwords-import-tool/src/class-page.php:155
 msgid "It will update the relevant WordPress posts with the necessary meta fields to link them to your BeyondWords projects and content."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:149
+#: plugins/beyondwords-import-tool/src/class-page.php:156
 msgid "The JSON file will contain an array of objects with the following fields: <code>source_id</code>, <code>source_url</code>, <code>project_id</code>, <code>content_id</code>."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:150
+#: plugins/beyondwords-import-tool/src/class-page.php:157
 msgid "Audio that was created with WordPress plugin versions later than <code>v4.0</code> (released July 2023) should have a numeric WordPress Post ID for the <code>source_id</code>, so assigning audio to those posts should go smoothly."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:151
+#: plugins/beyondwords-import-tool/src/class-page.php:158
 msgid "For audio that was created with plugin versions earlier than <code>v4.0</code> we will attempt to locate the post using the <code>source_url</code> field."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:152
+#: plugins/beyondwords-import-tool/src/class-page.php:159
 msgid "If we are unable to locate the post using either <code>source_id</code> or <code>source_url</code>, audio assignment will be skipped."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:156
+#: plugins/beyondwords-import-tool/src/class-page.php:163
 msgid "You will have the opportunity to review the changes before they are applied. Please do so carefully."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:163
+#: plugins/beyondwords-import-tool/src/class-page.php:170
 msgid "JSON File"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:167
+#: plugins/beyondwords-import-tool/src/class-page.php:174
 msgid "Select a JSON file to import."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:172
+#: plugins/beyondwords-import-tool/src/class-page.php:179
 msgid "Upload and Validate"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:208
+#: plugins/beyondwords-import-tool/src/class-page.php:215
 #, php-format
 msgid "Processing %d records..."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:210
+#: plugins/beyondwords-import-tool/src/class-page.php:217
 #, php-format
 msgid "Found %1$d records to import (%2$d post meta operations)."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:218
+#: plugins/beyondwords-import-tool/src/class-page.php:225
 #, php-format
-msgid "%d record(s) will be skipped because a matching WordPress post could not be found:"
+msgid "%d record(s) will be skipped:"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:226
-#: plugins/beyondwords-import-tool/src/class-page.php:294
+#: plugins/beyondwords-import-tool/src/class-page.php:233
+#: plugins/beyondwords-import-tool/src/class-page.php:303
 msgid "Source ID"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:227
-#: plugins/beyondwords-import-tool/src/class-page.php:295
+#: plugins/beyondwords-import-tool/src/class-page.php:234
+#: plugins/beyondwords-import-tool/src/class-page.php:304
 msgid "Source URL"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:242
+#: plugins/beyondwords-import-tool/src/class-page.php:235
+msgid "Reason"
+msgstr ""
+
+#: plugins/beyondwords-import-tool/src/class-page.php:251
 msgid "The following update_post_meta() calls will be executed:"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:248
+#: plugins/beyondwords-import-tool/src/class-page.php:257
 msgid "Confirm and Execute"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:249
+#: plugins/beyondwords-import-tool/src/class-page.php:258
 msgid "Cancel"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:268
+#: plugins/beyondwords-import-tool/src/class-page.php:277
 msgid "Importing data..."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:273
+#: plugins/beyondwords-import-tool/src/class-page.php:282
 #, php-format
 msgid "Processing 0 of %d records..."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:277
+#: plugins/beyondwords-import-tool/src/class-page.php:286
 msgid "Import completed!"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:284
+#: plugins/beyondwords-import-tool/src/class-page.php:293
 msgid "Please copy the list of failed records below and send it to BeyondWords support so we can help resolve the issue."
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:286
-#: plugins/beyondwords-import-tool/src/class-page.php:287
-#: plugins/beyondwords-import-tool/src/class-page.php:303
-#: plugins/beyondwords-import-tool/src/class-page.php:304
+#: plugins/beyondwords-import-tool/src/class-page.php:295
+#: plugins/beyondwords-import-tool/src/class-page.php:296
+#: plugins/beyondwords-import-tool/src/class-page.php:312
+#: plugins/beyondwords-import-tool/src/class-page.php:313
 msgid "Copy failed records to clipboard"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:289
-#: plugins/beyondwords-import-tool/src/class-page.php:306
+#: plugins/beyondwords-import-tool/src/class-page.php:298
+#: plugins/beyondwords-import-tool/src/class-page.php:315
 msgid "Copied!"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:296
+#: plugins/beyondwords-import-tool/src/class-page.php:305
 #: src/settings/class-fields.php:84
 #: src/site-health/class-site-health.php:109
 msgid "Project ID"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:297
+#: plugins/beyondwords-import-tool/src/class-page.php:306
 #: src/editor/components/content-id/class-content-id.php:67
 #: build/index.js:1
 #: src/editor/components/content-id/index.js:148
 msgid "Content ID"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:309
+#: plugins/beyondwords-import-tool/src/class-page.php:318
 msgid "Import Another File"
 msgstr ""
 
-#: plugins/beyondwords-import-tool/src/class-page.php:315
+#: plugins/beyondwords-import-tool/src/class-page.php:324
 msgid "Try Again"
 msgstr ""
 
-#: plugins/speechkit-export-tool/src/class-page.php:36
-#: plugins/speechkit-export-tool/src/class-page.php:37
-#: plugins/speechkit-export-tool/src/class-page.php:54
-msgid "Export SpeechKit Data"
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:55
-msgid "This tool helps site owners export a sample of their SpeechKit data."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:56
-msgid "The exported file should be sent to the SpeechKit team to enable them to replicate your SpeechKit data."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:57
-msgid "It is safe for you to send this file using email, because no sensitive information is present in the file."
-msgstr ""
-
-#: plugins/speechkit-export-tool/src/class-page.php:61
-msgid "Download Export File"
-msgstr ""
-
-#: src/api/class-client.php:341
+#: src/api/class-client.php:354
 msgid "None of the selected posts had valid BeyondWords audio data."
 msgstr ""
 
-#: src/api/class-client.php:347
+#: src/api/class-client.php:360
 msgid "Batch delete can only be performed on audio belonging a single project."
 msgstr ""
 
 #. translators: %s is replaced with the support email link
-#: src/api/class-client.php:709
+#: src/api/class-client.php:722
 #, php-format
 msgid "API request error. Please contact %s."
 msgstr ""

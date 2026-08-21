@@ -67,11 +67,25 @@ class Page {
 	 * Render this tool's section on the shared page.
 	 *
 	 * @since 1.0.0
+	 * @since 1.1.0 Explains itself instead of offering a dead toggle where the
+	 *              host can't support file logging.
 	 */
 	public static function render_tool_section() {
+		if ( ! Environment::supports_file_logging() ) {
+			self::render_unsupported_section();
+
+			return;
+		}
+
 		$is_enabled = Settings::is_debug_enabled();
 		$log_file   = LogFile::get_log_file_path();
-		$file_check = LogFile::check_log_file_writable();
+
+		// Creates the log directory and file as a side effect, so only run it
+		// once logging is actually switched on.
+		$file_check = $is_enabled ? LogFile::check_log_file_writable() : [
+			'writable' => false,
+			'message'  => '',
+		];
 
 		?>
 		<div class="beyondwords-tool-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
@@ -140,6 +154,25 @@ class Page {
 		</div>
 		<?php
 	}
-}
 
-Page::init();
+	/**
+	 * Render the section on hosts that can't support file logging.
+	 *
+	 * @since 1.1.0
+	 */
+	private static function render_unsupported_section() {
+		?>
+		<div class="beyondwords-tool-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+			<h2><?php esc_html_e( 'Debug Tool', 'speechkit' ); ?></h2>
+			<div class="notice notice-info inline" style="margin: 15px 0;">
+				<p>
+					<?php esc_html_e( 'Request logging is unavailable on WordPress VIP, where uploads are served through a stream wrapper that cannot lock a file for appending.', 'speechkit' ); ?>
+				</p>
+				<p>
+					<?php esc_html_e( 'Use the VIP request logs or Query Monitor to inspect BeyondWords API traffic instead.', 'speechkit' ); ?>
+				</p>
+			</div>
+		</div>
+		<?php
+	}
+}
