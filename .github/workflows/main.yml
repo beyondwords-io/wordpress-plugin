@@ -806,6 +806,12 @@ jobs:
             ## Extension Plugins
 
             The following extension plugins are attached to this release as ZIP files. Install them by uploading the ZIP file via **Plugins > Add New Plugin > Upload Plugin** in your WordPress admin.
+
+            | Plugin | What it does |
+            | --- | --- |
+            | `beyondwords-import-tool` | Bulk-assigns BeyondWords audio to existing posts from a JSON file supplied by BeyondWords. |
+            | `beyondwords-debug-tool` | Logs BeyondWords REST API requests and responses to a file you can download and send to support. Unavailable on WordPress VIP. |
+            | `beyondwords-remove-auto-player` | Hides the player that is automatically added to posts, keeping only players you insert yourself. |
           files: |
             /tmp/beyondwords-import-tool.zip
             /tmp/beyondwords-debug-tool.zip
