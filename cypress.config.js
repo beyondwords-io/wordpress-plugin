@@ -5,6 +5,42 @@ const exec = util.promisify( require( 'child_process' ).exec );
 let hasSetupDatabase = false;
 
 /**
+ * Block until WordPress can serve a page.
+ *
+ * setupDatabase talks to wp-cli over Docker and never touches the web server,
+ * so without this the first test's `cy.visit()` absorbs the whole cold start —
+ * container, opcache and WordPress's own upgrade routines — and can outlast
+ * even a raised pageLoadTimeout. This is `wait-on`, for a server we attach to
+ * rather than start.
+ *
+ * @param {string} url     A URL that returns 200 to an anonymous visitor.
+ * @param {number} timeout How long to keep trying, in ms.
+ */
+async function waitForWordPress( url, timeout = 120000 ) {
+	const deadline = Date.now() + timeout;
+	let lastError = 'no response';
+
+	while ( Date.now() < deadline ) {
+		try {
+			const response = await fetch( url, {
+				signal: AbortSignal.timeout( 10000 ),
+			} );
+			if ( response.ok ) {
+				return;
+			}
+			lastError = `HTTP ${ response.status }`;
+		} catch ( error ) {
+			lastError = error.message;
+		}
+		await new Promise( ( resolve ) => setTimeout( resolve, 1000 ) );
+	}
+
+	throw new Error(
+		`WordPress did not respond at ${ url } within ${ timeout }ms (${ lastError })`
+	);
+}
+
+/**
  * Execute WP-CLI commands, handling CI vs local environment differences.
  *
  * @param {string|string[]} commands             - Single command or array of commands
@@ -46,12 +82,16 @@ const BW_CONTENT_ID =
 
 // Skip the cypress.env.json fallback — must match what WP reports via
 // .wp-env.tests.json, else Site Health assertions diverge.
+const SITE_URL = process.env.CYPRESS_BASE_URL || 'http://localhost:8889';
+
 const BW_API_URL =
 	process.env.BEYONDWORDS_API_URL || 'https://api.beyondwords.io/v1';
 
 module.exports = defineConfig( {
 	projectId: 'd5g7ep',
 	defaultCommandTimeout: 15000,
+	// The first block editor load of a run is ~3x a warm one; 60s left no headroom.
+	pageLoadTimeout: 120000,
 	downloadsFolder: 'tests/cypress/downloads',
 	allowCypressEnv: false,
 	env: {
@@ -77,7 +117,7 @@ module.exports = defineConfig( {
 		configFile: 'tests/cypress/reporter.config.json',
 	},
 	e2e: {
-		baseUrl: 'http://localhost:8889',
+		baseUrl: SITE_URL,
 		setupNodeEvents( on, config ) {
 			return setupNodeEvents( on, config );
 		},
@@ -126,6 +166,8 @@ function setupNodeEvents( on, config ) {
 				'option add beyondwords_preselect \'{"post":{"mode":"all"},"page":{"mode":"all"},"cpt_active":{"mode":"all"}}\' --format=json',
 			] );
 
+			await waitForWordPress( `${ SITE_URL }/wp-login.php` );
+
 			hasSetupDatabase = true;
 			// eslint-disable-next-line no-console
 			console.log( '  ✓ Database setup complete' );
@@ -148,6 +190,8 @@ function setupNodeEvents( on, config ) {
 				'plugin activate speechkit Basic-Auth cpt-active cpt-inactive cpt-unsupported beyondwords-mock-rest-api-responses',
 				"rewrite structure '/%postname%/'",
 			] );
+
+			await waitForWordPress( `${ SITE_URL }/wp-login.php` );
 
 			hasSetupDatabase = false;
 

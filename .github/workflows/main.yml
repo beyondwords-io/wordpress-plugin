@@ -659,6 +659,10 @@ jobs:
           project: ${{ github.workspace }}
           # parallel: true # This will only work on Cypress Cloud
           install: false
+          # `php -S` is backgrounded above and is not ready immediately; without
+          # this the first test's cy.visit() absorbs the whole start-up.
+          wait-on: 'http://localhost:8889/wp-login.php'
+          wait-on-timeout: 120
         # cypress.config.js reads these from process.env. Sensitive values
         # land in `env: { apiKey }` (read via cy.env()); public values land
         # in `expose: { ... }` (read via Cypress.expose()).
