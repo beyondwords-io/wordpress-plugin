@@ -3,7 +3,7 @@
 Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
-Stable tag: 7.0.0
+Stable tag: 7.1.0
 Requires at least: 6.6
 Requires PHP: 8.0
 Tested up to: 7.1
@@ -104,20 +104,23 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 == Changelog ==
 
-= 7.0.1 =
+= 7.1.0 =
 
 Release date: TBC
 
 **Enhancements**
 
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Import Tool: only offer to import to post types BeyondWords supports, and say why each skipped record was skipped.
+* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
 
 **Fixes**
 
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Debug Tool: fix the fatal error raised when activating the plugin.
     * Download the updated ZIP from this release — every earlier build fails on activation.
+* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Fix "Generation disabled" being ignored on blocks nested inside a Group, Columns or other container.
+    * Audio regenerated for an affected post no longer includes those blocks.
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
-    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.0.1 or later for the fix to apply.
+    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.1.0 or later for the fix to apply.
 
 **Deprecations**
 

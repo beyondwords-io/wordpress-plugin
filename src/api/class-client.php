@@ -69,7 +69,7 @@ class Client {
 	/**
 	 * API base URL, resolved once at bootstrap.
 	 *
-	 * @since 7.0.1
+	 * @since 7.1.0
 	 *
 	 * @var string|null Null until `init()` runs.
 	 */

@@ -140,6 +140,292 @@ class ContentTest extends TestCase
 
     /**
      * @test
+     * @dataProvider get_content_without_excluded_blocks_with_overrides_provider
+     */
+    public function get_content_without_excluded_blocks_with_overrides($content, $expect)
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:getContentWithoutExcludedBlocksWithOverrides',
+            'post_content' => $content,
+        ]);
+
+        $actual = str_replace(' class="wp-block-paragraph"', '', Content::get_content_without_excluded_blocks($post));
+
+        $this->assertSame($expect, $actual);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    public function get_content_without_excluded_blocks_with_overrides_provider()
+    {
+        $overrides = '{"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"}';
+
+        return [
+            'Block with a language and voice' => [
+                '<!-- wp:paragraph ' . $overrides . ' --><p>Bonjour tout le monde.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour tout le monde.</p>',
+            ],
+            'Block with a voice only' => [
+                '<!-- wp:paragraph {"beyondwordsVoiceId":"784"} --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-voice-id="784">Hello world.</p>',
+            ],
+            'Mixed languages, with the untouched block left alone' => [
+                '<!-- wp:paragraph ' . $overrides . ' --><p>Bonjour tout le monde.</p><!-- /wp:paragraph -->' .
+                '<!-- wp:paragraph --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour tout le monde.</p>' .
+                '<p>Hello world.</p>',
+            ],
+            'Excluded blocks are still dropped' => [
+                '<!-- wp:paragraph {"beyondwordsAudio":false,"beyondwordsVoiceId":"784"} --><p>No audio.</p><!-- /wp:paragraph -->' .
+                '<!-- wp:paragraph --><p>Hello world.</p><!-- /wp:paragraph -->',
+                '<p>Hello world.</p>',
+            ],
+        ];
+    }
+
+    /**
+     * Deeply nested fixture: group > columns > column > [heading, paragraph,
+     * list > list-item, image, quote > paragraph], plus a gallery > image.
+     *
+     * core/image has no inner blocks — its caption is a rich-text attribute —
+     * so core/gallery is the non-text block used to nest one. The narrated
+     * content of both is the caption; the image itself contributes nothing.
+     */
+    private function deeply_nested_content($attrs = [])
+    {
+        $a = function ($key) use ($attrs) {
+            return isset($attrs[$key]) ? ' ' . wp_json_encode($attrs[$key]) : '';
+        };
+
+        return '<!-- wp:group' . $a('group') . ' --><div class="wp-block-group">' .
+               '<!-- wp:columns --><div class="wp-block-columns">' .
+               '<!-- wp:column' . $a('column') . ' --><div class="wp-block-column">' .
+               '<!-- wp:heading' . $a('heading') . ' --><h2 class="wp-block-heading">Deep heading.</h2><!-- /wp:heading -->' .
+               '<!-- wp:paragraph' . $a('paragraph') . ' --><p>Deep paragraph.</p><!-- /wp:paragraph -->' .
+               '<!-- wp:list --><ul class="wp-block-list">' .
+               '<!-- wp:list-item' . $a('listItem') . ' --><li>Deep list item.</li><!-- /wp:list-item -->' .
+               '</ul><!-- /wp:list -->' .
+               '<!-- wp:image' . $a('image') . ' --><figure class="wp-block-image">' .
+               '<img src="http://example.com/x.png" alt="Deep alt."/>' .
+               '<figcaption class="wp-element-caption">Deep image caption.</figcaption>' .
+               '</figure><!-- /wp:image -->' .
+               '<!-- wp:quote --><blockquote class="wp-block-quote">' .
+               '<!-- wp:paragraph' . $a('quoted') . ' --><p>Deep quoted line.</p><!-- /wp:paragraph -->' .
+               '</blockquote><!-- /wp:quote -->' .
+               '</div><!-- /wp:column -->' .
+               '</div><!-- /wp:columns -->' .
+               '</div><!-- /wp:group -->' .
+               '<!-- wp:gallery --><figure class="wp-block-gallery">' .
+               '<!-- wp:image' . $a('galleryImage') . ' --><figure class="wp-block-image">' .
+               '<img src="http://example.com/g.png" alt="Gallery alt."/>' .
+               '<figcaption class="wp-element-caption">Gallery image caption.</figcaption>' .
+               '</figure><!-- /wp:image -->' .
+               '</figure><!-- /wp:gallery -->';
+    }
+
+    private function deeply_nested_post($attrs = [])
+    {
+        return self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:deeplyNested',
+            'post_content' => $this->deeply_nested_content($attrs),
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function deeply_nested_blocks_all_reach_the_body()
+    {
+        $post = $this->deeply_nested_post();
+
+        $body = Content::get_content_without_excluded_blocks($post);
+
+        foreach ([
+            'Deep heading.',
+            'Deep paragraph.',
+            'Deep list item.',
+            'Deep image caption.',
+            'Deep quoted line.',
+            'Gallery image caption.',
+        ] as $text) {
+            $this->assertStringContainsString($text, $body);
+        }
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function deeply_nested_blocks_carry_their_own_overrides()
+    {
+        $post = $this->deeply_nested_post([
+            'heading'      => ['beyondwordsVoiceId' => '101'],
+            'listItem'     => ['beyondwordsVoiceId' => '102'],
+            'image'        => ['beyondwordsVoiceId' => '103'],
+            'quoted'       => ['beyondwordsLanguageCode' => 'fr_FR', 'beyondwordsVoiceId' => '104'],
+            'galleryImage' => ['beyondwordsVoiceId' => '105'],
+        ]);
+
+        $body = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertMatchesRegularExpression('/<h2[^>]*data-beyondwords-voice-id="101"/', $body);
+        $this->assertMatchesRegularExpression('/<li[^>]*data-beyondwords-voice-id="102"/', $body);
+        $this->assertMatchesRegularExpression('/<figure[^>]*data-beyondwords-voice-id="103"/', $body);
+        $this->assertMatchesRegularExpression('/<p[^>]*data-beyondwords-language="fr_FR"[^>]*data-beyondwords-voice-id="104"/', $body);
+        $this->assertMatchesRegularExpression('/<figure[^>]*data-beyondwords-voice-id="105"/', $body);
+
+        // The untouched blocks stay bare.
+        $this->assertStringNotContainsString('data-beyondwords-voice-id="106"', $body);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     *
+     * The API cascades a container's override, so it is not repeated below it.
+     */
+    public function an_ancestor_override_is_not_copied_onto_descendants()
+    {
+        $post = $this->deeply_nested_post([ 'group' => ['beyondwordsVoiceId' => '201'] ]);
+
+        $body = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertMatchesRegularExpression('/<div[^>]*data-beyondwords-voice-id="201"[^>]*class="wp-block-group/', $body);
+        $this->assertSame(1, substr_count($body, 'data-beyondwords-voice-id="201"'));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     */
+    public function disabling_an_ancestor_excludes_its_descendants()
+    {
+        $post = $this->deeply_nested_post([ 'group' => ['beyondwordsAudio' => false] ]);
+
+        $body = Content::get_content_without_excluded_blocks($post);
+
+        foreach ([ 'Deep heading.', 'Deep paragraph.', 'Deep list item.', 'Deep image caption.', 'Deep quoted line.' ] as $text) {
+            $this->assertStringNotContainsString($text, $body);
+        }
+
+        // The gallery sits outside the disabled group, so it survives.
+        $this->assertStringContainsString('Gallery image caption.', $body);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     * @dataProvider disabled_descendant_provider
+     */
+    public function disabling_a_descendant_excludes_only_that_block($key, $excluded, $kept)
+    {
+        $post = $this->deeply_nested_post([ $key => ['beyondwordsAudio' => false] ]);
+
+        $body = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertStringNotContainsString($excluded, $body);
+
+        foreach ($kept as $text) {
+            $this->assertStringContainsString($text, $body);
+        }
+
+        wp_delete_post($post->ID, true);
+    }
+
+    public function disabled_descendant_provider()
+    {
+        return [
+            'Heading, three levels down' => [
+                'heading', 'Deep heading.', [ 'Deep paragraph.', 'Deep list item.' ],
+            ],
+            'Paragraph, three levels down' => [
+                'paragraph', 'Deep paragraph.', [ 'Deep heading.', 'Deep list item.' ],
+            ],
+            'List item, four levels down' => [
+                'listItem', 'Deep list item.', [ 'Deep heading.', 'Deep paragraph.' ],
+            ],
+            'Image, three levels down' => [
+                'image', 'Deep image caption.', [ 'Deep heading.', 'Gallery image caption.' ],
+            ],
+            'Paragraph inside a quote, four levels down' => [
+                'quoted', 'Deep quoted line.', [ 'Deep heading.', 'Deep paragraph.' ],
+            ],
+            'Image inside a gallery' => [
+                'galleryImage', 'Gallery image caption.', [ 'Deep heading.', 'Deep image caption.' ],
+            ],
+            'A whole column' => [
+                'column', 'Deep heading.', [ 'Gallery image caption.' ],
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * A container carries its own override and the API cascades it to the inner
+     * blocks, each of which can override it again.
+     */
+    public function get_content_without_excluded_blocks_with_nested_overrides()
+    {
+        $content = '<!-- wp:group {"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"} -->' .
+                   '<div class="wp-block-group">' .
+                   '<!-- wp:paragraph --><p>Bonjour.</p><!-- /wp:paragraph -->' .
+                   '<!-- wp:paragraph {"beyondwordsVoiceId":"123"} --><p>Hallo.</p><!-- /wp:paragraph -->' .
+                   '</div>' .
+                   '<!-- /wp:group -->';
+
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:getContentWithoutExcludedBlocksWithNestedOverrides',
+            'post_content' => $content,
+        ]);
+
+        $actual = Content::get_content_without_excluded_blocks($post);
+
+        $this->assertStringContainsString(
+            '<div data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784" class="wp-block-group">',
+            $actual
+        );
+        $this->assertStringContainsString('data-beyondwords-voice-id="123">Hallo.', $actual);
+        $this->assertStringNotContainsString('data-beyondwords-voice-id="123">Bonjour.', $actual);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
+     *
+     * The data attributes belong to the API body only — `the_content` on the
+     * front end must render exactly what it rendered before.
+     */
+    public function block_overrides_do_not_reach_the_front_end()
+    {
+        $content = '<!-- wp:paragraph {"beyondwordsLanguageCode":"fr_FR","beyondwordsVoiceId":"784"} -->' .
+                   '<p>Bonjour tout le monde.</p>' .
+                   '<!-- /wp:paragraph -->';
+
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest:blockOverridesDoNotReachTheFrontEnd',
+            'post_content' => $content,
+        ]);
+
+        $body = Content::get_content_body($post);
+
+        $this->assertStringContainsString('data-beyondwords-language="fr_FR"', $body);
+
+        $rendered = apply_filters('the_content', $post->post_content);
+
+        $this->assertStringNotContainsString('data-beyondwords', $rendered);
+        $this->assertFalse(has_filter('render_block', [\BeyondWords\Editor\Components\BlockAttributes::class, 'add_segment_attributes']));
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * @test
      *
      * Passing a post ID (int) must behave identically to passing the WP_Post object.
      * Regression: an int fell through to `$post->post_content`, emitting a PHP

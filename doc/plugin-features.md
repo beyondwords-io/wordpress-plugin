@@ -23,6 +23,7 @@ against the API — Integration and Preferences appear after that.
 | Post Edit | ‘Video template’ and ‘Video size’  | Per-post video options, shown when the output includes video. Each defaults to ‘Project default’. |
 | Post Edit | ‘Voice’                            | Toggle ‘Customize’ to override the project defaults with a ‘Language’ and a ‘Voice’. ‘Accent’, ‘Native’ and ‘Model’ narrow the voice list; they are filters only and are not saved — the post stores just the language code and voice id. |
 | Post Edit | Per-block generation toggle        | Exclude an individual block from the generated audio, via the block toolbar button or the block inspector panel. |
+| Post Edit | Per-block language and voice       | Toggle ‘Customize’ in the block inspector to override the post’s language and voice for one block. A container’s choice cascades to the blocks inside it. Sent to the API only — the front end is unchanged. |
 | Post Edit | BeyondWords sidebar / metabox      | All plugin functionality and support in one place: a sidebar in the Block Editor, and an equivalent metabox in the Classic Editor. |
 | Post Edit | Prepublish panel                   | Confirm audio generation immediately before publishing. |
 | Post Edit | ‘Insert BeyondWords player’ button | Customize the audio player location while using the Classic Editor. |

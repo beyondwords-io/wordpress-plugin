@@ -71,7 +71,7 @@ members of any testsuite:
 - `test_phpunit`: runs the `test` composer script (PHPUnit, then the coverage
 check)
 - `coverage_check`: runs the `test:coverage-check` composer script, which reads
-`tests/phpunit/_report/clover.xml` and fails below 85% coverage
+`tests/phpunit/_report/clover.xml` and fails below 90% coverage
 
 Because they are in no testsuite, neither git hook runs them. They only run when
 GrumPHP is invoked with no `--testsuite` option (`./vendor/bin/grumphp run`),

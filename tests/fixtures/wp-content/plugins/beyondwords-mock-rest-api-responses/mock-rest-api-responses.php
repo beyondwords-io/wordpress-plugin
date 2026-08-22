@@ -985,6 +985,10 @@ function beyondwords_mock_get_languages() {
  *
  * Note: Each voice has a 'language' key that is an object with 'code' property,
  * not just a string.
+ *
+ * Every id here must also appear as a `default_voices` entry in languages.json:
+ * the real API always returns a language's default voice in that language's
+ * voice list, and the editor's Voice picker stays hidden if it doesn't.
  */
 function beyondwords_mock_get_voices() {
 	return beyondwords_mock_response(
