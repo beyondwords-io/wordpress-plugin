@@ -142,7 +142,7 @@ built assets. CI runs `npm run test:unit` as its own **Jest** job.
 
 `/tests/phpunit/`
 
-Run the test suite (PHPUnit + coverage HTML report + 85% coverage gate):
+Run the test suite (PHPUnit + coverage HTML report + 90% coverage gate):
 
 ```bash
 npm run composer:tests -- test
