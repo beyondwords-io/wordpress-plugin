@@ -279,6 +279,77 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A transport loss after the API accepted the create must still attach the content ID.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_adopts_existing_content_on_transport_failure()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioAdoptsExistingContentOnTransportFailure',
+        ]);
+
+        $filter = $this->add_create_transport_failure_filter($existingContentId);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+        $this->assertSame('a-preview-token', $response['preview_token']);
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * Without a matching remote record, the transport error stands.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_keeps_the_transport_error_when_the_lookup_fails()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioKeepsTheTransportErrorWhenTheLookupFails',
+        ]);
+
+        $timeoutMessage = 'cURL error 28: Operation timed out after 3000 milliseconds';
+        $timeoutFilter  = $this->add_create_transport_failure_filter(null, null, $timeoutMessage);
+        $notFoundFilter = $this->add_not_found_filter((string) $postId, ['GET']);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $timeoutFilter);
+        remove_filter('pre_http_request', $notFoundFilter);
+
+        $this->assertNull($response);
+
+        $this->assertSame(
+            '#500: ' . $timeoutMessage,
+            get_post_meta($postId, 'beyondwords_error_message', true)
+        );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * A site moved from http to https still owns the content it created before the move.
      *
      * @test
@@ -979,8 +1050,29 @@ class ClientTest extends TestCase
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
         $this->assertStringStartsWith('#500:', $errorMessage);
+        $this->assertStringNotContainsString(
+            'API request error. Please contact',
+            $errorMessage,
+            'Transport WP_Error messages must surface rather than the generic fallback'
+        );
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_uses_wp_error_message()
+    {
+        $response = new \WP_Error(
+            'http_request_failed',
+            'cURL error 28: Operation timed out after 3000 milliseconds'
+        );
+
+        $this->assertSame(
+            'cURL error 28: Operation timed out after 3000 milliseconds',
+            Client::error_message_from_response($response)
+        );
     }
 
     /**

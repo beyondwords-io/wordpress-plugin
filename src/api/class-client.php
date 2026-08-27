@@ -178,11 +178,15 @@ class Client {
 			return $existing;
 		}
 
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
-	 * Recover the content record a duplicate-`source_id` create collided with.
+	 * Recover content the create may already have written (422 race or transport loss).
 	 *
 	 * See doc/source-id-race.md.
 	 *
@@ -190,11 +194,11 @@ class Client {
 	 *
 	 * @param int $post_id WordPress post ID, which is also the content's source ID.
 	 *
-	 * @return array<mixed>|null Null when the create didn't collide, or the content
+	 * @return array<mixed>|null Null when adoption does not apply, or the content
 	 *                           couldn't be confirmed as this site's.
 	 */
 	private static function adopt_existing_content( array|\WP_Error $response, int $post_id, int|string $project_id ): ?array {
-		if ( ! self::is_duplicate_source_id( $response ) ) {
+		if ( ! self::should_try_adopt_after_create( $response ) ) {
 			return null;
 		}
 
@@ -219,10 +223,24 @@ class Client {
 			return null;
 		}
 
-		// The create only failed because the content already exists.
+		// The create only failed because the content already exists (or the reply was lost).
 		self::delete_errors( $post_id );
 
 		return $content;
+	}
+
+	/**
+	 * Whether a failed create should probe for content already stored under this source ID.
+	 *
+	 * @since 7.0.0
+	 */
+	private static function should_try_adopt_after_create( array|\WP_Error $response ): bool {
+		// Client gave up waiting; the API may still have accepted the create.
+		if ( is_wp_error( $response ) ) {
+			return true;
+		}
+
+		return self::is_duplicate_source_id( $response );
 	}
 
 	/**
@@ -231,6 +249,10 @@ class Client {
 	 * @since 7.0.0
 	 */
 	private static function is_duplicate_source_id( array|\WP_Error $response ): bool {
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
 		if ( 422 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return false;
 		}
@@ -655,6 +677,11 @@ class Client {
 	 * `message` (other) — so we check both and fall back to the HTTP status text.
 	 */
 	public static function error_message_from_response( array|\WP_Error $response ): string {
+		// Transport failures never have an HTTP body; keep the cURL/WP message.
+		if ( is_wp_error( $response ) ) {
+			return $response->get_error_message();
+		}
+
 		$body    = json_decode( wp_remote_retrieve_body( $response ), true );
 		$message = wp_remote_retrieve_response_message( $response );
 

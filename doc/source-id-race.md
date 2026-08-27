@@ -52,14 +52,20 @@ than the double-create it prevents.
 
 The content endpoint resolves **either** a content ID or a `source_id`, and the
 plugin sends the post ID as the source ID (`Content::get_content_params()`). So
-a create rejected for a duplicate `source_id` can re-fetch the content that
-already exists and adopt it: `Sync::process_response()` then stores the content
-ID and preview token exactly as it would after a successful create, and the
-error is cleared. The next save updates that content as normal.
+when a create fails in either of these ways, `Client::create_audio()` re-fetches
+by source ID and adopts the record if it belongs to this site:
 
-Matched on the error's `location`, never the message text. Any other `source_id`
-validation failure simply 404s the follow-up lookup, leaving the original error
-in place.
+1. **422 duplicate `source_id`** — another request already created the content
+   (the race above). Matched on the error's `location`, never the message text.
+2. **Transport failure (`WP_Error`)** — the client gave up waiting (e.g. the 3s
+   VIP timeout) after the API may already have accepted the POST. Without this,
+   the post stores a generic `#500` and an empty content ID; the next save then
+   hits the 422 path, or worse leaves a stranded dashboard row if adoption of
+   that 422 also fails.
+
+`Sync::process_response()` then stores the content ID and preview token exactly
+as after a successful create, and the error is cleared. A failed lookup (404 /
+wrong site) leaves the original error in place.
 
 ## Only adopt this site's content
 
