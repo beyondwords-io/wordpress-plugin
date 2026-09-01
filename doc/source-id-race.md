@@ -53,37 +53,47 @@ than the double-create it prevents.
 The content endpoint resolves **either** a content ID or a `source_id`, and the
 plugin sends the post ID as the source ID (`Content::get_content_params()`). So
 when a create fails in either of these ways, `Client::create_audio()` re-fetches
-by source ID and adopts the record if it belongs to this site:
+by source ID and adopts the record if it can be confirmed as this post's:
 
 1. **422 duplicate `source_id`** — another request already created the content
    (the race above). Matched on the error's `location`, never the message text.
-2. **Transport failure (`WP_Error`)** — the client gave up waiting (e.g. the 3s
-   VIP timeout) after the API may already have accepted the POST. Without this,
-   the post stores a generic `#500` and an empty content ID; the next save then
-   hits the 422 path, or worse leaves a stranded dashboard row if adoption of
-   that 422 also fails.
+2. **Transport failure (`WP_Error`)** — the client gave up waiting after the API
+   may already have accepted the POST. Creates get the longer
+   `CONTENT_REQUEST_TIMEOUT` (filterable via
+   `beyondwords_content_request_timeout`) precisely because they were observed
+   outliving the default timeout, so this is the residual case. The probe is
+   skipped when the request provably never left (`http_request_not_executed`),
+   runs on the short `ADOPTION_PROBE_TIMEOUT`, and a probe that itself fails at
+   transport level negative-caches for `CACHE_TTL_ON_ERROR` so an unreachable
+   API isn't probed on every save.
 
 `Sync::process_response()` then stores the content ID and preview token exactly
-as after a successful create, and the error is cleared. A failed lookup (404 /
-wrong site) leaves the original error in place.
+as after a successful create, and the error is cleared. A failed lookup leaves
+the original error in place — the 422 on path 1, the `#500` (with the transport
+detail appended) on path 2.
 
-## Only adopt this site's content
+## Only adopt this post's content
 
 Source IDs are bare post IDs and are **not** namespaced by site, so any second
 install pointed at the same project — a staging clone, another subsite —
-collides on every post ID. Before the fix the 422 was what stopped those two
-installs fighting over one content record.
+collides on every post ID. Adoption therefore demands two proofs from the
+fetched record:
 
-So adoption requires the fetched record's `source_url` to sit under this site's
-`home_url()`. Adopting blind would attach another site's content to this post
-and overwrite it on the next update. The check is against the site root rather
-than the post's permalink because the two racing saves can straddle the
-draft → published permalink change.
+1. **`source_id` equals the post ID.** The lookup also resolves plain content
+   IDs, and installs upgraded from older plugin versions still carry legacy
+   *numeric* content IDs — so a bare post ID could otherwise resolve a
+   different post's record that merely shares the number.
+2. **`source_url` belongs to this install** — same host, and the record's path
+   sits under this site's path at a segment boundary. Scheme and port are
+   ignored so a site that moved from `http` to `https` still owns its pre-move
+   content. The check is against the site root rather than the post's permalink
+   because the two racing saves can straddle the draft → published permalink
+   change.
 
-Schemes are ignored in that comparison, so a site that has moved from `http` to
-`https` still recognises content it created before the move. Host and path still
-have to match, which is what separates a staging clone or a sibling subsite —
-`example.com/site-a` doesn't match `example.com/site-b`.
+Known limit: a *root-path* install cannot be told apart from a subdirectory
+install on the same host by URL alone (every path sits under `/`), so two such
+installs sharing one project can still cross-adopt when their post IDs collide.
+Separate BeyondWords projects per install is the supported setup.
 
-Content that can't be confirmed as this site's leaves the 422 stored, which is
-the pre-fix behaviour.
+Content that can't be confirmed as this post's leaves the original error
+stored, which is the pre-fix behaviour.

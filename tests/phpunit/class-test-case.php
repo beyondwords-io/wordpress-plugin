@@ -57,36 +57,90 @@ abstract class TestCase extends WP_UnitTestCase
     }
 
     /**
+     * WP_Error message the transport-failure filter fails the create with.
+     */
+    protected const TRANSPORT_ERROR_MESSAGE = 'cURL error 28: Operation timed out after 3000 milliseconds';
+
+    /**
      * Reject a content create the way the API rejects an already-used `source_id`.
      *
      * @param string|null $existingContentId Answers the follow-up lookup; null lets the GET fall through.
      * @param string|null $sourceUrl         Source URL on that content; defaults to this site's.
+     * @param string|null $sourceId          Source ID on that content; defaults to echoing the requested ID.
      *
      * @return \Closure Filter callback (save a reference to remove it later).
      */
     protected function add_duplicate_source_id_filter(
         ?string $existingContentId = null,
-        ?string $sourceUrl = null
+        ?string $sourceUrl = null,
+        ?string $sourceId = null
+    ): \Closure {
+        return $this->add_failing_create_filter(
+            [
+                'response' => ['code' => 422, 'message' => 'Unprocessable Entity'],
+                'body'     => '{"code":422,"message":"Invalid request body","errors":[{"location":"source_id","message":"has already been taken"}]}',
+                'headers'  => [],
+                'cookies'  => [],
+            ],
+            $existingContentId,
+            $sourceUrl,
+            $sourceId
+        );
+    }
+
+    /**
+     * Fail a content create with a transport error, optionally answering the follow-up lookup.
+     *
+     * Models a client timeout after the API may already have accepted the POST.
+     *
+     * @param string|null $existingContentId Answers the follow-up lookup; null lets the GET fall through.
+     * @param string|null $sourceUrl         Source URL on that content; defaults to this site's.
+     * @param string|null $sourceId          Source ID on that content; defaults to echoing the requested ID.
+     *
+     * @return \Closure Filter callback (save a reference to remove it later).
+     */
+    protected function add_create_transport_failure_filter(
+        ?string $existingContentId = null,
+        ?string $sourceUrl = null,
+        ?string $sourceId = null
+    ): \Closure {
+        return $this->add_failing_create_filter(
+            new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE),
+            $existingContentId,
+            $sourceUrl,
+            $sourceId
+        );
+    }
+
+    /**
+     * Fail a content create with the given response, optionally answering the follow-up lookup.
+     *
+     * The lookup stub echoes the requested ID back as `source_id` (as the real
+     * API does for a source-ID lookup) unless $sourceId overrides it.
+     *
+     * @return \Closure Filter callback (save a reference to remove it later).
+     */
+    private function add_failing_create_filter(
+        array|\WP_Error $createResponse,
+        ?string $existingContentId,
+        ?string $sourceUrl,
+        ?string $sourceId
     ): \Closure {
         $sourceUrl = $sourceUrl ?? home_url('/?p=1');
 
-        $filter = function ($preempt, $parsedArgs, $url) use ($existingContentId, $sourceUrl) {
+        $filter = function ($preempt, $parsedArgs, $url) use ($createResponse, $existingContentId, $sourceUrl, $sourceId) {
             $method = $parsedArgs['method'] ?? '';
 
             if ($method === 'POST' && str_ends_with($url, '/content')) {
-                return [
-                    'response' => ['code' => 422, 'message' => 'Unprocessable Entity'],
-                    'body'     => '{"code":422,"message":"Invalid request body","errors":[{"location":"source_id","message":"has already been taken"}]}',
-                    'headers'  => [],
-                    'cookies'  => [],
-                ];
+                return $createResponse;
             }
 
-            if ($existingContentId !== null && $method === 'GET' && str_contains($url, '/content/')) {
+            if ($existingContentId !== null && $method === 'GET' && preg_match('#/content/([^/?\#]+)#', $url, $matches)) {
                 return [
                     'response' => ['code' => 200, 'message' => 'OK'],
                     'body'     => wp_json_encode([
                         'id'            => $existingContentId,
+                        'source_id'     => $sourceId ?? $matches[1],
                         'source_url'    => $sourceUrl,
                         'status'        => 'processed',
                         'preview_token' => 'a-preview-token',
@@ -99,55 +153,8 @@ abstract class TestCase extends WP_UnitTestCase
             return $preempt;
         };
 
-		add_filter('pre_http_request', $filter, 10, 3);
+        add_filter('pre_http_request', $filter, 10, 3);
 
-		return $filter;
-	}
-
-	/**
-	 * Fail a content create with a transport error, optionally answering the follow-up lookup.
-	 *
-	 * Models a client timeout after the API may already have accepted the POST.
-	 *
-	 * @param string|null $existingContentId Answers the follow-up lookup; null lets the GET fall through.
-	 * @param string|null $sourceUrl         Source URL on that content; defaults to this site's.
-	 * @param string      $errorMessage      WP_Error message the create returns.
-	 *
-	 * @return \Closure Filter callback (save a reference to remove it later).
-	 */
-	protected function add_create_transport_failure_filter(
-		?string $existingContentId = null,
-		?string $sourceUrl = null,
-		string $errorMessage = 'cURL error 28: Operation timed out after 3000 milliseconds'
-	): \Closure {
-		$sourceUrl = $sourceUrl ?? home_url('/?p=1');
-
-		$filter = function ($preempt, $parsedArgs, $url) use ($existingContentId, $sourceUrl, $errorMessage) {
-			$method = $parsedArgs['method'] ?? '';
-
-			if ($method === 'POST' && str_ends_with($url, '/content')) {
-				return new \WP_Error('http_request_failed', $errorMessage);
-			}
-
-			if ($existingContentId !== null && $method === 'GET' && str_contains($url, '/content/')) {
-				return [
-					'response' => ['code' => 200, 'message' => 'OK'],
-					'body'     => wp_json_encode([
-						'id'            => $existingContentId,
-						'source_url'    => $sourceUrl,
-						'status'        => 'processed',
-						'preview_token' => 'a-preview-token',
-					]),
-					'headers'  => [],
-					'cookies'  => [],
-				];
-			}
-
-			return $preempt;
-		};
-
-		add_filter('pre_http_request', $filter, 10, 3);
-
-		return $filter;
-	}
+        return $filter;
+    }
 }

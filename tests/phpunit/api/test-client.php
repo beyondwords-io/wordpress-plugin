@@ -295,15 +295,29 @@ class ClientTest extends TestCase
             'post_title' => 'ClientTest::createAudioAdoptsExistingContentOnTransportFailure',
         ]);
 
+        $errorWrites  = 0;
+        $captureWrite = function ($meta_id, $object_id, $meta_key) use (&$errorWrites, $postId) {
+            if ((int) $object_id === $postId && $meta_key === 'beyondwords_error_message') {
+                $errorWrites++;
+            }
+        };
+        add_action('added_post_meta', $captureWrite, 10, 3);
+        add_action('updated_post_meta', $captureWrite, 10, 3);
+
         $filter = $this->add_create_transport_failure_filter($existingContentId);
 
         $response = Client::create_audio($postId);
 
         remove_filter('pre_http_request', $filter);
+        remove_action('added_post_meta', $captureWrite);
+        remove_action('updated_post_meta', $captureWrite);
 
         $this->assertIsArray($response);
         $this->assertSame($existingContentId, $response['id']);
         $this->assertSame('a-preview-token', $response['preview_token']);
+
+        // The create recorded its error, then adoption cleared it.
+        $this->assertSame(1, $errorWrites);
         $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
 
         wp_delete_post($postId, true);
@@ -327,8 +341,7 @@ class ClientTest extends TestCase
             'post_title' => 'ClientTest::createAudioKeepsTheTransportErrorWhenTheLookupFails',
         ]);
 
-        $timeoutMessage = 'cURL error 28: Operation timed out after 3000 milliseconds';
-        $timeoutFilter  = $this->add_create_transport_failure_filter(null, null, $timeoutMessage);
+        $timeoutFilter  = $this->add_create_transport_failure_filter();
         $notFoundFilter = $this->add_not_found_filter((string) $postId, ['GET']);
 
         $response = Client::create_audio($postId);
@@ -338,10 +351,84 @@ class ClientTest extends TestCase
 
         $this->assertNull($response);
 
-        $this->assertSame(
-            '#500: ' . $timeoutMessage,
+        $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
+
+        $this->assertStringStartsWith('#500: ', $errorMessage);
+        $this->assertStringContainsString(self::TRANSPORT_ERROR_MESSAGE, $errorMessage);
+        $this->assertStringContainsString('support@beyondwords.io', $errorMessage);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A record filed under a different source ID — e.g. a legacy numeric content
+     * ID that happens to equal this post's ID — must not be adopted.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_does_not_adopt_content_with_a_different_source_id()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioDoesNotAdoptContentWithADifferentSourceId',
+        ]);
+
+        $filter = $this->add_create_transport_failure_filter(
+            'effef870-2fbf-41e2-ab92-c68168628e9f',
+            home_url('/?p=999999'),
+            '999999'
+        );
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertNull($response);
+
+        $this->assertStringStartsWith(
+            '#500: ',
             get_post_meta($postId, 'beyondwords_error_message', true)
         );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function create_audio_uses_the_content_request_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioUsesTheContentRequestTimeout',
+        ]);
+
+        $captured = ['timeout' => null];
+        $filter   = function ($preempt, $args, $url) use (&$captured) {
+            if (($args['method'] ?? '') === 'POST' && str_ends_with($url, '/content')) {
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 500, 'message' => 'Internal Server Error'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(Client::CONTENT_REQUEST_TIMEOUT, $captured['timeout']);
 
         wp_delete_post($postId, true);
 
@@ -1050,10 +1137,10 @@ class ClientTest extends TestCase
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
         $this->assertStringStartsWith('#500:', $errorMessage);
-        $this->assertStringNotContainsString(
-            'API request error. Please contact',
+        $this->assertStringContainsString(
+            'cURL error',
             $errorMessage,
-            'Transport WP_Error messages must surface rather than the generic fallback'
+            'Transport WP_Error detail must surface alongside the generic fallback'
         );
 
         wp_delete_post($postId, true);
@@ -1062,16 +1149,37 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function error_message_from_response_uses_wp_error_message()
+    public function error_message_from_response_includes_wp_error_detail()
     {
-        $response = new \WP_Error(
-            'http_request_failed',
-            'cURL error 28: Operation timed out after 3000 milliseconds'
+        $message = Client::error_message_from_response(
+            new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE)
         );
 
+        $this->assertStringContainsString(self::TRANSPORT_ERROR_MESSAGE, $message);
+        $this->assertStringContainsString('support@beyondwords.io', $message);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_coerces_non_string_wp_error_message()
+    {
+        $message = Client::error_message_from_response(
+            new \WP_Error('http_request_failed', ['detail' => 'blocked'])
+        );
+
+        $this->assertIsString($message);
+        $this->assertStringContainsString('blocked', $message);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_leaves_an_empty_wp_error_to_the_fallback()
+    {
         $this->assertSame(
-            'cURL error 28: Operation timed out after 3000 milliseconds',
-            Client::error_message_from_response($response)
+            '',
+            Client::error_message_from_response(new \WP_Error('http_request_failed'))
         );
     }
 

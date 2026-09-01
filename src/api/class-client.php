@@ -49,12 +49,34 @@ class Client {
 	/**
 	 * Default timeout, in seconds, for a BeyondWords API request.
 	 *
-	 * VIP's approved ceiling for a blocking remote request; content writes return
-	 * immediately and generate audio server-side, so nothing needs longer.
+	 * Kept short so synchronous save paths stay responsive; the slow endpoints
+	 * get their own longer constants below.
 	 *
 	 * @since 7.0.0
 	 */
 	const DEFAULT_REQUEST_TIMEOUT = 3;
+
+	/**
+	 * Timeout, in seconds, for a content create.
+	 *
+	 * Creates have been observed exceeding the default 3s while the API still
+	 * accepts the POST, stranding posts without a content ID. On VIP creates run
+	 * async, so the longer wait never blocks a page load. Filterable via
+	 * `beyondwords_content_request_timeout`.
+	 *
+	 * @since 7.0.1
+	 */
+	const CONTENT_REQUEST_TIMEOUT = 8;
+
+	/**
+	 * Timeout, in seconds, for the post-create adoption probe.
+	 *
+	 * A speculative lookup on an already-failing path; every GET but voices
+	 * answers in ~250ms p95, so 1s covers it without doubling the failure cost.
+	 *
+	 * @since 7.0.1
+	 */
+	const ADOPTION_PROBE_TIMEOUT = 1;
 
 	/**
 	 * Timeout, in seconds, for the voices GET — the one slow endpoint.
@@ -139,7 +161,7 @@ class Client {
 	 * @return array<mixed>|\WP_Error|false Raw HTTP response, WP_Error on transport
 	 *                                      failure, or false when an ID is missing.
 	 */
-	public static function get_content( int|string $content_id, int|string|null $project_id = null ): array|\WP_Error|false {
+	public static function get_content( int|string $content_id, int|string|null $project_id = null, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error|false {
 		if ( ! $project_id ) {
 			$project_id = get_option( 'beyondwords_project_id' );
 		}
@@ -150,7 +172,7 @@ class Client {
 
 		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 
-		return self::call_api( 'GET', $url );
+		return self::call_api( 'GET', $url, '', false, [], $timeout );
 	}
 
 	/**
@@ -158,8 +180,10 @@ class Client {
 	 *
 	 * @param int $post_id WordPress post ID.
 	 *
-	 * @return array<mixed>|null|false Decoded response body, or false when the
-	 *                                 post has no project ID.
+	 * @return array<mixed>|null|false Decoded response body — possibly an adopted
+	 *                                 existing record, see doc/source-id-race.md —
+	 *                                 null when the create failed, or false when
+	 *                                 the post has no project ID.
 	 */
 	public static function create_audio( int $post_id ): array|null|false {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -170,16 +194,13 @@ class Client {
 
 		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$response = self::call_api( 'POST', $url, $body, $post_id );
+		$timeout  = (int) apply_filters( 'beyondwords_content_request_timeout', self::CONTENT_REQUEST_TIMEOUT );
+		$response = self::call_api( 'POST', $url, $body, $post_id, [], $timeout );
 
 		$existing = self::adopt_existing_content( $response, $post_id, $project_id );
 
 		if ( null !== $existing ) {
 			return $existing;
-		}
-
-		if ( is_wp_error( $response ) ) {
-			return null;
 		}
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -195,16 +216,33 @@ class Client {
 	 * @param int $post_id WordPress post ID, which is also the content's source ID.
 	 *
 	 * @return array<mixed>|null Null when adoption does not apply, or the content
-	 *                           couldn't be confirmed as this site's.
+	 *                           couldn't be confirmed as this post's.
 	 */
 	private static function adopt_existing_content( array|\WP_Error $response, int $post_id, int|string $project_id ): ?array {
-		if ( ! self::should_try_adopt_after_create( $response ) ) {
+		$should_probe = is_wp_error( $response )
+			? self::should_probe_after_transport_failure( $response )
+			: self::is_duplicate_source_id( $response );
+
+		if ( ! $should_probe ) {
 			return null;
 		}
 
-		$existing = self::get_content( $post_id, $project_id );
+		$existing = self::get_content( $post_id, $project_id, self::ADOPTION_PROBE_TIMEOUT );
 
-		if ( ! is_array( $existing ) || wp_remote_retrieve_response_code( $existing ) > 299 ) {
+		if ( is_wp_error( $existing ) ) {
+			// The API is unreachable; stop paying for a probe on every save.
+			set_transient( self::cache_key( 'adopt_probe_down' ), 1, self::CACHE_TTL_ON_ERROR );
+
+			return null;
+		}
+
+		if ( ! is_array( $existing ) ) {
+			return null;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $existing );
+
+		if ( $code < 200 || $code > 299 ) {
 			return null;
 		}
 
@@ -214,12 +252,12 @@ class Client {
 			return null;
 		}
 
-		// Source IDs are bare post IDs, so a second install on this project collides.
-		$site_root  = (string) preg_replace( '#^https?://#', '', trailingslashit( home_url() ) );
-		$source_url = (string) preg_replace( '#^https?://#', '', (string) ( $content['source_url'] ?? '' ) );
+		// The lookup also resolves legacy numeric content IDs; require this post's source ID.
+		if ( (string) $post_id !== (string) ( $content['source_id'] ?? '' ) ) {
+			return null;
+		}
 
-		// Scheme-insensitive: an http to https move leaves the old scheme stored.
-		if ( '' === $site_root || ! str_starts_with( $source_url, $site_root ) ) {
+		if ( ! self::is_this_sites_source_url( (string) ( $content['source_url'] ?? '' ) ) ) {
 			return null;
 		}
 
@@ -230,17 +268,44 @@ class Client {
 	}
 
 	/**
-	 * Whether a failed create should probe for content already stored under this source ID.
+	 * Whether a transport-failed create warrants probing for an accepted record.
 	 *
-	 * @since 7.0.0
+	 * @since 7.0.1
 	 */
-	private static function should_try_adopt_after_create( array|\WP_Error $response ): bool {
-		// Client gave up waiting; the API may still have accepted the create.
-		if ( is_wp_error( $response ) ) {
-			return true;
+	private static function should_probe_after_transport_failure( \WP_Error $error ): bool {
+		// The request never left WordPress, so nothing can have been accepted.
+		if ( 'http_request_not_executed' === $error->get_error_code() ) {
+			return false;
 		}
 
-		return self::is_duplicate_source_id( $response );
+		return ! get_transient( self::cache_key( 'adopt_probe_down' ) );
+	}
+
+	/**
+	 * Whether a content record's source URL belongs to this install.
+	 *
+	 * Host and path-segment comparison; scheme and port are ignored so a site
+	 * that moved from http to https still owns its pre-move content. A root-path
+	 * install cannot be told apart from a subdirectory install on the same host
+	 * by URL alone — see doc/source-id-race.md.
+	 *
+	 * @since 7.0.1
+	 */
+	private static function is_this_sites_source_url( string $source_url ): bool {
+		$site   = wp_parse_url( home_url() );
+		$source = wp_parse_url( $source_url );
+
+		$site_host   = strtolower( (string) ( $site['host'] ?? '' ) );
+		$source_host = strtolower( (string) ( $source['host'] ?? '' ) );
+
+		if ( '' === $site_host || $site_host !== $source_host ) {
+			return false;
+		}
+
+		$site_path   = trailingslashit( (string) ( $site['path'] ?? '/' ) );
+		$source_path = trailingslashit( (string) ( $source['path'] ?? '/' ) );
+
+		return str_starts_with( $source_path, $site_path );
 	}
 
 	/**
@@ -248,11 +313,7 @@ class Client {
 	 *
 	 * @since 7.0.0
 	 */
-	private static function is_duplicate_source_id( array|\WP_Error $response ): bool {
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
+	private static function is_duplicate_source_id( array $response ): bool {
 		if ( 422 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return false;
 		}
@@ -568,10 +629,12 @@ class Client {
 
 		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
 
-		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $response_code ) {
 			delete_option( 'beyondwords_valid_api_connection' );
+			// Drop the recent-check cache too, so the settings page revalidates immediately.
+			delete_transient( \BeyondWords\Settings\Utils::CONNECTION_CHECK_TRANSIENT );
 		}
 
 		if (
@@ -677,9 +740,22 @@ class Client {
 	 * `message` (other) — so we check both and fall back to the HTTP status text.
 	 */
 	public static function error_message_from_response( array|\WP_Error $response ): string {
-		// Transport failures never have an HTTP body; keep the cURL/WP message.
 		if ( is_wp_error( $response ) ) {
-			return $response->get_error_message();
+			$detail = $response->get_error_message();
+			// Filters can attach non-string messages; coerce so the `: string` return holds.
+			$detail = is_string( $detail ) ? $detail : (string) wp_json_encode( $detail );
+
+			// An empty detail falls through to save_error_message()'s generic fallback.
+			if ( '' === $detail ) {
+				return '';
+			}
+
+			return sprintf(
+				/* translators: %1$s is replaced with the support email link, %2$s with the transport error detail. */
+				esc_html__( 'API request error. Please contact %1$s. (%2$s)', 'speechkit' ),
+				'<a href="mailto:support@beyondwords.io">support@beyondwords.io</a>',
+				$detail
+			);
 		}
 
 		$body    = json_decode( wp_remote_retrieve_body( $response ), true );
