@@ -155,9 +155,6 @@ class Client {
 	/**
 	 * GET /projects/:project/content/:content_id
 	 *
-	 * @param string          $content_id BeyondWords content ID.
-	 * @param int|string|null $project_id Optional project ID override.
-	 *
 	 * @return array<mixed>|\WP_Error|false Raw HTTP response, WP_Error on transport
 	 *                                      failure, or false when an ID is missing.
 	 */
