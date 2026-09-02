@@ -152,18 +152,19 @@ context( 'Block Editor: Block Voices', () => {
 
 					setToggle( customize, true );
 
-					// Unlike the post sidebar, a block seeds no default — it
-					// keeps inheriting until a language is picked.
+					// Seeded from what the block already inherits — the mock
+					// project is en_US with body voice "Ava (Multilingual)" —
+					// so changing voice alone costs no language clicks.
 					blockSelect( 'Language' )
 						.find( 'option:selected' )
-						.should( 'have.text', 'Select a language…' );
-					blockPanel()
-						.contains( 'label', 'Accent' )
-						.should( 'not.exist' );
+						.should( 'have.text', 'English' );
+					blockSelect( 'Accent' )
+						.find( 'option:selected' )
+						.should( 'have.text', 'American' );
+					blockSelect( 'Voice' )
+						.find( 'option:selected' )
+						.should( 'have.text', 'Ava (Multilingual)' );
 
-					blockSelect( 'Language' ).select( 'English', {
-						force: true,
-					} );
 					blockSelect( 'Accent' ).select( 'British', {
 						force: true,
 					} );
@@ -327,4 +328,47 @@ context( 'Block Editor: Block Voices', () => {
 				} );
 			} );
 		} );
+
+	it( "seeds a block from the post's own voice, not the project default", () => {
+		cy.createTestPost( {
+			title: 'Cypress Test: block voices seed from the post',
+			postType: 'post',
+			status: 'draft',
+			content: CONTENT,
+		} ).then( ( postId ) => {
+			// en_GB with "Ollie (Multilingual)", where the project is en_US.
+			cy.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_language_code',
+				metaValue: 'en_GB',
+			} );
+			cy.task( 'setPostMeta', {
+				postId,
+				metaKey: 'beyondwords_body_voice_id',
+				metaValue: '3558',
+			} );
+
+			cy.visitPostEditorById( postId );
+			selectBlock( byText( 'Top paragraph.' ), 'Paragraph' );
+			setToggle( customize, true );
+
+			blockSelect( 'Language' )
+				.find( 'option:selected' )
+				.should( 'have.text', 'English' );
+			blockSelect( 'Accent' )
+				.find( 'option:selected' )
+				.should( 'have.text', 'British' );
+			blockSelect( 'Voice' )
+				.find( 'option:selected' )
+				.should( 'have.text', 'Ollie (Multilingual)' );
+
+			blocks().then( ( all ) => {
+				const top = all.find( byText( 'Top paragraph.' ) );
+				expect( top.attributes.beyondwordsLanguageCode ).to.eq(
+					'en_GB'
+				);
+				expect( top.attributes.beyondwordsVoiceId ).to.eq( '3558' );
+			} );
+		} );
+	} );
 } );

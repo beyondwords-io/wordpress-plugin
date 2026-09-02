@@ -33,6 +33,7 @@ import Stack from '../stack';
  * @param {boolean}  props.enabled      Whether to fetch and show the fields.
  * @param {string}   props.languageCode The selected language code.
  * @param {string}   props.voiceId      The selected voice id.
+ * @param {Object}   [props.seed]       A { languageCode, voiceId } pair to start from.
  * @param {Function} props.onChange     Passed the next { languageCode, voiceId } pair.
  *
  * @return {Element|null} The pickers.
@@ -41,6 +42,7 @@ export function VoicePicker( {
 	enabled = true,
 	languageCode = '',
 	voiceId = '',
+	seed,
 	onChange,
 } ) {
 	// Fetched lazily behind `enabled` — a default post makes no language/voice API calls.
@@ -80,6 +82,56 @@ export function VoicePicker( {
 			),
 		[ enabled, languageCode ]
 	);
+
+	// Start from what the caller says this already inherits, so picking a
+	// different voice in the same language costs one click, not four.
+	//
+	// Two steps, because the voice can only be trusted once the language's own
+	// list is back to confirm it offers it: 0 = untouched, 1 = language in,
+	// 2 = settled.
+	const seedStep = useRef( 0 );
+
+	useEffect( () => {
+		if ( ! enabled || seedStep.current !== 0 ) {
+			return;
+		}
+
+		// Anything already chosen wins over the seed.
+		if ( languageCode || voiceId ) {
+			seedStep.current = 2;
+			return;
+		}
+
+		if ( ! seed?.languageCode ) {
+			return;
+		}
+
+		seedStep.current = 1;
+		onChange( { languageCode: seed.languageCode, voiceId: '' } );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ enabled, seed?.languageCode, languageCode, voiceId ] );
+
+	useEffect( () => {
+		if ( seedStep.current !== 1 || voicesResolving ) {
+			return;
+		}
+
+		if ( ! seed?.voiceId || languageCode !== seed.languageCode ) {
+			return;
+		}
+
+		seedStep.current = 2;
+
+		// A project's default voice need not speak the project's language.
+		const offered = ( voices ?? [] ).some(
+			( voice ) => String( voice.id ) === String( seed.voiceId )
+		);
+
+		if ( offered ) {
+			onChange( { languageCode, voiceId: String( seed.voiceId ) } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ seed, languageCode, voices, voicesResolving ] );
 
 	const [ nativeFilter, setNativeFilter ] = useState( NATIVE_ONLY );
 

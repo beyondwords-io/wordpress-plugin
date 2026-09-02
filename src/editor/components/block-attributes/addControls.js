@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 
@@ -43,6 +44,43 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 			// an explicit language or voice.
 			const [ customize, setCustomize ] = useState(
 				() => !! ( beyondwordsLanguageCode || beyondwordsVoiceId )
+			);
+
+			// What this block already reads aloud with: the post's own choice
+			// where it has one, otherwise the project's. Fetched only once
+			// Customize is on, so an untouched block still costs no requests.
+			const seed = useSelect(
+				( select ) => {
+					const meta =
+						select( 'core/editor' ).getEditedPostAttribute(
+							'meta'
+						) || {};
+
+					if ( meta.beyondwords_language_code ) {
+						return {
+							languageCode: meta.beyondwords_language_code,
+							voiceId: meta.beyondwords_body_voice_id || '',
+						};
+					}
+
+					const projectId =
+						meta.beyondwords_project_id ||
+						select( 'beyondwords/settings' ).getSettings()
+							?.projectId;
+
+					const project =
+						customize && projectId
+							? select( 'beyondwords/settings' ).getProject(
+									projectId
+							  )
+							: null;
+
+					return {
+						languageCode: project?.language || '',
+						voiceId: String( project?.body?.voice?.id ?? '' ),
+					};
+				},
+				[ customize ]
 			);
 
 			const icon = beyondwordsAudio
@@ -105,6 +143,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 								{ !! beyondwordsAudio && (
 									<VoicePicker
 										enabled={ customize }
+										seed={ seed }
 										languageCode={
 											beyondwordsLanguageCode || ''
 										}
