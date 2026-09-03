@@ -138,6 +138,15 @@ export function VoicePicker( {
 	// Open on "All" when the saved voice is not native to the language, so that
 	// voice stays visible in the list.
 	const nativeSeeded = useRef( false );
+
+	// Disabled stays mounted, so reset by hand or Customize off → on never re-seeds.
+	useEffect( () => {
+		if ( ! enabled ) {
+			seedStep.current = 0;
+			nativeSeeded.current = false;
+		}
+	}, [ enabled ] );
+
 	useEffect( () => {
 		if ( nativeSeeded.current || ! enabled || voicesResolving ) {
 			return;

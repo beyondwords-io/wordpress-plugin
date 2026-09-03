@@ -371,4 +371,56 @@ context( 'Block Editor: Block Voices', () => {
 			} );
 		} );
 	} );
+
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			it( `re-seeds a block when Customize is switched off and on for a ${ postType.name }`, () => {
+				cy.createTestPost( {
+					title: `Cypress Test: block voices re-seed for a ${ postType.name }`,
+					postType: postType.slug,
+					status: 'draft',
+					content: CONTENT,
+				} ).then( ( postId ) => {
+					cy.visitPostEditorById( postId );
+
+					const expectSeeded = () => {
+						blockSelect( 'Language' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'English' );
+						blockSelect( 'Accent' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'American' );
+						blockSelect( 'Voice' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'Ava (Multilingual)' );
+					};
+
+					selectBlock( byText( 'Top paragraph.' ), 'Paragraph' );
+
+					setToggle( customize, true );
+					expectSeeded();
+
+					setToggle( customize, false );
+					blockPanel()
+						.contains( 'label', 'Language' )
+						.should( 'not.exist' );
+
+					// The picker stays mounted while Customize is off, so the
+					// second time round has to seed from scratch again.
+					setToggle( customize, true );
+					expectSeeded();
+
+					blocks().then( ( all ) => {
+						const top = all.find( byText( 'Top paragraph.' ) );
+						expect( top.attributes.beyondwordsLanguageCode ).to.eq(
+							'en_US'
+						);
+						// eslint-disable-next-line no-unused-expressions
+						expect( top.attributes.beyondwordsVoiceId ).to.not.be
+							.empty;
+					} );
+				} );
+			} );
+		} );
 } );
