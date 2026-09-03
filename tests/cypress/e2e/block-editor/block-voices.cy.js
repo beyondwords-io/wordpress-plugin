@@ -256,6 +256,18 @@ context( 'Block Editor: Block Voices', () => {
 
 					cy.publishWithConfirmation();
 
+					// The body is recorded during the save request, and
+					// publishWithConfirmation returns before that completes.
+					cy.window()
+						.its( 'wp.data' )
+						.should( ( data ) => {
+							const editor = data.select( 'core/editor' );
+							expect( editor.isSavingPost() ).to.eq( false );
+							expect(
+								editor.getCurrentPostAttribute( 'status' )
+							).to.eq( 'publish' );
+						} );
+
 					/* ------------------------ what we send to the API */
 
 					cy.task( 'getPostMetaJson', {
