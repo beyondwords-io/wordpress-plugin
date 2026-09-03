@@ -137,6 +137,7 @@ Release date: 3rd September 2026
 
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Install and smoke-test the extension plugins in CI, and document them in `doc/extension-plugins.md`.
 * [#624](https://github.com/beyondwords-io/wordpress-plugin/pull/624) Turn off Cypress web security so the block editor specs run on WordPress 7.1.
+* [#629](https://github.com/beyondwords-io/wordpress-plugin/pull/629) Finalise the 7.1.0 release notes.
 * [#628](https://github.com/beyondwords-io/wordpress-plugin/pull/628) Dependency upgrades.
 * [#625](https://github.com/beyondwords-io/wordpress-plugin/pull/625) Mount the plugin at a fixed `speechkit` slug in the local wp-env environments.
 * [#622](https://github.com/beyondwords-io/wordpress-plugin/pull/622) Correct the 7.0.0 changelog: the live player preview for the "Add Player" block was reverted in [#568](https://github.com/beyondwords-io/wordpress-plugin/pull/568) before release, and the block shows a static placeholder in the editor.
