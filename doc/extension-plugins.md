@@ -157,10 +157,10 @@ smoke test.
 
 ##  The removed export tool
 
-`speechkit-export-tool` shipped until 7.0.1. It exported a capped 100-row CSV
-of pre-4.x `speechkit_*` post meta, every key of which is now in the
-`deprecated` list in `Core\Utils::get_post_meta_keys()` — so on a 7.x site the
-CSV was a post ID, type and status followed by twelve empty columns. It was
+`speechkit-export-tool` shipped until 7.1.0 removed it. It exported a capped
+100-row CSV of pre-4.x `speechkit_*` post meta, every key of which is now in
+the `deprecated` list in `Core\Utils::get_post_meta_keys()` — so on a 7.x site
+the CSV was a post ID, type and status followed by twelve empty columns. It was
 never the counterpart to the import tool, which consumes JSON records from the
 BeyondWords API and shares no field with it.
 
