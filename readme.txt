@@ -108,24 +108,17 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 Release date: TBC
 
-**Fixes**
-
-* [#627](https://github.com/beyondwords-io/wordpress-plugin/pull/627) Give audio creates a longer timeout, and recover the content ID when a create still times out after the API accepted it.
-
-= 7.0.1 =
-
-Release date: TBC
-
 **Enhancements**
 
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Import Tool: only offer to import to post types BeyondWords supports, and say why each skipped record was skipped.
 
 **Fixes**
 
+* [#627](https://github.com/beyondwords-io/wordpress-plugin/pull/627) Give audio creates a longer timeout, and recover the content ID when a create still times out after the API accepted it.
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Debug Tool: fix the fatal error raised when activating the plugin.
     * Download the updated ZIP from this release — every earlier build fails on activation.
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.
-    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.0.1 or later for the fix to apply.
+    * Switching away from an existing 7.0.0 install still shows it once; the version being replaced has to be 7.1.0 or later for the fix to apply.
 
 **Deprecations**
 
