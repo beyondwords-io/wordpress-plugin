@@ -114,7 +114,7 @@ Release date: TBC
 
 **Fixes**
 
-* [#627](https://github.com/beyondwords-io/wordpress-plugin/pull/627) Give audio creates a longer, filterable timeout, and recover the content ID when a create still times out after the API accepted it.
+* [#627](https://github.com/beyondwords-io/wordpress-plugin/pull/627) Give audio creates a longer timeout, and recover the content ID when a create still times out after the API accepted it.
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Debug Tool: fix the fatal error raised when activating the plugin.
     * Download the updated ZIP from this release — every earlier build fails on activation.
 * [#621](https://github.com/beyondwords-io/wordpress-plugin/pull/621) Fix the fatal error shown when the plugin is replaced with a different version from the Plugins screen.

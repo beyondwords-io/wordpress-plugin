@@ -30,7 +30,7 @@ The content endpoint resolves a `source_id` as well as a content ID, and the
 plugin uses the post ID as the source ID. After a failed create — a 422
 duplicate `source_id` (matched on `location`, never message text), or a
 transport `WP_Error` when the API may have accepted the POST anyway (creates
-run at the filterable `CONTENT_REQUEST_TIMEOUT`; the follow-up probe uses
+run at the longer `CONTENT_REQUEST_TIMEOUT`; the follow-up probe uses
 `ADOPTION_PROBE_TIMEOUT`, skips requests that provably never left WordPress,
 and negative-caches an unreachable API) — `create_audio()` re-fetches by
 source ID and adopts the record only when:

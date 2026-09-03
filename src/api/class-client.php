@@ -61,8 +61,7 @@ class Client {
 	 *
 	 * Creates have been observed exceeding the default 3s while the API still
 	 * accepts the POST, stranding posts without a content ID. On VIP creates run
-	 * async, so the longer wait never blocks a page load. Filterable via
-	 * `beyondwords_content_request_timeout`.
+	 * async, so the longer wait never blocks a page load.
 	 *
 	 * @since 7.0.1
 	 */
@@ -192,8 +191,7 @@ class Client {
 
 		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$timeout  = (int) apply_filters( 'beyondwords_content_request_timeout', self::CONTENT_REQUEST_TIMEOUT );
-		$response = self::call_api( 'POST', $url, $body, $post_id, [], $timeout );
+		$response = self::call_api( 'POST', $url, $body, $post_id, [], self::CONTENT_REQUEST_TIMEOUT );
 
 		$existing = self::adopt_existing_content( $response, $post_id, $project_id );
 
