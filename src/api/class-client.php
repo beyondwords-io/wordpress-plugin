@@ -63,7 +63,7 @@ class Client {
 	 * accepts the POST, stranding posts without a content ID. On VIP creates run
 	 * async, so the longer wait never blocks a page load.
 	 *
-	 * @since 7.0.1
+	 * @since 7.1.0
 	 */
 	const CONTENT_REQUEST_TIMEOUT = 8;
 
@@ -74,7 +74,7 @@ class Client {
 	 * healthy-path latency is the wrong yardstick — 2s buys a usable window
 	 * against a degraded API while capping what it adds to a failing save.
 	 *
-	 * @since 7.0.1
+	 * @since 7.1.0
 	 */
 	const ADOPTION_PROBE_TIMEOUT = 2;
 
@@ -266,7 +266,7 @@ class Client {
 	/**
 	 * Whether a transport-failed create warrants probing for an accepted record.
 	 *
-	 * @since 7.0.1
+	 * @since 7.1.0
 	 */
 	private static function should_probe_after_transport_failure( \WP_Error $error ): bool {
 		// The request never left WordPress, so nothing can have been accepted.
@@ -285,7 +285,7 @@ class Client {
 	 * install cannot be told apart from a subdirectory install on the same host
 	 * by URL alone — see doc/source-id-race.md.
 	 *
-	 * @since 7.0.1
+	 * @since 7.1.0
 	 */
 	private static function is_this_sites_source_url( string $source_url ): bool {
 		$site   = wp_parse_url( home_url() );
