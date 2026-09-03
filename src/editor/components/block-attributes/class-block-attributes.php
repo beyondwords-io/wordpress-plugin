@@ -158,8 +158,8 @@ class BlockAttributes {
 
 		$attrs = ( is_array( $block ) && is_array( $block['attrs'] ?? null ) ) ? $block['attrs'] : [];
 
-		$language = self::attribute_value( $attrs, self::LANGUAGE_ATTRIBUTE );
-		$voice_id = self::attribute_value( $attrs, self::VOICE_ATTRIBUTE );
+		$language = self::language_code( self::attribute_value( $attrs, self::LANGUAGE_ATTRIBUTE ) );
+		$voice_id = self::voice_id( self::attribute_value( $attrs, self::VOICE_ATTRIBUTE ) );
 
 		if ( '' === $language && '' === $voice_id ) {
 			return $block_content;
@@ -194,5 +194,27 @@ class BlockAttributes {
 		$value = $attrs[ $name ] ?? '';
 
 		return is_scalar( $value ) ? trim( (string) $value ) : '';
+	}
+
+	/**
+	 * A language code in the shape the API issues, or '' — the comment
+	 * delimiter is editor-writable, so it is not trusted to carry one.
+	 *
+	 * Fits every code the API lists, including `fil_PH`, `sr_Latn_RS` and
+	 * `zh_CN_henan`; nothing with whitespace, quotes or markup does.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function language_code( string $value ): string {
+		return preg_match( '/^[a-z]{2,3}(_[A-Za-z]{2,8}){1,2}$/', $value ) ? $value : '';
+	}
+
+	/**
+	 * A voice id as the API issues them — a positive integer — or ''.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function voice_id( string $value ): string {
+		return ctype_digit( $value ) && (int) $value > 0 ? (string) (int) $value : '';
 	}
 }

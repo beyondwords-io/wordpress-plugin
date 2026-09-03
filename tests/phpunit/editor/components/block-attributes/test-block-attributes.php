@@ -359,23 +359,53 @@ class BlockAttributesTest extends TestCase
                 'content' => '',
                 'expect'  => '',
             ],
+            'Language codes with a script or dialect subtag are accepted' => [
+                'attrs'   => ['beyondwordsLanguageCode' => 'sr_Latn_RS'],
+                'content' => '<p>Здраво.</p>',
+                'expect'  => '<p data-beyondwords-language="sr_Latn_RS">Здраво.</p>',
+            ],
+            'A malformed language code is dropped' => [
+                'attrs'   => ['beyondwordsLanguageCode' => 'fr-FR', 'beyondwordsVoiceId' => '784'],
+                'content' => '<p>Bonjour.</p>',
+                'expect'  => '<p data-beyondwords-voice-id="784">Bonjour.</p>',
+            ],
+            'A non-numeric voice id is dropped' => [
+                'attrs'   => ['beyondwordsLanguageCode' => 'fr_FR', 'beyondwordsVoiceId' => 'patrick'],
+                'content' => '<p>Bonjour.</p>',
+                'expect'  => '<p data-beyondwords-language="fr_FR">Bonjour.</p>',
+            ],
+            'A zero or negative voice id is dropped' => [
+                'attrs'   => ['beyondwordsVoiceId' => '0'],
+                'content' => '<p>Hello.</p>',
+                'expect'  => '<p>Hello.</p>',
+            ],
+            'A voice id is normalised to its integer' => [
+                'attrs'   => ['beyondwordsVoiceId' => '0784'],
+                'content' => '<p>Hello.</p>',
+                'expect'  => '<p data-beyondwords-voice-id="784">Hello.</p>',
+            ],
         ];
     }
 
     /**
      * @test
      *
-     * A voice id is untrusted input: it must never break out of the attribute.
+     * The comment delimiter is editor-writable, so neither value is trusted:
+     * anything not shaped like the API's own values is dropped, not escaped.
      */
-    public function add_segment_attributes_escapes_the_values()
+    public function add_segment_attributes_rejects_values_that_are_not_api_shaped()
     {
         $block = [
             'blockName' => 'core/paragraph',
-            'attrs'     => ['beyondwordsVoiceId' => '"><script>alert(1)</script>'],
+            'attrs'     => [
+                'beyondwordsLanguageCode' => 'en_GB" onload="alert(1)',
+                'beyondwordsVoiceId'      => '"><script>alert(1)</script>',
+            ],
         ];
 
-        $actual = BlockAttributes::add_segment_attributes('<p>Hello world.</p>', $block);
-
-        $this->assertStringNotContainsString('<script>', $actual);
+        $this->assertSame(
+            '<p>Hello world.</p>',
+            BlockAttributes::add_segment_attributes('<p>Hello world.</p>', $block)
+        );
     }
 }
