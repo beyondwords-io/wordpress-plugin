@@ -111,7 +111,7 @@ Release date: TBC
 **Enhancements**
 
 * [#626](https://github.com/beyondwords-io/wordpress-plugin/pull/626) Import Tool: only offer to import to post types BeyondWords supports, and say why each skipped record was skipped.
-* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623) Per-block language and voice in the block editor.
+* [#623](https://github.com/beyondwords-io/wordpress-plugin/pull/623), [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Per-block language and voice in the block editor.
 
 **Fixes**
 
