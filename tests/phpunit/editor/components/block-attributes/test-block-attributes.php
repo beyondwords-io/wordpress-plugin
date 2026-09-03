@@ -27,6 +27,7 @@ class BlockAttributesTest extends TestCase
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_marker_attribute')));
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_language_attribute')));
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_voice_attribute')));
+        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_audio_file_attribute')));
     }
 
     /**
@@ -282,6 +283,38 @@ class BlockAttributesTest extends TestCase
 
     /**
      * @test
+     */
+    public function register_audio_file_attribute()
+    {
+        $expect = [
+            'beyondwordsAudioFile' => [
+                'type' => 'boolean',
+                'default' => false,
+            ],
+        ];
+
+        $this->assertSame(['attributes' => $expect], BlockAttributes::register_audio_file_attribute([]));
+    }
+
+    /**
+     * @test
+     */
+    public function register_audio_file_attribute_keeps_an_existing_definition()
+    {
+        $args = [
+            'attributes' => [
+                'beyondwordsAudioFile' => [
+                    'type' => 'number',
+                    'default' => 1,
+                ],
+            ],
+        ];
+
+        $this->assertSame($args, BlockAttributes::register_audio_file_attribute($args));
+    }
+
+    /**
+     * @test
      * @dataProvider add_segment_attributes_provider
      */
     public function add_segment_attributes($attrs, $content, $expect)
@@ -383,6 +416,26 @@ class BlockAttributesTest extends TestCase
                 'attrs'   => ['beyondwordsVoiceId' => '0784'],
                 'content' => '<p>Hello.</p>',
                 'expect'  => '<p data-beyondwords-voice-id="784">Hello.</p>',
+            ],
+            'Audio file true stamps the audio attribute' => [
+                'attrs'   => ['beyondwordsAudioFile' => true],
+                'content' => '<figure class="wp-block-audio"><audio controls src="song.mp3"></audio></figure>',
+                'expect'  => '<figure data-beyondwords-audio="true" class="wp-block-audio"><audio controls src="song.mp3"></audio></figure>',
+            ],
+            'Audio file false is left alone' => [
+                'attrs'   => ['beyondwordsAudioFile' => false],
+                'content' => '<p>Hello world.</p>',
+                'expect'  => '<p>Hello world.</p>',
+            ],
+            'A non-boolean audio file value is ignored' => [
+                'attrs'   => ['beyondwordsAudioFile' => 'true'],
+                'content' => '<p>Hello world.</p>',
+                'expect'  => '<p>Hello world.</p>',
+            ],
+            'Audio file combines with language and voice' => [
+                'attrs'   => ['beyondwordsAudioFile' => true, 'beyondwordsLanguageCode' => 'fr_FR', 'beyondwordsVoiceId' => '784'],
+                'content' => '<p>Bonjour.</p>',
+                'expect'  => '<p data-beyondwords-audio="true" data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour.</p>',
             ],
         ];
     }
