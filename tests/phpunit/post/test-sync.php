@@ -1284,6 +1284,44 @@ class SyncTest extends TestCase
     }
 
     /**
+     * A create lost to a transport failure still ends with the content attached.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function generate_audio_for_post_recovers_from_transport_failure()
+    {
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'SyncTest::generateAudioForPostRecoversFromTransportFailure',
+            'post_content' => '<p>Test content for transport recovery.</p>',
+            'meta_input' => [
+                'beyondwords_generate_audio' => '1',
+            ],
+        ]);
+
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = $this->add_create_transport_failure_filter($existingContentId);
+
+        $response = Sync::generate_audio_for_post($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, get_post_meta($postId, 'beyondwords_content_id', true));
+        $this->assertSame('a-preview-token', get_post_meta($postId, 'beyondwords_preview_token', true));
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * @test
      * @group source-id-race
      */
@@ -1716,12 +1754,17 @@ class SyncTest extends TestCase
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // Guards against retuning the cap or the shared timeout into a combination
-        // that could exceed a typical PHP/VIP execution limit.
+        // Guards against retuning the cap or the shared timeouts into a combination
+        // that could exceed a typical PHP/VIP execution limit. The worst bulk item
+        // holds a stale content ID: update (default) + recreate (create) + probe.
         $this->assertLessThanOrEqual(
             60,
-            Sync::BULK_GENERATE_SYNC_LIMIT * \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT,
-            'Worst-case bulk generate (cap x per-call timeout) must stay within a 60s execution limit.'
+            Sync::BULK_GENERATE_SYNC_LIMIT * (
+                \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT
+                + \BeyondWords\Api\Client::CONTENT_REQUEST_TIMEOUT
+                + \BeyondWords\Api\Client::ADOPTION_PROBE_TIMEOUT
+            ),
+            'Worst-case bulk generate (cap x (update + recreate + probe timeouts)) must stay within a 60s execution limit.'
         );
 
         foreach ($postIds as $postId) {

@@ -279,6 +279,279 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A transport loss after the API accepted the create must still attach the content ID.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_adopts_existing_content_on_transport_failure()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioAdoptsExistingContentOnTransportFailure',
+        ]);
+
+        $errorWrites  = 0;
+        $captureWrite = function ($meta_id, $object_id, $meta_key) use (&$errorWrites, $postId) {
+            if ((int) $object_id === $postId && $meta_key === 'beyondwords_error_message') {
+                $errorWrites++;
+            }
+        };
+        add_action('added_post_meta', $captureWrite, 10, 3);
+        add_action('updated_post_meta', $captureWrite, 10, 3);
+
+        $filter = $this->add_create_transport_failure_filter($existingContentId);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+        remove_action('added_post_meta', $captureWrite);
+        remove_action('updated_post_meta', $captureWrite);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+        $this->assertSame('a-preview-token', $response['preview_token']);
+
+        // The create recorded its error, then adoption cleared it.
+        $this->assertSame(1, $errorWrites);
+        $this->assertEmpty(get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * Without a matching remote record, the transport error stands.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_keeps_the_transport_error_when_the_lookup_fails()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioKeepsTheTransportErrorWhenTheLookupFails',
+        ]);
+
+        $timeoutFilter  = $this->add_create_transport_failure_filter();
+        $notFoundFilter = $this->add_not_found_filter((string) $postId, ['GET']);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $timeoutFilter);
+        remove_filter('pre_http_request', $notFoundFilter);
+
+        $this->assertNull($response);
+
+        $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
+
+        $this->assertStringStartsWith('#500: ', $errorMessage);
+        $this->assertStringContainsString(self::TRANSPORT_ERROR_MESSAGE, $errorMessage);
+        $this->assertStringContainsString('support@beyondwords.io', $errorMessage);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A create that never left WordPress proves nothing was accepted, so no probe.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_skips_the_probe_when_the_request_never_left()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioSkipsTheProbeWhenTheRequestNeverLeft',
+        ]);
+
+        $probeAttempts = 0;
+
+        $filter = function ($preempt, $parsedArgs, $url) use (&$probeAttempts, $postId) {
+            $method = $parsedArgs['method'] ?? '';
+
+            if ($method === 'POST' && str_ends_with($url, '/content')) {
+                return new \WP_Error('http_request_not_executed', 'User has blocked requests through HTTP.');
+            }
+
+            if ($method === 'GET' && str_contains($url, '/content/' . $postId)) {
+                $probeAttempts++;
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertNull($response);
+        $this->assertSame(0, $probeAttempts);
+        $this->assertStringStartsWith('#500: ', get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * One failed probe marks the API unreachable and stops further transport
+     * probes, without gating the 422 adoption path.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_stops_probing_while_the_api_is_marked_unreachable()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+        $probeAttempts     = 0;
+
+        $firstPostId  = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable First',
+        ]);
+        $secondPostId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable Second',
+        ]);
+        $thirdPostId  = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable Third',
+        ]);
+
+        $downFilter = function ($preempt, $parsedArgs, $url) use (&$probeAttempts) {
+            $method = $parsedArgs['method'] ?? '';
+
+            if ($method === 'POST' && str_ends_with($url, '/content')) {
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/content/')) {
+                $probeAttempts++;
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $downFilter, 10, 3);
+
+        $this->assertNull(Client::create_audio($firstPostId));
+        $this->assertSame(1, $probeAttempts);
+
+        // A second failure inside the negative-cache window probes nothing.
+        $this->assertNull(Client::create_audio($secondPostId));
+        $this->assertSame(1, $probeAttempts);
+
+        remove_filter('pre_http_request', $downFilter);
+
+        // A 422 is the API answering, so adoption must ignore the negative cache.
+        $duplicateFilter = $this->add_duplicate_source_id_filter($existingContentId);
+
+        $response = Client::create_audio($thirdPostId);
+
+        remove_filter('pre_http_request', $duplicateFilter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+
+        foreach ([$firstPostId, $secondPostId, $thirdPostId] as $postId) {
+            wp_delete_post($postId, true);
+        }
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * A record filed under a different source ID — e.g. a legacy numeric content
+     * ID that happens to equal this post's ID — must not be adopted.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_does_not_adopt_content_with_a_different_source_id()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioDoesNotAdoptContentWithADifferentSourceId',
+        ]);
+
+        $filter = $this->add_create_transport_failure_filter(
+            'effef870-2fbf-41e2-ab92-c68168628e9f',
+            home_url('/?p=999999'),
+            '999999'
+        );
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertNull($response);
+
+        $this->assertStringStartsWith(
+            '#500: ',
+            get_post_meta($postId, 'beyondwords_error_message', true)
+        );
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * @test
+     */
+    public function create_audio_uses_the_content_request_timeout()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioUsesTheContentRequestTimeout',
+        ]);
+
+        $captured = ['timeout' => null];
+        $filter   = function ($preempt, $args, $url) use (&$captured) {
+            if (($args['method'] ?? '') === 'POST' && str_ends_with($url, '/content')) {
+                $captured['timeout'] = $args['timeout'] ?? null;
+                return ['response' => ['code' => 500, 'message' => 'Internal Server Error'], 'body' => '', 'headers' => [], 'cookies' => []];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(Client::CONTENT_REQUEST_TIMEOUT, $captured['timeout']);
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * A site moved from http to https still owns the content it created before the move.
      *
      * @test
@@ -979,8 +1252,50 @@ class ClientTest extends TestCase
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
         $this->assertStringStartsWith('#500:', $errorMessage);
+        $this->assertStringContainsString(
+            'cURL error',
+            $errorMessage,
+            'Transport WP_Error detail must surface alongside the generic fallback'
+        );
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_includes_wp_error_detail()
+    {
+        $message = Client::error_message_from_response(
+            new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE)
+        );
+
+        $this->assertStringContainsString(self::TRANSPORT_ERROR_MESSAGE, $message);
+        $this->assertStringContainsString('support@beyondwords.io', $message);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_coerces_non_string_wp_error_message()
+    {
+        $message = Client::error_message_from_response(
+            new \WP_Error('http_request_failed', ['detail' => 'blocked'])
+        );
+
+        $this->assertIsString($message);
+        $this->assertStringContainsString('blocked', $message);
+    }
+
+    /**
+     * @test
+     */
+    public function error_message_from_response_leaves_an_empty_wp_error_to_the_fallback()
+    {
+        $this->assertSame(
+            '',
+            Client::error_message_from_response(new \WP_Error('http_request_failed'))
+        );
     }
 
     /**

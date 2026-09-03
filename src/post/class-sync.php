@@ -42,10 +42,13 @@ class Sync {
 	 *
 	 * Each post is a blocking API call, so the count is capped and the remainder
 	 * deferred (the caller surfaces a notice) to stay inside execution limits.
+	 * The worst per-post case is a stale content ID — update (default timeout),
+	 * recreate (create timeout), then the adoption probe — and a test guards
+	 * the product staying within a 60s budget.
 	 *
 	 * @since 7.0.0
 	 */
-	const BULK_GENERATE_SYNC_LIMIT = 10;
+	const BULK_GENERATE_SYNC_LIMIT = 4;
 
 	/**
 	 * Outcome of one generate attempt: audio requested, nothing to do, or the API call failed.
@@ -445,8 +448,8 @@ class Sync {
 			];
 		}
 
-		// Each call is bounded by the client's short timeout, so the cap is what
-		// keeps the batch total inside execution limits.
+		// Each call is bounded by the create timeout plus the adoption probe, so
+		// the cap is what keeps the batch total inside execution limits.
 		$ordered    = self::order_posts_for_bulk_generation( $post_ids );
 		$limit      = self::BULK_GENERATE_SYNC_LIMIT;
 		$to_process = array_slice( $ordered, 0, $limit );
