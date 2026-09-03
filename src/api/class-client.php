@@ -71,12 +71,13 @@ class Client {
 	/**
 	 * Timeout, in seconds, for the post-create adoption probe.
 	 *
-	 * A speculative lookup on an already-failing path; every GET but voices
-	 * answers in ~250ms p95, so 1s covers it without doubling the failure cost.
+	 * The probe only runs after a create outlived CONTENT_REQUEST_TIMEOUT, so
+	 * healthy-path latency is the wrong yardstick — 2s buys a usable window
+	 * against a degraded API while capping what it adds to a failing save.
 	 *
 	 * @since 7.0.1
 	 */
-	const ADOPTION_PROBE_TIMEOUT = 1;
+	const ADOPTION_PROBE_TIMEOUT = 2;
 
 	/**
 	 * Timeout, in seconds, for the voices GET — the one slow endpoint.

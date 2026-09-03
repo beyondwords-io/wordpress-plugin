@@ -1754,12 +1754,17 @@ class SyncTest extends TestCase
             $this->assertEquals('1', get_post_meta($postId, 'beyondwords_generate_audio', true));
         }
 
-        // Guards against retuning the cap or the shared timeout into a combination
-        // that could exceed a typical PHP/VIP execution limit.
+        // Guards against retuning the cap or the shared timeouts into a combination
+        // that could exceed a typical PHP/VIP execution limit. The worst bulk item
+        // holds a stale content ID: update (default) + recreate (create) + probe.
         $this->assertLessThanOrEqual(
             60,
-            Sync::BULK_GENERATE_SYNC_LIMIT * (\BeyondWords\Api\Client::CONTENT_REQUEST_TIMEOUT + \BeyondWords\Api\Client::ADOPTION_PROBE_TIMEOUT),
-            'Worst-case bulk generate (cap x (create timeout + adoption probe)) must stay within a 60s execution limit.'
+            Sync::BULK_GENERATE_SYNC_LIMIT * (
+                \BeyondWords\Api\Client::DEFAULT_REQUEST_TIMEOUT
+                + \BeyondWords\Api\Client::CONTENT_REQUEST_TIMEOUT
+                + \BeyondWords\Api\Client::ADOPTION_PROBE_TIMEOUT
+            ),
+            'Worst-case bulk generate (cap x (update + recreate + probe timeouts)) must stay within a 60s execution limit.'
         );
 
         foreach ($postIds as $postId) {

@@ -364,6 +364,121 @@ class ClientTest extends TestCase
     }
 
     /**
+     * A create that never left WordPress proves nothing was accepted, so no probe.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_skips_the_probe_when_the_request_never_left()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioSkipsTheProbeWhenTheRequestNeverLeft',
+        ]);
+
+        $probeAttempts = 0;
+
+        $filter = function ($preempt, $parsedArgs, $url) use (&$probeAttempts, $postId) {
+            $method = $parsedArgs['method'] ?? '';
+
+            if ($method === 'POST' && str_ends_with($url, '/content')) {
+                return new \WP_Error('http_request_not_executed', 'User has blocked requests through HTTP.');
+            }
+
+            if ($method === 'GET' && str_contains($url, '/content/' . $postId)) {
+                $probeAttempts++;
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $response = Client::create_audio($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertNull($response);
+        $this->assertSame(0, $probeAttempts);
+        $this->assertStringStartsWith('#500: ', get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
+     * One failed probe marks the API unreachable and stops further transport
+     * probes, without gating the 422 adoption path.
+     *
+     * @test
+     * @group source-id-race
+     */
+    public function create_audio_stops_probing_while_the_api_is_marked_unreachable()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $existingContentId = 'effef870-2fbf-41e2-ab92-c68168628e9f';
+        $probeAttempts     = 0;
+
+        $firstPostId  = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable First',
+        ]);
+        $secondPostId = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable Second',
+        ]);
+        $thirdPostId  = self::factory()->post->create([
+            'post_title' => 'ClientTest::createAudioStopsProbingWhileTheApiIsMarkedUnreachable Third',
+        ]);
+
+        $downFilter = function ($preempt, $parsedArgs, $url) use (&$probeAttempts) {
+            $method = $parsedArgs['method'] ?? '';
+
+            if ($method === 'POST' && str_ends_with($url, '/content')) {
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            if ($method === 'GET' && str_contains($url, '/content/')) {
+                $probeAttempts++;
+                return new \WP_Error('http_request_failed', self::TRANSPORT_ERROR_MESSAGE);
+            }
+
+            return $preempt;
+        };
+        add_filter('pre_http_request', $downFilter, 10, 3);
+
+        $this->assertNull(Client::create_audio($firstPostId));
+        $this->assertSame(1, $probeAttempts);
+
+        // A second failure inside the negative-cache window probes nothing.
+        $this->assertNull(Client::create_audio($secondPostId));
+        $this->assertSame(1, $probeAttempts);
+
+        remove_filter('pre_http_request', $downFilter);
+
+        // A 422 is the API answering, so adoption must ignore the negative cache.
+        $duplicateFilter = $this->add_duplicate_source_id_filter($existingContentId);
+
+        $response = Client::create_audio($thirdPostId);
+
+        remove_filter('pre_http_request', $duplicateFilter);
+
+        $this->assertIsArray($response);
+        $this->assertSame($existingContentId, $response['id']);
+
+        foreach ([$firstPostId, $secondPostId, $thirdPostId] as $postId) {
+            wp_delete_post($postId, true);
+        }
+
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+    }
+
+    /**
      * A record filed under a different source ID — e.g. a legacy numeric content
      * ID that happens to equal this post's ID — must not be adopted.
      *

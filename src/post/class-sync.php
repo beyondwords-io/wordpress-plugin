@@ -42,12 +42,13 @@ class Sync {
 	 *
 	 * Each post is a blocking API call, so the count is capped and the remainder
 	 * deferred (the caller surfaces a notice) to stay inside execution limits.
-	 * Sized against the create timeout plus the adoption probe — a test guards
+	 * The worst per-post case is a stale content ID — update (default timeout),
+	 * recreate (create timeout), then the adoption probe — and a test guards
 	 * the product staying within a 60s budget.
 	 *
 	 * @since 7.0.0
 	 */
-	const BULK_GENERATE_SYNC_LIMIT = 6;
+	const BULK_GENERATE_SYNC_LIMIT = 4;
 
 	/**
 	 * Outcome of one generate attempt: audio requested, nothing to do, or the API call failed.
