@@ -150,6 +150,7 @@ class Content {
 	 * @since 4.0.0 Replace for loop with array_reduce
 	 * @since 6.0.0 Remove beyondwordsMarker attribute from rendered blocks.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.1.0 Render the per-block language and voice data attributes.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
 	 *
@@ -170,8 +171,17 @@ class Content {
 
 		$blocks = self::get_audio_enabled_blocks( $post );
 
-		foreach ( $blocks as $block ) {
-			$output .= render_block( $block );
+		$segment_attributes = [ \BeyondWords\Editor\Components\BlockAttributes::class, 'add_segment_attributes' ];
+
+		// Per-block voices ride in the API body only, so the front end renders unchanged.
+		add_filter( 'render_block', $segment_attributes, 10, 2 );
+
+		try {
+			foreach ( $blocks as $block ) {
+				$output .= render_block( $block );
+			}
+		} finally {
+			remove_filter( 'render_block', $segment_attributes, 10 );
 		}
 
 		return $output;
@@ -183,6 +193,7 @@ class Content {
 	 * @since 4.0.0
 	 * @since 5.0.0 Remove beyondwords_post_audio_enabled_blocks filter.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
+	 * @since 7.1.0 Exclude blocks at any depth, not just top-level ones.
 	 *
 	 * @param int|\WP_Post $post The WordPress post ID, or post object.
 	 *
@@ -199,20 +210,84 @@ class Content {
 			return [];
 		}
 
-		$all_blocks = parse_blocks( $post->post_content );
+		return self::filter_audio_enabled_blocks( parse_blocks( $post->post_content ) );
+	}
 
-		return array_filter(
-			$all_blocks,
-			function ( $block ) {
-				$enabled = true;
+	/**
+	 * Drop the blocks an editor excluded from the audio, at every depth.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function filter_audio_enabled_blocks( array $blocks ): array {
+		$kept = [];
 
-				if ( is_array( $block['attrs'] ) && isset( $block['attrs']['beyondwordsAudio'] ) ) {
-					$enabled = (bool) $block['attrs']['beyondwordsAudio'];
-				}
-
-				return $enabled;
+		foreach ( $blocks as $block ) {
+			if ( ! self::is_audio_enabled_block( $block ) ) {
+				continue;
 			}
-		);
+
+			$kept[] = empty( $block['innerBlocks'] )
+				? $block
+				: self::without_excluded_inner_blocks( $block );
+		}
+
+		return $kept;
+	}
+
+	/**
+	 * Whether a parsed block is included in the audio.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function is_audio_enabled_block( $block ): bool {
+		if ( ! is_array( $block ) || ! is_array( $block['attrs'] ?? null ) ) {
+			return true;
+		}
+
+		if ( ! isset( $block['attrs']['beyondwordsAudio'] ) ) {
+			return true;
+		}
+
+		return (bool) $block['attrs']['beyondwordsAudio'];
+	}
+
+	/**
+	 * Drop a block's excluded descendants.
+	 *
+	 * `innerContent` carries one null per inner block, in order, and is what
+	 * render_block() walks — so dropping a child means dropping its placeholder
+	 * too, or the remaining children render in the wrong places.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function without_excluded_inner_blocks( array $block ): array {
+		$inner_blocks  = [];
+		$inner_content = [];
+		$index         = 0;
+
+		foreach ( (array) ( $block['innerContent'] ?? [] ) as $chunk ) {
+			if ( null !== $chunk ) {
+				$inner_content[] = $chunk;
+				continue;
+			}
+
+			$child = $block['innerBlocks'][ $index ] ?? null;
+			++$index;
+
+			if ( ! is_array( $child ) || ! self::is_audio_enabled_block( $child ) ) {
+				continue;
+			}
+
+			$inner_blocks[]  = empty( $child['innerBlocks'] )
+				? $child
+				: self::without_excluded_inner_blocks( $child );
+			$inner_content[] = null;
+		}
+
+		$block['innerBlocks']  = $inner_blocks;
+		$block['innerContent'] = $inner_content;
+
+		return $block;
 	}
 
 	/**
