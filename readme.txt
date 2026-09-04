@@ -106,7 +106,7 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 = 7.1.0 =
 
-Release date: 3rd September 2026
+Release date: 4th September 2026
 
 **Enhancements**
 
