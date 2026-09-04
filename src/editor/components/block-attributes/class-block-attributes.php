@@ -41,6 +41,13 @@ class BlockAttributes {
 	public const VOICE_ATTRIBUTE = 'beyondwordsVoiceId';
 
 	/**
+	 * Block attribute marking a block as carrying its own pre-recorded audio.
+	 *
+	 * @since 7.1.0
+	 */
+	public const AUDIO_FILE_ATTRIBUTE = 'beyondwordsAudioFile';
+
+	/**
 	 * Init.
 	 *
 	 * @since 4.0.0
@@ -52,6 +59,7 @@ class BlockAttributes {
 		add_filter( 'register_block_type_args', [ self::class, 'register_marker_attribute'] );
 		add_filter( 'register_block_type_args', [ self::class, 'register_language_attribute' ] );
 		add_filter( 'register_block_type_args', [ self::class, 'register_voice_attribute' ] );
+		add_filter( 'register_block_type_args', [ self::class, 'register_audio_file_attribute' ] );
 	}
 
 	/**
@@ -124,6 +132,22 @@ class BlockAttributes {
 	}
 
 	/**
+	 * Register the per-block "Audio file" attribute for Gutenberg blocks.
+	 *
+	 * @since 7.1.0
+	 */
+	public static function register_audio_file_attribute( $args ) {
+		return self::register_attribute(
+			$args,
+			self::AUDIO_FILE_ATTRIBUTE,
+			[
+				'type'    => 'boolean',
+				'default' => false,
+			]
+		);
+	}
+
+	/**
 	 * Add a block attribute, leaving an existing definition of the same name alone.
 	 *
 	 * @since 7.1.0
@@ -143,7 +167,7 @@ class BlockAttributes {
 	}
 
 	/**
-	 * Add the segment-scoped voice data attributes to a rendered block.
+	 * Add the segment-scoped voice and audio data attributes to a rendered block.
 	 *
 	 * Not registered in init(): it is added around the API body build only, so
 	 * front-end output is untouched.
@@ -158,10 +182,11 @@ class BlockAttributes {
 
 		$attrs = ( is_array( $block ) && is_array( $block['attrs'] ?? null ) ) ? $block['attrs'] : [];
 
-		$language = self::language_code( self::attribute_value( $attrs, self::LANGUAGE_ATTRIBUTE ) );
-		$voice_id = self::voice_id( self::attribute_value( $attrs, self::VOICE_ATTRIBUTE ) );
+		$language   = self::language_code( self::attribute_value( $attrs, self::LANGUAGE_ATTRIBUTE ) );
+		$voice_id   = self::voice_id( self::attribute_value( $attrs, self::VOICE_ATTRIBUTE ) );
+		$audio_file = self::is_audio_file_block( $attrs );
 
-		if ( '' === $language && '' === $voice_id ) {
+		if ( '' === $language && '' === $voice_id && ! $audio_file ) {
 			return $block_content;
 		}
 
@@ -178,6 +203,10 @@ class BlockAttributes {
 
 		if ( '' !== $voice_id ) {
 			$processor->set_attribute( 'data-beyondwords-voice-id', $voice_id );
+		}
+
+		if ( $audio_file ) {
+			$processor->set_attribute( 'data-beyondwords-audio', 'true' );
 		}
 
 		return $processor->get_updated_html();
@@ -216,5 +245,14 @@ class BlockAttributes {
 	 */
 	private static function voice_id( string $value ): string {
 		return ctype_digit( $value ) && (int) $value > 0 ? (string) (int) $value : '';
+	}
+
+	/**
+	 * Whether a block carries its own pre-recorded audio.
+	 *
+	 * @since 7.1.0
+	 */
+	private static function is_audio_file_block( array $attrs ): bool {
+		return true === ( $attrs[ self::AUDIO_FILE_ATTRIBUTE ] ?? false );
 	}
 }
