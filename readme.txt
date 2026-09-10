@@ -108,9 +108,9 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 Release date: TBC
 
-**Codebase Enhancements**
+**Enhancements**
 
-* [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Register a `beyondwordsAudioFile` block attribute that stamps `data-beyondwords-audio="true"` into the API body, ahead of an editor control to set it.
+* [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Audio blocks with an uploaded file are now sent to BeyondWords as pre-recorded audio, instead of narrating them with a voice.
 
 = 7.1.0 =
 

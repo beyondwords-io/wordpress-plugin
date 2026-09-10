@@ -27,7 +27,6 @@ class BlockAttributesTest extends TestCase
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_marker_attribute')));
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_language_attribute')));
         $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_voice_attribute')));
-        $this->assertEquals(10, has_action('register_block_type_args', array(BlockAttributes::class, 'register_audio_file_attribute')));
     }
 
     /**
@@ -283,38 +282,6 @@ class BlockAttributesTest extends TestCase
 
     /**
      * @test
-     */
-    public function register_audio_file_attribute()
-    {
-        $expect = [
-            'beyondwordsAudioFile' => [
-                'type' => 'boolean',
-                'default' => false,
-            ],
-        ];
-
-        $this->assertSame(['attributes' => $expect], BlockAttributes::register_audio_file_attribute([]));
-    }
-
-    /**
-     * @test
-     */
-    public function register_audio_file_attribute_keeps_an_existing_definition()
-    {
-        $args = [
-            'attributes' => [
-                'beyondwordsAudioFile' => [
-                    'type' => 'number',
-                    'default' => 1,
-                ],
-            ],
-        ];
-
-        $this->assertSame($args, BlockAttributes::register_audio_file_attribute($args));
-    }
-
-    /**
-     * @test
      * @dataProvider add_segment_attributes_provider
      */
     public function add_segment_attributes($attrs, $content, $expect)
@@ -417,27 +384,98 @@ class BlockAttributesTest extends TestCase
                 'content' => '<p>Hello.</p>',
                 'expect'  => '<p data-beyondwords-voice-id="784">Hello.</p>',
             ],
-            'Audio file true stamps the audio attribute' => [
-                'attrs'   => ['beyondwordsAudioFile' => true],
-                'content' => '<figure class="wp-block-audio"><audio controls src="song.mp3"></audio></figure>',
-                'expect'  => '<figure data-beyondwords-audio="true" class="wp-block-audio"><audio controls src="song.mp3"></audio></figure>',
-            ],
-            'Audio file false is left alone' => [
-                'attrs'   => ['beyondwordsAudioFile' => false],
-                'content' => '<p>Hello world.</p>',
-                'expect'  => '<p>Hello world.</p>',
-            ],
-            'A non-boolean audio file value is ignored' => [
-                'attrs'   => ['beyondwordsAudioFile' => 'true'],
-                'content' => '<p>Hello world.</p>',
-                'expect'  => '<p>Hello world.</p>',
-            ],
-            'Audio file combines with language and voice' => [
-                'attrs'   => ['beyondwordsAudioFile' => true, 'beyondwordsLanguageCode' => 'fr_FR', 'beyondwordsVoiceId' => '784'],
-                'content' => '<p>Bonjour.</p>',
-                'expect'  => '<p data-beyondwords-audio="true" data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784">Bonjour.</p>',
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * A core/audio block always carries its own audio — there's no toggle for
+     * it, unlike language/voice which are opt-in per block.
+     */
+    public function add_segment_attributes_marks_the_audio_tag_on_a_core_audio_block()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $this->assertSame(
+            '<figure class="wp-block-audio"><audio data-beyondwords-audio="true" controls src="cat.mp3"></audio></figure>',
+            BlockAttributes::add_segment_attributes(
+                '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+                $block
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * The marker belongs on <audio> itself, not the <figure> wrapping it —
+     * BeyondWords reads the attribute off the element that carries the file.
+     */
+    public function add_segment_attributes_does_not_mark_the_figure_wrapper()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $result = BlockAttributes::add_segment_attributes(
+            '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+            $block
+        );
+
+        $this->assertStringStartsWith('<figure class="wp-block-audio">', $result);
+    }
+
+    /**
+     * @test
+     */
+    public function add_segment_attributes_leaves_a_core_audio_block_with_no_audio_tag_alone()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $this->assertSame(
+            '<figure class="wp-block-audio"></figure>',
+            BlockAttributes::add_segment_attributes('<figure class="wp-block-audio"></figure>', $block)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * Only core/audio is auto-marked — every other block needs an explicit
+     * language/voice override to get any data attribute at all.
+     */
+    public function add_segment_attributes_does_not_mark_other_blocks_with_an_audio_tag()
+    {
+        $block = ['blockName' => 'core/html'];
+
+        $this->assertSame(
+            '<audio controls src="cat.mp3"></audio>',
+            BlockAttributes::add_segment_attributes('<audio controls src="cat.mp3"></audio>', $block)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * The audio marker and a language/voice override are independent: a
+     * core/audio block can carry both at once, on different tags.
+     */
+    public function add_segment_attributes_combines_the_audio_marker_with_language_and_voice()
+    {
+        $block = [
+            'blockName' => 'core/audio',
+            'attrs'     => [
+                'beyondwordsLanguageCode' => 'fr_FR',
+                'beyondwordsVoiceId'      => '784',
             ],
         ];
+
+        $this->assertSame(
+            '<figure data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784" class="wp-block-audio"><audio data-beyondwords-audio="true" controls src="cat.mp3"></audio></figure>',
+            BlockAttributes::add_segment_attributes(
+                '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+                $block
+            )
+        );
     }
 
     /**
