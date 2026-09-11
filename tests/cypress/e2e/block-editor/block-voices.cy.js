@@ -114,6 +114,27 @@ context( 'Block Editor: Block Voices', () => {
 		cy.get( '.block-editor-block-card__title' ).should( 'contain', title );
 	};
 
+	// The sync that records the sent body finishes just after the publish
+	// confirmation returns, so the meta lags the UI by a moment. Poll for it:
+	// cy.task() is not retried by a trailing assertion, so a .should() here
+	// asserts once against whatever the first read happened to return.
+	const sentBody = ( postId ) => {
+		const read = ( attempt = 0 ) =>
+			cy
+				.task( 'getPostMetaJson', {
+					postId,
+					metaKey: SENT_BODY_META,
+				} )
+				.then( ( body ) => {
+					if ( body || attempt >= 30 ) {
+						return body;
+					}
+					return cy.wait( 1000 ).then( () => read( attempt + 1 ) );
+				} );
+
+		return read();
+	};
+
 	before( () => {
 		cy.task( 'activatePlugin', 'beyondwords-filter-content-params' );
 	} );
@@ -258,10 +279,7 @@ context( 'Block Editor: Block Voices', () => {
 
 					/* ------------------------ what we send to the API */
 
-					cy.task( 'getPostMetaJson', {
-						postId,
-						metaKey: SENT_BODY_META,
-					} ).should( ( body ) => {
+					sentBody( postId ).then( ( body ) => {
 						expect( body ).to.match(
 							new RegExp(
 								`<p[^>]*data-beyondwords-voice-id="${ CALEB_VOICE_ID }"[^>]*>Top paragraph`
