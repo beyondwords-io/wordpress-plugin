@@ -366,8 +366,8 @@ Cypress.Commands.add( 'publishWithConfirmation', () => {
 		'.editor-post-publish-panel__header-publish-button > .components-button'
 	).click();
 
-	// Wait for publish to complete
-	cy.get( '.editor-post-publish-panel' ).should( 'exist' );
+	// Only the post-publish view proves the save request has completed.
+	cy.get( '.post-publish-panel__postpublish' ).should( 'exist' );
 
 	// Close "Patterns" modal if it opens (introduced in WordPress 6.6)
 	cy.get( 'body' ).then( ( $body ) => {

@@ -112,6 +112,10 @@ Release date: TBC
 
 * [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Audio blocks are now marked with the `data-beyondwords-audio` attribute in the content sent to BeyondWords, so the API handles them as audio.
 
+**Codebase Enhancements**
+
+* [#633](https://github.com/beyondwords-io/wordpress-plugin/pull/633) Fix the flaky block-voices Cypress spec by waiting for the save to finish before reading post meta.
+
 = 7.1.0 =
 
 Release date: 4th September 2026
