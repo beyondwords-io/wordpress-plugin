@@ -140,10 +140,12 @@ export function VoicePicker( {
 	const nativeSeeded = useRef( false );
 
 	// Disabled stays mounted, so reset by hand or Customize off → on never re-seeds.
+	// The filter resets too: the seeding effect only ever opens it to "All".
 	useEffect( () => {
 		if ( ! enabled ) {
 			seedStep.current = 0;
 			nativeSeeded.current = false;
+			setNativeFilter( NATIVE_ONLY );
 		}
 	}, [ enabled ] );
 

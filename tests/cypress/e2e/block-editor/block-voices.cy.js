@@ -423,6 +423,16 @@ context( 'Block Editor: Block Voices', () => {
 					setToggle( customize, true );
 					expectSeeded();
 
+					// The Native filter is state, not an attribute, so it has
+					// to be reset alongside the seeding refs.
+					blockSelect( 'Native' ).select( 'All', { force: true } );
+					setToggle( customize, false );
+					setToggle( customize, true );
+					expectSeeded();
+					blockSelect( 'Native' )
+						.find( 'option:selected' )
+						.should( 'have.text', 'Native' );
+
 					blocks().then( ( all ) => {
 						const top = all.find( byText( 'Top paragraph.' ) );
 						expect( top.attributes.beyondwordsLanguageCode ).to.eq(
