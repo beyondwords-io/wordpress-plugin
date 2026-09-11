@@ -108,6 +108,10 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 Release date: TBC
 
+**Fixes**
+
+* [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Fix a block's language and voice fields staying empty when Customize is switched off and back on.
+
 **Codebase Enhancements**
 
 * [#633](https://github.com/beyondwords-io/wordpress-plugin/pull/633) Fix the flaky block-voices Cypress spec by waiting for the save to finish before reading post meta.
