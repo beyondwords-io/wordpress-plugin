@@ -104,6 +104,14 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 == Changelog ==
 
+= 7.2.0 =
+
+Release date: TBC
+
+**Codebase Enhancements**
+
+* [#633](https://github.com/beyondwords-io/wordpress-plugin/pull/633) Fix the flaky block-voices Cypress spec by waiting for the save to finish before reading post meta.
+
 = 7.1.0 =
 
 Release date: 4th September 2026
