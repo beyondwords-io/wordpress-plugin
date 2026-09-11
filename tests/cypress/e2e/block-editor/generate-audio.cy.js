@@ -90,7 +90,7 @@ context( 'Block Editor: Generate Audio', () => {
 					'.editor-post-publish-panel__header-publish-button > .components-button'
 				).click();
 
-				cy.get( '.editor-post-publish-panel' ).should( 'exist' );
+				cy.get( '.post-publish-panel__postpublish' ).should( 'exist' );
 
 				// Close "Patterns" modal if it opens (WordPress 6.6+)
 				cy.get( 'body' ).then( ( $body ) => {
