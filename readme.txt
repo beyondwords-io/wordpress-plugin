@@ -112,6 +112,10 @@ Release date: TBC
 
 * [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Fix a block's language and voice fields staying empty when Customize is switched off and back on.
 
+**Codebase Enhancements**
+
+* [#633](https://github.com/beyondwords-io/wordpress-plugin/pull/633) Fix the flaky block-voices Cypress spec by waiting for the save to finish before reading post meta.
+
 = 7.1.0 =
 
 Release date: 4th September 2026
