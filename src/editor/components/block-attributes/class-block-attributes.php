@@ -41,10 +41,10 @@ class BlockAttributes {
 	public const VOICE_ATTRIBUTE = 'beyondwordsVoiceId';
 
 	/**
-	 * The block whose `<audio>` tag is always marked as carrying its own
-	 * pre-recorded audio — there's no case where a core/audio block shouldn't be.
+	 * The block whose `<audio>` tag always gets the audio data attribute —
+	 * every core/audio block has a file, so there is nothing to opt into.
 	 *
-	 * @since 7.1.0
+	 * @since 7.2.0
 	 */
 	public const AUDIO_BLOCK_NAME = 'core/audio';
 
@@ -157,6 +157,7 @@ class BlockAttributes {
 	 * front-end output is untouched.
 	 *
 	 * @since 7.1.0
+	 * @since 7.2.0 Add the audio data attribute to core/audio blocks.
 	 *
 	 * @param string $block_content The rendered block HTML.
 	 * @param array  $block         The parsed block.

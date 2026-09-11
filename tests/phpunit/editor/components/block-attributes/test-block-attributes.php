@@ -409,8 +409,7 @@ class BlockAttributesTest extends TestCase
     /**
      * @test
      *
-     * The marker belongs on <audio> itself, not the <figure> wrapping it —
-     * BeyondWords reads the attribute off the element that carries the file.
+     * The marker goes on <audio> itself, not the <figure> wrapping it.
      */
     public function add_segment_attributes_does_not_mark_the_figure_wrapper()
     {

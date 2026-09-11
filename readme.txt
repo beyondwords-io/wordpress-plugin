@@ -110,7 +110,7 @@ Release date: TBC
 
 **Enhancements**
 
-* [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Audio blocks with an uploaded file are now sent to BeyondWords as pre-recorded audio, instead of narrating them with a voice.
+* [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Audio blocks are now marked with the `data-beyondwords-audio` attribute in the content sent to BeyondWords, so the API handles them as audio.
 
 = 7.1.0 =
 

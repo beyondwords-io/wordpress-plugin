@@ -13,8 +13,8 @@ context( 'Block Editor: Block Audio', () => {
 	// send to the API in this post meta key.
 	const SENT_BODY_META = 'BEFORE:beyondwords_content';
 
-	// A core/audio block carries its own recording, so it is always marked —
-	// the paragraph alongside it proves nothing else is.
+	// Every core/audio block has a file, so it is always marked — the
+	// paragraph alongside it proves nothing else is.
 	const CONTENT =
 		'<!-- wp:paragraph --><p>Spoken paragraph.</p><!-- /wp:paragraph -->' +
 		'<!-- wp:audio --><figure class="wp-block-audio">' +
@@ -116,7 +116,7 @@ context( 'Block Editor: Block Audio', () => {
 	postTypes
 		.filter( ( x ) => x.priority )
 		.forEach( ( postType ) => {
-			it( `marks an audio block as pre-recorded audio for a ${ postType.name }`, () => {
+			it( `marks an audio block in the content sent to the API for a ${ postType.name }`, () => {
 				cy.createTestPost( {
 					title: `Cypress Test: block audio for a ${ postType.name }`,
 					postType: postType.slug,
@@ -189,8 +189,8 @@ context( 'Block Editor: Block Audio', () => {
 				.find( 'input[type="checkbox"]' )
 				.should( 'be.checked' );
 
-			// An audio block takes a language and voice like any other block;
-			// the API decides what to do with them next to its own recording.
+			// The sidebar offers an audio block the same language and voice
+			// controls as any other block.
 			setToggle( customize, true );
 			blockSelect( 'Accent' ).select( 'British', { force: true } );
 			blockSelect( 'Native' ).select( 'All', { force: true } );
