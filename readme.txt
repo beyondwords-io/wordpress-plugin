@@ -111,6 +111,7 @@ Release date: TBC
 **Codebase Enhancements**
 
 * [#633](https://github.com/beyondwords-io/wordpress-plugin/pull/633) Fix the flaky block-voices Cypress spec by waiting for the save to finish before reading post meta.
+* [#635](https://github.com/beyondwords-io/wordpress-plugin/pull/635) Wait for the save to finish in the generate-audio Cypress spec too.
 
 = 7.1.0 =
 
