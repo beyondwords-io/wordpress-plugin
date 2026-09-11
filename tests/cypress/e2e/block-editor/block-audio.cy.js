@@ -80,6 +80,27 @@ context( 'Block Editor: Block Audio', () => {
 		);
 	};
 
+	// The sync that records the sent body finishes just after the publish
+	// confirmation returns, so the meta lags the UI by a moment. Poll for it:
+	// cy.task() is not retried by a trailing assertion, and an empty body
+	// would quietly satisfy every `not.contain` assertion below.
+	const sentBody = ( postId ) => {
+		const read = ( attempt = 0 ) =>
+			cy
+				.task( 'getPostMetaJson', {
+					postId,
+					metaKey: SENT_BODY_META,
+				} )
+				.then( ( body ) => {
+					if ( body || attempt >= 30 ) {
+						return body;
+					}
+					return cy.wait( 1000 ).then( () => read( attempt + 1 ) );
+				} );
+
+		return read();
+	};
+
 	before( () => {
 		cy.task( 'activatePlugin', 'beyondwords-filter-content-params' );
 	} );
@@ -123,10 +144,7 @@ context( 'Block Editor: Block Audio', () => {
 
 					/* ------------------------ what we send to the API */
 
-					cy.task( 'getPostMetaJson', {
-						postId,
-						metaKey: SENT_BODY_META,
-					} ).should( ( body ) => {
+					sentBody( postId ).then( ( body ) => {
 						// The marker rides on <audio>, which carries the file.
 						expect( body ).to.match(
 							/<audio[^>]*data-beyondwords-audio="true"/
@@ -195,10 +213,7 @@ context( 'Block Editor: Block Audio', () => {
 
 			/* ------------------------ what we send to the API */
 
-			cy.task( 'getPostMetaJson', {
-				postId,
-				metaKey: SENT_BODY_META,
-			} ).should( ( body ) => {
+			sentBody( postId ).then( ( body ) => {
 				expect( body ).to.match(
 					/<audio[^>]*data-beyondwords-audio="true"/
 				);
@@ -232,13 +247,12 @@ context( 'Block Editor: Block Audio', () => {
 
 			cy.publishWithConfirmation();
 
-			cy.task( 'getPostMetaJson', {
-				postId,
-				metaKey: SENT_BODY_META,
-			} ).should( ( body ) => {
+			sentBody( postId ).then( ( body ) => {
+				// Asserted first: the negatives below are vacuous on an empty
+				// body, which is exactly what a lagging sync looks like.
+				expect( body ).to.contain( 'Spoken paragraph.' );
 				expect( body ).to.not.contain( 'data-beyondwords-audio' );
 				expect( body ).to.not.contain( 'Cat audio caption.' );
-				expect( body ).to.contain( 'Spoken paragraph.' );
 			} );
 		} );
 	} );
