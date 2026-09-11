@@ -321,6 +321,24 @@ function setupNodeEvents( on, config ) {
 			}
 		},
 
+		// JSON-encoded for the same reason as getPostMetaJson: saved block
+		// markup spans multiple lines.
+		async getPostContent( postId ) {
+			try {
+				const result = await execWp(
+					`post get ${ parseInt(
+						postId,
+						10
+					) } --field=post_content --format=json`,
+					{ returnResult: true }
+				);
+				const value = result.stdout.trim().split( '\n' ).pop();
+				return value ? JSON.parse( value ) : '';
+			} catch ( error ) {
+				return '';
+			}
+		},
+
 		async updateOption( args ) {
 			const { name, value } = args;
 			await execWp( `option update ${ name } '${ value }'` );
