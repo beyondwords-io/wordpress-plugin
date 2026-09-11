@@ -114,27 +114,6 @@ context( 'Block Editor: Block Voices', () => {
 		cy.get( '.block-editor-block-card__title' ).should( 'contain', title );
 	};
 
-	// The sync that records the sent body finishes just after the publish
-	// confirmation returns, so the meta lags the UI by a moment. Poll for it:
-	// cy.task() is not retried by a trailing assertion, so a .should() here
-	// asserts once against whatever the first read happened to return.
-	const sentBody = ( postId ) => {
-		const read = ( attempt = 0 ) =>
-			cy
-				.task( 'getPostMetaJson', {
-					postId,
-					metaKey: SENT_BODY_META,
-				} )
-				.then( ( body ) => {
-					if ( body || attempt >= 30 ) {
-						return body;
-					}
-					return cy.wait( 1000 ).then( () => read( attempt + 1 ) );
-				} );
-
-		return read();
-	};
-
 	before( () => {
 		cy.task( 'activatePlugin', 'beyondwords-filter-content-params' );
 	} );
@@ -277,9 +256,24 @@ context( 'Block Editor: Block Voices', () => {
 
 					cy.publishWithConfirmation();
 
+					// The body is recorded during the save request, and
+					// publishWithConfirmation returns before that completes.
+					cy.window()
+						.its( 'wp.data' )
+						.should( ( data ) => {
+							const editor = data.select( 'core/editor' );
+							expect( editor.isSavingPost() ).to.eq( false );
+							expect(
+								editor.getCurrentPostAttribute( 'status' )
+							).to.eq( 'publish' );
+						} );
+
 					/* ------------------------ what we send to the API */
 
-					sentBody( postId ).then( ( body ) => {
+					cy.task( 'getPostMetaJson', {
+						postId,
+						metaKey: SENT_BODY_META,
+					} ).should( ( body ) => {
 						expect( body ).to.match(
 							new RegExp(
 								`<p[^>]*data-beyondwords-voice-id="${ CALEB_VOICE_ID }"[^>]*>Top paragraph`
@@ -389,4 +383,66 @@ context( 'Block Editor: Block Voices', () => {
 			} );
 		} );
 	} );
+
+	postTypes
+		.filter( ( x ) => x.priority )
+		.forEach( ( postType ) => {
+			it( `re-seeds a block when Customize is switched off and on for a ${ postType.name }`, () => {
+				cy.createTestPost( {
+					title: `Cypress Test: block voices re-seed for a ${ postType.name }`,
+					postType: postType.slug,
+					status: 'draft',
+					content: CONTENT,
+				} ).then( ( postId ) => {
+					cy.visitPostEditorById( postId );
+
+					const expectSeeded = () => {
+						blockSelect( 'Language' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'English' );
+						blockSelect( 'Accent' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'American' );
+						blockSelect( 'Voice' )
+							.find( 'option:selected' )
+							.should( 'have.text', 'Ava (Multilingual)' );
+					};
+
+					selectBlock( byText( 'Top paragraph.' ), 'Paragraph' );
+
+					setToggle( customize, true );
+					expectSeeded();
+
+					setToggle( customize, false );
+					blockPanel()
+						.contains( 'label', 'Language' )
+						.should( 'not.exist' );
+
+					// The picker stays mounted while Customize is off, so the
+					// second time round has to seed from scratch again.
+					setToggle( customize, true );
+					expectSeeded();
+
+					// The Native filter is state, not an attribute, so it has
+					// to be reset alongside the seeding refs.
+					blockSelect( 'Native' ).select( 'All', { force: true } );
+					setToggle( customize, false );
+					setToggle( customize, true );
+					expectSeeded();
+					blockSelect( 'Native' )
+						.find( 'option:selected' )
+						.should( 'have.text', 'Native' );
+
+					blocks().then( ( all ) => {
+						const top = all.find( byText( 'Top paragraph.' ) );
+						expect( top.attributes.beyondwordsLanguageCode ).to.eq(
+							'en_US'
+						);
+						// eslint-disable-next-line no-unused-expressions
+						expect( top.attributes.beyondwordsVoiceId ).to.not.be
+							.empty;
+					} );
+				} );
+			} );
+		} );
 } );
