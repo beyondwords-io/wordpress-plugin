@@ -32,6 +32,7 @@ export default () => (
 					'&amp;utm_medium=referral&amp;utm_campaign=' +
 					'&amp;utm_content=plugin'
 				}
+				rel="noopener noreferrer"
 			>
 				{ __( 'Setup guide', 'speechkit' ) }
 			</ExternalLink>

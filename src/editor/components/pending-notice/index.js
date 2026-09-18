@@ -25,7 +25,7 @@ export function PendingNotice( { projectUrl, wrapper } ) {
 							'speechkit'
 						) }
 					</p>
-					<ExternalLink href={ projectUrl }>
+					<ExternalLink href={ projectUrl } rel="noopener noreferrer">
 						{ __( 'BeyondWords dashboard.', 'speechkit' ) }
 					</ExternalLink>
 				</div>

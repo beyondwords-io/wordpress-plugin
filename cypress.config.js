@@ -93,7 +93,6 @@ module.exports = defineConfig( {
 	// The first block editor load of a run is ~3x a warm one; 60s left no headroom.
 	pageLoadTimeout: 120000,
 	downloadsFolder: 'tests/cypress/downloads',
-	allowCypressEnv: false,
 	env: {
 		wpUsername: 'admin',
 		wpPassword: 'password',
@@ -107,7 +106,6 @@ module.exports = defineConfig( {
 	// WordPress 7.1's block editor never reports its load event to Chrome's
 	// Cypress driver while web security is on; see doc/running-tests.md.
 	chromeWebSecurity: false,
-	experimentalMemoryManagement: true,
 	fixturesFolder: 'tests/fixtures',
 	includeShadowDom: true,
 	screenshotsFolder: 'tests/cypress/screenshots',
