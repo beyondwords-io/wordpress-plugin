@@ -152,7 +152,7 @@ describe( 'beyondwords/settings store', () => {
 				}
 			);
 
-			it( 'returns [] when the fetch rejects', async () => {
+			it( 'marks the resolution failed and keeps [] when the fetch rejects', async () => {
 				apiFetch.mockRejectedValue( new Error( 'offline' ) );
 
 				await expect(
