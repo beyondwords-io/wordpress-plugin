@@ -78,7 +78,10 @@ loads for REST requests.
 `WP_REST_Meta_Fields` only honours a `prepare_callback` set **inside** the
 `show_in_rest` array. Its default one returns `null` for any stored value that
 fails the key's schema — for our `string` keys, a legacy non-scalar row such as
-a serialised array or `WP_Error` left by an old plugin version.
+a serialised array or `WP_Error` left by an old plugin version. WordPress
+stores scalars as text, so an int or bool only arrives via a raw database write
+of a serialised scalar (e.g. an import) or another plugin's `get_post_metadata`
+filter.
 
 The block editor sends the post's whole `meta` object on every save that edits
 any meta key (core-data registers `meta` as a merged edit), so that `null` went
@@ -88,9 +91,11 @@ invalid, and failed the entire save with a 500 `rest_invalid_stored_value` —
 
 `Sync::register_meta()` therefore passes
 `show_in_rest => [ 'prepare_callback' => [ Sync::class, 'prepare_rest_meta_value' ] ]`
-for every REST key, which serves any non-string value as `''`. The editor echoes
-`''`, which core accepts, so the first meta save on such a post overwrites the
-unreadable legacy row with `''`. String values are served unchanged.
+for every REST key. Strings are served unchanged; other scalars are cast the way
+WordPress stores them (`5` → `'5'`, `true` → `'1'`, `false` → `''`); arrays,
+objects and `null` are served as `''`. The editor echoes that string back, which
+core accepts, so the first meta save on such a post rewrites the row as a
+string — keeping a scalar's value, and blanking an unreadable non-scalar.
 
 See also: [legacy-meta-migration.md](./legacy-meta-migration.md) for how keys
 moved between the `current` and `deprecated` sets.

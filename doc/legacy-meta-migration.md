@@ -36,8 +36,8 @@ DB rows are **kept** on plugin deactivation and upgrade — only removed on full
 uninstall — so a plugin downgrade still finds the values. The one exception is
 the `beyondwords_disabled = '1'` rows, which the v7.0.0 migration deletes as it
 converts them (see below). A REST-exposed row holding a non-string value
-is also rewritten to `''` the first time the post's meta is saved from the block
-editor — see [rest-meta-visibility.md](./rest-meta-visibility.md).
+is also rewritten as a string (a scalar keeps its value, anything else becomes
+`''`) the first time the post's meta is saved from the block editor — see [rest-meta-visibility.md](./rest-meta-visibility.md).
 
 ### `beyondwords_disabled` → `beyondwords_embed`
 
