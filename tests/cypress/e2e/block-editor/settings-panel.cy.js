@@ -221,5 +221,64 @@ context( 'Block Editor: Settings panel', () => {
 					.find( 'option:selected' )
 					.should( 'have.text', 'None' );
 			} );
+
+			it( `survives template endpoints returning an API error for a ${ postType.name }`, () => {
+				// The proxies return the API's error body with a 200 status.
+				const errorBody = { code: 401, message: 'Unauthorized' };
+
+				// Plain permalinks percent-encode the route's slashes.
+				cy.intercept(
+					'GET',
+					/beyondwords(?:\/|%2F)v1(?:\/|%2F)summarization-settings-templates/,
+					{ body: errorBody }
+				).as( 'scriptTemplates' );
+				cy.intercept(
+					'GET',
+					/beyondwords(?:\/|%2F)v1(?:\/|%2F)video-settings-templates/,
+					{ body: errorBody }
+				).as( 'videoTemplates' );
+
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				cy.wait( [ '@scriptTemplates', '@videoTemplates' ] );
+
+				cy.window()
+					.its( 'wp.data' )
+					.should( ( data ) => {
+						const store = data.select( 'beyondwords/settings' );
+						expect(
+							store.hasFinishedResolution(
+								'getScriptTemplates',
+								[]
+							)
+						).to.eq( true );
+						expect(
+							store.hasFinishedResolution(
+								'getVideoTemplates',
+								[]
+							)
+						).to.eq( true );
+						expect( store.getScriptTemplates() ).to.deep.eq( [] );
+						expect( store.getVideoTemplates() ).to.deep.eq( [] );
+					} );
+
+				select( 'beyondwords--source' ).select( 'Post + script', {
+					force: true,
+				} );
+				select( 'beyondwords--output' ).select( 'Video', {
+					force: true,
+				} );
+
+				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
+				select( 'beyondwords--video-template' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						expect( optionLabels( $els ) ).to.deep.eq( [
+							'Project default',
+						] );
+					} );
+				cy.get( '.editor-error-boundary' ).should( 'not.exist' );
+			} );
 		} );
 } );

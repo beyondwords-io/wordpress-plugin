@@ -49,6 +49,9 @@ const selectors = {
 const set = ( key, value ) => ( { type: 'SET', key, value } );
 const setBy = ( key, arg, value ) => ( { type: 'SET_BY', key, arg, value } );
 
+// The REST proxies pass API error bodies through as objects; UI code `.map()`s lists.
+const toList = ( value ) => ( Array.isArray( value ) ? value : [] );
+
 const resolvers = {
 	async getSettings() {
 		const value = await apiFetch( { path: '/beyondwords/v1/settings' } );
@@ -56,25 +59,25 @@ const resolvers = {
 	},
 	async getLanguages() {
 		const value = await apiFetch( { path: '/beyondwords/v1/languages' } );
-		return set( 'languages', value );
+		return set( 'languages', toList( value ) );
 	},
 	async getVoices( languageCode ) {
 		const value = await apiFetch( {
 			path: `/beyondwords/v1/languages/${ languageCode }/voices`,
 		} );
-		return setBy( 'voices', languageCode, value || [] );
+		return setBy( 'voices', languageCode, toList( value ) );
 	},
 	async getScriptTemplates() {
 		const value = await apiFetch( {
 			path: '/beyondwords/v1/summarization-settings-templates',
 		} );
-		return set( 'scriptTemplates', value );
+		return set( 'scriptTemplates', toList( value ) );
 	},
 	async getVideoTemplates() {
 		const value = await apiFetch( {
 			path: '/beyondwords/v1/video-settings-templates',
 		} );
-		return set( 'videoTemplates', value );
+		return set( 'videoTemplates', toList( value ) );
 	},
 	async getVideoSizes( projectId ) {
 		if ( ! projectId ) {
@@ -83,7 +86,7 @@ const resolvers = {
 		const r = await apiFetch( {
 			path: `/beyondwords/v1/projects/${ projectId }/video-settings`,
 		} );
-		return setBy( 'videoSizes', projectId, r?.sizes ?? [] );
+		return setBy( 'videoSizes', projectId, toList( r?.sizes ) );
 	},
 	// The project's default `language` pre-selects the Language dropdown.
 	async getProject( projectId ) {
