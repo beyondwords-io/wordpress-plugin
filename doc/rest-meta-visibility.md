@@ -2,8 +2,8 @@
 
 How BeyondWords post meta is exposed (or hidden) over the WordPress REST API.
 Implemented in [src/post/class-sync.php](../src/post/class-sync.php)
-(`register_meta()`, `register_rest_meta_visibility()`,
-`hide_private_meta_from_rest()`).
+(`register_meta()`, `prepare_rest_meta_value()`,
+`register_rest_meta_visibility()`, `hide_private_meta_from_rest()`).
 
 ## Registration model
 
@@ -72,6 +72,25 @@ closing the anonymous disclosure while leaving the block editor unaffected.
 `Sync::register_rest_meta_visibility()` adds the filter on `rest_api_init` —
 once per compatible post type, as `rest_prepare_{$post_type}` — so it only
 loads for REST requests.
+
+## Legacy non-string values (`Sync::prepare_rest_meta_value()`)
+
+`WP_REST_Meta_Fields` only honours a `prepare_callback` set **inside** the
+`show_in_rest` array. Its default one returns `null` for any stored value that
+fails the key's schema — for our `string` keys, a legacy non-scalar row such as
+a serialised array or `WP_Error` left by an old plugin version.
+
+The block editor sends the post's whole `meta` object on every save that edits
+any meta key (core-data registers `meta` as a merged edit), so that `null` went
+straight back. Core reads `null` as "reset", refused because the stored value is
+invalid, and failed the entire save with a 500 `rest_invalid_stored_value` —
+"Publishing failed" in the editor.
+
+`Sync::register_meta()` therefore passes
+`show_in_rest => [ 'prepare_callback' => [ Sync::class, 'prepare_rest_meta_value' ] ]`
+for every REST key, which serves any non-string value as `''`. The editor echoes
+`''`, which core accepts, so the first meta save on such a post overwrites the
+unreadable legacy row with `''`. String values are served unchanged.
 
 See also: [legacy-meta-migration.md](./legacy-meta-migration.md) for how keys
 moved between the `current` and `deprecated` sets.

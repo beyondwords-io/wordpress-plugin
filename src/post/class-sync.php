@@ -583,12 +583,13 @@ class Sync {
 					'post',
 					$key,
 					[
-						'show_in_rest'      => in_array( $key, $rest_keys, true ),
+						'show_in_rest'      => in_array( $key, $rest_keys, true )
+							? [ 'prepare_callback' => [ self::class, 'prepare_rest_meta_value' ] ]
+							: false,
 						'single'            => true,
 						'type'              => 'string',
 						'default'           => '',
 						'object_subtype'    => $post_type,
-						'prepare_callback'  => 'sanitize_text_field',
 						'sanitize_callback' => $sanitize_callback,
 						'auth_callback'     => static fn(): bool => current_user_can( 'edit_posts' ),
 					]
@@ -650,6 +651,18 @@ class Sync {
 		$response->set_data( $data );
 
 		return $response;
+	}
+
+	/**
+	 * Serve legacy non-string meta as '' over REST.
+	 *
+	 * Core's default serves it as null, which the block editor echoes back and core
+	 * then rejects; see doc/rest-meta-visibility.md.
+	 *
+	 * @param mixed $value The stored meta value.
+	 */
+	public static function prepare_rest_meta_value( $value ): string {
+		return is_string( $value ) ? $value : '';
 	}
 
 	/**
