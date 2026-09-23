@@ -108,6 +108,10 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 
 Release date: TBC
 
+**Enhancements**
+
+* [#631](https://github.com/beyondwords-io/wordpress-plugin/pull/631) Audio blocks are now marked with the `data-beyondwords-audio` attribute in the content sent to BeyondWords, so the API handles them as audio.
+
 **Fixes**
 
 * [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Fix a block's language and voice fields staying empty when Customize is switched off and back on.
