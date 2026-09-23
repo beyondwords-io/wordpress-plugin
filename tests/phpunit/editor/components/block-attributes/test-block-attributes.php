@@ -390,6 +390,96 @@ class BlockAttributesTest extends TestCase
     /**
      * @test
      *
+     * A core/audio block always carries its own audio — there's no toggle for
+     * it, unlike language/voice which are opt-in per block.
+     */
+    public function add_segment_attributes_marks_the_audio_tag_on_a_core_audio_block()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $this->assertSame(
+            '<figure class="wp-block-audio"><audio data-beyondwords-audio="true" controls src="cat.mp3"></audio></figure>',
+            BlockAttributes::add_segment_attributes(
+                '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+                $block
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * The marker goes on <audio> itself, not the <figure> wrapping it.
+     */
+    public function add_segment_attributes_does_not_mark_the_figure_wrapper()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $result = BlockAttributes::add_segment_attributes(
+            '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+            $block
+        );
+
+        $this->assertStringStartsWith('<figure class="wp-block-audio">', $result);
+    }
+
+    /**
+     * @test
+     */
+    public function add_segment_attributes_leaves_a_core_audio_block_with_no_audio_tag_alone()
+    {
+        $block = ['blockName' => 'core/audio'];
+
+        $this->assertSame(
+            '<figure class="wp-block-audio"></figure>',
+            BlockAttributes::add_segment_attributes('<figure class="wp-block-audio"></figure>', $block)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * Only core/audio is auto-marked — every other block needs an explicit
+     * language/voice override to get any data attribute at all.
+     */
+    public function add_segment_attributes_does_not_mark_other_blocks_with_an_audio_tag()
+    {
+        $block = ['blockName' => 'core/html'];
+
+        $this->assertSame(
+            '<audio controls src="cat.mp3"></audio>',
+            BlockAttributes::add_segment_attributes('<audio controls src="cat.mp3"></audio>', $block)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * The audio marker and a language/voice override are independent: a
+     * core/audio block can carry both at once, on different tags.
+     */
+    public function add_segment_attributes_combines_the_audio_marker_with_language_and_voice()
+    {
+        $block = [
+            'blockName' => 'core/audio',
+            'attrs'     => [
+                'beyondwordsLanguageCode' => 'fr_FR',
+                'beyondwordsVoiceId'      => '784',
+            ],
+        ];
+
+        $this->assertSame(
+            '<figure data-beyondwords-language="fr_FR" data-beyondwords-voice-id="784" class="wp-block-audio"><audio data-beyondwords-audio="true" controls src="cat.mp3"></audio></figure>',
+            BlockAttributes::add_segment_attributes(
+                '<figure class="wp-block-audio"><audio controls src="cat.mp3"></audio></figure>',
+                $block
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
      * The comment delimiter is editor-writable, so neither value is trusted:
      * anything not shaped like the API's own values is dropped, not escaped.
      */

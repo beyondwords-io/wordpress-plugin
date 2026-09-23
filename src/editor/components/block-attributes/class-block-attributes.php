@@ -41,6 +41,14 @@ class BlockAttributes {
 	public const VOICE_ATTRIBUTE = 'beyondwordsVoiceId';
 
 	/**
+	 * The block whose `<audio>` tag always gets the audio data attribute —
+	 * every core/audio block has a file, so there is nothing to opt into.
+	 *
+	 * @since 7.2.0
+	 */
+	public const AUDIO_BLOCK_NAME = 'core/audio';
+
+	/**
 	 * Init.
 	 *
 	 * @since 4.0.0
@@ -143,12 +151,13 @@ class BlockAttributes {
 	}
 
 	/**
-	 * Add the segment-scoped voice data attributes to a rendered block.
+	 * Add the segment-scoped voice and audio data attributes to a rendered block.
 	 *
 	 * Not registered in init(): it is added around the API body build only, so
 	 * front-end output is untouched.
 	 *
 	 * @since 7.1.0
+	 * @since 7.2.0 Add the audio data attribute to core/audio blocks.
 	 *
 	 * @param string $block_content The rendered block HTML.
 	 * @param array  $block         The parsed block.
@@ -160,8 +169,9 @@ class BlockAttributes {
 
 		$language = self::language_code( self::attribute_value( $attrs, self::LANGUAGE_ATTRIBUTE ) );
 		$voice_id = self::voice_id( self::attribute_value( $attrs, self::VOICE_ATTRIBUTE ) );
+		$is_audio = is_array( $block ) && self::AUDIO_BLOCK_NAME === ( $block['blockName'] ?? '' );
 
-		if ( '' === $language && '' === $voice_id ) {
+		if ( '' === $language && '' === $voice_id && ! $is_audio ) {
 			return $block_content;
 		}
 
@@ -178,6 +188,11 @@ class BlockAttributes {
 
 		if ( '' !== $voice_id ) {
 			$processor->set_attribute( 'data-beyondwords-voice-id', $voice_id );
+		}
+
+		// The audio marker belongs on the <audio> tag itself, not the figure wrapping it.
+		if ( $is_audio && $processor->next_tag( [ 'tag_name' => 'AUDIO' ] ) ) {
+			$processor->set_attribute( 'data-beyondwords-audio', 'true' );
 		}
 
 		return $processor->get_updated_html();
