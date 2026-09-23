@@ -696,6 +696,86 @@ class SyncTest extends TestCase
     }
 
     /**
+     * The block editor echoes the whole meta object on save; see doc/rest-meta-visibility.md.
+     *
+     * @test
+     */
+    public function rest_save_succeeds_with_legacy_non_scalar_meta()
+    {
+        global $wp_rest_server, $wpdb;
+        $server = $wp_rest_server = new \WP_REST_Server;
+        do_action('rest_api_init');
+
+        Sync::register_meta();
+
+        $editorId = self::factory()->user->create(['role' => 'editor']);
+        wp_set_current_user($editorId);
+
+        $postId = self::factory()->post->create([
+            'post_title'  => 'SyncTest::rest_save_succeeds_with_legacy_non_scalar_meta',
+            'post_author' => $editorId,
+            'meta_input'  => [
+                'beyondwords_error_message' => 'Stale error',
+            ],
+        ]);
+
+        $wpdb->insert(
+            $wpdb->postmeta,
+            [
+                'post_id'    => $postId,
+                'meta_key'   => 'speechkit_error_message',
+                'meta_value' => serialize(['error' => 'Legacy SpeechKit error']),
+            ]
+        );
+        wp_cache_delete($postId, 'post_meta');
+
+        $get = new \WP_REST_Request('GET', "/wp/v2/posts/{$postId}");
+        $get->set_param('context', 'edit');
+        $meta = $server->dispatch($get)->get_data()['meta'];
+        $this->assertSame('', $meta['speechkit_error_message']);
+        $this->assertSame('Stale error', $meta['beyondwords_error_message']);
+
+        // What the block editor sends: the full meta object plus the edit, as JSON.
+        $meta['beyondwords_output'] = 'video';
+
+        $request = new \WP_REST_Request('POST', "/wp/v2/posts/{$postId}");
+        $request->set_header('content-type', 'application/json');
+        $request->set_body(wp_json_encode(['meta' => $meta]));
+        $response = $server->dispatch($request);
+
+        $this->assertSame(200, $response->get_status());
+        $this->assertSame('video', get_post_meta($postId, 'beyondwords_output', true));
+        $this->assertSame('', get_post_meta($postId, 'speechkit_error_message', true));
+        $this->assertSame('Stale error', get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_set_current_user(0);
+        wp_delete_user($editorId);
+        wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     * @dataProvider prepare_rest_meta_value_provider
+     */
+    public function prepare_rest_meta_value($expect, $value)
+    {
+        $this->assertSame($expect, Sync::prepare_rest_meta_value($value));
+    }
+
+    public function prepare_rest_meta_value_provider()
+    {
+        return [
+            'string'      => ['abc', 'abc'],
+            'empty'       => ['', ''],
+            'markup kept' => ['<b>x</b>', '<b>x</b>'],
+            'array'       => ['', ['error' => 'x']],
+            'object'      => ['', new \WP_Error('x', 'y')],
+            'null'        => ['', null],
+            'integer'     => ['', 5],
+        ];
+    }
+
+    /**
      * beyondwords_content_id has a strict sanitize callback so the REST write path can't
      * persist a Content ID that injects URL path/query segments (Meta::sanitize_content_id).
      *

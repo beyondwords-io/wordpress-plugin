@@ -277,6 +277,16 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		// Bypasses the sanitize_callback, which would coerce the array to a string.
+		async insertLegacyArrayPostMeta( options ) {
+			const postId = parseInt( options.postId, 10 );
+			const metaKey = options.metaKey.replace( /[^a-z0-9_]/gi, '' );
+			await execWp(
+				`eval 'global $wpdb; $wpdb->insert( $wpdb->postmeta, [ "post_id" => ${ postId }, "meta_key" => "${ metaKey }", "meta_value" => serialize( [ "error" => "legacy" ] ) ] ); wp_cache_delete( ${ postId }, "post_meta" );'`
+			);
+			return null;
+		},
+
 		// An hour out, so WP-Cron can't actually run the job mid-test.
 		async scheduleAudioGeneration( postId ) {
 			await execWp(
