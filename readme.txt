@@ -111,6 +111,7 @@ Release date: TBC
 **Fixes**
 
 * [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Fix a block's language and voice fields staying empty when Customize is switched off and back on.
+* [#TBD](https://github.com/beyondwords-io/wordpress-plugin/pull/TBD) Fix the block editor crashing when the BeyondWords API returns an error for script or video templates.
 
 **Codebase Enhancements**
 

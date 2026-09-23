@@ -121,4 +121,50 @@ describe( 'beyondwords/settings store', () => {
 			expect( apiFetch ).not.toHaveBeenCalled();
 		} );
 	} );
+
+	describe( 'list resolvers', () => {
+		// [ selector, args, wraps the payload as the endpoint does ]
+		const LISTS = [
+			[ 'getLanguages', [], ( v ) => v ],
+			[ 'getVoices', [ 'en_US' ], ( v ) => v ],
+			[ 'getScriptTemplates', [], ( v ) => v ],
+			[ 'getVideoTemplates', [], ( v ) => v ],
+			[ 'getVideoSizes', [ '11111' ], ( v ) => ( { sizes: v } ) ],
+		];
+
+		const NON_ARRAYS = [
+			[ 'an API error body', { code: 401, message: 'Unauthorized' } ],
+			[ 'false', false ],
+			[ 'null', null ],
+			[ 'a string', 'nope' ],
+		];
+
+		describe.each( LISTS )( '%s', ( selector, args, wrap ) => {
+			it.each( NON_ARRAYS )(
+				'returns [] when the endpoint returns %s',
+				async ( _label, payload ) => {
+					apiFetch.mockResolvedValue( wrap( payload ) );
+
+					const resolve = registry.resolveSelect( STORE );
+					expect( await resolve[ selector ]( ...args ) ).toEqual(
+						[]
+					);
+				}
+			);
+
+			it( 'returns [] when the fetch rejects', async () => {
+				apiFetch.mockRejectedValue( new Error( 'offline' ) );
+
+				await expect(
+					registry.resolveSelect( STORE )[ selector ]( ...args )
+				).rejects.toThrow( 'offline' );
+
+				const select = registry.select( STORE );
+				expect( select.hasResolutionFailed( selector, args ) ).toBe(
+					true
+				);
+				expect( select[ selector ]( ...args ) ).toEqual( [] );
+			} );
+		} );
+	} );
 } );
