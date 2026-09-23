@@ -654,15 +654,15 @@ class Sync {
 	}
 
 	/**
-	 * Serve legacy non-string meta as '' over REST.
+	 * Serve legacy meta over REST as a string: scalars cast, anything else ''.
 	 *
-	 * Core's default serves it as null, which the block editor echoes back and core
+	 * Core's default serves non-strings as null, which the block editor echoes back and core
 	 * then rejects; see doc/rest-meta-visibility.md.
 	 *
 	 * @param mixed $value The stored meta value.
 	 */
 	public static function prepare_rest_meta_value( $value ): string {
-		return is_string( $value ) ? $value : '';
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 
 	/**

@@ -771,7 +771,10 @@ class SyncTest extends TestCase
             'array'       => ['', ['error' => 'x']],
             'object'      => ['', new \WP_Error('x', 'y')],
             'null'        => ['', null],
-            'integer'     => ['', 5],
+            'integer'     => ['5', 5],
+            'float'       => ['1.5', 1.5],
+            'true'        => ['1', true],
+            'false'       => ['', false],
         ];
     }
 
