@@ -271,7 +271,13 @@ context( 'Block Editor: Settings panel', () => {
 				} );
 
 				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
-				cy.get( '.beyondwords--video-template' ).should( 'not.exist' );
+				select( 'beyondwords--video-template' )
+					.find( 'option' )
+					.should( ( $els ) => {
+						expect( optionLabels( $els ) ).to.deep.eq( [
+							'Project default',
+						] );
+					} );
 				cy.get( '.editor-error-boundary' ).should( 'not.exist' );
 			} );
 		} );
