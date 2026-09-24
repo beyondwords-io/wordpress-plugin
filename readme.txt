@@ -117,6 +117,7 @@ Release date: TBC
 * [#630](https://github.com/beyondwords-io/wordpress-plugin/pull/630) Fix a block's language and voice fields staying empty when Customize is switched off and back on.
 * [#639](https://github.com/beyondwords-io/wordpress-plugin/pull/639) Fix the block editor crashing when the BeyondWords API returns an error for script or video templates.
 * [#638](https://github.com/beyondwords-io/wordpress-plugin/pull/638), [#640](https://github.com/beyondwords-io/wordpress-plugin/pull/640) Fix "Publishing failed" in the block editor for posts with legacy BeyondWords data from older plugin versions.
+* [#641](https://github.com/beyondwords-io/wordpress-plugin/pull/641) Fix audio generation failing on sites where another plugin's `get_the_excerpt` filter needs the post, when "Prepend excerpt" is on.
 * [#642](https://github.com/beyondwords-io/wordpress-plugin/pull/642) Treat every failed BeyondWords API request as a failure, never as a success.
     * `BeyondWords\Api\Client` methods now return the response data or a `WP_Error`; `Client::call_api()` is now `Client::request()`.
 
