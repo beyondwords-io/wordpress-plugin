@@ -64,6 +64,74 @@ class ContentTest extends TestCase
     }
 
     /**
+     * Core passes `$post` to `get_the_excerpt`, so third-party callbacks may require it.
+     *
+     * @test
+     */
+    public function get_content_body_with_summary_supports_excerpt_callbacks_requiring_post()
+    {
+        $post = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest::getContentBodyWithSummarySupportsExcerptCallbacksRequiringPost',
+            'post_excerpt' => 'The excerpt.',
+            'post_content' => '<p>Some test HTML.</p>',
+        ]);
+
+        $callback = static fn(string $excerpt, \WP_Post $post): string => $excerpt;
+
+        update_option('beyondwords_prepend_excerpt', '1');
+        add_filter('get_the_excerpt', $callback, 10, 2);
+
+        try {
+            $content = Content::get_content_body($post);
+        } finally {
+            remove_filter('get_the_excerpt', $callback, 10);
+            delete_option('beyondwords_prepend_excerpt');
+        }
+
+        $this->assertSame('<div data-beyondwords-summary="true"><p>The excerpt.</p></div><p>Some test HTML.</p>', $content);
+
+        wp_delete_post($post->ID, true);
+    }
+
+    /**
+     * Generation can run from cron or REST, where the global post isn't the one being processed.
+     *
+     * @test
+     */
+    public function get_content_body_with_summary_passes_the_processed_post_to_excerpt_callbacks()
+    {
+        global $post;
+
+        $processed = self::factory()->post->create_and_get([
+            'post_title'   => 'ContentTest::processedPost',
+            'post_excerpt' => 'The excerpt.',
+            'post_content' => '<p>Some test HTML.</p>',
+        ]);
+        $other = self::factory()->post->create_and_get([
+            'post_title' => 'ContentTest::otherPost',
+        ]);
+
+        $callback = static fn(string $excerpt, ?\WP_Post $post = null): string => $excerpt . ' ' . get_post($post)->post_title;
+
+        $post = $other;
+        update_option('beyondwords_prepend_excerpt', '1');
+        add_filter('get_the_excerpt', $callback, 10, 2);
+
+        try {
+            $content = Content::get_content_body($processed);
+        } finally {
+            remove_filter('get_the_excerpt', $callback, 10);
+            delete_option('beyondwords_prepend_excerpt');
+            $post = null;
+        }
+
+        $this->assertSame('<div data-beyondwords-summary="true"><p>The excerpt. ContentTest::processedPost</p></div><p>Some test HTML.</p>', $content);
+
+        wp_delete_post($processed->ID, true);
+        wp_delete_post($other->ID, true);
+    }
+
+    /**
      * @test
      */
     public function get_content_body_with_invalid_post_id()
