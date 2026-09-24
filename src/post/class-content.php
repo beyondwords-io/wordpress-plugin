@@ -135,8 +135,8 @@ class Content {
 
 		if ( $prepend_excerpt && has_excerpt( $post ) ) {
 			$summary = htmlentities( $post->post_excerpt, ENT_QUOTES | ENT_XHTML );
-            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
-			$summary = apply_filters( 'get_the_excerpt', $summary );
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying core WordPress filter
+			$summary = apply_filters( 'get_the_excerpt', $summary, $post );
 			$summary = trim( wpautop( $summary ) );
 		}
 
