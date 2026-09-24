@@ -799,4 +799,72 @@ class SettingsTest extends TestCase
 
         delete_option('beyondwords_notice_review_dismissed');
     }
+
+    /**
+     * @test
+     * @group settings
+     * @dataProvider api_proxy_routes
+     */
+    public function api_proxies_return_502_when_the_api_fails(string $route)
+    {
+        $filter = fn() => [
+            'response' => ['code' => 401, 'message' => 'Unauthorized'],
+            'body'     => wp_json_encode(['code' => 401, 'message' => 'Authentication token was not recognized.']),
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $first  = $this->dispatch_as_editor($route);
+        $cached = $this->dispatch_as_editor($route);
+
+        remove_filter('pre_http_request', $filter);
+
+        foreach ([$first, $cached] as $response) {
+            $this->assertSame(502, $response->get_status());
+            $this->assertSame('beyondwords_api_error', $response->get_data()['code']);
+            $this->assertSame('Authentication token was not recognized.', $response->get_data()['message']);
+        }
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function project_proxies_return_400_without_a_project_id()
+    {
+        delete_option('beyondwords_project_id');
+
+        foreach (['/beyondwords/v1/projects/0', '/beyondwords/v1/projects/0/video-settings'] as $route) {
+            $response = $this->dispatch_as_editor($route);
+
+            $this->assertSame(400, $response->get_status());
+            $this->assertSame('beyondwords_missing_id', $response->get_data()['code']);
+        }
+    }
+
+    public function api_proxy_routes(): array
+    {
+        return [
+            'project'                          => ['/beyondwords/v1/projects/123'],
+            'video settings'                   => ['/beyondwords/v1/projects/123/video-settings'],
+            'summarization settings templates' => ['/beyondwords/v1/summarization-settings-templates'],
+            'video settings templates'         => ['/beyondwords/v1/video-settings-templates'],
+        ];
+    }
+
+    private function dispatch_as_editor(string $route): \WP_REST_Response
+    {
+        global $wp_rest_server;
+        $wp_rest_server = new \WP_REST_Server();
+
+        wp_set_current_user(self::factory()->user->create(['role' => 'editor']));
+
+        // Must run inside rest_api_init or WP raises a "_doing_it_wrong" notice.
+        add_action('rest_api_init', [Settings::class, 'register_rest_routes']);
+        do_action('rest_api_init');
+        remove_action('rest_api_init', [Settings::class, 'register_rest_routes']);
+
+        return $wp_rest_server->dispatch(new \WP_REST_Request('GET', $route));
+    }
 }

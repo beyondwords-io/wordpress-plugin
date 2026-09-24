@@ -173,8 +173,7 @@ class SelectVoice {
 	/**
 	 * Get all available languages.
 	 *
-	 * Coerced to a list of language records so an API failure (null/false, or a
-	 * decoded error body) degrades to an empty dropdown instead of a TypeError.
+	 * Coerced to a list so an API failure renders an empty dropdown.
 	 *
 	 * @since 7.0.0
 	 *
@@ -193,8 +192,7 @@ class SelectVoice {
 	/**
 	 * Get voices for a language code.
 	 *
-	 * Coerced to a list of voice records so an API failure (null/false, or a
-	 * decoded error body like a 429's) degrades to empty instead of fataling.
+	 * Coerced to a list so an API failure renders an empty dropdown.
 	 *
 	 * @since 6.0.0
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
@@ -926,13 +924,9 @@ class SelectVoice {
 	 * @since 5.4.0 No longer filter by "Languages" plugin setting.
 	 * @since 6.0.0 Make static.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @return \WP_REST_Response
 	 */
-	public static function languages_rest_api_response() {
-		$languages = \BeyondWords\Api\Client::get_languages();
-
-		return new \WP_REST_Response( $languages );
+	public static function languages_rest_api_response(): \WP_REST_Response|\WP_Error {
+		return rest_ensure_response( \BeyondWords\Api\Client::get_languages() );
 	}
 
 	/**
@@ -941,14 +935,10 @@ class SelectVoice {
 	 * @since 4.0.0
 	 * @since 6.0.0 Make static.
 	 * @since 7.0.0 Refactored to BeyondWords namespace with snake_case methods.
-	 *
-	 * @return \WP_REST_Response
 	 */
-	public static function voices_rest_api_response( \WP_REST_Request $data ) {
+	public static function voices_rest_api_response( \WP_REST_Request $data ): \WP_REST_Response|\WP_Error {
 		$params = $data->get_url_params();
 
-		$voices = \BeyondWords\Api\Client::get_voices( $params['languageCode'] );
-
-		return new \WP_REST_Response( $voices );
+		return rest_ensure_response( \BeyondWords\Api\Client::get_voices( $params['languageCode'] ) );
 	}
 }

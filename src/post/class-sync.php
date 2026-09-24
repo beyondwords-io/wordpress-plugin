@@ -225,21 +225,20 @@ class Sync {
 	 *
 	 * @param int $post_id WordPress post ID.
 	 *
-	 * @return array<mixed>|false|null Response from the API, or false when audio wasn't generated.
+	 * @return array<mixed>|\WP_Error|false False when generation was skipped.
 	 */
-	public static function generate_audio_for_post( int $post_id ): array|false|null {
+	public static function generate_audio_for_post( int $post_id ): array|\WP_Error|false {
 		return self::generate_audio_result( $post_id )['response'];
 	}
 
 	/**
 	 * Generate audio for a post, reporting whether it ran, was skipped, or failed.
 	 *
-	 * A falsy response on its own can't tell a post that had nothing to do from
-	 * one whose API call failed. See doc/async-rest-migration.md.
+	 * See doc/async-rest-migration.md.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @return array{outcome:string, response:array<mixed>|false|null}
+	 * @return array{outcome:string, response:array<mixed>|\WP_Error|false}
 	 */
 	private static function generate_audio_result( int $post_id ): array {
 		if ( ! self::should_generate_audio_for_post( $post_id ) ) {
@@ -297,15 +296,15 @@ class Sync {
 	}
 
 	/**
-	 * Result for an API call we actually made, where a falsy response is the failure signal.
+	 * Result for an API call we actually made.
 	 *
 	 * @since 7.0.0
 	 *
-	 * @return array{outcome:string, response:array<mixed>|false|null}
+	 * @return array{outcome:string, response:array<mixed>|\WP_Error}
 	 */
-	private static function attempted_result( array|false|null $response ): array {
+	private static function attempted_result( array|\WP_Error $response ): array {
 		return [
-			'outcome'  => $response ? self::OUTCOME_GENERATED : self::OUTCOME_FAILED,
+			'outcome'  => is_wp_error( $response ) ? self::OUTCOME_FAILED : self::OUTCOME_GENERATED,
 			'response' => $response,
 		];
 	}
@@ -318,7 +317,7 @@ class Sync {
 	 *
 	 * @since 7.0.0
 	 *
-	 * @return array{outcome:string, response:array<mixed>|false|null} Skipped when another request has the create covered.
+	 * @return array{outcome:string, response:array<mixed>|\WP_Error|false} Skipped when another request has the create covered.
 	 */
 	private static function create_audio_once( int $post_id ): array {
 		if ( ! self::acquire_create_lock( $post_id ) ) {
@@ -373,19 +372,12 @@ class Sync {
 	}
 
 	/**
-	 * Update audio for a post, recovering from a stale content ID.
-	 *
-	 * A `#404:…` error meta means the content no longer exists at BeyondWords,
-	 * so clear the stale IDs and create fresh content instead.
-	 *
-	 * @param int $post_id WordPress post ID.
+	 * Update audio for a post, recreating it when the content no longer exists at BeyondWords.
 	 */
-	private static function update_or_recreate_audio( int $post_id ): array|null|false {
+	private static function update_or_recreate_audio( int $post_id ): array|\WP_Error {
 		$response = \BeyondWords\Api\Client::update_audio( $post_id );
 
-		$error_message = (string) get_post_meta( $post_id, 'beyondwords_error_message', true );
-
-		if ( str_starts_with( $error_message, '#404:' ) ) {
+		if ( is_wp_error( $response ) && 404 === \BeyondWords\Api\Client::api_status( $response ) ) {
 			delete_post_meta( $post_id, 'beyondwords_content_id' );
 			delete_post_meta( $post_id, 'beyondwords_podcast_id' );
 			delete_post_meta( $post_id, 'speechkit_podcast_id' );
@@ -399,7 +391,7 @@ class Sync {
 	/**
 	 * Delete audio for a single post (DELETE /content/:id).
 	 */
-	public static function delete_audio_for_post( int $post_id ): array|false|null {
+	public static function delete_audio_for_post( int $post_id ): array|\WP_Error {
 		return \BeyondWords\Api\Client::delete_audio( $post_id );
 	}
 
@@ -408,7 +400,7 @@ class Sync {
 	 *
 	 * @param int[] $post_ids
 	 */
-	public static function batch_delete_audio_for_posts( array $post_ids ): array|false|null {
+	public static function batch_delete_audio_for_posts( array $post_ids ): array|\WP_Error {
 		return \BeyondWords\Api\Client::batch_delete_audio( $post_ids );
 	}
 
@@ -512,7 +504,7 @@ class Sync {
 	 * @param int|string $project_id BeyondWords project ID.
 	 * @param int|string $content_id BeyondWords content ID.
 	 */
-	public static function delete_audio_by_ids( int|string $project_id, int|string $content_id ): array|false|null {
+	public static function delete_audio_by_ids( int|string $project_id, int|string $content_id ): array|\WP_Error {
 		return \BeyondWords\Api\Client::delete_audio_by_ids( $project_id, $content_id );
 	}
 
@@ -823,7 +815,7 @@ class Sync {
 			return true;
 		}
 
-		return (bool) self::generate_audio_for_post( $post_id );
+		return self::OUTCOME_GENERATED === self::generate_audio_result( $post_id )['outcome'];
 	}
 
 	/**

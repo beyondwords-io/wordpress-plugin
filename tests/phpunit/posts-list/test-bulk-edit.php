@@ -449,8 +449,42 @@ final class BulkEditTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function delete_audio_for_posts_throws_the_api_error_and_keeps_meta()
+    {
+        $postId = self::factory()->post->create([
+            'meta_input' => [
+                'beyondwords_project_id' => 12345,
+                'beyondwords_content_id' => 'content-aaa',
+            ],
+        ]);
+
+        $filter = fn() => [
+            'response' => ['code' => 500, 'message' => 'Internal Server Error'],
+            'body'     => wp_json_encode(['message' => 'Something went wrong']),
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        try {
+            BulkEdit::delete_audio_for_posts([$postId]);
+            $this->fail('Expected an exception');
+        } catch (\Exception $e) {
+            $this->assertSame('Something went wrong', $e->getMessage());
+        } finally {
+            remove_filter('pre_http_request', $filter);
+        }
+
+        $this->assertSame('content-aaa', get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    /**
      * When the per-post filter removes every post, delete must be a clean no-op: zero
-     * count, no API request, and no BULK-NO-RESPONSE error from an empty batch.
+     * count, no API request, and no error from an empty batch.
      *
      * @test
      *

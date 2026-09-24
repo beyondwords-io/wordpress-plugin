@@ -1,6 +1,7 @@
 /**
  * @group classic-editor
  * @covers src/editor/components/select-voice/
+ * @covers src/api/class-client.php
  */
 
 /* global cy, before, beforeEach, after, context, expect, it */
@@ -445,6 +446,55 @@ context( 'Classic Editor: Select Voice', () => {
 		);
 
 		cy.get( '.beyondwords-settings__loader', { timeout: 10000 } ).should(
+			'not.be.visible'
+		);
+	} );
+
+	const apiError = {
+		statusCode: 502,
+		body: {
+			code: 'beyondwords_api_error',
+			message: 'Authentication token was not recognized.',
+			data: { status: 502 },
+		},
+	};
+
+	it( 'leaves Language unselected when the project API fails', () => {
+		cy.intercept( 'GET', '**/beyondwords/v1/projects/*', apiError ).as(
+			'failedProject'
+		);
+
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.wait( '@failedProject' );
+
+		cy.get( '.beyondwords-settings__loader' ).should( 'not.be.visible' );
+		cy.get( 'select#beyondwords_language_code' ).should( 'have.value', '' );
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'not.be.visible'
+		);
+	} );
+
+	it( 'hides Model and Voice when the voices API fails', () => {
+		cy.intercept(
+			'GET',
+			'**/beyondwords/v1/languages/*/voices*',
+			apiError
+		).as( 'failedVoices' );
+
+		cy.createPost( { postType: edgePostType } );
+		cy.get( '#beyondwords_customize' ).check();
+		cy.get( 'select#beyondwords_language_code' ).should(
+			'have.value',
+			'en_US'
+		);
+		cy.wait( '@failedVoices' );
+
+		cy.get( '.beyondwords-settings__loader' ).should( 'not.be.visible' );
+		cy.get( '#beyondwords-metabox-select-voice--model' ).should(
+			'not.be.visible'
+		);
+		cy.get( '#beyondwords-metabox-select-voice--voice-id' ).should(
 			'not.be.visible'
 		);
 	} );

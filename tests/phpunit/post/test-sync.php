@@ -164,7 +164,7 @@ class SyncTest extends TestCase
             ],
         ]);
 
-        $this->assertFalse(Sync::generate_audio_for_post($postId));
+        $this->assertWPError(Sync::generate_audio_for_post($postId));
 
         wp_delete_post($postId, true);
 
@@ -1794,6 +1794,45 @@ class SyncTest extends TestCase
             wp_delete_post($postId, true);
         }
         remove_filter('beyondwords_async_generate_audio', '__return_true');
+    }
+
+    /**
+     * An API error response is a failure, not a truthy "generated" body.
+     *
+     * @test
+     * @group generateAudio
+     */
+    public function api_error_responses_count_as_failed()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        $filter = fn() => [
+            'response' => ['code' => 500, 'message' => 'Internal Server Error'],
+            'body'     => wp_json_encode(['code' => 500, 'message' => 'Something went wrong']),
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $counts  = Sync::bulk_generate_audio_for_posts([$postId]);
+        $created = Sync::on_add_or_update_post($postId);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(1, $counts['failed']);
+        $this->assertSame(0, $counts['generated']);
+        $this->assertFalse($created);
+        $this->assertSame('#500: Something went wrong', get_post_meta($postId, 'beyondwords_error_message', true));
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
     }
 
     /**

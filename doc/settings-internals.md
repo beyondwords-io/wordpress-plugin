@@ -52,7 +52,7 @@ How the flag itself is updated:
   last known-good flag in place — a blip should not lock the operator out of
   the settings tabs.
 - Once a request is made, only authentication failures clear it: a 401 (in
-  `Client::call_api()`, [src/api/class-client.php](../src/api/class-client.php))
+  `Client::request()`, [src/api/class-client.php](../src/api/class-client.php))
   or a 403 (in the validation itself). Re-validation then happens on the next
   Authentication tab load that is not throttled — immediately if the saved
   credentials changed, otherwise once the 5-minute window expires.

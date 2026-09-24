@@ -25,9 +25,6 @@ class Client {
 
 	/**
 	 * Format for the `beyondwords_error_message` post meta value.
-	 *
-	 * The HTTP-status prefix lets `Sync::update_or_recreate_audio()` recognise
-	 * 404s by matching `#404:` without parsing the body.
 	 */
 	const ERROR_FORMAT = '#%s: %s';
 
@@ -154,52 +151,40 @@ class Client {
 
 	/**
 	 * GET /projects/:project/content/:content_id
-	 *
-	 * @return array<mixed>|\WP_Error|false Raw HTTP response, WP_Error on transport
-	 *                                      failure, or false when an ID is missing.
 	 */
-	public static function get_content( int|string $content_id, int|string|null $project_id = null, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error|false {
-		if ( ! $project_id ) {
-			$project_id = get_option( 'beyondwords_project_id' );
-		}
+	public static function get_content( int|string $content_id, int|string|null $project_id = null, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
+		$project_id = $project_id ? $project_id : get_option( 'beyondwords_project_id' );
 
 		if ( ! $project_id || ! $content_id ) {
-			return false;
+			return self::missing_id_error();
 		}
 
 		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 
-		return self::call_api( 'GET', $url, '', false, [], $timeout );
+		return self::request( 'GET', $url, '', false, [], $timeout );
 	}
 
 	/**
 	 * POST /projects/:project/content
 	 *
-	 * @param int $post_id WordPress post ID.
-	 *
-	 * @return array<mixed>|null|false Decoded response body — possibly an adopted
-	 *                                 existing record, see doc/source-id-race.md —
-	 *                                 null when the create failed, or false when
-	 *                                 the post has no project ID.
+	 * A failed create may still return an adopted existing record; see doc/source-id-race.md.
 	 */
-	public static function create_audio( int $post_id ): array|null|false {
+	public static function create_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 
 		if ( ! $project_id ) {
-			return false;
+			return self::missing_id_error();
 		}
 
 		$url      = sprintf( '%s/projects/%d/content', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$response = self::call_api( 'POST', $url, $body, $post_id, [], self::CONTENT_REQUEST_TIMEOUT );
+		$response = self::request( 'POST', $url, $body, $post_id, [], self::CONTENT_REQUEST_TIMEOUT );
 
-		$existing = self::adopt_existing_content( $response, $post_id, $project_id );
-
-		if ( null !== $existing ) {
-			return $existing;
+		if ( ! is_wp_error( $response ) ) {
+			return $response;
 		}
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::adopt_existing_content( $response, $post_id, $project_id ) ?? $response;
 	}
 
 	/**
@@ -209,42 +194,30 @@ class Client {
 	 *
 	 * @since 7.0.0
 	 *
-	 * @param int $post_id WordPress post ID, which is also the content's source ID.
-	 *
 	 * @return array<mixed>|null Null when adoption does not apply, or the content
 	 *                           couldn't be confirmed as this post's.
 	 */
-	private static function adopt_existing_content( array|\WP_Error $response, int $post_id, int|string $project_id ): ?array {
-		$should_probe = is_wp_error( $response )
-			? self::should_probe_after_transport_failure( $response )
-			: self::is_duplicate_source_id( $response );
+	private static function adopt_existing_content( \WP_Error $error, int $post_id, int|string $project_id ): ?array {
+		$should_probe = self::api_status( $error )
+			? self::is_duplicate_source_id( $error )
+			: self::should_probe_after_transport_failure( $error );
 
 		if ( ! $should_probe ) {
 			return null;
 		}
 
-		$existing = self::get_content( $post_id, $project_id, self::ADOPTION_PROBE_TIMEOUT );
+		$content = self::get_content( $post_id, $project_id, self::ADOPTION_PROBE_TIMEOUT );
 
-		if ( is_wp_error( $existing ) ) {
-			// The API is unreachable; stop paying for a probe on every save.
-			set_transient( self::cache_key( 'adopt_probe_down' ), 1, self::CACHE_TTL_ON_ERROR );
+		if ( is_wp_error( $content ) ) {
+			if ( ! self::api_status( $content ) ) {
+				// The API is unreachable; stop paying for a probe on every save.
+				set_transient( self::cache_key( 'adopt_probe_down' ), 1, self::CACHE_TTL_ON_ERROR );
+			}
 
 			return null;
 		}
 
-		if ( ! is_array( $existing ) ) {
-			return null;
-		}
-
-		$code = (int) wp_remote_retrieve_response_code( $existing );
-
-		if ( $code < 200 || $code > 299 ) {
-			return null;
-		}
-
-		$content = json_decode( wp_remote_retrieve_body( $existing ), true );
-
-		if ( ! is_array( $content ) || empty( $content['id'] ) ) {
+		if ( empty( $content['id'] ) ) {
 			return null;
 		}
 
@@ -305,24 +278,20 @@ class Client {
 	}
 
 	/**
-	 * Whether a create response is the API rejecting an already-used `source_id`.
+	 * Whether a create failed because the API rejected an already-used `source_id`.
 	 *
 	 * @since 7.0.0
 	 */
-	private static function is_duplicate_source_id( array $response ): bool {
-		if ( 422 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+	private static function is_duplicate_source_id( \WP_Error $error ): bool {
+		$errors = $error->get_error_data()['body']['errors'] ?? null;
+
+		if ( 422 !== self::api_status( $error ) || ! is_array( $errors ) ) {
 			return false;
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! is_array( $body ) || ! is_array( $body['errors'] ?? null ) ) {
-			return false;
-		}
-
-		foreach ( $body['errors'] as $error ) {
+		foreach ( $errors as $item ) {
 			// Matched on `location`; the message beside it is free-form.
-			if ( is_array( $error ) && 'source_id' === ( $error['location'] ?? '' ) ) {
+			if ( is_array( $item ) && 'source_id' === ( $item['location'] ?? '' ) ) {
 				return true;
 			}
 		}
@@ -335,34 +304,25 @@ class Client {
 	 *
 	 * Falls back to the post ID as the content ID for Magic Embed posts that
 	 * never had a BeyondWords-issued ID.
-	 *
-	 * @param int $post_id WordPress post ID.
-	 *
-	 * @return array<mixed>|null|false Decoded response body, or false when an ID is missing.
 	 */
-	public static function update_audio( int $post_id ): array|null|false {
+	public static function update_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
 		if ( ! $project_id || ! $content_id ) {
-			return false;
+			return self::missing_id_error();
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
-		$body     = \BeyondWords\Post\Content::get_content_params( $post_id );
-		$response = self::call_api( 'PUT', $url, $body, $post_id );
+		$url  = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
+		$body = \BeyondWords\Post\Content::get_content_params( $post_id );
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::request( 'PUT', $url, $body, $post_id );
 	}
 
 	/**
 	 * DELETE /projects/:project/content/:content_id
-	 *
-	 * @param int $post_id WordPress post ID.
-	 *
-	 * @return array<mixed>|null|false `false` when the request didn't return 204.
 	 */
-	public static function delete_audio( int $post_id ): array|null|false {
+	public static function delete_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 		$content_id = \BeyondWords\Post\Meta::get_content_id( $post_id, true );
 
@@ -376,26 +336,15 @@ class Client {
 	 * still delete after the post meta has been wiped.
 	 *
 	 * @since 7.0.0
-	 *
-	 * @param int|string|false $project_id BeyondWords project ID.
-	 * @param int|string|false $content_id BeyondWords content ID.
-	 * @param int|false        $post_id    Optional post ID for error attribution.
-	 *
-	 * @return array<mixed>|null|false `false` when an ID is missing or the request didn't return 204.
 	 */
-	public static function delete_audio_by_ids( int|string|false $project_id, int|string|false $content_id, int|false $post_id = false ): array|null|false {
+	public static function delete_audio_by_ids( int|string|false $project_id, int|string|false $content_id, int|false $post_id = false ): array|\WP_Error {
 		if ( ! $project_id || ! $content_id ) {
-			return false;
+			return self::missing_id_error();
 		}
 
-		$url      = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
-		$response = self::call_api( 'DELETE', $url, '', $post_id );
+		$url = sprintf( '%s/projects/%d/content/%s', \BeyondWords\Core\Urls::get_api_url(), $project_id, rawurlencode( (string) $content_id ) );
 
-		if ( 204 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
-		}
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::request( 'DELETE', $url, '', $post_id );
 	}
 
 	/**
@@ -405,11 +354,9 @@ class Client {
 	 *
 	 * @param int[] $post_ids WordPress post IDs.
 	 *
-	 * @return int[]|false Updated post IDs on success, empty array for non-OK responses.
-	 *
-	 * @throws \Exception When no posts have BeyondWords data, or multiple projects are mixed.
+	 * @return int[]|\WP_Error
 	 */
-	public static function batch_delete_audio( array $post_ids ): array|false {
+	public static function batch_delete_audio( array $post_ids ): array|\WP_Error {
 		$content_ids      = [];
 		$updated_post_ids = [];
 
@@ -429,31 +376,18 @@ class Client {
 		}
 
 		if ( empty( $content_ids ) ) {
-			throw new \Exception(
-				esc_html__( 'None of the selected posts had valid BeyondWords audio data.', 'speechkit' )
-			);
+			return new \WP_Error( 'beyondwords_missing_id', __( 'None of the selected posts had valid BeyondWords audio data.', 'speechkit' ), [ 'status' => 400 ] );
 		}
 
 		if ( count( $content_ids ) > 1 ) {
-			throw new \Exception(
-				esc_html__( 'Batch delete can only be performed on audio belonging a single project.', 'speechkit' )
-			);
+			return new \WP_Error( 'beyondwords_mixed_projects', __( 'Batch delete can only be performed on audio belonging a single project.', 'speechkit' ), [ 'status' => 400 ] );
 		}
 
 		$project_id = array_key_first( $content_ids );
 		$url        = sprintf( '%s/projects/%d/content/batch_delete', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$body       = (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] );
+		$response   = self::request( 'POST', $url, (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] ) );
 
-		$response = wp_remote_request( $url, self::build_args( 'POST', $body ) );
-
-		if ( is_wp_error( $response ) ) {
-			throw new \Exception( esc_html( $response->get_error_message() ) );
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		// On failure, return no IDs so the caller keeps local meta and can retry.
-		return $response_code <= 299 ? $updated_post_ids : [];
+		return is_wp_error( $response ) ? $response : $updated_post_ids;
 	}
 
 	/**
@@ -462,14 +396,12 @@ class Client {
 	 * Magic Embed bootstrap: BeyondWords looks up or creates content for the source URL.
 	 *
 	 * @param int $post_id WordPress post ID used as the source ID.
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_player_by_source_id( int $post_id ): array|null|false {
+	public static function get_player_by_source_id( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
 
 		if ( ! $project_id ) {
-			return false;
+			return self::missing_id_error();
 		}
 
 		$url     = sprintf( '%s/projects/%d/player/by_source_id/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id, $post_id );
@@ -478,17 +410,13 @@ class Client {
 			'X-Referer' => esc_url( get_permalink( $post_id ) ),
 		];
 
-		$response = self::call_api( 'GET', $url, '', $post_id, $headers );
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return self::request( 'GET', $url, '', $post_id, $headers );
 	}
 
 	/**
 	 * GET /organization/languages
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_languages(): array|null|false {
+	public static function get_languages(): array|\WP_Error {
 		$url = sprintf( '%s/organization/languages', \BeyondWords\Core\Urls::get_api_url() );
 
 		return self::cached_get( 'languages', $url );
@@ -498,10 +426,8 @@ class Client {
 	 * GET /organization/voices?filter[language.code]=…
 	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_voices( int|string $language_code ): array|null|false {
+	public static function get_voices( int|string $language_code ): array|\WP_Error {
 		$url = sprintf(
 			'%s/organization/voices?filter[language.code]=%s&filter[scopes][]=primary&filter[scopes][]=secondary',
 			\BeyondWords\Core\Urls::get_api_url(),
@@ -528,7 +454,7 @@ class Client {
 
 		$voices = self::get_voices( $language_code );
 
-		if ( empty( $voices ) ) {
+		if ( is_wp_error( $voices ) || empty( $voices ) ) {
 			return false;
 		}
 
@@ -539,15 +465,13 @@ class Client {
 	 * GET /projects/:id/video_settings
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_video_settings( ?int $project_id = null ): array|null|false {
+	public static function get_video_settings( ?int $project_id = null ): array|\WP_Error {
 		if ( ! $project_id ) {
 			$project_id = get_option( 'beyondwords_project_id' );
 
 			if ( ! $project_id ) {
-				return false;
+				return self::missing_id_error();
 			}
 		}
 
@@ -562,15 +486,13 @@ class Client {
 	 * @since 7.0.0
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_project( ?int $project_id = null ): array|null|false {
+	public static function get_project( ?int $project_id = null ): array|\WP_Error {
 		if ( ! $project_id ) {
 			$project_id = get_option( 'beyondwords_project_id' );
 
 			if ( ! $project_id ) {
-				return false;
+				return self::missing_id_error();
 			}
 		}
 
@@ -583,10 +505,8 @@ class Client {
 	 * GET /summarization_settings_templates
 	 *
 	 * @since 7.0.0
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_summarization_settings_templates(): array|null|false {
+	public static function get_summarization_settings_templates(): array|\WP_Error {
 		$url = sprintf( '%s/summarization_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
 
 		return self::cached_get( 'summarization_settings_templates', $url );
@@ -596,53 +516,74 @@ class Client {
 	 * GET /video_settings_templates
 	 *
 	 * @since 7.0.0
-	 *
-	 * @return array<mixed>|null|false
 	 */
-	public static function get_video_settings_templates(): array|null|false {
+	public static function get_video_settings_templates(): array|\WP_Error {
 		$url = sprintf( '%s/video_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
 
 		return self::cached_get( 'video_settings_templates', $url );
 	}
 
 	/**
-	 * Make the API call, normalising errors into post meta when a post is supplied.
+	 * Send a BeyondWords API request: the decoded 2xx body, or a WP_Error for anything else.
 	 *
-	 * A 401 also clears `beyondwords_valid_api_connection` so the settings page
-	 * re-runs validation.
-	 *
-	 * @param string               $method  HTTP method.
-	 * @param string               $url     Absolute URL.
-	 * @param string               $body    Request body (already JSON-encoded for write methods).
-	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
-	 * @param array<string,string> $headers Extra per-request headers.
-	 * @param int                  $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT.
+	 * @param int|false $post_id Post to record a failure against; false to skip.
 	 */
-	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
-		$post = get_post( $post_id );
-
+	public static function request( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		self::delete_errors( $post_id );
 
 		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
+		$status   = (int) wp_remote_retrieve_response_code( $response );
+		$raw      = wp_remote_retrieve_body( $response );
+		$decoded  = '' === $raw ? [] : json_decode( $raw, true );
 
-		$response_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( ! is_wp_error( $response ) && $status >= 200 && $status < 300 && is_array( $decoded ) ) {
+			return $decoded;
+		}
 
-		if ( 401 === $response_code ) {
+		if ( 401 === $status ) {
 			delete_option( 'beyondwords_valid_api_connection' );
 			// Drop the recent-check cache too, so the settings page revalidates immediately.
 			delete_transient( \BeyondWords\Settings\Utils::CONNECTION_CHECK_TRANSIENT );
 		}
 
+		$post = get_post( $post_id );
+
 		if (
 			$post instanceof \WP_Post
 			&& \BeyondWords\Settings\Fields::INTEGRATION_REST_API === \BeyondWords\Settings\Fields::get_integration_method( $post )
-			&& ( is_wp_error( $response ) || $response_code > 299 )
+			&& ( is_wp_error( $response ) || $status > 299 )
 		) {
-			$message = self::error_message_from_response( $response );
-			self::save_error_message( $post_id, $message, $response_code );
+			self::save_error_message( $post_id, self::error_message_from_response( $response ), $status );
 		}
 
-		return $response;
+		$data = [
+			'status'     => 502,
+			'api_status' => $status,
+			'body'       => is_array( $decoded ) ? $decoded : null,
+		];
+
+		if ( is_wp_error( $response ) ) {
+			$response->add_data( $data );
+
+			return $response;
+		}
+
+		$message = $status > 299 ? self::error_message_from_response( $response ) : '';
+
+		return new \WP_Error( 'beyondwords_api_error', $message ? $message : __( 'The BeyondWords API request failed.', 'speechkit' ), $data );
+	}
+
+	/**
+	 * The upstream HTTP status of a failed request; 0 when the API was never reached.
+	 */
+	public static function api_status( \WP_Error $error ): int {
+		$data = $error->get_error_data();
+
+		return is_array( $data ) ? (int) ( $data['api_status'] ?? 0 ) : 0;
+	}
+
+	private static function missing_id_error(): \WP_Error {
+		return new \WP_Error( 'beyondwords_missing_id', __( 'The BeyondWords project or content ID is missing.', 'speechkit' ), [ 'status' => 400 ] );
 	}
 
 	/**
@@ -695,38 +636,20 @@ class Client {
 	 * an unreachable API is probed at most once per interval, not every render.
 	 *
 	 * @since 7.0.0
-	 *
-	 * @param string $suffix  Cache-key suffix (include any project/language id).
-	 * @param string $url     Absolute endpoint URL.
-	 * @param int    $timeout Request timeout in seconds.
-	 *
-	 * @return array<mixed>|null|false Decoded body on the fetching call; the cached
-	 *                                 value ([] after a cached failure) thereafter.
 	 */
-	private static function cached_get( string $suffix, string $url, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|null|false {
+	private static function cached_get( string $suffix, string $url, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		$key    = self::cache_key( $suffix );
 		$cached = get_transient( $key );
 
-		if ( false !== $cached ) {
+		if ( is_array( $cached ) || is_wp_error( $cached ) ) {
 			return $cached;
 		}
 
-		$response = self::call_api( 'GET', $url, '', false, [], $timeout );
-		$decoded  = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response = self::request( 'GET', $url, '', false, [], $timeout );
 
-		if (
-			! is_wp_error( $response )
-			&& wp_remote_retrieve_response_code( $response ) < 300
-			&& is_array( $decoded )
-		) {
-			set_transient( $key, $decoded, self::CACHE_TTL );
+		set_transient( $key, $response, is_wp_error( $response ) ? self::CACHE_TTL_ON_ERROR : self::CACHE_TTL );
 
-			return $decoded;
-		}
-
-		set_transient( $key, [], self::CACHE_TTL_ON_ERROR );
-
-		return $decoded;
+		return $response;
 	}
 
 	/**

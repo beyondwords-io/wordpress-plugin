@@ -1,6 +1,8 @@
 /**
  * @group block-editor
  * @covers src/editor/components/settings-panel/,src/settings/store/
+ * @covers src/settings/class-settings.php
+ * @covers src/api/class-client.php
  */
 
 /* global cy, beforeEach, context, expect, it */
@@ -97,6 +99,58 @@ context( 'Block Editor: Settings panel', () => {
 						expect( labels[ 0 ] ).to.eq( 'Project default' );
 						expect( labels.join( ' ' ) ).to.match( /landscape/i );
 					} );
+			} );
+
+			it( `Content + Format degrade to Project default when the API fails for a ${ postType.name }`, () => {
+				// apiFetch percent-encodes the path under plain permalinks.
+				cy.intercept(
+					'GET',
+					/beyondwords(?:\/|%2F)v1(?:\/|%2F)(?:summarization-settings-templates|video-settings-templates|projects(?:\/|%2F)\d+(?:\/|%2F)video-settings)/,
+					{
+						statusCode: 502,
+						body: {
+							code: 'beyondwords_api_error',
+							message: 'Authentication token was not recognized.',
+							data: { status: 502 },
+						},
+					}
+				).as( 'failedApi' );
+
+				cy.createPost( { postType } );
+				cy.openBeyondwordsPluginSidebar();
+
+				select( 'beyondwords--source' ).select( 'Post + script', {
+					force: true,
+				} );
+				select( 'beyondwords--output' ).select( 'Video', {
+					force: true,
+				} );
+				cy.wait( [ '@failedApi', '@failedApi', '@failedApi' ] );
+
+				// Script template hides itself when there are no templates.
+				cy.get( '.beyondwords--script-template' ).should( 'not.exist' );
+				[
+					'beyondwords--video-template',
+					'beyondwords--video-size',
+				].forEach( ( cls ) => {
+					select( cls )
+						.find( 'option' )
+						.should( ( $els ) => {
+							expect( optionLabels( $els ) ).to.deep.eq( [
+								'Project default',
+							] );
+						} );
+				} );
+
+				cy.window().then( ( win ) => {
+					const store = win.wp.data.select( 'beyondwords/settings' );
+					expect(
+						store.hasResolutionFailed( 'getScriptTemplates', [] )
+					).to.eq( true );
+					expect(
+						store.hasResolutionFailed( 'getVideoTemplates', [] )
+					).to.eq( true );
+				} );
 			} );
 
 			it( `Voice section filters the Voice list by Model for a ${ postType.name }`, () => {

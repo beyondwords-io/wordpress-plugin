@@ -157,28 +157,28 @@ class Utils {
 		}
 
 		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
+		$response = \BeyondWords\Api\Client::request( 'GET', $url );
 
 		// Record the attempt whatever the outcome — a down API is throttled too.
 		set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
 
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === (int) $response_code ) {
+		if ( ! is_wp_error( $response ) ) {
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );
 			return true;
 		}
 
-		// 403 is a definitive auth failure (call_api() already handles 401); any
-		// other response is treated as transient and leaves the flag untouched.
-		if ( 403 === (int) $response_code ) {
+		$status = \BeyondWords\Api\Client::api_status( $response );
+
+		// 403 is a definitive auth failure (request() already handles 401); any
+		// other failure is treated as transient and leaves the flag untouched.
+		if ( 403 === $status ) {
 			delete_option( 'beyondwords_valid_api_connection' );
 		}
 
 		$debug = sprintf(
 			'<code>%s</code>: <code>%s</code>',
-			$response_code,
-			wp_remote_retrieve_body( $response )
+			$status,
+			esc_html( $response->get_error_message() )
 		);
 
 		self::add_settings_error_message(

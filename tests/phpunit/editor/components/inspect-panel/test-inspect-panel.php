@@ -214,4 +214,52 @@ class InspectTest extends TestCase
 
         $this->assertTrue(is_wp_error(InspectPanel::rest_api_response($request)));
     }
+
+    /**
+     * @test
+     */
+    public function rest_api_response_adds_the_project_id_on_success()
+    {
+        $filter = fn() => [
+            'response' => ['code' => 200, 'message' => 'OK'],
+            'body'     => wp_json_encode(['id' => 'abc-123', 'status' => 'processed']),
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $request = new \WP_REST_Request('GET', '/beyondwords/v1/projects/123/content/abc-123');
+        $request->set_url_params(['projectId' => '123', 'beyondwordsId' => 'abc-123']);
+
+        $response = InspectPanel::rest_api_response($request);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(['id' => 'abc-123', 'status' => 'processed', 'project_id' => '123'], $response->get_data());
+    }
+
+    /**
+     * @test
+     */
+    public function rest_api_response_passes_api_errors_through_as_502()
+    {
+        $filter = fn() => [
+            'response' => ['code' => 404, 'message' => 'Not Found'],
+            'body'     => wp_json_encode(['code' => 404, 'message' => 'Not Found']),
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $request = new \WP_REST_Request('GET', '/beyondwords/v1/projects/123/content/abc-123');
+        $request->set_url_params(['projectId' => '123', 'beyondwordsId' => 'abc-123']);
+
+        $response = InspectPanel::rest_api_response($request);
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertWPError($response);
+        $this->assertSame(404, \BeyondWords\Api\Client::api_status($response));
+        $this->assertSame(502, $response->get_error_data()['status']);
+    }
 }
