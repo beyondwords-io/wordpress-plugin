@@ -170,7 +170,7 @@ class Utils {
 		$status = \BeyondWords\Api\Client::api_status( $response );
 
 		// 403 is a definitive auth failure (request() already handles 401); any
-		// other failure is treated as transient and leaves the flag untouched.
+		// other response is treated as transient and leaves the flag untouched.
 		if ( 403 === $status ) {
 			delete_option( 'beyondwords_valid_api_connection' );
 		}

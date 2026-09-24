@@ -722,6 +722,7 @@ class ClientTest extends TestCase
 
         $response = Client::delete_audio($postId);
 
+        // Response body is empty for 204 No Content responses
         $this->assertSame([], $response);
 
         wp_delete_post($postId, true);
@@ -780,6 +781,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter, 1);
 
+        // 204 with an empty body decodes to [].
         $this->assertSame([], $response);
         $this->assertSame('DELETE', $captured['method']);
         $this->assertStringContainsString(
@@ -1664,7 +1666,8 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * A transport-level failure surfaces as WordPress's own WP_Error, tagged as a 502.
+     * A transport-level failure makes request() return a WP_Error; get_content() must
+     * surface it (not TypeError) so InspectPanel can degrade to an error response.
      */
     public function get_content_returns_wp_error_on_connection_failure()
     {

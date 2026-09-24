@@ -225,7 +225,7 @@ class Sync {
 	 *
 	 * @param int $post_id WordPress post ID.
 	 *
-	 * @return array<mixed>|\WP_Error|false False when generation was skipped.
+	 * @return array<mixed>|\WP_Error|false Response from the API, or false when audio wasn't generated.
 	 */
 	public static function generate_audio_for_post( int $post_id ): array|\WP_Error|false {
 		return self::generate_audio_result( $post_id )['response'];
@@ -296,7 +296,7 @@ class Sync {
 	}
 
 	/**
-	 * Result for an API call we actually made.
+	 * Result for an API call we actually made, where a WP_Error is the failure signal.
 	 *
 	 * @since 7.0.0
 	 *
@@ -372,7 +372,12 @@ class Sync {
 	}
 
 	/**
-	 * Update audio for a post, recreating it when the content no longer exists at BeyondWords.
+	 * Update audio for a post, recovering from a stale content ID.
+	 *
+	 * A 404 means the content no longer exists at BeyondWords, so clear the
+	 * stale IDs and create fresh content instead.
+	 *
+	 * @param int $post_id WordPress post ID.
 	 */
 	private static function update_or_recreate_audio( int $post_id ): array|\WP_Error {
 		$response = \BeyondWords\Api\Client::update_audio( $post_id );

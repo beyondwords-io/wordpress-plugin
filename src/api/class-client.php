@@ -151,6 +151,9 @@ class Client {
 
 	/**
 	 * GET /projects/:project/content/:content_id
+	 *
+	 * @return array<mixed>|\WP_Error Decoded response body, or WP_Error on failure
+	 *                                or when an ID is missing.
 	 */
 	public static function get_content( int|string $content_id, int|string|null $project_id = null, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		$project_id = $project_id ? $project_id : get_option( 'beyondwords_project_id' );
@@ -167,7 +170,12 @@ class Client {
 	/**
 	 * POST /projects/:project/content
 	 *
-	 * A failed create may still return an adopted existing record; see doc/source-id-race.md.
+	 * @param int $post_id WordPress post ID.
+	 *
+	 * @return array<mixed>|\WP_Error Decoded response body — possibly an adopted
+	 *                                existing record, see doc/source-id-race.md —
+	 *                                or WP_Error when the create failed or the
+	 *                                post has no project ID.
 	 */
 	public static function create_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -193,6 +201,8 @@ class Client {
 	 * See doc/source-id-race.md.
 	 *
 	 * @since 7.0.0
+	 *
+	 * @param int $post_id WordPress post ID, which is also the content's source ID.
 	 *
 	 * @return array<mixed>|null Null when adoption does not apply, or the content
 	 *                           couldn't be confirmed as this post's.
@@ -278,7 +288,7 @@ class Client {
 	}
 
 	/**
-	 * Whether a create failed because the API rejected an already-used `source_id`.
+	 * Whether a create response is the API rejecting an already-used `source_id`.
 	 *
 	 * @since 7.0.0
 	 */
@@ -304,6 +314,11 @@ class Client {
 	 *
 	 * Falls back to the post ID as the content ID for Magic Embed posts that
 	 * never had a BeyondWords-issued ID.
+	 *
+	 * @param int $post_id WordPress post ID.
+	 *
+	 * @return array<mixed>|\WP_Error Decoded response body, or WP_Error on failure
+	 *                                or when an ID is missing.
 	 */
 	public static function update_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -321,6 +336,10 @@ class Client {
 
 	/**
 	 * DELETE /projects/:project/content/:content_id
+	 *
+	 * @param int $post_id WordPress post ID.
+	 *
+	 * @return array<mixed>|\WP_Error `[]` for an empty 2xx body, or WP_Error on failure.
 	 */
 	public static function delete_audio( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -336,6 +355,12 @@ class Client {
 	 * still delete after the post meta has been wiped.
 	 *
 	 * @since 7.0.0
+	 *
+	 * @param int|string|false $project_id BeyondWords project ID.
+	 * @param int|string|false $content_id BeyondWords content ID.
+	 * @param int|false        $post_id    Optional post ID for error attribution.
+	 *
+	 * @return array<mixed>|\WP_Error WP_Error when an ID is missing or the request failed.
 	 */
 	public static function delete_audio_by_ids( int|string|false $project_id, int|string|false $content_id, int|false $post_id = false ): array|\WP_Error {
 		if ( ! $project_id || ! $content_id ) {
@@ -354,7 +379,7 @@ class Client {
 	 *
 	 * @param int[] $post_ids WordPress post IDs.
 	 *
-	 * @return int[]|\WP_Error
+	 * @return int[]|\WP_Error Updated post IDs on success, WP_Error on failure.
 	 */
 	public static function batch_delete_audio( array $post_ids ): array|\WP_Error {
 		$content_ids      = [];
@@ -387,6 +412,7 @@ class Client {
 		$url        = sprintf( '%s/projects/%d/content/batch_delete', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$response   = self::request( 'POST', $url, (string) wp_json_encode( [ 'ids' => $content_ids[ $project_id ] ] ) );
 
+		// On failure, return the error so the caller keeps local meta and can retry.
 		return is_wp_error( $response ) ? $response : $updated_post_ids;
 	}
 
@@ -396,6 +422,8 @@ class Client {
 	 * Magic Embed bootstrap: BeyondWords looks up or creates content for the source URL.
 	 *
 	 * @param int $post_id WordPress post ID used as the source ID.
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_player_by_source_id( int $post_id ): array|\WP_Error {
 		$project_id = \BeyondWords\Post\Meta::get_project_id( $post_id );
@@ -415,6 +443,8 @@ class Client {
 
 	/**
 	 * GET /organization/languages
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_languages(): array|\WP_Error {
 		$url = sprintf( '%s/organization/languages', \BeyondWords\Core\Urls::get_api_url() );
@@ -426,6 +456,8 @@ class Client {
 	 * GET /organization/voices?filter[language.code]=…
 	 *
 	 * @param int|string $language_code BeyondWords language code (or numeric ID).
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_voices( int|string $language_code ): array|\WP_Error {
 		$url = sprintf(
@@ -465,6 +497,8 @@ class Client {
 	 * GET /projects/:id/video_settings
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_video_settings( ?int $project_id = null ): array|\WP_Error {
 		if ( ! $project_id ) {
@@ -486,6 +520,8 @@ class Client {
 	 * @since 7.0.0
 	 *
 	 * @param int|null $project_id Optional override; falls back to the global option.
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_project( ?int $project_id = null ): array|\WP_Error {
 		if ( ! $project_id ) {
@@ -505,6 +541,8 @@ class Client {
 	 * GET /summarization_settings_templates
 	 *
 	 * @since 7.0.0
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_summarization_settings_templates(): array|\WP_Error {
 		$url = sprintf( '%s/summarization_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
@@ -516,6 +554,8 @@ class Client {
 	 * GET /video_settings_templates
 	 *
 	 * @since 7.0.0
+	 *
+	 * @return array<mixed>|\WP_Error
 	 */
 	public static function get_video_settings_templates(): array|\WP_Error {
 		$url = sprintf( '%s/video_settings_templates', \BeyondWords\Core\Urls::get_api_url() );
@@ -524,9 +564,19 @@ class Client {
 	}
 
 	/**
-	 * Send a BeyondWords API request: the decoded 2xx body, or a WP_Error for anything else.
+	 * Make the API call, normalising errors into post meta when a post is supplied.
 	 *
-	 * @param int|false $post_id Post to record a failure against; false to skip.
+	 * A 401 also clears `beyondwords_valid_api_connection` so the settings page
+	 * re-runs validation.
+	 *
+	 * @param string               $method  HTTP method.
+	 * @param string               $url     Absolute URL.
+	 * @param string               $body    Request body (already JSON-encoded for write methods).
+	 * @param int|false            $post_id WordPress post ID for error attribution; false to suppress.
+	 * @param array<string,string> $headers Extra per-request headers.
+	 * @param int                  $timeout Request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT.
+	 *
+	 * @return array<mixed>|\WP_Error Decoded 2xx body (`[]` when empty), or WP_Error for anything else.
 	 */
 	public static function request( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		self::delete_errors( $post_id );
@@ -636,6 +686,12 @@ class Client {
 	 * an unreachable API is probed at most once per interval, not every render.
 	 *
 	 * @since 7.0.0
+	 *
+	 * @param string $suffix  Cache-key suffix (include any project/language id).
+	 * @param string $url     Absolute endpoint URL.
+	 * @param int    $timeout Request timeout in seconds.
+	 *
+	 * @return array<mixed>|\WP_Error Decoded body, or WP_Error on failure; either is cached.
 	 */
 	private static function cached_get( string $suffix, string $url, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		$key    = self::cache_key( $suffix );

@@ -179,7 +179,7 @@ class BulkEdit {
 	 *
 	 * @return int[] IDs of posts updated.
 	 *
-	 * @throws \Exception When the batch delete fails.
+	 * @throws \Exception When the BeyondWords API does not return a deletable batch.
 	 */
 	public static function delete_audio_for_posts( ?array $post_ids ): array {
 		if ( ! is_array( $post_ids ) ) {
