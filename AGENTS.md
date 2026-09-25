@@ -322,7 +322,7 @@ Groups in use:
 
 ## BeyondWords API calls
 
-Every call goes through `\BeyondWords\Api\Client::request()`, and every `Client` method returns the decoded 2xx body or a `\WP_Error`. Check `is_wp_error()`, plus `Client::api_status()` when the upstream code matters (0 = API never reached). REST proxies return the result via `rest_ensure_response()`, so API failures reach the editor as a 502.
+Every call goes through `\BeyondWords\Api\Client::request()`, and every `Client` endpoint method (one per API route) returns the decoded 2xx body or a `\WP_Error`. Check `is_wp_error()`, plus `Client::api_status()` when the upstream code matters (0 = API never reached). REST proxies return the result via `rest_ensure_response()`, so API failures reach the editor as a 424 (upstream 4xx) or 502 (upstream 5xx or unreachable).
 
 ## Deprecating settings
 

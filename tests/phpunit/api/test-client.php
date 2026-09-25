@@ -1116,7 +1116,7 @@ class ClientTest extends TestCase
         $this->assertWPError($first);
         $this->assertSame('beyondwords_api_error', $first->get_error_code());
         $this->assertSame(401, Client::api_status($first));
-        $this->assertSame(502, $first->get_error_data()['status']);
+        $this->assertSame(424, $first->get_error_data()['status']);
         $this->assertEquals($first, $second, 'The cached failure matches the fetching call');
     }
 
@@ -1149,6 +1149,7 @@ class ClientTest extends TestCase
 
         $this->assertWPError($first);
         $this->assertSame('The BeyondWords API request failed.', $first->get_error_message());
+        $this->assertSame(502, $first->get_error_data()['status']);
         $this->assertEquals($first, $second, 'An empty cached message is still a cached failure');
     }
 
@@ -1249,7 +1250,7 @@ class ClientTest extends TestCase
         $this->assertSame('beyondwords_api_error', $response->get_error_code());
         $this->assertSame('Authentication token was not recognized.', $response->get_error_message());
         $this->assertSame(401, Client::api_status($response));
-        $this->assertSame(502, $response->get_error_data()['status']);
+        $this->assertSame(424, $response->get_error_data()['status']);
 
         $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
@@ -1336,6 +1337,28 @@ class ClientTest extends TestCase
         );
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function call_api_is_deprecated_and_returns_the_raw_response()
+    {
+        $this->setExpectedDeprecated('BeyondWords\Api\Client::call_api');
+
+        $filter = fn() => [
+            'response' => ['code' => 404, 'message' => 'Not Found'],
+            'body'     => '{}',
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $response = Client::call_api('GET', Urls::get_api_url() . '/projects/1234');
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(404, wp_remote_retrieve_response_code($response));
     }
 
     /**
@@ -1570,6 +1593,31 @@ class ClientTest extends TestCase
 
         $this->assertIsString($result);
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @test
+     * @dataProvider provideErrorsShapes
+     */
+    public function error_message_from_response_handles_any_errors_shape($errors, $expected)
+    {
+        $response = [
+            'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+            'body'     => wp_json_encode(['errors' => $errors]),
+        ];
+
+        $this->assertSame($expected, Client::error_message_from_response($response));
+    }
+
+    public function provideErrorsShapes()
+    {
+        return [
+            'list of strings' => [['Rate limit exceeded'], 'Rate limit exceeded'],
+            'string'          => ['Rate limit exceeded', 'Rate limit exceeded'],
+            'mixed'           => [[['location' => 'body', 'message' => 'is blank'], 'Slow down'], 'body is blank, Slow down'],
+            'nested values'   => [[['message' => ['nested']]], 'Too Many Requests'],
+            'empty'           => [[], 'Too Many Requests'],
+        ];
     }
 
     public function provideNonStringMessages()

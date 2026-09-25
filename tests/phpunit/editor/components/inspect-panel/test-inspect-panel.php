@@ -241,7 +241,7 @@ class InspectTest extends TestCase
     /**
      * @test
      */
-    public function rest_api_response_passes_api_errors_through_as_502()
+    public function rest_api_response_passes_api_errors_through_as_424()
     {
         $filter = fn() => [
             'response' => ['code' => 404, 'message' => 'Not Found'],
@@ -260,6 +260,6 @@ class InspectTest extends TestCase
 
         $this->assertWPError($response);
         $this->assertSame(404, \BeyondWords\Api\Client::api_status($response));
-        $this->assertSame(502, $response->get_error_data()['status']);
+        $this->assertSame(424, $response->get_error_data()['status']);
     }
 }

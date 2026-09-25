@@ -156,7 +156,9 @@ class Client {
 	 *                                or when an ID is missing.
 	 */
 	public static function get_content( int|string $content_id, int|string|null $project_id = null, int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
-		$project_id = $project_id ? $project_id : get_option( 'beyondwords_project_id' );
+		if ( ! $project_id ) {
+			$project_id = get_option( 'beyondwords_project_id' );
+		}
 
 		if ( ! $project_id || ! $content_id ) {
 			return self::missing_id_error();
@@ -579,9 +581,7 @@ class Client {
 	 * @return array<mixed>|\WP_Error Decoded 2xx body (`[]` when empty), or WP_Error for anything else.
 	 */
 	public static function request( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
-		self::delete_errors( $post_id );
-
-		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
+		$response = self::send( $method, $url, $body, $post_id, $headers, $timeout );
 		$status   = (int) wp_remote_retrieve_response_code( $response );
 		$raw      = wp_remote_retrieve_body( $response );
 		$decoded  = '' === $raw ? [] : json_decode( $raw, true );
@@ -589,6 +589,41 @@ class Client {
 		if ( ! is_wp_error( $response ) && $status >= 200 && $status < 300 && is_array( $decoded ) ) {
 			return $decoded;
 		}
+
+		$data = [
+			'status'     => ( $status >= 400 && $status < 500 ) ? 424 : 502,
+			'api_status' => $status,
+			'body'       => is_array( $decoded ) ? $decoded : null,
+		];
+
+		if ( is_wp_error( $response ) ) {
+			// Keep WordPress's transport code: adoption must tell http_request_not_executed apart.
+			$response->add_data( $data );
+
+			return $response;
+		}
+
+		$message = $status > 299 ? self::error_message_from_response( $response ) : '';
+
+		return new \WP_Error( 'beyondwords_api_error', $message ? $message : __( 'The BeyondWords API request failed.', 'speechkit' ), $data );
+	}
+
+	/**
+	 * Make the API call and return the raw WordPress HTTP response.
+	 *
+	 * @deprecated 7.2.0 Use request().
+	 */
+	public static function call_api( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
+		_deprecated_function( __METHOD__, '7.2.0', __CLASS__ . '::request()' );
+
+		return self::send( $method, $url, $body, $post_id, $headers, $timeout );
+	}
+
+	private static function send( string $method, string $url, string $body, int|false $post_id, array $headers, int $timeout ): array|\WP_Error {
+		self::delete_errors( $post_id );
+
+		$response = wp_remote_request( $url, self::build_args( $method, $body, $headers, $timeout ) );
+		$status   = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 401 === $status ) {
 			delete_option( 'beyondwords_valid_api_connection' );
@@ -606,21 +641,7 @@ class Client {
 			self::save_error_message( $post_id, self::error_message_from_response( $response ), $status );
 		}
 
-		$data = [
-			'status'     => 502,
-			'api_status' => $status,
-			'body'       => is_array( $decoded ) ? $decoded : null,
-		];
-
-		if ( is_wp_error( $response ) ) {
-			$response->add_data( $data );
-
-			return $response;
-		}
-
-		$message = $status > 299 ? self::error_message_from_response( $response ) : '';
-
-		return new \WP_Error( 'beyondwords_api_error', $message ? $message : __( 'The BeyondWords API request failed.', 'speechkit' ), $data );
+		return $response;
 	}
 
 	/**
@@ -739,10 +760,11 @@ class Client {
 		if ( is_array( $body ) ) {
 			if ( array_key_exists( 'errors', $body ) ) {
 				$messages = [];
-				foreach ( $body['errors'] as $error ) {
-					$messages[] = implode( ' ', array_values( $error ) );
+				foreach ( (array) $body['errors'] as $error ) {
+					$messages[] = is_array( $error ) ? implode( ' ', array_filter( $error, 'is_scalar' ) ) : (string) $error;
 				}
-				$message = implode( ', ', $messages );
+				$joined  = implode( ', ', array_filter( $messages ) );
+				$message = '' !== $joined ? $joined : $message;
 			} elseif ( array_key_exists( 'message', $body ) ) {
 				// `message` is arbitrary JSON; coerce so the `: string` return
 				// type holds under strict_types.

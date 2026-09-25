@@ -805,7 +805,7 @@ class SettingsTest extends TestCase
      * @group settings
      * @dataProvider api_proxy_routes
      */
-    public function api_proxies_return_502_when_the_api_fails(string $route)
+    public function api_proxies_return_424_when_the_api_rejects_the_request(string $route)
     {
         $filter = fn() => [
             'response' => ['code' => 401, 'message' => 'Unauthorized'],
@@ -821,7 +821,7 @@ class SettingsTest extends TestCase
         remove_filter('pre_http_request', $filter);
 
         foreach ([$first, $cached] as $response) {
-            $this->assertSame(502, $response->get_status());
+            $this->assertSame(424, $response->get_status());
             $this->assertSame('beyondwords_api_error', $response->get_data()['code']);
             $this->assertSame('Authentication token was not recognized.', $response->get_data()['message']);
         }
