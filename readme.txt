@@ -118,6 +118,8 @@ Release date: 25th September 2026
 * [#639](https://github.com/beyondwords-io/wordpress-plugin/pull/639) Fix the block editor crashing when the BeyondWords API returns an error for script or video templates.
 * [#638](https://github.com/beyondwords-io/wordpress-plugin/pull/638), [#640](https://github.com/beyondwords-io/wordpress-plugin/pull/640) Fix "Publishing failed" in the block editor for posts with legacy BeyondWords data from older plugin versions.
 * [#641](https://github.com/beyondwords-io/wordpress-plugin/pull/641) Fix audio generation failing on sites where another plugin's `get_the_excerpt` filter needs the post, when "Prepend excerpt" is on.
+* [#644](https://github.com/beyondwords-io/wordpress-plugin/pull/644) Treat every failed BeyondWords API request as a failure, and stop a timed-out connection check hiding the settings tabs for five minutes.
+    * `BeyondWords\Api\Client` methods now return the response data or a `WP_Error`; `Client::call_api()` is deprecated in favour of `Client::request()`.
 
 **Codebase Enhancements**
 
