@@ -365,6 +365,147 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
+     * A transient failure must not be throttled, or a healthy API is ignored for the whole window.
+     *
+     * @test
+     */
+    public function validate_api_connection_does_not_throttle_transient_failure()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls) {
+            $calls++;
+            if (1 === $calls) {
+                return new \WP_Error('http_request_failed', 'cURL error 28: Operation timed out');
+            }
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '{"id":' . BEYONDWORDS_TESTS_PROJECT_ID . '}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertFalse(get_transient(Utils::CONNECTION_CHECK_TRANSIENT));
+
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertTrue(Utils::has_valid_api_connection());
+        $this->assertSame(2, $calls);
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * @test
+     */
+    public function validate_api_connection_does_not_throttle_server_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls) {
+            $calls++;
+            return [
+                'response' => ['code' => 503, 'message' => 'Service Unavailable'],
+                'body'     => '',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertSame(2, $calls);
+        $this->assertFalse(get_transient(Utils::CONNECTION_CHECK_TRANSIENT));
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * Definitive auth failures are still throttled.
+     *
+     * @test
+     * @dataProvider auth_failure_codes
+     */
+    public function validate_api_connection_throttles_auth_failure(int $code)
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_valid_api_connection', gmdate(\DateTime::ATOM), false);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls, $code) {
+            $calls++;
+            return [
+                'response' => ['code' => $code, 'message' => 'Denied'],
+                'body'     => '{"code":' . $code . '}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertFalse(Utils::has_valid_api_connection());
+        $this->assertFalse(Utils::validate_api_connection());
+        $this->assertSame(1, $calls);
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    public function auth_failure_codes(): array
+    {
+        return [
+            'unauthorized' => [401],
+            'forbidden'    => [403],
+        ];
+    }
+
+    /**
+     * Saving credentials clears the throttle even when the fingerprint is unchanged.
+     *
+     * @test
+     */
+    public function validate_api_connection_rechecks_after_credentials_are_saved()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $calls  = 0;
+        $filter = function ($preempt, $args, $url) use (&$calls) {
+            $calls++;
+            return [
+                'response' => ['code' => 200, 'message' => 'OK'],
+                'body'     => '{"id":' . BEYONDWORDS_TESTS_PROJECT_ID . '}',
+                'headers'  => [],
+                'cookies'  => [],
+            ];
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(1, $calls);
+
+        // Re-save the same key through the registered sanitize callback.
+        \BeyondWords\Settings\Fields::sanitize_api_key(BEYONDWORDS_TESTS_API_KEY);
+        $this->assertFalse(get_transient(Utils::CONNECTION_CHECK_TRANSIENT));
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(2, $calls);
+
+        \BeyondWords\Settings\Fields::sanitize_project_id(BEYONDWORDS_TESTS_PROJECT_ID);
+        $this->assertTrue(Utils::validate_api_connection());
+        $this->assertSame(3, $calls);
+
+        remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
      * Changing credentials busts the throttle so the new creds are validated immediately.
      *
      * @test

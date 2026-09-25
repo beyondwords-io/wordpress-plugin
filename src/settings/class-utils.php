@@ -137,8 +137,9 @@ class Utils {
 	/**
 	 * Validate the BeyondWords REST API connection and persist the result.
 	 *
-	 * Throttled per credential fingerprint; only a definitive auth failure
-	 * (401/403) clears the stored flag, so an API blip can't hide the other tabs.
+	 * Definitive results (200, 401/403) are throttled per credential fingerprint;
+	 * only an auth failure clears the stored flag, so an API blip can't hide the
+	 * other tabs. See doc/settings-internals.md.
 	 */
 	public static function validate_api_connection(): bool {
 		$project_id = get_option( 'beyondwords_project_id' );
@@ -159,19 +160,17 @@ class Utils {
 		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
 		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
 
-		// Record the attempt whatever the outcome — a down API is throttled too.
-		set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
-
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 === (int) $response_code ) {
+			set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );
 			return true;
 		}
 
-		// 403 is a definitive auth failure (call_api() already handles 401); any
-		// other response is treated as transient and leaves the flag untouched.
-		if ( 403 === (int) $response_code ) {
+		// Only auth failures are throttled; a timeout or 5xx must not pin a stale negative.
+		if ( in_array( (int) $response_code, [ 401, 403 ], true ) ) {
+			set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
 			delete_option( 'beyondwords_valid_api_connection' );
 		}
 

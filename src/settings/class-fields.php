@@ -161,6 +161,9 @@ class Fields {
 	public static function sanitize_api_key( $value ) {
 		$value = sanitize_text_field( (string) $value );
 
+		// A credentials save always triggers a fresh connection check.
+		delete_transient( Utils::CONNECTION_CHECK_TRANSIENT );
+
 		if ( '' === $value ) {
 			Utils::add_settings_error_message(
 				__( 'Please enter the BeyondWords API key. This can be found in your project settings.', 'speechkit' ),
@@ -173,6 +176,9 @@ class Fields {
 
 	public static function sanitize_project_id( $value ) {
 		$value = sanitize_text_field( (string) $value );
+
+		// A credentials save always triggers a fresh connection check.
+		delete_transient( Utils::CONNECTION_CHECK_TRANSIENT );
 
 		if ( '' === $value ) {
 			Utils::add_settings_error_message(
