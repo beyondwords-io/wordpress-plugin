@@ -257,7 +257,17 @@ class Sync {
 			update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_CLIENT_SIDE );
 			update_post_meta( $post_id, 'beyondwords_project_id', get_option( 'beyondwords_project_id' ) );
 
-			return self::attempted_result( \BeyondWords\Api\Client::get_player_by_source_id( $post_id ) );
+			$response = \BeyondWords\Api\Client::get_player_by_source_id( $post_id );
+
+			// A Magic Embed 404 means "not imported yet"; the player retries client-side.
+			if ( is_wp_error( $response ) && 404 === \BeyondWords\Api\Client::api_status( $response ) ) {
+				return [
+					'outcome'  => self::OUTCOME_GENERATED,
+					'response' => $response,
+				];
+			}
+
+			return self::attempted_result( $response );
 		}
 
 		update_post_meta( $post_id, 'beyondwords_integration_method', \BeyondWords\Settings\Fields::INTEGRATION_REST_API );

@@ -1342,6 +1342,28 @@ class ClientTest extends TestCase
     /**
      * @test
      */
+    public function request_survives_an_errors_list_of_strings()
+    {
+        $filter = fn() => [
+            'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+            'body'     => '{"errors":["Rate limit exceeded"]}',
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $response = Client::request('GET', Urls::get_api_url() . '/organization/languages');
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertWPError($response);
+        $this->assertSame('Rate limit exceeded', $response->get_error_message());
+        $this->assertSame(424, $response->get_error_data()['status']);
+    }
+
+    /**
+     * @test
+     */
     public function call_api_is_deprecated_and_returns_the_raw_response()
     {
         $this->setExpectedDeprecated('BeyondWords\Api\Client::call_api');

@@ -1797,6 +1797,53 @@ class SyncTest extends TestCase
     }
 
     /**
+     * @test
+     * @group generateAudio
+     * @dataProvider magic_embed_outcome_provider
+     */
+    public function magic_embed_outcome_depends_on_the_api_status(int $status, bool $generated)
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+        update_option('beyondwords_integration_method', 'client-side');
+
+        $postId = self::factory()->post->create([
+            'post_status' => 'publish',
+            'meta_input'  => ['beyondwords_generate_audio' => '1'],
+        ]);
+
+        $filter = fn($preempt, $args, $url) => str_contains($url, '/player/by_source_id/') ? [
+            'response' => ['code' => $status, 'message' => ''],
+            'body'     => wp_json_encode(['code' => $status, 'message' => 'Upstream']),
+            'headers'  => [],
+            'cookies'  => [],
+        ] : $preempt;
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $counts = Sync::bulk_generate_audio_for_posts([$postId]);
+        $saved  = Sync::on_add_or_update_post($postId);
+
+        remove_filter('pre_http_request', $filter, 10);
+
+        $this->assertSame($generated ? 1 : 0, $counts['generated']);
+        $this->assertSame($generated ? 0 : 1, $counts['failed']);
+        $this->assertSame($generated, $saved);
+
+        wp_delete_post($postId, true);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+        delete_option('beyondwords_integration_method');
+    }
+
+    public function magic_embed_outcome_provider(): array
+    {
+        return [
+            'not imported yet' => [404, true],
+            'server error'     => [500, false],
+        ];
+    }
+
+    /**
      * An API error response is a failure, not a truthy "generated" body.
      *
      * @test

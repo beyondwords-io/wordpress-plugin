@@ -242,6 +242,32 @@ class SettingsUtilsTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function validate_api_connection_escapes_the_api_error()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = fn() => [
+            'response' => ['code' => 500, 'message' => 'Internal Server Error'],
+            'body'     => '{"message":"<script>alert(1)</script>"}',
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        Utils::validate_api_connection();
+
+        remove_filter('pre_http_request', $filter);
+
+        $error = get_transient('beyondwords_settings_errors')['Settings/ValidApiConnection'];
+
+        $this->assertStringNotContainsString('<script>', $error);
+        $this->assertStringContainsString('<code>500</code>', $error);
+    }
+
+    /**
      * A transient failure (5xx, timeout, DNS) must NOT clear a previously-valid flag —
      * a brief API blip would hide the Integration and Preferences tabs.
      *
