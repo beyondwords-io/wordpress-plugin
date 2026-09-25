@@ -583,7 +583,7 @@ class Client {
 	public static function request( string $method, string $url, string $body = '', int|false $post_id = false, array $headers = [], int $timeout = self::DEFAULT_REQUEST_TIMEOUT ): array|\WP_Error {
 		$response = self::send( $method, $url, $body, $post_id, $headers, $timeout );
 		$status   = (int) wp_remote_retrieve_response_code( $response );
-		$raw      = wp_remote_retrieve_body( $response );
+		$raw      = (string) wp_remote_retrieve_body( $response );
 		$decoded  = '' === $raw ? [] : json_decode( $raw, true );
 
 		if ( ! is_wp_error( $response ) && $status >= 200 && $status < 300 && is_array( $decoded ) ) {

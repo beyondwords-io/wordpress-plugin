@@ -107,11 +107,11 @@ context( 'Block Editor: Settings panel', () => {
 					'GET',
 					/beyondwords(?:\/|%2F)v1(?:\/|%2F)(?:summarization-settings-templates|video-settings-templates|projects(?:\/|%2F)\d+(?:\/|%2F)video-settings)/,
 					{
-						statusCode: 502,
+						statusCode: 424,
 						body: {
 							code: 'beyondwords_api_error',
 							message: 'Authentication token was not recognized.',
-							data: { status: 502 },
+							data: { status: 424 },
 						},
 					}
 				).as( 'failedApi' );

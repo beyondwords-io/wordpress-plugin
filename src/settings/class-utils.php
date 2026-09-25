@@ -177,7 +177,7 @@ class Utils {
 
 		$debug = sprintf(
 			'<code>%s</code>: <code>%s</code>',
-			$status,
+			$status ? $status : esc_html( (string) $response->get_error_code() ),
 			esc_html( $response->get_error_message() )
 		);
 

@@ -451,11 +451,11 @@ context( 'Classic Editor: Select Voice', () => {
 	} );
 
 	const apiError = {
-		statusCode: 502,
+		statusCode: 424,
 		body: {
 			code: 'beyondwords_api_error',
 			message: 'Authentication token was not recognized.',
-			data: { status: 502 },
+			data: { status: 424 },
 		},
 	};
 

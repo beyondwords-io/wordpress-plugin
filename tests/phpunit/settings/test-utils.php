@@ -316,6 +316,9 @@ class SettingsUtilsTest extends TestCase
         $this->assertTrue(Utils::has_valid_api_connection());
 
         remove_filter('pre_http_request', $filter, 10);
+
+        $error = get_transient('beyondwords_settings_errors')['Settings/ValidApiConnection'];
+        $this->assertStringContainsString('<code>http_request_failed</code>: <code>cURL error 28', $error);
     }
 
     /**
