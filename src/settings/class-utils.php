@@ -137,7 +137,7 @@ class Utils {
 	/**
 	 * Validate the BeyondWords REST API connection and persist the result.
 	 *
-	 * Definitive results (200, 401/403) are throttled per credential fingerprint;
+	 * Definitive results (2xx, 401/403) are throttled per credential fingerprint;
 	 * only an auth failure clears the stored flag, so an API blip can't hide the
 	 * other tabs. See doc/settings-internals.md.
 	 */
@@ -158,26 +158,26 @@ class Utils {
 		}
 
 		$url      = sprintf( '%s/projects/%d', \BeyondWords\Core\Urls::get_api_url(), $project_id );
-		$response = \BeyondWords\Api\Client::call_api( 'GET', $url );
+		$response = \BeyondWords\Api\Client::request( 'GET', $url );
 
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === (int) $response_code ) {
+		if ( ! is_wp_error( $response ) ) {
 			set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
 			update_option( 'beyondwords_valid_api_connection', gmdate( \DateTime::ATOM ), false );
 			return true;
 		}
 
+		$status = \BeyondWords\Api\Client::api_status( $response );
+
 		// Only auth failures are throttled; a timeout or 5xx must not pin a stale negative.
-		if ( in_array( (int) $response_code, [ 401, 403 ], true ) ) {
+		if ( in_array( $status, [ 401, 403 ], true ) ) {
 			set_transient( self::CONNECTION_CHECK_TRANSIENT, $fingerprint, self::CONNECTION_CHECK_TTL );
 			delete_option( 'beyondwords_valid_api_connection' );
 		}
 
 		$debug = sprintf(
 			'<code>%s</code>: <code>%s</code>',
-			$response_code,
-			wp_remote_retrieve_body( $response )
+			$status ? $status : esc_html( (string) $response->get_error_code() ),
+			esc_html( $response->get_error_message() )
 		);
 
 		self::add_settings_error_message(
