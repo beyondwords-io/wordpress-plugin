@@ -118,6 +118,7 @@ Release date: TBC
 * [#639](https://github.com/beyondwords-io/wordpress-plugin/pull/639) Fix the block editor crashing when the BeyondWords API returns an error for script or video templates.
 * [#638](https://github.com/beyondwords-io/wordpress-plugin/pull/638), [#640](https://github.com/beyondwords-io/wordpress-plugin/pull/640) Fix "Publishing failed" in the block editor for posts with legacy BeyondWords data from older plugin versions.
 * [#641](https://github.com/beyondwords-io/wordpress-plugin/pull/641) Fix audio generation failing on sites where another plugin's `get_the_excerpt` filter needs the post, when "Prepend excerpt" is on.
+* [#644](https://github.com/beyondwords-io/wordpress-plugin/pull/644) Fix the settings tabs staying hidden for five minutes after a valid API key is entered if the first connection check times out.
 
 **Codebase Enhancements**
 
