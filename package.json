@@ -29,7 +29,7 @@
     "@wordpress/notices": "^5.55.0",
     "@wordpress/plugins": "^7.55.0",
     "@wordpress/prettier-config": "^4.55.0",
-    "@wordpress/scripts": "^35.0.0",
+    "@wordpress/scripts": "^36.0.0",
     "cypress": "^16.1.0",
     "cypress-fail-fast": "^8.2.0",
     "cypress-map": "^1.56.0",
