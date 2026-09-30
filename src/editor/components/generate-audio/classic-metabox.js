@@ -43,7 +43,7 @@
 				wanted: new Set(
 					( data.terms[ taxonomy ] || [] ).map( String )
 				),
-		  } ) )
+			} ) )
 		: [];
 
 	// Once the editor toggles Generate audio by hand, stop auto-managing it.

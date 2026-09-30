@@ -134,8 +134,8 @@ npm run test:unit
 npm run test:unit:watch
 ```
 
-Both scripts wrap `wp-scripts test-unit-js`, which supplies the Jest config, so
-there is no `jest.config.js` in the repo. The tests need no wp-env, database or
+Both scripts wrap `wp-scripts test-unit-jest`, which reads the Jest config from
+[jest.config.cjs](../jest.config.cjs). The tests need no wp-env, database or
 built assets. CI runs `npm run test:unit` as its own **Jest** job.
 
 ##  PHPUnit tests

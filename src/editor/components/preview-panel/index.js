@@ -25,8 +25,8 @@ function hasGeneratedContent( select ) {
 	const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
 	return Boolean(
 		meta?.beyondwords_content_id ||
-			meta?.beyondwords_podcast_id ||
-			meta?.speechkit_podcast_id
+		meta?.beyondwords_podcast_id ||
+		meta?.speechkit_podcast_id
 	);
 }
 
