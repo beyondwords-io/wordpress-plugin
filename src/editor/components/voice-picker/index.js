@@ -230,7 +230,7 @@ export function VoicePicker( {
 	const bucketVoices = showModel
 		? filteredVoices.filter(
 				( voice ) => voiceModelKey( voice ) === selectedModelKey
-		  )
+			)
 		: filteredVoices;
 
 	const hasVoices = filteredVoices.length > 0;

@@ -72,7 +72,7 @@ const withBeyondwordsBlockControls = createHigherOrderComponent(
 						customize && projectId
 							? select( 'beyondwords/settings' ).getProject(
 									projectId
-							  )
+								)
 							: null;
 
 					return {

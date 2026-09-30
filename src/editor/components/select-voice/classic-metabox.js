@@ -573,7 +573,7 @@
 					? this.voices
 					: this.voices.filter( ( voice ) =>
 							voiceIsNative( voice, code )
-					  );
+						);
 
 			if (
 				keepId &&
@@ -621,7 +621,7 @@
 				? voices.find(
 						( voice ) =>
 							String( voice.id ) === String( selectedVoiceId )
-				  )
+					)
 				: null;
 			const selectedKey = selectedVoice
 				? voiceModelKey( selectedVoice )
@@ -672,7 +672,7 @@
 			const bucketVoices = showModel
 				? voices.filter(
 						( voice ) => voiceModelKey( voice ) === modelKey
-				  )
+					)
 				: voices;
 
 			if ( voiceSelect ) {
