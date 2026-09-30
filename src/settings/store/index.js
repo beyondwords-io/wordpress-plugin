@@ -49,7 +49,7 @@ const selectors = {
 const set = ( key, value ) => ( { type: 'SET', key, value } );
 const setBy = ( key, arg, value ) => ( { type: 'SET_BY', key, arg, value } );
 
-// The REST proxies pass API error bodies through as objects; UI code `.map()`s lists.
+// A 2xx payload can still be an object, but UI code `.map()`s lists.
 const toList = ( value ) => ( Array.isArray( value ) ? value : [] );
 
 const resolvers = {

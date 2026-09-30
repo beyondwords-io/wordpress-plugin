@@ -208,7 +208,7 @@ class SiteHealth {
 			];
 		}
 
-		// A plain request on purpose: `call_api()` would clear the valid-connection
+		// A plain request on purpose: `Client::request()` would clear the valid-connection
 		// flag on a 401, and the VIP helper's circuit breaker can fake failures.
 		$response = wp_remote_request(
 			$api_url,
