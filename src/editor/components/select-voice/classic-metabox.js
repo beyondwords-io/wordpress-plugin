@@ -398,7 +398,9 @@
 					method: 'GET',
 					headers: { 'X-WP-Nonce': data.nonce },
 				} )
-				.then( ( response ) => response.json() )
+				.then( ( response ) =>
+					response.ok ? response.json() : null
+				)
 				.then( ( project ) => {
 					// Bail if Customize was switched off, or a language chosen, while
 					// in flight — else we'd persist a language on an un-customised post.
