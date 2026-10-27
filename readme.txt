@@ -111,6 +111,7 @@ Release date: TBC
 **Codebase Enhancements**
 
 * [#645](https://github.com/beyondwords-io/wordpress-plugin/pull/645) Update `@wordpress/scripts` to 36.0.0 and `markdown-it` to 14.3.2.
+* [#656](https://github.com/beyondwords-io/wordpress-plugin/pull/656) Upgrade npm and composer dependencies.
 
 = 7.2.0 =
 
