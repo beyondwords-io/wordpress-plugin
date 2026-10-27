@@ -620,4 +620,44 @@ class SelectVoiceTest extends TestCase
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
     }
 
+    /**
+     * @test
+     * @dataProvider rest_routes
+     */
+    public function rest_routes_return_502_when_the_api_fails(string $route)
+    {
+        $filter = fn() => new \WP_Error('http_request_failed', 'cURL error 28: Operation timed out');
+        add_filter('pre_http_request', $filter);
+
+        $first  = $this->dispatch($route);
+        $cached = $this->dispatch($route);
+
+        remove_filter('pre_http_request', $filter);
+
+        foreach ([$first, $cached] as $response) {
+            $this->assertSame(502, $response->get_status());
+            $this->assertSame('cURL error 28: Operation timed out', $response->get_data()['message']);
+        }
+    }
+
+    public function rest_routes(): array
+    {
+        return [
+            'languages' => ['/beyondwords/v1/languages'],
+            'voices'    => ['/beyondwords/v1/languages/en_US/voices'],
+        ];
+    }
+
+    private function dispatch(string $route): \WP_REST_Response
+    {
+        global $wp_rest_server;
+        $wp_rest_server = new \WP_REST_Server();
+
+        // Must run inside rest_api_init or WP raises a "_doing_it_wrong" notice.
+        add_action('rest_api_init', [SelectVoice::class, 'rest_api_init_callback']);
+        do_action('rest_api_init');
+        remove_action('rest_api_init', [SelectVoice::class, 'rest_api_init_callback']);
+
+        return $wp_rest_server->dispatch(new \WP_REST_Request('GET', $route));
+    }
 }
