@@ -55,6 +55,8 @@ returns immediately: [src/post/class-sync.php](../src/post/class-sync.php).
   `beyondwords_preview_token` exactly as the synchronous path does. Language and
   voice meta are deliberately not copied back from the response: those keys hold
   explicit editor choices. No webhook/poll needed.
+- An untouched Preselect leaves `beyondwords_generate_audio` unset, which only
+  resolves during a REST save, so queuing the job stores the resolved `1`.
 - Error meta is written when the job runs (≈1 cron tick later) rather than
   inline, so the editor surfaces an API error on its next load.
 
@@ -77,6 +79,23 @@ It reuses `pollContentStatus()` by reporting `queued` (already a non-terminal
 status) until the ID lands, inheriting the time budget, hidden-tab handling and
 supersede token. Gating on the scheduled job matters: a post with nothing queued
 has no audio coming, so a spinner there would never resolve.
+
+### Saves from a stale editor
+
+An editor loaded before the job (or another tab) wrote the content ID still
+holds the old, usually empty, value. Saving it back would unlink audio that
+still exists in BeyondWords, so neither editor sends server-written meta the
+author hasn't changed:
+
+- Classic: `ContentId::save()` writes the Content ID field only when it differs
+  from the value the form loaded with (`beyondwords_content_id_original`).
+  `awaitContentId()` also fills the field in once the ID lands.
+- Block: the editor sends the whole meta object on any meta edit, so an
+  `editor.preSavePost` filter
+  ([content-id/omit-unedited-meta.js](../src/editor/components/content-id/omit-unedited-meta.js))
+  drops the meta generation writes (`SERVER_WRITTEN_META_KEYS`) unless the
+  author changed it, then resets those edits to the saved values so the next
+  save doesn't send them either.
 
 ### Background delete (VIP only)
 

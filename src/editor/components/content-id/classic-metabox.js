@@ -398,9 +398,30 @@
 			}
 			container.removeAttribute( 'data-await-content' );
 
+			setContentIdField( meta.beyondwords_content_id );
+
 			// Poll for `processed`, else the player 404s and the CDN caches it.
 			initMetaboxPlayer( container );
 		} );
+	}
+
+	/**
+	 * Show a content ID saved since page load, and mark it as the saved value.
+	 *
+	 * @param {string} contentId The saved content ID.
+	 */
+	function setContentIdField( contentId ) {
+		const input = document.getElementById( 'beyondwords_content_id' );
+		const original = document.getElementById(
+			'beyondwords_content_id_original'
+		);
+
+		if ( input ) {
+			input.value = contentId;
+		}
+		if ( original ) {
+			original.value = contentId;
+		}
 	}
 
 	/**
@@ -510,11 +531,8 @@
 	 * @param {Object} meta The meta values that were saved.
 	 */
 	function updateMetaboxUI( meta ) {
-		const contentIdInput = document.getElementById(
-			'beyondwords_content_id'
-		);
-		if ( contentIdInput && meta.beyondwords_content_id !== undefined ) {
-			contentIdInput.value = meta.beyondwords_content_id;
+		if ( meta.beyondwords_content_id !== undefined ) {
+			setContentIdField( meta.beyondwords_content_id );
 		}
 
 		const generateAudioCheckbox = document.getElementById(

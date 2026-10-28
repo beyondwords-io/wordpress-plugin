@@ -298,6 +298,26 @@ function setupNodeEvents( on, config ) {
 			return null;
 		},
 
+		// Stands in for VIP's cron runner firing the post's queued job.
+		async runAudioGeneration( postId ) {
+			const id = parseInt( postId, 10 );
+			await execWp(
+				`eval 'wp_clear_scheduled_hook( "beyondwords_generate_audio", [ ${ id } ] ); do_action( "beyondwords_generate_audio", ${ id } );'`
+			);
+			return null;
+		},
+
+		async isAudioGenerationScheduled( postId ) {
+			const result = await execWp(
+				`eval 'echo wp_next_scheduled( "beyondwords_generate_audio", [ ${ parseInt(
+					postId,
+					10
+				) } ] ) ? "yes" : "no";'`,
+				{ returnResult: true }
+			);
+			return 'yes' === result.stdout.trim().split( '\n' ).pop();
+		},
+
 		async getPostMeta( options ) {
 			const { postId, metaKey } = options;
 			try {

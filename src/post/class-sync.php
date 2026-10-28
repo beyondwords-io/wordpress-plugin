@@ -818,6 +818,11 @@ class Sync {
 		// Eligibility is re-checked inside generate_audio_for_post() when the
 		// deferred job runs.
 		if ( self::is_async_generation_enabled() && self::should_generate_audio_for_post( $post_id ) ) {
+			// The job runs outside REST, where an unset flag no longer resolves via Preselect.
+			if ( '1' !== \BeyondWords\Post\Meta::get_renamed_post_meta( $post_id, 'generate_audio' ) ) {
+				update_post_meta( $post_id, 'beyondwords_generate_audio', '1' );
+			}
+
 			self::schedule_audio_generation( $post_id );
 
 			return true;
