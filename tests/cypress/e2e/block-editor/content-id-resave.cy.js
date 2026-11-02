@@ -19,6 +19,16 @@ const editorMeta = ( win ) =>
 
 const setGenerateAudio = ( generateAudio ) => {
 	cy.openBeyondwordsEditorPanel();
+
+	// Until settings load the toggle reads unchecked, then Preselect can flip it on.
+	cy.window().should( ( win ) => {
+		expect(
+			win.wp.data
+				.select( 'beyondwords/settings' )
+				.hasFinishedResolution( 'getSettings', [] )
+		).to.equal( true );
+	} );
+
 	cy.getGenerateAudioCheckbox().then( ( $input ) => {
 		if ( $input.is( ':checked' ) !== generateAudio ) {
 			cy.get( '.beyondwords--generate-audio label' ).click();
