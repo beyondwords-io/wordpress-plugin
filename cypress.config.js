@@ -299,20 +299,15 @@ function setupNodeEvents( on, config ) {
 		},
 
 		// Stands in for VIP's cron runner firing the post's queued job.
-		async runAudioGeneration( postId ) {
-			const id = parseInt( postId, 10 );
-			await execWp(
-				`eval 'wp_clear_scheduled_hook( "beyondwords_generate_audio", [ ${ id } ] ); do_action( "beyondwords_generate_audio", ${ id } );'`
-			);
+		async runAudioGeneration() {
+			await execWp( 'cron event run beyondwords_generate_audio' );
 			return null;
 		},
 
 		async isAudioGenerationScheduled( postId ) {
+			const id = parseInt( postId, 10 );
 			const result = await execWp(
-				`eval 'echo wp_next_scheduled( "beyondwords_generate_audio", [ ${ parseInt(
-					postId,
-					10
-				) } ] ) ? "yes" : "no";'`,
+				`eval 'echo wp_next_scheduled( "beyondwords_generate_audio", [ ${ id } ] ) ? "yes" : "no";'`,
 				{ returnResult: true }
 			);
 			return 'yes' === result.stdout.trim().split( '\n' ).pop();

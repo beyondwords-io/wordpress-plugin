@@ -20,7 +20,13 @@ const save = ( generateAudio ) => {
 	cy.get( 'input#beyondwords_generate_audio' )[
 		generateAudio ? 'check' : 'uncheck'
 	]();
+	cy.window().then( ( win ) => {
+		win.beyondwordsBeforeSave = true;
+	} );
 	cy.get( '#publish' ).click();
+
+	// The previous save's notice is still on screen until the new page loads.
+	cy.window().should( 'not.have.property', 'beyondwordsBeforeSave' );
 	cy.get( '#message.updated' ).should( 'exist' );
 };
 
@@ -209,7 +215,7 @@ context( 'Classic Editor: Content ID across resaves', () => {
 							'1'
 						);
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 						expectField( createdId() );
 
@@ -218,7 +224,7 @@ context( 'Classic Editor: Content ID across resaves', () => {
 
 						save( true );
 						expectScheduled( postId, true );
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 
 						save( false );
@@ -246,7 +252,7 @@ context( 'Classic Editor: Content ID across resaves', () => {
 						save( true );
 						expectScheduled( postId, true );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectField( '' );
 
 						save( false );
@@ -275,7 +281,7 @@ context( 'Classic Editor: Content ID across resaves', () => {
 						expectContentId( postId, EXISTING_ID );
 						expectField( EXISTING_ID );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, EXISTING_ID );
 
 						save( false );
@@ -300,7 +306,7 @@ context( 'Classic Editor: Content ID across resaves', () => {
 						expectScheduled( postId, true );
 						expectContentId( postId, '' );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 						expectField( createdId() );
 					} );

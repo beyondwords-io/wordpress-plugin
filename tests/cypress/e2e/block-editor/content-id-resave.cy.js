@@ -44,7 +44,7 @@ const save = ( generateAudio ) => {
 	cy.window().then( ( win ) =>
 		win.wp.data
 			.dispatch( 'core/editor' )
-			.editPost( { title: `Resave ${ Date.now() }` } )
+			.editPost( { title: `Cypress Test: resave ${ Date.now() }` } )
 	);
 
 	cy.get( '.editor-post-publish-button' ).click();
@@ -206,7 +206,7 @@ context( 'Block Editor: Content ID across resaves', () => {
 						expectScheduled( postId, true );
 						expectContentId( postId, '' );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 					} );
 				} );
@@ -226,14 +226,14 @@ context( 'Block Editor: Content ID across resaves', () => {
 						expectScheduled( postId, true );
 						expectContentId( postId, '' );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 
 						save( false );
 						expectContentId( postId, createdId() );
 
 						save( true );
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 
 						save( false );
@@ -257,7 +257,7 @@ context( 'Block Editor: Content ID across resaves', () => {
 						expectScheduled( postId, true );
 						expectContentId( postId, EXISTING_ID );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, EXISTING_ID );
 
 						save( false );
@@ -281,7 +281,7 @@ context( 'Block Editor: Content ID across resaves', () => {
 						expectScheduled( postId, true );
 						expectContentId( postId, '' );
 
-						cy.task( 'runAudioGeneration', postId );
+						cy.task( 'runAudioGeneration' );
 						expectContentId( postId, createdId() );
 					} );
 				} );

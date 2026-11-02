@@ -92,10 +92,11 @@ author hasn't changed:
   `awaitContentId()` also fills the field in once the ID lands.
 - Block: the editor sends the whole meta object on any meta edit, so an
   `editor.preSavePost` filter
-  ([content-id/omit-unedited-meta.js](../src/editor/components/content-id/omit-unedited-meta.js))
-  drops the meta generation writes (`SERVER_WRITTEN_META_KEYS`) unless the
-  author changed it, then resets those edits to the saved values so the next
-  save doesn't send them either.
+  ([omit-unedited-meta/index.js](../src/editor/components/omit-unedited-meta/index.js))
+  drops the server-written keys (`SERVER_WRITTEN_META_KEYS`) the author
+  hasn't changed, then resets those edits to the saved values so the next save
+  doesn't resend them. Those hooks only fire from WordPress 6.7, which is why
+  that is the minimum supported version.
 
 ### Background delete (VIP only)
 

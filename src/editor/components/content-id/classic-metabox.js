@@ -416,7 +416,8 @@
 			'beyondwords_content_id_original'
 		);
 
-		if ( input ) {
+		// Keep an ID the author typed while the job was running.
+		if ( input && original && input.value === original.value ) {
 			input.value = contentId;
 		}
 		if ( original ) {

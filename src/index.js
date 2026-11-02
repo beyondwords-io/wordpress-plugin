@@ -11,7 +11,7 @@ require( './editor/block' );
 
 require( './editor/components/add-player' );
 require( './editor/components/block-attributes' );
-require( './editor/components/content-id/omit-unedited-meta' );
+require( './editor/components/omit-unedited-meta' );
 require( './editor/components/data-panel' );
 require( './editor/components/error-notice' );
 require( './editor/components/generate-audio' );

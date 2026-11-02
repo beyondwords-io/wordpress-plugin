@@ -21,7 +21,7 @@ declare( strict_types = 1 );
  * Text Domain:       speechkit
  * Domain Path:       /languages
  * Requires PHP:      8.0
- * Requires at least: 6.6
+ * Requires at least: 6.7
  */
 // phpcs:enable
 

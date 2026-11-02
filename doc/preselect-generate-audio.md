@@ -56,7 +56,10 @@ is currently unregistered.
 The block editor does **not** write `beyondwords_generate_audio` meta to show a
 preselected toggle — it *derives* the checked state from the Preselect setting.
 An untouched post therefore stays clean (no dirty state, no meta write) until
-the user actually changes something.
+the user actually changes something. The one exception is VIP's deferred
+generation: queuing the cron job stores the resolved `'1'`, because the job
+runs outside REST where Preselect is not consulted
+([async-rest-migration.md](async-rest-migration.md)).
 
 The classic editor's checkbox writes an explicit `'1'`/`'0'` on save. The
 server renders the correct initial state; its metabox JS

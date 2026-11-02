@@ -3,7 +3,7 @@
 /**
  * Internal dependencies
  */
-import { uneditedServerMetaKeys } from './omit-unedited-meta';
+import { uneditedServerMetaKeys } from './index';
 
 const ID = '9279c9e0-e0b5-4789-9040-f44478ed3e9e';
 
@@ -12,20 +12,20 @@ describe( 'uneditedServerMetaKeys', () => {
 		const meta = {
 			beyondwords_content_id: '',
 			beyondwords_project_id: '',
-			beyondwords_preview_token: '',
+			beyondwords_integration_method: 'rest-api',
 			beyondwords_generate_audio: '0',
 		};
 		const persisted = {
 			beyondwords_content_id: '',
 			beyondwords_project_id: '',
-			beyondwords_preview_token: '',
+			beyondwords_integration_method: 'rest-api',
 			beyondwords_generate_audio: '1',
 		};
 
 		expect( uneditedServerMetaKeys( meta, persisted ) ).toEqual( [
 			'beyondwords_content_id',
 			'beyondwords_project_id',
-			'beyondwords_preview_token',
+			'beyondwords_integration_method',
 		] );
 	} );
 

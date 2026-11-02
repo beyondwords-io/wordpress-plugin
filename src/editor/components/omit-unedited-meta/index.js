@@ -11,6 +11,7 @@ const SERVER_WRITTEN_META_KEYS = [
 	'beyondwords_preview_token',
 	'beyondwords_integration_method',
 	'beyondwords_error_message',
+	'beyondwords_generate_audio',
 ];
 
 /**
@@ -53,19 +54,27 @@ addFilter(
 );
 
 // The store still holds the omitted values as edits, which would be sent next time.
-addAction( 'editor.savePost', 'beyondwords/omit-unedited-meta', () => {
-	const persistedMeta = select( 'core/editor' ).getCurrentPost()?.meta;
+addAction(
+	'editor.savePost',
+	'beyondwords/omit-unedited-meta',
+	( post, options ) => {
+		const persistedMeta = select( 'core/editor' ).getCurrentPost()?.meta;
 
-	if ( omittedKeys.length && persistedMeta ) {
-		dispatch( 'core/editor' ).editPost(
-			{
-				meta: Object.fromEntries(
-					omittedKeys.map( ( key ) => [ key, persistedMeta[ key ] ] )
-				),
-			},
-			{ undoIgnore: true }
-		);
+		// An autosave leaves the current post untouched, so there is nothing to reset to.
+		if ( omittedKeys.length && persistedMeta && ! options?.isAutosave ) {
+			dispatch( 'core/editor' ).editPost(
+				{
+					meta: Object.fromEntries(
+						omittedKeys.map( ( key ) => [
+							key,
+							persistedMeta[ key ],
+						] )
+					),
+				},
+				{ undoIgnore: true }
+			);
+		}
+
+		omittedKeys = [];
 	}
-
-	omittedKeys = [];
-} );
+);
