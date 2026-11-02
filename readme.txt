@@ -4,7 +4,7 @@ Contributors: beyondwords, stuartmcalpine
 Donate link: https://beyondwords.io
 Tags: text-to-speech, tts, audio, AI, voice cloning
 Stable tag: 7.2.0
-Requires at least: 6.6
+Requires at least: 6.7
 Requires PHP: 8.0
 Tested up to: 7.1
 License: GPLv2 or later
@@ -107,6 +107,14 @@ Yes. The plugin normally connects WordPress to BeyondWords through our REST API.
 = 7.2.1 =
 
 Release date: TBC
+
+**Fixes**
+
+* [#657](https://github.com/beyondwords-io/wordpress-plugin/pull/657) Stop saving from a stale editor from unlinking existing audio.
+
+**Compatibility**
+
+* [#657](https://github.com/beyondwords-io/wordpress-plugin/pull/657) Requires WordPress 6.7 or later.
 
 **Codebase Enhancements**
 
