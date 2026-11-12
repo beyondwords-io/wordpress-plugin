@@ -196,8 +196,8 @@ final class BulkEditAjaxTest extends WP_Ajax_UnitTestCase
     /**
      * Regression test for the AJAX delete path.
      *
-     * With no post carrying both project_id and content_id, Client::batch_delete_audio() throws
-     * before any HTTP request (so no mock needed); it must surface as a JSON error, not a 500.
+     * With no post carrying both project_id and content_id, Client::batch_delete_audio() returns
+     * a WP_Error before any HTTP request (so no mock needed); it must surface as a JSON error, not a 500.
      *
      * @test
      */

@@ -188,10 +188,8 @@ class BulkEdit {
 
 		$response = \BeyondWords\Post\Sync::batch_delete_audio_for_posts( $post_ids );
 
-		if ( ! $response ) {
-			throw new \Exception(
-				esc_html__( 'Error while bulk deleting audio. Please contact support with reference BULK-NO-RESPONSE.', 'speechkit' )
-			);
+		if ( is_wp_error( $response ) ) {
+			throw new \Exception( esc_html( $response->get_error_message() ) );
 		}
 
 		$keys             = \BeyondWords\Core\Utils::get_post_meta_keys( 'all' );

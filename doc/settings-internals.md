@@ -34,12 +34,16 @@ Validation runs when the Authentication tab loads, and is throttled by the
 - Inside the window, a stored fingerprint matching the current project ID and
   API key means the last result for *those* credentials is trusted and no
   request is made.
-- The fingerprint is recorded whatever the outcome, so a failing or down API is
-  throttled too rather than retried on every page load.
-- Saving a changed API key or project ID changes the fingerprint, busting the
-  throttle and forcing an immediate re-check. The fingerprint is computed from
-  the stored options, so typing in a field has no effect until the values are
-  saved.
+- The fingerprint is recorded only for a definitive result — a 2xx, or a 401 /
+  403 auth failure. A transient failure (timeout, DNS, 5xx, `WP_Error`) is not
+  recorded, so the next Authentication tab load rechecks. Throttling failures
+  too used to pin a cleared flag for the full window when the first check after
+  entering a correct key timed out, hiding the other tabs for 5 minutes.
+- Saving the API key or project ID deletes the transient (in
+  `Fields::sanitize_api_key()` / `Fields::sanitize_project_id()`), so a save
+  always forces an immediate re-check even when the values are unchanged. The
+  fingerprint is computed from the stored options, so typing in a field has no
+  effect until the values are saved.
 
 How the flag itself is updated:
 
@@ -52,7 +56,7 @@ How the flag itself is updated:
   last known-good flag in place — a blip should not lock the operator out of
   the settings tabs.
 - Once a request is made, only authentication failures clear it: a 401 (in
-  `Client::call_api()`, [src/api/class-client.php](../src/api/class-client.php))
+  `Client::request()`, [src/api/class-client.php](../src/api/class-client.php))
   or a 403 (in the validation itself). Re-validation then happens on the next
-  Authentication tab load that is not throttled — immediately if the saved
-  credentials changed, otherwise once the 5-minute window expires.
+  Authentication tab load that is not throttled — immediately if the
+  credentials were saved, otherwise once the 5-minute window expires.

@@ -26,11 +26,9 @@ both get fewer and more resilient API calls.
   (e.g. VIP) where `_transient_*` rows can't be enumerated.
 - Successful 2xx array responses are cached for `Client::CACHE_TTL` (15
   minutes).
-- Failures are negative-cached: an empty array is stored for the shorter
-  `Client::CACHE_TTL_ON_ERROR` (2 minutes). Because `cached_get()` returns any
-  value it finds (`false !== $cached`), that stored `[]` short-circuits the next
-  fetch, so an unreachable API is probed at most once per interval rather than
-  on every render.
+- Failures are negative-cached: the `WP_Error` is stored for the shorter
+  `Client::CACHE_TTL_ON_ERROR` (2 minutes), so an unreachable API is probed at
+  most once per interval rather than on every render.
 - Requests use `Client::DEFAULT_REQUEST_TIMEOUT` (3 seconds), except voices,
   which uses `Client::VOICES_REQUEST_TIMEOUT` (8 seconds) — it is the one slow
   endpoint, and the default would abandon (and then negative-cache) many
@@ -114,10 +112,8 @@ Each inline generate is counted as `generated`, `skipped` or `failed`. Skipped
 means there was nothing to do, not that anything went wrong: an ineligible post
 status, an existing recording with `BEYONDWORDS_AUTOREGENERATE` off, or another
 request already creating the audio ([source-id-race.md](source-id-race.md)).
-`Sync::generate_audio_result()` carries that outcome alongside the API response,
-because a falsy response alone can't tell the two apart —
-`Sync::generate_audio_for_post()` still returns just the response, so the save
-and cron callers are unaffected. `Notices::skipped_notice()` surfaces the count.
+`Sync::generate_audio_result()` carries that outcome alongside the API response.
+`Notices::skipped_notice()` surfaces the count.
 
 ## Known limitations
 

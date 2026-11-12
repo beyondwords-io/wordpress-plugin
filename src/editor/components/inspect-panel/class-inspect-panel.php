@@ -362,45 +362,10 @@ class InspectPanel {
 
 		$response = \BeyondWords\Api\Client::get_content( $beyondwords_id, $project_id );
 
-		if ( is_wp_error( $response ) ) {
-			return rest_ensure_response(
-				new \WP_Error(
-					500,
-					__( 'Could not connect to BeyondWords API', 'speechkit' ),
-					$response->get_error_data()
-				)
-			);
+		if ( ! is_wp_error( $response ) ) {
+			$response['project_id'] = $project_id;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-		$body = wp_remote_retrieve_body( $response );
-
-		if ( $code < 200 || $code >= 300 ) {
-			return rest_ensure_response(
-				new \WP_Error(
-					$code,
-					/* translators: %d is replaced with the error code. */
-					sprintf( __( 'BeyondWords REST API returned error code %d', 'speechkit' ), $code ),
-					[
-						'body' => $body,
-					]
-				)
-			);
-		}
-
-		$data = json_decode( $body, true );
-
-		if ( ! is_array( $data ) ) {
-			return rest_ensure_response(
-				new \WP_Error(
-					500,
-					__( 'Invalid response from BeyondWords API', 'speechkit' )
-				)
-			);
-		}
-
-		$data['project_id'] = $project_id;
-
-		return rest_ensure_response( $data );
+		return rest_ensure_response( $response );
 	}
 }

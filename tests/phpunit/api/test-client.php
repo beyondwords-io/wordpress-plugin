@@ -173,7 +173,7 @@ class ClientTest extends TestCase
 
         $response = Client::create_audio($postId);
 
-        $this->assertFalse($response);
+        $this->assertSame('beyondwords_missing_id', $response->get_error_code());
 
         wp_delete_post($postId, true);
 
@@ -264,8 +264,8 @@ class ClientTest extends TestCase
         remove_filter('pre_http_request', $duplicateFilter);
         remove_filter('pre_http_request', $notFoundFilter);
 
-        $this->assertIsArray($response);
-        $this->assertArrayNotHasKey('id', $response);
+        $this->assertWPError($response);
+        $this->assertSame(422, Client::api_status($response));
 
         $this->assertSame(
             '#422: source_id has already been taken',
@@ -349,7 +349,7 @@ class ClientTest extends TestCase
         remove_filter('pre_http_request', $timeoutFilter);
         remove_filter('pre_http_request', $notFoundFilter);
 
-        $this->assertNull($response);
+        $this->assertWPError($response);
 
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
@@ -400,7 +400,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        $this->assertNull($response);
+        $this->assertWPError($response);
         $this->assertSame(0, $probeAttempts);
         $this->assertStringStartsWith('#500: ', get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -451,11 +451,11 @@ class ClientTest extends TestCase
         };
         add_filter('pre_http_request', $downFilter, 10, 3);
 
-        $this->assertNull(Client::create_audio($firstPostId));
+        $this->assertWPError(Client::create_audio($firstPostId));
         $this->assertSame(1, $probeAttempts);
 
         // A second failure inside the negative-cache window probes nothing.
-        $this->assertNull(Client::create_audio($secondPostId));
+        $this->assertWPError(Client::create_audio($secondPostId));
         $this->assertSame(1, $probeAttempts);
 
         remove_filter('pre_http_request', $downFilter);
@@ -504,7 +504,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        $this->assertNull($response);
+        $this->assertWPError($response);
 
         $this->assertStringStartsWith(
             '#500: ',
@@ -611,8 +611,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        $this->assertIsArray($response);
-        $this->assertArrayNotHasKey('id', $response);
+        $this->assertWPError($response);
 
         $this->assertSame(
             '#422: source_id has already been taken',
@@ -662,8 +661,7 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter);
 
-        $this->assertIsArray($response);
-        $this->assertArrayNotHasKey('id', $response);
+        $this->assertWPError($response);
 
         // No lookup was attempted.
         $this->assertSame(['POST'], $requestedMethods);
@@ -724,8 +722,8 @@ class ClientTest extends TestCase
 
         $response = Client::delete_audio($postId);
 
-        // Response body is empty for 201 Deleted responses
-        $this->assertNull($response);
+        // Response body is empty for 204 No Content responses
+        $this->assertSame([], $response);
 
         wp_delete_post($postId, true);
 
@@ -736,7 +734,7 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function delete_audio_by_ids_returns_false_when_ids_missing()
+    public function delete_audio_by_ids_returns_an_error_when_ids_missing()
     {
         // A missing project or content ID short-circuits before any HTTP request.
         $apiCalled = false;
@@ -746,9 +744,9 @@ class ClientTest extends TestCase
         };
         add_filter('pre_http_request', $filter, 1, 3);
 
-        $this->assertFalse(Client::delete_audio_by_ids(false, 'abc-123'));
-        $this->assertFalse(Client::delete_audio_by_ids(1234, false));
-        $this->assertFalse(Client::delete_audio_by_ids(0, 0));
+        $this->assertWPError(Client::delete_audio_by_ids(false, 'abc-123'));
+        $this->assertWPError(Client::delete_audio_by_ids(1234, false));
+        $this->assertWPError(Client::delete_audio_by_ids(0, 0));
 
         remove_filter('pre_http_request', $filter, 1);
 
@@ -783,8 +781,8 @@ class ClientTest extends TestCase
 
         remove_filter('pre_http_request', $filter, 1);
 
-        // 204 with an empty body decodes to null.
-        $this->assertNull($response);
+        // 204 with an empty body decodes to [].
+        $this->assertSame([], $response);
         $this->assertSame('DELETE', $captured['method']);
         $this->assertStringContainsString(
             '/projects/' . BEYONDWORDS_TESTS_PROJECT_ID . '/content/' . BEYONDWORDS_TESTS_CONTENT_ID,
@@ -811,8 +809,7 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        $deleted = Client::batch_delete_audio($postIds);
-        $this->assertEquals([], $deleted);
+        $this->assertWPError(Client::batch_delete_audio($postIds));
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -836,7 +833,8 @@ class ClientTest extends TestCase
     public function get_languages()
     {
         $response = Client::get_languages();
-        $this->assertSame('Authentication token was not recognized.', $response['message']);
+        $this->assertWPError($response);
+        $this->assertSame('Authentication token was not recognized.', $response->get_error_message());
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -906,7 +904,8 @@ class ClientTest extends TestCase
     public function get_voices()
     {
         $response = Client::get_voices('en_US');
-        $this->assertSame('Authentication token was not recognized.', $response['message']);
+        $this->assertWPError($response);
+        $this->assertSame('Authentication token was not recognized.', $response->get_error_message());
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -937,7 +936,8 @@ class ClientTest extends TestCase
     public function get_video_settings()
     {
         $response = Client::get_video_settings();
-        $this->assertFalse($response);
+        $this->assertWPError($response);
+        $this->assertSame('beyondwords_missing_id', $response->get_error_code());
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -965,7 +965,8 @@ class ClientTest extends TestCase
     public function get_project()
     {
         $response = Client::get_project();
-        $this->assertFalse($response);
+        $this->assertWPError($response);
+        $this->assertSame('beyondwords_missing_id', $response->get_error_code());
 
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
@@ -1091,7 +1092,7 @@ class ClientTest extends TestCase
      * @group settings
      *
      * A failed fetch is negative-cached for a short TTL, so an unreachable API is probed
-     * at most once per interval; the second call gets the empty-array sentinel, no HTTP.
+     * at most once per interval; the cached call returns the same error, no HTTP.
      */
     public function failed_responses_are_negative_cached()
     {
@@ -1111,7 +1112,79 @@ class ClientTest extends TestCase
         remove_filter('pre_http_request', $counter, 0);
 
         $this->assertSame(1, $calls, 'A failed response should be negative-cached, so the second call is served from the transient');
-        $this->assertSame([], $second, 'The negative-cache sentinel is an empty array');
+
+        $this->assertWPError($first);
+        $this->assertSame('beyondwords_api_error', $first->get_error_code());
+        $this->assertSame(401, Client::api_status($first));
+        $this->assertSame(424, $first->get_error_data()['status']);
+        $this->assertEquals($first, $second, 'The cached failure matches the fetching call');
+    }
+
+    /**
+     * @test
+     * @group settings
+     */
+    public function failures_without_a_message_get_a_generic_one()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+
+        $filter = function ($preempt, $args, $url) {
+            if (str_contains((string) $url, '/summarization_settings_templates')) {
+                return [
+                    'response' => ['code' => 500, 'message' => ''],
+                    'body'     => '',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $first  = Client::get_summarization_settings_templates();
+        $second = Client::get_summarization_settings_templates();
+
+        remove_filter('pre_http_request', $filter, 10);
+        delete_option('beyondwords_api_key');
+
+        $this->assertWPError($first);
+        $this->assertSame('The BeyondWords API request failed.', $first->get_error_message());
+        $this->assertSame(502, $first->get_error_data()['status']);
+        $this->assertEquals($first, $second, 'An empty cached message is still a cached failure');
+    }
+
+    /**
+     * @test
+     * @group settings
+     *
+     * A 2xx whose body isn't a JSON array is a failure too, not a cached `null`.
+     */
+    public function non_array_success_bodies_are_failures()
+    {
+        update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
+        update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
+
+        $filter = function ($preempt, $args, $url) {
+            if (str_contains((string) $url, '/projects/')) {
+                return [
+                    'response' => ['code' => 200, 'message' => 'OK'],
+                    'body'     => '<html>Gateway</html>',
+                    'headers'  => [],
+                    'cookies'  => [],
+                ];
+            }
+            return $preempt;
+        };
+        add_filter('pre_http_request', $filter, 10, 3);
+
+        $response = Client::get_project();
+
+        remove_filter('pre_http_request', $filter, 10);
+        delete_option('beyondwords_api_key');
+        delete_option('beyondwords_project_id');
+
+        $this->assertWPError($response);
+        $this->assertSame('beyondwords_api_error', $response->get_error_code());
     }
 
     /**
@@ -1162,7 +1235,7 @@ class ClientTest extends TestCase
      *
      * 401 when the API key is invalid ("missing" and "wrong" are treated the same).
      */
-    public function call_api_with_invalid_api_key()
+    public function request_with_invalid_api_key()
     {
         update_option('beyondwords_api_key', 'AN INVALID API KEY');
 
@@ -1172,9 +1245,12 @@ class ClientTest extends TestCase
 
         $url = Urls::get_api_url() . '/projects/1234/content';
 
-        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
+        $response = Client::request('POST', $url, '{"body":"Hello"}', $postId);
 
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
+        $this->assertSame('beyondwords_api_error', $response->get_error_code());
+        $this->assertSame('Authentication token was not recognized.', $response->get_error_message());
+        $this->assertSame(401, Client::api_status($response));
+        $this->assertSame(424, $response->get_error_data()['status']);
 
         $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
@@ -1188,7 +1264,7 @@ class ClientTest extends TestCase
      *
      * Caller-supplied Content-Type wins over the filter-injected default.
      */
-    public function call_api_with_invalid_content_type()
+    public function request_with_invalid_content_type()
     {
         update_option('beyondwords_api_key', 'AN INVALID API KEY');
 
@@ -1198,9 +1274,9 @@ class ClientTest extends TestCase
 
         $url = Urls::get_api_url() . '/projects/1234/content';
 
-        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId, ['Content-Type' => 'text/html']);
+        $response = Client::request('POST', $url, '{"body":"Hello"}', $postId, ['Content-Type' => 'text/html']);
 
-        $this->assertSame(401, wp_remote_retrieve_response_code($response));
+        $this->assertSame(401, Client::api_status($response));
 
         $error = sprintf(Client::ERROR_FORMAT, 401, 'Authentication token was not recognized.');
         $this->assertSame($error, get_post_meta($postId, 'beyondwords_error_message', true));
@@ -1214,7 +1290,7 @@ class ClientTest extends TestCase
      *
      * Invalid URL which should get error message using is_wp_error().
      */
-    public function call_api_with_invalid_endpoint()
+    public function request_with_invalid_endpoint()
     {
         update_option('beyondwords_api_key', BEYONDWORDS_TESTS_API_KEY);
 
@@ -1224,9 +1300,9 @@ class ClientTest extends TestCase
 
         $url = Urls::get_api_url() . '/foo/1234/bar';
 
-        $response = Client::call_api('POST', $url, '{"body":"Hello"}', $postId);
+        $response = Client::request('POST', $url, '{"body":"Hello"}', $postId);
 
-        $this->assertSame(404, wp_remote_retrieve_response_code($response));
+        $this->assertSame(404, Client::api_status($response));
 
         $this->assertSame('#404: Not Found', get_post_meta($postId, 'beyondwords_error_message', true));
 
@@ -1239,15 +1315,17 @@ class ClientTest extends TestCase
      *
      * Invalid URL which should get error message using is_wp_error().
      */
-    public function call_api_with_invalid_domain()
+    public function request_with_invalid_domain()
     {
         $postId = self::factory()->post->create([
             'post_title' => 'ClientTest::callApiWithInvalidDomain',
         ]);
 
-        $response = Client::call_api('POST', 'http://localhost:5678/foo', '{"body":"Hello"}', $postId);
+        $response = Client::request('POST', 'http://localhost:5678/foo', '{"body":"Hello"}', $postId);
 
-        $this->assertTrue(is_a($response, 'WP_Error'));
+        $this->assertWPError($response);
+        $this->assertSame(0, Client::api_status($response));
+        $this->assertSame(502, $response->get_error_data()['status']);
 
         $errorMessage = get_post_meta($postId, 'beyondwords_error_message', true);
 
@@ -1259,6 +1337,50 @@ class ClientTest extends TestCase
         );
 
         wp_delete_post($postId, true);
+    }
+
+    /**
+     * @test
+     */
+    public function request_survives_an_errors_list_of_strings()
+    {
+        $filter = fn() => [
+            'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+            'body'     => '{"errors":["Rate limit exceeded"]}',
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $response = Client::request('GET', Urls::get_api_url() . '/organization/languages');
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertWPError($response);
+        $this->assertSame('Rate limit exceeded', $response->get_error_message());
+        $this->assertSame(424, $response->get_error_data()['status']);
+    }
+
+    /**
+     * @test
+     */
+    public function call_api_is_deprecated_and_returns_the_raw_response()
+    {
+        $this->setExpectedDeprecated('BeyondWords\Api\Client::call_api');
+
+        $filter = fn() => [
+            'response' => ['code' => 404, 'message' => 'Not Found'],
+            'body'     => '{}',
+            'headers'  => [],
+            'cookies'  => [],
+        ];
+        add_filter('pre_http_request', $filter);
+
+        $response = Client::call_api('GET', Urls::get_api_url() . '/projects/1234');
+
+        remove_filter('pre_http_request', $filter);
+
+        $this->assertSame(404, wp_remote_retrieve_response_code($response));
     }
 
     /**
@@ -1495,6 +1617,31 @@ class ClientTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+    /**
+     * @test
+     * @dataProvider provideErrorsShapes
+     */
+    public function error_message_from_response_handles_any_errors_shape($errors, $expected)
+    {
+        $response = [
+            'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+            'body'     => wp_json_encode(['errors' => $errors]),
+        ];
+
+        $this->assertSame($expected, Client::error_message_from_response($response));
+    }
+
+    public function provideErrorsShapes()
+    {
+        return [
+            'list of strings' => [['Rate limit exceeded'], 'Rate limit exceeded'],
+            'string'          => ['Rate limit exceeded', 'Rate limit exceeded'],
+            'mixed'           => [[['location' => 'body', 'message' => 'is blank'], 'Slow down'], 'body is blank, Slow down'],
+            'nested values'   => [[['message' => ['nested']]], 'Too Many Requests'],
+            'empty'           => [[], 'Too Many Requests'],
+        ];
+    }
+
     public function provideNonStringMessages()
     {
         return [
@@ -1507,21 +1654,21 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function get_content_returns_false_without_project_id()
+    public function get_content_returns_an_error_without_project_id()
     {
         delete_option('beyondwords_project_id');
 
-        $this->assertFalse(Client::get_content('abc-123'));
+        $this->assertWPError(Client::get_content('abc-123'));
     }
 
     /**
      * @test
      */
-    public function get_content_returns_false_without_content_id()
+    public function get_content_returns_an_error_without_content_id()
     {
         update_option('beyondwords_project_id', BEYONDWORDS_TESTS_PROJECT_ID);
 
-        $this->assertFalse(Client::get_content(''));
+        $this->assertWPError(Client::get_content(''));
 
         delete_option('beyondwords_project_id');
     }
@@ -1589,8 +1736,8 @@ class ClientTest extends TestCase
     /**
      * @test
      *
-     * A transport-level failure makes call_api() return a WP_Error; get_content() must
-     * surface it (not TypeError) so InspectPanel can degrade to a could-not-connect response.
+     * A transport-level failure makes request() return a WP_Error; get_content() must
+     * surface it (not TypeError) so InspectPanel can degrade to an error response.
      */
     public function get_content_returns_wp_error_on_connection_failure()
     {
@@ -1644,6 +1791,15 @@ class ClientTest extends TestCase
         $this->assertFalse(Client::get_voice(123, 'en'));
 
         remove_filter('pre_http_request', $filter, 10);
+    }
+
+    /**
+     * @test
+     */
+    public function get_voice_returns_false_when_voices_fail()
+    {
+        $this->assertWPError(Client::get_voices('en'));
+        $this->assertFalse(Client::get_voice(123, 'en'));
     }
 
     /**
