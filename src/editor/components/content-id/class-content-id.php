@@ -74,6 +74,12 @@ class ContentId {
 				class="beyondwords-metabox-content-id__input"
 				value="<?php echo esc_attr( $content_id ); ?>"
 			/>
+			<input
+				type="hidden"
+				id="beyondwords_content_id_original"
+				name="beyondwords_content_id_original"
+				value="<?php echo esc_attr( $content_id ); ?>"
+			/>
 			<div class="beyondwords-metabox-content-id__actions">
 				<button
 					type="button"
@@ -116,17 +122,28 @@ class ContentId {
 			return $post_id;
 		}
 
-		if ( isset( $_POST['beyondwords_content_id'] ) ) {
-			// Content IDs are interpolated into API URL paths, so they need a stricter
-			// charset than sanitize_text_field() — see Meta::sanitize_content_id().
-			update_post_meta(
-				$post_id,
-				'beyondwords_content_id',
-				\BeyondWords\Post\Meta::sanitize_content_id(
-					sanitize_text_field( wp_unslash( $_POST['beyondwords_content_id'] ) )
-				)
-			);
+		if ( ! isset( $_POST['beyondwords_content_id'] ) ) {
+			return $post_id;
 		}
+
+		// Content IDs are interpolated into API URL paths, so they need a stricter
+		// charset than sanitize_text_field() — see Meta::sanitize_content_id().
+		$content_id = \BeyondWords\Post\Meta::sanitize_content_id(
+			sanitize_text_field( wp_unslash( $_POST['beyondwords_content_id'] ) )
+		);
+
+		$original = isset( $_POST['beyondwords_content_id_original'] )
+			? \BeyondWords\Post\Meta::sanitize_content_id(
+				sanitize_text_field( wp_unslash( $_POST['beyondwords_content_id_original'] ) )
+			)
+			: '';
+
+		// An untouched field can predate an ID written since the form loaded; see doc/async-rest-migration.md.
+		if ( $content_id === $original ) {
+			return $post_id;
+		}
+
+		update_post_meta( $post_id, 'beyondwords_content_id', $content_id );
 
 		return $post_id;
 	}

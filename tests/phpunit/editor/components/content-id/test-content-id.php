@@ -188,4 +188,89 @@ class ContentIdTest extends TestCase
         ];
     }
 
+    /**
+     * @test
+     * @dataProvider save_against_existing_content_id_provider
+     */
+    public function save_against_existing_content_id($post, $expect)
+    {
+        $_POST = array_merge(
+            ['beyondwords_content_id_nonce' => wp_create_nonce('beyondwords_content_id')],
+            $post
+        );
+
+        $postId = self::factory()->post->create([
+            'post_type' => 'post',
+            'post_title' => 'ContentIdTest::saveAgainstExistingContentId',
+            'meta_input' => [
+                'beyondwords_content_id' => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+            ],
+        ]);
+
+        ContentId::save($postId);
+
+        $this->assertSame($expect, get_post_meta($postId, 'beyondwords_content_id', true));
+
+        wp_delete_post($postId, true);
+    }
+
+    public function save_against_existing_content_id_provider()
+    {
+        return [
+            'Stale empty form keeps the stored ID' => [
+                'post' => [
+                    'beyondwords_content_id'          => '',
+                    'beyondwords_content_id_original' => '',
+                ],
+                'expect' => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+            ],
+            'Form without the original field keeps the stored ID' => [
+                'post' => [
+                    'beyondwords_content_id' => '',
+                ],
+                'expect' => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+            ],
+            'Changed ID is saved' => [
+                'post' => [
+                    'beyondwords_content_id'          => 'a8b8c8d8-0000-4000-8000-000000000000',
+                    'beyondwords_content_id_original' => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+                ],
+                'expect' => 'a8b8c8d8-0000-4000-8000-000000000000',
+            ],
+            'Cleared ID is saved' => [
+                'post' => [
+                    'beyondwords_content_id'          => '',
+                    'beyondwords_content_id_original' => '9279c9e0-e0b5-4789-9040-f44478ed3e9e',
+                ],
+                'expect' => '',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     */
+    public function element_renders_original_content_id()
+    {
+        $contentId = '9279c9e0-e0b5-4789-9040-f44478ed3e9e';
+
+        $post = self::factory()->post->create_and_get([
+            'post_type' => 'post',
+            'post_title' => 'ContentIdTest::elementRendersOriginalContentId',
+            'meta_input' => [
+                'beyondwords_content_id' => $contentId,
+            ],
+        ]);
+
+        $html = $this->capture_output(function () use ($post) {
+            ContentId::element($post);
+        });
+
+        $original = (new Crawler($html))->filter('input[type="hidden"]#beyondwords_content_id_original');
+
+        $this->assertCount(1, $original);
+        $this->assertSame($contentId, $original->attr('value'));
+
+        wp_delete_post($post->ID, true);
+    }
 }
